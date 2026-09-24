@@ -1,0 +1,15 @@
+{
+  "cleanUrls": true,
+  "rewrites": [
+    { "source": "/login", "destination": "/login.html" },
+    { "source": "/admin", "destination": "/admin.html" },
+    { "source": "/employee", "destination": "/employee.html" },
+    { "source": "/client", "destination": "/client.html" }
+  ],
+  "redirects": [
+    { "source": "/login.html", "destination": "/login", "permanent": true },
+    { "source": "/admin.html", "destination": "/admin", "permanent": true },
+    { "source": "/employee.html", "destination": "/employee", "permanent": true },
+    { "source": "/client.html", "destination": "/client", "permanent": true }
+  ]
+}

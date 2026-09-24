@@ -1,0 +1,19 @@
+{
+  "name": "CI360 Productivity Intelligence",
+  "short_name": "CI360",
+  "description": "Enterprise productivity, job logging, work delivery, and team intelligence platform.",
+  "start_url": "/login",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "theme_color": "#4F46E5",
+  "background_color": "#0F172A",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "192x192 512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

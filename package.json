@@ -1,0 +1,35 @@
+{
+  "name": "ci360-productivity-suite",
+  "version": "1.0.0",
+  "description": "CI360 Productivity Intelligence - Node.js Express backend API & Vite web frontend",
+  "main": "backend/server.js",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "web"
+  ],
+  "scripts": {
+    "postinstall": "npm install --prefix web --include=dev && npm install --prefix backend",
+    "build": "npm install --prefix web --include=dev && cd web && npx vite build",
+    "start": "node backend/server.js",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:web": "cd web && npm run dev",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:web\"",
+    "services": "node backend/create_services.js",
+    "clients": "node backend/create_clients.js",
+    "team": "node backend/create_team.js",
+    "clean": "cd backend && npm run clean"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.5.0",
+    "vite": "^5.3.3"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
