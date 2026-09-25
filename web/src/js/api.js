@@ -612,23 +612,18 @@ export function initNotificationBell(){
         const newlyArrived = allNotifs.filter(n => !n.read && !alertedNotifIds.has(String(n._id)));
         
         if(newlyArrived.length > 0){
-          // Mark all new items as alerted immediately so neither this tab nor any sibling tab repeats the alert
-          newlyArrived.forEach(n => {
+          for(const n of newlyArrived){
             const sid = String(n._id);
             seenNotifIds.add(sid);
             alertedNotifIds.add(sid);
-          });
+            await triggerSystemNotification({
+              title: n.title || 'CI360 Alert',
+              message: n.message || '',
+              type: n.type,
+              id: sid
+            });
+          }
           saveAlertedNotifIds();
-
-          // Alert ONCE only for this incoming batch
-          const latest = newlyArrived[0];
-          const countMore = newlyArrived.length > 1 ? ` (+${newlyArrived.length - 1} more)` : '';
-          await triggerSystemNotification({
-            title: latest.title || 'CI360 Alert',
-            message: (latest.message || '') + countMore,
-            type: latest.type,
-            id: String(latest._id)
-          });
         }
       }
 
@@ -791,8 +786,8 @@ export function initNotificationBell(){
 /* ── APP SHELL ───────────────────────────────────────────────── */
 export function renderAppShell({ user, currentRole, activeTab, tabs, title, subtitle }){
   const initial = user && user.name ? user.name.charAt(0).toUpperCase() : 'U';
-  const roleBadge = user && user.role === 'superadmin'
-    ? 'Super Admin'
+  const roleBadge = user && (user.role === 'superadmin' || user.role === 'admin')
+    ? 'Admin'
     : user && user.role === 'employee'
       ? 'Employee'
       : user && user.role === 'client'
