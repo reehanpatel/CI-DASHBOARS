@@ -572,7 +572,7 @@ var require_notify = __commonJS({
         console.error("Error creating notifications:", err.message);
       }
     }
-    module2.exports = { createNotificationsForJob };
+    module2.exports = require("./utils/notify");
   }
 });
 var require_jobs = __commonJS({
@@ -582,7 +582,7 @@ var require_jobs = __commonJS({
     var Service = require_Service();
     var Personnel = require_Personnel();
     var { verifyToken, requireRole } = require_auth();
-    var { createNotificationsForJob } = require_notify();
+    var { createNotificationsForJob } = require("./utils/notify");
     var router = express2.Router();
     router.use(verifyToken);
     router.get("/", async (req, res) => {

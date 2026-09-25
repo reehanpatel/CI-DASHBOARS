@@ -18,7 +18,7 @@ self.addEventListener('message', (event) => {
       icon: options.icon || '/logo.png',
       badge: options.badge || '/logo.png',
       tag: options.tag || 'ci360-notification',
-      renotify: true,
+      renotify: false,
       vibrate: [150, 80, 150],
       data: options.data || { url: '/' },
       actions: [
@@ -50,7 +50,7 @@ self.addEventListener('push', (event) => {
     icon: '/logo.png',
     badge: '/logo.png',
     tag: data.tag || 'ci360-push-' + Date.now(),
-    renotify: true,
+    renotify: false,
     vibrate: [150, 80, 150],
     data: {
       url: data.url || '/'

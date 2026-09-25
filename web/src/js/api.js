@@ -153,39 +153,91 @@ try {
   initServiceWorker();
 } catch(e){}
 
+/* ── NOTIFICATION DEDUPLICATION & THROTTLING (ALERT ONCE ONLY) ── */
+let lastChimeTimestamp = 0;
+let lastVibrateTimestamp = 0;
+export const alertedNotifIds = new Set();
+export const seenNotifIds = new Set();
+let isSessionBaselineEstablished = false;
+
+function getNotifStorageKey(prefix){
+  try {
+    const user = (typeof getUser === 'function') ? getUser() : null;
+    const uid = (user && user._id) ? String(user._id) : 'default';
+    return `${prefix}_${uid}`;
+  } catch(e){
+    return `${prefix}_default`;
+  }
+}
+
+export function loadAlertedNotifIds(){
+  try{
+    const key = getNotifStorageKey('ci360_alerted_ids');
+    const stored = localStorage.getItem(key);
+    if(stored){
+      const parsed = JSON.parse(stored);
+      if(Array.isArray(parsed)){
+        parsed.forEach(id => alertedNotifIds.add(String(id)));
+      }
+    }
+  }catch(e){}
+}
+
+export function saveAlertedNotifIds(){
+  try{
+    const key = getNotifStorageKey('ci360_alerted_ids');
+    const arr = Array.from(alertedNotifIds).slice(-2000);
+    localStorage.setItem(key, JSON.stringify(arr));
+  }catch(e){}
+}
+
+// Cross-tab synchronization so sibling tabs do not repeat alerts
+if(typeof window !== 'undefined'){
+  window.addEventListener('storage', (e) => {
+    if(e.key && e.key.includes('ci360_alerted_ids')){
+      loadAlertedNotifIds();
+    }
+  });
+}
+
 export function playNotificationChime(){
   try{
+    const now = Date.now();
+    // Throttle: Never play chime repeatedly within 5 seconds
+    if(now - lastChimeTimestamp < 5000) return;
+    lastChimeTimestamp = now;
+
     const AudioCtx = window.AudioContext || window.webkitAudioContext;
     if(!AudioCtx) return;
     const ctx = new AudioCtx();
     if(ctx.state === 'suspended') ctx.resume();
-    const now = ctx.currentTime;
+    const curTime = ctx.currentTime;
 
     // Harmonic 1: 587.33 Hz (D5)
     const osc1 = ctx.createOscillator();
     const gain1 = ctx.createGain();
     osc1.type = 'sine';
-    osc1.frequency.setValueAtTime(587.33, now);
-    gain1.gain.setValueAtTime(0, now);
-    gain1.gain.linearRampToValueAtTime(0.2, now + 0.02);
-    gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+    osc1.frequency.setValueAtTime(587.33, curTime);
+    gain1.gain.setValueAtTime(0, curTime);
+    gain1.gain.linearRampToValueAtTime(0.2, curTime + 0.02);
+    gain1.gain.exponentialRampToValueAtTime(0.001, curTime + 0.35);
     osc1.connect(gain1);
     gain1.connect(ctx.destination);
-    osc1.start(now);
-    osc1.stop(now + 0.35);
+    osc1.start(curTime);
+    osc1.stop(curTime + 0.35);
 
     // Harmonic 2: 880 Hz (A5) with slight offset
     const osc2 = ctx.createOscillator();
     const gain2 = ctx.createGain();
     osc2.type = 'sine';
-    osc2.frequency.setValueAtTime(880, now + 0.12);
-    gain2.gain.setValueAtTime(0, now + 0.12);
-    gain2.gain.linearRampToValueAtTime(0.22, now + 0.14);
-    gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.55);
+    osc2.frequency.setValueAtTime(880, curTime + 0.12);
+    gain2.gain.setValueAtTime(0, curTime + 0.12);
+    gain2.gain.linearRampToValueAtTime(0.22, curTime + 0.14);
+    gain2.gain.exponentialRampToValueAtTime(0.001, curTime + 0.55);
     osc2.connect(gain2);
     gain2.connect(ctx.destination);
-    osc2.start(now + 0.12);
-    osc2.stop(now + 0.55);
+    osc2.start(curTime + 0.12);
+    osc2.stop(curTime + 0.55);
   }catch(e){
     // AudioContext blocked by browser autoplay policy until user gesture
   }
@@ -193,6 +245,11 @@ export function playNotificationChime(){
 
 export function triggerPhoneVibration(){
   try{
+    const now = Date.now();
+    // Throttle: Never vibrate repeatedly within 5 seconds
+    if(now - lastVibrateTimestamp < 5000) return;
+    lastVibrateTimestamp = now;
+
     if('vibrate' in navigator){
       navigator.vibrate([150, 80, 150]);
     }
@@ -238,8 +295,8 @@ export async function requestNotificationPermission(){
       flashToast('Notifications enabled for this device!');
       await triggerSystemNotification({
         title: 'CI360 Notifications Active 🔔',
-        message: 'You will now receive instant alerts on this phone & browser for jobs and tasks.',
-        tag: 'ci360-active'
+        message: 'You will now receive instant alerts on this device for jobs and tasks.',
+        id: 'ci360-perm-welcome'
       });
       return true;
     } else {
@@ -257,7 +314,19 @@ export async function requestNotificationPermission(){
 }
 
 export async function triggerSystemNotification({ title, message, type, id, url }){
-  // Play sound & phone vibration
+  const strId = id ? String(id) : null;
+  loadAlertedNotifIds();
+
+  // STRICT RULE: GIVE NOTIFICATION ONCE ONLY, NEVER REPEATEDLY
+  if(strId && alertedNotifIds.has(strId)){
+    return; // Already notified once! Stop immediately.
+  }
+  if(strId){
+    alertedNotifIds.add(strId);
+    saveAlertedNotifIds();
+  }
+
+  // Play sound & phone vibration (both safely throttled)
   playNotificationChime();
   triggerPhoneVibration();
 
@@ -269,8 +338,8 @@ export async function triggerSystemNotification({ title, message, type, id, url 
     body: message || 'You have a new update in CI360.',
     icon: '/logo.png',
     badge: '/logo.png',
-    tag: id || 'ci360-' + Date.now(),
-    renotify: true,
+    tag: strId ? `ci360-notif-${strId}` : 'ci360-alert',
+    renotify: false, // Critical: NEVER re-alert the device repeatedly for existing notifications
     vibrate: [150, 80, 150],
     data: {
       url: url || window.location.href,
@@ -420,13 +489,13 @@ export function initNotificationBell(){
     };
   }
 
-  // Seen notification IDs tracker to fire alerts only for genuine new notifications
-  let seenIds = new Set();
-  try{
-    const stored = localStorage.getItem('ci360_seen_notif_ids');
-    if(stored) seenIds = new Set(JSON.parse(stored));
-  }catch(e){}
-  let isFirstFetch = !localStorage.getItem('ci360_notifs_initialized');
+  // Clear any existing polling interval to ensure only one interval runs across tab switches
+  if(window.__ci360PollInterval){
+    clearInterval(window.__ci360PollInterval);
+    window.__ci360PollInterval = null;
+  }
+
+  loadAlertedNotifIds();
 
   let allNotifs = [];
   let currentFilter = 'all';
@@ -517,35 +586,51 @@ export function initNotificationBell(){
       const data = await apiGet('/notifications');
       allNotifs = data.notifications || [];
       const unread = data.unreadCount || 0;
-      badge.textContent = unread > 99 ? '99+' : unread;
-      badge.style.display = unread > 0 ? 'flex' : 'none';
+      if(badge){
+        badge.textContent = unread > 99 ? '99+' : unread;
+        badge.style.display = unread > 0 ? 'flex' : 'none';
+      }
       if(unreadTxt) {
         unreadTxt.textContent = unread > 0 ? `${unread} new` : '';
         unreadTxt.style.display = unread > 0 ? 'inline-block' : 'none';
       }
 
-      // Check for genuinely new incoming unread notifications to alert
-      if(!isFirstFetch){
-        allNotifs.forEach(n => {
-          if(!n.read && !seenIds.has(String(n._id))){
-            seenIds.add(String(n._id));
-            triggerSystemNotification({
-              title: n.title || 'CI360 Alert',
-              message: n.message || '',
-              type: n.type,
-              id: n._id
-            });
-          }
-        });
-      } else {
-        allNotifs.forEach(n => seenIds.add(String(n._id)));
-        isFirstFetch = false;
-        localStorage.setItem('ci360_notifs_initialized', '1');
-      }
+      loadAlertedNotifIds();
 
-      try{
-        localStorage.setItem('ci360_seen_notif_ids', JSON.stringify(Array.from(seenIds).slice(-100)));
-      }catch(e){}
+      // On initial fetch of the session: establish baseline and register all existing notifications
+      // This guarantees opening the app or refreshing never spams old notifications!
+      if(!isSessionBaselineEstablished){
+        allNotifs.forEach(n => {
+          const sid = String(n._id);
+          seenNotifIds.add(sid);
+          alertedNotifIds.add(sid);
+        });
+        saveAlertedNotifIds();
+        isSessionBaselineEstablished = true;
+      } else {
+        // Genuine new incoming unread notifications that arrived during the active session
+        const newlyArrived = allNotifs.filter(n => !n.read && !alertedNotifIds.has(String(n._id)));
+        
+        if(newlyArrived.length > 0){
+          // Mark all new items as alerted immediately so neither this tab nor any sibling tab repeats the alert
+          newlyArrived.forEach(n => {
+            const sid = String(n._id);
+            seenNotifIds.add(sid);
+            alertedNotifIds.add(sid);
+          });
+          saveAlertedNotifIds();
+
+          // Alert ONCE only for this incoming batch
+          const latest = newlyArrived[0];
+          const countMore = newlyArrived.length > 1 ? ` (+${newlyArrived.length - 1} more)` : '';
+          await triggerSystemNotification({
+            title: latest.title || 'CI360 Alert',
+            message: (latest.message || '') + countMore,
+            type: latest.type,
+            id: String(latest._id)
+          });
+        }
+      }
 
       renderList();
     }catch(e){
@@ -554,9 +639,14 @@ export function initNotificationBell(){
   }
 
   fetchNotifications();
-  // Live responsive auto-polling every 15 seconds
-  const pollInterval = setInterval(fetchNotifications, 15000);
-  window.addEventListener('beforeunload', () => clearInterval(pollInterval));
+  // Single coordinated responsive auto-polling interval every 20 seconds
+  window.__ci360PollInterval = setInterval(fetchNotifications, 20000);
+  window.addEventListener('beforeunload', () => {
+    if(window.__ci360PollInterval){
+      clearInterval(window.__ci360PollInterval);
+      window.__ci360PollInterval = null;
+    }
+  });
 
   // Test Notification Button
   if(testNotifBtn){
@@ -587,7 +677,7 @@ export function initNotificationBell(){
         await triggerSystemNotification({
           title: '🔔 CI360 Alert Test',
           message: `Local test notification delivered at ${new Date().toLocaleTimeString()}!`,
-          tag: 'ci360-test'
+          id: 'ci360-test-' + Date.now()
         });
         flashToast('✓ Local test notification delivered!');
       }finally{

@@ -91,11 +91,11 @@ router.get('/', async (req, res) => {
       }
     }
 
-    const notifications = await Notification.find({ userId })
+    const notifications = await Notification.find({ userId, dismissed: { $ne: true } })
       .sort({ createdAt: -1 })
       .limit(40);
 
-    const unreadCount = await Notification.countDocuments({ userId, read: false });
+    const unreadCount = await Notification.countDocuments({ userId, read: false, dismissed: { $ne: true } });
 
     res.json({ notifications, unreadCount });
   } catch (err) {
@@ -106,7 +106,7 @@ router.get('/', async (req, res) => {
 // PATCH /api/notifications/read
 router.patch('/read', async (req, res) => {
   try {
-    await Notification.updateMany({ userId: req.user._id, read: false }, { read: true });
+    await Notification.updateMany({ userId: req.user._id, read: false, dismissed: { $ne: true } }, { read: true });
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: 'Could not mark notifications read', detail: err.message });
@@ -123,13 +123,23 @@ router.patch('/:id/read', async (req, res) => {
   }
 });
 
-// DELETE /api/notifications
+// DELETE /api/notifications (Clear all - marks dismissed so auto-generators don't recreate them)
 router.delete('/', async (req, res) => {
   try {
-    await Notification.deleteMany({ userId: req.user._id });
+    await Notification.updateMany({ userId: req.user._id, dismissed: { $ne: true } }, { dismissed: true, read: true });
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: 'Could not clear notifications', detail: err.message });
+  }
+});
+
+// DELETE /api/notifications/:id
+router.delete('/:id', async (req, res) => {
+  try {
+    await Notification.findOneAndUpdate({ _id: req.params.id, userId: req.user._id }, { dismissed: true, read: true });
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Could not dismiss notification', detail: err.message });
   }
 });
 

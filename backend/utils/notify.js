@@ -4,6 +4,31 @@ const Personnel = require('../models/Personnel');
 const Service = require('../models/Service');
 const Client = require('../models/Client');
 
+// Helper to filter out duplicates: only insert if no unread notification exists for this user & entity & type
+async function filterDuplicateNotifications(docs, entityField, entityId) {
+  if (!docs || !docs.length) return [];
+  const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000);
+  const filtered = [];
+
+  for (const doc of docs) {
+    const query = {
+      userId: doc.userId,
+      type: doc.type,
+      read: false,
+      dismissed: { $ne: true },
+      createdAt: { $gte: thirtyMinutesAgo }
+    };
+    if (entityField && entityId) {
+      query[entityField] = entityId;
+    }
+    const existing = await Notification.findOne(query);
+    if (!existing) {
+      filtered.push(doc);
+    }
+  }
+  return filtered;
+}
+
 async function createNotificationsForJob({ type, title, message, job, actorId, actorName }) {
   try {
     if (!job) return;
@@ -33,6 +58,11 @@ async function createNotificationsForJob({ type, title, message, job, actorId, a
       targetUserIds.add(String(job.createdBy));
     }
 
+    // Do NOT notify the person who triggered the action
+    if (actorId) {
+      targetUserIds.delete(String(actorId));
+    }
+
     const docs = Array.from(targetUserIds).map(uId => ({
       userId: uId,
       type: type || 'job_updated',
@@ -42,8 +72,10 @@ async function createNotificationsForJob({ type, title, message, job, actorId, a
       read: false
     }));
 
-    if (docs.length) {
-      await Notification.insertMany(docs);
+    const deduplicatedDocs = await filterDuplicateNotifications(docs, 'jobId', job._id);
+
+    if (deduplicatedDocs.length) {
+      await Notification.insertMany(deduplicatedDocs);
     }
   } catch (err) {
     console.error('Error creating job notifications:', err.message);
@@ -72,6 +104,11 @@ async function createNotificationForTarget({ type, title, message, target, actor
       }
     }
 
+    // Do NOT notify the person who triggered the action
+    if (actorId) {
+      targetUserIds.delete(String(actorId));
+    }
+
     const docs = Array.from(targetUserIds).map(uId => ({
       userId: uId,
       type: type || 'target_updated',
@@ -81,8 +118,10 @@ async function createNotificationForTarget({ type, title, message, target, actor
       read: false
     }));
 
-    if (docs.length) {
-      await Notification.insertMany(docs);
+    const deduplicatedDocs = await filterDuplicateNotifications(docs, 'targetId', target._id);
+
+    if (deduplicatedDocs.length) {
+      await Notification.insertMany(deduplicatedDocs);
     }
   } catch (err) {
     console.error('Error creating target notifications:', err.message);
@@ -103,6 +142,11 @@ async function createNotificationForTicket({ type, title, message, ticket, actor
       targetUserIds.add(String(ticket.userId));
     }
 
+    // Do NOT notify the person who triggered the action
+    if (actorId) {
+      targetUserIds.delete(String(actorId));
+    }
+
     const docs = Array.from(targetUserIds).map(uId => ({
       userId: uId,
       type: type || 'ticket_created',
@@ -112,8 +156,10 @@ async function createNotificationForTicket({ type, title, message, ticket, actor
       read: false
     }));
 
-    if (docs.length) {
-      await Notification.insertMany(docs);
+    const deduplicatedDocs = await filterDuplicateNotifications(docs, 'jobId', ticket.jobId);
+
+    if (deduplicatedDocs.length) {
+      await Notification.insertMany(deduplicatedDocs);
     }
   } catch (err) {
     console.error('Error creating ticket notifications:', err.message);
@@ -125,14 +171,18 @@ async function createNotificationForTask({ type, title, message, task, actorId, 
     if (!task) return;
     const targetUserIds = new Set();
 
-    // 1. Employee who owns the task
-    if (task.userId) {
+    // 1. Employee who owns the task (only if not the actor)
+    if (task.userId && String(task.userId) !== String(actorId)) {
       targetUserIds.add(String(task.userId));
     }
 
-    // 2. All Superadmins (so admin receives live notifications when employee enters/updates tasks)
+    // 2. All Superadmins (only if not the actor)
     const superadmins = await User.find({ role: 'superadmin', active: true });
-    superadmins.forEach(u => targetUserIds.add(String(u._id)));
+    superadmins.forEach(u => {
+      if (String(u._id) !== String(actorId)) {
+        targetUserIds.add(String(u._id));
+      }
+    });
 
     const docs = [];
     for (const uId of targetUserIds) {
@@ -167,8 +217,10 @@ async function createNotificationForTask({ type, title, message, task, actorId, 
       });
     }
 
-    if (docs.length) {
-      await Notification.insertMany(docs);
+    const deduplicatedDocs = await filterDuplicateNotifications(docs, 'taskId', task._id);
+
+    if (deduplicatedDocs.length) {
+      await Notification.insertMany(deduplicatedDocs);
     }
   } catch (err) {
     console.error('Error creating task notification:', err.message);

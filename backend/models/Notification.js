@@ -12,6 +12,7 @@ const NotificationSchema = new mongoose.Schema({
   targetId: { type: mongoose.Schema.Types.ObjectId, ref: 'Target', default: null },
   taskId: { type: mongoose.Schema.Types.ObjectId, ref: 'Task', default: null },
   read: { type: Boolean, default: false },
+  dismissed: { type: Boolean, default: false },
   attachments: [{
     name: { type: String, required: true },
     url: { type: String, required: true },
