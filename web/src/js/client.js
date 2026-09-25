@@ -170,8 +170,14 @@ function tabLogJob(c){
 
     btn.disabled=true; btn.textContent='Submitting…';
     try{
+      if (typeof Notification !== 'undefined' && Notification.permission === 'default') {
+        try { await Notification.requestPermission(); } catch(e){}
+      }
       await apiPost('/jobs', { title, serviceIds:[serviceId], date, completionDate, value:0, description, priority, preferredPersonId: preferredPersonId||null, assignments:[], attachments });
       flashToast('Job logged successfully with attachments! 🎉');
+      if (typeof window.ci360FetchNotifications === 'function') {
+        window.ci360FetchNotifications();
+      }
       draft = { title:'', serviceId:'', date:new Date().toISOString().slice(0,10), completionDate:'', desc:'', priority:'Medium', preferredPersonId:'', attachments:[] };
       ui.tab = 'jobs';
       render();

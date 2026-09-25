@@ -35,7 +35,7 @@ async function createNotificationsForJob({ type, title, message, job, actorId, a
     const targetUserIds = new Set();
 
     // 1. All Super Admins
-    const superadmins = await User.find({ role: 'superadmin', active: true });
+    const superadmins = await User.find({ role: { $in: ['superadmin', 'admin'] }, active: true });
     superadmins.forEach(u => targetUserIds.add(String(u._id)));
 
     // 2. Assigned Employees
@@ -58,8 +58,8 @@ async function createNotificationsForJob({ type, title, message, job, actorId, a
       targetUserIds.add(String(job.createdBy));
     }
 
-    // Do NOT notify the person who triggered the action
-    if (actorId) {
+    // For minor updates, don't ping the actor. For job_created, ensure all admins & creator get the notification
+    if (actorId && type !== 'job_created') {
       targetUserIds.delete(String(actorId));
     }
 
@@ -88,7 +88,7 @@ async function createNotificationForTarget({ type, title, message, target, actor
     const targetUserIds = new Set();
 
     // 1. All Super Admins
-    const superadmins = await User.find({ role: 'superadmin', active: true });
+    const superadmins = await User.find({ role: { $in: ['superadmin', 'admin'] }, active: true });
     superadmins.forEach(u => targetUserIds.add(String(u._id)));
 
     // 2. Assigned Personnel User
@@ -134,7 +134,7 @@ async function createNotificationForTicket({ type, title, message, ticket, actor
     const targetUserIds = new Set();
 
     // 1. Super Admins
-    const superadmins = await User.find({ role: 'superadmin', active: true });
+    const superadmins = await User.find({ role: { $in: ['superadmin', 'admin'] }, active: true });
     superadmins.forEach(u => targetUserIds.add(String(u._id)));
 
     // 2. Ticket creator user
@@ -177,7 +177,7 @@ async function createNotificationForTask({ type, title, message, task, actorId, 
     }
 
     // 2. All Superadmins (only if not the actor)
-    const superadmins = await User.find({ role: 'superadmin', active: true });
+    const superadmins = await User.find({ role: { $in: ['superadmin', 'admin'] }, active: true });
     superadmins.forEach(u => {
       if (String(u._id) !== String(actorId)) {
         targetUserIds.add(String(u._id));

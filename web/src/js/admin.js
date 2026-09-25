@@ -509,6 +509,11 @@ function bindLogJob(){
   if(saveJobBtn) {
     saveJobBtn.onclick = async ()=>{
       try{
+        // Prompt for browser notification permission during active user click if not decided yet
+        if (typeof Notification !== 'undefined' && Notification.permission === 'default') {
+          try { await Notification.requestPermission(); } catch(e){}
+        }
+
         if (!draft.clientId) {
           flashToast('Please select a client', true);
           return;
@@ -547,6 +552,12 @@ function bindLogJob(){
           attachments,
         });
         flashToast('Job saved successfully! 📁');
+        
+        // Immediately fetch notifications so Chrome displays the desktop alert without delay
+        if (typeof window.ci360FetchNotifications === 'function') {
+          window.ci360FetchNotifications();
+        }
+
         draft = { title: '', assignments: getDefaultAssignments(), serviceIds:[], clientId:'', date: new Date().toISOString().slice(0,10), completion:'', value:'', desc:'', attachments: [] };
         ui.tab = 'jobs';
         renderTab();

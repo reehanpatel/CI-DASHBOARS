@@ -330,47 +330,89 @@ export async function triggerSystemNotification({ title, message, type, id, url 
   playNotificationChime();
   triggerPhoneVibration();
 
-  if(!('Notification' in window) || Notification.permission !== 'granted'){
+  if(!('Notification' in window)){
     return;
   }
 
+  // If permission is default, ask for permission
+  if(Notification.permission === 'default'){
+    try {
+      const p = await Notification.requestPermission();
+      if(p !== 'granted') return;
+    } catch(e){
+      return;
+    }
+  }
+
+  if(Notification.permission !== 'granted'){
+    return;
+  }
+
+  const iconUrl = (typeof window !== 'undefined' && window.location) 
+    ? new URL('/logo.png', window.location.origin).href 
+    : '/logo.png';
+
   const options = {
     body: message || 'You have a new update in CI360.',
-    icon: '/logo.png',
-    badge: '/logo.png',
+    icon: iconUrl,
+    badge: iconUrl,
     tag: strId ? `ci360-notif-${strId}` : 'ci360-alert',
     renotify: false, // Critical: NEVER re-alert the device repeatedly for existing notifications
     vibrate: [150, 80, 150],
     data: {
-      url: url || window.location.href,
+      url: url || (typeof window !== 'undefined' ? window.location.href : ''),
       type: type || 'general'
     }
   };
 
-  // Primary: Service Worker showNotification (supports Android phone lockscreen & desktop)
-  try{
-    if(swRegistration && swRegistration.showNotification){
-      await swRegistration.showNotification(title, options);
-      return;
-    }
-    const readyReg = await navigator.serviceWorker?.ready;
-    if(readyReg && readyReg.showNotification){
-      await readyReg.showNotification(title, options);
-      return;
-    }
-  }catch(err){
-    console.warn('Service Worker notification dispatch:', err);
-  }
-
-  // Fallback: Standard window Notification constructor
-  try{
+  // 1. Direct window Notification for desktop Chrome (instant & reliable)
+  try {
     const n = new Notification(title, options);
     n.onclick = () => {
       window.focus();
       n.close();
     };
-  }catch(e){
-    console.warn('Window Notification fallback notice:', e);
+    return;
+  } catch(e) {
+    // Mobile Chrome throws error on new Notification() and requires ServiceWorker
+  }
+
+  // 2. Fallback for mobile Android Chrome: Service Worker showNotification
+  try {
+    if(swRegistration && swRegistration.showNotification){
+      await swRegistration.showNotification(title, options);
+      return;
+    }
+    if('serviceWorker' in navigator){
+      const reg = await Promise.race([
+        navigator.serviceWorker.ready,
+        new Promise(res => setTimeout(() => res(null), 400))
+      ]);
+      if(reg && reg.showNotification){
+        await reg.showNotification(title, options);
+      }
+    }
+  } catch(err){
+    console.warn('Service Worker notification dispatch:', err);
+  }
+}
+
+if(typeof window !== 'undefined'){
+  window.triggerSystemNotification = triggerSystemNotification;
+
+  // On first user interaction anywhere in the app, prompt for notification permission if still default
+  if('Notification' in window){
+    const promptOnUserInteraction = () => {
+      if(Notification.permission === 'default'){
+        Notification.requestPermission().then(p => {
+          if(p === 'granted'){
+            localStorage.setItem('ci360_notif_enabled', 'true');
+          }
+        }).catch(()=>{});
+      }
+      window.removeEventListener('click', promptOnUserInteraction, true);
+    };
+    window.addEventListener('click', promptOnUserInteraction, true);
   }
 }
 
@@ -615,7 +657,6 @@ export function initNotificationBell(){
           for(const n of newlyArrived){
             const sid = String(n._id);
             seenNotifIds.add(sid);
-            alertedNotifIds.add(sid);
             await triggerSystemNotification({
               title: n.title || 'CI360 Alert',
               message: n.message || '',
@@ -631,6 +672,11 @@ export function initNotificationBell(){
     }catch(e){
       if(list && allNotifs.length === 0) list.innerHTML = `<div style="padding:16px;color:var(--s-red-text);font-size:12px">Could not load notifications</div>`;
     }
+  }
+
+  // Expose fetchNotifications globally so other actions (like logging a job) can trigger an immediate check
+  if(typeof window !== 'undefined'){
+    window.ci360FetchNotifications = fetchNotifications;
   }
 
   fetchNotifications();
