@@ -25,7 +25,8 @@ const ACCOUNTS_TABS = [
   { key: 'invoices', label: 'Invoices', icon: '📄' },
   { key: 'payments', label: 'Payments', icon: '💵' },
   { key: 'receivables', label: 'Pending & Receivables', icon: '⏳' },
-  { key: 'billing', label: 'Billing Profiles', icon: '⚙️' }
+  { key: 'billing', label: 'Billing Profiles', icon: '⚙️' },
+  { key: 'tally', label: 'TallyPrime Silver', icon: '🏛️' }
 ];
 
 // Initialize
@@ -89,6 +90,7 @@ async function renderContent() {
     else if (currentTab === 'payments') await renderPaymentsTab(container);
     else if (currentTab === 'receivables') await renderReceivablesTab(container);
     else if (currentTab === 'billing') await renderBillingProfilesTab(container);
+    else if (currentTab === 'tally') await renderTallyTab(container);
   } catch (err) {
     container.innerHTML = `
       <div class="empty" style="padding:48px 24px">
@@ -2146,5 +2148,513 @@ function openEditBillingProfileModal(clientId, clientName, currentProfile = {}) 
   };
 }
 
+/* ─────────────────────────────────────────────────────────────
+   TAB 6: TALLYPRIME SILVER INTEGRATION
+   ───────────────────────────────────────────────────────────── */
+async function renderTallyTab(container) {
+  const data = await apiGet('/accounts/tally/summary');
+  const config = data.config || {};
+  const stats = data.stats || { totalInvoices: 0, totalPayments: 0, totalClients: 0, syncReadyVouchers: 0 };
+
+  const serverUrl = `http://${escapeHtml(config.serverHost || 'localhost')}:${escapeHtml(config.serverPort || 9000)}`;
+
+  container.innerHTML = `
+    <section class="block">
+      <!-- Header Banner -->
+      <div class="accounts-header-banner" style="background:linear-gradient(135deg,rgba(79,70,229,0.15) 0%,rgba(16,185,129,0.1) 100%)">
+        <div class="accounts-header-title">
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <h2>TallyPrime Silver Integration</h2>
+            <span class="badge gold" style="font-size:12px;font-weight:700">Silver Edition (Single User)</span>
+            <span class="badge blue" style="font-size:11px">XML &amp; ODBC Gateway</span>
+          </div>
+          <div class="accounts-header-subtitle">
+            Seamlessly bridge CI360 invoices, receipts, and clients directly into TallyPrime Day Book with standard dual-entry XML.
+          </div>
+        </div>
+        <div class="accounts-header-actions">
+          <button class="btn ghost small" id="tallyTestPingBtn" style="display:inline-flex;align-items:center;gap:6px">
+            <span class="status-indicator-dot" id="tallyStatusDot" style="background:var(--amber-500)"></span>
+            <span id="tallyStatusText">Check Tally (Port ${config.serverPort || 9000})</span>
+          </button>
+          <button class="btn gold small" id="tallyQuickDownloadBundleBtn">
+            <span>📥 Download Tally XML</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Live Connection Alert Box -->
+      <div id="tallyConnectionAlert" class="card" style="display:none;padding:12px 18px;margin-bottom:20px;border-left:4px solid var(--brand-500)">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <span id="tallyAlertIcon" style="font-size:18px">ℹ️</span>
+            <div>
+              <strong id="tallyAlertTitle" style="font-size:13px">Tally Connection Status</strong>
+              <div id="tallyAlertMsg" style="font-size:12px;color:var(--text-3);margin-top:2px"></div>
+            </div>
+          </div>
+          <button class="btn ghost small" id="tallyAlertCloseBtn" style="padding:2px 8px;font-size:11px">Dismiss</button>
+        </div>
+      </div>
+
+      <!-- Sync Readiness KPI Cards -->
+      <div class="grid grid-4" style="margin-bottom:24px">
+        <div class="card kpi">
+          <div class="kpi-header">
+            <span class="kpi-label">Sync-Ready Vouchers</span>
+            <div class="kpi-icon" style="background:var(--brand-50);color:var(--brand-600)">🏛️</div>
+          </div>
+          <div class="kpi-value" style="color:var(--brand-600)">${stats.syncReadyVouchers}</div>
+          <div class="kpi-sub">Total sales &amp; receipt entries ready for export</div>
+        </div>
+
+        <div class="card kpi">
+          <div class="kpi-header">
+            <span class="kpi-label">Sales Invoices</span>
+            <div class="kpi-icon" style="background:rgba(245,158,11,0.12);color:var(--amber-600)">📄</div>
+          </div>
+          <div class="kpi-value">${stats.totalInvoices}</div>
+          <div class="kpi-sub">Exportable as Sales Vouchers with GST lines</div>
+        </div>
+
+        <div class="card kpi">
+          <div class="kpi-header">
+            <span class="kpi-label">Receipts &amp; Payments</span>
+            <div class="kpi-icon" style="background:rgba(16,185,129,0.12);color:var(--green-600)">💵</div>
+          </div>
+          <div class="kpi-value" style="color:var(--green-600)">${stats.totalPayments}</div>
+          <div class="kpi-sub">Exportable as Receipt Vouchers with Bill allocations</div>
+        </div>
+
+        <div class="card kpi">
+          <div class="kpi-header">
+            <span class="kpi-label">Client Masters</span>
+            <div class="kpi-icon" style="background:rgba(59,130,246,0.12);color:var(--blue-600)">👥</div>
+          </div>
+          <div class="kpi-value">${stats.totalClients}</div>
+          <div class="kpi-sub">Exportable as Sundry Debtors Ledgers</div>
+        </div>
+      </div>
+
+      <!-- Main Two Column Workflows -->
+      <div class="grid grid-2" style="gap:20px;align-items:start;margin-bottom:24px">
+        
+        <!-- CARD 1: 1-CLICK XML SYNC & EXPORT -->
+        <div class="card" style="padding:22px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+            <div style="display:flex;align-items:center;gap:8px">
+              <span style="font-size:18px">📥</span>
+              <h3 style="margin:0;font-size:16px">TallyPrime 1-Click Sync &amp; Export</h3>
+            </div>
+            <span class="badge green">Alt + O Ready</span>
+          </div>
+          <p style="font-size:12.5px;color:var(--text-3);margin-bottom:18px">
+            Generate standard Tally XML files containing vouchers, bill references, and tax ledgers formatted for TallyPrime Silver.
+          </p>
+
+          <div class="field" style="margin-bottom:16px">
+            <label style="font-weight:700">What to Export / Sync</label>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px">
+              <label style="display:flex;align-items:center;gap:8px;padding:10px 14px;border:1px solid var(--border-sm);border-radius:var(--r-sm);cursor:pointer;background:var(--bg-card)">
+                <input type="radio" name="tallyExportType" value="all" checked style="margin:0">
+                <div>
+                  <strong style="font-size:12.5px">Full Bundle</strong>
+                  <div style="font-size:11px;color:var(--text-3)">Sales + Receipts + Masters</div>
+                </div>
+              </label>
+
+              <label style="display:flex;align-items:center;gap:8px;padding:10px 14px;border:1px solid var(--border-sm);border-radius:var(--r-sm);cursor:pointer;background:var(--bg-card)">
+                <input type="radio" name="tallyExportType" value="sales" style="margin:0">
+                <div>
+                  <strong style="font-size:12.5px">Sales Invoices</strong>
+                  <div style="font-size:11px;color:var(--text-3)">Sales Vouchers + GST (${stats.totalInvoices})</div>
+                </div>
+              </label>
+
+              <label style="display:flex;align-items:center;gap:8px;padding:10px 14px;border:1px solid var(--border-sm);border-radius:var(--r-sm);cursor:pointer;background:var(--bg-card)">
+                <input type="radio" name="tallyExportType" value="receipts" style="margin:0">
+                <div>
+                  <strong style="font-size:12.5px">Receipt Payments</strong>
+                  <div style="font-size:11px;color:var(--text-3)">Receipt Vouchers (${stats.totalPayments})</div>
+                </div>
+              </label>
+
+              <label style="display:flex;align-items:center;gap:8px;padding:10px 14px;border:1px solid var(--border-sm);border-radius:var(--r-sm);cursor:pointer;background:var(--bg-card)">
+                <input type="radio" name="tallyExportType" value="masters" style="margin:0">
+                <div>
+                  <strong style="font-size:12.5px">Client Masters</strong>
+                  <div style="font-size:11px;color:var(--text-3)">Sundry Debtors (${stats.totalClients})</div>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <div class="field" style="margin-bottom:18px">
+            <label style="font-weight:700">Date Range Filter</label>
+            <select id="tallyDateRangeSelect" style="margin-top:6px;width:100%">
+              <option value="all">All Records (Complete Financial Year)</option>
+              <option value="this_month">Current Month (${new Date().toLocaleString('default', { month: 'long', year: 'numeric' })})</option>
+              <option value="last_month">Previous Month</option>
+              <option value="last_30">Last 30 Days</option>
+            </select>
+          </div>
+
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:20px;padding-top:16px;border-top:1px solid var(--border-sm)">
+            <button class="btn gold" id="tallyDownloadXmlBtn" style="flex:1;min-width:180px;display:inline-flex;align-items:center;justify-content:center;gap:8px">
+              <span>📥 Download Tally XML</span>
+            </button>
+            <button class="btn green" id="tallyDirectPushBtn" style="flex:1;min-width:180px;display:inline-flex;align-items:center;justify-content:center;gap:8px" title="Push XML directly to TallyPrime XML Server port 9000">
+              <span>⚡ Direct Push to Tally</span>
+            </button>
+            <button class="btn ghost" id="tallyPreviewXmlBtn" style="display:inline-flex;align-items:center;gap:6px" title="Preview the generated XML in a modal">
+              <span>👁️ View XML</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- CARD 2: TALLY LEDGER & SERVER SETTINGS -->
+        <div class="card" style="padding:22px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+            <div style="display:flex;align-items:center;gap:8px">
+              <span style="font-size:18px">⚙️</span>
+              <h3 style="margin:0;font-size:16px">TallyPrime Ledger &amp; Server Setup</h3>
+            </div>
+            <span class="badge blue">Port 9000 Config</span>
+          </div>
+          <p style="font-size:12.5px;color:var(--text-3);margin-bottom:16px">
+            Map CI360 financial accounts to the exact Ledger names created in your Tally company masters.
+          </p>
+
+          <form id="tallyConfigForm" onsubmit="return false;">
+            <div class="field" style="margin-bottom:12px">
+              <label>Company Name in TallyPrime</label>
+              <input type="text" id="tallyCompanyName" value="${escapeHtml(config.companyName || 'CI360 INTELLIGENCE PRIVATE LIMITED')}" placeholder="Exact name as in Tally" required>
+            </div>
+
+            <div class="field-row" style="margin-bottom:12px">
+              <div class="field">
+                <label>Tally Server Host</label>
+                <input type="text" id="tallyServerHost" value="${escapeHtml(config.serverHost || 'localhost')}" placeholder="localhost">
+              </div>
+              <div class="field">
+                <label>XML Server Port</label>
+                <input type="number" id="tallyServerPort" value="${config.serverPort || 9000}" placeholder="9000">
+              </div>
+            </div>
+
+            <div class="field-row" style="margin-bottom:12px">
+              <div class="field">
+                <label>Sales Ledger Name</label>
+                <input type="text" id="tallySalesLedger" value="${escapeHtml(config.salesLedger || 'Sales - Professional Services')}" placeholder="Sales Account">
+              </div>
+              <div class="field">
+                <label>Primary Bank Ledger</label>
+                <input type="text" id="tallyBankLedger" value="${escapeHtml(config.bankLedger || 'HDFC Bank Current A/c')}" placeholder="Bank Account">
+              </div>
+            </div>
+
+            <div class="field-row" style="margin-bottom:12px">
+              <div class="field">
+                <label>CGST Output Ledger (9%)</label>
+                <input type="text" id="tallyCgstLedger" value="${escapeHtml(config.cgstLedger || 'Output CGST @ 9%')}" placeholder="Output CGST">
+              </div>
+              <div class="field">
+                <label>SGST Output Ledger (9%)</label>
+                <input type="text" id="tallySgstLedger" value="${escapeHtml(config.sgstLedger || 'Output SGST @ 9%')}" placeholder="Output SGST">
+              </div>
+            </div>
+
+            <div class="field-row" style="margin-bottom:16px">
+              <div class="field">
+                <label>IGST Output Ledger (18%)</label>
+                <input type="text" id="tallyIgstLedger" value="${escapeHtml(config.igstLedger || 'Output IGST @ 18%')}" placeholder="Output IGST">
+              </div>
+              <div class="field">
+                <label>Cash in Hand Ledger</label>
+                <input type="text" id="tallyCashLedger" value="${escapeHtml(config.cashLedger || 'Cash in Hand')}" placeholder="Cash">
+              </div>
+            </div>
+
+            <div style="display:flex;justify-content:flex-end;gap:10px;padding-top:14px;border-top:1px solid var(--border-sm)">
+              <button class="btn gold small" id="tallySaveConfigBtn">
+                <span>💾 Save Tally Configuration</span>
+              </button>
+            </div>
+          </form>
+        </div>
+
+      </div>
+
+      <!-- CARD 3: STEP-BY-STEP USER GUIDE -->
+      <div class="card" style="padding:22px;background:var(--bg-card)">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+          <span style="font-size:20px">📖</span>
+          <div>
+            <h3 style="margin:0;font-size:16px">How to Import XML into TallyPrime Silver</h3>
+            <div style="font-size:12.5px;color:var(--text-3)">Standard workflow for Ekta and the accounts team:</div>
+          </div>
+        </div>
+
+        <div class="grid grid-4" style="gap:16px">
+          <div style="background:var(--bg-2);border:1px solid var(--border-sm);padding:16px;border-radius:var(--r-sm)">
+            <div style="font-size:20px;font-weight:900;color:var(--brand-500);margin-bottom:6px">1</div>
+            <strong style="font-size:13px;display:block;margin-bottom:4px">Export Tally XML</strong>
+            <p style="font-size:12px;color:var(--text-3);margin:0;line-height:1.4">
+              Click <strong>📥 Download Tally XML</strong> above to save the structured voucher file to your computer.
+            </p>
+          </div>
+
+          <div style="background:var(--bg-2);border:1px solid var(--border-sm);padding:16px;border-radius:var(--r-sm)">
+            <div style="font-size:20px;font-weight:900;color:var(--brand-500);margin-bottom:6px">2</div>
+            <strong style="font-size:13px;display:block;margin-bottom:4px">Open TallyPrime Silver</strong>
+            <p style="font-size:12px;color:var(--text-3);margin:0;line-height:1.4">
+              Open your company in TallyPrime Silver, press <strong>Alt + O</strong> (or click <em>Import</em> on the top bar).
+            </p>
+          </div>
+
+          <div style="background:var(--bg-2);border:1px solid var(--border-sm);padding:16px;border-radius:var(--r-sm)">
+            <div style="font-size:20px;font-weight:900;color:var(--brand-500);margin-bottom:6px">3</div>
+            <strong style="font-size:13px;display:block;margin-bottom:4px">Select &amp; Import</strong>
+            <p style="font-size:12px;color:var(--text-3);margin:0;line-height:1.4">
+              Choose <strong>Transactions</strong> (for Invoices/Receipts) or <strong>Masters</strong>, select the downloaded XML, and hit Enter.
+            </p>
+          </div>
+
+          <div style="background:var(--bg-2);border:1px solid var(--border-sm);padding:16px;border-radius:var(--r-sm)">
+            <div style="font-size:20px;font-weight:900;color:var(--brand-500);margin-bottom:6px">4</div>
+            <strong style="font-size:13px;display:block;margin-bottom:4px">Check Day Book</strong>
+            <p style="font-size:12px;color:var(--text-3);margin:0;line-height:1.4">
+              Press <strong>Alt + G → Day Book</strong> to view all auto-reconciled GST sales entries and bank receipts immediately.
+            </p>
+          </div>
+        </div>
+
+        <div style="margin-top:18px;padding:12px 16px;background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.2);border-radius:var(--r-sm);font-size:12px;color:var(--text-2);display:flex;align-items:center;gap:10px">
+          <span style="font-size:16px">💡</span>
+          <span>
+            <strong>To enable Direct HTTP Push on Port 9000:</strong> In TallyPrime, go to <code>F1 (Help) → Settings → Connectivity → Client/Server configuration</code>. Set <em>Enable ODBC</em> and <em>Enable XML Server</em> to <strong>Yes</strong> with Port <strong>9000</strong>.
+          </span>
+        </div>
+      </div>
+    </section>`;
+
+  // Helper to get selected date range params
+  function getDateParams() {
+    const range = document.getElementById('tallyDateRangeSelect').value;
+    const now = new Date();
+    let startDate = '';
+    let endDate = '';
+
+    if (range === 'this_month') {
+      startDate = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10);
+      endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().slice(0, 10);
+    } else if (range === 'last_month') {
+      startDate = new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString().slice(0, 10);
+      endDate = new Date(now.getFullYear(), now.getMonth(), 0).toISOString().slice(0, 10);
+    } else if (range === 'last_30') {
+      const d = new Date();
+      d.setDate(d.getDate() - 30);
+      startDate = d.toISOString().slice(0, 10);
+      endDate = now.toISOString().slice(0, 10);
+    }
+    return { startDate, endDate };
+  }
+
+  function getSelectedType() {
+    const checked = container.querySelector('input[name="tallyExportType"]:checked');
+    return checked ? checked.value : 'all';
+  }
+
+  // 1. Check Tally Port Connection Ping
+  const pingBtn = document.getElementById('tallyTestPingBtn');
+  const dot = document.getElementById('tallyStatusDot');
+  const statusTxt = document.getElementById('tallyStatusText');
+  const alertBox = document.getElementById('tallyConnectionAlert');
+  const alertTitle = document.getElementById('tallyAlertTitle');
+  const alertMsg = document.getElementById('tallyAlertMsg');
+  const alertIcon = document.getElementById('tallyAlertIcon');
+
+  async function checkTallyConnection() {
+    statusTxt.textContent = 'Pinging Tally…';
+    dot.style.background = 'var(--amber-500)';
+    try {
+      const host = document.getElementById('tallyServerHost').value.trim() || 'localhost';
+      const port = Number(document.getElementById('tallyServerPort').value) || 9000;
+      const res = await apiPost('/accounts/tally/test-connection', { serverHost: host, serverPort: port });
+
+      alertBox.style.display = 'block';
+      if (res.connected) {
+        dot.style.background = 'var(--green-500)';
+        statusTxt.textContent = `Tally Online (${port})`;
+        alertBox.style.borderLeftColor = 'var(--green-500)';
+        alertIcon.textContent = '✅';
+        alertTitle.textContent = 'TallyPrime XML Server Connected';
+        alertMsg.textContent = res.message;
+        flashToast('Connected to TallyPrime Silver XML Server!');
+      } else {
+        dot.style.background = 'var(--red-500)';
+        statusTxt.textContent = `Tally Offline (${port})`;
+        alertBox.style.borderLeftColor = 'var(--amber-500)';
+        alertIcon.textContent = '⚠️';
+        alertTitle.textContent = 'TallyPrime Server Not Detected on Port ' + port;
+        alertMsg.textContent = `${res.message} ${res.instructions || 'You can still use 📥 Download Tally XML anytime to import via Alt+O in Tally.'}`;
+      }
+    } catch (err) {
+      dot.style.background = 'var(--red-500)';
+      statusTxt.textContent = 'Tally Offline';
+      alertBox.style.display = 'block';
+      alertBox.style.borderLeftColor = 'var(--red-500)';
+      alertIcon.textContent = '❌';
+      alertTitle.textContent = 'Connection Test Error';
+      alertMsg.textContent = err.message;
+    }
+  }
+
+  if (pingBtn) pingBtn.onclick = checkTallyConnection;
+  const alertCloseBtn = document.getElementById('tallyAlertCloseBtn');
+  if (alertCloseBtn) alertCloseBtn.onclick = () => { alertBox.style.display = 'none'; };
+
+  // 2. Download Tally XML
+  async function triggerXmlDownload() {
+    const type = getSelectedType();
+    const { startDate, endDate } = getDateParams();
+    let url = `/accounts/tally/export-xml?type=${encodeURIComponent(type)}`;
+    if (startDate) url += `&startDate=${encodeURIComponent(startDate)}`;
+    if (endDate) url += `&endDate=${encodeURIComponent(endDate)}`;
+
+    try {
+      flashToast('Generating Tally XML…');
+      // Direct browser download
+      window.location.href = '/api' + url;
+    } catch (err) {
+      flashToast(err.message, true);
+    }
+  }
+
+  const downloadBtn = document.getElementById('tallyDownloadXmlBtn');
+  if (downloadBtn) downloadBtn.onclick = triggerXmlDownload;
+  const quickDownloadBtn = document.getElementById('tallyQuickDownloadBundleBtn');
+  if (quickDownloadBtn) quickDownloadBtn.onclick = triggerXmlDownload;
+
+  // 3. Direct Push to TallyPrime
+  const pushBtn = document.getElementById('tallyDirectPushBtn');
+  if (pushBtn) {
+    pushBtn.onclick = async () => {
+      const type = getSelectedType();
+      const { startDate, endDate } = getDateParams();
+
+      if (!confirm(`Attempt direct push of ${type.toUpperCase()} vouchers to TallyPrime at ${serverUrl}?\n\nEnsure TallyPrime is open with your company loaded.`)) return;
+
+      try {
+        pushBtn.disabled = true;
+        pushBtn.textContent = 'Pushing to Tally…';
+        const res = await apiPost('/accounts/tally/push-direct', { type, startDate, endDate });
+        flashToast(res.message || 'Pushed successfully to TallyPrime!');
+        alertBox.style.display = 'block';
+        alertBox.style.borderLeftColor = 'var(--green-500)';
+        alertIcon.textContent = '🎉';
+        alertTitle.textContent = 'Direct Sync Succeeded';
+        alertMsg.textContent = res.message;
+      } catch (err) {
+        flashToast(err.message, true);
+        alertBox.style.display = 'block';
+        alertBox.style.borderLeftColor = 'var(--amber-500)';
+        alertIcon.textContent = '⚠️';
+        alertTitle.textContent = 'Direct Push Inaccessible';
+        alertMsg.textContent = `${err.message}. Please use the "📥 Download Tally XML" button instead to import the file via Alt + O in TallyPrime.`;
+      } finally {
+        pushBtn.disabled = false;
+        pushBtn.innerHTML = '<span>⚡ Direct Push to Tally</span>';
+      }
+    };
+  }
+
+  // 4. View XML Preview Modal
+  const previewBtn = document.getElementById('tallyPreviewXmlBtn');
+  if (previewBtn) {
+    previewBtn.onclick = async () => {
+      const type = getSelectedType();
+      const { startDate, endDate } = getDateParams();
+      let url = `/accounts/tally/export-xml?type=${encodeURIComponent(type)}`;
+      if (startDate) url += `&startDate=${encodeURIComponent(startDate)}`;
+      if (endDate) url += `&endDate=${encodeURIComponent(endDate)}`;
+
+      try {
+        previewBtn.disabled = true;
+        previewBtn.textContent = 'Loading…';
+        const res = await fetch('/api' + url, {
+          headers: { 'Authorization': 'Bearer ' + localStorage.getItem('ci360_token') }
+        });
+        const xmlText = await res.text();
+
+        const modal = openModal(`
+          <div style="max-width:850px;width:100%">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+              <div style="display:flex;align-items:center;gap:10px">
+                <span style="font-size:18px">📄</span>
+                <strong style="font-size:16px">TallyPrime XML Preview (${type.toUpperCase()})</strong>
+              </div>
+              <div style="display:flex;gap:8px">
+                <button class="btn gold small" id="tallyModalCopyBtn">📋 Copy XML</button>
+                <button class="btn ghost small" id="tallyModalCloseBtn">✕ Close</button>
+              </div>
+            </div>
+            <div style="font-size:12px;color:var(--text-3);margin-bottom:12px">
+              This standard Tally XML envelope will be imported into TallyPrime Day Book:
+            </div>
+            <pre style="background:var(--bg-2);border:1px solid var(--border-sm);border-radius:var(--r-sm);padding:14px;max-height:480px;overflow:auto;font-family:var(--font-mono);font-size:11.5px;color:var(--text-1);white-space:pre-wrap;word-break:break-all">${escapeHtml(xmlText.slice(0, 15000))}${xmlText.length > 15000 ? '\n\n... (truncated for preview, full XML will be downloaded)' : ''}</pre>
+          </div>`);
+
+        modal.querySelector('#tallyModalCloseBtn').onclick = () => modal.remove();
+        modal.querySelector('#tallyModalCopyBtn').onclick = () => {
+          navigator.clipboard.writeText(xmlText).then(() => {
+            flashToast('Full Tally XML copied to clipboard!');
+          });
+        };
+      } catch (err) {
+        flashToast('Failed to load XML preview: ' + err.message, true);
+      } finally {
+        previewBtn.disabled = false;
+        previewBtn.innerHTML = '<span>👁️ View XML</span>';
+      }
+    };
+  }
+
+  // 5. Save Configuration Form
+  const saveConfigBtn = document.getElementById('tallySaveConfigBtn');
+  if (saveConfigBtn) {
+    saveConfigBtn.onclick = async () => {
+      const payload = {
+        companyName: document.getElementById('tallyCompanyName').value.trim(),
+        serverHost: document.getElementById('tallyServerHost').value.trim() || 'localhost',
+        serverPort: Number(document.getElementById('tallyServerPort').value) || 9000,
+        salesLedger: document.getElementById('tallySalesLedger').value.trim() || 'Sales - Professional Services',
+        bankLedger: document.getElementById('tallyBankLedger').value.trim() || 'HDFC Bank Current A/c',
+        cgstLedger: document.getElementById('tallyCgstLedger').value.trim() || 'Output CGST @ 9%',
+        sgstLedger: document.getElementById('tallySgstLedger').value.trim() || 'Output SGST @ 9%',
+        igstLedger: document.getElementById('tallyIgstLedger').value.trim() || 'Output IGST @ 18%',
+        cashLedger: document.getElementById('tallyCashLedger').value.trim() || 'Cash in Hand'
+      };
+
+      try {
+        saveConfigBtn.disabled = true;
+        saveConfigBtn.textContent = 'Saving…';
+        const res = await apiPut('/accounts/tally/config', payload);
+        flashToast(res.message || 'TallyPrime configuration saved!');
+        saveConfigBtn.disabled = false;
+        saveConfigBtn.innerHTML = '<span>💾 Save Tally Configuration</span>';
+      } catch (err) {
+        flashToast(err.message, true);
+        saveConfigBtn.disabled = false;
+        saveConfigBtn.innerHTML = '<span>💾 Save Tally Configuration</span>';
+      }
+    };
+  }
+
+  // Run initial lightweight ping in background
+  setTimeout(checkTallyConnection, 600);
+}
+
 // Auto-run init
 init();
+
