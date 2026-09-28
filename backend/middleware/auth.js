@@ -20,7 +20,16 @@ async function verifyToken(req, res, next) {
 
 function requireRole(...roles) {
   return (req, res, next) => {
-    if (!req.user || !roles.includes(req.user.role)) {
+    if (!req.user) {
+      return res.status(403).json({ error: 'You do not have permission to do that' });
+    }
+    // Ekta manages accounts so she always has access to 'accounts' endpoints
+    const isEkta = (req.user.email && req.user.email.toLowerCase().includes('ekta')) ||
+                   (req.user.name && req.user.name.toLowerCase().includes('ekta'));
+    if (roles.includes('accounts') && isEkta) {
+      return next();
+    }
+    if (!roles.includes(req.user.role)) {
       return res.status(403).json({ error: 'You do not have permission to do that' });
     }
     next();

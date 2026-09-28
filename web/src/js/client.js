@@ -20,6 +20,7 @@ async function boot(){
 const CLIENT_TABS = [
   { key:'logjob', label:'Log a Job',        icon:'➕' },
   { key:'jobs',   label:'Work Delivered',    icon:'📦' },
+  { key:'billing',label:'Billing & Invoices',icon:'💳' },
   { key:'team',   label:'Our Team',          icon:'👥' }
 ];
 
@@ -46,6 +47,7 @@ async function renderTab(){
   try{
     const d = await apiGet('/dashboard/client?period=' + ui.period);
     if(ui.tab==='jobs')      tabJobs(c, d);
+    else if(ui.tab==='billing') await tabBilling(c);
     else if(ui.tab==='team') tabTeam(c, d);
   }catch(err){ c.innerHTML = renderEmptyState('Something went wrong', err.message, '⚠️'); }
 }
@@ -463,6 +465,127 @@ function tabTeam(c, d){
             </div>
           </div>`).join('')}
       </div>
+    </div>`;
+}
+
+/* ════════════════════════════ BILLING & INVOICES ════════════════════════ */
+async function tabBilling(c){
+  const portal = await apiGet('/accounts/client-portal');
+  const sum = portal.summary || {};
+  const invoices = portal.invoices || [];
+  const payments = portal.payments || [];
+
+  c.innerHTML = `
+    <div class="block">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px">
+        <div>
+          <h2>Billing & Invoices <span class="eyebrow">${invoices.length} invoices issued</span></h2>
+          <p style="font-size:13px;color:var(--text-3);margin:0">View your billing invoices, payment history, and pending balances.</p>
+        </div>
+      </div>
+
+      <!-- Financial Metric Cards -->
+      <div class="grid grid-3" style="margin-bottom:24px">
+        <div class="card kpi">
+          <div class="kpi-header"><span class="kpi-label">Total Invoiced</span><span class="badge blue">Billed</span></div>
+          <div class="kpi-value">${fmtINR(sum.totalBilled || 0)}</div>
+          <div style="font-size:12px;color:var(--text-3);margin-top:4px">${sum.invoiceCount || 0} total invoices</div>
+        </div>
+
+        <div class="card kpi" style="border-left:3px solid var(--green-500)">
+          <div class="kpi-header"><span class="kpi-label">Total Payments Cleared</span><span class="badge green">Paid</span></div>
+          <div class="kpi-value" style="color:var(--green-600)">${fmtINR(sum.totalPaid || 0)}</div>
+          <div style="font-size:12px;color:var(--text-3);margin-top:4px">${sum.paymentCount || 0} payments recorded</div>
+        </div>
+
+        <div class="card kpi" style="border-left:3px solid var(--amber-500)">
+          <div class="kpi-header"><span class="kpi-label">Pending Dues Balance</span><span class="badge amber">Pending</span></div>
+          <div class="kpi-value" style="color:var(--amber-600)">${fmtINR(sum.pendingAmount || 0)}</div>
+          <div style="font-size:12px;color:${sum.overdueAmount > 0 ? 'var(--red-600)' : 'var(--text-3)'};margin-top:4px">
+            ${sum.overdueAmount > 0 ? `🚨 ${fmtINR(sum.overdueAmount)} is overdue` : 'No overdue invoices'}
+          </div>
+        </div>
+      </div>
+
+      <!-- Bank Details Callout -->
+      <div class="card" style="background:var(--bg-elevated);margin-bottom:24px;padding:16px 20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px">
+        <div>
+          <strong style="font-size:13px;color:var(--text-1)">Settlement Bank & UPI Details:</strong>
+          <div style="font-size:12px;color:var(--text-3);margin-top:4px">HDFC Bank | A/C: 50200088992211 | IFSC: HDFC0001234 | UPI: ci360@hdfcbank</div>
+        </div>
+        <div style="font-size:12px;color:var(--text-4)">Please share transaction UTR once payment is executed.</div>
+      </div>
+
+      <!-- Invoices Table -->
+      <div class="card table-card" style="padding:0;overflow:hidden;margin-bottom:24px">
+        <div style="padding:16px 20px;border-bottom:1px solid var(--border-sm)">
+          <h3 style="margin:0;font-size:15px;font-weight:800;color:var(--text-1)">Invoices</h3>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th style="padding-left:22px">Invoice #</th>
+                <th>Issue Date</th>
+                <th>Due Date</th>
+                <th class="num">Amount</th>
+                <th class="num">Paid</th>
+                <th class="num">Pending</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${invoices.map(inv => `
+                <tr>
+                  <td style="padding-left:22px"><strong>${escapeHtml(inv.invoiceNumber)}</strong></td>
+                  <td>${fmtDate(inv.issueDate)}</td>
+                  <td style="color:${inv.status === 'overdue' ? 'var(--red-600)' : 'inherit'}">${fmtDate(inv.dueDate)}</td>
+                  <td class="num" style="font-weight:700">${fmtINR(inv.totalAmount)}</td>
+                  <td class="num" style="color:var(--green-600);font-weight:600">${fmtINR(inv.amountPaid)}</td>
+                  <td class="num" style="font-weight:800;color:${inv.pendingAmount > 0 ? 'var(--amber-600)' : 'var(--text-4)'}">
+                    ${fmtINR(inv.pendingAmount)}
+                  </td>
+                  <td>
+                    <span class="badge ${inv.status === 'paid' ? 'green' : (inv.status === 'overdue' ? 'red' : 'amber')}">
+                      ${escapeHtml(inv.status.replace('_', ' ').toUpperCase())}
+                    </span>
+                  </td>
+                </tr>`).join('') || `<tr><td colspan="7"><div class="empty" style="padding:28px">No invoices on file.</div></td></tr>`}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Payment Receipts Table -->
+      ${payments.length > 0 ? `
+        <div class="card table-card" style="padding:0;overflow:hidden">
+          <div style="padding:16px 20px;border-bottom:1px solid var(--border-sm)">
+            <h3 style="margin:0;font-size:15px;font-weight:800;color:var(--text-1)">Payment Receipts & Remittances</h3>
+          </div>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th style="padding-left:22px">Receipt #</th>
+                  <th>Date</th>
+                  <th>Method</th>
+                  <th>Reference / UTR</th>
+                  <th class="num" style="padding-right:22px">Amount Cleared</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${payments.map(p => `
+                  <tr>
+                    <td style="padding-left:22px"><strong>${escapeHtml(p.paymentNumber)}</strong></td>
+                    <td>${fmtDate(p.paymentDate)}</td>
+                    <td><span class="badge">${escapeHtml(p.paymentMethod.toUpperCase())}</span></td>
+                    <td style="font-family:var(--font-mono);font-size:12px">${escapeHtml(p.referenceId || '—')}</td>
+                    <td class="num" style="padding-right:22px;color:var(--green-600);font-weight:800">${fmtINR(p.amount)}</td>
+                  </tr>`).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>` : ''}
     </div>`;
 }
 

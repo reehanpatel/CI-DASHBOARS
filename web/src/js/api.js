@@ -21,8 +21,16 @@ export function requireAuth(expectedRole){
   const token = getToken();
   const user = getUser();
   if(!token || !user){ window.location.href = '/login'; return null; }
+  
+  const isEkta = (user.name && user.name.toLowerCase().includes('ekta')) ||
+                 (user.email && user.email.toLowerCase().includes('ekta'));
+
   if(expectedRole && user.role !== expectedRole && user.role !== 'superadmin'){
-    window.location.href = user.role === 'superadmin' ? '/admin' : (user.role === 'employee' ? '/employee' : '/client');
+    // Accounts role or Ekta can access both accounts and employee workspaces
+    if((user.role === 'accounts' || isEkta) && (expectedRole === 'accounts' || expectedRole === 'employee')) {
+      return user;
+    }
+    window.location.href = user.role === 'superadmin' ? '/admin' : (user.role === 'accounts' || isEkta ? '/accounts' : (user.role === 'employee' ? '/employee' : '/client'));
     return null;
   }
   return user;
@@ -834,11 +842,13 @@ export function renderAppShell({ user, currentRole, activeTab, tabs, title, subt
   const initial = user && user.name ? user.name.charAt(0).toUpperCase() : 'U';
   const roleBadge = user && (user.role === 'superadmin' || user.role === 'admin')
     ? 'Admin'
-    : user && user.role === 'employee'
-      ? 'Employee'
-      : user && user.role === 'client'
-        ? 'Client'
-        : (user && user.role ? user.role.toUpperCase() : 'User');
+    : user && user.role === 'accounts'
+      ? 'Accounts'
+      : user && user.role === 'employee'
+        ? 'Employee'
+        : user && user.role === 'client'
+          ? 'Client'
+          : (user && user.role ? user.role.toUpperCase() : 'User');
   const userName = user && user.name ? user.name : 'User';
   const userEmail = user && user.email ? user.email : (user && user.username ? user.username : '');
   const hasLogJobTab = tabs && tabs.some(t => t.key === 'logjob');
@@ -847,7 +857,41 @@ export function renderAppShell({ user, currentRole, activeTab, tabs, title, subt
 
   // Mobile Bottom Navigation Mapping
   let mobileNavItems = [];
-  if (currentRole === 'superadmin') {
+  if (currentRole === 'accounts') {
+    mobileNavItems = [
+      {
+        key: 'overview',
+        label: 'Overview',
+        iconSvg: `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>`,
+        active: activeTab === 'overview'
+      },
+      {
+        key: 'invoices',
+        label: 'Invoices',
+        iconSvg: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>`,
+        active: activeTab === 'invoices'
+      },
+      {
+        key: 'payments',
+        label: 'Payments',
+        iconSvg: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>`,
+        active: activeTab === 'payments'
+      },
+      {
+        key: 'receivables',
+        label: 'Pending',
+        iconSvg: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
+        active: activeTab === 'receivables'
+      },
+      {
+        key: '__more__',
+        label: 'More',
+        iconSvg: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/><circle cx="5" cy="12" r="1.5"/></svg>`,
+        active: !['overview', 'invoices', 'payments', 'receivables'].includes(activeTab),
+        isMore: true
+      }
+    ];
+  } else if (currentRole === 'superadmin') {
     mobileNavItems = [
       {
         key: 'dashboard',

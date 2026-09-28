@@ -15,7 +15,7 @@ router.post('/', async (req, res) => {
   try {
     const { name, email, password, role, personnelId, clientId } = req.body;
     if (!name || !email || !password || !role) return res.status(400).json({ error: 'name, email, password and role are required' });
-    if (!['superadmin', 'employee', 'client'].includes(role)) return res.status(400).json({ error: 'Invalid role' });
+    if (!['superadmin', 'accounts', 'employee', 'client'].includes(role)) return res.status(400).json({ error: 'Invalid role' });
 
     const existing = await User.findOne({ email: email.toLowerCase().trim() });
     if (existing) return res.status(400).json({ error: 'A user with that email already exists' });

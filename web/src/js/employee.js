@@ -16,28 +16,50 @@ async function boot(){
 function clientName(id){ const c = cache.clients.find(c=>c._id===id); return c ? c.name : '—'; }
 function isLeadManager(){ return user && (/mansi/i.test(user.name) || /urna/i.test(user.name)); }
 
-const EMPLOYEE_TABS = [
-  { key: 'myjobs',     label: 'My Jobs',         icon: '📋' },
-  { key: 'dailytasks', label: 'Daily Tasks',     icon: '✅' },
-  { key: 'tickets',    label: 'Support Tickets', icon: '🎫' },
-  { key: 'targets',    label: 'My Targets',      icon: '🎯' }
-];
+function getEmployeeTabs() {
+  const isAccountsAccess = user && (user.role === 'accounts' || user.role === 'superadmin' || /ekta/i.test(user.name) || /ekta/i.test(user.email));
+  const tabs = [
+    { key: 'myjobs',     label: 'My Jobs',         icon: '📋' },
+    { key: 'dailytasks', label: 'Daily Tasks',     icon: '✅' },
+    { key: 'tickets',    label: 'Support Tickets', icon: '🎫' },
+    { key: 'targets',    label: 'My Targets',      icon: '🎯' }
+  ];
+  if (isAccountsAccess) {
+    tabs.push({ key: 'accounts_redirect', label: 'Accounts Dashboard 💰', icon: '💳' });
+  }
+  return tabs;
+}
 
 function render(){
   const app = document.getElementById('app');
-  const activeTabObj = EMPLOYEE_TABS.find(t=>t.key===ui.tab) || EMPLOYEE_TABS[0];
+  const tabs = getEmployeeTabs();
+  const activeTabObj = tabs.find(t=>t.key===ui.tab) || tabs[0];
   app.innerHTML = renderAppShell({
     user,
     currentRole: 'employee',
     activeTab: ui.tab,
-    tabs: EMPLOYEE_TABS,
+    tabs: tabs,
     title: activeTabObj.label,
     subtitle: isLeadManager() ? 'Lead Workspace · Mansi & Urna Management' : 'Employee Workspace & Daily Task Checklist'
   });
-  bindAppShellEvents((newTab)=>{ ui.tab = newTab; render(); });
+  bindAppShellEvents((newTab)=>{ 
+    if (newTab === 'accounts_redirect') {
+      window.location.href = '/accounts';
+      return;
+    }
+    ui.tab = newTab; 
+    render(); 
+  });
   renderTab();
 }
-window.ci360NavTab = (tabName) => { ui.tab = tabName; render(); };
+window.ci360NavTab = (tabName) => { 
+  if (tabName === 'accounts_redirect') {
+    window.location.href = '/accounts';
+    return;
+  }
+  ui.tab = tabName; 
+  render(); 
+};
 
 async function renderTab(){
   const c = document.getElementById('content');

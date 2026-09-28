@@ -1,4 +1,4 @@
-import"./api-BzPrPlDy.js";let b=null,g=[],p=[],c={tab:"logjob",period:"month"},l={title:"",serviceId:"",date:new Date().toISOString().slice(0,10),completionDate:"",desc:"",priority:"Medium",preferredPersonId:""};const $=[["strategy","Strategy"],["cs","CS"],["website","Website"],["design","Design"],["copy","Copy"],["edit","Edit"],["shoot","Shoot"],["seo","SEO"],["smo","SMO"],["qc","Quality Check"]];async function A(){if(initTheme(),b=requireAuth("client"),!!b){try{const[a,t]=await Promise.all([apiGet("/services"),apiGet("/personnel")]);g=a,p=t.filter(i=>i.status==="active")}catch{g=[],p=[]}u()}}const m=[{key:"logjob",label:"Log a Job",icon:"➕"},{key:"jobs",label:"Work Delivered",icon:"📦"},{key:"team",label:"Our Team",icon:"👥"}];function u(){const a=document.getElementById("app"),t=m.find(i=>i.key===c.tab)||m[0];a.innerHTML=renderAppShell({user:b,currentRole:"client",activeTab:c.tab,tabs:m,title:t.label,subtitle:"Client Portal & Service Requests"}),bindAppShellEvents(i=>{c.tab=i,u()}),f()}async function f(){const a=document.getElementById("content");if(a){if(c.tab==="logjob"){x(a);return}a.innerHTML=renderSkeletonCards(3);try{const t=await apiGet("/dashboard/client?period="+c.period);c.tab==="jobs"?w(a,t):c.tab==="team"&&k(a,t)}catch(t){a.innerHTML=renderEmptyState("Something went wrong",t.message,"⚠️")}}}function x(a){a.innerHTML=`
+import"./api-B2Bht1wi.js";let b=null,g=[],p=[],c={tab:"logjob",period:"month"},r={title:"",serviceId:"",date:new Date().toISOString().slice(0,10),completionDate:"",desc:"",priority:"Medium",preferredPersonId:""};const $=[["strategy","Strategy"],["cs","CS"],["website","Website"],["design","Design"],["copy","Copy"],["edit","Edit"],["shoot","Shoot"],["seo","SEO"],["smo","SMO"],["qc","Quality Check"]];async function w(){if(initTheme(),b=requireAuth("client"),!!b){try{const[s,a]=await Promise.all([apiGet("/services"),apiGet("/personnel")]);g=s,p=a.filter(t=>t.status==="active")}catch{g=[],p=[]}u()}}const m=[{key:"logjob",label:"Log a Job",icon:"➕"},{key:"jobs",label:"Work Delivered",icon:"📦"},{key:"billing",label:"Billing & Invoices",icon:"💳"},{key:"team",label:"Our Team",icon:"👥"}];function u(){const s=document.getElementById("app"),a=m.find(t=>t.key===c.tab)||m[0];s.innerHTML=renderAppShell({user:b,currentRole:"client",activeTab:c.tab,tabs:m,title:a.label,subtitle:"Client Portal & Service Requests"}),bindAppShellEvents(t=>{c.tab=t,u()}),f()}async function f(){const s=document.getElementById("content");if(s){if(c.tab==="logjob"){x(s);return}s.innerHTML=renderSkeletonCards(3);try{const a=await apiGet("/dashboard/client?period="+c.period);c.tab==="jobs"?A(s,a):c.tab==="billing"?await S(s):c.tab==="team"&&D(s,a)}catch(a){s.innerHTML=renderEmptyState("Something went wrong",a.message,"⚠️")}}}function x(s){s.innerHTML=`
     <div class="block">
       <h2>Log a New Job <span class="eyebrow">Request or record work for your account</span></h2>
       <div class="card form-card">
@@ -11,13 +11,13 @@ import"./api-BzPrPlDy.js";let b=null,g=[],p=[],c={tab:"logjob",period:"month"},l
             </div>
             <div class="field">
               <label for="clientJobTitle">Job Title *</label>
-              <input type="text" id="clientJobTitle" value="${escapeHtml(l.title||"")}" placeholder="e.g. Brand Redesign &amp; Social Campaign" required>
+              <input type="text" id="clientJobTitle" value="${escapeHtml(r.title||"")}" placeholder="e.g. Brand Redesign &amp; Social Campaign" required>
             </div>
             <div class="field">
               <label for="clientJobService">Select Service *</label>
               <select id="clientJobService" required>
                 <option value="">Select a service…</option>
-                ${g.map(t=>`<option value="${t._id}" ${l.serviceId===t._id?"selected":""}>${escapeHtml(t.name)}</option>`).join("")}
+                ${g.map(a=>`<option value="${a._id}" ${r.serviceId===a._id?"selected":""}>${escapeHtml(a.name)}</option>`).join("")}
               </select>
             </div>
           </div>
@@ -31,16 +31,16 @@ import"./api-BzPrPlDy.js";let b=null,g=[],p=[],c={tab:"logjob",period:"month"},l
               <div class="field">
                 <label for="clientJobPriority">Priority Level *</label>
                 <select id="clientJobPriority">
-                  <option value="Medium" ${l.priority==="Medium"?"selected":""}>🟡 Medium Priority</option>
-                  <option value="High"   ${l.priority==="High"?"selected":""}>🟠 High Priority</option>
-                  <option value="Urgent" ${l.priority==="Urgent"?"selected":""}>🔴 Urgent</option>
+                  <option value="Medium" ${r.priority==="Medium"?"selected":""}>🟡 Medium Priority</option>
+                  <option value="High"   ${r.priority==="High"?"selected":""}>🟠 High Priority</option>
+                  <option value="Urgent" ${r.priority==="Urgent"?"selected":""}>🔴 Urgent</option>
                 </select>
               </div>
               <div class="field">
                 <label for="clientJobPrefPerson">Preferred Team Member</label>
                 <select id="clientJobPrefPerson">
                   <option value="">No Preference (Auto-Assign)</option>
-                  ${p.map(t=>`<option value="${t._id}" ${l.preferredPersonId===t._id?"selected":""}>👤 ${escapeHtml(t.name)}${t.duties?` (${escapeHtml(t.duties)})`:""}</option>`).join("")}
+                  ${p.map(a=>`<option value="${a._id}" ${r.preferredPersonId===a._id?"selected":""}>👤 ${escapeHtml(a.name)}${a.duties?` (${escapeHtml(a.duties)})`:""}</option>`).join("")}
                 </select>
               </div>
             </div>
@@ -54,11 +54,11 @@ import"./api-BzPrPlDy.js";let b=null,g=[],p=[],c={tab:"logjob",period:"month"},l
             <div class="log-job-row">
               <div class="field">
                 <label for="clientJobDate">Start Date *</label>
-                <input type="date" id="clientJobDate" value="${l.date}" required>
+                <input type="date" id="clientJobDate" value="${r.date}" required>
               </div>
               <div class="field">
                 <label for="clientJobCompDate">Expected End Date</label>
-                <input type="date" id="clientJobCompDate" value="${l.completionDate}">
+                <input type="date" id="clientJobCompDate" value="${r.completionDate}">
               </div>
             </div>
           </div>
@@ -70,7 +70,7 @@ import"./api-BzPrPlDy.js";let b=null,g=[],p=[],c={tab:"logjob",period:"month"},l
             </div>
             <div class="field">
               <label for="clientJobDesc">Deliverable Details</label>
-              <textarea id="clientJobDesc" rows="3" placeholder="Describe the project scope, deliverables, or specific requirements…">${escapeHtml(l.desc)}</textarea>
+              <textarea id="clientJobDesc" rows="3" placeholder="Describe the project scope, deliverables, or specific requirements…">${escapeHtml(r.desc)}</textarea>
             </div>
           </div>
 
@@ -91,22 +91,22 @@ import"./api-BzPrPlDy.js";let b=null,g=[],p=[],c={tab:"logjob",period:"month"},l
           </div>
         </form>
       </div>
-    </div>`,bindAttachmentUploader("clientJobAttachments",{existing:l.attachments||[]}),document.getElementById("resetClientJobBtn").onclick=()=>{l={title:"",serviceId:"",date:new Date().toISOString().slice(0,10),completionDate:"",desc:"",priority:"Medium",preferredPersonId:"",attachments:[]},setUploaderAttachments("clientJobAttachments",[]),x(a)},document.getElementById("clientLogJobForm").onsubmit=async t=>{t.preventDefault();const i=document.getElementById("submitClientJobBtn"),o=document.getElementById("clientJobTitle").value.trim(),e=document.getElementById("clientJobService").value;if(!e){flashToast("Please select a service",!0);return}const s=document.getElementById("clientJobDate").value,r=document.getElementById("clientJobCompDate").value,n=document.getElementById("clientJobDesc").value.trim(),d=document.getElementById("clientJobPriority").value,v=document.getElementById("clientJobPrefPerson").value,h=getUploaderAttachments("clientJobAttachments");i.disabled=!0,i.textContent="Submitting…";try{if(typeof Notification<"u"&&Notification.permission==="default")try{await Notification.requestPermission()}catch{}await apiPost("/jobs",{title:o,serviceIds:[e],date:s,completionDate:r,value:0,description:n,priority:d,preferredPersonId:v||null,assignments:[],attachments:h}),flashToast("Job logged successfully with attachments! 🎉"),typeof window.ci360FetchNotifications=="function"&&window.ci360FetchNotifications(),l={title:"",serviceId:"",date:new Date().toISOString().slice(0,10),completionDate:"",desc:"",priority:"Medium",preferredPersonId:"",attachments:[]},c.tab="jobs",u()}catch(y){flashToast(y.message,!0)}finally{i.disabled=!1,i.textContent="Submit Job"}}}function w(a,t){const i=t.jobs||[],o={Medium:"gray",High:"amber",Urgent:"red"};if(i.length===0){a.innerHTML=`
+    </div>`,bindAttachmentUploader("clientJobAttachments",{existing:r.attachments||[]}),document.getElementById("resetClientJobBtn").onclick=()=>{r={title:"",serviceId:"",date:new Date().toISOString().slice(0,10),completionDate:"",desc:"",priority:"Medium",preferredPersonId:"",attachments:[]},setUploaderAttachments("clientJobAttachments",[]),x(s)},document.getElementById("clientLogJobForm").onsubmit=async a=>{a.preventDefault();const t=document.getElementById("submitClientJobBtn"),o=document.getElementById("clientJobTitle").value.trim(),e=document.getElementById("clientJobService").value;if(!e){flashToast("Please select a service",!0);return}const i=document.getElementById("clientJobDate").value,l=document.getElementById("clientJobCompDate").value,n=document.getElementById("clientJobDesc").value.trim(),d=document.getElementById("clientJobPriority").value,v=document.getElementById("clientJobPrefPerson").value,h=getUploaderAttachments("clientJobAttachments");t.disabled=!0,t.textContent="Submitting…";try{if(typeof Notification<"u"&&Notification.permission==="default")try{await Notification.requestPermission()}catch{}await apiPost("/jobs",{title:o,serviceIds:[e],date:i,completionDate:l,value:0,description:n,priority:d,preferredPersonId:v||null,assignments:[],attachments:h}),flashToast("Job logged successfully with attachments! 🎉"),typeof window.ci360FetchNotifications=="function"&&window.ci360FetchNotifications(),r={title:"",serviceId:"",date:new Date().toISOString().slice(0,10),completionDate:"",desc:"",priority:"Medium",preferredPersonId:"",attachments:[]},c.tab="jobs",u()}catch(y){flashToast(y.message,!0)}finally{t.disabled=!1,t.textContent="Submit Job"}}}function A(s,a){const t=a.jobs||[],o={Medium:"gray",High:"amber",Urgent:"red"};if(t.length===0){s.innerHTML=`
       <div class="block">
         <h2>Work Delivered <span class="eyebrow">No work logged yet</span></h2>
         ${renderEmptyState("Nothing logged for your account yet","Log a new job to start tracking work delivered.","📦",`<button class="btn gold" onclick="ui.tab='logjob';render()">Log Your First Job</button>`)}
-      </div>`;return}a.innerHTML=`
+      </div>`;return}s.innerHTML=`
     <div class="block">
-      <h2>Work Delivered <span class="eyebrow">${i.length} entries, all time</span></h2>
+      <h2>Work Delivered <span class="eyebrow">${t.length} entries, all time</span></h2>
       <div style="display:flex;flex-direction:column;gap:14px">
-        ${i.map(e=>{var n;const s=e.status==="Completed",r=o[e.priority||"Medium"]||"gray";return`
-          <div class="card" style="border-left:4px solid ${s?"var(--green-500)":"var(--amber-500)"};padding:18px 22px">
+        ${t.map(e=>{var n;const i=e.status==="Completed",l=o[e.priority||"Medium"]||"gray";return`
+          <div class="card" style="border-left:4px solid ${i?"var(--green-500)":"var(--amber-500)"};padding:18px 22px">
             <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:10px">
               <div>
                 <div style="font-size:15px;font-weight:800;color:var(--text-1);margin-bottom:6px">${escapeHtml(e.title||"Untitled Job")}</div>
                 <div style="display:flex;flex-wrap:wrap;gap:6px">
-                  <span class="badge ${s?"green":"amber"}">${s?"✓ Completed":"⏳ In Progress"}</span>
-                  <span class="badge ${r}">${escapeHtml(e.priority||"Medium")}</span>
+                  <span class="badge ${i?"green":"amber"}">${i?"✓ Completed":"⏳ In Progress"}</span>
+                  <span class="badge ${l}">${escapeHtml(e.priority||"Medium")}</span>
                   ${(e.serviceNames||[]).map(d=>`<span class="badge gray">${escapeHtml(d)}</span>`).join("")}
                 </div>
               </div>
@@ -178,10 +178,10 @@ import"./api-BzPrPlDy.js";let b=null,g=[],p=[],c={tab:"logjob",period:"month"},l
             ${renderSupportTicketSection(e._id,!1)}
           </div>`}).join("")}
       </div>
-    </div>`,document.querySelectorAll(".client-app-btn").forEach(e=>{e.onclick=()=>S(e.dataset.id,e.dataset.title,()=>f())}),document.querySelectorAll(".client-rev-btn").forEach(e=>{e.onclick=()=>C(e.dataset.id,e.dataset.title,()=>f())}),i.forEach(e=>bindSupportTicketSection(e._id,!1))}function S(a,t,i){let o=5;const e=openModal(`
+    </div>`,document.querySelectorAll(".client-app-btn").forEach(e=>{e.onclick=()=>k(e.dataset.id,e.dataset.title,()=>f())}),document.querySelectorAll(".client-rev-btn").forEach(e=>{e.onclick=()=>C(e.dataset.id,e.dataset.title,()=>f())}),t.forEach(e=>bindSupportTicketSection(e._id,!1))}function k(s,a,t){let o=5;const e=openModal(`
     <div style="margin-bottom:14px">
       <div style="font-size:18px;font-weight:800;color:var(--text-1);margin-bottom:4px">Approve Deliverables &amp; Sign Off</div>
-      <div style="font-size:12.5px;color:var(--text-3)">${escapeHtml(t)}</div>
+      <div style="font-size:12.5px;color:var(--text-3)">${escapeHtml(a)}</div>
     </div>
 
     <div style="margin-bottom:16px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:var(--r-sm);padding:12px 14px">
@@ -209,10 +209,10 @@ import"./api-BzPrPlDy.js";let b=null,g=[],p=[],c={tab:"logjob",period:"month"},l
       <button class="btn ghost" id="mAppCancel">Cancel</button>
       <button class="btn gold" id="mAppConfirm">✓ Confirm Approval</button>
     </div>
-  `),s=e.querySelectorAll(".star-item");function r(n){o=n,s.forEach(d=>{d.style.color=Number(d.dataset.val)<=n?"#F59E0B":"var(--text-4)"})}s.forEach(n=>{n.onclick=()=>r(Number(n.dataset.val))}),e.querySelector("#mAppCancel").onclick=()=>e.remove(),e.querySelector("#mAppConfirm").onclick=async()=>{const n=e.querySelector("#mAppFeedback").value.trim(),d=e.querySelector("#mAppConfirm");d.disabled=!0,d.textContent="Approving…";try{await apiPost(`/jobs/${a}/approve`,{rating:o,feedback:n}),flashToast("Deliverables approved & signed off! 🎉"),e.remove(),i&&i()}catch(v){flashToast(v.message,!0)}finally{d.disabled=!1,d.textContent="✓ Confirm Approval"}}}function C(a,t,i){const o=openModal(`
+  `),i=e.querySelectorAll(".star-item");function l(n){o=n,i.forEach(d=>{d.style.color=Number(d.dataset.val)<=n?"#F59E0B":"var(--text-4)"})}i.forEach(n=>{n.onclick=()=>l(Number(n.dataset.val))}),e.querySelector("#mAppCancel").onclick=()=>e.remove(),e.querySelector("#mAppConfirm").onclick=async()=>{const n=e.querySelector("#mAppFeedback").value.trim(),d=e.querySelector("#mAppConfirm");d.disabled=!0,d.textContent="Approving…";try{await apiPost(`/jobs/${s}/approve`,{rating:o,feedback:n}),flashToast("Deliverables approved & signed off! 🎉"),e.remove(),t&&t()}catch(v){flashToast(v.message,!0)}finally{d.disabled=!1,d.textContent="✓ Confirm Approval"}}}function C(s,a,t){const o=openModal(`
     <div style="margin-bottom:14px">
       <div style="font-size:18px;font-weight:800;color:var(--text-1);margin-bottom:4px">Request Deliverable Revision</div>
-      <div style="font-size:12.5px;color:var(--text-3)">${escapeHtml(t)}</div>
+      <div style="font-size:12.5px;color:var(--text-3)">${escapeHtml(a)}</div>
     </div>
 
     <div class="field" style="margin-bottom:16px">
@@ -228,24 +228,24 @@ import"./api-BzPrPlDy.js";let b=null,g=[],p=[],c={tab:"logjob",period:"month"},l
       <button class="btn ghost" id="mRevCancel">Cancel</button>
       <button class="btn gold" id="mRevConfirm" style="background:linear-gradient(135deg,var(--amber-500) 0%,#D97706 100%)">↺ Send Revision Request</button>
     </div>
-  `);bindAttachmentUploader("mRevAttachments"),o.querySelector("#mRevCancel").onclick=()=>o.remove(),o.querySelector("#mRevConfirm").onclick=async()=>{const e=o.querySelector("#mRevNotes").value.trim();if(!e){flashToast("Please enter revision details",!0);return}const s=getUploaderAttachments("mRevAttachments"),r=o.querySelector("#mRevConfirm");r.disabled=!0,r.textContent="Sending…";try{await apiPost(`/jobs/${a}/revision`,{feedback:e,attachments:s}),flashToast("Revision request sent to the team! ↺"),o.remove(),i&&i()}catch(n){flashToast(n.message,!0)}finally{r.disabled=!1,r.textContent="↺ Send Revision Request"}}}function k(a,t){const i=t.roster||[],o=p&&p.length?p:[];a.innerHTML=`
+  `);bindAttachmentUploader("mRevAttachments"),o.querySelector("#mRevCancel").onclick=()=>o.remove(),o.querySelector("#mRevConfirm").onclick=async()=>{const e=o.querySelector("#mRevNotes").value.trim();if(!e){flashToast("Please enter revision details",!0);return}const i=getUploaderAttachments("mRevAttachments"),l=o.querySelector("#mRevConfirm");l.disabled=!0,l.textContent="Sending…";try{await apiPost(`/jobs/${s}/revision`,{feedback:e,attachments:i}),flashToast("Revision request sent to the team! ↺"),o.remove(),t&&t()}catch(n){flashToast(n.message,!0)}finally{l.disabled=!1,l.textContent="↺ Send Revision Request"}}}function D(s,a){const t=a.roster||[],o=p&&p.length?p:[];s.innerHTML=`
     <div class="block">
       <h2>Our Team <span class="eyebrow">${o.length} members</span></h2>
 
-      ${i.length>0?`
+      ${t.length>0?`
         <div style="margin-bottom:24px">
           <h3 style="font-size:14px;font-weight:700;color:var(--text-2);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.8px">Account Lead Assignments</h3>
-          ${i.map(e=>`
+          ${t.map(e=>`
             <div class="card" style="margin-bottom:12px">
               <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
                 <span style="font-size:13px;font-weight:700;color:var(--text-1)">Roster</span>
                 <span class="badge ${e.nature==="Existing"?"green":"blue"}">${e.nature}</span>
               </div>
               <div class="grid grid-2">
-                ${$.filter(([s])=>(e.roles[s]||"").trim()&&e.roles[s]!=="TBD").map(([s,r])=>`
+                ${$.filter(([i])=>(e.roles[i]||"").trim()&&e.roles[i]!=="TBD").map(([i,l])=>`
                   <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border-xs)">
-                    <span style="font-size:12.5px;color:var(--text-3)">${r}</span>
-                    <strong style="font-size:12.5px;color:var(--text-1)">${escapeHtml(e.roles[s])}</strong>
+                    <span style="font-size:12.5px;color:var(--text-3)">${l}</span>
+                    <strong style="font-size:12.5px;color:var(--text-1)">${escapeHtml(e.roles[i])}</strong>
                   </div>`).join("")||'<div style="color:var(--text-4);font-size:13px">Not yet assigned.</div>'}
               </div>
             </div>`).join("")}
@@ -266,4 +266,115 @@ import"./api-BzPrPlDy.js";let b=null,g=[],p=[],c={tab:"logjob",period:"month"},l
             </div>
           </div>`).join("")}
       </div>
-    </div>`}A();
+    </div>`}async function S(s){const a=await apiGet("/accounts/client-portal"),t=a.summary||{},o=a.invoices||[],e=a.payments||[];s.innerHTML=`
+    <div class="block">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px">
+        <div>
+          <h2>Billing & Invoices <span class="eyebrow">${o.length} invoices issued</span></h2>
+          <p style="font-size:13px;color:var(--text-3);margin:0">View your billing invoices, payment history, and pending balances.</p>
+        </div>
+      </div>
+
+      <!-- Financial Metric Cards -->
+      <div class="grid grid-3" style="margin-bottom:24px">
+        <div class="card kpi">
+          <div class="kpi-header"><span class="kpi-label">Total Invoiced</span><span class="badge blue">Billed</span></div>
+          <div class="kpi-value">${fmtINR(t.totalBilled||0)}</div>
+          <div style="font-size:12px;color:var(--text-3);margin-top:4px">${t.invoiceCount||0} total invoices</div>
+        </div>
+
+        <div class="card kpi" style="border-left:3px solid var(--green-500)">
+          <div class="kpi-header"><span class="kpi-label">Total Payments Cleared</span><span class="badge green">Paid</span></div>
+          <div class="kpi-value" style="color:var(--green-600)">${fmtINR(t.totalPaid||0)}</div>
+          <div style="font-size:12px;color:var(--text-3);margin-top:4px">${t.paymentCount||0} payments recorded</div>
+        </div>
+
+        <div class="card kpi" style="border-left:3px solid var(--amber-500)">
+          <div class="kpi-header"><span class="kpi-label">Pending Dues Balance</span><span class="badge amber">Pending</span></div>
+          <div class="kpi-value" style="color:var(--amber-600)">${fmtINR(t.pendingAmount||0)}</div>
+          <div style="font-size:12px;color:${t.overdueAmount>0?"var(--red-600)":"var(--text-3)"};margin-top:4px">
+            ${t.overdueAmount>0?`🚨 ${fmtINR(t.overdueAmount)} is overdue`:"No overdue invoices"}
+          </div>
+        </div>
+      </div>
+
+      <!-- Bank Details Callout -->
+      <div class="card" style="background:var(--bg-elevated);margin-bottom:24px;padding:16px 20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px">
+        <div>
+          <strong style="font-size:13px;color:var(--text-1)">Settlement Bank & UPI Details:</strong>
+          <div style="font-size:12px;color:var(--text-3);margin-top:4px">HDFC Bank | A/C: 50200088992211 | IFSC: HDFC0001234 | UPI: ci360@hdfcbank</div>
+        </div>
+        <div style="font-size:12px;color:var(--text-4)">Please share transaction UTR once payment is executed.</div>
+      </div>
+
+      <!-- Invoices Table -->
+      <div class="card table-card" style="padding:0;overflow:hidden;margin-bottom:24px">
+        <div style="padding:16px 20px;border-bottom:1px solid var(--border-sm)">
+          <h3 style="margin:0;font-size:15px;font-weight:800;color:var(--text-1)">Invoices</h3>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th style="padding-left:22px">Invoice #</th>
+                <th>Issue Date</th>
+                <th>Due Date</th>
+                <th class="num">Amount</th>
+                <th class="num">Paid</th>
+                <th class="num">Pending</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${o.map(i=>`
+                <tr>
+                  <td style="padding-left:22px"><strong>${escapeHtml(i.invoiceNumber)}</strong></td>
+                  <td>${fmtDate(i.issueDate)}</td>
+                  <td style="color:${i.status==="overdue"?"var(--red-600)":"inherit"}">${fmtDate(i.dueDate)}</td>
+                  <td class="num" style="font-weight:700">${fmtINR(i.totalAmount)}</td>
+                  <td class="num" style="color:var(--green-600);font-weight:600">${fmtINR(i.amountPaid)}</td>
+                  <td class="num" style="font-weight:800;color:${i.pendingAmount>0?"var(--amber-600)":"var(--text-4)"}">
+                    ${fmtINR(i.pendingAmount)}
+                  </td>
+                  <td>
+                    <span class="badge ${i.status==="paid"?"green":i.status==="overdue"?"red":"amber"}">
+                      ${escapeHtml(i.status.replace("_"," ").toUpperCase())}
+                    </span>
+                  </td>
+                </tr>`).join("")||'<tr><td colspan="7"><div class="empty" style="padding:28px">No invoices on file.</div></td></tr>'}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Payment Receipts Table -->
+      ${e.length>0?`
+        <div class="card table-card" style="padding:0;overflow:hidden">
+          <div style="padding:16px 20px;border-bottom:1px solid var(--border-sm)">
+            <h3 style="margin:0;font-size:15px;font-weight:800;color:var(--text-1)">Payment Receipts & Remittances</h3>
+          </div>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th style="padding-left:22px">Receipt #</th>
+                  <th>Date</th>
+                  <th>Method</th>
+                  <th>Reference / UTR</th>
+                  <th class="num" style="padding-right:22px">Amount Cleared</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${e.map(i=>`
+                  <tr>
+                    <td style="padding-left:22px"><strong>${escapeHtml(i.paymentNumber)}</strong></td>
+                    <td>${fmtDate(i.paymentDate)}</td>
+                    <td><span class="badge">${escapeHtml(i.paymentMethod.toUpperCase())}</span></td>
+                    <td style="font-family:var(--font-mono);font-size:12px">${escapeHtml(i.referenceId||"—")}</td>
+                    <td class="num" style="padding-right:22px;color:var(--green-600);font-weight:800">${fmtINR(i.amount)}</td>
+                  </tr>`).join("")}
+              </tbody>
+            </table>
+          </div>
+        </div>`:""}
+    </div>`}w();

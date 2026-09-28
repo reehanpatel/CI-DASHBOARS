@@ -676,7 +676,8 @@
   (function(){
     const u = getUser();
     if(u && getToken()){
-      window.location.href = u.role==='superadmin' ? '/admin' : (u.role==='employee' ? '/employee' : '/client');
+      const isEkta = (u.name && u.name.toLowerCase().includes('ekta')) || (u.email && u.email.toLowerCase().includes('ekta'));
+      window.location.href = u.role==='superadmin' ? '/admin' : (u.role==='accounts' || isEkta ? '/accounts' : (u.role==='employee' ? '/employee' : '/client'));
     }
   })();
 
@@ -745,7 +746,8 @@
       }
       const data = await apiPost('/auth/login', { email, password });
       setSession(data.token, data.user);
-      window.location.href = data.user.role === 'superadmin' ? '/admin' : (data.user.role === 'employee' ? '/employee' : '/client');
+      const isEkta = (data.user.name && data.user.name.toLowerCase().includes('ekta')) || (data.user.email && data.user.email.toLowerCase().includes('ekta'));
+      window.location.href = data.user.role === 'superadmin' ? '/admin' : (data.user.role === 'accounts' || isEkta ? '/accounts' : (data.user.role === 'employee' ? '/employee' : '/client'));
     } catch(err) {
       errMsg.textContent = err.message || 'Invalid credentials. Please check and try again.';
       errBox.style.display = 'flex';

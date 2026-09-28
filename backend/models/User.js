@@ -4,7 +4,7 @@ const UserSchema = new mongoose.Schema({
   name: { type: String, required: true, trim: true },
   email: { type: String, required: true, unique: true, lowercase: true, trim: true },
   passwordHash: { type: String, required: true },
-  role: { type: String, enum: ['superadmin', 'employee', 'client'], required: true },
+  role: { type: String, enum: ['superadmin', 'accounts', 'employee', 'client'], required: true },
   // Link an employee login to their Personnel record
   personnelId: { type: mongoose.Schema.Types.ObjectId, ref: 'Personnel', default: null },
   // Link a client login to their Client record

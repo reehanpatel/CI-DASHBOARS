@@ -41,7 +41,8 @@ const ADMIN_TABS = [
   { key: 'tickets', label: 'Support Tickets', icon: '🎫' },
   { key: 'byclient', label: 'By Client', icon: '💼' },
   { key: 'byperson', label: 'By Person', icon: '👥' },
-  { key: 'accounts', label: 'Accounts', icon: '🏢' },
+  { key: 'accounts', label: 'Client Roster', icon: '🏢' },
+  { key: 'billing_dashboard', label: 'Accounts Dashboard', icon: '💳' },
   { key: 'targets', label: 'Targets', icon: '🎯' },
   { key: 'salaries', label: 'Salaries', icon: '💰' },
   { key: 'users', label: 'Users', icon: '👤' },
@@ -83,6 +84,7 @@ async function renderTab(){
     else if(ui.tab==='byclient') await tabByClient(c);
     else if(ui.tab==='byperson') await tabByPerson(c);
     else if(ui.tab==='accounts') await tabAccounts(c);
+    else if(ui.tab==='billing_dashboard') { window.location.href = '/accounts'; return; }
     else if(ui.tab==='targets') await tabTargets(c);
     else if(ui.tab==='salaries') await tabSalaries(c);
     else if(ui.tab==='settings' || ui.tab==='manage') tabSettings(c);
@@ -171,6 +173,22 @@ async function tabDashboard(c){
         </div>
       </div>
     </section>
+
+    <!-- Accounts & Billing Quick Link -->
+    <div class="card" style="background:linear-gradient(135deg, rgba(79, 70, 229, 0.08) 0%, rgba(245, 158, 11, 0.08) 100%);border:1px solid rgba(99, 102, 241, 0.25);margin-bottom:28px;padding:20px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px">
+      <div style="display:flex;align-items:center;gap:14px">
+        <div style="width:44px;height:44px;background:var(--brand-500);color:#FFFFFF;border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">
+          💳
+        </div>
+        <div>
+          <h3 style="font-size:16px;font-weight:800;color:var(--text-1);margin:0 0 3px 0">Accounts & Billing Dashboard</h3>
+          <p style="font-size:12.5px;color:var(--text-3);margin:0">Manage client billing schedules, generate tax invoices, track payment receipts, and monitor outstanding pending amounts.</p>
+        </div>
+      </div>
+      <a href="/accounts" class="btn gold" style="text-decoration:none;display:inline-flex;align-items:center;gap:8px">
+        <span>Open Accounts Dashboard →</span>
+      </a>
+    </div>
 
     <section class="block">
       <h2>Roadmap Signals <span class="eyebrow">Auto-generated</span></h2>
@@ -2149,6 +2167,8 @@ async function tabUsers(c){
     // Role filter
     if (currentRoleFilter === 'admin') {
       list = list.filter(u => u.role === 'superadmin' || u.role === 'admin');
+    } else if (currentRoleFilter === 'accounts') {
+      list = list.filter(u => u.role === 'accounts');
     } else if (currentRoleFilter === 'employee') {
       list = list.filter(u => u.role === 'employee');
     } else if (currentRoleFilter === 'client') {
@@ -2156,7 +2176,7 @@ async function tabUsers(c){
     }
 
     // Sorting
-    const rolePriority = { superadmin: 1, admin: 1, employee: 2, client: 3 };
+    const rolePriority = { superadmin: 1, admin: 1, accounts: 2, employee: 3, client: 4 };
     if (currentSort === 'role') {
       list.sort((a, b) => {
         const pa = rolePriority[a.role] || 9;
@@ -2189,12 +2209,15 @@ async function tabUsers(c){
 
     tbody.innerHTML = list.map(u => {
       const isAdm = u.role === 'superadmin' || u.role === 'admin';
+      const isAcc = u.role === 'accounts';
       const isEmp = u.role === 'employee';
       const roleBadge = isAdm 
         ? `<span class="badge gold" style="font-weight:700">👑 Admin</span>` 
-        : (isEmp 
-            ? `<span class="badge blue" style="font-weight:700">💼 Employee</span>` 
-            : `<span class="badge green" style="font-weight:700">🤝 Client</span>`);
+        : (isAcc 
+            ? `<span class="badge amber" style="font-weight:700">💳 Accounts</span>` 
+            : (isEmp 
+                ? `<span class="badge blue" style="font-weight:700">💼 Employee</span>` 
+                : `<span class="badge green" style="font-weight:700">🤝 Client</span>`));
       
       const linked = u.personnelId ? escapeHtml(u.personnelId.name) : (u.clientId ? escapeHtml(u.clientId.name) : '<span class="muted">—</span>');
 
@@ -2228,6 +2251,7 @@ async function tabUsers(c){
   }
 
   const adminCount = users.filter(u => u.role === 'superadmin' || u.role === 'admin').length;
+  const accCount   = users.filter(u => u.role === 'accounts').length;
   const empCount   = users.filter(u => u.role === 'employee').length;
   const clientCount= users.filter(u => u.role === 'client').length;
 
@@ -2236,7 +2260,7 @@ async function tabUsers(c){
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:12px">
         <div>
           <h2 style="font-size:20px;font-weight:800;color:var(--text-1);margin-bottom:4px;border:none;padding:0">User Accounts</h2>
-          <p style="font-size:13px;color:var(--text-3);margin:0">Manage system login credentials for administrators, employees, and clients.</p>
+          <p style="font-size:13px;color:var(--text-3);margin:0">Manage system login credentials for administrators, accounts, employees, and clients.</p>
         </div>
         <button class="btn gold small" id="addUserBtn" type="button">+ Add User</button>
       </div>
@@ -2247,6 +2271,7 @@ async function tabUsers(c){
         <div style="display:flex;gap:6px;flex-wrap:wrap">
           <button class="pchip active user-role-filter" data-role="all">All (${users.length})</button>
           <button class="pchip user-role-filter" data-role="admin">👑 Admins (${adminCount})</button>
+          <button class="pchip user-role-filter" data-role="accounts">💳 Accounts (${accCount})</button>
           <button class="pchip user-role-filter" data-role="employee">💼 Employees (${empCount})</button>
           <button class="pchip user-role-filter" data-role="client">🤝 Clients (${clientCount})</button>
         </div>
@@ -2331,6 +2356,7 @@ function openUserModal(u){
     <div class="field-row">
       <div class="field"><label>Role</label><select id="uRole">
         <option value="superadmin" ${role0==='superadmin'?'selected':''}>Admin</option>
+        <option value="accounts" ${role0==='accounts'?'selected':''}>Accounts & Finance</option>
         <option value="employee" ${role0==='employee'?'selected':''}>Employee</option>
         <option value="client" ${role0==='client'?'selected':''}>Client</option></select></div>
       <div class="field"><label>Password ${isNew?'':'(leave blank to keep current)'}</label><input id="uPassword" type="password"></div>

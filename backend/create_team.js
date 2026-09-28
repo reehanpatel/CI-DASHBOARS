@@ -43,7 +43,8 @@ async function createTeam() {
 
     for (const [name, duties] of Object.entries(teamDuties)) {
       const isSuper = superadminNames.includes(name);
-      const role = isSuper ? 'superadmin' : 'employee';
+      const isAccounts = name.toLowerCase() === 'ekta';
+      const role = isSuper ? 'superadmin' : (isAccounts ? 'accounts' : 'employee');
       const pass = isSuper ? 'Admin123!' : 'Employee123!';
       const hash = isSuper ? adminHash : empHash;
 

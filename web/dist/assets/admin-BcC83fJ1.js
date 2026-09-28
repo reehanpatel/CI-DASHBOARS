@@ -1,4 +1,4 @@
-import"./api-BzPrPlDy.js";let Y=null,x={personnel:[],clients:[],services:[],salaryGrades:[],salaryAssignments:[]},M=null,T={tab:"dashboard",period:"month",jobsFilter:"all",ticketsFilter:"all"},g={title:"",clientId:"",serviceIds:[],date:new Date().toISOString().slice(0,10),completion:"",value:"",desc:"",assignments:[{personId:"",percent:100,hours:""},{personId:"",percent:0,hours:""}]};async function ge(){initTheme(),Y=requireAuth("superadmin"),Y&&(await _(),K())}async function _(){const[t,a,e]=await Promise.all([apiGet("/personnel"),apiGet("/clients"),apiGet("/services")]);x.personnel=t,x.clients=a,x.services=e}function V(){const t=x.personnel.find(s=>/mansi/i.test(s.name)),a=x.personnel.find(s=>/urna/i.test(s.name)),e=[];return t&&e.push({personId:t._id,percent:"",hours:""}),a&&e.push({personId:a._id,percent:"",hours:""}),e.length===0&&e.push({personId:"",percent:"",hours:""}),e}function pe(t){const a=x.personnel.find(e=>e._id===t);return a?a.name:"—"}function W(t){const a=x.clients.find(e=>e._id===t);return a?a.name:"—"}const Q=[{key:"dashboard",label:"Dashboard",icon:"📊"},{key:"dailytasks",label:"Daily Tasks",icon:"✅"},{key:"logjob",label:"Log a Job",icon:"➕"},{key:"jobs",label:"All Jobs",icon:"📁"},{key:"tickets",label:"Support Tickets",icon:"🎫"},{key:"byclient",label:"By Client",icon:"💼"},{key:"byperson",label:"By Person",icon:"👥"},{key:"accounts",label:"Accounts",icon:"🏢"},{key:"targets",label:"Targets",icon:"🎯"},{key:"salaries",label:"Salaries",icon:"💰"},{key:"users",label:"Users",icon:"👤"},{key:"manage",label:"Manage",icon:"⚙️"}];function K(){const t=document.getElementById("app"),a=Q.find(e=>e.key===T.tab)||Q[0];t.innerHTML=renderAppShell({user:Y,currentRole:"superadmin",activeTab:T.tab,tabs:Q,title:a.label,subtitle:"Productivity & Revenue Intelligence"}),bindAppShellEvents(e=>{T.tab=e,K()}),h()}window.ci360NavTab=t=>{T.tab=t,K()};async function h(){const t=document.getElementById("content");if(t){t.innerHTML=renderSkeletonCards(4);try{T.tab==="dashboard"?await be(t):T.tab==="dailytasks"?await ve(t):T.tab==="logjob"?O(t):T.tab==="jobs"?await ke(t):T.tab==="tickets"?await J(t):T.tab==="byclient"?await $e(t):T.tab==="byperson"?await me(t):T.tab==="accounts"?await Se(t):T.tab==="targets"?await Ie(t):T.tab==="salaries"?await Ae(t):T.tab==="settings"||T.tab==="manage"?Ee(t):T.tab==="users"&&await ue(t)}catch(a){t.innerHTML=`<div class="empty"><h3>Something went wrong</h3>${escapeHtml(a.message)}</div>`}}}function Z(){return renderPeriodPicker(T.period)}function X(){document.querySelectorAll("[data-period]").forEach(t=>{t.onclick=()=>{T.period=t.dataset.period,h()}})}async function be(t){M=await apiGet("/dashboard/admin?period="+T.period);const a=M.overview;t.innerHTML=`
+import"./api-B2Bht1wi.js";let Y=null,x={personnel:[],clients:[],services:[],salaryGrades:[],salaryAssignments:[]},M=null,w={tab:"dashboard",period:"month",jobsFilter:"all",ticketsFilter:"all"},g={title:"",clientId:"",serviceIds:[],date:new Date().toISOString().slice(0,10),completion:"",value:"",desc:"",assignments:[{personId:"",percent:100,hours:""},{personId:"",percent:0,hours:""}]};async function ge(){initTheme(),Y=requireAuth("superadmin"),Y&&(await _(),K())}async function _(){const[t,a,e]=await Promise.all([apiGet("/personnel"),apiGet("/clients"),apiGet("/services")]);x.personnel=t,x.clients=a,x.services=e}function V(){const t=x.personnel.find(i=>/mansi/i.test(i.name)),a=x.personnel.find(i=>/urna/i.test(i.name)),e=[];return t&&e.push({personId:t._id,percent:"",hours:""}),a&&e.push({personId:a._id,percent:"",hours:""}),e.length===0&&e.push({personId:"",percent:"",hours:""}),e}function pe(t){const a=x.personnel.find(e=>e._id===t);return a?a.name:"—"}function W(t){const a=x.clients.find(e=>e._id===t);return a?a.name:"—"}const Q=[{key:"dashboard",label:"Dashboard",icon:"📊"},{key:"dailytasks",label:"Daily Tasks",icon:"✅"},{key:"logjob",label:"Log a Job",icon:"➕"},{key:"jobs",label:"All Jobs",icon:"📁"},{key:"tickets",label:"Support Tickets",icon:"🎫"},{key:"byclient",label:"By Client",icon:"💼"},{key:"byperson",label:"By Person",icon:"👥"},{key:"accounts",label:"Client Roster",icon:"🏢"},{key:"billing_dashboard",label:"Accounts Dashboard",icon:"💳"},{key:"targets",label:"Targets",icon:"🎯"},{key:"salaries",label:"Salaries",icon:"💰"},{key:"users",label:"Users",icon:"👤"},{key:"manage",label:"Manage",icon:"⚙️"}];function K(){const t=document.getElementById("app"),a=Q.find(e=>e.key===w.tab)||Q[0];t.innerHTML=renderAppShell({user:Y,currentRole:"superadmin",activeTab:w.tab,tabs:Q,title:a.label,subtitle:"Productivity & Revenue Intelligence"}),bindAppShellEvents(e=>{w.tab=e,K()}),h()}window.ci360NavTab=t=>{w.tab=t,K()};async function h(){const t=document.getElementById("content");if(t){t.innerHTML=renderSkeletonCards(4);try{if(w.tab==="dashboard")await be(t);else if(w.tab==="dailytasks")await ve(t);else if(w.tab==="logjob")F(t);else if(w.tab==="jobs")await ke(t);else if(w.tab==="tickets")await J(t);else if(w.tab==="byclient")await $e(t);else if(w.tab==="byperson")await me(t);else if(w.tab==="accounts")await Se(t);else if(w.tab==="billing_dashboard"){window.location.href="/accounts";return}else w.tab==="targets"?await Ie(t):w.tab==="salaries"?await Ae(t):w.tab==="settings"||w.tab==="manage"?Ee(t):w.tab==="users"&&await ue(t)}catch(a){t.innerHTML=`<div class="empty"><h3>Something went wrong</h3>${escapeHtml(a.message)}</div>`}}}function Z(){return renderPeriodPicker(w.period)}function X(){document.querySelectorAll("[data-period]").forEach(t=>{t.onclick=()=>{w.period=t.dataset.period,h()}})}async function be(t){M=await apiGet("/dashboard/admin?period="+w.period);const a=M.overview;t.innerHTML=`
     <div class="dash-overview-header">
       <div class="dash-overview-title-wrap">
         <h2 style="font-size:22px;font-weight:700;color:var(--navy-900);margin:0 0 2px 0;">Dashboard Overview</h2>
@@ -67,6 +67,22 @@ import"./api-BzPrPlDy.js";let Y=null,x={personnel:[],clients:[],services:[],sala
       </div>
     </section>
 
+    <!-- Accounts & Billing Quick Link -->
+    <div class="card" style="background:linear-gradient(135deg, rgba(79, 70, 229, 0.08) 0%, rgba(245, 158, 11, 0.08) 100%);border:1px solid rgba(99, 102, 241, 0.25);margin-bottom:28px;padding:20px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px">
+      <div style="display:flex;align-items:center;gap:14px">
+        <div style="width:44px;height:44px;background:var(--brand-500);color:#FFFFFF;border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">
+          💳
+        </div>
+        <div>
+          <h3 style="font-size:16px;font-weight:800;color:var(--text-1);margin:0 0 3px 0">Accounts & Billing Dashboard</h3>
+          <p style="font-size:12.5px;color:var(--text-3);margin:0">Manage client billing schedules, generate tax invoices, track payment receipts, and monitor outstanding pending amounts.</p>
+        </div>
+      </div>
+      <a href="/accounts" class="btn gold" style="text-decoration:none;display:inline-flex;align-items:center;gap:8px">
+        <span>Open Accounts Dashboard →</span>
+      </a>
+    </div>
+
     <section class="block">
       <h2>Roadmap Signals <span class="eyebrow">Auto-generated</span></h2>
       ${M.insights.length?M.insights.map(e=>`<div class="insight ${e.type}">${escapeHtml(e.text)}</div>`).join(""):'<div class="empty">Log a few jobs to start seeing workload signals here.</div>'}
@@ -87,9 +103,9 @@ import"./api-BzPrPlDy.js";let Y=null,x={personnel:[],clients:[],services:[],sala
       <h2>Team Load at a Glance</h2>
       <div class="card">${M.personnel.filter(e=>e.status!=="inactive").map(ye).join("")||'<div class="empty">No personnel yet.</div>'}</div>
     </section>
-  `,X()}function ae(t,a){if(!t.length)return'<div class="empty">No data yet.</div>';const e=Math.max(1,...t.map(s=>s[1]));return t.map(([s,n])=>`
+  `,X()}function ae(t,a){if(!t.length)return'<div class="empty">No data yet.</div>';const e=Math.max(1,...t.map(i=>i[1]));return t.map(([i,n])=>`
     <div class="bar-row">
-      <div>${escapeHtml(s)}</div>
+      <div>${escapeHtml(i)}</div>
       <div class="bar-track"><div class="bar-fill ${a?"gold":""}" style="width:${(n/e*100).toFixed(1)}%"></div></div>
       <div class="num">${fmtINR(n)}</div>
     </div>`).join("")}function ye(t){const a=Math.min(t.utilization,160);return`
@@ -105,7 +121,7 @@ import"./api-BzPrPlDy.js";let Y=null,x={personnel:[],clients:[],services:[],sala
         <div class="gauge-zone" style="left:90%;width:10%;background:var(--red-bg);"></div>
         <div class="gauge-fill" style="left:${Math.min(a/1.6,99)}%;"></div>
       </div>
-    </div>`}function O(t){(!g.assignments||g.assignments.every(e=>!e.personId))&&(g.assignments=V());const a=g.assignments.reduce((e,s)=>e+(Number(s.percent)||0),0);t.innerHTML=`
+    </div>`}function F(t){(!g.assignments||g.assignments.every(e=>!e.personId))&&(g.assignments=V());const a=g.assignments.reduce((e,i)=>e+(Number(i.percent)||0),0);t.innerHTML=`
     <section class="block">
       <div style="margin-bottom:20px;">
         <h2 style="font-size:20px;font-weight:800;color:var(--text-1);margin-bottom:4px;border:none;padding:0;">Log New Job & Work Deliverable</h2>
@@ -151,10 +167,10 @@ import"./api-BzPrPlDy.js";let Y=null,x={personnel:[],clients:[],services:[],sala
             </div>
             ${g.serviceIds.length?`
               <div class="selected-services-tags" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;">
-                ${g.serviceIds.map(e=>{const s=x.services.find(n=>n._id===e);return s?`
+                ${g.serviceIds.map(e=>{const i=x.services.find(n=>n._id===e);return i?`
                     <span class="badge blue" style="display:inline-flex;align-items:center;gap:6px;padding:6px 12px;font-size:12px;border-radius:20px;">
-                      ${escapeHtml(s.name)}
-                      <span class="remove-service-tag" data-id="${s._id}" style="cursor:pointer;font-weight:bold;margin-left:4px;" title="Remove service">✕</span>
+                      ${escapeHtml(i.name)}
+                      <span class="remove-service-tag" data-id="${i._id}" style="cursor:pointer;font-weight:bold;margin-left:4px;" title="Remove service">✕</span>
                     </span>
                   `:""}).join("")}
               </div>
@@ -182,7 +198,7 @@ import"./api-BzPrPlDy.js";let Y=null,x={personnel:[],clients:[],services:[],sala
               <div></div>
             </div>
             <div id="assignRows">
-              ${g.assignments.map((e,s)=>fe(e,s)).join("")}
+              ${g.assignments.map((e,i)=>fe(e,i)).join("")}
             </div>
             <button class="btn ghost small" id="addAssignRow" type="button" style="margin-top:10px;">+ Add Team Member</button>
             <div style="margin-top:14px;">
@@ -237,7 +253,7 @@ import"./api-BzPrPlDy.js";let Y=null,x={personnel:[],clients:[],services:[],sala
           <button class="btn ghost" id="mCancel">Cancel</button>
           <button class="btn gold" id="mSave">Add Client</button>
         </div>
-      `);v.querySelector("#mCancel").onclick=()=>v.remove(),v.querySelector("#mSave").onclick=async()=>{const d=v.querySelector("#newClientName").value.trim(),k=v.querySelector("#newClientNotes").value.trim();if(!d){flashToast("Client name is required",!0);return}try{const f=await apiPost("/clients",{name:d,notes:k});await _(),g.clientId=f._id,flashToast("Client added"),v.remove(),O(document.getElementById("content"))}catch(f){flashToast(f.message,!0)}}});const e=document.getElementById("jDate");e&&(e.onchange=v=>g.date=v.target.value);const s=document.getElementById("jCompletion");s&&(s.onchange=v=>g.completion=v.target.value);const n=document.getElementById("jService");n&&(n.onchange=v=>{const d=v.target.value;d&&(g.serviceIds.includes(d)||g.serviceIds.push(d),O(document.getElementById("content")))}),document.querySelectorAll(".remove-service-tag").forEach(v=>{v.onclick=d=>{d.stopPropagation();const k=v.dataset.id;g.serviceIds=g.serviceIds.filter(f=>f!==k),O(document.getElementById("content"))}});const l=document.getElementById("addNewServiceBtn");l&&(l.onclick=()=>{const v=openModal(`
+      `);v.querySelector("#mCancel").onclick=()=>v.remove(),v.querySelector("#mSave").onclick=async()=>{const f=v.querySelector("#newClientName").value.trim(),p=v.querySelector("#newClientNotes").value.trim();if(!f){flashToast("Client name is required",!0);return}try{const y=await apiPost("/clients",{name:f,notes:p});await _(),g.clientId=y._id,flashToast("Client added"),v.remove(),F(document.getElementById("content"))}catch(y){flashToast(y.message,!0)}}});const e=document.getElementById("jDate");e&&(e.onchange=v=>g.date=v.target.value);const i=document.getElementById("jCompletion");i&&(i.onchange=v=>g.completion=v.target.value);const n=document.getElementById("jService");n&&(n.onchange=v=>{const f=v.target.value;f&&(g.serviceIds.includes(f)||g.serviceIds.push(f),F(document.getElementById("content")))}),document.querySelectorAll(".remove-service-tag").forEach(v=>{v.onclick=f=>{f.stopPropagation();const p=v.dataset.id;g.serviceIds=g.serviceIds.filter(y=>y!==p),F(document.getElementById("content"))}});const l=document.getElementById("addNewServiceBtn");l&&(l.onclick=()=>{const v=openModal(`
         <h3>Add New Service</h3>
         <div class="field">
           <label>Service Name *</label>
@@ -247,20 +263,20 @@ import"./api-BzPrPlDy.js";let Y=null,x={personnel:[],clients:[],services:[],sala
           <button class="btn ghost" id="mCancel">Cancel</button>
           <button class="btn gold" id="mSave">Add Service</button>
         </div>
-      `);v.querySelector("#mCancel").onclick=()=>v.remove(),v.querySelector("#mSave").onclick=async()=>{const d=v.querySelector("#newServiceName").value.trim();if(!d){flashToast("Service name is required",!0);return}try{const k=await apiPost("/services",{name:d});await _(),g.serviceIds.includes(k._id)||g.serviceIds.push(k._id),flashToast("Service added"),v.remove(),O(document.getElementById("content"))}catch(k){flashToast(k.message,!0)}}});const r=document.getElementById("jDesc");r&&(r.oninput=v=>g.desc=v.target.value);const u=document.getElementById("jValue");u&&(u.oninput=v=>g.value=v.target.value),document.querySelectorAll(".person-assign-row").forEach(v=>{const d=Number(v.dataset.idx),k=v.querySelector(".a-person");k&&(k.onchange=i=>g.assignments[d].personId=i.target.value);const f=v.querySelector(".a-percent");f&&(f.oninput=i=>{g.assignments[d].percent=i.target.value,xe()});const p=v.querySelector(".a-hours");p&&(p.oninput=i=>g.assignments[d].hours=i.target.value);const y=v.querySelector(".a-remove");y&&(y.onclick=()=>{g.assignments.length>1&&(g.assignments.splice(d,1),O(document.getElementById("content")))})});const b=document.getElementById("addAssignRow");b&&(b.onclick=()=>{g.assignments.push({personId:"",percent:0,hours:""}),O(document.getElementById("content"))}),bindAttachmentUploader("jAttachments",{existing:g.attachments||[]});const $=document.getElementById("clearJobBtn");$&&($.onclick=()=>{g={title:"",assignments:V(),serviceIds:[],clientId:"",date:new Date().toISOString().slice(0,10),completion:"",value:"",desc:"",attachments:[]},setUploaderAttachments("jAttachments",[]),O(document.getElementById("content"))});const I=document.getElementById("saveJobBtn");I&&(I.onclick=async()=>{try{if(typeof Notification<"u"&&Notification.permission==="default")try{await Notification.requestPermission()}catch{}if(!g.clientId){flashToast("Please select a client",!0);return}if(!g.serviceIds||!g.serviceIds.length){flashToast("Please select at least one service",!0);return}const v=g.assignments.filter(i=>i.personId);if(!v.length){flashToast("Please assign at least one person",!0);return}for(const i of v)if(i.hours===""||i.hours==null){flashToast("Enter hours spent for every assigned person",!0);return}const d=x.clients.find(i=>i._id===g.clientId),f=x.services.filter(i=>g.serviceIds.includes(i._id)).map(i=>i.name).join(", "),p=g.title||(d?`${d.name} — ${f||"Deliverable"}`:f||"Untitled Job"),y=getUploaderAttachments("jAttachments");await apiPost("/jobs",{title:p,clientId:g.clientId,serviceIds:g.serviceIds,date:g.date||new Date().toISOString().slice(0,10),completionDate:g.completion||null,value:Number(g.value)||0,description:g.desc||"",assignments:v,attachments:y}),flashToast("Job saved successfully! 📁"),typeof window.ci360FetchNotifications=="function"&&window.ci360FetchNotifications(),g={title:"",assignments:V(),serviceIds:[],clientId:"",date:new Date().toISOString().slice(0,10),completion:"",value:"",desc:"",attachments:[]},T.tab="jobs",h()}catch(v){flashToast(v.message,!0)}})}function xe(){const t=g.assignments.reduce((e,s)=>e+(Number(s.percent)||0),0),a=document.querySelector(".assign-total");a&&(a.textContent=`${t}% of work allocated ${t!==100?"— should total 100%":"✓"}`,a.classList.toggle("warn",t!==100))}async function ke(t){let a=await apiGet("/jobs");a.sort((e,s)=>new Date(s.date)-new Date(e.date)),T.jobsFilter==="progress"&&(a=a.filter(e=>!e.completionDate)),T.jobsFilter==="done"&&(a=a.filter(e=>e.completionDate)),t.innerHTML=`
+      `);v.querySelector("#mCancel").onclick=()=>v.remove(),v.querySelector("#mSave").onclick=async()=>{const f=v.querySelector("#newServiceName").value.trim();if(!f){flashToast("Service name is required",!0);return}try{const p=await apiPost("/services",{name:f});await _(),g.serviceIds.includes(p._id)||g.serviceIds.push(p._id),flashToast("Service added"),v.remove(),F(document.getElementById("content"))}catch(p){flashToast(p.message,!0)}}});const r=document.getElementById("jDesc");r&&(r.oninput=v=>g.desc=v.target.value);const u=document.getElementById("jValue");u&&(u.oninput=v=>g.value=v.target.value),document.querySelectorAll(".person-assign-row").forEach(v=>{const f=Number(v.dataset.idx),p=v.querySelector(".a-person");p&&(p.onchange=s=>g.assignments[f].personId=s.target.value);const y=v.querySelector(".a-percent");y&&(y.oninput=s=>{g.assignments[f].percent=s.target.value,xe()});const E=v.querySelector(".a-hours");E&&(E.oninput=s=>g.assignments[f].hours=s.target.value);const c=v.querySelector(".a-remove");c&&(c.onclick=()=>{g.assignments.length>1&&(g.assignments.splice(f,1),F(document.getElementById("content")))})});const b=document.getElementById("addAssignRow");b&&(b.onclick=()=>{g.assignments.push({personId:"",percent:0,hours:""}),F(document.getElementById("content"))}),bindAttachmentUploader("jAttachments",{existing:g.attachments||[]});const $=document.getElementById("clearJobBtn");$&&($.onclick=()=>{g={title:"",assignments:V(),serviceIds:[],clientId:"",date:new Date().toISOString().slice(0,10),completion:"",value:"",desc:"",attachments:[]},setUploaderAttachments("jAttachments",[]),F(document.getElementById("content"))});const I=document.getElementById("saveJobBtn");I&&(I.onclick=async()=>{try{if(typeof Notification<"u"&&Notification.permission==="default")try{await Notification.requestPermission()}catch{}if(!g.clientId){flashToast("Please select a client",!0);return}if(!g.serviceIds||!g.serviceIds.length){flashToast("Please select at least one service",!0);return}const v=g.assignments.filter(s=>s.personId);if(!v.length){flashToast("Please assign at least one person",!0);return}for(const s of v)if(s.hours===""||s.hours==null){flashToast("Enter hours spent for every assigned person",!0);return}const f=x.clients.find(s=>s._id===g.clientId),y=x.services.filter(s=>g.serviceIds.includes(s._id)).map(s=>s.name).join(", "),E=g.title||(f?`${f.name} — ${y||"Deliverable"}`:y||"Untitled Job"),c=getUploaderAttachments("jAttachments");await apiPost("/jobs",{title:E,clientId:g.clientId,serviceIds:g.serviceIds,date:g.date||new Date().toISOString().slice(0,10),completionDate:g.completion||null,value:Number(g.value)||0,description:g.desc||"",assignments:v,attachments:c}),flashToast("Job saved successfully! 📁"),typeof window.ci360FetchNotifications=="function"&&window.ci360FetchNotifications(),g={title:"",assignments:V(),serviceIds:[],clientId:"",date:new Date().toISOString().slice(0,10),completion:"",value:"",desc:"",attachments:[]},w.tab="jobs",h()}catch(v){flashToast(v.message,!0)}})}function xe(){const t=g.assignments.reduce((e,i)=>e+(Number(i.percent)||0),0),a=document.querySelector(".assign-total");a&&(a.textContent=`${t}% of work allocated ${t!==100?"— should total 100%":"✓"}`,a.classList.toggle("warn",t!==100))}async function ke(t){let a=await apiGet("/jobs");a.sort((e,i)=>new Date(i.date)-new Date(e.date)),w.jobsFilter==="progress"&&(a=a.filter(e=>!e.completionDate)),w.jobsFilter==="done"&&(a=a.filter(e=>e.completionDate)),t.innerHTML=`
     <section class="block">
       <h2>All Jobs <span class="eyebrow">${a.length} shown</span></h2>
       <div style="margin-bottom:12px;display:flex;gap:6px;">
-        <button class="pchip ${T.jobsFilter==="all"?"active":""}" data-jf="all">All</button>
-        <button class="pchip ${T.jobsFilter==="progress"?"active":""}" data-jf="progress">In Progress</button>
-        <button class="pchip ${T.jobsFilter==="done"?"active":""}" data-jf="done">Completed</button>
+        <button class="pchip ${w.jobsFilter==="all"?"active":""}" data-jf="all">All</button>
+        <button class="pchip ${w.jobsFilter==="progress"?"active":""}" data-jf="progress">In Progress</button>
+        <button class="pchip ${w.jobsFilter==="done"?"active":""}" data-jf="done">Completed</button>
       </div>
       ${a.length===0?'<div class="empty">No jobs logged yet.</div>':`
       <div class="card" style="overflow-x:auto;">
         <table>
           <thead><tr><th>Job Title</th><th>Files &amp; Artifacts</th><th>Start</th><th>Status &amp; Sign-Off</th><th>Client</th><th>Service(s)</th><th>Assigned Personnel</th><th class="num">Hours</th><th style="text-align:right;">Actions</th></tr></thead>
           <tbody>
-          ${a.map(e=>{const s=e.status==="Completed",n=(e.assignments||[]).map(u=>`${escapeHtml(pe(u.personId))} (${u.percent}%)`).join(", "),l=(e.attachments||[]).length,r=(e.deliverables||[]).length;return`<tr>
+          ${a.map(e=>{const i=e.status==="Completed",n=(e.assignments||[]).map(u=>`${escapeHtml(pe(u.personId))} (${u.percent}%)`).join(", "),l=(e.attachments||[]).length,r=(e.deliverables||[]).length;return`<tr>
               <td><strong>${escapeHtml(e.title||"Untitled Job")}</strong></td>
               <td>
                 <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap">
@@ -272,8 +288,8 @@ import"./api-BzPrPlDy.js";let Y=null,x={personnel:[],clients:[],services:[],sala
               <td>${fmtDate(e.date)}</td>
               <td>
                 <div style="display:flex;flex-direction:column;gap:3px;align-items:flex-start">
-                  <button class="btn ${s?"ghost":"gold"} small toggle-status-btn" data-id="${e._id}" data-done="${s}" style="padding:2px 7px;font-size:11px;cursor:pointer;">
-                    <span class="badge ${s?"green":e.status==="Needs Revision"?"red":"amber"}">${s?"Completed":e.status==="Needs Revision"?"Needs Revision":"In Progress"}</span>
+                  <button class="btn ${i?"ghost":"gold"} small toggle-status-btn" data-id="${e._id}" data-done="${i}" style="padding:2px 7px;font-size:11px;cursor:pointer;">
+                    <span class="badge ${i?"green":e.status==="Needs Revision"?"red":"amber"}">${i?"Completed":e.status==="Needs Revision"?"Needs Revision":"In Progress"}</span>
                   </button>
                   ${e.clientApproval&&e.clientApproval.status==="Approved"?`<span style="font-size:10px;font-weight:700;color:var(--green-500)">✓ Client Approved ${e.clientApproval.rating?`(${e.clientApproval.rating}★)`:""}</span>`:e.clientApproval&&e.clientApproval.status==="Revision Requested"?'<span style="font-size:10px;font-weight:700;color:var(--red-500)">↺ Revision Req.</span>':""}
                 </div>
@@ -296,7 +312,7 @@ import"./api-BzPrPlDy.js";let Y=null,x={personnel:[],clients:[],services:[],sala
         </table>
       </div>`}
     </section>
-  `,document.querySelectorAll("[data-jf]").forEach(e=>e.onclick=()=>{T.jobsFilter=e.dataset.jf,h()}),document.querySelectorAll(".view-job-files").forEach(e=>{e.onclick=()=>{const s=e.dataset.id,n=a.find(b=>b._id===s);if(!n)return;const l=encodeURIComponent(JSON.stringify(n.attachments||[])),r=encodeURIComponent(JSON.stringify(n.deliverables||[])),u=openModal(`
+  `,document.querySelectorAll("[data-jf]").forEach(e=>e.onclick=()=>{w.jobsFilter=e.dataset.jf,h()}),document.querySelectorAll(".view-job-files").forEach(e=>{e.onclick=()=>{const i=e.dataset.id,n=a.find(b=>b._id===i);if(!n)return;const l=encodeURIComponent(JSON.stringify(n.attachments||[])),r=encodeURIComponent(JSON.stringify(n.deliverables||[])),u=openModal(`
         <div style="margin-bottom:14px;border-bottom:1px solid var(--border-sm);padding-bottom:10px">
           <h3 style="margin-bottom:4px">📁 Job Files &amp; Artifacts</h3>
           <div style="font-size:12.5px;color:var(--text-3)">${escapeHtml(n.title||"Untitled Job")}</div>
@@ -334,16 +350,16 @@ import"./api-BzPrPlDy.js";let Y=null,x={personnel:[],clients:[],services:[],sala
         <div class="modal-actions">
           <button class="btn ghost" id="mCloseFiles">Close</button>
         </div>
-      `);bindAttachmentUploader("mDelUpload"),u.querySelector("#mDelSaveBtn").onclick=async()=>{const b=getUploaderAttachments("mDelUpload"),$=u.querySelector("#mDelNote").value.trim();if(!b.length){flashToast("Please select at least one deliverable file",!0);return}try{const I=b.map(v=>({...v,notes:$}));await apiPost(`/jobs/${s}/deliverables`,{deliverables:I}),flashToast("Deliverables added! 📦"),u.remove(),h()}catch(I){flashToast(I.message,!0)}},u.querySelector("#mCloseFiles").onclick=()=>u.remove()}}),document.querySelectorAll(".view-job-tickets").forEach(e=>{e.onclick=()=>{const s=e.dataset.id,n=e.dataset.title,l=openModal(`
+      `);bindAttachmentUploader("mDelUpload"),u.querySelector("#mDelSaveBtn").onclick=async()=>{const b=getUploaderAttachments("mDelUpload"),$=u.querySelector("#mDelNote").value.trim();if(!b.length){flashToast("Please select at least one deliverable file",!0);return}try{const I=b.map(v=>({...v,notes:$}));await apiPost(`/jobs/${i}/deliverables`,{deliverables:I}),flashToast("Deliverables added! 📦"),u.remove(),h()}catch(I){flashToast(I.message,!0)}},u.querySelector("#mCloseFiles").onclick=()=>u.remove()}}),document.querySelectorAll(".view-job-tickets").forEach(e=>{e.onclick=()=>{const i=e.dataset.id,n=e.dataset.title,l=openModal(`
         <div style="margin-bottom:12px">
           <h3 style="margin-bottom:4px">🎫 Support Tickets</h3>
           <div style="font-size:12px;color:var(--text-3)">${escapeHtml(n)}</div>
         </div>
-        ${renderSupportTicketSection(s,!0)}
+        ${renderSupportTicketSection(i,!0)}
         <div class="modal-actions" style="margin-top:16px">
           <button class="btn ghost" id="mCloseTickets">Close</button>
         </div>
-      `);bindSupportTicketSection(s,!0),l.querySelector("#mCloseTickets").onclick=()=>l.remove()}}),document.querySelectorAll(".edit-job, .assign-cell-click").forEach(e=>{e.onclick=()=>{const s=e.dataset.id,n=a.find(l=>l._id===s);n&&we(n,()=>h())}}),document.querySelectorAll(".toggle-status-btn").forEach(e=>e.onclick=async()=>{const s=e.dataset.id,n=e.dataset.done==="false",l=a.find(u=>u._id===s);let r=l?l.completionDate:null;n&&!r&&(r=new Date().toISOString().slice(0,10)),await apiPut("/jobs/"+s,{status:n?"Completed":"In Progress",completionDate:r}),flashToast(n?"Job marked as Completed!":"Job marked as In Progress"),h()}),document.querySelectorAll(".del-job").forEach(e=>e.onclick=async()=>{confirm("Delete this job?")&&(await apiDelete("/jobs/"+e.dataset.id),flashToast("Deleted"),h())})}let F="",U="all";async function J(t){let a=await apiGet("/tickets");a.sort((i,m)=>new Date(m.createdAt)-new Date(i.createdAt));const e=a.length,s=a.filter(i=>i.status==="Open").length,n=a.filter(i=>i.status==="In Review").length,l=a.filter(i=>i.status==="Resolved"||i.status==="Closed").length,r=e>0?Math.round(l/e*100):100,u=T.ticketsFilter||"all";let b=a;if(u==="open"?b=b.filter(i=>i.status==="Open"):u==="in-review"?b=b.filter(i=>i.status==="In Review"):u==="resolved"?b=b.filter(i=>i.status==="Resolved"):u==="closed"&&(b=b.filter(i=>i.status==="Closed")),U!=="all"&&(b=b.filter(i=>i.priority===U)),F){const i=F.toLowerCase();b=b.filter(m=>{const D=m.jobId&&m.jobId.title||"";return(m.subject||"").toLowerCase().includes(i)||(m.message||"").toLowerCase().includes(i)||(m.userName||"").toLowerCase().includes(i)||D.toLowerCase().includes(i)})}const $={Open:"red","In Review":"amber",Resolved:"green",Closed:"gray"},I={Low:"green",Medium:"gray",High:"amber",Urgent:"red"};function v(i){if(!i)return"U";const m=i.trim().split(/\s+/);return m.length===1?m[0].slice(0,2).toUpperCase():(m[0][0]+m[m.length-1][0]).toUpperCase()}function d(i){if(!i)return"";const m=new Date,D=new Date(i),B=Math.floor((m-D)/1e3);if(B<60)return"Just now";const H=Math.floor(B/60);if(H<60)return`${H}m ago`;const N=Math.floor(H/60);if(N<24)return`${N}h ago`;const o=Math.floor(N/24);return o<7?`${o}d ago`:fmtDate(i)}t.innerHTML=`
+      `);bindSupportTicketSection(i,!0),l.querySelector("#mCloseTickets").onclick=()=>l.remove()}}),document.querySelectorAll(".edit-job, .assign-cell-click").forEach(e=>{e.onclick=()=>{const i=e.dataset.id,n=a.find(l=>l._id===i);n&&we(n,()=>h())}}),document.querySelectorAll(".toggle-status-btn").forEach(e=>e.onclick=async()=>{const i=e.dataset.id,n=e.dataset.done==="false",l=a.find(u=>u._id===i);let r=l?l.completionDate:null;n&&!r&&(r=new Date().toISOString().slice(0,10)),await apiPut("/jobs/"+i,{status:n?"Completed":"In Progress",completionDate:r}),flashToast(n?"Job marked as Completed!":"Job marked as In Progress"),h()}),document.querySelectorAll(".del-job").forEach(e=>e.onclick=async()=>{confirm("Delete this job?")&&(await apiDelete("/jobs/"+e.dataset.id),flashToast("Deleted"),h())})}let O="",U="all";async function J(t){let a=await apiGet("/tickets");a.sort((s,m)=>new Date(m.createdAt)-new Date(s.createdAt));const e=a.length,i=a.filter(s=>s.status==="Open").length,n=a.filter(s=>s.status==="In Review").length,l=a.filter(s=>s.status==="Resolved"||s.status==="Closed").length,r=e>0?Math.round(l/e*100):100,u=w.ticketsFilter||"all";let b=a;if(u==="open"?b=b.filter(s=>s.status==="Open"):u==="in-review"?b=b.filter(s=>s.status==="In Review"):u==="resolved"?b=b.filter(s=>s.status==="Resolved"):u==="closed"&&(b=b.filter(s=>s.status==="Closed")),U!=="all"&&(b=b.filter(s=>s.priority===U)),O){const s=O.toLowerCase();b=b.filter(m=>{const T=m.jobId&&m.jobId.title||"";return(m.subject||"").toLowerCase().includes(s)||(m.message||"").toLowerCase().includes(s)||(m.userName||"").toLowerCase().includes(s)||T.toLowerCase().includes(s)})}const $={Open:"red","In Review":"amber",Resolved:"green",Closed:"gray"},I={Low:"green",Medium:"gray",High:"amber",Urgent:"red"};function v(s){if(!s)return"U";const m=s.trim().split(/\s+/);return m.length===1?m[0].slice(0,2).toUpperCase():(m[0][0]+m[m.length-1][0]).toUpperCase()}function f(s){if(!s)return"";const m=new Date,T=new Date(s),N=Math.floor((m-T)/1e3);if(N<60)return"Just now";const H=Math.floor(N/60);if(H<60)return`${H}m ago`;const B=Math.floor(H/60);if(B<24)return`${B}h ago`;const o=Math.floor(B/24);return o<7?`${o}d ago`:fmtDate(s)}t.innerHTML=`
     <section class="block">
       <!-- Top Metrics Hub -->
       <div class="ticket-hub-kpis">
@@ -357,7 +373,7 @@ import"./api-BzPrPlDy.js";let Y=null,x={personnel:[],clients:[],services:[],sala
         <div class="ticket-kpi-card">
           <div class="ticket-kpi-icon red">🔴</div>
           <div>
-            <div class="ticket-kpi-val">${s}</div>
+            <div class="ticket-kpi-val">${i}</div>
             <div class="ticket-kpi-lbl">Open Action Req.</div>
           </div>
         </div>
@@ -381,7 +397,7 @@ import"./api-BzPrPlDy.js";let Y=null,x={personnel:[],clients:[],services:[],sala
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px">
         <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
           <button class="pchip ${u==="all"?"active":""}" data-tf="all">All (${e})</button>
-          <button class="pchip ${u==="open"?"active":""}" data-tf="open">🔴 Open (${s})</button>
+          <button class="pchip ${u==="open"?"active":""}" data-tf="open">🔴 Open (${i})</button>
           <button class="pchip ${u==="in-review"?"active":""}" data-tf="in-review">🟡 In Review (${n})</button>
           <button class="pchip ${u==="resolved"?"active":""}" data-tf="resolved">🟢 Resolved (${l})</button>
           <button class="pchip ${u==="closed"?"active":""}" data-tf="closed">⚪ Closed</button>
@@ -398,8 +414,8 @@ import"./api-BzPrPlDy.js";let Y=null,x={personnel:[],clients:[],services:[],sala
 
           <div class="ticket-search-box">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--text-4)" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input type="text" id="admTkSearch" placeholder="Search by subject, user, job…" value="${escapeHtml(F)}">
-            ${F?'<button type="button" id="admClearSearch" style="background:none;border:none;color:var(--text-4);cursor:pointer;font-size:12px">✕</button>':""}
+            <input type="text" id="admTkSearch" placeholder="Search by subject, user, job…" value="${escapeHtml(O)}">
+            ${O?'<button type="button" id="admClearSearch" style="background:none;border:none;color:var(--text-4);cursor:pointer;font-size:12px">✕</button>':""}
           </div>
           <button class="btn gold" id="admRaiseTicketGlobalBtn" type="button" style="display:flex;align-items:center;gap:6px;padding:8px 16px;font-size:13px;font-weight:700">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -411,42 +427,42 @@ import"./api-BzPrPlDy.js";let Y=null,x={personnel:[],clients:[],services:[],sala
       <!-- Ticket Cards List -->
       ${b.length===0?renderEmptyState("No support tickets found","No tickets match the active filters or search criteria.","🎫"):`
       <div style="display:flex;flex-direction:column;gap:14px">
-        ${b.map(i=>{const m=i.jobId?i.jobId.title||"Untitled Job":"General Workspace Support",D=(i.status||"Open").toLowerCase().replace(" ","-"),B=i.status==="Open",H=(i._id||"").slice(-4).toUpperCase(),N=v(i.userName);return`
-          <div class="ticket-card status-${D}" id="adm-tk-${i._id}">
+        ${b.map(s=>{const m=s.jobId?s.jobId.title||"Untitled Job":"General Workspace Support",T=(s.status||"Open").toLowerCase().replace(" ","-"),N=s.status==="Open",H=(s._id||"").slice(-4).toUpperCase(),B=v(s.userName);return`
+          <div class="ticket-card status-${T}" id="adm-tk-${s._id}">
             <div class="ticket-card-header">
               <div>
                 <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;flex-wrap:wrap">
                   <span class="ticket-id-tag">#TK-${H}</span>
-                  <span class="ticket-subject">${escapeHtml(i.subject)}</span>
+                  <span class="ticket-subject">${escapeHtml(s.subject)}</span>
                 </div>
                 <div style="font-size:12px;color:var(--text-4);margin-top:2px">
                   📁 Job: <strong style="color:var(--text-2)">${escapeHtml(m)}</strong>
                 </div>
               </div>
               <div class="ticket-meta-badges">
-                <span class="badge ${$[i.status]||"gray"}">
-                  ${B?'<span class="pulse-dot"></span>':""} ${escapeHtml(i.status)}
+                <span class="badge ${$[s.status]||"gray"}">
+                  ${N?'<span class="pulse-dot"></span>':""} ${escapeHtml(s.status)}
                 </span>
-                <span class="badge ${I[i.priority]||"gray"}">${escapeHtml(i.priority)}</span>
+                <span class="badge ${I[s.priority]||"gray"}">${escapeHtml(s.priority)}</span>
               </div>
             </div>
 
             <div class="ticket-author-row">
-              <div class="ticket-avatar">${N}</div>
+              <div class="ticket-avatar">${B}</div>
               <div class="ticket-author-meta">
                 <div class="ticket-author-name">
-                  ${escapeHtml(i.userName)}
-                  <span class="ticket-role-pill">${escapeHtml(i.userRole)}</span>
+                  ${escapeHtml(s.userName)}
+                  <span class="ticket-role-pill">${escapeHtml(s.userRole)}</span>
                 </div>
-                <span class="ticket-time-ago">${d(i.createdAt)} · ${fmtDate(i.createdAt)}</span>
+                <span class="ticket-time-ago">${f(s.createdAt)} · ${fmtDate(s.createdAt)}</span>
               </div>
             </div>
 
             <div class="ticket-message-box">
-              ${escapeHtml(i.message)}
+              ${escapeHtml(s.message)}
             </div>
 
-            ${i.adminReply?`
+            ${s.adminReply?`
               <div class="ticket-thread-wrap">
                 <div class="ticket-admin-reply-card">
                   <div class="ticket-admin-reply-header">
@@ -454,51 +470,51 @@ import"./api-BzPrPlDy.js";let Y=null,x={personnel:[],clients:[],services:[],sala
                       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
                       Official Support Response
                     </span>
-                    ${i.repliedAt?`<span style="font-size:11px;color:var(--text-4)">${d(i.repliedAt)}</span>`:""}
+                    ${s.repliedAt?`<span style="font-size:11px;color:var(--text-4)">${f(s.repliedAt)}</span>`:""}
                   </div>
-                  <div class="ticket-admin-reply-text">${escapeHtml(i.adminReply)}</div>
+                  <div class="ticket-admin-reply-text">${escapeHtml(s.adminReply)}</div>
                 </div>
               </div>`:""}
 
             <div class="ticket-toolbar">
               <label style="font-size:11px;font-weight:700;color:var(--text-4);text-transform:uppercase">Status:</label>
-              <select class="adm-tk-status-sel" data-tkid="${i._id}" style="font-size:12px;padding:5px 8px;border:1px solid var(--border-sm);border-radius:var(--r-sm);background:var(--bg-surface);color:var(--text-1)">
-                <option value="Open" ${i.status==="Open"?"selected":""}>🔴 Open</option>
-                <option value="In Review" ${i.status==="In Review"?"selected":""}>🟡 In Review</option>
-                <option value="Resolved" ${i.status==="Resolved"?"selected":""}>🟢 Resolved</option>
-                <option value="Closed" ${i.status==="Closed"?"selected":""}>⚪ Closed</option>
+              <select class="adm-tk-status-sel" data-tkid="${s._id}" style="font-size:12px;padding:5px 8px;border:1px solid var(--border-sm);border-radius:var(--r-sm);background:var(--bg-surface);color:var(--text-1)">
+                <option value="Open" ${s.status==="Open"?"selected":""}>🔴 Open</option>
+                <option value="In Review" ${s.status==="In Review"?"selected":""}>🟡 In Review</option>
+                <option value="Resolved" ${s.status==="Resolved"?"selected":""}>🟢 Resolved</option>
+                <option value="Closed" ${s.status==="Closed"?"selected":""}>⚪ Closed</option>
               </select>
 
-              <button class="btn ghost small adm-tk-reply-toggle" data-tkid="${i._id}" type="button">
+              <button class="btn ghost small adm-tk-reply-toggle" data-tkid="${s._id}" type="button">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                ${i.adminReply?"Edit Reply":"💬 Reply"}
+                ${s.adminReply?"Edit Reply":"💬 Reply"}
               </button>
 
-              ${i.status!=="Resolved"?`
-                <button class="btn ghost small adm-tk-quick-resolve" data-tkid="${i._id}" type="button" style="color:var(--green-600);border-color:var(--green-400)">
+              ${s.status!=="Resolved"?`
+                <button class="btn ghost small adm-tk-quick-resolve" data-tkid="${s._id}" type="button" style="color:var(--green-600);border-color:var(--green-400)">
                   ✓ Quick Resolve
                 </button>`:""}
 
-              <button class="btn danger small adm-tk-del-btn" data-tkid="${i._id}" type="button" style="margin-left:auto;padding:3px 8px;font-size:11px">Delete</button>
+              <button class="btn danger small adm-tk-del-btn" data-tkid="${s._id}" type="button" style="margin-left:auto;padding:3px 8px;font-size:11px">Delete</button>
 
-              <div class="ticket-reply-form" id="adm-tk-replyform-${i._id}">
+              <div class="ticket-reply-form" id="adm-tk-replyform-${s._id}">
                 <div class="ticket-templates-bar">
                   <span style="font-size:10px;font-weight:700;color:var(--text-4);text-transform:uppercase;align-self:center">Quick:</span>
-                  <button type="button" class="ticket-template-btn" data-tkid="${i._id}" data-tpl="We are actively investigating this and will update you shortly.">🔍 Investigating</button>
-                  <button type="button" class="ticket-template-btn" data-tkid="${i._id}" data-tpl="This issue has been resolved and the updates have been saved.">✅ Resolved</button>
-                  <button type="button" class="ticket-template-btn" data-tkid="${i._id}" data-tpl="Could you please provide more details so we can assist further?">ℹ️ Need Info</button>
+                  <button type="button" class="ticket-template-btn" data-tkid="${s._id}" data-tpl="We are actively investigating this and will update you shortly.">🔍 Investigating</button>
+                  <button type="button" class="ticket-template-btn" data-tkid="${s._id}" data-tpl="This issue has been resolved and the updates have been saved.">✅ Resolved</button>
+                  <button type="button" class="ticket-template-btn" data-tkid="${s._id}" data-tpl="Could you please provide more details so we can assist further?">ℹ️ Need Info</button>
                 </div>
-                <textarea id="adm-tk-replytxt-${i._id}" rows="2" placeholder="Write official response to ticket..." style="font-size:13px;padding:8px 10px;border:1px solid var(--border-sm);border-radius:var(--r-sm);background:var(--bg-surface);color:var(--text-1);resize:vertical;width:100%;box-sizing:border-box">${escapeHtml(i.adminReply||"")}</textarea>
+                <textarea id="adm-tk-replytxt-${s._id}" rows="2" placeholder="Write official response to ticket..." style="font-size:13px;padding:8px 10px;border:1px solid var(--border-sm);border-radius:var(--r-sm);background:var(--bg-surface);color:var(--text-1);resize:vertical;width:100%;box-sizing:border-box">${escapeHtml(s.adminReply||"")}</textarea>
                 <div style="display:flex;justify-content:flex-end;gap:6px;margin-top:6px">
-                  <button class="btn ghost small adm-tk-reply-cancel" data-tkid="${i._id}" type="button">Cancel</button>
-                  <button class="btn gold small adm-tk-reply-save" data-tkid="${i._id}" type="button">Save Response</button>
+                  <button class="btn ghost small adm-tk-reply-cancel" data-tkid="${s._id}" type="button">Cancel</button>
+                  <button class="btn gold small adm-tk-reply-save" data-tkid="${s._id}" type="button">Save Response</button>
                 </div>
               </div>
             </div>
           </div>`}).join("")}
       </div>`}
     </section>
-  `,document.querySelectorAll("[data-tf]").forEach(i=>{i.onclick=()=>{T.ticketsFilter=i.dataset.tf,h()}});const k=document.getElementById("admTkSearch");k&&(k.oninput=i=>{F=i.target.value,J(t)});const f=document.getElementById("admClearSearch");f&&(f.onclick=()=>{F="",J(t)});const p=document.getElementById("admTkPriFilter");p&&(p.onchange=i=>{U=i.target.value,J(t)});const y=document.getElementById("admRaiseTicketGlobalBtn");y&&(y.onclick=async()=>{let i=[];try{i=await apiGet("/jobs")}catch{i=[]}const m=openModal(`
+  `,document.querySelectorAll("[data-tf]").forEach(s=>{s.onclick=()=>{w.ticketsFilter=s.dataset.tf,h()}});const p=document.getElementById("admTkSearch");p&&(p.oninput=s=>{O=s.target.value,J(t)});const y=document.getElementById("admClearSearch");y&&(y.onclick=()=>{O="",J(t)});const E=document.getElementById("admTkPriFilter");E&&(E.onchange=s=>{U=s.target.value,J(t)});const c=document.getElementById("admRaiseTicketGlobalBtn");c&&(c.onclick=async()=>{let s=[];try{s=await apiGet("/jobs")}catch{s=[]}const m=openModal(`
         <div style="margin-bottom:14px">
           <h3 style="margin-bottom:4px">🎫 Raise Support Ticket</h3>
           <div style="font-size:12.5px;color:var(--text-3)">Create a new support request, revision note, or blocker report.</div>
@@ -508,7 +524,7 @@ import"./api-BzPrPlDy.js";let Y=null,x={personnel:[],clients:[],services:[],sala
           <label style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--text-3);margin-bottom:6px;display:block">Target / Job (Optional)</label>
           <select id="modalTkJob" style="width:100%;font-size:13.5px;padding:10px 12px;border:1px solid var(--border-sm);border-radius:var(--r-md);background:var(--bg-surface);color:var(--text-1)">
             <option value="">📁 General Workspace Support (No specific job)</option>
-            ${i.map(D=>`<option value="${D._id}">${escapeHtml(D.title||"Untitled Job")} (${escapeHtml(W(D.clientId))})</option>`).join("")}
+            ${s.map(T=>`<option value="${T._id}">${escapeHtml(T.title||"Untitled Job")} (${escapeHtml(W(T.clientId))})</option>`).join("")}
           </select>
         </div>
 
@@ -539,7 +555,7 @@ import"./api-BzPrPlDy.js";let Y=null,x={personnel:[],clients:[],services:[],sala
             Submit Ticket
           </button>
         </div>
-      `);m.querySelector("#mCancelTicket").onclick=()=>m.remove(),m.querySelector("#mSubmitTicket").onclick=async()=>{const D=m.querySelector("#modalTkJob").value||null,B=m.querySelector("#modalTkSub").value.trim(),H=m.querySelector("#modalTkPri").value,N=m.querySelector("#modalTkMsg").value.trim();if(!B){flashToast("Please enter an issue subject",!0);return}if(!N){flashToast("Please enter description",!0);return}try{await apiPost("/tickets",{jobId:D,subject:B,message:N,priority:H}),flashToast("Support Ticket Raised! 🎫"),m.remove(),J(t)}catch(o){flashToast(o.message,!0)}}}),document.querySelectorAll(".adm-tk-quick-resolve").forEach(i=>{i.onclick=async()=>{try{await apiPut("/tickets/"+i.dataset.tkid,{status:"Resolved"}),flashToast("Ticket marked as Resolved! 🎉"),h()}catch(m){flashToast(m.message,!0)}}}),document.querySelectorAll(".ticket-template-btn").forEach(i=>{i.onclick=()=>{const m=document.getElementById("adm-tk-replytxt-"+i.dataset.tkid);m&&(m.value=i.dataset.tpl,m.focus())}}),document.querySelectorAll(".adm-tk-status-sel").forEach(i=>{i.onchange=async()=>{try{await apiPut("/tickets/"+i.dataset.tkid,{status:i.value}),flashToast("Status updated"),h()}catch(m){flashToast(m.message,!0)}}}),document.querySelectorAll(".adm-tk-reply-toggle").forEach(i=>{i.onclick=()=>{const m=document.getElementById("adm-tk-replyform-"+i.dataset.tkid);m&&m.classList.toggle("show")}}),document.querySelectorAll(".adm-tk-reply-cancel").forEach(i=>{i.onclick=()=>{const m=document.getElementById("adm-tk-replyform-"+i.dataset.tkid);m&&m.classList.remove("show")}}),document.querySelectorAll(".adm-tk-reply-save").forEach(i=>{i.onclick=async()=>{const m=document.getElementById("adm-tk-replytxt-"+i.dataset.tkid);if(m)try{await apiPut("/tickets/"+i.dataset.tkid,{adminReply:m.value.trim()}),flashToast("Response saved! 🛡️"),h()}catch(D){flashToast(D.message,!0)}}}),document.querySelectorAll(".adm-tk-del-btn").forEach(i=>{i.onclick=async()=>{if(confirm("Permanently delete this ticket?"))try{await apiDelete("/tickets/"+i.dataset.tkid),flashToast("Ticket deleted"),h()}catch(m){flashToast(m.message,!0)}}})}function we(t,a){let e={title:t.title||"",clientId:t.clientId?t.clientId._id||t.clientId:"",serviceIds:t.serviceIds?t.serviceIds.map(o=>o._id||o):[],date:t.date?new Date(t.date).toISOString().slice(0,10):new Date().toISOString().slice(0,10),completionDate:t.completionDate?new Date(t.completionDate).toISOString().slice(0,10):"",status:t.status||"In Progress",priority:t.priority||"Medium",value:t.value!=null?t.value:"",description:t.description||"",preferredPersonId:t.preferredPersonId?t.preferredPersonId._id||t.preferredPersonId:"",assignments:t.assignments&&t.assignments.length?t.assignments.map(o=>({personId:String(o.personId._id||o.personId),percent:o.percent!=null?o.percent:0,hours:o.hours!=null?o.hours:0})):V()};function s(){return e.serviceIds.length?e.serviceIds.map(o=>{const S=x.services.find(P=>String(P._id)===String(o));return S?`
+      `);m.querySelector("#mCancelTicket").onclick=()=>m.remove(),m.querySelector("#mSubmitTicket").onclick=async()=>{const T=m.querySelector("#modalTkJob").value||null,N=m.querySelector("#modalTkSub").value.trim(),H=m.querySelector("#modalTkPri").value,B=m.querySelector("#modalTkMsg").value.trim();if(!N){flashToast("Please enter an issue subject",!0);return}if(!B){flashToast("Please enter description",!0);return}try{await apiPost("/tickets",{jobId:T,subject:N,message:B,priority:H}),flashToast("Support Ticket Raised! 🎫"),m.remove(),J(t)}catch(o){flashToast(o.message,!0)}}}),document.querySelectorAll(".adm-tk-quick-resolve").forEach(s=>{s.onclick=async()=>{try{await apiPut("/tickets/"+s.dataset.tkid,{status:"Resolved"}),flashToast("Ticket marked as Resolved! 🎉"),h()}catch(m){flashToast(m.message,!0)}}}),document.querySelectorAll(".ticket-template-btn").forEach(s=>{s.onclick=()=>{const m=document.getElementById("adm-tk-replytxt-"+s.dataset.tkid);m&&(m.value=s.dataset.tpl,m.focus())}}),document.querySelectorAll(".adm-tk-status-sel").forEach(s=>{s.onchange=async()=>{try{await apiPut("/tickets/"+s.dataset.tkid,{status:s.value}),flashToast("Status updated"),h()}catch(m){flashToast(m.message,!0)}}}),document.querySelectorAll(".adm-tk-reply-toggle").forEach(s=>{s.onclick=()=>{const m=document.getElementById("adm-tk-replyform-"+s.dataset.tkid);m&&m.classList.toggle("show")}}),document.querySelectorAll(".adm-tk-reply-cancel").forEach(s=>{s.onclick=()=>{const m=document.getElementById("adm-tk-replyform-"+s.dataset.tkid);m&&m.classList.remove("show")}}),document.querySelectorAll(".adm-tk-reply-save").forEach(s=>{s.onclick=async()=>{const m=document.getElementById("adm-tk-replytxt-"+s.dataset.tkid);if(m)try{await apiPut("/tickets/"+s.dataset.tkid,{adminReply:m.value.trim()}),flashToast("Response saved! 🛡️"),h()}catch(T){flashToast(T.message,!0)}}}),document.querySelectorAll(".adm-tk-del-btn").forEach(s=>{s.onclick=async()=>{if(confirm("Permanently delete this ticket?"))try{await apiDelete("/tickets/"+s.dataset.tkid),flashToast("Ticket deleted"),h()}catch(m){flashToast(m.message,!0)}}})}function we(t,a){let e={title:t.title||"",clientId:t.clientId?t.clientId._id||t.clientId:"",serviceIds:t.serviceIds?t.serviceIds.map(o=>o._id||o):[],date:t.date?new Date(t.date).toISOString().slice(0,10):new Date().toISOString().slice(0,10),completionDate:t.completionDate?new Date(t.completionDate).toISOString().slice(0,10):"",status:t.status||"In Progress",priority:t.priority||"Medium",value:t.value!=null?t.value:"",description:t.description||"",preferredPersonId:t.preferredPersonId?t.preferredPersonId._id||t.preferredPersonId:"",assignments:t.assignments&&t.assignments.length?t.assignments.map(o=>({personId:String(o.personId._id||o.personId),percent:o.percent!=null?o.percent:0,hours:o.hours!=null?o.hours:0})):V()};function i(){return e.serviceIds.length?e.serviceIds.map(o=>{const S=x.services.find(P=>String(P._id)===String(o));return S?`
         <span class="badge blue" style="display:inline-flex;align-items:center;gap:6px;padding:4px 10px;font-size:12px;border-radius:20px;">
           ${escapeHtml(S.name)}
           <span class="m-remove-service" data-id="${S._id}" style="cursor:pointer;font-weight:bold;margin-left:4px;" title="Remove service">✕</span>
@@ -612,7 +628,7 @@ import"./api-BzPrPlDy.js";let Y=null,x={personnel:[],clients:[],services:[],sala
           ${x.services.map(o=>`<option value="${o._id}">${escapeHtml(o.name)}</option>`).join("")}
         </select>
         <div id="mEditServicesTags" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;">
-          ${s()}
+          ${i()}
         </div>
       </div>
 
@@ -676,7 +692,7 @@ import"./api-BzPrPlDy.js";let Y=null,x={personnel:[],clients:[],services:[],sala
         <button type="button" class="btn gold" id="mEditSave" style="padding:8px 20px;">Save & Update Assignments</button>
       </div>
     </div>
-  `),r=l.querySelector(".modal");r&&(r.style.maxWidth="680px"),bindAttachmentUploader("mEditAttachments",{existing:t.attachments||[]}),bindAttachmentUploader("mEditDeliverables",{existing:t.deliverables||[]});const u=()=>{const o=e.assignments.reduce((P,j)=>P+(Number(j.percent)||0),0),S=l.querySelector("#mAssignTotalInfo");S&&(S.innerHTML=o===100?'<span style="color:var(--green, #10b981);">✓ 100% Allocated</span>':`<span style="color:var(--amber, #f59e0b);">⚠️ ${o}% Allocated (should be 100%)</span>`)},b=()=>{l.querySelectorAll(".m-remove-service").forEach(o=>{o.onclick=()=>{const S=o.dataset.id;e.serviceIds=e.serviceIds.filter(P=>String(P)!==String(S)),l.querySelector("#mEditServicesTags").innerHTML=s(),b()}})},$=()=>{l.querySelectorAll(".m-person-assign-row").forEach(o=>{const S=Number(o.dataset.idx),P=o.querySelector(".m-a-person");P&&(P.onchange=E=>e.assignments[S].personId=E.target.value);const j=o.querySelector(".m-a-percent");j&&(j.oninput=E=>{e.assignments[S].percent=E.target.value,u()});const c=o.querySelector(".m-a-hours");c&&(c.oninput=E=>e.assignments[S].hours=E.target.value);const A=o.querySelector(".m-a-remove");A&&(A.onclick=()=>{e.assignments.length>1?(e.assignments.splice(S,1),l.querySelector("#mEditAssignRows").innerHTML=n(),$(),u()):flashToast("Job must have at least one team member row",!0)})})},I=l.querySelector("#mCloseJobEdit"),v=l.querySelector("#mEditCancel");I&&(I.onclick=()=>l.remove()),v&&(v.onclick=()=>l.remove());const d=l.querySelector("#mEditTitle");d&&(d.oninput=o=>e.title=o.target.value);const k=l.querySelector("#mEditClient");k&&(k.onchange=o=>e.clientId=o.target.value);const f=l.querySelector("#mEditStatus");f&&(f.onchange=o=>e.status=o.target.value);const p=l.querySelector("#mEditDate");p&&(p.onchange=o=>e.date=o.target.value);const y=l.querySelector("#mEditCompletionDate");y&&(y.onchange=o=>e.completionDate=o.target.value);const i=l.querySelector("#mEditPriority");i&&(i.onchange=o=>e.priority=o.target.value);const m=l.querySelector("#mEditValue");m&&(m.oninput=o=>e.value=o.target.value);const D=l.querySelector("#mEditDesc");D&&(D.oninput=o=>e.description=o.target.value);const B=l.querySelector("#mEditServiceSelect");B&&(B.onchange=o=>{const S=o.target.value;S&&!e.serviceIds.map(String).includes(String(S))&&(e.serviceIds.push(S),l.querySelector("#mEditServicesTags").innerHTML=s(),b()),B.value=""}),b(),$(),u();const H=l.querySelector("#mAddAssignRow");H&&(H.onclick=()=>{e.assignments.push({personId:"",percent:0,hours:0}),l.querySelector("#mEditAssignRows").innerHTML=n(),$(),u()});const N=l.querySelector("#mEditSave");N&&(N.onclick=async()=>{try{if(!e.clientId){flashToast("Client is required",!0);return}if(!e.serviceIds||!e.serviceIds.length){flashToast("At least one service is required",!0);return}const o=e.assignments.filter(C=>C.personId&&String(C.personId).trim()!=="");if(!o.length){flashToast("Please select at least one assigned team member",!0);return}for(const C of o)if(C.hours===""||C.hours==null){flashToast("Enter hours spent for every assigned person",!0);return}const S=x.clients.find(C=>String(C._id)===String(e.clientId)),j=x.services.filter(C=>e.serviceIds.map(String).includes(String(C._id))).map(C=>C.name).join(", "),c=e.title||(S?`${S.name} — ${j||"Deliverable"}`:j||"Untitled Job"),A=getUploaderAttachments("mEditAttachments"),E=getUploaderAttachments("mEditDeliverables");await apiPut("/jobs/"+t._id,{title:c,clientId:e.clientId,serviceIds:e.serviceIds,date:e.date,completionDate:e.completionDate||null,status:e.status,priority:e.priority,value:Number(e.value)||0,description:e.description||"",assignments:o,attachments:A,deliverables:E});const R=o.map(C=>pe(C.personId)).join(", ");flashToast("Job updated & saved! 📁"),l.remove(),a&&a()}catch(o){flashToast(o.message,!0)}finally{N.disabled=!1,N.textContent="Save & Update Assignments"}})}async function $e(t){M=await apiGet("/dashboard/admin?period="+T.period),t.innerHTML=`${Z()}
+  `),r=l.querySelector(".modal");r&&(r.style.maxWidth="680px"),bindAttachmentUploader("mEditAttachments",{existing:t.attachments||[]}),bindAttachmentUploader("mEditDeliverables",{existing:t.deliverables||[]});const u=()=>{const o=e.assignments.reduce((P,j)=>P+(Number(j.percent)||0),0),S=l.querySelector("#mAssignTotalInfo");S&&(S.innerHTML=o===100?'<span style="color:var(--green, #10b981);">✓ 100% Allocated</span>':`<span style="color:var(--amber, #f59e0b);">⚠️ ${o}% Allocated (should be 100%)</span>`)},b=()=>{l.querySelectorAll(".m-remove-service").forEach(o=>{o.onclick=()=>{const S=o.dataset.id;e.serviceIds=e.serviceIds.filter(P=>String(P)!==String(S)),l.querySelector("#mEditServicesTags").innerHTML=i(),b()}})},$=()=>{l.querySelectorAll(".m-person-assign-row").forEach(o=>{const S=Number(o.dataset.idx),P=o.querySelector(".m-a-person");P&&(P.onchange=D=>e.assignments[S].personId=D.target.value);const j=o.querySelector(".m-a-percent");j&&(j.oninput=D=>{e.assignments[S].percent=D.target.value,u()});const d=o.querySelector(".m-a-hours");d&&(d.oninput=D=>e.assignments[S].hours=D.target.value);const A=o.querySelector(".m-a-remove");A&&(A.onclick=()=>{e.assignments.length>1?(e.assignments.splice(S,1),l.querySelector("#mEditAssignRows").innerHTML=n(),$(),u()):flashToast("Job must have at least one team member row",!0)})})},I=l.querySelector("#mCloseJobEdit"),v=l.querySelector("#mEditCancel");I&&(I.onclick=()=>l.remove()),v&&(v.onclick=()=>l.remove());const f=l.querySelector("#mEditTitle");f&&(f.oninput=o=>e.title=o.target.value);const p=l.querySelector("#mEditClient");p&&(p.onchange=o=>e.clientId=o.target.value);const y=l.querySelector("#mEditStatus");y&&(y.onchange=o=>e.status=o.target.value);const E=l.querySelector("#mEditDate");E&&(E.onchange=o=>e.date=o.target.value);const c=l.querySelector("#mEditCompletionDate");c&&(c.onchange=o=>e.completionDate=o.target.value);const s=l.querySelector("#mEditPriority");s&&(s.onchange=o=>e.priority=o.target.value);const m=l.querySelector("#mEditValue");m&&(m.oninput=o=>e.value=o.target.value);const T=l.querySelector("#mEditDesc");T&&(T.oninput=o=>e.description=o.target.value);const N=l.querySelector("#mEditServiceSelect");N&&(N.onchange=o=>{const S=o.target.value;S&&!e.serviceIds.map(String).includes(String(S))&&(e.serviceIds.push(S),l.querySelector("#mEditServicesTags").innerHTML=i(),b()),N.value=""}),b(),$(),u();const H=l.querySelector("#mAddAssignRow");H&&(H.onclick=()=>{e.assignments.push({personId:"",percent:0,hours:0}),l.querySelector("#mEditAssignRows").innerHTML=n(),$(),u()});const B=l.querySelector("#mEditSave");B&&(B.onclick=async()=>{try{if(!e.clientId){flashToast("Client is required",!0);return}if(!e.serviceIds||!e.serviceIds.length){flashToast("At least one service is required",!0);return}const o=e.assignments.filter(C=>C.personId&&String(C.personId).trim()!=="");if(!o.length){flashToast("Please select at least one assigned team member",!0);return}for(const C of o)if(C.hours===""||C.hours==null){flashToast("Enter hours spent for every assigned person",!0);return}const S=x.clients.find(C=>String(C._id)===String(e.clientId)),j=x.services.filter(C=>e.serviceIds.map(String).includes(String(C._id))).map(C=>C.name).join(", "),d=e.title||(S?`${S.name} — ${j||"Deliverable"}`:j||"Untitled Job"),A=getUploaderAttachments("mEditAttachments"),D=getUploaderAttachments("mEditDeliverables");await apiPut("/jobs/"+t._id,{title:d,clientId:e.clientId,serviceIds:e.serviceIds,date:e.date,completionDate:e.completionDate||null,status:e.status,priority:e.priority,value:Number(e.value)||0,description:e.description||"",assignments:o,attachments:A,deliverables:D});const R=o.map(C=>pe(C.personId)).join(", ");flashToast("Job updated & saved! 📁"),l.remove(),a&&a()}catch(o){flashToast(o.message,!0)}finally{B.disabled=!1,B.textContent="Save & Update Assignments"}})}async function $e(t){M=await apiGet("/dashboard/admin?period="+w.period),t.innerHTML=`${Z()}
     <section class="block"><h2>By Client</h2>
       <div class="grid grid-3">
         ${M.clients.map(a=>`
@@ -688,15 +704,15 @@ import"./api-BzPrPlDy.js";let Y=null,x={personnel:[],clients:[],services:[],sala
             <div style="display:flex;justify-content:space-between;"><span class="muted">People Involved</span><strong>${a.peopleCount}</strong></div>
           </div>`).join("")||'<div class="empty">No clients yet.</div>'}
       </div>
-    </section>`,X()}async function me(t){M=await apiGet("/dashboard/admin?period="+T.period),t.innerHTML=`${Z()}
+    </section>`,X()}async function me(t){M=await apiGet("/dashboard/admin?period="+w.period),t.innerHTML=`${Z()}
     <section class="block"><h2>By Person</h2>
       <div class="card table-card" style="padding:0;overflow:hidden">
         <div class="table-wrapper">
           <table><thead><tr><th style="padding-left:22px">Person</th><th>Duties</th><th>Status</th><th class="num">Hours</th><th class="num">Utilization</th><th class="num">Jobs</th><th class="num" style="padding-right:22px">Work Credit</th></tr></thead>
-          <tbody>${M.personnel.map(a=>{const e=(a.status||"active").toLowerCase(),s=a.personId||a._id;return`<tr>
+          <tbody>${M.personnel.map(a=>{const e=(a.status||"active").toLowerCase(),i=a.personId||a._id;return`<tr>
               <td style="padding-left:22px"><strong>${escapeHtml(a.name)}</strong></td><td class="muted">${escapeHtml(a.duties||"")}</td>
               <td>
-                <select class="person-status-sel" data-id="${s}" style="padding:4px 10px;font-size:12.5px;font-weight:700;border-radius:6px;border:1px solid var(--border-sm);background:var(--bg-input);color:var(--text-1);cursor:pointer;">
+                <select class="person-status-sel" data-id="${i}" style="padding:4px 10px;font-size:12.5px;font-weight:700;border-radius:6px;border:1px solid var(--border-sm);background:var(--bg-input);color:var(--text-1);cursor:pointer;">
                   <option value="active" ${e==="active"?"selected":""}>🟢 Active</option>
                   <option value="work from home" ${e==="work from home"||e==="wfh"?"selected":""}>🏠 Work From Home</option>
                   <option value="on leave" ${e==="on leave"||e==="pn leave"?"selected":""}>🏖️ On Leave</option>
@@ -708,7 +724,7 @@ import"./api-BzPrPlDy.js";let Y=null,x={personnel:[],clients:[],services:[],sala
             </tr>`}).join("")}</tbody></table>
         </div>
       </div>
-    </section>`,X(),document.querySelectorAll(".person-status-sel").forEach(a=>{a.onchange=async e=>{const s=a.dataset.id,n=e.target.value;try{await apiPut("/personnel/"+s,{status:n}),await _(),flashToast("Status updated to "+n),me(t)}catch(l){flashToast(l.message,!0)}}})}const G=[["strategy","Strategy"],["cs","CS"],["website","Website"],["design","Design"],["copy","Copy"],["edit","Edit"],["shoot","Shoot"],["seo","SEO"],["smo","SMO"],["qc","QC"]];async function Se(t){const a=await apiGet("/roster");t.innerHTML=`
+    </section>`,X(),document.querySelectorAll(".person-status-sel").forEach(a=>{a.onchange=async e=>{const i=a.dataset.id,n=e.target.value;try{await apiPut("/personnel/"+i,{status:n}),await _(),flashToast("Status updated to "+n),me(t)}catch(l){flashToast(l.message,!0)}}})}const G=[["strategy","Strategy"],["cs","CS"],["website","Website"],["design","Design"],["copy","Copy"],["edit","Edit"],["shoot","Shoot"],["seo","SEO"],["smo","SMO"],["qc","QC"]];async function Se(t){const a=await apiGet("/roster");t.innerHTML=`
     <section class="block">
       <h2>Accounts <span class="eyebrow">${a.length} accounts</span></h2>
       <div class="banner">Who owns which function on each account — separate from the job/hours log.</div>
@@ -719,13 +735,13 @@ import"./api-BzPrPlDy.js";let Y=null,x={personnel:[],clients:[],services:[],sala
           <tbody>${a.map(e=>`<tr>
             <td style="padding-left:22px"><strong>${escapeHtml(W(e.clientId))}</strong></td>
             <td><span class="badge ${e.nature==="Existing"?"green":"blue"}">${e.nature}</span></td>
-            ${G.map(s=>`<td>${escapeHtml(e.roles[s[0]]||"—")}</td>`).join("")}
+            ${G.map(i=>`<td>${escapeHtml(e.roles[i[0]]||"—")}</td>`).join("")}
             <td class="num"><span class="badge ${e.difficulty>=9?"red":e.difficulty>=7?"amber":e.difficulty>=4?"blue":"green"}">${e.difficulty}</span></td>
             <td class="num" style="padding-right:22px"><button class="btn ghost small edit-roster" data-id="${e._id}">Edit</button></td>
           </tr>`).join("")||'<tr><td colspan="13"><div class="empty">No accounts yet.</div></td></tr>'}</tbody></table>
         </div>
       </div>
-    </section>`,document.getElementById("addAccountBtn").onclick=()=>se(null),document.querySelectorAll(".edit-roster").forEach(e=>e.onclick=()=>se(a.find(s=>s._id===e.dataset.id)))}function se(t){const a=!t,e=t||{_id:null,clientId:"",nature:"Existing",roles:{},difficulty:5,comments:""};G.forEach(n=>{e.roles[n[0]]==null&&(e.roles[n[0]]="")});const s=openModal(`
+    </section>`,document.getElementById("addAccountBtn").onclick=()=>se(null),document.querySelectorAll(".edit-roster").forEach(e=>e.onclick=()=>se(a.find(i=>i._id===e.dataset.id)))}function se(t){const a=!t,e=t||{_id:null,clientId:"",nature:"Existing",roles:{},difficulty:5,comments:""};G.forEach(n=>{e.roles[n[0]]==null&&(e.roles[n[0]]="")});const i=openModal(`
     <h3>${a?"Add Account":"Edit Account"}</h3>
     <div class="field-row">
       <div class="field"><label>Client</label>
@@ -743,7 +759,7 @@ import"./api-BzPrPlDy.js";let Y=null,x={personnel:[],clients:[],services:[],sala
       ${a?"":'<button class="btn danger" id="mDelete" style="margin-right:auto;">Remove</button>'}
       <button class="btn ghost" id="mCancel">Cancel</button>
       <button class="btn gold" id="mSave">Save</button>
-    </div>`);s.querySelector("#mCancel").onclick=()=>s.remove(),a||(s.querySelector("#mDelete").onclick=async()=>{confirm("Remove this account?")&&(await apiDelete("/roster/"+e._id),s.remove(),h())}),s.querySelector("#mSave").onclick=async()=>{const n={};s.querySelectorAll(".r-role").forEach(r=>n[r.dataset.key]=r.value.trim());const l={nature:s.querySelector("#rNature").value,roles:n,difficulty:Number(s.querySelector("#rDifficulty").value)||1,comments:s.querySelector("#rComments").value.trim()};try{if(a){const r=s.querySelector("#rClient").value;if(!r){flashToast("Select a client",!0);return}await apiPost("/roster",Object.assign({clientId:r},l))}else await apiPut("/roster/"+e._id,l);s.remove(),h()}catch(r){flashToast(r.message,!0)}}}function Te(t){if(!t)return"Deliverables";const a={count:"Deliverables",hours:"Hours",reels:"Reels",stories:"Stories",posts:"Posts"};return a[t]?a[t]:t.charAt(0).toUpperCase()+t.slice(1)}async function Ie(t){const a=await apiGet("/targets"),e={day:"Daily",week:"Weekly",month:"Monthly"};t.innerHTML=`
+    </div>`);i.querySelector("#mCancel").onclick=()=>i.remove(),a||(i.querySelector("#mDelete").onclick=async()=>{confirm("Remove this account?")&&(await apiDelete("/roster/"+e._id),i.remove(),h())}),i.querySelector("#mSave").onclick=async()=>{const n={};i.querySelectorAll(".r-role").forEach(r=>n[r.dataset.key]=r.value.trim());const l={nature:i.querySelector("#rNature").value,roles:n,difficulty:Number(i.querySelector("#rDifficulty").value)||1,comments:i.querySelector("#rComments").value.trim()};try{if(a){const r=i.querySelector("#rClient").value;if(!r){flashToast("Select a client",!0);return}await apiPost("/roster",Object.assign({clientId:r},l))}else await apiPut("/roster/"+e._id,l);i.remove(),h()}catch(r){flashToast(r.message,!0)}}}function Te(t){if(!t)return"Deliverables";const a={count:"Deliverables",hours:"Hours",reels:"Reels",stories:"Stories",posts:"Posts"};return a[t]?a[t]:t.charAt(0).toUpperCase()+t.slice(1)}async function Ie(t){const a=await apiGet("/targets"),e={day:"Daily",week:"Weekly",month:"Monthly"};t.innerHTML=`
     <section class="block">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
         <div>
@@ -768,28 +784,28 @@ import"./api-BzPrPlDy.js";let Y=null,x={personnel:[],clients:[],services:[],sala
               </tr>
             </thead>
             <tbody>
-              ${a.map(s=>{var f,p;const n=((f=s.personId)==null?void 0:f.name)||"—",l=((p=s.serviceId)==null?void 0:p.name)||"—",r=Te(s.unit),u=e[s.period]||(s.period?s.period.toUpperCase():"Daily"),b=s.actual||0,$=s.quantity>0?b/s.quantity:0,I=Math.round($*100),v=$>=1?"green":$>=.6?"amber":"red",d=$>=1?"✓ Met":$>=.6?"Behind":"Off Pace",k=Math.min(I,100);return`
+              ${a.map(i=>{var y,E;const n=((y=i.personId)==null?void 0:y.name)||"—",l=((E=i.serviceId)==null?void 0:E.name)||"—",r=Te(i.unit),u=e[i.period]||(i.period?i.period.toUpperCase():"Daily"),b=i.actual||0,$=i.quantity>0?b/i.quantity:0,I=Math.round($*100),v=$>=1?"green":$>=.6?"amber":"red",f=$>=1?"✓ Met":$>=.6?"Behind":"Off Pace",p=Math.min(I,100);return`
                 <tr>
                   <td style="padding-left:22px"><strong>${escapeHtml(n)}</strong></td>
                   <td><span class="badge blue" style="white-space:normal;line-height:1.3;display:inline-block;padding:4px 8px;font-size:12px">${escapeHtml(l)}</span></td>
-                  <td><span style="font-size:14px;font-weight:700;color:var(--text-1)">${s.quantity}</span></td>
+                  <td><span style="font-size:14px;font-weight:700;color:var(--text-1)">${i.quantity}</span></td>
                   <td><span class="badge gray">${escapeHtml(r)}</span></td>
                   <td><span class="badge gray" style="font-weight:600">${u}</span></td>
                   <td>
                     <div style="display:flex;flex-direction:column;gap:4px">
                       <div style="display:flex;justify-content:space-between;align-items:center;font-size:11.5px">
-                        <span style="font-weight:700;color:var(--text-1)">${b} / ${s.quantity} <span style="font-weight:500;color:var(--text-3)">(${I}%)</span></span>
-                        <span class="badge ${v}" style="font-size:10px;padding:1px 5px">${d}</span>
+                        <span style="font-weight:700;color:var(--text-1)">${b} / ${i.quantity} <span style="font-weight:500;color:var(--text-3)">(${I}%)</span></span>
+                        <span class="badge ${v}" style="font-size:10px;padding:1px 5px">${f}</span>
                       </div>
                       <div style="height:5px;width:100%;background:var(--bg-surface);border-radius:10px;overflow:hidden;border:1px solid var(--border-xs)">
-                        <div style="width:${k}%;height:100%;background:var(--${v==="green"?"green":"amber"}-500);border-radius:10px;transition:width 0.6s ease"></div>
+                        <div style="width:${p}%;height:100%;background:var(--${v==="green"?"green":"amber"}-500);border-radius:10px;transition:width 0.6s ease"></div>
                       </div>
                     </div>
                   </td>
                   <td class="num" style="padding-right:22px;white-space:nowrap;text-align:right">
                     <div style="display:inline-flex;gap:6px;align-items:center;justify-content:flex-end">
-                      <button class="btn ghost small edit-target" data-id="${s._id}" style="padding:4px 8px;font-size:11.5px">Edit</button>
-                      <button class="btn danger small del-target" data-id="${s._id}" style="padding:4px 8px;font-size:11.5px">Remove</button>
+                      <button class="btn ghost small edit-target" data-id="${i._id}" style="padding:4px 8px;font-size:11.5px">Edit</button>
+                      <button class="btn danger small del-target" data-id="${i._id}" style="padding:4px 8px;font-size:11.5px">Remove</button>
                     </div>
                   </td>
                 </tr>`}).join("")||'<tr><td colspan="7"><div class="empty" style="padding:32px 20px">No targets defined yet. Click "+ Add Target" to assign output quotas.</div></td></tr>'}
@@ -798,21 +814,21 @@ import"./api-BzPrPlDy.js";let Y=null,x={personnel:[],clients:[],services:[],sala
         </div>
       </div>
     </section>
-  `,document.getElementById("addAdminTargetBtn").onclick=()=>ie(null),document.querySelectorAll(".edit-target").forEach(s=>{s.onclick=()=>ie(a.find(n=>n._id===s.dataset.id))}),document.querySelectorAll(".del-target").forEach(s=>{s.onclick=async()=>{if(confirm("Remove this target?"))try{await apiDelete("/targets/"+s.dataset.id),flashToast("Target removed"),h()}catch(n){flashToast(n.message,!0)}}})}function ie(t){var I,v,d,k;const a=!t;t=t||{personId:(I=x.personnel[0])==null?void 0:I._id,serviceId:(v=x.services[0])==null?void 0:v._id,quantity:5,unit:"reels",period:"day"};const e=((d=t.personId)==null?void 0:d._id)||t.personId||"",s=((k=t.serviceId)==null?void 0:k._id)||t.serviceId||"",l=["reels","stories","posts","count","hours"].includes(t.unit),r=openModal(`
+  `,document.getElementById("addAdminTargetBtn").onclick=()=>ie(null),document.querySelectorAll(".edit-target").forEach(i=>{i.onclick=()=>ie(a.find(n=>n._id===i.dataset.id))}),document.querySelectorAll(".del-target").forEach(i=>{i.onclick=async()=>{if(confirm("Remove this target?"))try{await apiDelete("/targets/"+i.dataset.id),flashToast("Target removed"),h()}catch(n){flashToast(n.message,!0)}}})}function ie(t){var I,v,f,p;const a=!t;t=t||{personId:(I=x.personnel[0])==null?void 0:I._id,serviceId:(v=x.services[0])==null?void 0:v._id,quantity:5,unit:"reels",period:"day"};const e=((f=t.personId)==null?void 0:f._id)||t.personId||"",i=((p=t.serviceId)==null?void 0:p._id)||t.serviceId||"",l=["reels","stories","posts","count","hours"].includes(t.unit),r=openModal(`
     <h3>${a?"Assign New":"Edit"} Target</h3>
     <p style="font-size:12.5px;color:var(--text-3);margin-bottom:16px">Set output goals for reels, stories, posts, hours, or any custom deliverable.</p>
 
     <div class="field" style="margin-bottom:12px">
       <label>Personnel Member *</label>
       <select id="mTgtPerson">
-        ${x.personnel.map(f=>`<option value="${f._id}" ${String(f._id)===String(e)?"selected":""}>${escapeHtml(f.name)}</option>`).join("")}
+        ${x.personnel.map(y=>`<option value="${y._id}" ${String(y._id)===String(e)?"selected":""}>${escapeHtml(y.name)}</option>`).join("")}
       </select>
     </div>
 
     <div class="field" style="margin-bottom:12px">
       <label>Service / Deliverable Type *</label>
       <select id="mTgtService">
-        ${x.services.map(f=>`<option value="${f._id}" ${String(f._id)===String(s)?"selected":""}>${escapeHtml(f.name)}</option>`).join("")}
+        ${x.services.map(y=>`<option value="${y._id}" ${String(y._id)===String(i)?"selected":""}>${escapeHtml(y.name)}</option>`).join("")}
       </select>
     </div>
 
@@ -856,7 +872,7 @@ import"./api-BzPrPlDy.js";let Y=null,x={personnel:[],clients:[],services:[],sala
       <button class="btn ghost" id="mCancel">Cancel</button>
       <button class="btn gold" id="mSave">Save Target</button>
     </div>
-  `);bindAttachmentUploader("mTgtAttachments",{existing:t.attachments||[]});const u=r.querySelector("#mTgtUnit"),b=r.querySelector("#mTgtCustomUnitWrap"),$=r.querySelector("#mTgtCustomUnit");u.onchange=()=>{u.value==="custom"?(b.style.display="flex",$.focus()):b.style.display="none"},r.querySelector("#mCancel").onclick=()=>r.remove(),r.querySelector("#mSave").onclick=async()=>{let f=u.value;f==="custom"&&(f=$.value.trim()||"Deliverables");const p=getUploaderAttachments("mTgtAttachments"),y={personId:r.querySelector("#mTgtPerson").value,serviceId:r.querySelector("#mTgtService").value,quantity:Number(r.querySelector("#mTgtQty").value)||1,unit:f,period:r.querySelector("#mTgtPeriod").value,attachments:p};if(!y.personId||!y.serviceId){flashToast("Person and Service are required",!0);return}try{a?await apiPost("/targets",y):await apiPut("/targets/"+t._id,y),flashToast("Target saved successfully! 🎯"),r.remove(),h()}catch(i){flashToast(i.message,!0)}}}async function Ae(t){const[a,e]=await Promise.all([apiGet("/salary/grades"),apiGet("/salary/assignments")]);x.salaryGrades=a,x.salaryAssignments=e;const s={};e.forEach(n=>s[n.personId]=n.gradeId),t.innerHTML=`
+  `);bindAttachmentUploader("mTgtAttachments",{existing:t.attachments||[]});const u=r.querySelector("#mTgtUnit"),b=r.querySelector("#mTgtCustomUnitWrap"),$=r.querySelector("#mTgtCustomUnit");u.onchange=()=>{u.value==="custom"?(b.style.display="flex",$.focus()):b.style.display="none"},r.querySelector("#mCancel").onclick=()=>r.remove(),r.querySelector("#mSave").onclick=async()=>{let y=u.value;y==="custom"&&(y=$.value.trim()||"Deliverables");const E=getUploaderAttachments("mTgtAttachments"),c={personId:r.querySelector("#mTgtPerson").value,serviceId:r.querySelector("#mTgtService").value,quantity:Number(r.querySelector("#mTgtQty").value)||1,unit:y,period:r.querySelector("#mTgtPeriod").value,attachments:E};if(!c.personId||!c.serviceId){flashToast("Person and Service are required",!0);return}try{a?await apiPost("/targets",c):await apiPut("/targets/"+t._id,c),flashToast("Target saved successfully! 🎯"),r.remove(),h()}catch(s){flashToast(s.message,!0)}}}async function Ae(t){const[a,e]=await Promise.all([apiGet("/salary/grades"),apiGet("/salary/assignments")]);x.salaryGrades=a,x.salaryAssignments=e;const i={};e.forEach(n=>i[n.personId]=n.gradeId),t.innerHTML=`
     <section class="block">
       <h2>Salary Grades <span class="eyebrow">Admin only</span></h2>
       <div class="banner">No individual's exact salary is ever entered — each person is placed in a grade band, and only the grade label appears anywhere else in the tool.</div>
@@ -867,12 +883,12 @@ import"./api-BzPrPlDy.js";let Y=null,x={personnel:[],clients:[],services:[],sala
       <div class="card"><table><thead><tr><th>Person</th><th>Status</th><th class="num">Grade</th></tr></thead>
       <tbody>${x.personnel.map(n=>`<tr><td><strong>${escapeHtml(n.name)}</strong><div class="muted">${escapeHtml(n.duties||"")}</div></td>
         <td><span class="badge green">${n.status}</span></td>
-        <td class="num"><select class="grade-select" data-id="${n._id}"><option value="">Not set</option>${a.map(l=>`<option value="${l._id}" ${s[n._id]===l._id?"selected":""}>${escapeHtml(l.label)}</option>`).join("")}</select></td>
+        <td class="num"><select class="grade-select" data-id="${n._id}"><option value="">Not set</option>${a.map(l=>`<option value="${l._id}" ${i[n._id]===l._id?"selected":""}>${escapeHtml(l.label)}</option>`).join("")}</select></td>
       </tr>`).join("")}</tbody></table></div>
     </section>`,document.getElementById("addGradeBtn").onclick=()=>le(null),document.querySelectorAll(".edit-grade").forEach(n=>n.onclick=()=>le(a.find(l=>l._id===n.dataset.id))),document.querySelectorAll(".del-grade").forEach(n=>n.onclick=async()=>{confirm("Remove grade?")&&(await apiDelete("/salary/grades/"+n.dataset.id),h())}),document.querySelectorAll(".grade-select").forEach(n=>{n.onchange=async()=>{await apiPut("/salary/assignments/"+n.dataset.id,{gradeId:n.value||null}),flashToast("Saved")}})}function le(t){const a=!t;t=t||{label:"",min:0,max:0};const e=openModal(`<h3>${a?"Add":"Edit"} Grade</h3>
     <div class="field"><label>Label</label><input id="gLabel" type="text" value="${escapeHtml(t.label)}"></div>
     <div class="field-row"><div class="field"><label>Range Start (₹)</label><input id="gMin" type="number" value="${t.min}"></div><div class="field"><label>Range End (₹)</label><input id="gMax" type="number" value="${t.max}"></div></div>
-    <div class="modal-actions"><button class="btn ghost" id="mCancel">Cancel</button><button class="btn gold" id="mSave">Save</button></div>`);e.querySelector("#mCancel").onclick=()=>e.remove(),e.querySelector("#mSave").onclick=async()=>{const s={label:e.querySelector("#gLabel").value.trim(),min:Number(e.querySelector("#gMin").value)||0,max:Number(e.querySelector("#gMax").value)||0};if(!s.label){flashToast("Label required",!0);return}try{a?await apiPost("/salary/grades",s):await apiPut("/salary/grades/"+t._id,s),e.remove(),h()}catch(n){flashToast(n.message,!0)}}}function Ce(t){const a={active:"green","work from home":"blue",wfh:"blue","on leave":"amber",inactive:"gray"};t.innerHTML=`
+    <div class="modal-actions"><button class="btn ghost" id="mCancel">Cancel</button><button class="btn gold" id="mSave">Save</button></div>`);e.querySelector("#mCancel").onclick=()=>e.remove(),e.querySelector("#mSave").onclick=async()=>{const i={label:e.querySelector("#gLabel").value.trim(),min:Number(e.querySelector("#gMin").value)||0,max:Number(e.querySelector("#gMax").value)||0};if(!i.label){flashToast("Label required",!0);return}try{a?await apiPost("/salary/grades",i):await apiPut("/salary/grades/"+t._id,i),e.remove(),h()}catch(n){flashToast(n.message,!0)}}}function Ce(t){const a={active:"green","work from home":"blue",wfh:"blue","on leave":"amber",inactive:"gray"};t.innerHTML=`
     <section class="block">
       <!-- Personnel Section -->
       <div class="card" style="margin-bottom:24px">
@@ -980,7 +996,7 @@ import"./api-BzPrPlDy.js";let Y=null,x={personnel:[],clients:[],services:[],sala
         </div>
       </div>
     </section>
-  `;const e=document.getElementById("addPersonBtn");e&&(e.onclick=()=>ne(null)),document.querySelectorAll(".edit-person").forEach(l=>l.onclick=()=>ne(x.personnel.find(r=>r._id===l.dataset.id))),document.querySelectorAll(".del-person").forEach(l=>l.onclick=async()=>{confirm("Remove this person?")&&(await apiDelete("/personnel/"+l.dataset.id),await _(),h())});const s=document.getElementById("addClientBtn");s&&(s.onclick=()=>oe(null)),document.querySelectorAll(".edit-client").forEach(l=>l.onclick=()=>oe(x.clients.find(r=>r._id===l.dataset.id))),document.querySelectorAll(".del-client").forEach(l=>l.onclick=async()=>{confirm("Remove this client?")&&(await apiDelete("/clients/"+l.dataset.id),await _(),h())});const n=document.getElementById("addServiceBtn");n&&(n.onclick=()=>re(null)),document.querySelectorAll(".edit-service").forEach(l=>l.onclick=()=>re(x.services.find(r=>r._id===l.dataset.id))),document.querySelectorAll(".del-service").forEach(l=>l.onclick=async()=>{confirm("Remove this service?")&&(await apiDelete("/services/"+l.dataset.id),await _(),h())})}const Ee=Ce;function ne(t){const a=!t;t=t||{name:"",duties:"",capacity:48,status:"active",attachments:[]};const e=openModal(`
+  `;const e=document.getElementById("addPersonBtn");e&&(e.onclick=()=>ne(null)),document.querySelectorAll(".edit-person").forEach(l=>l.onclick=()=>ne(x.personnel.find(r=>r._id===l.dataset.id))),document.querySelectorAll(".del-person").forEach(l=>l.onclick=async()=>{confirm("Remove this person?")&&(await apiDelete("/personnel/"+l.dataset.id),await _(),h())});const i=document.getElementById("addClientBtn");i&&(i.onclick=()=>oe(null)),document.querySelectorAll(".edit-client").forEach(l=>l.onclick=()=>oe(x.clients.find(r=>r._id===l.dataset.id))),document.querySelectorAll(".del-client").forEach(l=>l.onclick=async()=>{confirm("Remove this client?")&&(await apiDelete("/clients/"+l.dataset.id),await _(),h())});const n=document.getElementById("addServiceBtn");n&&(n.onclick=()=>re(null)),document.querySelectorAll(".edit-service").forEach(l=>l.onclick=()=>re(x.services.find(r=>r._id===l.dataset.id))),document.querySelectorAll(".del-service").forEach(l=>l.onclick=async()=>{confirm("Remove this service?")&&(await apiDelete("/services/"+l.dataset.id),await _(),h())})}const Ee=Ce;function ne(t){const a=!t;t=t||{name:"",duties:"",capacity:48,status:"active",attachments:[]};const e=openModal(`
     <h3>${a?"Add New":"Edit"} Person</h3>
     <div class="field"><label>Full Name *</label><input id="mName" type="text" value="${escapeHtml(t.name)}" placeholder="e.g. Shatayu Verma"></div>
     <div class="field"><label>Duties / Role</label><input id="mDuties" type="text" value="${escapeHtml(t.duties)}" placeholder="e.g. Lead Designer / Frontend"></div>
@@ -997,7 +1013,7 @@ import"./api-BzPrPlDy.js";let Y=null,x={personnel:[],clients:[],services:[],sala
       ${renderAttachmentUploader({id:"mPersonFiles",label:"Documents & Contracts",subtitle:"Upload resumes, ID proofs, employment contracts or certificates"})}
     </div>
     <div class="modal-actions"><button class="btn ghost" id="mCancel">Cancel</button><button class="btn gold" id="mSave">Save Person</button></div>
-  `);bindAttachmentUploader("mPersonFiles",{existing:t.attachments||[]}),e.querySelector("#mCancel").onclick=()=>e.remove(),e.querySelector("#mSave").onclick=async()=>{const s=getUploaderAttachments("mPersonFiles"),n={name:e.querySelector("#mName").value.trim(),duties:e.querySelector("#mDuties").value.trim(),capacity:Number(e.querySelector("#mCapacity").value)||48,status:e.querySelector("#mStatus").value,attachments:s};if(!n.name){flashToast("Name is required",!0);return}try{a?await apiPost("/personnel",n):await apiPut("/personnel/"+t._id,n),await _(),flashToast("Person saved! 📁"),e.remove(),h()}catch(l){flashToast(l.message,!0)}}}function oe(t){const a=!t;t=t||{name:"",notes:"",attachments:[]};const e=openModal(`
+  `);bindAttachmentUploader("mPersonFiles",{existing:t.attachments||[]}),e.querySelector("#mCancel").onclick=()=>e.remove(),e.querySelector("#mSave").onclick=async()=>{const i=getUploaderAttachments("mPersonFiles"),n={name:e.querySelector("#mName").value.trim(),duties:e.querySelector("#mDuties").value.trim(),capacity:Number(e.querySelector("#mCapacity").value)||48,status:e.querySelector("#mStatus").value,attachments:i};if(!n.name){flashToast("Name is required",!0);return}try{a?await apiPost("/personnel",n):await apiPut("/personnel/"+t._id,n),await _(),flashToast("Person saved! 📁"),e.remove(),h()}catch(l){flashToast(l.message,!0)}}}function oe(t){const a=!t;t=t||{name:"",notes:"",attachments:[]};const e=openModal(`
     <h3>${a?"Add New":"Edit"} Client</h3>
     <div class="field"><label>Client Name *</label><input id="mCName" type="text" value="${escapeHtml(t.name)}" placeholder="e.g. Network 18"></div>
     <div class="field"><label>Notes / Contract Details</label><textarea id="mCNotes" placeholder="Client specific notes, contact terms...">${escapeHtml(t.notes||"")}</textarea></div>
@@ -1005,32 +1021,32 @@ import"./api-BzPrPlDy.js";let Y=null,x={personnel:[],clients:[],services:[],sala
       ${renderAttachmentUploader({id:"mClientFiles",label:"Brand Assets & Agreements",subtitle:"Upload brand guidelines, contracts, briefs or logos"})}
     </div>
     <div class="modal-actions"><button class="btn ghost" id="mCancel">Cancel</button><button class="btn gold" id="mSave">Save Client</button></div>
-  `);bindAttachmentUploader("mClientFiles",{existing:t.attachments||[]}),e.querySelector("#mCancel").onclick=()=>e.remove(),e.querySelector("#mSave").onclick=async()=>{const s=getUploaderAttachments("mClientFiles"),n={name:e.querySelector("#mCName").value.trim(),notes:e.querySelector("#mCNotes").value.trim(),attachments:s};if(!n.name){flashToast("Name is required",!0);return}try{a?await apiPost("/clients",n):await apiPut("/clients/"+t._id,n),await _(),flashToast("Client saved! 📁"),e.remove(),h()}catch(l){flashToast(l.message,!0)}}}function re(t){const a=!t;t=t||{name:"",hours:4};const e=openModal(`
+  `);bindAttachmentUploader("mClientFiles",{existing:t.attachments||[]}),e.querySelector("#mCancel").onclick=()=>e.remove(),e.querySelector("#mSave").onclick=async()=>{const i=getUploaderAttachments("mClientFiles"),n={name:e.querySelector("#mCName").value.trim(),notes:e.querySelector("#mCNotes").value.trim(),attachments:i};if(!n.name){flashToast("Name is required",!0);return}try{a?await apiPost("/clients",n):await apiPut("/clients/"+t._id,n),await _(),flashToast("Client saved! 📁"),e.remove(),h()}catch(l){flashToast(l.message,!0)}}}function re(t){const a=!t;t=t||{name:"",hours:4};const e=openModal(`
     <h3>${a?"Add New":"Edit"} Service</h3>
     <div class="field"><label>Service Name *</label><input id="mSName" type="text" value="${escapeHtml(t.name)}" placeholder="e.g. UI/UX Design"></div>
     <div class="field"><label>Reference Effort (hrs)</label><input id="mSHours" type="number" value="${t.hours||4}" min="0"></div>
     <div class="modal-actions"><button class="btn ghost" id="mCancel">Cancel</button><button class="btn gold" id="mSave">Save Service</button></div>
-  `);e.querySelector("#mCancel").onclick=()=>e.remove(),e.querySelector("#mSave").onclick=async()=>{const s={name:e.querySelector("#mSName").value.trim(),hours:Number(e.querySelector("#mSHours").value)||0};if(!s.name){flashToast("Name is required",!0);return}try{a?await apiPost("/services",s):await apiPut("/services/"+t._id,s),await _(),e.remove(),h()}catch(n){flashToast(n.message,!0)}}}async function ue(t){const a=await apiGet("/users");let e="all",s="role",n="";function l(){let d=[...a];if(n){const p=n.toLowerCase();d=d.filter(y=>y.name&&y.name.toLowerCase().includes(p)||y.email&&y.email.toLowerCase().includes(p)||y.role&&y.role.toLowerCase().includes(p))}e==="admin"?d=d.filter(p=>p.role==="superadmin"||p.role==="admin"):e==="employee"?d=d.filter(p=>p.role==="employee"):e==="client"&&(d=d.filter(p=>p.role==="client"));const k={superadmin:1,admin:1,employee:2,client:3};s==="role"?d.sort((p,y)=>{const i=k[p.role]||9,m=k[y.role]||9;return i!==m?i-m:(p.name||"").localeCompare(y.name||"")}):s==="role-desc"?d.sort((p,y)=>{const i=k[p.role]||9,m=k[y.role]||9;return i!==m?m-i:(p.name||"").localeCompare(y.name||"")}):s==="name-asc"?d.sort((p,y)=>(p.name||"").localeCompare(y.name||"")):s==="name-desc"?d.sort((p,y)=>(y.name||"").localeCompare(p.name||"")):s==="status"&&d.sort((p,y)=>(y.active?1:0)-(p.active?1:0));const f=t.querySelector("#userTableBody");if(f){if(d.length===0){f.innerHTML='<tr><td colspan="6"><div class="empty" style="padding:32px 16px">No users found matching the selected filters.</div></td></tr>';return}f.innerHTML=d.map(p=>{const y=p.role==="superadmin"||p.role==="admin",i=p.role==="employee",m=y?'<span class="badge gold" style="font-weight:700">👑 Admin</span>':i?'<span class="badge blue" style="font-weight:700">💼 Employee</span>':'<span class="badge green" style="font-weight:700">🤝 Client</span>',D=p.personnelId?escapeHtml(p.personnelId.name):p.clientId?escapeHtml(p.clientId.name):'<span class="muted">—</span>';return`
+  `);e.querySelector("#mCancel").onclick=()=>e.remove(),e.querySelector("#mSave").onclick=async()=>{const i={name:e.querySelector("#mSName").value.trim(),hours:Number(e.querySelector("#mSHours").value)||0};if(!i.name){flashToast("Name is required",!0);return}try{a?await apiPost("/services",i):await apiPut("/services/"+t._id,i),await _(),e.remove(),h()}catch(n){flashToast(n.message,!0)}}}async function ue(t){const a=await apiGet("/users");let e="all",i="role",n="";function l(){let p=[...a];if(n){const c=n.toLowerCase();p=p.filter(s=>s.name&&s.name.toLowerCase().includes(c)||s.email&&s.email.toLowerCase().includes(c)||s.role&&s.role.toLowerCase().includes(c))}e==="admin"?p=p.filter(c=>c.role==="superadmin"||c.role==="admin"):e==="accounts"?p=p.filter(c=>c.role==="accounts"):e==="employee"?p=p.filter(c=>c.role==="employee"):e==="client"&&(p=p.filter(c=>c.role==="client"));const y={superadmin:1,admin:1,accounts:2,employee:3,client:4};i==="role"?p.sort((c,s)=>{const m=y[c.role]||9,T=y[s.role]||9;return m!==T?m-T:(c.name||"").localeCompare(s.name||"")}):i==="role-desc"?p.sort((c,s)=>{const m=y[c.role]||9,T=y[s.role]||9;return m!==T?T-m:(c.name||"").localeCompare(s.name||"")}):i==="name-asc"?p.sort((c,s)=>(c.name||"").localeCompare(s.name||"")):i==="name-desc"?p.sort((c,s)=>(s.name||"").localeCompare(c.name||"")):i==="status"&&p.sort((c,s)=>(s.active?1:0)-(c.active?1:0));const E=t.querySelector("#userTableBody");if(E){if(p.length===0){E.innerHTML='<tr><td colspan="6"><div class="empty" style="padding:32px 16px">No users found matching the selected filters.</div></td></tr>';return}E.innerHTML=p.map(c=>{const s=c.role==="superadmin"||c.role==="admin",m=c.role==="accounts",T=c.role==="employee",N=s?'<span class="badge gold" style="font-weight:700">👑 Admin</span>':m?'<span class="badge amber" style="font-weight:700">💳 Accounts</span>':T?'<span class="badge blue" style="font-weight:700">💼 Employee</span>':'<span class="badge green" style="font-weight:700">🤝 Client</span>',H=c.personnelId?escapeHtml(c.personnelId.name):c.clientId?escapeHtml(c.clientId.name):'<span class="muted">—</span>';return`
         <tr>
           <td style="padding-left:22px">
-            <div style="font-weight:700;color:var(--text-1)">${escapeHtml(p.name)}</div>
+            <div style="font-weight:700;color:var(--text-1)">${escapeHtml(c.name)}</div>
           </td>
-          <td><span style="color:var(--text-2);font-size:13px">${escapeHtml(p.email)}</span></td>
-          <td>${m}</td>
-          <td>${D}</td>
-          <td><span class="badge ${p.active?"green":"gray"}">${p.active?"🟢 Active":"⚪ Disabled"}</span></td>
+          <td><span style="color:var(--text-2);font-size:13px">${escapeHtml(c.email)}</span></td>
+          <td>${N}</td>
+          <td>${H}</td>
+          <td><span class="badge ${c.active?"green":"gray"}">${c.active?"🟢 Active":"⚪ Disabled"}</span></td>
           <td class="num" style="padding-right:22px;text-align:right;white-space:nowrap">
             <div style="display:inline-flex;gap:6px;align-items:center;justify-content:flex-end">
-              <button class="btn ghost small edit-user" data-id="${p._id}" style="padding:4px 8px;font-size:11.5px">Edit</button>
-              <button class="btn danger small del-user" data-id="${p._id}" style="padding:4px 8px;font-size:11.5px">Remove</button>
+              <button class="btn ghost small edit-user" data-id="${c._id}" style="padding:4px 8px;font-size:11.5px">Edit</button>
+              <button class="btn danger small del-user" data-id="${c._id}" style="padding:4px 8px;font-size:11.5px">Remove</button>
             </div>
           </td>
-        </tr>`}).join(""),f.querySelectorAll(".edit-user").forEach(p=>p.onclick=()=>de(a.find(y=>y._id===p.dataset.id))),f.querySelectorAll(".del-user").forEach(p=>p.onclick=async()=>{if(confirm("Permanently remove this user account?"))try{await apiDelete("/users/"+p.dataset.id),flashToast("User removed"),ue(t)}catch(y){flashToast(y.message,!0)}})}}const r=a.filter(d=>d.role==="superadmin"||d.role==="admin").length,u=a.filter(d=>d.role==="employee").length,b=a.filter(d=>d.role==="client").length;t.innerHTML=`
+        </tr>`}).join(""),E.querySelectorAll(".edit-user").forEach(c=>c.onclick=()=>de(a.find(s=>s._id===c.dataset.id))),E.querySelectorAll(".del-user").forEach(c=>c.onclick=async()=>{if(confirm("Permanently remove this user account?"))try{await apiDelete("/users/"+c.dataset.id),flashToast("User removed"),ue(t)}catch(s){flashToast(s.message,!0)}})}}const r=a.filter(p=>p.role==="superadmin"||p.role==="admin").length,u=a.filter(p=>p.role==="accounts").length,b=a.filter(p=>p.role==="employee").length,$=a.filter(p=>p.role==="client").length;t.innerHTML=`
     <section class="block">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:12px">
         <div>
           <h2 style="font-size:20px;font-weight:800;color:var(--text-1);margin-bottom:4px;border:none;padding:0">User Accounts</h2>
-          <p style="font-size:13px;color:var(--text-3);margin:0">Manage system login credentials for administrators, employees, and clients.</p>
+          <p style="font-size:13px;color:var(--text-3);margin:0">Manage system login credentials for administrators, accounts, employees, and clients.</p>
         </div>
         <button class="btn gold small" id="addUserBtn" type="button">+ Add User</button>
       </div>
@@ -1041,8 +1057,9 @@ import"./api-BzPrPlDy.js";let Y=null,x={personnel:[],clients:[],services:[],sala
         <div style="display:flex;gap:6px;flex-wrap:wrap">
           <button class="pchip active user-role-filter" data-role="all">All (${a.length})</button>
           <button class="pchip user-role-filter" data-role="admin">👑 Admins (${r})</button>
-          <button class="pchip user-role-filter" data-role="employee">💼 Employees (${u})</button>
-          <button class="pchip user-role-filter" data-role="client">🤝 Clients (${b})</button>
+          <button class="pchip user-role-filter" data-role="accounts">💳 Accounts (${u})</button>
+          <button class="pchip user-role-filter" data-role="employee">💼 Employees (${b})</button>
+          <button class="pchip user-role-filter" data-role="client">🤝 Clients (${$})</button>
         </div>
 
         <!-- Search & Sort Controls -->
@@ -1079,7 +1096,7 @@ import"./api-BzPrPlDy.js";let Y=null,x={personnel:[],clients:[],services:[],sala
           </table>
         </div>
       </div>
-    </section>`,l(),t.querySelectorAll(".user-role-filter").forEach(d=>{d.onclick=()=>{t.querySelectorAll(".user-role-filter").forEach(k=>k.classList.remove("active")),d.classList.add("active"),e=d.dataset.role,l()}});const $=t.querySelector("#userSortSel");$&&($.onchange=()=>{s=$.value,l()});const I=t.querySelector("#userSearchInp");I&&(I.oninput=()=>{n=I.value.trim(),l()});const v=t.querySelector("#addUserBtn");v&&(v.onclick=()=>de(null))}function de(t){const a=!t;t=t||{name:"",email:"",role:"employee",personnelId:"",clientId:"",active:!0};const e=t.role,s=openModal(`<h3>${a?"Add":"Edit"} User</h3>
+    </section>`,l(),t.querySelectorAll(".user-role-filter").forEach(p=>{p.onclick=()=>{t.querySelectorAll(".user-role-filter").forEach(y=>y.classList.remove("active")),p.classList.add("active"),e=p.dataset.role,l()}});const I=t.querySelector("#userSortSel");I&&(I.onchange=()=>{i=I.value,l()});const v=t.querySelector("#userSearchInp");v&&(v.oninput=()=>{n=v.value.trim(),l()});const f=t.querySelector("#addUserBtn");f&&(f.onclick=()=>de(null))}function de(t){const a=!t;t=t||{name:"",email:"",role:"employee",personnelId:"",clientId:"",active:!0};const e=t.role,i=openModal(`<h3>${a?"Add":"Edit"} User</h3>
     <div class="field-row">
       <div class="field"><label>Name</label><input id="uName" type="text" value="${escapeHtml(t.name)}"></div>
       <div class="field"><label>Email</label><input id="uEmail" type="email" value="${escapeHtml(t.email)}"></div>
@@ -1087,13 +1104,14 @@ import"./api-BzPrPlDy.js";let Y=null,x={personnel:[],clients:[],services:[],sala
     <div class="field-row">
       <div class="field"><label>Role</label><select id="uRole">
         <option value="superadmin" ${e==="superadmin"?"selected":""}>Admin</option>
+        <option value="accounts" ${e==="accounts"?"selected":""}>Accounts & Finance</option>
         <option value="employee" ${e==="employee"?"selected":""}>Employee</option>
         <option value="client" ${e==="client"?"selected":""}>Client</option></select></div>
       <div class="field"><label>Password ${a?"":"(leave blank to keep current)"}</label><input id="uPassword" type="password"></div>
     </div>
     <div class="field" id="uLinkWrap"></div>
     <div class="field"><label><input type="checkbox" id="uActive" ${t.active?"checked":""}> Active</label></div>
-    <div class="modal-actions"><button class="btn ghost" id="mCancel">Cancel</button><button class="btn gold" id="mSave">Save</button></div>`);function n(){const l=s.querySelector("#uRole").value,r=s.querySelector("#uLinkWrap");l==="employee"?r.innerHTML=`<label>Linked Personnel</label><select id="uPersonnel"><option value="">Select…</option>${x.personnel.map(u=>`<option value="${u._id}" ${t.personnelId&&(t.personnelId._id||t.personnelId)===u._id?"selected":""}>${escapeHtml(u.name)}</option>`).join("")}</select>`:l==="client"?r.innerHTML=`<label>Linked Client</label><select id="uClient"><option value="">Select…</option>${x.clients.map(u=>`<option value="${u._id}" ${t.clientId&&(t.clientId._id||t.clientId)===u._id?"selected":""}>${escapeHtml(u.name)}</option>`).join("")}</select>`:r.innerHTML=""}s.querySelector("#uRole").onchange=n,n(),s.querySelector("#mCancel").onclick=()=>s.remove(),s.querySelector("#mSave").onclick=async()=>{var b,$;const l=s.querySelector("#uRole").value,r={name:s.querySelector("#uName").value.trim(),email:s.querySelector("#uEmail").value.trim(),role:l,active:s.querySelector("#uActive").checked,personnelId:l==="employee"&&((b=s.querySelector("#uPersonnel"))==null?void 0:b.value)||null,clientId:l==="client"&&(($=s.querySelector("#uClient"))==null?void 0:$.value)||null},u=s.querySelector("#uPassword").value;if(u&&(r.password=u),!r.name||!r.email){flashToast("Name and email required",!0);return}if(a&&!u){flashToast("Password required for a new user",!0);return}try{a?await apiPost("/users",r):await apiPut("/users/"+t._id,r),s.remove(),h()}catch(I){flashToast(I.message,!0)}}}let w={date:new Date().toISOString().slice(0,10),personnelId:"all",filter:"all",search:""};function ce(t,a){let e;if(!t||t==="all")e=new Date;else{const r=t.split("-");r.length===3?e=new Date(Number(r[0]),Number(r[1])-1,Number(r[2])):e=new Date}e.setDate(e.getDate()+a);const s=e.getFullYear(),n=String(e.getMonth()+1).padStart(2,"0"),l=String(e.getDate()).padStart(2,"0");return`${s}-${n}-${l}`}async function ve(t){const[a,e]=await Promise.all([apiGet("/tasks"),apiGet("/personnel").catch(()=>x.personnel||[])]),s=new Date,n=`${s.getFullYear()}-${String(s.getMonth()+1).padStart(2,"0")}-${String(s.getDate()).padStart(2,"0")}`,l=w.date;let r=a;l!=="all"&&(r=a.filter(c=>c.dueDate?new Date(c.dueDate).toISOString().slice(0,10)===l:l===n));let u=r;w.personnelId!=="all"&&(u=u.filter(c=>{var E;const A=((E=c.personnelId)==null?void 0:E._id)||c.personnelId;return String(A)===String(w.personnelId)}));const b=u.length,$=u.filter(c=>c.status==="Completed").length,I=b-$,v=b>0?Math.round($/b*100):0;let d=u;if(w.filter==="active"?d=d.filter(c=>c.status!=="Completed"):w.filter==="completed"&&(d=d.filter(c=>c.status==="Completed")),w.search){const c=w.search.toLowerCase();d=d.filter(A=>{var C,q;const E=(((C=A.personnelId)==null?void 0:C.name)||((q=A.userId)==null?void 0:q.name)||"").toLowerCase(),R=(A.title||"").toLowerCase();return E.includes(c)||R.includes(c)})}const k={};d.forEach(c=>{var C,q,L,z,ee,te;const A=((C=c.personnelId)==null?void 0:C._id)||((q=c.userId)==null?void 0:q._id)||"unknown",E=((L=c.personnelId)==null?void 0:L.name)||((z=c.userId)==null?void 0:z.name)||"Unassigned Employee",R=((ee=c.personnelId)==null?void 0:ee.department)||((te=c.personnelId)==null?void 0:te.role)||"Team Member";k[A]||(k[A]={id:A,name:E,dept:R,tasks:[]}),k[A].tasks.push(c)});const f=Object.values(k),p=l===n;t.innerHTML=`
+    <div class="modal-actions"><button class="btn ghost" id="mCancel">Cancel</button><button class="btn gold" id="mSave">Save</button></div>`);function n(){const l=i.querySelector("#uRole").value,r=i.querySelector("#uLinkWrap");l==="employee"?r.innerHTML=`<label>Linked Personnel</label><select id="uPersonnel"><option value="">Select…</option>${x.personnel.map(u=>`<option value="${u._id}" ${t.personnelId&&(t.personnelId._id||t.personnelId)===u._id?"selected":""}>${escapeHtml(u.name)}</option>`).join("")}</select>`:l==="client"?r.innerHTML=`<label>Linked Client</label><select id="uClient"><option value="">Select…</option>${x.clients.map(u=>`<option value="${u._id}" ${t.clientId&&(t.clientId._id||t.clientId)===u._id?"selected":""}>${escapeHtml(u.name)}</option>`).join("")}</select>`:r.innerHTML=""}i.querySelector("#uRole").onchange=n,n(),i.querySelector("#mCancel").onclick=()=>i.remove(),i.querySelector("#mSave").onclick=async()=>{var b,$;const l=i.querySelector("#uRole").value,r={name:i.querySelector("#uName").value.trim(),email:i.querySelector("#uEmail").value.trim(),role:l,active:i.querySelector("#uActive").checked,personnelId:l==="employee"&&((b=i.querySelector("#uPersonnel"))==null?void 0:b.value)||null,clientId:l==="client"&&(($=i.querySelector("#uClient"))==null?void 0:$.value)||null},u=i.querySelector("#uPassword").value;if(u&&(r.password=u),!r.name||!r.email){flashToast("Name and email required",!0);return}if(a&&!u){flashToast("Password required for a new user",!0);return}try{a?await apiPost("/users",r):await apiPut("/users/"+t._id,r),i.remove(),h()}catch(I){flashToast(I.message,!0)}}}let k={date:new Date().toISOString().slice(0,10),personnelId:"all",filter:"all",search:""};function ce(t,a){let e;if(!t||t==="all")e=new Date;else{const r=t.split("-");r.length===3?e=new Date(Number(r[0]),Number(r[1])-1,Number(r[2])):e=new Date}e.setDate(e.getDate()+a);const i=e.getFullYear(),n=String(e.getMonth()+1).padStart(2,"0"),l=String(e.getDate()).padStart(2,"0");return`${i}-${n}-${l}`}async function ve(t){const[a,e]=await Promise.all([apiGet("/tasks"),apiGet("/personnel").catch(()=>x.personnel||[])]),i=new Date,n=`${i.getFullYear()}-${String(i.getMonth()+1).padStart(2,"0")}-${String(i.getDate()).padStart(2,"0")}`,l=k.date;let r=a;l!=="all"&&(r=a.filter(d=>d.dueDate?new Date(d.dueDate).toISOString().slice(0,10)===l:l===n));let u=r;k.personnelId!=="all"&&(u=u.filter(d=>{var D;const A=((D=d.personnelId)==null?void 0:D._id)||d.personnelId;return String(A)===String(k.personnelId)}));const b=u.length,$=u.filter(d=>d.status==="Completed").length,I=b-$,v=b>0?Math.round($/b*100):0;let f=u;if(k.filter==="active"?f=f.filter(d=>d.status!=="Completed"):k.filter==="completed"&&(f=f.filter(d=>d.status==="Completed")),k.search){const d=k.search.toLowerCase();f=f.filter(A=>{var C,q;const D=(((C=A.personnelId)==null?void 0:C.name)||((q=A.userId)==null?void 0:q.name)||"").toLowerCase(),R=(A.title||"").toLowerCase();return D.includes(d)||R.includes(d)})}const p={};f.forEach(d=>{var C,q,L,z,ee,te;const A=((C=d.personnelId)==null?void 0:C._id)||((q=d.userId)==null?void 0:q._id)||"unknown",D=((L=d.personnelId)==null?void 0:L.name)||((z=d.userId)==null?void 0:z.name)||"Unassigned Employee",R=((ee=d.personnelId)==null?void 0:ee.department)||((te=d.personnelId)==null?void 0:te.role)||"Team Member";p[A]||(p[A]={id:A,name:D,dept:R,tasks:[]}),p[A].tasks.push(d)});const y=Object.values(p),E=l===n;t.innerHTML=`
     <div class="block">
       <!-- Top Title & Navigation Bar -->
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px">
@@ -1111,7 +1129,7 @@ import"./api-BzPrPlDy.js";let Y=null,x={personnel:[],clients:[],services:[],sala
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
           </button>
           
-          <button type="button" class="btn ${p?"primary":"ghost"} small" id="admDailyTodayBtn" style="padding:4px 10px;font-size:12px;font-weight:700">
+          <button type="button" class="btn ${E?"primary":"ghost"} small" id="admDailyTodayBtn" style="padding:4px 10px;font-size:12px;font-weight:700">
             📅 Today
           </button>
 
@@ -1132,7 +1150,7 @@ import"./api-BzPrPlDy.js";let Y=null,x={personnel:[],clients:[],services:[],sala
         <div class="card kpi">
           <div class="kpi-header"><span class="kpi-label">Total Daily Tasks</span><div class="kpi-icon">📝</div></div>
           <div class="kpi-value">${b}</div>
-          <div class="kpi-sub">${l==="all"?"Across all dates":p?"Logged for today":l}</div>
+          <div class="kpi-sub">${l==="all"?"Across all dates":E?"Logged for today":l}</div>
         </div>
 
         <div class="card kpi">
@@ -1149,7 +1167,7 @@ import"./api-BzPrPlDy.js";let Y=null,x={personnel:[],clients:[],services:[],sala
 
         <div class="card kpi">
           <div class="kpi-header"><span class="kpi-label">Active Team Members</span><div class="kpi-icon">👥</div></div>
-          <div class="kpi-value">${f.length}</div>
+          <div class="kpi-value">${y.length}</div>
           <div class="kpi-sub">Employees with tasks</div>
         </div>
       </div>
@@ -1169,8 +1187,8 @@ import"./api-BzPrPlDy.js";let Y=null,x={personnel:[],clients:[],services:[],sala
           <div style="flex:1;min-width:180px">
             <select id="admDailyAssignSelect" style="width:100%;padding:8px 10px;border:1px solid var(--border-sm);border-radius:var(--r-md);background:var(--bg-surface);color:var(--text-1);font-size:12.5px;outline:none">
               <option value="all">👥 All Active Employees</option>
-              ${e.filter(c=>c.status!=="inactive").map(c=>`
-                <option value="${c._id}" ${w.personnelId===c._id?"selected":""}>${escapeHtml(c.name)} (${c.role||c.department||"Staff"})</option>
+              ${e.filter(d=>d.status!=="inactive").map(d=>`
+                <option value="${d._id}" ${k.personnelId===d._id?"selected":""}>${escapeHtml(d.name)} (${d.role||d.department||"Staff"})</option>
               `).join("")}
             </select>
           </div>
@@ -1196,9 +1214,9 @@ import"./api-BzPrPlDy.js";let Y=null,x={personnel:[],clients:[],services:[],sala
         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
           <!-- Left: Filter Chips -->
           <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
-            <button class="pchip ${w.filter==="all"?"active":""}" data-atf="all">All (${b})</button>
-            <button class="pchip ${w.filter==="active"?"active":""}" data-atf="active">Pending (${I})</button>
-            <button class="pchip ${w.filter==="completed"?"active":""}" data-atf="completed">✓ Completed (${$})</button>
+            <button class="pchip ${k.filter==="all"?"active":""}" data-atf="all">All (${b})</button>
+            <button class="pchip ${k.filter==="active"?"active":""}" data-atf="active">Pending (${I})</button>
+            <button class="pchip ${k.filter==="completed"?"active":""}" data-atf="completed">✓ Completed (${$})</button>
           </div>
 
           <!-- Right: Employee Picker & Search -->
@@ -1206,17 +1224,17 @@ import"./api-BzPrPlDy.js";let Y=null,x={personnel:[],clients:[],services:[],sala
             <div style="display:flex;align-items:center;gap:6px">
               <span style="font-size:12px;font-weight:700;color:var(--text-3)">Employee:</span>
               <select id="admTaskPersonFilter" style="font-size:12.5px;padding:6px 12px;border:1px solid var(--border-sm);border-radius:var(--r-md);background:var(--bg-surface);color:var(--text-1);outline:none">
-                <option value="all" ${w.personnelId==="all"?"selected":""}>All Employees (${e.length})</option>
-                ${e.map(c=>`
-                  <option value="${c._id}" ${w.personnelId===c._id?"selected":""}>${escapeHtml(c.name)} (${c.role||c.department||"Staff"})</option>
+                <option value="all" ${k.personnelId==="all"?"selected":""}>All Employees (${e.length})</option>
+                ${e.map(d=>`
+                  <option value="${d._id}" ${k.personnelId===d._id?"selected":""}>${escapeHtml(d.name)} (${d.role||d.department||"Staff"})</option>
                 `).join("")}
               </select>
             </div>
 
             <div class="ticket-search-box" style="margin:0">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--text-4)" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-              <input type="text" id="admTaskSearchInp" placeholder="Search tasks or employee…" value="${escapeHtml(w.search)}" style="font-size:12px;padding:5px 8px">
-              ${w.search?'<button type="button" id="admTaskClearSearch" style="background:none;border:none;color:var(--text-4);cursor:pointer;font-size:11px">✕</button>':""}
+              <input type="text" id="admTaskSearchInp" placeholder="Search tasks or employee…" value="${escapeHtml(k.search)}" style="font-size:12px;padding:5px 8px">
+              ${k.search?'<button type="button" id="admTaskClearSearch" style="background:none;border:none;color:var(--text-4);cursor:pointer;font-size:11px">✕</button>':""}
             </div>
 
             ${$>0?`
@@ -1229,7 +1247,7 @@ import"./api-BzPrPlDy.js";let Y=null,x={personnel:[],clients:[],services:[],sala
       </div>
 
       <!-- Employee Task Groups List -->
-      ${f.length===0?`
+      ${y.length===0?`
         <div class="card" style="text-align:center;padding:56px 20px">
           <div style="font-size:40px;margin-bottom:10px">📋</div>
           <div style="font-weight:700;font-size:16px;color:var(--text-1);margin-bottom:4px">No daily tasks found</div>
@@ -1237,33 +1255,33 @@ import"./api-BzPrPlDy.js";let Y=null,x={personnel:[],clients:[],services:[],sala
         </div>
       `:`
         <div style="display:flex;flex-direction:column;gap:18px">
-          ${f.map(c=>{const A=c.tasks.length,E=c.tasks.filter(q=>q.status==="Completed").length,R=A>0?Math.round(E/A*100):0,C=A>0&&E===A;return`
+          ${y.map(d=>{const A=d.tasks.length,D=d.tasks.filter(q=>q.status==="Completed").length,R=A>0?Math.round(D/A*100):0,C=A>0&&D===A;return`
               <div class="daily-checklist-card">
                 <!-- Employee Header Banner -->
                 <div style="padding:16px 20px;background:var(--bg-surface);border-bottom:1px solid var(--border-sm);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
                   <div style="display:flex;align-items:center;gap:12px">
                     <div style="width:36px;height:36px;border-radius:50%;background:var(--brand-500);color:#FFF;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px">
-                      ${c.name.charAt(0).toUpperCase()}
+                      ${d.name.charAt(0).toUpperCase()}
                     </div>
                     <div>
-                      <div style="font-size:15px;font-weight:800;color:var(--text-1);line-height:1.2">${escapeHtml(c.name)}</div>
-                      <div style="font-size:11.5px;color:var(--text-3)">${escapeHtml(c.dept)}</div>
+                      <div style="font-size:15px;font-weight:800;color:var(--text-1);line-height:1.2">${escapeHtml(d.name)}</div>
+                      <div style="font-size:11.5px;color:var(--text-3)">${escapeHtml(d.dept)}</div>
                     </div>
                   </div>
 
                   <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
                     <span style="font-size:12.5px;font-weight:700;color:${C?"var(--green-600)":"var(--text-2)"}">
-                      ${E} of ${A} completed (${R}%)
+                      ${D} of ${A} completed (${R}%)
                     </span>
                     <div style="width:100px;height:8px;background:var(--bg-elevated);border-radius:var(--r-full);overflow:hidden">
                       <div style="width:${R}%;height:100%;background:${C?"var(--green-500)":"var(--brand-500)"};transition:width 0.4s ease"></div>
                     </div>
-                    <button type="button" class="btn ghost small" onclick="adminQuickAddTaskForEmp('${c.id}')" style="font-size:11.5px;color:var(--brand-500);padding:3px 8px;font-weight:700" title="Add a task for this employee">
+                    <button type="button" class="btn ghost small" onclick="adminQuickAddTaskForEmp('${d.id}')" style="font-size:11.5px;color:var(--brand-500);padding:3px 8px;font-weight:700" title="Add a task for this employee">
                       + Add Task
                     </button>
-                    ${E>0?`
-                      <button type="button" class="btn ghost small" onclick="adminClearCompletedTasks('${c.id}')" style="font-size:11px;color:var(--text-3);padding:3px 7px" title="Delete completed tasks for this employee">
-                        Clear Done (${E})
+                    ${D>0?`
+                      <button type="button" class="btn ghost small" onclick="adminClearCompletedTasks('${d.id}')" style="font-size:11px;color:var(--text-3);padding:3px 7px" title="Delete completed tasks for this employee">
+                        Clear Done (${D})
                       </button>
                     `:""}
                   </div>
@@ -1271,7 +1289,7 @@ import"./api-BzPrPlDy.js";let Y=null,x={personnel:[],clients:[],services:[],sala
 
                 <!-- Employee Checklist Items -->
                 <div>
-                  ${c.tasks.map(q=>{const L=q.status==="Completed",z=q.dueDate?new Date(q.dueDate).toISOString().slice(0,10):"";return`
+                  ${d.tasks.map(q=>{const L=q.status==="Completed",z=q.dueDate?new Date(q.dueDate).toISOString().slice(0,10):"";return`
                       <div class="daily-item-row ${L?"completed":""}" style="padding:12px 20px">
                         <div style="display:flex;align-items:center;gap:14px;flex:1;min-width:0">
                           <button type="button" class="daily-circle-check ${L?"checked":""}" onclick="adminToggleTask('${q._id}')" title="${L?"Mark Incomplete":"Mark Complete"}">
@@ -1299,4 +1317,4 @@ import"./api-BzPrPlDy.js";let Y=null,x={personnel:[],clients:[],services:[],sala
         </div>
       `}
     </div>
-  `;const y=document.getElementById("admDailyPrevDayBtn");y&&(y.onclick=()=>{w.date=ce(w.date,-1),h()});const i=document.getElementById("admDailyNextDayBtn");i&&(i.onclick=()=>{w.date=ce(w.date,1),h()});const m=document.getElementById("admDailyTodayBtn");m&&(m.onclick=()=>{w.date=n,h()});const D=document.getElementById("admDailyAllDatesBtn");D&&(D.onclick=()=>{w.date=w.date==="all"?n:"all",h()});const B=document.getElementById("admDailyDatePickerInp");B&&(B.onchange=c=>{c.target.value&&(w.date=c.target.value,h())}),document.querySelectorAll("[data-atf]").forEach(c=>{c.onclick=()=>{w.filter=c.dataset.atf,h()}});const H=document.getElementById("admTaskPersonFilter");H&&(H.onchange=c=>{w.personnelId=c.target.value,h()});const N=document.getElementById("admTaskSearchInp");N&&(N.oninput=c=>{w.search=c.target.value,ve(t)});const o=document.getElementById("admTaskClearSearch");o&&(o.onclick=()=>{w.search="",h()});const S=document.getElementById("admDailyTaskInp"),P=document.getElementById("admDailyAddBtn"),j=async()=>{const c=((S==null?void 0:S.value)||"").trim();if(!c){flashToast("Please enter a task title",!0);return}const A=document.getElementById("admDailyAssignSelect"),E=document.getElementById("admDailyAssignDate"),R=document.getElementById("admDailyAssignPriority"),C=(A==null?void 0:A.value)||"all",q=(E==null?void 0:E.value)||(w.date==="all"?n:w.date),L=(R==null?void 0:R.value)||"Medium";try{const z={title:c,dueDate:q,priority:L,status:"Todo"};C==="all"?(z.assignAll=!0,z.personnelId="all"):z.personnelId=C,await apiPost("/tasks",z),flashToast(C==="all"?"Task assigned to all active employees! 👥":"Task assigned! ✍️"),S&&(S.value="",S.focus()),h()}catch(z){flashToast(z.message,!0)}};P&&(P.onclick=j),S&&(S.onkeydown=c=>{c.key==="Enter"&&j()})}window.adminToggleTask=async function(t){try{await apiPatch("/tasks/"+t+"/toggle",{}),flashToast("Task status updated"),h()}catch(a){flashToast(a.message,!0)}};window.adminEditTask=async function(t){try{const e=(await apiGet("/tasks")).find(n=>n._id===t);if(!e)return;const s=prompt("Edit task title:",e.title);s!==null&&s.trim()&&(await apiPut("/tasks/"+t,{title:s.trim()}),flashToast("Task updated"),h())}catch(a){flashToast(a.message,!0)}};window.adminQuickAddTaskForEmp=async function(t){const a=prompt("Enter task for this employee:");if(!(!a||!a.trim()))try{const e=new Date,s=`${e.getFullYear()}-${String(e.getMonth()+1).padStart(2,"0")}-${String(e.getDate()).padStart(2,"0")}`,n=w.date==="all"?s:w.date;await apiPost("/tasks",{title:a.trim(),personnelId:t,dueDate:n,priority:"Medium",status:"Todo"}),flashToast("Task assigned to employee! ✍️"),h()}catch(e){flashToast(e.message,!0)}};window.adminDeleteTask=async function(t){if(confirm("Delete this task?"))try{await apiDelete("/tasks/"+t),flashToast("Task deleted"),h()}catch(a){flashToast(a.message,!0)}};window.adminClearCompletedTasks=async function(t){if(confirm("Delete completed tasks?"))try{const a={date:w.date};t&&t!=="all"?a.personnelId=t:w.personnelId&&w.personnelId!=="all"&&(a.personnelId=w.personnelId);const e=await apiPost("/tasks/clear-completed",a);flashToast(`Completed tasks deleted (${e.deletedCount||0} removed) 🗑️`),h()}catch(a){flashToast(a.message,!0)}};ge();
+  `;const c=document.getElementById("admDailyPrevDayBtn");c&&(c.onclick=()=>{k.date=ce(k.date,-1),h()});const s=document.getElementById("admDailyNextDayBtn");s&&(s.onclick=()=>{k.date=ce(k.date,1),h()});const m=document.getElementById("admDailyTodayBtn");m&&(m.onclick=()=>{k.date=n,h()});const T=document.getElementById("admDailyAllDatesBtn");T&&(T.onclick=()=>{k.date=k.date==="all"?n:"all",h()});const N=document.getElementById("admDailyDatePickerInp");N&&(N.onchange=d=>{d.target.value&&(k.date=d.target.value,h())}),document.querySelectorAll("[data-atf]").forEach(d=>{d.onclick=()=>{k.filter=d.dataset.atf,h()}});const H=document.getElementById("admTaskPersonFilter");H&&(H.onchange=d=>{k.personnelId=d.target.value,h()});const B=document.getElementById("admTaskSearchInp");B&&(B.oninput=d=>{k.search=d.target.value,ve(t)});const o=document.getElementById("admTaskClearSearch");o&&(o.onclick=()=>{k.search="",h()});const S=document.getElementById("admDailyTaskInp"),P=document.getElementById("admDailyAddBtn"),j=async()=>{const d=((S==null?void 0:S.value)||"").trim();if(!d){flashToast("Please enter a task title",!0);return}const A=document.getElementById("admDailyAssignSelect"),D=document.getElementById("admDailyAssignDate"),R=document.getElementById("admDailyAssignPriority"),C=(A==null?void 0:A.value)||"all",q=(D==null?void 0:D.value)||(k.date==="all"?n:k.date),L=(R==null?void 0:R.value)||"Medium";try{const z={title:d,dueDate:q,priority:L,status:"Todo"};C==="all"?(z.assignAll=!0,z.personnelId="all"):z.personnelId=C,await apiPost("/tasks",z),flashToast(C==="all"?"Task assigned to all active employees! 👥":"Task assigned! ✍️"),S&&(S.value="",S.focus()),h()}catch(z){flashToast(z.message,!0)}};P&&(P.onclick=j),S&&(S.onkeydown=d=>{d.key==="Enter"&&j()})}window.adminToggleTask=async function(t){try{await apiPatch("/tasks/"+t+"/toggle",{}),flashToast("Task status updated"),h()}catch(a){flashToast(a.message,!0)}};window.adminEditTask=async function(t){try{const e=(await apiGet("/tasks")).find(n=>n._id===t);if(!e)return;const i=prompt("Edit task title:",e.title);i!==null&&i.trim()&&(await apiPut("/tasks/"+t,{title:i.trim()}),flashToast("Task updated"),h())}catch(a){flashToast(a.message,!0)}};window.adminQuickAddTaskForEmp=async function(t){const a=prompt("Enter task for this employee:");if(!(!a||!a.trim()))try{const e=new Date,i=`${e.getFullYear()}-${String(e.getMonth()+1).padStart(2,"0")}-${String(e.getDate()).padStart(2,"0")}`,n=k.date==="all"?i:k.date;await apiPost("/tasks",{title:a.trim(),personnelId:t,dueDate:n,priority:"Medium",status:"Todo"}),flashToast("Task assigned to employee! ✍️"),h()}catch(e){flashToast(e.message,!0)}};window.adminDeleteTask=async function(t){if(confirm("Delete this task?"))try{await apiDelete("/tasks/"+t),flashToast("Task deleted"),h()}catch(a){flashToast(a.message,!0)}};window.adminClearCompletedTasks=async function(t){if(confirm("Delete completed tasks?"))try{const a={date:k.date};t&&t!=="all"?a.personnelId=t:k.personnelId&&k.personnelId!=="all"&&(a.personnelId=k.personnelId);const e=await apiPost("/tasks/clear-completed",a);flashToast(`Completed tasks deleted (${e.deletedCount||0} removed) 🗑️`),h()}catch(a){flashToast(a.message,!0)}};ge();

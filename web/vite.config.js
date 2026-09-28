@@ -23,6 +23,7 @@ export default defineConfig({
           const rawUrl = req.url ? req.url.split('?')[0] : '';
           if (rawUrl === '/login') req.url = req.url.replace('/login', '/login.html');
           else if (rawUrl === '/admin') req.url = req.url.replace('/admin', '/admin.html');
+          else if (rawUrl === '/accounts') req.url = req.url.replace('/accounts', '/accounts.html');
           else if (rawUrl === '/employee') req.url = req.url.replace('/employee', '/employee.html');
           else if (rawUrl === '/client') req.url = req.url.replace('/client', '/client.html');
           next();
@@ -36,6 +37,7 @@ export default defineConfig({
         main: resolve(__dirname, 'index.html'),
         login: resolve(__dirname, 'login.html'),
         admin: resolve(__dirname, 'admin.html'),
+        accounts: resolve(__dirname, 'accounts.html'),
         employee: resolve(__dirname, 'employee.html'),
         client: resolve(__dirname, 'client.html'),
       },
