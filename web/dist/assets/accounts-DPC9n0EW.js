@@ -1,24 +1,24 @@
-import{r as ee,b as te,i as ne,a as ae,c as B,e as l,f as v,d as D,g as z,h as b,j as K,o as L,k as Q}from"./api-B2Bht1wi.js";let E=null,N="overview",j=[],le=[];const V=[{key:"overview",label:"Overview",icon:"📊"},{key:"invoices",label:"Invoices",icon:"📄"},{key:"payments",label:"Payments",icon:"💵"},{key:"receivables",label:"Pending & Receivables",icon:"⏳"},{key:"billing",label:"Billing Profiles",icon:"⚙️"},{key:"tally",label:"TallyPrime Silver",icon:"🏛️"}];async function ie(){if(ne(),E=ae("accounts"),!!E){try{const[s,m]=await Promise.all([B("/clients").catch(()=>[]),B("/services").catch(()=>[])]);j=s||[],le=m||[]}catch(s){console.error("Failed to load initial metadata",s)}M()}}function M(){const s=document.getElementById("app"),m=V.find(e=>e.key===N)||V[0];s.innerHTML=ee({user:E,currentRole:"accounts",activeTab:N,tabs:V,title:m.label,subtitle:"Billing, Invoicing & Receivables Intelligence"}),te(e=>{N=e,M()}),k()}window.ci360NavTab=s=>{N=s,M()};async function k(){const s=document.getElementById("content");if(s){s.innerHTML=`
+import{r as le,b as ie,i as se,a as oe,c as B,e as l,f as c,d as A,g as N,h as b,j as ee,k as Z,o as O}from"./api-B2Bht1wi.js";let E=null,D="overview",G=[],de=[];const Y=[{key:"overview",label:"Overview",icon:"📊"},{key:"invoices",label:"Invoices",icon:"📄"},{key:"payments",label:"Payments",icon:"💵"},{key:"receivables",label:"Pending & Receivables",icon:"⏳"},{key:"billing",label:"Billing Profiles",icon:"⚙️"},{key:"tally",label:"TallyPrime Silver",icon:"🏛️"}];async function re(){if(se(),E=oe("accounts"),!!E){try{const[i,m]=await Promise.all([B("/clients").catch(()=>[]),B("/services").catch(()=>[])]);G=i||[],de=m||[]}catch(i){console.error("Failed to load initial metadata",i)}q()}}function q(){const i=document.getElementById("app"),m=Y.find(e=>e.key===D)||Y[0];i.innerHTML=le({user:E,currentRole:"accounts",activeTab:D,tabs:Y,title:m.label,subtitle:"Billing, Invoicing & Receivables Intelligence"}),ie(e=>{D=e,q()}),k()}window.ci360NavTab=i=>{D=i,q()};async function k(){const i=document.getElementById("content");if(i){i.innerHTML=`
     <div style="display:flex;justify-content:center;align-items:center;min-height:240px">
       <div class="spinner"></div>
-    </div>`;try{N==="overview"?await se(s):N==="invoices"?await oe(s):N==="payments"?await ce(s):N==="receivables"?await pe(s):N==="billing"?await ue(s):N==="tally"&&await ye(s)}catch(m){s.innerHTML=`
+    </div>`;try{D==="overview"?await ce(i):D==="invoices"?await pe(i):D==="payments"?await ye(i):D==="receivables"?await ue(i):D==="billing"?await be(i):D==="tally"&&await fe(i)}catch(m){i.innerHTML=`
       <div class="empty" style="padding:48px 24px">
         <h3 style="color:var(--s-red-text);margin-bottom:8px">Unable to load accounts data</h3>
         <p style="color:var(--text-3);font-size:13px;margin-bottom:16px">${l(m.message)}</p>
         <button class="btn gold small" id="retryAccountsBtn">Retry</button>
-      </div>`;const e=document.getElementById("retryAccountsBtn");e&&(e.onclick=()=>k())}}}async function se(s){var S,C;const m=await B("/accounts/dashboard"),e=m.metrics||{},n=m.aging||{current:0,days31to60:0,days61to90:0,days90plus:0},r=n.current+n.days31to60+n.days61to90+n.days90plus||1,c=Math.round(n.current/r*100),a=Math.round(n.days31to60/r*100),o=Math.round(n.days61to90/r*100),u=Math.max(0,100-(c+a+o)),g=E&&(/ekta/i.test(E.name)||/ekta/i.test(E.email)),i=E&&(E.role==="superadmin"||E.role==="admin"),x=g||i||E&&E.personnelId;s.innerHTML=`
+      </div>`;const e=document.getElementById("retryAccountsBtn");e&&(e.onclick=()=>k())}}}async function ce(i){var w,C;const m=await B("/accounts/dashboard"),e=m.metrics||{},n=m.aging||{current:0,days31to60:0,days61to90:0,days90plus:0},o=n.current+n.days31to60+n.days61to90+n.days90plus||1,p=Math.round(n.current/o*100),a=Math.round(n.days31to60/o*100),s=Math.round(n.days61to90/o*100),g=Math.max(0,100-(p+a+s)),x=E&&(/ekta/i.test(E.name)||/ekta/i.test(E.email)),r=E&&(E.role==="superadmin"||E.role==="admin"),f=x||r||E&&E.personnelId;i.innerHTML=`
     <section class="block">
       <div class="accounts-header-banner">
         <div class="accounts-header-title">
-          <h2>Accounts & Finance Hub ${g?'<span class="badge" style="background:rgba(99,102,241,0.2);color:#818cf8;font-size:12px;margin-left:8px;vertical-align:middle;padding:4px 8px;border-radius:6px">Ekta · Finance Manager</span>':""}</h2>
+          <h2>Accounts & Finance Hub ${x?'<span class="badge" style="background:rgba(99,102,241,0.2);color:#818cf8;font-size:12px;margin-left:8px;vertical-align:middle;padding:4px 8px;border-radius:6px">Ekta · Finance Manager</span>':""}</h2>
           <div class="accounts-header-subtitle">Real-time revenue tracking, invoice lifecycle, and client pending balances.</div>
         </div>
         <div class="accounts-header-actions">
-          ${i?`
+          ${r?`
             <a href="/admin" class="btn ghost small" style="text-decoration:none;display:inline-flex;align-items:center;gap:6px">
               <span>← Admin Portal</span>
             </a>`:""}
-          ${x?`
+          ${f?`
             <a href="/employee" class="btn ghost small" style="text-decoration:none;display:inline-flex;align-items:center;gap:6px" title="Open Daily Tasks & Employee Workspace">
               <span>💼 Employee Workspace →</span>
             </a>`:""}
@@ -44,7 +44,7 @@ import{r as ee,b as te,i as ne,a as ae,c as B,e as l,f as v,d as D,g as z,h as b
             <span class="kpi-label">Total Invoiced</span>
             <div class="kpi-icon" style="background:var(--brand-50);color:var(--brand-600)">📄</div>
           </div>
-          <div class="kpi-value">${v(e.totalBilled||0)}</div>
+          <div class="kpi-value">${c(e.totalBilled||0)}</div>
           <div style="font-size:11.5px;color:var(--text-3);margin-top:6px;display:flex;align-items:center;gap:6px">
             <span class="badge blue">${e.invoiceCounts?e.invoiceCounts.total:0} Total</span>
             <span>All active billing</span>
@@ -56,7 +56,7 @@ import{r as ee,b as te,i as ne,a as ae,c as B,e as l,f as v,d as D,g as z,h as b
             <span class="kpi-label">Payments Collected</span>
             <div class="kpi-icon" style="background:var(--s-green-bg);color:var(--green-600)">💵</div>
           </div>
-          <div class="kpi-value" style="color:var(--green-600)">${v(e.totalReceived||0)}</div>
+          <div class="kpi-value" style="color:var(--green-600)">${c(e.totalReceived||0)}</div>
           <div style="font-size:11.5px;color:var(--text-3);margin-top:6px;display:flex;align-items:center;gap:6px">
             <span class="badge green">${e.collectionRate||0}% Cleared</span>
             <span>of total billed</span>
@@ -68,9 +68,9 @@ import{r as ee,b as te,i as ne,a as ae,c as B,e as l,f as v,d as D,g as z,h as b
             <span class="kpi-label">Total Pending Dues</span>
             <div class="kpi-icon" style="background:#FFFBEB;color:var(--amber-600)">⏳</div>
           </div>
-          <div class="kpi-value" style="color:var(--amber-600)">${v(e.totalPending||0)}</div>
+          <div class="kpi-value" style="color:var(--amber-600)">${c(e.totalPending||0)}</div>
           <div style="font-size:11.5px;color:var(--text-3);margin-top:6px;display:flex;align-items:center;gap:6px">
-            <span class="badge amber">${(((S=e.invoiceCounts)==null?void 0:S.partially_paid)||0)+(((C=e.invoiceCounts)==null?void 0:C.issued)||0)} Invoices</span>
+            <span class="badge amber">${(((w=e.invoiceCounts)==null?void 0:w.partially_paid)||0)+(((C=e.invoiceCounts)==null?void 0:C.issued)||0)} Invoices</span>
             <span>Awaiting full settlement</span>
           </div>
         </div>
@@ -80,7 +80,7 @@ import{r as ee,b as te,i as ne,a as ae,c as B,e as l,f as v,d as D,g as z,h as b
             <span class="kpi-label">Overdue Amount</span>
             <div class="kpi-icon" style="background:var(--s-red-bg);color:var(--red-600)">🚨</div>
           </div>
-          <div class="kpi-value" style="color:var(--red-600)">${v(e.totalOverdue||0)}</div>
+          <div class="kpi-value" style="color:var(--red-600)">${c(e.totalOverdue||0)}</div>
           <div style="font-size:11.5px;color:var(--text-3);margin-top:6px;display:flex;align-items:center;gap:6px">
             <span class="badge red">${e.invoiceCounts?e.invoiceCounts.overdue:0} Overdue</span>
             <span>Past due date</span>
@@ -94,15 +94,15 @@ import{r as ee,b as te,i as ne,a as ae,c as B,e as l,f as v,d as D,g as z,h as b
         <div class="card">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
             <h3 style="font-size:15px;font-weight:800;color:var(--text-1);margin:0">Receivables Aging Analysis</h3>
-            <span class="badge gold">${v(e.totalPending||0)} Pending</span>
+            <span class="badge gold">${c(e.totalPending||0)} Pending</span>
           </div>
           <div style="font-size:12px;color:var(--text-3);margin-bottom:8px">Visual distribution of pending receivables based on invoice due dates.</div>
           
           <div class="aging-bar-container">
-            <div class="aging-segment current" style="width:${c}%" title="0-30 Days: ${v(n.current)}"></div>
-            <div class="aging-segment days31to60" style="width:${a}%" title="31-60 Days: ${v(n.days31to60)}"></div>
-            <div class="aging-segment days61to90" style="width:${o}%" title="61-90 Days: ${v(n.days61to90)}"></div>
-            <div class="aging-segment days90plus" style="width:${u}%" title="90+ Days: ${v(n.days90plus)}"></div>
+            <div class="aging-segment current" style="width:${p}%" title="0-30 Days: ${c(n.current)}"></div>
+            <div class="aging-segment days31to60" style="width:${a}%" title="31-60 Days: ${c(n.days31to60)}"></div>
+            <div class="aging-segment days61to90" style="width:${s}%" title="61-90 Days: ${c(n.days61to90)}"></div>
+            <div class="aging-segment days90plus" style="width:${g}%" title="90+ Days: ${c(n.days90plus)}"></div>
           </div>
 
           <div class="aging-legend">
@@ -110,28 +110,28 @@ import{r as ee,b as te,i as ne,a as ae,c as B,e as l,f as v,d as D,g as z,h as b
               <div class="aging-dot" style="background:var(--green-500)"></div>
               <div>
                 <div style="font-size:11px;color:var(--text-3);font-weight:600">0 - 30 Days</div>
-                <div style="font-size:13px;font-weight:800;color:var(--text-1)">${v(n.current)}</div>
+                <div style="font-size:13px;font-weight:800;color:var(--text-1)">${c(n.current)}</div>
               </div>
             </div>
             <div class="aging-legend-item">
               <div class="aging-dot" style="background:var(--amber-500)"></div>
               <div>
                 <div style="font-size:11px;color:var(--text-3);font-weight:600">31 - 60 Days</div>
-                <div style="font-size:13px;font-weight:800;color:var(--text-1)">${v(n.days31to60)}</div>
+                <div style="font-size:13px;font-weight:800;color:var(--text-1)">${c(n.days31to60)}</div>
               </div>
             </div>
             <div class="aging-legend-item">
               <div class="aging-dot" style="background:#F97316"></div>
               <div>
                 <div style="font-size:11px;color:var(--text-3);font-weight:600">61 - 90 Days</div>
-                <div style="font-size:13px;font-weight:800;color:var(--text-1)">${v(n.days61to90)}</div>
+                <div style="font-size:13px;font-weight:800;color:var(--text-1)">${c(n.days61to90)}</div>
               </div>
             </div>
             <div class="aging-legend-item">
               <div class="aging-dot" style="background:var(--red-500)"></div>
               <div>
                 <div style="font-size:11px;color:var(--text-3);font-weight:600">90+ Days</div>
-                <div style="font-size:13px;font-weight:800;color:var(--red-600)">${v(n.days90plus)}</div>
+                <div style="font-size:13px;font-weight:800;color:var(--red-600)">${c(n.days90plus)}</div>
               </div>
             </div>
           </div>
@@ -146,17 +146,17 @@ import{r as ee,b as te,i as ne,a as ae,c as B,e as l,f as v,d as D,g as z,h as b
           <div style="font-size:12px;color:var(--text-3);margin-bottom:14px">Comparison of total invoiced amounts vs. cash collected.</div>
 
           <div style="display:flex;flex-direction:column;gap:12px">
-            ${(m.monthlyTrend||[]).map(y=>{const d=Math.max(...(m.monthlyTrend||[]).map(h=>Math.max(h.billed,h.collected)),1e3),$=Math.round(y.billed/d*100),t=Math.round(y.collected/d*100);return`
+            ${(m.monthlyTrend||[]).map(y=>{const d=Math.max(...(m.monthlyTrend||[]).map(I=>Math.max(I.billed,I.collected)),1e3),$=Math.round(y.billed/d*100),t=Math.round(y.collected/d*100);return`
                 <div style="display:flex;align-items:center;gap:12px;font-size:12px">
                   <span style="width:50px;font-weight:700;color:var(--text-2)">${y.month}</span>
                   <div style="flex:1;display:flex;flex-direction:column;gap:4px">
                     <div style="display:flex;align-items:center;gap:8px">
-                      <div style="height:7px;background:var(--brand-500);width:${Math.max(4,$)}%;border-radius:4px" title="Billed: ${v(y.billed)}"></div>
-                      <span style="font-size:10.5px;color:var(--text-3);min-width:60px">${v(y.billed)}</span>
+                      <div style="height:7px;background:var(--brand-500);width:${Math.max(4,$)}%;border-radius:4px" title="Billed: ${c(y.billed)}"></div>
+                      <span style="font-size:10.5px;color:var(--text-3);min-width:60px">${c(y.billed)}</span>
                     </div>
                     <div style="display:flex;align-items:center;gap:8px">
-                      <div style="height:7px;background:var(--green-500);width:${Math.max(4,t)}%;border-radius:4px" title="Collected: ${v(y.collected)}"></div>
-                      <span style="font-size:10.5px;color:var(--green-600);font-weight:600;min-width:60px">${v(y.collected)}</span>
+                      <div style="height:7px;background:var(--green-500);width:${Math.max(4,t)}%;border-radius:4px" title="Collected: ${c(y.collected)}"></div>
+                      <span style="font-size:10.5px;color:var(--green-600);font-weight:600;min-width:60px">${c(y.collected)}</span>
                     </div>
                   </div>
                 </div>`}).join("")||'<div class="empty" style="padding:16px">No trend data yet</div>'}
@@ -196,9 +196,9 @@ import{r as ee,b as te,i as ne,a as ae,c as B,e as l,f as v,d as D,g as z,h as b
                       <strong>${l(y.clientName)}</strong>
                       <div style="font-size:11px;color:var(--text-3)">${y.invoiceCount} invoices</div>
                     </td>
-                    <td class="num" style="font-weight:700;color:var(--amber-600)">${v(y.pendingAmount)}</td>
+                    <td class="num" style="font-weight:700;color:var(--amber-600)">${c(y.pendingAmount)}</td>
                     <td class="num">
-                      ${y.overdueAmount>0?`<span class="badge red">${v(y.overdueAmount)}</span>`:'<span class="muted">—</span>'}
+                      ${y.overdueAmount>0?`<span class="badge red">${c(y.overdueAmount)}</span>`:'<span class="muted">—</span>'}
                     </td>
                     <td class="num" style="padding-right:20px">
                       <button class="btn green small quick-collect-btn" data-client-id="${y.clientId}" data-client-name="${l(y.clientName)}" data-pending="${y.pendingAmount}">
@@ -236,11 +236,11 @@ import{r as ee,b as te,i as ne,a as ae,c as B,e as l,f as v,d as D,g as z,h as b
                   <tr>
                     <td style="padding-left:20px">
                       <strong>${l(y.invoiceNumber)}</strong>
-                      <div style="font-size:11px;color:var(--text-3)">${D(y.issueDate)}</div>
+                      <div style="font-size:11px;color:var(--text-3)">${A(y.issueDate)}</div>
                     </td>
                     <td>${l(y.clientName)}</td>
-                    <td class="num" style="font-weight:700">${v(y.totalAmount)}</td>
-                    <td>${O(y.status)}</td>
+                    <td class="num" style="font-weight:700">${c(y.totalAmount)}</td>
+                    <td>${U(y.status)}</td>
                     <td class="num" style="padding-right:20px">
                       <button class="btn ghost small view-invoice-btn" data-id="${y._id}">View</button>
                     </td>
@@ -250,9 +250,9 @@ import{r as ee,b as te,i as ne,a as ae,c as B,e as l,f as v,d as D,g as z,h as b
           </div>
         </div>
       </div>
-    </section>`,document.getElementById("quickNewInvoiceBtn").onclick=()=>Z(),document.getElementById("quickRecordPaymentBtn").onclick=()=>q();const p=document.getElementById("seedDemoAccountsBtn");p&&(p.onclick=async()=>{if(confirm("Load realistic demo invoices, payments, and billing profiles?"))try{p.disabled=!0,p.textContent="Loading demo data…";const y=await z("/accounts/seed-demo",{});b(y.message||"Demo data loaded successfully!"),k()}catch(y){b(y.message,!0),p.disabled=!1,p.textContent="⚡ Seed Demo Data"}});const w=document.getElementById("clearAllAccountsDataBtn");w&&(w.onclick=async()=>{if(confirm(`⚠️ WARNING: Are you sure you want to delete ALL invoices and ALL payments in CI360 Accounts?
+    </section>`,document.getElementById("quickNewInvoiceBtn").onclick=()=>te(),document.getElementById("quickRecordPaymentBtn").onclick=()=>j();const v=document.getElementById("seedDemoAccountsBtn");v&&(v.onclick=async()=>{if(confirm("Load realistic demo invoices, payments, and billing profiles?"))try{v.disabled=!0,v.textContent="Loading demo data…";const y=await N("/accounts/seed-demo",{});b(y.message||"Demo data loaded successfully!"),k()}catch(y){b(y.message,!0),v.disabled=!1,v.textContent="⚡ Seed Demo Data"}});const h=document.getElementById("clearAllAccountsDataBtn");h&&(h.onclick=async()=>{if(confirm(`⚠️ WARNING: Are you sure you want to delete ALL invoices and ALL payments in CI360 Accounts?
 
-This will permanently wipe all transactions. Client billing profiles will remain intact.`))try{w.disabled=!0,w.textContent="Clearing…";const y=await z("/accounts/clear-all",{});b(y.message||"Accounts data cleared successfully"),k()}catch(y){b(y.message,!0),w.disabled=!1,w.innerHTML="<span>🗑️ Delete All Data</span>"}}),document.getElementById("viewAllReceivablesBtn").onclick=()=>{N="receivables",M()},document.getElementById("viewAllInvoicesBtn").onclick=()=>{N="invoices",M()},s.querySelectorAll(".quick-collect-btn").forEach(y=>{y.onclick=()=>{q({clientId:y.dataset.clientId,clientName:y.dataset.clientName,suggestedAmount:Number(y.dataset.pending)||0})}}),s.querySelectorAll(".view-invoice-btn").forEach(y=>{y.onclick=()=>J(y.dataset.id)})}function O(s){return s==="paid"?'<span class="badge green">Paid</span>':s==="partially_paid"?'<span class="badge blue">Partially Paid</span>':s==="overdue"?'<span class="badge red">Overdue</span>':s==="issued"?'<span class="badge amber">Issued</span>':s==="draft"?'<span class="badge gray">Draft</span>':s==="cancelled"?'<span class="badge red">Cancelled</span>':`<span class="badge">${l(s||"—")}</span>`}let W="all",G="",U="";async function oe(s){let m=`?status=${encodeURIComponent(W)}`;G&&(m+=`&clientId=${encodeURIComponent(G)}`),U&&(m+=`&search=${encodeURIComponent(U)}`);const e=await B("/accounts/invoices"+m),n=e.reduce((t,h)=>t+(h.totalAmount||0),0),r=e.reduce((t,h)=>t+(h.amountPaid||0),0),c=e.reduce((t,h)=>t+(h.pendingAmount||0),0);s.innerHTML=`
+This will permanently wipe all transactions. Client billing profiles will remain intact.`))try{h.disabled=!0,h.textContent="Clearing…";const y=await N("/accounts/clear-all",{});b(y.message||"Accounts data cleared successfully"),k()}catch(y){b(y.message,!0),h.disabled=!1,h.innerHTML="<span>🗑️ Delete All Data</span>"}}),document.getElementById("viewAllReceivablesBtn").onclick=()=>{D="receivables",q()},document.getElementById("viewAllInvoicesBtn").onclick=()=>{D="invoices",q()},i.querySelectorAll(".quick-collect-btn").forEach(y=>{y.onclick=()=>{j({clientId:y.dataset.clientId,clientName:y.dataset.clientName,suggestedAmount:Number(y.dataset.pending)||0})}}),i.querySelectorAll(".view-invoice-btn").forEach(y=>{y.onclick=()=>ne(y.dataset.id)})}function U(i){return i==="paid"?'<span class="badge green">Paid</span>':i==="partially_paid"?'<span class="badge blue">Partially Paid</span>':i==="overdue"?'<span class="badge red">Overdue</span>':i==="issued"?'<span class="badge amber">Issued</span>':i==="draft"?'<span class="badge gray">Draft</span>':i==="cancelled"?'<span class="badge red">Cancelled</span>':`<span class="badge">${l(i||"—")}</span>`}let Q="all",H="",_="";async function pe(i){let m=`?status=${encodeURIComponent(Q)}`;H&&(m+=`&clientId=${encodeURIComponent(H)}`),_&&(m+=`&search=${encodeURIComponent(_)}`);const e=await B("/accounts/invoices"+m),n=e.reduce((t,I)=>t+(I.totalAmount||0),0),o=e.reduce((t,I)=>t+(I.amountPaid||0),0),p=e.reduce((t,I)=>t+(I.pendingAmount||0),0);i.innerHTML=`
     <section class="block">
       <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:16px">
         <div>
@@ -268,13 +268,13 @@ This will permanently wipe all transactions. Client billing profiles will remain
       <!-- Quick Summary Pills -->
       <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:18px">
         <div style="background:var(--bg-card);border:1px solid var(--border-sm);padding:8px 14px;border-radius:var(--r-sm);font-size:12px">
-          <span style="color:var(--text-3)">Total Billed:</span> <strong>${v(n)}</strong>
+          <span style="color:var(--text-3)">Total Billed:</span> <strong>${c(n)}</strong>
         </div>
         <div style="background:var(--bg-card);border:1px solid var(--border-sm);padding:8px 14px;border-radius:var(--r-sm);font-size:12px">
-          <span style="color:var(--text-3)">Collected:</span> <strong style="color:var(--green-600)">${v(r)}</strong>
+          <span style="color:var(--text-3)">Collected:</span> <strong style="color:var(--green-600)">${c(o)}</strong>
         </div>
         <div style="background:var(--bg-card);border:1px solid var(--border-sm);padding:8px 14px;border-radius:var(--r-sm);font-size:12px">
-          <span style="color:var(--text-3)">Pending:</span> <strong style="color:var(--amber-600)">${v(c)}</strong>
+          <span style="color:var(--text-3)">Pending:</span> <strong style="color:var(--amber-600)">${c(p)}</strong>
         </div>
       </div>
 
@@ -282,18 +282,18 @@ This will permanently wipe all transactions. Client billing profiles will remain
       <div class="card" style="padding:14px 18px;margin-bottom:18px">
         <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
           <div style="flex:1;min-width:220px">
-            <input type="text" id="invoiceSearchInput" placeholder="Search by invoice #, client name, service…" value="${l(U)}" style="margin:0;width:100%">
+            <input type="text" id="invoiceSearchInput" placeholder="Search by invoice #, client name, service…" value="${l(_)}" style="margin:0;width:100%">
           </div>
           <div style="min-width:160px">
             <select id="invoiceClientFilter" style="margin:0;width:100%">
               <option value="">All Clients</option>
-              ${j.map(t=>`<option value="${t._id}" ${G===t._id?"selected":""}>${l(t.name)}</option>`).join("")}
+              ${G.map(t=>`<option value="${t._id}" ${H===t._id?"selected":""}>${l(t.name)}</option>`).join("")}
             </select>
           </div>
           <div style="display:flex;gap:6px;flex-wrap:wrap">
             ${["all","issued","partially_paid","paid","overdue","draft"].map(t=>`
-              <button class="btn ghost small invoice-status-filter ${W===t?"active gold":""}" data-status="${t}">
-                ${t==="all"?"All":t.replace("_"," ").replace(/\b\w/g,h=>h.toUpperCase())}
+              <button class="btn ghost small invoice-status-filter ${Q===t?"active gold":""}" data-status="${t}">
+                ${t==="all"?"All":t.replace("_"," ").replace(/\b\w/g,I=>I.toUpperCase())}
               </button>`).join("")}
           </div>
         </div>
@@ -351,14 +351,14 @@ This will permanently wipe all transactions. Client billing profiles will remain
                   </td>
                   <td><strong>${l(t.clientName)}</strong></td>
                   <td><span class="badge">${t.billingType?t.billingType.toUpperCase():"RETAINER"}</span></td>
-                  <td style="font-size:12.5px">${D(t.issueDate)}</td>
-                  <td style="font-size:12.5px;color:${t.status==="overdue"?"var(--red-600)":"inherit"}">${D(t.dueDate)}</td>
-                  <td class="num" style="font-weight:700">${v(t.totalAmount)}</td>
-                  <td class="num" style="color:var(--green-600);font-weight:600">${v(t.amountPaid)}</td>
+                  <td style="font-size:12.5px">${A(t.issueDate)}</td>
+                  <td style="font-size:12.5px;color:${t.status==="overdue"?"var(--red-600)":"inherit"}">${A(t.dueDate)}</td>
+                  <td class="num" style="font-weight:700">${c(t.totalAmount)}</td>
+                  <td class="num" style="color:var(--green-600);font-weight:600">${c(t.amountPaid)}</td>
                   <td class="num" style="font-weight:700;color:${t.pendingAmount>0?"var(--amber-600)":"var(--text-4)"}">
-                    ${v(t.pendingAmount)}
+                    ${c(t.pendingAmount)}
                   </td>
-                  <td>${O(t.status)}</td>
+                  <td>${U(t.status)}</td>
                   <td class="num" style="padding-right:22px;white-space:nowrap">
                     <button class="btn ghost small view-invoice-btn" data-id="${t._id}" title="View and Print Invoice">👁️ View</button>
                     ${t.pendingAmount>0?`
@@ -373,10 +373,10 @@ This will permanently wipe all transactions. Client billing profiles will remain
           </table>
         </div>
       </div>
-    </section>`;const a=document.getElementById("invoiceSearchInput");let o=null;a.oninput=()=>{clearTimeout(o),o=setTimeout(()=>{U=a.value.trim(),k()},300)},document.getElementById("invoiceClientFilter").onchange=t=>{G=t.target.value,k()},s.querySelectorAll(".invoice-status-filter").forEach(t=>{t.onclick=()=>{W=t.dataset.status,k()}}),document.getElementById("newInvoiceBtn").onclick=()=>Z();const u=document.getElementById("selectAllInvoicesCb"),g=document.getElementById("thSelectAllInvoices"),i=document.getElementById("invoicesDeselectAllBtn"),x=document.getElementById("invoicesSelectedCounter"),p=document.getElementById("deleteSelectedInvoicesBtn"),w=document.getElementById("deleteInvoicesSelectedCount"),S=document.getElementById("deleteAllInvoicesBtn"),C=s.querySelectorAll(".invoice-select-cb");function y(){const t=Array.from(C).filter(I=>I.checked),h=t.length;x&&(x.textContent=`${h} of ${e.length} selected`),w&&(w.textContent=h),h>0?(p&&(p.style.display="inline-flex"),i&&(i.style.display="inline-flex")):(p&&(p.style.display="none"),i&&(i.style.display="none"));const P=C.length>0&&t.length===C.length;u&&(u.checked=P),g&&(g.checked=P)}function d(t){C.forEach(h=>{h.checked=t}),y()}u&&(u.onchange=t=>d(t.target.checked)),g&&(g.onchange=t=>d(t.target.checked)),i&&(i.onclick=()=>d(!1)),C.forEach(t=>{t.onchange=()=>y()}),p&&(p.onclick=async()=>{const t=Array.from(C).filter(h=>h.checked).map(h=>h.dataset.id);if(t.length&&confirm(`Are you sure you want to permanently delete the ${t.length} selected invoice(s)? This cannot be undone.`))try{p.disabled=!0,p.textContent="Deleting…";const h=await z("/accounts/invoices/bulk-delete",{ids:t});b(h.message||`Deleted ${t.length} invoice(s)`),k()}catch(h){b(h.message,!0),p.disabled=!1,y()}}),S&&(S.onclick=async()=>{if(!e.length){b("No invoices to delete",!0);return}if(confirm(`⚠️ DANGER: Are you sure you want to delete ALL ${e.length} invoices?
+    </section>`;const a=document.getElementById("invoiceSearchInput");let s=null;a.oninput=()=>{clearTimeout(s),s=setTimeout(()=>{_=a.value.trim(),k()},300)},document.getElementById("invoiceClientFilter").onchange=t=>{H=t.target.value,k()},i.querySelectorAll(".invoice-status-filter").forEach(t=>{t.onclick=()=>{Q=t.dataset.status,k()}}),document.getElementById("newInvoiceBtn").onclick=()=>te();const g=document.getElementById("selectAllInvoicesCb"),x=document.getElementById("thSelectAllInvoices"),r=document.getElementById("invoicesDeselectAllBtn"),f=document.getElementById("invoicesSelectedCounter"),v=document.getElementById("deleteSelectedInvoicesBtn"),h=document.getElementById("deleteInvoicesSelectedCount"),w=document.getElementById("deleteAllInvoicesBtn"),C=i.querySelectorAll(".invoice-select-cb");function y(){const t=Array.from(C).filter(S=>S.checked),I=t.length;f&&(f.textContent=`${I} of ${e.length} selected`),h&&(h.textContent=I),I>0?(v&&(v.style.display="inline-flex"),r&&(r.style.display="inline-flex")):(v&&(v.style.display="none"),r&&(r.style.display="none"));const R=C.length>0&&t.length===C.length;g&&(g.checked=R),x&&(x.checked=R)}function d(t){C.forEach(I=>{I.checked=t}),y()}g&&(g.onchange=t=>d(t.target.checked)),x&&(x.onchange=t=>d(t.target.checked)),r&&(r.onclick=()=>d(!1)),C.forEach(t=>{t.onchange=()=>y()}),v&&(v.onclick=async()=>{const t=Array.from(C).filter(I=>I.checked).map(I=>I.dataset.id);if(t.length&&confirm(`Are you sure you want to permanently delete the ${t.length} selected invoice(s)? This cannot be undone.`))try{v.disabled=!0,v.textContent="Deleting…";const I=await N("/accounts/invoices/bulk-delete",{ids:t});b(I.message||`Deleted ${t.length} invoice(s)`),k()}catch(I){b(I.message,!0),v.disabled=!1,y()}}),w&&(w.onclick=async()=>{if(!e.length){b("No invoices to delete",!0);return}if(confirm(`⚠️ DANGER: Are you sure you want to delete ALL ${e.length} invoices?
 
-This will permanently remove all invoice records and unlink their payment records. This cannot be undone.`))try{S.disabled=!0,S.textContent="Deleting all…";const t=await z("/accounts/invoices/bulk-delete",{deleteAll:!0});b(t.message||"All invoices have been deleted."),k()}catch(t){b(t.message,!0),S.disabled=!1,S.textContent=`💥 Delete All Invoices (${e.length})`}}),s.querySelectorAll(".view-invoice-btn").forEach(t=>{t.onclick=()=>J(t.dataset.id)}),s.querySelectorAll(".edit-invoice-btn").forEach(t=>{t.onclick=()=>re(t.dataset.id)}),s.querySelectorAll(".pay-invoice-btn").forEach(t=>{t.onclick=()=>{q({invoiceId:t.dataset.id,invoiceNumber:t.dataset.num,clientId:t.dataset.clientId,clientName:t.dataset.clientName,suggestedAmount:Number(t.dataset.pending)||0})}}),s.querySelectorAll(".delete-invoice-btn").forEach(t=>{t.onclick=async()=>{if(confirm("Are you sure you want to delete this invoice? This cannot be undone."))try{await K("/accounts/invoices/"+t.dataset.id),b("Invoice deleted successfully"),k()}catch(h){b(h.message,!0)}}});const $=document.getElementById("exportInvoicesCsvBtn");$&&($.onclick=()=>de(e))}function de(s){if(!s||!s.length){b("No invoices to export",!0);return}const m=["Invoice Number","Client Name","Type","Issue Date","Due Date","Subtotal","Tax (18%)","Total Amount","Amount Paid","Pending Amount","Status"],e=s.map(o=>[o.invoiceNumber,`"${(o.clientName||"").replace(/"/g,'""')}"`,o.billingType||"",D(o.issueDate),D(o.dueDate),o.subtotal||0,o.taxAmount||0,o.totalAmount||0,o.amountPaid||0,o.pendingAmount||0,o.status]),n=[m.join(","),...e.map(o=>o.join(","))].join(`
-`),r=new Blob([n],{type:"text/csv;charset=utf-8;"}),c=URL.createObjectURL(r),a=document.createElement("a");a.href=c,a.download=`CI360_Invoices_${new Date().toISOString().slice(0,10)}.csv`,a.click(),URL.revokeObjectURL(c),b("Invoices exported to CSV")}async function Z(s){let m="INV-2026-0001";try{const u=await B("/accounts/next-invoice-number");u&&u.invoiceNumber&&(m=u.invoiceNumber)}catch{}const e=new Date;e.setDate(e.getDate()+15);const n=[{description:"Strategic Intelligence & Creative Retainer",serviceId:"",quantity:1,rate:5e4,amount:5e4}],r=L(`
+This will permanently remove all invoice records and unlink their payment records. This cannot be undone.`))try{w.disabled=!0,w.textContent="Deleting all…";const t=await N("/accounts/invoices/bulk-delete",{deleteAll:!0});b(t.message||"All invoices have been deleted."),k()}catch(t){b(t.message,!0),w.disabled=!1,w.textContent=`💥 Delete All Invoices (${e.length})`}}),i.querySelectorAll(".view-invoice-btn").forEach(t=>{t.onclick=()=>ne(t.dataset.id)}),i.querySelectorAll(".edit-invoice-btn").forEach(t=>{t.onclick=()=>me(t.dataset.id)}),i.querySelectorAll(".pay-invoice-btn").forEach(t=>{t.onclick=()=>{j({invoiceId:t.dataset.id,invoiceNumber:t.dataset.num,clientId:t.dataset.clientId,clientName:t.dataset.clientName,suggestedAmount:Number(t.dataset.pending)||0})}}),i.querySelectorAll(".delete-invoice-btn").forEach(t=>{t.onclick=async()=>{if(confirm("Are you sure you want to delete this invoice? This cannot be undone."))try{await ee("/accounts/invoices/"+t.dataset.id),b("Invoice deleted successfully"),k()}catch(I){b(I.message,!0)}}});const $=document.getElementById("exportInvoicesCsvBtn");$&&($.onclick=()=>ve(e))}function ve(i){if(!i||!i.length){b("No invoices to export",!0);return}const m=["Invoice Number","Client Name","Type","Issue Date","Due Date","Subtotal","Tax (18%)","Total Amount","Amount Paid","Pending Amount","Status"],e=i.map(s=>[s.invoiceNumber,`"${(s.clientName||"").replace(/"/g,'""')}"`,s.billingType||"",A(s.issueDate),A(s.dueDate),s.subtotal||0,s.taxAmount||0,s.totalAmount||0,s.amountPaid||0,s.pendingAmount||0,s.status]),n=[m.join(","),...e.map(s=>s.join(","))].join(`
+`),o=new Blob([n],{type:"text/csv;charset=utf-8;"}),p=URL.createObjectURL(o),a=document.createElement("a");a.href=p,a.download=`CI360_Invoices_${new Date().toISOString().slice(0,10)}.csv`,a.click(),URL.revokeObjectURL(p),b("Invoices exported to CSV")}async function te(i){let m="INV-2026-0001";try{const g=await B("/accounts/next-invoice-number");g&&g.invoiceNumber&&(m=g.invoiceNumber)}catch{}const e=new Date;e.setDate(e.getDate()+15);const n=[{description:"Strategic Intelligence & Creative Retainer",serviceId:"",quantity:1,rate:5e4,amount:5e4}],o=O(`
     <div style="max-width:680px;width:100%">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
         <h3 style="margin:0;font-size:18px">Create New Invoice</h3>
@@ -388,7 +388,7 @@ This will permanently remove all invoice records and unlink their payment record
           <label>Client *</label>
           <select id="modalInvClient" required>
             <option value="">Select client…</option>
-            ${j.map(u=>`<option value="${u._id}" ${s===u._id?"selected":""}>${l(u.name)}</option>`).join("")}
+            ${G.map(g=>`<option value="${g._id}" ${i===g._id?"selected":""}>${l(g.name)}</option>`).join("")}
           </select>
         </div>
         <div class="field">
@@ -477,28 +477,28 @@ This will permanently remove all invoice records and unlink their payment record
         <button class="btn ghost" id="modalCancelInvBtn">Cancel</button>
         <button class="btn gold" id="modalSaveInvBtn">Create & Issue Invoice</button>
       </div>
-    </div>`);let c=[...n];function a(){const u=r.querySelector("#modalItemsContainer");u.innerHTML=c.map((g,i)=>`
+    </div>`);let p=[...n];function a(){const g=o.querySelector("#modalItemsContainer");g.innerHTML=p.map((x,r)=>`
       <div style="display:flex;gap:8px;align-items:center;background:var(--bg-card);border:1px solid var(--border-xs);padding:8px 10px;border-radius:var(--r-sm)">
         <div style="flex:2">
-          <input type="text" class="item-desc" data-idx="${i}" placeholder="Description / Service" value="${l(g.description)}" style="margin:0;font-size:12px">
+          <input type="text" class="item-desc" data-idx="${r}" placeholder="Description / Service" value="${l(x.description)}" style="margin:0;font-size:12px">
         </div>
         <div style="width:70px">
-          <input type="number" class="item-qty" data-idx="${i}" placeholder="Qty" min="1" value="${g.quantity}" style="margin:0;font-size:12px;text-align:center">
+          <input type="number" class="item-qty" data-idx="${r}" placeholder="Qty" min="1" value="${x.quantity}" style="margin:0;font-size:12px;text-align:center">
         </div>
         <div style="width:110px">
-          <input type="number" class="item-rate" data-idx="${i}" placeholder="Rate (₹)" min="0" value="${g.rate}" style="margin:0;font-size:12px;text-align:right">
+          <input type="number" class="item-rate" data-idx="${r}" placeholder="Rate (₹)" min="0" value="${x.rate}" style="margin:0;font-size:12px;text-align:right">
         </div>
         <div style="width:90px;font-weight:700;font-size:12.5px;text-align:right">
-          ${v(g.amount)}
+          ${c(x.amount)}
         </div>
         <div>
-          ${c.length>1?`<button type="button" class="btn danger small remove-item-btn" data-idx="${i}" style="padding:4px 8px">✕</button>`:""}
+          ${p.length>1?`<button type="button" class="btn danger small remove-item-btn" data-idx="${r}" style="padding:4px 8px">✕</button>`:""}
         </div>
-      </div>`).join(""),u.querySelectorAll(".item-desc").forEach(g=>{g.oninput=i=>{c[Number(i.target.dataset.idx)].description=i.target.value}}),u.querySelectorAll(".item-qty").forEach(g=>{g.oninput=i=>{const x=Number(i.target.dataset.idx),p=Number(i.target.value)||1;c[x].quantity=p,c[x].amount=p*(c[x].rate||0),a(),o()}}),u.querySelectorAll(".item-rate").forEach(g=>{g.oninput=i=>{const x=Number(i.target.dataset.idx),p=Number(i.target.value)||0;c[x].rate=p,c[x].amount=(c[x].quantity||1)*p,a(),o()}}),u.querySelectorAll(".remove-item-btn").forEach(g=>{g.onclick=()=>{const i=Number(g.dataset.idx);c.splice(i,1),a(),o()}})}function o(){const u=c.reduce((S,C)=>S+(Number(C.amount)||0),0),g=Number(r.querySelector("#modalCalcTaxRate").value)||0,i=Number(r.querySelector("#modalCalcDiscount").value)||0,x=Math.max(0,u-i),p=Math.round(x*(g/100)),w=x+p;r.querySelector("#modalCalcSubtotal").textContent=v(u),r.querySelector("#modalCalcTaxAmount").textContent=v(p),r.querySelector("#modalCalcTotal").textContent=v(w)}r.querySelector("#modalAddItemRowBtn").onclick=()=>{c.push({description:"",serviceId:"",quantity:1,rate:0,amount:0}),a(),o()},r.querySelector("#modalCalcTaxRate").onchange=o,r.querySelector("#modalCalcDiscount").oninput=o,r.querySelector("#modalInvClient").onchange=async u=>{const g=u.target.value;if(g)try{const i=await B("/accounts/billing-profiles").then(x=>{var p;return(p=x.find(w=>w.clientId===g))==null?void 0:p.profile});i&&(i.retainerAmount&&c.length===1&&c[0].rate===5e4&&(c[0].rate=i.retainerAmount,c[0].amount=i.retainerAmount,a(),o()),i.gstin&&(r.querySelector("#modalInvGstin").value=i.gstin),i.billingType&&(r.querySelector("#modalInvType").value=i.billingType))}catch{}},a(),o(),r.querySelector("#modalCancelInvBtn").onclick=()=>r.remove(),r.querySelector("#modalSaveInvBtn").onclick=async()=>{const u=r.querySelector("#modalInvClient").value,g=r.querySelector("#modalInvNum").value.trim(),i=r.querySelector("#modalInvIssueDate").value,x=r.querySelector("#modalInvDueDate").value,p=r.querySelector("#modalInvType").value,w=Number(r.querySelector("#modalCalcTaxRate").value)||0,S=Number(r.querySelector("#modalCalcDiscount").value)||0,C=r.querySelector("#modalInvTerms").value.trim(),y=r.querySelector("#modalInvGstin").value.trim(),d=r.querySelector("#modalInvNotes").value.trim();if(!u){b("Please select a client",!0);return}if(!x){b("Please select a due date",!0);return}if(!c.length||!c.some(t=>t.amount>0)){b("Please provide at least one valid line item with an amount",!0);return}const $={clientId:u,invoiceNumber:g,issueDate:i,dueDate:x,billingType:p,items:c,discount:S,taxRate:w,paymentTerms:C,gstin:y,notes:d};try{const t=r.querySelector("#modalSaveInvBtn");t.disabled=!0,t.textContent="Generating Invoice…",await z("/accounts/invoices",$),b("Invoice created and issued successfully!"),r.remove(),k()}catch(t){b(t.message,!0),r.querySelector("#modalSaveInvBtn").disabled=!1,r.querySelector("#modalSaveInvBtn").textContent="Create & Issue Invoice"}}}async function re(s){const e=(await B("/accounts/invoices/"+s)).invoice;if(!e)return;const n=L(`
+      </div>`).join(""),g.querySelectorAll(".item-desc").forEach(x=>{x.oninput=r=>{p[Number(r.target.dataset.idx)].description=r.target.value}}),g.querySelectorAll(".item-qty").forEach(x=>{x.oninput=r=>{const f=Number(r.target.dataset.idx),v=Number(r.target.value)||1;p[f].quantity=v,p[f].amount=v*(p[f].rate||0),a(),s()}}),g.querySelectorAll(".item-rate").forEach(x=>{x.oninput=r=>{const f=Number(r.target.dataset.idx),v=Number(r.target.value)||0;p[f].rate=v,p[f].amount=(p[f].quantity||1)*v,a(),s()}}),g.querySelectorAll(".remove-item-btn").forEach(x=>{x.onclick=()=>{const r=Number(x.dataset.idx);p.splice(r,1),a(),s()}})}function s(){const g=p.reduce((w,C)=>w+(Number(C.amount)||0),0),x=Number(o.querySelector("#modalCalcTaxRate").value)||0,r=Number(o.querySelector("#modalCalcDiscount").value)||0,f=Math.max(0,g-r),v=Math.round(f*(x/100)),h=f+v;o.querySelector("#modalCalcSubtotal").textContent=c(g),o.querySelector("#modalCalcTaxAmount").textContent=c(v),o.querySelector("#modalCalcTotal").textContent=c(h)}o.querySelector("#modalAddItemRowBtn").onclick=()=>{p.push({description:"",serviceId:"",quantity:1,rate:0,amount:0}),a(),s()},o.querySelector("#modalCalcTaxRate").onchange=s,o.querySelector("#modalCalcDiscount").oninput=s,o.querySelector("#modalInvClient").onchange=async g=>{const x=g.target.value;if(x)try{const r=await B("/accounts/billing-profiles").then(f=>{var v;return(v=f.find(h=>h.clientId===x))==null?void 0:v.profile});r&&(r.retainerAmount&&p.length===1&&p[0].rate===5e4&&(p[0].rate=r.retainerAmount,p[0].amount=r.retainerAmount,a(),s()),r.gstin&&(o.querySelector("#modalInvGstin").value=r.gstin),r.billingType&&(o.querySelector("#modalInvType").value=r.billingType))}catch{}},a(),s(),o.querySelector("#modalCancelInvBtn").onclick=()=>o.remove(),o.querySelector("#modalSaveInvBtn").onclick=async()=>{const g=o.querySelector("#modalInvClient").value,x=o.querySelector("#modalInvNum").value.trim(),r=o.querySelector("#modalInvIssueDate").value,f=o.querySelector("#modalInvDueDate").value,v=o.querySelector("#modalInvType").value,h=Number(o.querySelector("#modalCalcTaxRate").value)||0,w=Number(o.querySelector("#modalCalcDiscount").value)||0,C=o.querySelector("#modalInvTerms").value.trim(),y=o.querySelector("#modalInvGstin").value.trim(),d=o.querySelector("#modalInvNotes").value.trim();if(!g){b("Please select a client",!0);return}if(!f){b("Please select a due date",!0);return}if(!p.length||!p.some(t=>t.amount>0)){b("Please provide at least one valid line item with an amount",!0);return}const $={clientId:g,invoiceNumber:x,issueDate:r,dueDate:f,billingType:v,items:p,discount:w,taxRate:h,paymentTerms:C,gstin:y,notes:d};try{const t=o.querySelector("#modalSaveInvBtn");t.disabled=!0,t.textContent="Generating Invoice…",await N("/accounts/invoices",$),b("Invoice created and issued successfully!"),o.remove(),k()}catch(t){b(t.message,!0),o.querySelector("#modalSaveInvBtn").disabled=!1,o.querySelector("#modalSaveInvBtn").textContent="Create & Issue Invoice"}}}async function me(i){const e=(await B("/accounts/invoices/"+i)).invoice;if(!e)return;const n=O(`
     <div style="max-width:640px;width:100%">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
         <h3 style="margin:0;font-size:18px">Edit Invoice ${l(e.invoiceNumber)}</h3>
-        ${O(e.status)}
+        ${U(e.status)}
       </div>
 
       <div class="field-row">
@@ -549,12 +549,12 @@ This will permanently remove all invoice records and unlink their payment record
         <button class="btn ghost" id="editCancelBtn">Cancel</button>
         <button class="btn gold" id="editSaveBtn">Save Changes</button>
       </div>
-    </div>`);n.querySelector("#editCancelBtn").onclick=()=>n.remove(),n.querySelector("#editSaveBtn").onclick=async()=>{const r={status:n.querySelector("#editInvStatus").value,issueDate:n.querySelector("#editInvIssueDate").value,dueDate:n.querySelector("#editInvDueDate").value,paymentTerms:n.querySelector("#editInvTerms").value.trim(),gstin:n.querySelector("#editInvGstin").value.trim(),notes:n.querySelector("#editInvNotes").value.trim()};try{await Q("/accounts/invoices/"+s,r),b("Invoice updated successfully"),n.remove(),k()}catch(c){b(c.message,!0)}}}async function J(s){var a,o,u,g,i;const m=await B("/accounts/invoices/"+s),e=m.invoice,n=m.payments||[];if(!e)return;const r=L(`
+    </div>`);n.querySelector("#editCancelBtn").onclick=()=>n.remove(),n.querySelector("#editSaveBtn").onclick=async()=>{const o={status:n.querySelector("#editInvStatus").value,issueDate:n.querySelector("#editInvIssueDate").value,dueDate:n.querySelector("#editInvDueDate").value,paymentTerms:n.querySelector("#editInvTerms").value.trim(),gstin:n.querySelector("#editInvGstin").value.trim(),notes:n.querySelector("#editInvNotes").value.trim()};try{await Z("/accounts/invoices/"+i,o),b("Invoice updated successfully"),n.remove(),k()}catch(p){b(p.message,!0)}}}async function ne(i){var a,s,g,x,r;const m=await B("/accounts/invoices/"+i),e=m.invoice,n=m.payments||[];if(!e)return;const o=O(`
     <div style="max-width:860px;width:100%">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px" class="no-print">
         <div style="display:flex;align-items:center;gap:10px">
           <span style="font-size:18px;font-weight:800;color:var(--text-1)">Invoice Details</span>
-          ${O(e.status)}
+          ${U(e.status)}
         </div>
         <div style="display:flex;gap:8px">
           ${e.pendingAmount>0?`
@@ -579,9 +579,9 @@ This will permanently remove all invoice records and unlink their payment record
           <div class="invoice-meta-right">
             <div style="font-size:11px;font-weight:700;letter-spacing:0.08em;color:var(--text-4);text-transform:uppercase">TAX INVOICE</div>
             <div class="invoice-number-badge">${l(e.invoiceNumber)}</div>
-            <div style="font-size:12px;color:var(--text-3);margin-top:4px">Date: <strong>${D(e.issueDate)}</strong></div>
+            <div style="font-size:12px;color:var(--text-3);margin-top:4px">Date: <strong>${A(e.issueDate)}</strong></div>
             <div style="font-size:12px;color:${e.status==="overdue"?"var(--red-600)":"var(--text-3)"}">
-              Due Date: <strong>${D(e.dueDate)}</strong>
+              Due Date: <strong>${A(e.dueDate)}</strong>
             </div>
           </div>
         </div>
@@ -596,8 +596,8 @@ This will permanently remove all invoice records and unlink their payment record
           </div>
           <div style="text-align:right">
             <div style="font-size:11px;font-weight:700;color:var(--text-4);text-transform:uppercase;margin-bottom:4px">Payment Status</div>
-            <div>${O(e.status)}</div>
-            <div style="font-size:12px;color:var(--text-3);margin-top:6px">Pending Balance: <strong style="color:${e.pendingAmount>0?"var(--amber-600)":"var(--green-600)"};font-size:14px">${v(e.pendingAmount)}</strong></div>
+            <div>${U(e.status)}</div>
+            <div style="font-size:12px;color:var(--text-3);margin-top:6px">Pending Balance: <strong style="color:${e.pendingAmount>0?"var(--amber-600)":"var(--green-600)"};font-size:14px">${c(e.pendingAmount)}</strong></div>
           </div>
         </div>
 
@@ -612,15 +612,15 @@ This will permanently remove all invoice records and unlink their payment record
             </tr>
           </thead>
           <tbody>
-            ${(e.items||[]).map(x=>`
+            ${(e.items||[]).map(f=>`
               <tr>
                 <td>
-                  <strong>${l(x.description)}</strong>
-                  ${x.serviceName?`<div style="font-size:11px;color:var(--text-3)">Service: ${l(x.serviceName)}</div>`:""}
+                  <strong>${l(f.description)}</strong>
+                  ${f.serviceName?`<div style="font-size:11px;color:var(--text-3)">Service: ${l(f.serviceName)}</div>`:""}
                 </td>
-                <td style="text-align:center">${x.quantity||1}</td>
-                <td style="text-align:right">${v(x.rate)}</td>
-                <td style="text-align:right;font-weight:700">${v(x.amount)}</td>
+                <td style="text-align:center">${f.quantity||1}</td>
+                <td style="text-align:right">${c(f.rate)}</td>
+                <td style="text-align:right;font-weight:700">${c(f.amount)}</td>
               </tr>`).join("")}
           </tbody>
         </table>
@@ -630,28 +630,28 @@ This will permanently remove all invoice records and unlink their payment record
           <div class="invoice-totals-box">
             <div class="invoice-total-row">
               <span>Subtotal</span>
-              <strong>${v(e.subtotal)}</strong>
+              <strong>${c(e.subtotal)}</strong>
             </div>
             ${e.discount>0?`
               <div class="invoice-total-row">
                 <span>Discount</span>
-                <span style="color:var(--green-600)">- ${v(e.discount)}</span>
+                <span style="color:var(--green-600)">- ${c(e.discount)}</span>
               </div>`:""}
             <div class="invoice-total-row">
               <span>GST (${e.taxRate||18}%)</span>
-              <span>${v(e.taxAmount)}</span>
+              <span>${c(e.taxAmount)}</span>
             </div>
             <div class="invoice-total-row grand-total">
               <span>Total Amount</span>
-              <span>${v(e.totalAmount)}</span>
+              <span>${c(e.totalAmount)}</span>
             </div>
             <div class="invoice-total-row" style="padding-top:8px">
               <span>Amount Paid</span>
-              <span style="color:var(--green-600);font-weight:700">${v(e.amountPaid)}</span>
+              <span style="color:var(--green-600);font-weight:700">${c(e.amountPaid)}</span>
             </div>
             <div class="invoice-total-row" style="font-size:15px;font-weight:800;color:${e.pendingAmount>0?"var(--amber-600)":"var(--green-600)"}">
               <span>Pending Amount</span>
-              <span>${v(e.pendingAmount)}</span>
+              <span>${c(e.pendingAmount)}</span>
             </div>
           </div>
         </div>
@@ -661,10 +661,10 @@ This will permanently remove all invoice records and unlink their payment record
           <div>
             <div style="font-weight:700;color:var(--text-2);margin-bottom:4px;text-transform:uppercase;font-size:11px">Bank Transfer & UPI Details</div>
             <div>Account Name: <strong>${l(((a=e.bankDetails)==null?void 0:a.accountName)||"CI360 Intelligence")}</strong></div>
-            <div>Bank: <strong>${l(((o=e.bankDetails)==null?void 0:o.bankName)||"HDFC Bank")}</strong></div>
-            <div>A/C Number: <strong>${l(((u=e.bankDetails)==null?void 0:u.accountNumber)||"50200088992211")}</strong></div>
-            <div>IFSC Code: <strong>${l(((g=e.bankDetails)==null?void 0:g.ifscCode)||"HDFC0001234")}</strong></div>
-            <div>UPI ID: <strong>${l(((i=e.bankDetails)==null?void 0:i.upiId)||"ci360@hdfcbank")}</strong></div>
+            <div>Bank: <strong>${l(((s=e.bankDetails)==null?void 0:s.bankName)||"HDFC Bank")}</strong></div>
+            <div>A/C Number: <strong>${l(((g=e.bankDetails)==null?void 0:g.accountNumber)||"50200088992211")}</strong></div>
+            <div>IFSC Code: <strong>${l(((x=e.bankDetails)==null?void 0:x.ifscCode)||"HDFC0001234")}</strong></div>
+            <div>UPI ID: <strong>${l(((r=e.bankDetails)==null?void 0:r.upiId)||"ci360@hdfcbank")}</strong></div>
           </div>
           <div>
             <div style="font-weight:700;color:var(--text-2);margin-bottom:4px;text-transform:uppercase;font-size:11px">Terms & Conditions</div>
@@ -690,19 +690,19 @@ This will permanently remove all invoice records and unlink their payment record
                 </tr>
               </thead>
               <tbody>
-                ${n.map(x=>`
+                ${n.map(f=>`
                   <tr>
-                    <td><strong>${l(x.paymentNumber)}</strong></td>
-                    <td>${D(x.paymentDate)}</td>
-                    <td><span class="badge">${l(x.paymentMethod)}</span></td>
-                    <td style="font-family:var(--font-mono);font-size:11.5px">${l(x.referenceId||"—")}</td>
-                    <td class="num" style="color:var(--green-600);font-weight:700">${v(x.amount)}</td>
+                    <td><strong>${l(f.paymentNumber)}</strong></td>
+                    <td>${A(f.paymentDate)}</td>
+                    <td><span class="badge">${l(f.paymentMethod)}</span></td>
+                    <td style="font-family:var(--font-mono);font-size:11.5px">${l(f.referenceId||"—")}</td>
+                    <td class="num" style="color:var(--green-600);font-weight:700">${c(f.amount)}</td>
                   </tr>`).join("")}
               </tbody>
             </table>
           </div>
         </div>`:""}
-    </div>`);r.querySelector("#viewModalCloseBtn").onclick=()=>r.remove(),r.querySelector("#viewModalPrintBtn").onclick=()=>{window.print()};const c=r.querySelector("#viewModalPayBtn");c&&(c.onclick=()=>{r.remove(),q({invoiceId:e._id,invoiceNumber:e.invoiceNumber,clientId:e.clientId,clientName:e.clientName,suggestedAmount:e.pendingAmount})})}let Y="all",_="",F="";async function ce(s){let m=`?paymentMethod=${encodeURIComponent(Y)}`;_&&(m+=`&clientId=${encodeURIComponent(_)}`),F&&(m+=`&search=${encodeURIComponent(F)}`);const e=await B("/accounts/payments"+m),n=e.reduce((d,$)=>d+($.amount||0),0);s.innerHTML=`
+    </div>`);o.querySelector("#viewModalCloseBtn").onclick=()=>o.remove(),o.querySelector("#viewModalPrintBtn").onclick=()=>{window.print()};const p=o.querySelector("#viewModalPayBtn");p&&(p.onclick=()=>{o.remove(),j({invoiceId:e._id,invoiceNumber:e.invoiceNumber,clientId:e.clientId,clientName:e.clientName,suggestedAmount:e.pendingAmount})})}let K="all",X="",V="";async function ye(i){let m=`?paymentMethod=${encodeURIComponent(K)}`;X&&(m+=`&clientId=${encodeURIComponent(X)}`),V&&(m+=`&search=${encodeURIComponent(V)}`);const e=await B("/accounts/payments"+m),n=e.reduce((d,$)=>d+($.amount||0),0);i.innerHTML=`
     <section class="block">
       <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:16px">
         <div>
@@ -718,10 +718,10 @@ This will permanently remove all invoice records and unlink their payment record
       <!-- Quick Summary -->
       <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:18px">
         <div style="background:var(--bg-card);border:1px solid var(--border-sm);padding:8px 14px;border-radius:var(--r-sm);font-size:12px">
-          <span style="color:var(--text-3)">Total Collections:</span> <strong style="color:var(--green-600)">${v(n)}</strong>
+          <span style="color:var(--text-3)">Total Collections:</span> <strong style="color:var(--green-600)">${c(n)}</strong>
         </div>
         <div style="background:var(--bg-card);border:1px solid var(--border-sm);padding:8px 14px;border-radius:var(--r-sm);font-size:12px">
-          <span style="color:var(--text-3)">Average Payment:</span> <strong>${v(e.length?n/e.length:0)}</strong>
+          <span style="color:var(--text-3)">Average Payment:</span> <strong>${c(e.length?n/e.length:0)}</strong>
         </div>
       </div>
 
@@ -729,17 +729,17 @@ This will permanently remove all invoice records and unlink their payment record
       <div class="card" style="padding:14px 18px;margin-bottom:18px">
         <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
           <div style="flex:1;min-width:220px">
-            <input type="text" id="paymentSearchInput" placeholder="Search by payment #, UTR, client name, invoice…" value="${l(F)}" style="margin:0;width:100%">
+            <input type="text" id="paymentSearchInput" placeholder="Search by payment #, UTR, client name, invoice…" value="${l(V)}" style="margin:0;width:100%">
           </div>
           <div style="min-width:160px">
             <select id="paymentClientFilter" style="margin:0;width:100%">
               <option value="">All Clients</option>
-              ${j.map(d=>`<option value="${d._id}" ${_===d._id?"selected":""}>${l(d.name)}</option>`).join("")}
+              ${G.map(d=>`<option value="${d._id}" ${X===d._id?"selected":""}>${l(d.name)}</option>`).join("")}
             </select>
           </div>
           <div style="display:flex;gap:6px;flex-wrap:wrap">
             ${["all","bank_transfer","upi","cheque","card","cash"].map(d=>`
-              <button class="btn ghost small payment-method-filter ${Y===d?"active gold":""}" data-method="${d}">
+              <button class="btn ghost small payment-method-filter ${K===d?"active gold":""}" data-method="${d}">
                 ${d==="all"?"All Methods":d.replace("_"," ").toUpperCase()}
               </button>`).join("")}
           </div>
@@ -799,14 +799,14 @@ This will permanently remove all invoice records and unlink their payment record
                   <td>
                     ${d.invoiceNumber?`<span class="badge blue">${l(d.invoiceNumber)}</span>`:'<span class="muted">Advance / General</span>'}
                   </td>
-                  <td style="font-size:12.5px">${D(d.paymentDate)}</td>
+                  <td style="font-size:12.5px">${A(d.paymentDate)}</td>
                   <td>
                     <span class="badge ${d.paymentMethod==="upi"?"gold":d.paymentMethod==="bank_transfer"?"blue":"green"}">
                       ${d.paymentMethod==="bank_transfer"?"🏦 RTGS/NEFT":d.paymentMethod==="upi"?"📱 UPI":d.paymentMethod.toUpperCase()}
                     </span>
                   </td>
                   <td style="font-family:var(--font-mono);font-size:12px">${l(d.referenceId||"—")}</td>
-                  <td class="num" style="font-weight:800;color:var(--green-600);font-size:14px">${v(d.amount)}</td>
+                  <td class="num" style="font-weight:800;color:var(--green-600);font-size:14px">${c(d.amount)}</td>
                   <td style="font-size:12px;color:var(--text-3)">${l(d.recordedByName||"Accounts")}</td>
                   <td class="num" style="padding-right:22px">
                     <button class="btn danger small delete-payment-btn" data-id="${d._id}" title="Delete payment & restore invoice balance">
@@ -818,10 +818,10 @@ This will permanently remove all invoice records and unlink their payment record
           </table>
         </div>
       </div>
-    </section>`;const r=document.getElementById("paymentSearchInput");let c=null;r.oninput=()=>{clearTimeout(c),c=setTimeout(()=>{F=r.value.trim(),k()},300)},document.getElementById("paymentClientFilter").onchange=d=>{_=d.target.value,k()},s.querySelectorAll(".payment-method-filter").forEach(d=>{d.onclick=()=>{Y=d.dataset.method,k()}}),document.getElementById("newPaymentBtn").onclick=()=>q();const a=document.getElementById("selectAllPaymentsCb"),o=document.getElementById("thSelectAllPayments"),u=document.getElementById("paymentsDeselectAllBtn"),g=document.getElementById("paymentsSelectedCounter"),i=document.getElementById("deleteSelectedPaymentsBtn"),x=document.getElementById("deletePaymentsSelectedCount"),p=document.getElementById("deleteAllPaymentsBtn"),w=s.querySelectorAll(".payment-select-cb");function S(){const d=Array.from(w).filter(h=>h.checked),$=d.length;g&&(g.textContent=`${$} of ${e.length} selected`),x&&(x.textContent=$),$>0?(i&&(i.style.display="inline-flex"),u&&(u.style.display="inline-flex")):(i&&(i.style.display="none"),u&&(u.style.display="none"));const t=w.length>0&&d.length===w.length;a&&(a.checked=t),o&&(o.checked=t)}function C(d){w.forEach($=>{$.checked=d}),S()}a&&(a.onchange=d=>C(d.target.checked)),o&&(o.onchange=d=>C(d.target.checked)),u&&(u.onclick=()=>C(!1)),w.forEach(d=>{d.onchange=()=>S()}),i&&(i.onclick=async()=>{const d=Array.from(w).filter($=>$.checked).map($=>$.dataset.id);if(d.length&&confirm(`Are you sure you want to permanently delete the ${d.length} selected payment(s)? This will restore linked invoice balances.`))try{i.disabled=!0,i.textContent="Deleting…";const $=await z("/accounts/payments/bulk-delete",{ids:d});b($.message||`Deleted ${d.length} payment(s)`),k()}catch($){b($.message,!0),i.disabled=!1,S()}}),p&&(p.onclick=async()=>{if(!e.length){b("No payments to delete",!0);return}if(confirm(`⚠️ DANGER: Are you sure you want to delete ALL ${e.length} payments?
+    </section>`;const o=document.getElementById("paymentSearchInput");let p=null;o.oninput=()=>{clearTimeout(p),p=setTimeout(()=>{V=o.value.trim(),k()},300)},document.getElementById("paymentClientFilter").onchange=d=>{X=d.target.value,k()},i.querySelectorAll(".payment-method-filter").forEach(d=>{d.onclick=()=>{K=d.dataset.method,k()}}),document.getElementById("newPaymentBtn").onclick=()=>j();const a=document.getElementById("selectAllPaymentsCb"),s=document.getElementById("thSelectAllPayments"),g=document.getElementById("paymentsDeselectAllBtn"),x=document.getElementById("paymentsSelectedCounter"),r=document.getElementById("deleteSelectedPaymentsBtn"),f=document.getElementById("deletePaymentsSelectedCount"),v=document.getElementById("deleteAllPaymentsBtn"),h=i.querySelectorAll(".payment-select-cb");function w(){const d=Array.from(h).filter(I=>I.checked),$=d.length;x&&(x.textContent=`${$} of ${e.length} selected`),f&&(f.textContent=$),$>0?(r&&(r.style.display="inline-flex"),g&&(g.style.display="inline-flex")):(r&&(r.style.display="none"),g&&(g.style.display="none"));const t=h.length>0&&d.length===h.length;a&&(a.checked=t),s&&(s.checked=t)}function C(d){h.forEach($=>{$.checked=d}),w()}a&&(a.onchange=d=>C(d.target.checked)),s&&(s.onchange=d=>C(d.target.checked)),g&&(g.onclick=()=>C(!1)),h.forEach(d=>{d.onchange=()=>w()}),r&&(r.onclick=async()=>{const d=Array.from(h).filter($=>$.checked).map($=>$.dataset.id);if(d.length&&confirm(`Are you sure you want to permanently delete the ${d.length} selected payment(s)? This will restore linked invoice balances.`))try{r.disabled=!0,r.textContent="Deleting…";const $=await N("/accounts/payments/bulk-delete",{ids:d});b($.message||`Deleted ${d.length} payment(s)`),k()}catch($){b($.message,!0),r.disabled=!1,w()}}),v&&(v.onclick=async()=>{if(!e.length){b("No payments to delete",!0);return}if(confirm(`⚠️ DANGER: Are you sure you want to delete ALL ${e.length} payments?
 
-This will restore all invoice balances to pending. This cannot be undone.`))try{p.disabled=!0,p.textContent="Deleting all…";const d=await z("/accounts/payments/bulk-delete",{deleteAll:!0});b(d.message||"All payments have been deleted."),k()}catch(d){b(d.message,!0),p.disabled=!1,p.textContent=`💥 Delete All Payments (${e.length})`}}),s.querySelectorAll(".delete-payment-btn").forEach(d=>{d.onclick=async()=>{if(confirm("Delete this payment record? This will restore the pending amount on the linked invoice."))try{await K("/accounts/payments/"+d.dataset.id),b("Payment deleted and invoice balance restored"),k()}catch($){b($.message,!0)}}});const y=document.getElementById("exportPaymentsCsvBtn");y&&(y.onclick=()=>{if(!e.length)return b("No payments to export",!0);const d=["Payment Number","Client Name","Invoice Number","Date","Method","Reference / UTR","Amount","Recorded By"],$=e.map(f=>[f.paymentNumber,`"${(f.clientName||"").replace(/"/g,'""')}"`,f.invoiceNumber||"",D(f.paymentDate),f.paymentMethod,f.referenceId||"",f.amount||0,f.recordedByName||""]),t=[d.join(","),...$.map(f=>f.join(","))].join(`
-`),h=new Blob([t],{type:"text/csv;charset=utf-8;"}),P=URL.createObjectURL(h),I=document.createElement("a");I.href=P,I.download=`CI360_Payments_${new Date().toISOString().slice(0,10)}.csv`,I.click(),URL.revokeObjectURL(P),b("Payments exported to CSV")})}async function q(s={}){let m="PAY-2026-0001";try{const o=await B("/accounts/next-payment-number");o&&o.paymentNumber&&(m=o.paymentNumber)}catch{}let e=[];if(s.clientId)try{e=await B(`/accounts/invoices?clientId=${s.clientId}`),e=e.filter(o=>o.pendingAmount>0&&o.status!=="cancelled")}catch{}const n=L(`
+This will restore all invoice balances to pending. This cannot be undone.`))try{v.disabled=!0,v.textContent="Deleting all…";const d=await N("/accounts/payments/bulk-delete",{deleteAll:!0});b(d.message||"All payments have been deleted."),k()}catch(d){b(d.message,!0),v.disabled=!1,v.textContent=`💥 Delete All Payments (${e.length})`}}),i.querySelectorAll(".delete-payment-btn").forEach(d=>{d.onclick=async()=>{if(confirm("Delete this payment record? This will restore the pending amount on the linked invoice."))try{await ee("/accounts/payments/"+d.dataset.id),b("Payment deleted and invoice balance restored"),k()}catch($){b($.message,!0)}}});const y=document.getElementById("exportPaymentsCsvBtn");y&&(y.onclick=()=>{if(!e.length)return b("No payments to export",!0);const d=["Payment Number","Client Name","Invoice Number","Date","Method","Reference / UTR","Amount","Recorded By"],$=e.map(P=>[P.paymentNumber,`"${(P.clientName||"").replace(/"/g,'""')}"`,P.invoiceNumber||"",A(P.paymentDate),P.paymentMethod,P.referenceId||"",P.amount||0,P.recordedByName||""]),t=[d.join(","),...$.map(P=>P.join(","))].join(`
+`),I=new Blob([t],{type:"text/csv;charset=utf-8;"}),R=URL.createObjectURL(I),S=document.createElement("a");S.href=R,S.download=`CI360_Payments_${new Date().toISOString().slice(0,10)}.csv`,S.click(),URL.revokeObjectURL(R),b("Payments exported to CSV")})}async function j(i={}){let m="PAY-2026-0001";try{const s=await B("/accounts/next-payment-number");s&&s.paymentNumber&&(m=s.paymentNumber)}catch{}let e=[];if(i.clientId)try{e=await B(`/accounts/invoices?clientId=${i.clientId}`),e=e.filter(s=>s.pendingAmount>0&&s.status!=="cancelled")}catch{}const n=O(`
     <div style="max-width:540px;width:100%">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
         <h3 style="margin:0;font-size:18px">Record Client Payment</h3>
@@ -832,7 +832,7 @@ This will restore all invoice balances to pending. This cannot be undone.`))try{
         <label>Client *</label>
         <select id="modalPayClient" required>
           <option value="">Select client…</option>
-          ${j.map(o=>`<option value="${o._id}" ${s.clientId===o._id?"selected":""}>${l(o.name)}</option>`).join("")}
+          ${G.map(s=>`<option value="${s._id}" ${i.clientId===s._id?"selected":""}>${l(s.name)}</option>`).join("")}
         </select>
       </div>
 
@@ -840,9 +840,9 @@ This will restore all invoice balances to pending. This cannot be undone.`))try{
         <label>Link to Unpaid Invoice (Optional)</label>
         <select id="modalPayInvoice">
           <option value="">General advance / No invoice link</option>
-          ${e.map(o=>`
-            <option value="${o._id}" data-pending="${o.pendingAmount}" ${s.invoiceId===o._id?"selected":""}>
-              ${l(o.invoiceNumber)} — Balance: ${v(o.pendingAmount)} (Total: ${v(o.totalAmount)})
+          ${e.map(s=>`
+            <option value="${s._id}" data-pending="${s.pendingAmount}" ${i.invoiceId===s._id?"selected":""}>
+              ${l(s.invoiceNumber)} — Balance: ${c(s.pendingAmount)} (Total: ${c(s.totalAmount)})
             </option>`).join("")}
         </select>
       </div>
@@ -850,7 +850,7 @@ This will restore all invoice balances to pending. This cannot be undone.`))try{
       <div class="field-row">
         <div class="field">
           <label>Payment Amount (₹) *</label>
-          <input type="number" id="modalPayAmount" min="1" value="${s.suggestedAmount||""}" required placeholder="Amount received">
+          <input type="number" id="modalPayAmount" min="1" value="${i.suggestedAmount||""}" required placeholder="Amount received">
         </div>
         <div class="field">
           <label>Payment Date</label>
@@ -885,16 +885,16 @@ This will restore all invoice balances to pending. This cannot be undone.`))try{
         <button class="btn ghost" id="modalPayCancelBtn">Cancel</button>
         <button class="btn green" id="modalPaySaveBtn">Save Payment Receipt</button>
       </div>
-    </div>`),r=n.querySelector("#modalPayClient"),c=n.querySelector("#modalPayInvoice"),a=n.querySelector("#modalPayAmount");r.onchange=async()=>{const o=r.value;if(!o){c.innerHTML='<option value="">General advance / No invoice link</option>';return}try{const g=(await B(`/accounts/invoices?clientId=${o}`)||[]).filter(i=>i.pendingAmount>0&&i.status!=="cancelled");c.innerHTML=`
+    </div>`),o=n.querySelector("#modalPayClient"),p=n.querySelector("#modalPayInvoice"),a=n.querySelector("#modalPayAmount");o.onchange=async()=>{const s=o.value;if(!s){p.innerHTML='<option value="">General advance / No invoice link</option>';return}try{const x=(await B(`/accounts/invoices?clientId=${s}`)||[]).filter(r=>r.pendingAmount>0&&r.status!=="cancelled");p.innerHTML=`
         <option value="">General advance / No invoice link</option>
-        ${g.map(i=>`
-          <option value="${i._id}" data-pending="${i.pendingAmount}">
-            ${l(i.invoiceNumber)} — Balance: ${v(i.pendingAmount)} (Total: ${v(i.totalAmount)})
-          </option>`).join("")}`,g.length===1&&!a.value&&(c.value=g[0]._id,a.value=g[0].pendingAmount)}catch{}},c.onchange=()=>{const u=c.options[c.selectedIndex].getAttribute("data-pending");u&&(a.value=u)},n.querySelector("#modalPayCancelBtn").onclick=()=>n.remove(),n.querySelector("#modalPaySaveBtn").onclick=async()=>{const o=r.value,u=c.value||null,g=Number(a.value),i=n.querySelector("#modalPayDate").value,x=n.querySelector("#modalPayMethod").value,p=n.querySelector("#modalPayRef").value.trim(),w=n.querySelector("#modalPayNotes").value.trim();if(!o)return b("Please select a client",!0);if(!g||g<=0)return b("Please enter a valid payment amount",!0);try{const S=n.querySelector("#modalPaySaveBtn");S.disabled=!0,S.textContent="Saving…",await z("/accounts/payments",{clientId:o,invoiceId:u,amount:g,paymentDate:i,paymentMethod:x,referenceId:p,notes:w}),b("Payment recorded successfully!"),n.remove(),k()}catch(S){b(S.message,!0),n.querySelector("#modalPaySaveBtn").disabled=!1,n.querySelector("#modalPaySaveBtn").textContent="Save Payment Receipt"}}}async function pe(s){const m=await B("/accounts/receivables"),e=m.reduce((a,o)=>a+(o.pendingAmount||0),0),n=m.reduce((a,o)=>a+(o.overdueAmount||0),0),r=m.filter(a=>a.pendingAmount>0);s.innerHTML=`
+        ${x.map(r=>`
+          <option value="${r._id}" data-pending="${r.pendingAmount}">
+            ${l(r.invoiceNumber)} — Balance: ${c(r.pendingAmount)} (Total: ${c(r.totalAmount)})
+          </option>`).join("")}`,x.length===1&&!a.value&&(p.value=x[0]._id,a.value=x[0].pendingAmount)}catch{}},p.onchange=()=>{const g=p.options[p.selectedIndex].getAttribute("data-pending");g&&(a.value=g)},n.querySelector("#modalPayCancelBtn").onclick=()=>n.remove(),n.querySelector("#modalPaySaveBtn").onclick=async()=>{const s=o.value,g=p.value||null,x=Number(a.value),r=n.querySelector("#modalPayDate").value,f=n.querySelector("#modalPayMethod").value,v=n.querySelector("#modalPayRef").value.trim(),h=n.querySelector("#modalPayNotes").value.trim();if(!s)return b("Please select a client",!0);if(!x||x<=0)return b("Please enter a valid payment amount",!0);try{const w=n.querySelector("#modalPaySaveBtn");w.disabled=!0,w.textContent="Saving…",await N("/accounts/payments",{clientId:s,invoiceId:g,amount:x,paymentDate:r,paymentMethod:f,referenceId:v,notes:h}),b("Payment recorded successfully!"),n.remove(),k()}catch(w){b(w.message,!0),n.querySelector("#modalPaySaveBtn").disabled=!1,n.querySelector("#modalPaySaveBtn").textContent="Save Payment Receipt"}}}async function ue(i){const m=await B("/accounts/receivables"),e=m.reduce((a,s)=>a+(s.pendingAmount||0),0),n=m.reduce((a,s)=>a+(s.overdueAmount||0),0),o=m.filter(a=>a.pendingAmount>0);i.innerHTML=`
     <section class="block">
       <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:16px">
         <div>
-          <h2>Pending Amount & Receivables <span class="eyebrow">${r.length} clients with balances</span></h2>
+          <h2>Pending Amount & Receivables <span class="eyebrow">${o.length} clients with balances</span></h2>
           <div style="font-size:12.5px;color:var(--text-3)">Track overdue amounts, aging schedules, and trigger instant payment reminders.</div>
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
@@ -909,7 +909,7 @@ This will restore all invoice balances to pending. This cannot be undone.`))try{
             <span class="kpi-label">Total Outstanding Balance</span>
             <div class="kpi-icon" style="background:#FFFBEB;color:var(--amber-600)">⏳</div>
           </div>
-          <div class="kpi-value" style="color:var(--amber-600)">${v(e)}</div>
+          <div class="kpi-value" style="color:var(--amber-600)">${c(e)}</div>
           <div style="font-size:12px;color:var(--text-3);margin-top:4px">Across all clients</div>
         </div>
 
@@ -918,7 +918,7 @@ This will restore all invoice balances to pending. This cannot be undone.`))try{
             <span class="kpi-label">Critically Overdue</span>
             <div class="kpi-icon" style="background:var(--s-red-bg);color:var(--red-600)">🚨</div>
           </div>
-          <div class="kpi-value" style="color:var(--red-600)">${v(n)}</div>
+          <div class="kpi-value" style="color:var(--red-600)">${c(n)}</div>
           <div style="font-size:12px;color:var(--text-3);margin-top:4px">Exceeded credit payment terms</div>
         </div>
 
@@ -927,7 +927,7 @@ This will restore all invoice balances to pending. This cannot be undone.`))try{
             <span class="kpi-label">Unsettled Clients</span>
             <div class="kpi-icon" style="background:var(--accent-bg);color:var(--accent)">👥</div>
           </div>
-          <div class="kpi-value">${r.length}</div>
+          <div class="kpi-value">${o.length}</div>
           <div style="font-size:12px;color:var(--text-3);margin-top:4px">Out of ${m.length} total clients</div>
         </div>
       </div>
@@ -955,19 +955,19 @@ This will restore all invoice balances to pending. This cannot be undone.`))try{
                     <strong>${l(a.clientName)}</strong>
                     ${a.gstin?`<div style="font-size:11px;color:var(--text-3)">GSTIN: ${l(a.gstin)}</div>`:""}
                   </td>
-                  <td class="num">${v(a.totalBilled)}</td>
-                  <td class="num" style="color:var(--green-600);font-weight:600">${v(a.totalPaid)}</td>
+                  <td class="num">${c(a.totalBilled)}</td>
+                  <td class="num" style="color:var(--green-600);font-weight:600">${c(a.totalPaid)}</td>
                   <td class="num" style="font-weight:800;font-size:14px;color:${a.pendingAmount>0?"var(--amber-600)":"var(--text-4)"}">
-                    ${v(a.pendingAmount)}
+                    ${c(a.pendingAmount)}
                   </td>
                   <td class="num">
-                    ${a.overdueAmount>0?`<span class="badge red">${v(a.overdueAmount)}</span>`:'<span class="muted">—</span>'}
+                    ${a.overdueAmount>0?`<span class="badge red">${c(a.overdueAmount)}</span>`:'<span class="muted">—</span>'}
                   </td>
                   <td style="font-size:12.5px;color:${a.overdueAmount>0?"var(--red-600)":"inherit"}">
-                    ${a.oldestDueDate?D(a.oldestDueDate):'<span class="muted">—</span>'}
+                    ${a.oldestDueDate?A(a.oldestDueDate):'<span class="muted">—</span>'}
                   </td>
                   <td style="font-size:12px">
-                    ${a.lastPaymentDate?`${D(a.lastPaymentDate)} (${v(a.lastPaymentAmount)})`:'<span class="muted">No payments</span>'}
+                    ${a.lastPaymentDate?`${A(a.lastPaymentDate)} (${c(a.lastPaymentAmount)})`:'<span class="muted">No payments</span>'}
                   </td>
                   <td class="num" style="padding-right:22px;white-space:nowrap">
                     ${a.pendingAmount>0?`
@@ -983,12 +983,12 @@ This will restore all invoice balances to pending. This cannot be undone.`))try{
           </table>
         </div>
       </div>
-    </section>`,s.querySelectorAll(".settle-payment-btn").forEach(a=>{a.onclick=()=>{q({clientId:a.dataset.clientId,clientName:a.dataset.clientName,suggestedAmount:Number(a.dataset.pending)||0})}}),s.querySelectorAll(".reminder-btn").forEach(a=>{a.onclick=()=>{ve({clientName:a.dataset.clientName,pending:Number(a.dataset.pending)||0,overdue:Number(a.dataset.overdue)||0,phone:a.dataset.phone})}});const c=document.getElementById("exportReceivablesCsvBtn");c&&(c.onclick=()=>{if(!m.length)return b("No receivables to export",!0);const a=["Client Name","GSTIN","Total Billed","Total Paid","Pending Balance","Overdue Amount","Oldest Due Date","Last Payment Date","Last Payment Amount"],o=m.map(p=>[`"${(p.clientName||"").replace(/"/g,'""')}"`,p.gstin||"",p.totalBilled||0,p.totalPaid||0,p.pendingAmount||0,p.overdueAmount||0,p.oldestDueDate?D(p.oldestDueDate):"",p.lastPaymentDate?D(p.lastPaymentDate):"",p.lastPaymentAmount||0]),u=[a.join(","),...o.map(p=>p.join(","))].join(`
-`),g=new Blob([u],{type:"text/csv;charset=utf-8;"}),i=URL.createObjectURL(g),x=document.createElement("a");x.href=i,x.download=`CI360_Receivables_Statement_${new Date().toISOString().slice(0,10)}.csv`,x.click(),URL.revokeObjectURL(i),b("Receivables statement exported to CSV")})}function ve({clientName:s,pending:m,overdue:e,phone:n}){const r=`Dear ${s},
+    </section>`,i.querySelectorAll(".settle-payment-btn").forEach(a=>{a.onclick=()=>{j({clientId:a.dataset.clientId,clientName:a.dataset.clientName,suggestedAmount:Number(a.dataset.pending)||0})}}),i.querySelectorAll(".reminder-btn").forEach(a=>{a.onclick=()=>{ge({clientName:a.dataset.clientName,pending:Number(a.dataset.pending)||0,overdue:Number(a.dataset.overdue)||0,phone:a.dataset.phone})}});const p=document.getElementById("exportReceivablesCsvBtn");p&&(p.onclick=()=>{if(!m.length)return b("No receivables to export",!0);const a=["Client Name","GSTIN","Total Billed","Total Paid","Pending Balance","Overdue Amount","Oldest Due Date","Last Payment Date","Last Payment Amount"],s=m.map(v=>[`"${(v.clientName||"").replace(/"/g,'""')}"`,v.gstin||"",v.totalBilled||0,v.totalPaid||0,v.pendingAmount||0,v.overdueAmount||0,v.oldestDueDate?A(v.oldestDueDate):"",v.lastPaymentDate?A(v.lastPaymentDate):"",v.lastPaymentAmount||0]),g=[a.join(","),...s.map(v=>v.join(","))].join(`
+`),x=new Blob([g],{type:"text/csv;charset=utf-8;"}),r=URL.createObjectURL(x),f=document.createElement("a");f.href=r,f.download=`CI360_Receivables_Statement_${new Date().toISOString().slice(0,10)}.csv`,f.click(),URL.revokeObjectURL(r),b("Receivables statement exported to CSV")})}function ge({clientName:i,pending:m,overdue:e,phone:n}){const o=`Dear ${i},
 
 Greetings from CI360 Intelligence.
 
-This is a friendly reminder regarding your outstanding account balance of ${v(m)}${e>0?` (including ${v(e)} overdue)`:""}.
+This is a friendly reminder regarding your outstanding account balance of ${c(m)}${e>0?` (including ${c(e)} overdue)`:""}.
 
 Please arrange for the settlement at your earliest convenience to our registered bank account:
 - Bank: HDFC Bank
@@ -999,11 +999,11 @@ Please arrange for the settlement at your earliest convenience to our registered
 If you have already processed this remittance, kindly share the UTR / transaction receipt. Thank you for your continued partnership!
 
 Warm regards,
-Accounts Department | CI360`,c=L(`
+Accounts Department | CI360`,p=O(`
     <div style="max-width:540px;width:100%">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-        <h3 style="margin:0;font-size:18px">Payment Reminder for ${l(s)}</h3>
-        <span class="badge amber" style="font-size:12px">${v(m)} Due</span>
+        <h3 style="margin:0;font-size:18px">Payment Reminder for ${l(i)}</h3>
+        <span class="badge amber" style="font-size:12px">${c(m)} Due</span>
       </div>
       <div style="font-size:12.5px;color:var(--text-3);margin-bottom:12px">
         You can copy this formatted payment reminder template to email/chat or launch WhatsApp directly.
@@ -1011,7 +1011,7 @@ Accounts Department | CI360`,c=L(`
 
       <div class="field">
         <label>Reminder Message Template</label>
-        <textarea id="reminderTextArea" rows="10" style="font-family:var(--font-mono);font-size:12px;line-height:1.4">${l(r)}</textarea>
+        <textarea id="reminderTextArea" rows="10" style="font-family:var(--font-mono);font-size:12px;line-height:1.4">${l(o)}</textarea>
       </div>
 
       <div class="modal-actions" style="margin-top:16px">
@@ -1019,7 +1019,7 @@ Accounts Department | CI360`,c=L(`
         <button class="btn gold" id="reminderCopyBtn">📋 Copy to Clipboard</button>
         <button class="btn green" id="reminderWhatsAppBtn">💬 Open WhatsApp</button>
       </div>
-    </div>`);c.querySelector("#reminderCloseBtn").onclick=()=>c.remove(),c.querySelector("#reminderCopyBtn").onclick=()=>{const a=c.querySelector("#reminderTextArea").value;navigator.clipboard.writeText(a).then(()=>{b("Reminder template copied to clipboard!")}).catch(()=>{b("Failed to copy text",!0)})},c.querySelector("#reminderWhatsAppBtn").onclick=()=>{const a=encodeURIComponent(c.querySelector("#reminderTextArea").value),o=(n||"").replace(/[^0-9]/g,""),u=o?`https://wa.me/${o}?text=${a}`:`https://wa.me/?text=${a}`;window.open(u,"_blank")}}async function ue(s){const m=await B("/accounts/billing-profiles");s.innerHTML=`
+    </div>`);p.querySelector("#reminderCloseBtn").onclick=()=>p.remove(),p.querySelector("#reminderCopyBtn").onclick=()=>{const a=p.querySelector("#reminderTextArea").value;navigator.clipboard.writeText(a).then(()=>{b("Reminder template copied to clipboard!")}).catch(()=>{b("Failed to copy text",!0)})},p.querySelector("#reminderWhatsAppBtn").onclick=()=>{const a=encodeURIComponent(p.querySelector("#reminderTextArea").value),s=(n||"").replace(/[^0-9]/g,""),g=s?`https://wa.me/${s}?text=${a}`:`https://wa.me/?text=${a}`;window.open(g,"_blank")}}async function be(i){const m=await B("/accounts/billing-profiles");i.innerHTML=`
     <section class="block">
       <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:16px">
         <div>
@@ -1053,7 +1053,7 @@ Accounts Department | CI360`,c=L(`
                     <td><span class="badge">${(n.billingType||"retainer").toUpperCase()}</span></td>
                     <td style="font-size:12px;text-transform:capitalize">${l(n.billingCycle||"monthly")}</td>
                     <td class="num" style="font-weight:800;color:var(--brand-600);font-size:14px">
-                      ${v(n.retainerAmount||0)}
+                      ${c(n.retainerAmount||0)}
                     </td>
                     <td style="font-family:var(--font-mono);font-size:11.5px">${l(n.gstin||"—")}</td>
                     <td style="font-size:12px">Net ${n.paymentTermsDays||15}d</td>
@@ -1073,7 +1073,7 @@ Accounts Department | CI360`,c=L(`
           </table>
         </div>
       </div>
-    </section>`,s.querySelectorAll(".gen-monthly-inv-btn").forEach(e=>{e.onclick=async()=>{const n=e.dataset.clientName,r=Number(e.dataset.amount)||0;if(confirm(`Generate this month's invoice for ${n} for ${v(r)}?`))try{e.disabled=!0,e.textContent="…",await z(`/accounts/billing-profiles/${e.dataset.clientId}/generate-invoice`,{amount:r}),b(`Invoice generated successfully for ${n}!`),N="invoices",M()}catch(c){b(c.message,!0),e.disabled=!1,e.textContent="⚡ Gen Invoice"}}}),s.querySelectorAll(".edit-profile-btn").forEach(e=>{e.onclick=()=>{const n=m.find(r=>r.clientId===e.dataset.clientId);me(e.dataset.clientId,e.dataset.clientName,n?n.profile:{})}})}function me(s,m,e={}){const n=L(`
+    </section>`,i.querySelectorAll(".gen-monthly-inv-btn").forEach(e=>{e.onclick=async()=>{const n=e.dataset.clientName,o=Number(e.dataset.amount)||0;if(confirm(`Generate this month's invoice for ${n} for ${c(o)}?`))try{e.disabled=!0,e.textContent="…",await N(`/accounts/billing-profiles/${e.dataset.clientId}/generate-invoice`,{amount:o}),b(`Invoice generated successfully for ${n}!`),D="invoices",q()}catch(p){b(p.message,!0),e.disabled=!1,e.textContent="⚡ Gen Invoice"}}}),i.querySelectorAll(".edit-profile-btn").forEach(e=>{e.onclick=()=>{const n=m.find(o=>o.clientId===e.dataset.clientId);xe(e.dataset.clientId,e.dataset.clientName,n?n.profile:{})}})}function xe(i,m,e={}){const n=O(`
     <div style="max-width:540px;width:100%">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
         <h3 style="margin:0;font-size:18px">Billing Setup: ${l(m)}</h3>
@@ -1141,38 +1141,38 @@ Accounts Department | CI360`,c=L(`
         <button class="btn ghost" id="bpCancelBtn">Cancel</button>
         <button class="btn gold" id="bpSaveBtn">Save Billing Setup</button>
       </div>
-    </div>`);n.querySelector("#bpCancelBtn").onclick=()=>n.remove(),n.querySelector("#bpSaveBtn").onclick=async()=>{const r={billingType:n.querySelector("#bpType").value,billingCycle:n.querySelector("#bpCycle").value,retainerAmount:Number(n.querySelector("#bpAmount").value)||0,paymentTermsDays:Number(n.querySelector("#bpTerms").value)||15,gstin:n.querySelector("#bpGstin").value.trim(),panNumber:n.querySelector("#bpPan").value.trim(),billingEmail:n.querySelector("#bpEmail").value.trim(),billingPhone:n.querySelector("#bpPhone").value.trim(),billingAddress:n.querySelector("#bpAddress").value.trim()};try{await Q(`/accounts/billing-profiles/${s}`,r),b("Billing profile saved successfully"),n.remove(),k()}catch(c){b(c.message,!0)}}}async function ye(s){const m=await B("/accounts/tally/summary"),e=m.config||{},n=m.stats||{totalInvoices:0,totalPayments:0,totalClients:0,syncReadyVouchers:0},r=`http://${l(e.serverHost||"localhost")}:${l(e.serverPort||9e3)}`;s.innerHTML=`
+    </div>`);n.querySelector("#bpCancelBtn").onclick=()=>n.remove(),n.querySelector("#bpSaveBtn").onclick=async()=>{const o={billingType:n.querySelector("#bpType").value,billingCycle:n.querySelector("#bpCycle").value,retainerAmount:Number(n.querySelector("#bpAmount").value)||0,paymentTermsDays:Number(n.querySelector("#bpTerms").value)||15,gstin:n.querySelector("#bpGstin").value.trim(),panNumber:n.querySelector("#bpPan").value.trim(),billingEmail:n.querySelector("#bpEmail").value.trim(),billingPhone:n.querySelector("#bpPhone").value.trim(),billingAddress:n.querySelector("#bpAddress").value.trim()};try{await Z(`/accounts/billing-profiles/${i}`,o),b("Billing profile saved successfully"),n.remove(),k()}catch(p){b(p.message,!0)}}}async function fe(i){const m=await B("/accounts/tally/summary"),e=m.config||{},n=m.stats||{totalInvoices:0,totalClients:0,tallyInvoices:0,tallyPayments:0},o=m.lastSync||null,p=m.recentInvoices||[],a=m.recentPayments||[],s=`http://${l(e.serverHost||"localhost")}:${l(e.serverPort||9e3)}`,g=[...p.map(u=>({type:"Sales Invoice",icon:"📄",number:u.invoiceNumber,party:u.clientName,amount:u.totalAmount,date:u.issueDate,badgeClass:"badge blue"})),...a.map(u=>({type:"Payment Receipt",icon:"💵",number:u.paymentNumber,party:u.clientName,amount:u.amount,date:u.paymentDate,badgeClass:"badge green"}))].sort((u,T)=>new Date(T.date)-new Date(u.date)).slice(0,15);i.innerHTML=`
     <section class="block">
       <!-- Header Banner -->
-      <div class="accounts-header-banner" style="background:linear-gradient(135deg,rgba(79,70,229,0.15) 0%,rgba(16,185,129,0.1) 100%)">
+      <div class="accounts-header-banner" style="background:linear-gradient(135deg,rgba(16,185,129,0.15) 0%,rgba(79,70,229,0.12) 100%)">
         <div class="accounts-header-title">
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-            <h2>TallyPrime Silver Integration</h2>
-            <span class="badge gold" style="font-size:12px;font-weight:700">Silver Edition (Single User)</span>
-            <span class="badge blue" style="font-size:11px">XML &amp; ODBC Gateway</span>
+            <h2>TallyPrime Silver ➔ CI360 Ingestion</h2>
+            <span class="badge green" style="font-size:12px;font-weight:700">One-Way Ingestion: Tally ➔ CI360</span>
+            <span class="badge blue" style="font-size:11px">Port ${e.serverPort||9e3} XML Gateway</span>
           </div>
           <div class="accounts-header-subtitle">
-            Seamlessly bridge CI360 invoices, receipts, and clients directly into TallyPrime Day Book with standard dual-entry XML.
+            Pull and ingest Sales Vouchers, Payment Receipts, and Client Ledgers directly <strong>FROM TallyPrime into CI360</strong>. Tally remains your primary entry book; CI360 automates tracking, billing analytics, and pending amounts.
           </div>
         </div>
         <div class="accounts-header-actions">
           <button class="btn ghost small" id="tallyTestPingBtn" style="display:inline-flex;align-items:center;gap:6px">
             <span class="status-indicator-dot" id="tallyStatusDot" style="background:var(--amber-500)"></span>
-            <span id="tallyStatusText">Check Tally (Port ${e.serverPort||9e3})</span>
+            <span id="tallyStatusText">Check Tally (${e.serverPort||9e3})</span>
           </button>
-          <button class="btn gold small" id="tallyQuickDownloadBundleBtn">
-            <span>📥 Download Tally XML</span>
+          <button class="btn gold small" id="tallyTopFetchBtn" style="display:inline-flex;align-items:center;gap:6px">
+            <span>⚡ Pull from Tally</span>
           </button>
         </div>
       </div>
 
-      <!-- Live Connection Alert Box -->
-      <div id="tallyConnectionAlert" class="card" style="display:none;padding:12px 18px;margin-bottom:20px;border-left:4px solid var(--brand-500)">
+      <!-- Live Connection / Import Alert Box -->
+      <div id="tallyConnectionAlert" class="card" style="display:none;padding:14px 18px;margin-bottom:20px;border-left:4px solid var(--brand-500)">
         <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
-          <div style="display:flex;align-items:center;gap:10px">
-            <span id="tallyAlertIcon" style="font-size:18px">ℹ️</span>
+          <div style="display:flex;align-items:center;gap:12px">
+            <span id="tallyAlertIcon" style="font-size:20px">ℹ️</span>
             <div>
-              <strong id="tallyAlertTitle" style="font-size:13px">Tally Connection Status</strong>
+              <strong id="tallyAlertTitle" style="font-size:13px">Tally Sync Notice</strong>
               <div id="tallyAlertMsg" style="font-size:12px;color:var(--text-3);margin-top:2px"></div>
             </div>
           </div>
@@ -1180,234 +1180,223 @@ Accounts Department | CI360`,c=L(`
         </div>
       </div>
 
-      <!-- Sync Readiness KPI Cards -->
+      ${o?`
+      <!-- Last Sync Banner -->
+      <div style="margin-bottom:20px;padding:12px 16px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:var(--r-sm);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+        <div style="display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--text-1)">
+          <span style="font-size:16px">🕒</span>
+          <span><strong>Last Synchronized:</strong> ${A(o.syncedAt)} (${new Date(o.syncedAt).toLocaleTimeString()})</span>
+          <span style="color:var(--text-3)">•</span>
+          <span class="badge blue" style="font-size:11px">${o.invoicesImported||0} Invoices</span>
+          <span class="badge green" style="font-size:11px">${o.paymentsImported||0} Receipts</span>
+          <span class="badge gold" style="font-size:11px">${o.clientsCreated||0} Clients</span>
+        </div>
+        <span style="font-size:11px;color:var(--text-3)">Automated balance reconciliation active</span>
+      </div>`:""}
+
+      <!-- KPI Cards -->
       <div class="grid grid-4" style="margin-bottom:24px">
         <div class="card kpi">
           <div class="kpi-header">
-            <span class="kpi-label">Sync-Ready Vouchers</span>
-            <div class="kpi-icon" style="background:var(--brand-50);color:var(--brand-600)">🏛️</div>
+            <span class="kpi-label">Tally Invoices Ingested</span>
+            <div class="kpi-icon" style="background:rgba(59,130,246,0.12);color:var(--blue-600)">📄</div>
           </div>
-          <div class="kpi-value" style="color:var(--brand-600)">${n.syncReadyVouchers}</div>
-          <div class="kpi-sub">Total sales &amp; receipt entries ready for export</div>
+          <div class="kpi-value" style="color:var(--blue-600)">${n.tallyInvoices||0}</div>
+          <div class="kpi-sub">Sales vouchers pulled from Tally into CI360</div>
         </div>
 
         <div class="card kpi">
           <div class="kpi-header">
-            <span class="kpi-label">Sales Invoices</span>
-            <div class="kpi-icon" style="background:rgba(245,158,11,0.12);color:var(--amber-600)">📄</div>
-          </div>
-          <div class="kpi-value">${n.totalInvoices}</div>
-          <div class="kpi-sub">Exportable as Sales Vouchers with GST lines</div>
-        </div>
-
-        <div class="card kpi">
-          <div class="kpi-header">
-            <span class="kpi-label">Receipts &amp; Payments</span>
+            <span class="kpi-label">Tally Receipts Ingested</span>
             <div class="kpi-icon" style="background:rgba(16,185,129,0.12);color:var(--green-600)">💵</div>
           </div>
-          <div class="kpi-value" style="color:var(--green-600)">${n.totalPayments}</div>
-          <div class="kpi-sub">Exportable as Receipt Vouchers with Bill allocations</div>
+          <div class="kpi-value" style="color:var(--green-600)">${n.tallyPayments||0}</div>
+          <div class="kpi-sub">Receipt entries synced &amp; reconciled</div>
+        </div>
+
+        <div class="card kpi">
+          <div class="kpi-header">
+            <span class="kpi-label">Total CI360 Invoices</span>
+            <div class="kpi-icon" style="background:rgba(245,158,11,0.12);color:var(--amber-600)">📑</div>
+          </div>
+          <div class="kpi-value">${n.totalInvoices||0}</div>
+          <div class="kpi-sub">Across all billing profiles &amp; accounts</div>
         </div>
 
         <div class="card kpi">
           <div class="kpi-header">
             <span class="kpi-label">Client Masters</span>
-            <div class="kpi-icon" style="background:rgba(59,130,246,0.12);color:var(--blue-600)">👥</div>
+            <div class="kpi-icon" style="background:var(--brand-50);color:var(--brand-600)">👥</div>
           </div>
-          <div class="kpi-value">${n.totalClients}</div>
-          <div class="kpi-sub">Exportable as Sundry Debtors Ledgers</div>
+          <div class="kpi-value">${n.totalClients||0}</div>
+          <div class="kpi-sub">Sundry Debtors auto-linked</div>
         </div>
       </div>
 
-      <!-- Main Two Column Workflows -->
+      <!-- Main Ingestion Methods (Two Column) -->
       <div class="grid grid-2" style="gap:20px;align-items:start;margin-bottom:24px">
         
-        <!-- CARD 1: 1-CLICK XML SYNC & EXPORT -->
-        <div class="card" style="padding:22px">
+        <!-- INGESTION METHOD 1: LIVE PULL FROM TALLY PORT 9000 -->
+        <div class="card" style="padding:22px;border:1px solid var(--border-sm);position:relative">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-            <div style="display:flex;align-items:center;gap:8px">
-              <span style="font-size:18px">📥</span>
-              <h3 style="margin:0;font-size:16px">TallyPrime 1-Click Sync &amp; Export</h3>
+            <div style="display:flex;align-items:center;gap:10px">
+              <span style="font-size:22px">⚡</span>
+              <div>
+                <h3 style="margin:0;font-size:16px">Live Pull from TallyPrime</h3>
+                <div style="font-size:11.5px;color:var(--text-3)">Automatic HTTP XML Fetch (Port 9000)</div>
+              </div>
             </div>
-            <span class="badge green">Alt + O Ready</span>
+            <span class="badge green">Real-Time</span>
           </div>
-          <p style="font-size:12.5px;color:var(--text-3);margin-bottom:18px">
-            Generate standard Tally XML files containing vouchers, bill references, and tax ledgers formatted for TallyPrime Silver.
+
+          <p style="font-size:12.5px;color:var(--text-2);margin-bottom:16px;line-height:1.5">
+            If TallyPrime is open on this computer (or local office network), click below to query Tally's Day Book directly and pull all latest Sales Vouchers, Receipts, and Debtors into CI360 without exporting any files!
           </p>
 
-          <div class="field" style="margin-bottom:16px">
-            <label style="font-weight:700">What to Export / Sync</label>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px">
-              <label style="display:flex;align-items:center;gap:8px;padding:10px 14px;border:1px solid var(--border-sm);border-radius:var(--r-sm);cursor:pointer;background:var(--bg-card)">
-                <input type="radio" name="tallyExportType" value="all" checked style="margin:0">
-                <div>
-                  <strong style="font-size:12.5px">Full Bundle</strong>
-                  <div style="font-size:11px;color:var(--text-3)">Sales + Receipts + Masters</div>
-                </div>
-              </label>
-
-              <label style="display:flex;align-items:center;gap:8px;padding:10px 14px;border:1px solid var(--border-sm);border-radius:var(--r-sm);cursor:pointer;background:var(--bg-card)">
-                <input type="radio" name="tallyExportType" value="sales" style="margin:0">
-                <div>
-                  <strong style="font-size:12.5px">Sales Invoices</strong>
-                  <div style="font-size:11px;color:var(--text-3)">Sales Vouchers + GST (${n.totalInvoices})</div>
-                </div>
-              </label>
-
-              <label style="display:flex;align-items:center;gap:8px;padding:10px 14px;border:1px solid var(--border-sm);border-radius:var(--r-sm);cursor:pointer;background:var(--bg-card)">
-                <input type="radio" name="tallyExportType" value="receipts" style="margin:0">
-                <div>
-                  <strong style="font-size:12.5px">Receipt Payments</strong>
-                  <div style="font-size:11px;color:var(--text-3)">Receipt Vouchers (${n.totalPayments})</div>
-                </div>
-              </label>
-
-              <label style="display:flex;align-items:center;gap:8px;padding:10px 14px;border:1px solid var(--border-sm);border-radius:var(--r-sm);cursor:pointer;background:var(--bg-card)">
-                <input type="radio" name="tallyExportType" value="masters" style="margin:0">
-                <div>
-                  <strong style="font-size:12.5px">Client Masters</strong>
-                  <div style="font-size:11px;color:var(--text-3)">Sundry Debtors (${n.totalClients})</div>
-                </div>
-              </label>
+          <div style="background:var(--bg-2);padding:14px;border-radius:var(--r-sm);border:1px solid var(--border-sm);margin-bottom:18px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+              <span style="font-size:12px;color:var(--text-3)">Target Tally Endpoint:</span>
+              <span style="font-family:var(--font-mono);font-size:12px;font-weight:700;color:var(--brand-600)">${s}</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <span style="font-size:12px;color:var(--text-3)">Company:</span>
+              <span style="font-size:12px;font-weight:600;color:var(--text-1)">${l(e.companyName||"CI360 INTELLIGENCE PRIVATE LIMITED")}</span>
             </div>
           </div>
 
-          <div class="field" style="margin-bottom:18px">
-            <label style="font-weight:700">Date Range Filter</label>
-            <select id="tallyDateRangeSelect" style="margin-top:6px;width:100%">
-              <option value="all">All Records (Complete Financial Year)</option>
-              <option value="this_month">Current Month (${new Date().toLocaleString("default",{month:"long",year:"numeric"})})</option>
-              <option value="last_month">Previous Month</option>
-              <option value="last_30">Last 30 Days</option>
-            </select>
-          </div>
-
-          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:20px;padding-top:16px;border-top:1px solid var(--border-sm)">
-            <button class="btn gold" id="tallyDownloadXmlBtn" style="flex:1;min-width:180px;display:inline-flex;align-items:center;justify-content:center;gap:8px">
-              <span>📥 Download Tally XML</span>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn gold" id="tallyLiveFetchBtn" style="flex:1;min-width:200px;display:inline-flex;align-items:center;justify-content:center;gap:8px;font-weight:700">
+              <span>⚡ Fetch &amp; Ingest from Tally</span>
             </button>
-            <button class="btn green" id="tallyDirectPushBtn" style="flex:1;min-width:180px;display:inline-flex;align-items:center;justify-content:center;gap:8px" title="Push XML directly to TallyPrime XML Server port 9000">
-              <span>⚡ Direct Push to Tally</span>
-            </button>
-            <button class="btn ghost" id="tallyPreviewXmlBtn" style="display:inline-flex;align-items:center;gap:6px" title="Preview the generated XML in a modal">
-              <span>👁️ View XML</span>
+            <button class="btn ghost" id="tallyLivePingBtn" style="display:inline-flex;align-items:center;gap:6px" title="Test if TallyPrime XML server is reachable">
+              <span>📡 Ping Port 9000</span>
             </button>
           </div>
         </div>
 
-        <!-- CARD 2: TALLY LEDGER & SERVER SETTINGS -->
-        <div class="card" style="padding:22px">
+        <!-- INGESTION METHOD 2: UPLOAD TALLY DAY BOOK XML FILE -->
+        <div class="card" style="padding:22px;border:1px solid var(--border-sm)">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-            <div style="display:flex;align-items:center;gap:8px">
-              <span style="font-size:18px">⚙️</span>
-              <h3 style="margin:0;font-size:16px">TallyPrime Ledger &amp; Server Setup</h3>
+            <div style="display:flex;align-items:center;gap:10px">
+              <span style="font-size:22px">📂</span>
+              <div>
+                <h3 style="margin:0;font-size:16px">Upload Tally XML File</h3>
+                <div style="font-size:11.5px;color:var(--text-3)">Works for Offline / Remote Tally</div>
+              </div>
             </div>
-            <span class="badge blue">Port 9000 Config</span>
+            <span class="badge blue">Day Book XML</span>
           </div>
-          <p style="font-size:12.5px;color:var(--text-3);margin-bottom:16px">
-            Map CI360 financial accounts to the exact Ledger names created in your Tally company masters.
+
+          <p style="font-size:12.5px;color:var(--text-2);margin-bottom:16px;line-height:1.5">
+            If TallyPrime is on another system or offline, export your Day Book as XML (press <code>Alt + E</code> in Tally) and drop or select the file here. CI360 will instantly parse and import all entries.
           </p>
 
-          <form id="tallyConfigForm" onsubmit="return false;">
-            <div class="field" style="margin-bottom:12px">
-              <label>Company Name in TallyPrime</label>
-              <input type="text" id="tallyCompanyName" value="${l(e.companyName||"CI360 INTELLIGENCE PRIVATE LIMITED")}" placeholder="Exact name as in Tally" required>
-            </div>
+          <div id="tallyDropzone" style="border:2px dashed var(--border-sm);padding:24px;border-radius:var(--r-sm);text-align:center;background:var(--bg-2);cursor:pointer;transition:all 0.2s ease;margin-bottom:16px">
+            <div style="font-size:28px;margin-bottom:6px">📥</div>
+            <strong style="font-size:13px;display:block;margin-bottom:4px">Click or Drag &amp; Drop Tally XML File Here</strong>
+            <span id="tallySelectedFileName" style="font-size:11.5px;color:var(--text-3)">Accepts .xml exported from TallyPrime Day Book</span>
+            <input type="file" id="tallyFileInput" accept=".xml" style="display:none">
+          </div>
 
-            <div class="field-row" style="margin-bottom:12px">
-              <div class="field">
-                <label>Tally Server Host</label>
-                <input type="text" id="tallyServerHost" value="${l(e.serverHost||"localhost")}" placeholder="localhost">
-              </div>
-              <div class="field">
-                <label>XML Server Port</label>
-                <input type="number" id="tallyServerPort" value="${e.serverPort||9e3}" placeholder="9000">
-              </div>
-            </div>
-
-            <div class="field-row" style="margin-bottom:12px">
-              <div class="field">
-                <label>Sales Ledger Name</label>
-                <input type="text" id="tallySalesLedger" value="${l(e.salesLedger||"Sales - Professional Services")}" placeholder="Sales Account">
-              </div>
-              <div class="field">
-                <label>Primary Bank Ledger</label>
-                <input type="text" id="tallyBankLedger" value="${l(e.bankLedger||"HDFC Bank Current A/c")}" placeholder="Bank Account">
-              </div>
-            </div>
-
-            <div class="field-row" style="margin-bottom:12px">
-              <div class="field">
-                <label>CGST Output Ledger (9%)</label>
-                <input type="text" id="tallyCgstLedger" value="${l(e.cgstLedger||"Output CGST @ 9%")}" placeholder="Output CGST">
-              </div>
-              <div class="field">
-                <label>SGST Output Ledger (9%)</label>
-                <input type="text" id="tallySgstLedger" value="${l(e.sgstLedger||"Output SGST @ 9%")}" placeholder="Output SGST">
-              </div>
-            </div>
-
-            <div class="field-row" style="margin-bottom:16px">
-              <div class="field">
-                <label>IGST Output Ledger (18%)</label>
-                <input type="text" id="tallyIgstLedger" value="${l(e.igstLedger||"Output IGST @ 18%")}" placeholder="Output IGST">
-              </div>
-              <div class="field">
-                <label>Cash in Hand Ledger</label>
-                <input type="text" id="tallyCashLedger" value="${l(e.cashLedger||"Cash in Hand")}" placeholder="Cash">
-              </div>
-            </div>
-
-            <div style="display:flex;justify-content:flex-end;gap:10px;padding-top:14px;border-top:1px solid var(--border-sm)">
-              <button class="btn gold small" id="tallySaveConfigBtn">
-                <span>💾 Save Tally Configuration</span>
-              </button>
-            </div>
-          </form>
+          <div style="display:flex;justify-content:flex-end">
+            <button class="btn green" id="tallyUploadXmlBtn" disabled style="display:inline-flex;align-items:center;gap:8px;font-weight:700">
+              <span>📤 Parse &amp; Ingest XML</span>
+            </button>
+          </div>
         </div>
 
       </div>
 
-      <!-- CARD 3: STEP-BY-STEP USER GUIDE -->
-      <div class="card" style="padding:22px;background:var(--bg-card)">
+      <!-- RECENT IMPORTED ENTRIES FROM TALLY TABLE -->
+      <div class="card" style="margin-bottom:24px;padding:22px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="font-size:18px">📋</span>
+            <div>
+              <h3 style="margin:0;font-size:15px">Recently Ingested Vouchers from Tally</h3>
+              <div style="font-size:12px;color:var(--text-3)">Real-time log of entries pulled into CI360</div>
+            </div>
+          </div>
+          <span class="badge gray">${g.length} Recent Records</span>
+        </div>
+
+        ${g.length===0?`
+          <div class="empty" style="padding:36px 20px;text-align:center">
+            <div style="font-size:32px;margin-bottom:8px">🏛️</div>
+            <h4 style="margin:0 0 6px 0;font-size:14px">No entries ingested from Tally yet</h4>
+            <p style="font-size:12.5px;color:var(--text-3);margin:0 0 16px 0">
+              Click <strong>⚡ Fetch &amp; Ingest from Tally</strong> above or upload an exported Day Book XML file to pull your vouchers.
+            </p>
+          </div>
+        `:`
+          <div class="table-responsive">
+            <table class="table" style="width:100%;font-size:12.5px">
+              <thead>
+                <tr>
+                  <th style="width:110px">Date</th>
+                  <th style="width:150px">Voucher Type</th>
+                  <th style="width:180px">Voucher / Bill #</th>
+                  <th>Client / Ledger Party</th>
+                  <th style="text-align:right;width:140px">Amount</th>
+                  <th style="text-align:center;width:120px">Source</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${g.map(u=>`
+                  <tr>
+                    <td>${A(u.date)}</td>
+                    <td>
+                      <span class="${u.badgeClass}" style="display:inline-flex;align-items:center;gap:4px">
+                        <span>${u.icon}</span>
+                        <span>${u.type}</span>
+                      </span>
+                    </td>
+                    <td style="font-family:var(--font-mono);font-weight:600">${l(u.number)}</td>
+                    <td><strong>${l(u.party||"—")}</strong></td>
+                    <td style="text-align:right;font-weight:700">${c(u.amount)}</td>
+                    <td style="text-align:center">
+                      <span class="badge green" style="font-size:10.5px">TallyPrime</span>
+                    </td>
+                  </tr>
+                `).join("")}
+              </tbody>
+            </table>
+          </div>
+        `}
+      </div>
+
+      <!-- 3 EASY STEPS GUIDE FOR EKTA / ACCOUNTS -->
+      <div class="card" style="padding:22px;background:var(--bg-card);margin-bottom:24px">
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
           <span style="font-size:20px">📖</span>
           <div>
-            <h3 style="margin:0;font-size:16px">How to Import XML into TallyPrime Silver</h3>
-            <div style="font-size:12.5px;color:var(--text-3)">Standard workflow for Ekta and the accounts team:</div>
+            <h3 style="margin:0;font-size:16px">How to Take Entries from Tally into CI360 (Easy Steps)</h3>
+            <div style="font-size:12.5px;color:var(--text-3)">Simple non-technical guide for Ekta and the accounts team:</div>
           </div>
         </div>
 
-        <div class="grid grid-4" style="gap:16px">
-          <div style="background:var(--bg-2);border:1px solid var(--border-sm);padding:16px;border-radius:var(--r-sm)">
-            <div style="font-size:20px;font-weight:900;color:var(--brand-500);margin-bottom:6px">1</div>
-            <strong style="font-size:13px;display:block;margin-bottom:4px">Export Tally XML</strong>
-            <p style="font-size:12px;color:var(--text-3);margin:0;line-height:1.4">
-              Click <strong>📥 Download Tally XML</strong> above to save the structured voucher file to your computer.
+        <div class="grid grid-3" style="gap:16px">
+          <div style="background:var(--bg-2);border:1px solid var(--border-sm);padding:18px;border-radius:var(--r-sm)">
+            <div style="font-size:24px;font-weight:900;color:var(--brand-500);margin-bottom:8px">1</div>
+            <strong style="font-size:13.5px;display:block;margin-bottom:6px">Record Entries in Tally</strong>
+            <p style="font-size:12px;color:var(--text-3);margin:0;line-height:1.5">
+              Ekta continues doing regular accounting in TallyPrime Silver (creating Sales invoices and Bank/Cash Receipts as usual).
             </p>
           </div>
 
-          <div style="background:var(--bg-2);border:1px solid var(--border-sm);padding:16px;border-radius:var(--r-sm)">
-            <div style="font-size:20px;font-weight:900;color:var(--brand-500);margin-bottom:6px">2</div>
-            <strong style="font-size:13px;display:block;margin-bottom:4px">Open TallyPrime Silver</strong>
-            <p style="font-size:12px;color:var(--text-3);margin:0;line-height:1.4">
-              Open your company in TallyPrime Silver, press <strong>Alt + O</strong> (or click <em>Import</em> on the top bar).
+          <div style="background:var(--bg-2);border:1px solid var(--border-sm);padding:18px;border-radius:var(--r-sm)">
+            <div style="font-size:24px;font-weight:900;color:var(--brand-500);margin-bottom:8px">2</div>
+            <strong style="font-size:13.5px;display:block;margin-bottom:6px">Option A: Live Pull (Recommended)</strong>
+            <p style="font-size:12px;color:var(--text-3);margin:0;line-height:1.5">
+              Keep Tally open on port 9000. In CI360, just click <strong>⚡ Fetch &amp; Ingest from Tally</strong>. CI360 automatically connects and fetches your latest vouchers!
             </p>
           </div>
 
-          <div style="background:var(--bg-2);border:1px solid var(--border-sm);padding:16px;border-radius:var(--r-sm)">
-            <div style="font-size:20px;font-weight:900;color:var(--brand-500);margin-bottom:6px">3</div>
-            <strong style="font-size:13px;display:block;margin-bottom:4px">Select &amp; Import</strong>
-            <p style="font-size:12px;color:var(--text-3);margin:0;line-height:1.4">
-              Choose <strong>Transactions</strong> (for Invoices/Receipts) or <strong>Masters</strong>, select the downloaded XML, and hit Enter.
-            </p>
-          </div>
-
-          <div style="background:var(--bg-2);border:1px solid var(--border-sm);padding:16px;border-radius:var(--r-sm)">
-            <div style="font-size:20px;font-weight:900;color:var(--brand-500);margin-bottom:6px">4</div>
-            <strong style="font-size:13px;display:block;margin-bottom:4px">Check Day Book</strong>
-            <p style="font-size:12px;color:var(--text-3);margin:0;line-height:1.4">
-              Press <strong>Alt + G → Day Book</strong> to view all auto-reconciled GST sales entries and bank receipts immediately.
+          <div style="background:var(--bg-2);border:1px solid var(--border-sm);padding:18px;border-radius:var(--r-sm)">
+            <div style="font-size:24px;font-weight:900;color:var(--brand-500);margin-bottom:8px">3</div>
+            <strong style="font-size:13.5px;display:block;margin-bottom:6px">Option B: Export XML from Tally</strong>
+            <p style="font-size:12px;color:var(--text-3);margin:0;line-height:1.5">
+              In Tally, press <strong>Alt + G → Day Book</strong>, then press <strong>Alt + E (Export) → XML</strong>. Drop that XML file into CI360's file uploader above!
             </p>
           </div>
         </div>
@@ -1415,28 +1404,40 @@ Accounts Department | CI360`,c=L(`
         <div style="margin-top:18px;padding:12px 16px;background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.2);border-radius:var(--r-sm);font-size:12px;color:var(--text-2);display:flex;align-items:center;gap:10px">
           <span style="font-size:16px">💡</span>
           <span>
-            <strong>To enable Direct HTTP Push on Port 9000:</strong> In TallyPrime, go to <code>F1 (Help) → Settings → Connectivity → Client/Server configuration</code>. Set <em>Enable ODBC</em> and <em>Enable XML Server</em> to <strong>Yes</strong> with Port <strong>9000</strong>.
+            <strong>To enable XML Gateway in TallyPrime:</strong> Press <code>F1 (Help) → Settings → Connectivity → Client/Server configuration</code>. Set <em>Enable ODBC</em> and <em>Enable XML Server</em> to <strong>Yes</strong> with Port <strong>9000</strong>.
           </span>
         </div>
       </div>
-    </section>`;function c(){const I=document.getElementById("tallyDateRangeSelect").value,f=new Date;let A="",T="";if(I==="this_month")A=new Date(f.getFullYear(),f.getMonth(),1).toISOString().slice(0,10),T=new Date(f.getFullYear(),f.getMonth()+1,0).toISOString().slice(0,10);else if(I==="last_month")A=new Date(f.getFullYear(),f.getMonth()-1,1).toISOString().slice(0,10),T=new Date(f.getFullYear(),f.getMonth(),0).toISOString().slice(0,10);else if(I==="last_30"){const R=new Date;R.setDate(R.getDate()-30),A=R.toISOString().slice(0,10),T=f.toISOString().slice(0,10)}return{startDate:A,endDate:T}}function a(){const I=s.querySelector('input[name="tallyExportType"]:checked');return I?I.value:"all"}const o=document.getElementById("tallyTestPingBtn"),u=document.getElementById("tallyStatusDot"),g=document.getElementById("tallyStatusText"),i=document.getElementById("tallyConnectionAlert"),x=document.getElementById("tallyAlertTitle"),p=document.getElementById("tallyAlertMsg"),w=document.getElementById("tallyAlertIcon");async function S(){g.textContent="Pinging Tally…",u.style.background="var(--amber-500)";try{const I=document.getElementById("tallyServerHost").value.trim()||"localhost",f=Number(document.getElementById("tallyServerPort").value)||9e3,A=await z("/accounts/tally/test-connection",{serverHost:I,serverPort:f});i.style.display="block",A.connected?(u.style.background="var(--green-500)",g.textContent=`Tally Online (${f})`,i.style.borderLeftColor="var(--green-500)",w.textContent="✅",x.textContent="TallyPrime XML Server Connected",p.textContent=A.message,b("Connected to TallyPrime Silver XML Server!")):(u.style.background="var(--red-500)",g.textContent=`Tally Offline (${f})`,i.style.borderLeftColor="var(--amber-500)",w.textContent="⚠️",x.textContent="TallyPrime Server Not Detected on Port "+f,p.textContent=`${A.message} ${A.instructions||"You can still use 📥 Download Tally XML anytime to import via Alt+O in Tally."}`)}catch(I){u.style.background="var(--red-500)",g.textContent="Tally Offline",i.style.display="block",i.style.borderLeftColor="var(--red-500)",w.textContent="❌",x.textContent="Connection Test Error",p.textContent=I.message}}o&&(o.onclick=S);const C=document.getElementById("tallyAlertCloseBtn");C&&(C.onclick=()=>{i.style.display="none"});async function y(){const I=a(),{startDate:f,endDate:A}=c();let T=`/accounts/tally/export-xml?type=${encodeURIComponent(I)}`;f&&(T+=`&startDate=${encodeURIComponent(f)}`),A&&(T+=`&endDate=${encodeURIComponent(A)}`);try{b("Generating Tally XML…"),window.location.href="/api"+T}catch(R){b(R.message,!0)}}const d=document.getElementById("tallyDownloadXmlBtn");d&&(d.onclick=y);const $=document.getElementById("tallyQuickDownloadBundleBtn");$&&($.onclick=y);const t=document.getElementById("tallyDirectPushBtn");t&&(t.onclick=async()=>{const I=a(),{startDate:f,endDate:A}=c();if(confirm(`Attempt direct push of ${I.toUpperCase()} vouchers to TallyPrime at ${r}?
 
-Ensure TallyPrime is open with your company loaded.`))try{t.disabled=!0,t.textContent="Pushing to Tally…";const T=await z("/accounts/tally/push-direct",{type:I,startDate:f,endDate:A});b(T.message||"Pushed successfully to TallyPrime!"),i.style.display="block",i.style.borderLeftColor="var(--green-500)",w.textContent="🎉",x.textContent="Direct Sync Succeeded",p.textContent=T.message}catch(T){b(T.message,!0),i.style.display="block",i.style.borderLeftColor="var(--amber-500)",w.textContent="⚠️",x.textContent="Direct Push Inaccessible",p.textContent=`${T.message}. Please use the "📥 Download Tally XML" button instead to import the file via Alt + O in TallyPrime.`}finally{t.disabled=!1,t.innerHTML="<span>⚡ Direct Push to Tally</span>"}});const h=document.getElementById("tallyPreviewXmlBtn");h&&(h.onclick=async()=>{const I=a(),{startDate:f,endDate:A}=c();let T=`/accounts/tally/export-xml?type=${encodeURIComponent(I)}`;f&&(T+=`&startDate=${encodeURIComponent(f)}`),A&&(T+=`&endDate=${encodeURIComponent(A)}`);try{h.disabled=!0,h.textContent="Loading…";const H=await(await fetch("/api"+T,{headers:{Authorization:"Bearer "+localStorage.getItem("ci360_token")}})).text(),X=L(`
-          <div style="max-width:850px;width:100%">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-              <div style="display:flex;align-items:center;gap:10px">
-                <span style="font-size:18px">📄</span>
-                <strong style="font-size:16px">TallyPrime XML Preview (${I.toUpperCase()})</strong>
+      <!-- TALLY CONFIGURATION SETTINGS (COLLAPSIBLE / CLEAN) -->
+      <div class="card" style="padding:20px">
+        <details>
+          <summary style="cursor:pointer;font-weight:700;font-size:14px;color:var(--text-1);display:flex;align-items:center;gap:8px">
+            <span>⚙️ Tally Server &amp; Gateway Settings</span>
+            <span style="font-size:12px;color:var(--text-3);font-weight:normal">(Click to view/edit host, port and company name)</span>
+          </summary>
+
+          <form id="tallyConfigForm" onsubmit="return false;" style="margin-top:16px">
+            <div class="field-row" style="margin-bottom:12px">
+              <div class="field" style="flex:2">
+                <label>Company Name in Tally</label>
+                <input type="text" id="tallyCompanyName" value="${l(e.companyName||"CI360 INTELLIGENCE PRIVATE LIMITED")}">
               </div>
-              <div style="display:flex;gap:8px">
-                <button class="btn gold small" id="tallyModalCopyBtn">📋 Copy XML</button>
-                <button class="btn ghost small" id="tallyModalCloseBtn">✕ Close</button>
+              <div class="field" style="flex:1">
+                <label>Tally Server Host</label>
+                <input type="text" id="tallyServerHost" value="${l(e.serverHost||"localhost")}">
+              </div>
+              <div class="field" style="flex:1">
+                <label>XML Server Port</label>
+                <input type="number" id="tallyServerPort" value="${e.serverPort||9e3}">
               </div>
             </div>
-            <div style="font-size:12px;color:var(--text-3);margin-bottom:12px">
-              This standard Tally XML envelope will be imported into TallyPrime Day Book:
-            </div>
-            <pre style="background:var(--bg-2);border:1px solid var(--border-sm);border-radius:var(--r-sm);padding:14px;max-height:480px;overflow:auto;font-family:var(--font-mono);font-size:11.5px;color:var(--text-1);white-space:pre-wrap;word-break:break-all">${l(H.slice(0,15e3))}${H.length>15e3?`
 
-... (truncated for preview, full XML will be downloaded)`:""}</pre>
-          </div>`);X.querySelector("#tallyModalCloseBtn").onclick=()=>X.remove(),X.querySelector("#tallyModalCopyBtn").onclick=()=>{navigator.clipboard.writeText(H).then(()=>{b("Full Tally XML copied to clipboard!")})}}catch(R){b("Failed to load XML preview: "+R.message,!0)}finally{h.disabled=!1,h.innerHTML="<span>👁️ View XML</span>"}});const P=document.getElementById("tallySaveConfigBtn");P&&(P.onclick=async()=>{const I={companyName:document.getElementById("tallyCompanyName").value.trim(),serverHost:document.getElementById("tallyServerHost").value.trim()||"localhost",serverPort:Number(document.getElementById("tallyServerPort").value)||9e3,salesLedger:document.getElementById("tallySalesLedger").value.trim()||"Sales - Professional Services",bankLedger:document.getElementById("tallyBankLedger").value.trim()||"HDFC Bank Current A/c",cgstLedger:document.getElementById("tallyCgstLedger").value.trim()||"Output CGST @ 9%",sgstLedger:document.getElementById("tallySgstLedger").value.trim()||"Output SGST @ 9%",igstLedger:document.getElementById("tallyIgstLedger").value.trim()||"Output IGST @ 18%",cashLedger:document.getElementById("tallyCashLedger").value.trim()||"Cash in Hand"};try{P.disabled=!0,P.textContent="Saving…";const f=await Q("/accounts/tally/config",I);b(f.message||"TallyPrime configuration saved!"),P.disabled=!1,P.innerHTML="<span>💾 Save Tally Configuration</span>"}catch(f){b(f.message,!0),P.disabled=!1,P.innerHTML="<span>💾 Save Tally Configuration</span>"}}),setTimeout(S,600)}ie();
+            <div style="display:flex;justify-content:flex-end;margin-top:12px">
+              <button class="btn gold small" id="tallySaveConfigBtn">💾 Save Settings</button>
+            </div>
+          </form>
+        </details>
+      </div>
+
+    </section>`;const x=document.getElementById("tallyTestPingBtn"),r=document.getElementById("tallyLivePingBtn"),f=document.getElementById("tallyStatusDot"),v=document.getElementById("tallyStatusText"),h=document.getElementById("tallyConnectionAlert"),w=document.getElementById("tallyAlertTitle"),C=document.getElementById("tallyAlertMsg"),y=document.getElementById("tallyAlertIcon");async function d(){v.textContent="Pinging Tally…",f.style.background="var(--amber-500)";try{const u=(document.getElementById("tallyServerHost")?document.getElementById("tallyServerHost").value.trim():e.serverHost)||"localhost",T=Number(document.getElementById("tallyServerPort")?document.getElementById("tallyServerPort").value:e.serverPort)||9e3,M=await N("/accounts/tally/test-connection",{serverHost:u,serverPort:T});h.style.display="block",M.connected?(f.style.background="var(--green-500)",v.textContent=`Tally Online (${T})`,h.style.borderLeftColor="var(--green-500)",y.textContent="✅",w.textContent="TallyPrime Server Connected",C.textContent=M.message,b("Connected to TallyPrime Silver on port "+T)):(f.style.background="var(--red-500)",v.textContent=`Tally Offline (${T})`,h.style.borderLeftColor="var(--amber-500)",y.textContent="⚠️",w.textContent="TallyPrime XML Server Not Detected on Port "+T,C.textContent=`${M.message} ${M.instructions||"You can still use Upload XML File anytime!"}`)}catch(u){f.style.background="var(--red-500)",v.textContent="Tally Offline",h.style.display="block",h.style.borderLeftColor="var(--red-500)",y.textContent="❌",w.textContent="Connection Error",C.textContent=u.message}}x&&(x.onclick=d),r&&(r.onclick=d);const $=document.getElementById("tallyAlertCloseBtn");$&&($.onclick=()=>{h.style.display="none"});async function t(){const u=document.getElementById("tallyLiveFetchBtn"),T=document.getElementById("tallyTopFetchBtn"),M=u?u.innerHTML:"";try{u&&(u.disabled=!0,u.innerHTML='<span class="spinner" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:6px"></span> Ingesting from Tally…'),T&&(T.disabled=!0),b("Connecting to TallyPrime port "+(e.serverPort||9e3)+" and fetching Day Book vouchers…");const F=await N("/accounts/tally/fetch-from-tally",{serverHost:e.serverHost||"localhost",serverPort:e.serverPort||9e3});h.style.display="block",h.style.borderLeftColor="var(--green-500)",y.textContent="🎉",w.textContent="Tally Entries Ingested Successfully!",C.textContent=F.message,b(F.message),setTimeout(()=>k(),1200)}catch(F){h.style.display="block",h.style.borderLeftColor="var(--amber-500)",y.textContent="⚠️",w.textContent="Tally Ingestion Notice",C.textContent=`${F.message}. If Tally is running on a different computer, export your Day Book as XML and use the "Upload Tally XML File" option!`,b(F.message,!0)}finally{u&&(u.disabled=!1,u.innerHTML=M),T&&(T.disabled=!1)}}const I=document.getElementById("tallyLiveFetchBtn");I&&(I.onclick=t);const R=document.getElementById("tallyTopFetchBtn");R&&(R.onclick=t);const S=document.getElementById("tallyDropzone"),P=document.getElementById("tallyFileInput"),ae=document.getElementById("tallySelectedFileName"),z=document.getElementById("tallyUploadXmlBtn");let W=null;S&&P&&(S.onclick=()=>P.click(),S.ondragover=u=>{u.preventDefault(),S.style.borderColor="var(--brand-500)",S.style.background="rgba(79,70,229,0.05)"},S.ondragleave=()=>{S.style.borderColor="var(--border-sm)",S.style.background="var(--bg-2)"},S.ondrop=u=>{u.preventDefault(),S.style.borderColor="var(--border-sm)",S.style.background="var(--bg-2)",u.dataTransfer.files&&u.dataTransfer.files.length&&J(u.dataTransfer.files[0])},P.onchange=u=>{u.target.files&&u.target.files.length&&J(u.target.files[0])});function J(u){if(!u.name.toLowerCase().endsWith(".xml")){b("Please select a valid Tally .xml file",!0);return}ae.innerHTML=`<strong style="color:var(--brand-600)">📄 ${l(u.name)}</strong> (${(u.size/1024).toFixed(1)} KB)`;const T=new FileReader;T.onload=M=>{W=M.target.result,z&&(z.disabled=!1,z.classList.add("gold"),z.classList.remove("green")),b('XML file loaded. Click "Parse & Ingest XML" to import.')},T.readAsText(u)}z&&(z.onclick=async()=>{if(!W){b("Please select an XML file first",!0);return}try{z.disabled=!0,z.textContent="Parsing XML & Ingesting…";const u=await N("/accounts/tally/import-xml-file",{xmlContent:W});h.style.display="block",h.style.borderLeftColor="var(--green-500)",y.textContent="🎉",w.textContent="Tally XML Ingested Successfully!",C.textContent=u.message,b(u.message),setTimeout(()=>k(),1200)}catch(u){h.style.display="block",h.style.borderLeftColor="var(--red-500)",y.textContent="❌",w.textContent="XML Ingestion Error",C.textContent=u.message,b(u.message,!0),z.disabled=!1,z.textContent="📤 Parse & Ingest XML"}});const L=document.getElementById("tallySaveConfigBtn");L&&(L.onclick=async()=>{const u={companyName:document.getElementById("tallyCompanyName").value.trim(),serverHost:document.getElementById("tallyServerHost").value.trim()||"localhost",serverPort:Number(document.getElementById("tallyServerPort").value)||9e3};try{L.disabled=!0,L.textContent="Saving…",await Z("/accounts/tally/config",u),b("Tally settings saved!"),L.disabled=!1,L.textContent="💾 Save Settings"}catch(T){b(T.message,!0),L.disabled=!1,L.textContent="💾 Save Settings"}}),setTimeout(d,600)}re();

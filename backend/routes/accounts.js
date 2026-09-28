@@ -1474,20 +1474,28 @@ router.put('/tally/config', async (req, res) => {
 router.get('/tally/summary', async (req, res) => {
   try {
     const config = await getTallyConfig();
+    const lastSyncSetting = await SystemSetting.findOne({ key: 'tally_last_sync' });
     const [invoicesCount, paymentsCount, clientsCount] = await Promise.all([
       Invoice.countDocuments({ status: { $ne: 'cancelled' } }),
       Payment.countDocuments({ status: 'completed' }),
       Client.countDocuments()
     ]);
 
+    const recentInvoices = await Invoice.find({ createdByName: 'TallyPrime Silver' }).sort({ createdAt: -1 }).limit(10);
+    const recentPayments = await Payment.find({ recordedByName: 'TallyPrime Silver' }).sort({ createdAt: -1 }).limit(10);
+
     res.json({
       config,
+      lastSync: lastSyncSetting ? lastSyncSetting.value : null,
       stats: {
         totalInvoices: invoicesCount,
         totalPayments: paymentsCount,
         totalClients: clientsCount,
-        syncReadyVouchers: invoicesCount + paymentsCount
-      }
+        tallyInvoices: await Invoice.countDocuments({ createdByName: 'TallyPrime Silver' }),
+        tallyPayments: await Payment.countDocuments({ recordedByName: 'TallyPrime Silver' })
+      },
+      recentInvoices,
+      recentPayments
     });
   } catch (err) {
     res.status(500).json({ error: 'Failed to get Tally summary', detail: err.message });
@@ -1587,63 +1595,364 @@ router.get('/tally/export-xml', async (req, res) => {
   }
 });
 
-// Direct Push to TallyPrime HTTP port
-router.post('/tally/push-direct', async (req, res) => {
+function extractTagValue(xmlChunk, tagName) {
+  const re = new RegExp(`<${tagName}[^>]*>([\\s\\S]*?)<\\/${tagName}>`, 'i');
+  const m = xmlChunk.match(re);
+  return m ? m[1].trim() : '';
+}
+
+function parseTallyDate(rawDate) {
+  if (!rawDate) return new Date();
+  const clean = rawDate.replace(/\D/g, '');
+  if (clean.length === 8) {
+    const y = parseInt(clean.substring(0, 4), 10);
+    const m = parseInt(clean.substring(4, 6), 10) - 1;
+    const d = parseInt(clean.substring(6, 8), 10);
+    return new Date(y, m, d);
+  }
+  const parsed = new Date(rawDate);
+  return isNaN(parsed.getTime()) ? new Date() : parsed;
+}
+
+// Core Tally XML Ingestion Engine: Extracts vouchers and masters into CI360
+async function parseAndImportTallyXml(xmlContent) {
+  if (!xmlContent || typeof xmlContent !== 'string') {
+    throw new Error('No valid XML content received from Tally');
+  }
+
+  let invoicesImported = 0;
+  let paymentsImported = 0;
+  let clientsCreated = 0;
+  const importedList = [];
+
+  // 1. Extract Masters / Ledgers (Sundry Debtors)
+  const ledgerMatches = xmlContent.match(/<LEDGER[\s\S]*?<\/LEDGER>/gi) || [];
+  for (const lXml of ledgerMatches) {
+    const name = extractTagValue(lXml, 'NAME');
+    const parent = extractTagValue(lXml, 'PARENT');
+    const gstin = extractTagValue(lXml, 'PARTYGSTIN');
+    const pan = extractTagValue(lXml, 'PANNUMBER');
+    if (name && (parent.toLowerCase().includes('debtor') || !parent)) {
+      let client = await Client.findOne({ name: new RegExp(`^${name.trim()}$`, 'i') });
+      if (!client) {
+        client = await Client.create({
+          name: name.trim(),
+          gstin: gstin || '',
+          pan: pan || '',
+          status: 'active'
+        });
+        clientsCreated++;
+      }
+    }
+  }
+
+  // 2. Extract Vouchers
+  const voucherMatches = xmlContent.match(/<VOUCHER[\s\S]*?<\/VOUCHER>/gi) || [];
+  for (const vXml of voucherMatches) {
+    const vchType = (extractTagValue(vXml, 'VOUCHERTYPENAME') || extractTagValue(vXml, 'VCHTYPE') || '').toLowerCase();
+    const vchNumber = extractTagValue(vXml, 'VOUCHERNUMBER') || extractTagValue(vXml, 'REFERENCE');
+    const rawDate = extractTagValue(vXml, 'DATE') || extractTagValue(vXml, 'EFFECTIVEDATE');
+    const vDate = parseTallyDate(rawDate);
+    const partyName = extractTagValue(vXml, 'PARTYLEDGERNAME') || extractTagValue(vXml, 'BASICBUYERNAME');
+    const narration = extractTagValue(vXml, 'NARRATION');
+
+    if (!partyName && !vchNumber) continue;
+
+    // Find or create Client
+    let client = null;
+    if (partyName) {
+      client = await Client.findOne({ name: new RegExp(`^${partyName.trim()}$`, 'i') });
+      if (!client) {
+        client = await Client.create({
+          name: partyName.trim(),
+          status: 'active'
+        });
+        clientsCreated++;
+      }
+    }
+
+    // Extract all LEDGERENTRIES
+    const entryMatches = vXml.match(/<ALLLEDGERENTRIES\.LIST[\s\S]*?<\/ALLLEDGERENTRIES\.LIST>/gi) || [];
+    let voucherAmount = 0;
+    let salesAmount = 0;
+    let taxAmount = 0;
+    let bankOrCashLedger = '';
+
+    for (const eXml of entryMatches) {
+      const lName = extractTagValue(eXml, 'LEDGERNAME');
+      const amtStr = extractTagValue(eXml, 'AMOUNT');
+      const amt = Math.abs(parseFloat(amtStr) || 0);
+
+      if (lName && lName.toLowerCase() === (partyName || '').toLowerCase()) {
+        voucherAmount = amt;
+      } else if (lName && (lName.toLowerCase().includes('sale') || lName.toLowerCase().includes('revenue') || lName.toLowerCase().includes('service'))) {
+        salesAmount = amt;
+      } else if (lName && (lName.toLowerCase().includes('gst') || lName.toLowerCase().includes('tax'))) {
+        taxAmount += amt;
+      } else if (lName && (lName.toLowerCase().includes('bank') || lName.toLowerCase().includes('hdfc') || lName.toLowerCase().includes('icici') || lName.toLowerCase().includes('cash') || lName.toLowerCase().includes('sbi') || lName.toLowerCase().includes('kotak'))) {
+        bankOrCashLedger = lName;
+        if (!voucherAmount) voucherAmount = amt;
+      }
+    }
+
+    if (!voucherAmount && salesAmount) {
+      voucherAmount = salesAmount + taxAmount;
+    }
+    if (voucherAmount <= 0) continue;
+
+    // A. SALES VOUCHER -> INVOICE IN CI360
+    if (vchType.includes('sale')) {
+      const invNum = vchNumber || `TALLY-INV-${vDate.getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
+      let invoice = await Invoice.findOne({ invoiceNumber: invNum });
+      const subtotal = salesAmount > 0 ? salesAmount : Math.round(voucherAmount / 1.18);
+      const tax = taxAmount > 0 ? taxAmount : voucherAmount - subtotal;
+      const dueDate = new Date(vDate.getTime() + 15 * 86400000);
+
+      if (!invoice) {
+        invoice = await Invoice.create({
+          invoiceNumber: invNum,
+          clientId: client ? client._id : null,
+          clientName: client ? client.name : (partyName || 'Tally Client'),
+          issueDate: vDate,
+          dueDate,
+          billingType: 'retainer',
+          status: 'issued',
+          items: [{
+            description: narration || 'Professional Services (Imported from TallyPrime)',
+            quantity: 1,
+            rate: subtotal,
+            amount: subtotal
+          }],
+          subtotal,
+          taxRate: 18,
+          taxAmount: tax,
+          totalAmount: voucherAmount,
+          amountPaid: 0,
+          pendingAmount: voucherAmount,
+          notes: narration || 'Imported from TallyPrime Silver',
+          createdByName: 'TallyPrime Silver'
+        });
+        invoicesImported++;
+      } else {
+        invoice.totalAmount = voucherAmount;
+        invoice.subtotal = subtotal;
+        invoice.taxAmount = tax;
+        invoice.pendingAmount = Math.max(0, voucherAmount - (invoice.amountPaid || 0));
+        invoice.syncStatus();
+        await invoice.save();
+        invoicesImported++;
+      }
+
+      importedList.push({
+        type: 'Sales Invoice',
+        number: invNum,
+        party: client ? client.name : partyName,
+        amount: voucherAmount,
+        date: vDate
+      });
+    }
+    // B. RECEIPT VOUCHER -> PAYMENT IN CI360
+    else if (vchType.includes('receipt')) {
+      const payNum = vchNumber || `TALLY-REC-${vDate.getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
+      let payment = await Payment.findOne({ paymentNumber: payNum });
+      const paymentMethod = bankOrCashLedger.toLowerCase().includes('cash')
+        ? 'cash'
+        : (narration && narration.toLowerCase().includes('upi') ? 'upi' : 'bank_transfer');
+
+      // Check linked invoice
+      const billRef = extractTagValue(vXml, 'NAME');
+      let linkedInvoice = null;
+      if (billRef) {
+        linkedInvoice = await Invoice.findOne({ invoiceNumber: new RegExp(`^${billRef.trim()}$`, 'i') });
+      }
+      if (!linkedInvoice && client) {
+        linkedInvoice = await Invoice.findOne({ clientId: client._id, pendingAmount: { $gt: 0 } }).sort({ issueDate: 1 });
+      }
+
+      if (!payment) {
+        payment = await Payment.create({
+          paymentNumber: payNum,
+          clientId: client ? client._id : null,
+          clientName: client ? client.name : (partyName || 'Tally Client'),
+          invoiceId: linkedInvoice ? linkedInvoice._id : null,
+          invoiceNumber: linkedInvoice ? linkedInvoice.invoiceNumber : (billRef || ''),
+          amount: voucherAmount,
+          paymentDate: vDate,
+          paymentMethod,
+          referenceId: billRef || payNum,
+          status: 'completed',
+          notes: narration || `Receipt imported from Tally (${bankOrCashLedger || 'Bank'})`,
+          recordedByName: 'TallyPrime Silver'
+        });
+
+        if (linkedInvoice) {
+          linkedInvoice.amountPaid = (linkedInvoice.amountPaid || 0) + voucherAmount;
+          linkedInvoice.pendingAmount = Math.max(0, linkedInvoice.totalAmount - linkedInvoice.amountPaid);
+          linkedInvoice.syncStatus();
+          await linkedInvoice.save();
+        }
+        paymentsImported++;
+
+        importedList.push({
+          type: 'Payment Receipt',
+          number: payNum,
+          party: client ? client.name : partyName,
+          amount: voucherAmount,
+          date: vDate
+        });
+      }
+    }
+  }
+
+  // Update last sync timestamp in SystemSetting
+  await SystemSetting.findOneAndUpdate(
+    { key: 'tally_last_sync' },
+    {
+      key: 'tally_last_sync',
+      value: {
+        syncedAt: new Date(),
+        invoicesImported,
+        paymentsImported,
+        clientsCreated,
+        totalVouchers: voucherMatches.length
+      }
+    },
+    { upsert: true }
+  );
+
+  return {
+    invoicesImported,
+    paymentsImported,
+    clientsCreated,
+    totalVouchersProcessed: voucherMatches.length,
+    importedList: importedList.slice(0, 50)
+  };
+}
+
+// 1. LIVE PULL: Fetch vouchers directly from TallyPrime HTTP port (port 9000)
+router.post('/tally/fetch-from-tally', async (req, res) => {
   try {
-    const { type = 'all', startDate, endDate } = req.body;
     const config = await getTallyConfig();
-    const url = `http://${config.serverHost || 'localhost'}:${config.serverPort || 9000}`;
+    const host = req.body.serverHost || config.serverHost || 'localhost';
+    const port = req.body.serverPort || config.serverPort || 9000;
+    const url = `http://${host}:${port}`;
 
-    const invFilter = { status: { $ne: 'cancelled' } };
-    const payFilter = { status: 'completed' };
-    if (startDate) {
-      invFilter.issueDate = { $gte: new Date(startDate) };
-      payFilter.paymentDate = { $gte: new Date(startDate) };
-    }
-    if (endDate) {
-      const eDate = new Date(endDate);
-      eDate.setHours(23, 59, 59, 999);
-      invFilter.issueDate = { ...(invFilter.issueDate || {}), $lte: eDate };
-      payFilter.paymentDate = { ...(payFilter.paymentDate || {}), $lte: eDate };
-    }
-
-    const [invoices, payments, clients] = await Promise.all([
-      (type === 'all' || type === 'sales') ? Invoice.find(invFilter).sort({ issueDate: 1 }) : Promise.resolve([]),
-      (type === 'all' || type === 'receipts') ? Payment.find(payFilter).sort({ paymentDate: 1 }) : Promise.resolve([]),
-      (type === 'all' || type === 'masters') ? Client.find().sort({ name: 1 }) : Promise.resolve([])
-    ]);
-
-    const xmlContent = buildTallyXml({ invoices, payments, clients, config, type });
+    // Tally XML request to export all vouchers from Tally Day Book
+    const exportRequestXml = `
+      <ENVELOPE>
+        <HEADER>
+          <TALLYREQUEST>Export Data</TALLYREQUEST>
+        </HEADER>
+        <BODY>
+          <EXPORTDATA>
+            <REQUESTDESC>
+              <REPORTNAME>Vouchers</REPORTNAME>
+              <STATICVARIABLES>
+                <SVEXPORTFORMAT>$$SysName:XML</SVEXPORTFORMAT>
+              </STATICVARIABLES>
+            </REQUESTDESC>
+          </EXPORTDATA>
+        </BODY>
+      </ENVELOPE>
+    `;
 
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 6000);
+    const timeout = setTimeout(() => controller.abort(), 8000);
 
     try {
       const tallyRes = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'text/xml;charset=utf-8' },
-        body: xmlContent,
+        body: exportRequestXml,
         signal: controller.signal
       });
       clearTimeout(timeout);
-      const reply = await tallyRes.text();
+
+      const xmlResponse = await tallyRes.text();
+      const result = await parseAndImportTallyXml(xmlResponse);
 
       res.json({
         success: true,
-        message: `Successfully pushed ${invoices.length} invoices and ${payments.length} receipts directly to TallyPrime at ${url}`,
-        vouchersExported: invoices.length + payments.length,
-        tallyResponseSnippet: reply.slice(0, 300)
+        message: `Successfully fetched and imported from TallyPrime: ${result.invoicesImported} sales invoice(s), ${result.paymentsImported} receipt(s), and ${result.clientsCreated} client(s).`,
+        ...result
       });
     } catch (netErr) {
       clearTimeout(timeout);
       res.status(503).json({
-        error: `Could not reach TallyPrime at ${url}`,
+        error: `Could not connect to TallyPrime at ${url}`,
         detail: netErr.message,
-        suggestion: 'Please download the XML file instead and import it directly into Tally via Alt + O → Import → Transactions.'
+        suggestion: 'Make sure TallyPrime is open with your company, and ODBC/XML Server is enabled on port ' + port + '. Alternatively, you can export your Day Book as XML from Tally and use the "Upload Tally XML" button!'
       });
     }
   } catch (err) {
-    res.status(500).json({ error: 'Failed to push XML to TallyPrime', detail: err.message });
+    res.status(500).json({ error: 'Failed to fetch entries from Tally', detail: err.message });
+  }
+});
+
+// 2. FILE UPLOAD: Parse and import Tally XML file uploaded by user
+router.post('/tally/import-xml-file', async (req, res) => {
+  try {
+    const { xmlContent } = req.body;
+    if (!xmlContent || !xmlContent.trim()) {
+      return res.status(400).json({ error: 'Please provide XML file content exported from Tally' });
+    }
+
+    const result = await parseAndImportTallyXml(xmlContent);
+
+    res.json({
+      success: true,
+      message: `Tally XML parsed successfully! Imported ${result.invoicesImported} sales invoice(s), ${result.paymentsImported} receipt(s), and ${result.clientsCreated} client(s).`,
+      ...result
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to import Tally XML file', detail: err.message });
+  }
+});
+
+// 3. Export XML (optional backup)
+router.get('/tally/export-xml', async (req, res) => {
+  try {
+    const { type = 'all', startDate, endDate, clientId } = req.query;
+    const config = await getTallyConfig();
+
+    const invFilter = { status: { $ne: 'cancelled' } };
+    const payFilter = { status: 'completed' };
+    const clientFilter = {};
+
+    if (clientId) {
+      invFilter.clientId = clientId;
+      payFilter.clientId = clientId;
+      clientFilter._id = clientId;
+    }
+    if (startDate || endDate) {
+      invFilter.issueDate = {};
+      payFilter.paymentDate = {};
+      if (startDate) {
+        invFilter.issueDate.$gte = new Date(startDate);
+        payFilter.paymentDate.$gte = new Date(startDate);
+      }
+      if (endDate) {
+        const eDate = new Date(endDate);
+        eDate.setHours(23, 59, 59, 999);
+        invFilter.issueDate.$lte = eDate;
+        payFilter.paymentDate.$lte = eDate;
+      }
+    }
+
+    const [invoices, payments, clients] = await Promise.all([
+      (type === 'all' || type === 'sales') ? Invoice.find(invFilter).sort({ issueDate: 1 }) : Promise.resolve([]),
+      (type === 'all' || type === 'receipts') ? Payment.find(payFilter).sort({ paymentDate: 1 }) : Promise.resolve([]),
+      (type === 'all' || type === 'masters') ? Client.find(clientFilter).sort({ name: 1 }) : Promise.resolve([])
+    ]);
+
+    const xmlContent = buildTallyXml({ invoices, payments, clients, config, type });
+    const filename = `TallyPrime_Silver_${type}_${formatTallyDate(new Date())}.xml`;
+
+    res.setHeader('Content-Type', 'application/xml; charset=utf-8');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.send(xmlContent);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to generate Tally XML', detail: err.message });
   }
 });
 
