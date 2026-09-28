@@ -877,7 +877,7 @@ async function openCreateInvoiceModal(presetClientId) {
 
       <div class="field">
         <label>Notes / Client Message</label>
-        <textarea id="modalInvNotes" rows="2" style="resize:vertical">Thank you for partnering with CI360 Intelligence.</textarea>
+        <textarea id="modalInvNotes" rows="2" style="resize:vertical">Thank you for partnering with COGNITO INNOVO PRIVATE LIMITED.</textarea>
       </div>
 
       <div class="modal-actions" style="margin-top:18px">
@@ -1250,11 +1250,11 @@ async function openViewInvoiceModal(invoiceId) {
         <div class="invoice-bank-footer">
           <div>
             <div style="font-weight:700;color:var(--text-2);margin-bottom:4px;text-transform:uppercase;font-size:11px">Bank Transfer & UPI Details</div>
-            <div>Account Name: <strong>${escapeHtml(inv.bankDetails?.accountName || 'CI360 Intelligence')}</strong></div>
+            <div>Account Name: <strong>${escapeHtml(inv.bankDetails?.accountName || 'COGNITO INNOVO PRIVATE LIMITED')}</strong></div>
             <div>Bank: <strong>${escapeHtml(inv.bankDetails?.bankName || 'HDFC Bank')}</strong></div>
             <div>A/C Number: <strong>${escapeHtml(inv.bankDetails?.accountNumber || '50200088992211')}</strong></div>
             <div>IFSC Code: <strong>${escapeHtml(inv.bankDetails?.ifscCode || 'HDFC0001234')}</strong></div>
-            <div>UPI ID: <strong>${escapeHtml(inv.bankDetails?.upiId || 'ci360@hdfcbank')}</strong></div>
+            <div>UPI ID: <strong>${escapeHtml(inv.bankDetails?.upiId || 'cognitoinnovo@hdfcbank')}</strong></div>
           </div>
           <div>
             <div style="font-weight:700;color:var(--text-2);margin-bottom:4px;text-transform:uppercase;font-size:11px">Terms & Conditions</div>
@@ -1914,7 +1914,7 @@ async function renderReceivablesTab(container) {
 }
 
 function openReminderModal({ clientName, pending, overdue, phone }) {
-  const reminderText = `Dear ${clientName},\n\nGreetings from CI360 Intelligence.\n\nThis is a friendly reminder regarding your outstanding account balance of ${fmtINR(pending)}${overdue > 0 ? ` (including ${fmtINR(overdue)} overdue)` : ''}.\n\nPlease arrange for the settlement at your earliest convenience to our registered bank account:\n- Bank: HDFC Bank\n- A/C: 50200088992211\n- IFSC: HDFC0001234\n- UPI: ci360@hdfcbank\n\nIf you have already processed this remittance, kindly share the UTR / transaction receipt. Thank you for your continued partnership!\n\nWarm regards,\nAccounts Department | CI360`;
+  const reminderText = `Dear ${clientName},\n\nGreetings from COGNITO INNOVO PRIVATE LIMITED.\n\nThis is a friendly reminder regarding your outstanding account balance of ${fmtINR(pending)}${overdue > 0 ? ` (including ${fmtINR(overdue)} overdue)` : ''}.\n\nPlease arrange for the settlement at your earliest convenience to our registered bank account:\n- Company: COGNITO INNOVO PRIVATE LIMITED\n- Bank: HDFC Bank\n- A/C: 50200088992211\n- IFSC: HDFC0001234\n- UPI: cognitoinnovo@hdfcbank\n\nIf you have already processed this remittance, kindly share the UTR / transaction receipt. Thank you for your continued partnership!\n\nWarm regards,\nAccounts Department | COGNITO INNOVO PRIVATE LIMITED`;
 
   const modal = openModal(`
     <div style="max-width:540px;width:100%">
@@ -2302,7 +2302,7 @@ async function renderTallyTab(container) {
             </div>
             <div style="display:flex;justify-content:space-between;align-items:center">
               <span style="font-size:12px;color:var(--text-3)">Company:</span>
-              <span style="font-size:12px;font-weight:600;color:var(--text-1)">${escapeHtml(config.companyName || 'CI360 INTELLIGENCE PRIVATE LIMITED')}</span>
+              <span style="font-size:12px;font-weight:600;color:var(--text-1)">${escapeHtml(config.companyName || 'COGNITO INNOVO PRIVATE LIMITED')}</span>
             </div>
           </div>
 
@@ -2463,7 +2463,7 @@ async function renderTallyTab(container) {
             <div class="field-row" style="margin-bottom:12px">
               <div class="field" style="flex:2">
                 <label>Company Name in Tally</label>
-                <input type="text" id="tallyCompanyName" value="${escapeHtml(config.companyName || 'CI360 INTELLIGENCE PRIVATE LIMITED')}">
+                <input type="text" id="tallyCompanyName" value="${escapeHtml(config.companyName || 'COGNITO INNOVO PRIVATE LIMITED')}">
               </div>
               <div class="field" style="flex:1">
                 <label>Tally Server Host</label>

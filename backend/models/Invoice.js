@@ -39,14 +39,14 @@ const InvoiceSchema = new mongoose.Schema({
   amountPaid: { type: Number, default: 0 },
   pendingAmount: { type: Number, default: 0 },
   currency: { type: String, default: 'INR' },
-  notes: { type: String, default: 'Thank you for partnering with CI360 Intelligence.' },
+  notes: { type: String, default: 'Thank you for partnering with COGNITO INNOVO PRIVATE LIMITED.' },
   paymentTerms: { type: String, default: 'Payment due within 15 days of invoice date.' },
   bankDetails: {
-    accountName: { type: String, default: 'CI360 Intelligence' },
+    accountName: { type: String, default: 'COGNITO INNOVO PRIVATE LIMITED' },
     bankName: { type: String, default: 'HDFC Bank' },
     accountNumber: { type: String, default: '50200088992211' },
     ifscCode: { type: String, default: 'HDFC0001234' },
-    upiId: { type: String, default: 'ci360@hdfcbank' }
+    upiId: { type: String, default: 'cognitoinnovo@hdfcbank' }
   },
   billingAddress: { type: String, default: '' },
   gstin: { type: String, default: '' },

@@ -419,7 +419,7 @@ router.post('/invoices', async (req, res) => {
       totalAmount,
       amountPaid: 0,
       pendingAmount,
-      notes: notes || 'Thank you for partnering with CI360 Intelligence.',
+      notes: notes || 'Thank you for partnering with COGNITO INNOVO PRIVATE LIMITED.',
       paymentTerms: paymentTerms || 'Payment due within 15 days of invoice date.',
       billingAddress: billingAddress || '',
       gstin: gstin || '',
@@ -1243,7 +1243,7 @@ const DEFAULT_TALLY_CONFIG = {
   edition: 'TallyPrime Silver',
   serverHost: 'localhost',
   serverPort: 9000,
-  companyName: 'CI360 INTELLIGENCE PRIVATE LIMITED',
+  companyName: 'COGNITO INNOVO PRIVATE LIMITED',
   salesLedger: 'Sales - Professional Services',
   cgstLedger: 'Output CGST @ 9%',
   sgstLedger: 'Output SGST @ 9%',
@@ -1278,7 +1278,11 @@ function escapeXml(unsafe) {
 async function getTallyConfig() {
   const setting = await SystemSetting.findOne({ key: 'tally_prime_config' });
   if (setting && setting.value) {
-    return { ...DEFAULT_TALLY_CONFIG, ...setting.value };
+    const cfg = { ...DEFAULT_TALLY_CONFIG, ...setting.value };
+    if (!cfg.companyName || cfg.companyName === 'CI360 INTELLIGENCE PRIVATE LIMITED' || cfg.companyName === 'CI360') {
+      cfg.companyName = 'COGNITO INNOVO PRIVATE LIMITED';
+    }
+    return cfg;
   }
   return { ...DEFAULT_TALLY_CONFIG };
 }
@@ -1849,6 +1853,7 @@ router.post('/tally/fetch-from-tally', async (req, res) => {
               <REPORTNAME>Vouchers</REPORTNAME>
               <STATICVARIABLES>
                 <SVEXPORTFORMAT>$$SysName:XML</SVEXPORTFORMAT>
+                <SVCURRENTCOMPANY>${escapeXml(config.companyName || 'COGNITO INNOVO PRIVATE LIMITED')}</SVCURRENTCOMPANY>
               </STATICVARIABLES>
             </REQUESTDESC>
           </EXPORTDATA>
