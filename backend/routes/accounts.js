@@ -537,17 +537,59 @@ router.delete('/invoices/:id', async (req, res) => {
     const invoice = await Invoice.findById(req.params.id);
     if (!invoice) return res.status(404).json({ error: 'Invoice not found' });
 
+    const force = req.query.force === 'true';
     const linkedPayments = await Payment.countDocuments({ invoiceId: invoice._id });
-    if (linkedPayments > 0) {
+    if (linkedPayments > 0 && !force) {
       return res.status(400).json({
-        error: `Cannot delete invoice ${invoice.invoiceNumber} because it has ${linkedPayments} payment record(s). Please delete or unlink the payments first.`
+        error: `Cannot delete invoice ${invoice.invoiceNumber} because it has ${linkedPayments} payment record(s). Please delete or unlink the payments first, or confirm force delete.`
       });
+    }
+
+    if (linkedPayments > 0 && force) {
+      await Payment.updateMany({ invoiceId: invoice._id }, { $set: { invoiceId: null, invoiceNumber: '' } });
     }
 
     await Invoice.findByIdAndDelete(req.params.id);
     res.json({ ok: true, message: `Invoice ${invoice.invoiceNumber} deleted successfully` });
   } catch (err) {
     res.status(500).json({ error: 'Failed to delete invoice', detail: err.message });
+  }
+});
+
+router.post('/invoices/bulk-delete', async (req, res) => {
+  try {
+    const { ids, deleteAll } = req.body;
+    let query = {};
+    if (deleteAll) {
+      query = {};
+    } else if (Array.isArray(ids) && ids.length) {
+      query = { _id: { $in: ids } };
+    } else {
+      return res.status(400).json({ error: 'No invoice IDs provided for deletion' });
+    }
+
+    const invoicesToDelete = await Invoice.find(query).select('_id invoiceNumber');
+    if (!invoicesToDelete.length) {
+      return res.json({ ok: true, deletedCount: 0, message: 'No invoices found to delete' });
+    }
+
+    const invoiceIds = invoicesToDelete.map(i => i._id);
+
+    // Unlink any payments tied to these invoices so payments ledger remains consistent
+    await Payment.updateMany(
+      { invoiceId: { $in: invoiceIds } },
+      { $set: { invoiceId: null, invoiceNumber: '' } }
+    );
+
+    const result = await Invoice.deleteMany({ _id: { $in: invoiceIds } });
+
+    res.json({
+      ok: true,
+      deletedCount: result.deletedCount,
+      message: `Successfully deleted ${result.deletedCount} invoice(s)`
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to bulk delete invoices', detail: err.message });
   }
 });
 
@@ -662,6 +704,71 @@ router.delete('/payments/:id', async (req, res) => {
     res.json({ ok: true, message: `Payment ${payment.paymentNumber} removed and balances restored` });
   } catch (err) {
     res.status(500).json({ error: 'Failed to delete payment', detail: err.message });
+  }
+});
+
+router.post('/payments/bulk-delete', async (req, res) => {
+  try {
+    const { ids, deleteAll } = req.body;
+    let query = {};
+    if (deleteAll) {
+      query = {};
+    } else if (Array.isArray(ids) && ids.length) {
+      query = { _id: { $in: ids } };
+    } else {
+      return res.status(400).json({ error: 'No payment IDs provided for deletion' });
+    }
+
+    const paymentsToDelete = await Payment.find(query);
+    if (!paymentsToDelete.length) {
+      return res.json({ ok: true, deletedCount: 0, message: 'No payments found to delete' });
+    }
+
+    // Revert invoice balances
+    const invoiceReversions = {};
+    for (const p of paymentsToDelete) {
+      if (p.invoiceId) {
+        const idStr = String(p.invoiceId);
+        invoiceReversions[idStr] = (invoiceReversions[idStr] || 0) + (p.amount || 0);
+      }
+    }
+
+    for (const [invId, totalPaidToRevert] of Object.entries(invoiceReversions)) {
+      const invoice = await Invoice.findById(invId);
+      if (invoice) {
+        invoice.amountPaid = Math.max(0, (invoice.amountPaid || 0) - totalPaidToRevert);
+        invoice.pendingAmount = Math.max(0, invoice.totalAmount - invoice.amountPaid);
+        invoice.syncStatus();
+        await invoice.save();
+      }
+    }
+
+    const result = await Payment.deleteMany(query);
+    res.json({
+      ok: true,
+      deletedCount: result.deletedCount,
+      message: `Successfully deleted ${result.deletedCount} payment(s) and restored invoice balances`
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to bulk delete payments', detail: err.message });
+  }
+});
+
+router.post('/clear-all', async (req, res) => {
+  try {
+    const [invResult, payResult] = await Promise.all([
+      Invoice.deleteMany({}),
+      Payment.deleteMany({})
+    ]);
+
+    res.json({
+      ok: true,
+      message: `Cleared all accounts data: ${invResult.deletedCount} invoice(s) and ${payResult.deletedCount} payment(s) removed.`,
+      invoicesDeleted: invResult.deletedCount,
+      paymentsDeleted: payResult.deletedCount
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to clear accounts data', detail: err.message });
   }
 });
 

@@ -138,6 +138,9 @@ async function renderOverviewTab(container) {
           <button class="btn ghost small" id="seedDemoAccountsBtn" title="Seed realistic demo data if needed">
             <span>⚡ Seed Demo Data</span>
           </button>
+          <button class="btn danger small" id="clearAllAccountsDataBtn" title="Permanently delete all invoices and payments">
+            <span>🗑️ Delete All Data</span>
+          </button>
           <button class="btn gold small" id="quickNewInvoiceBtn">
             <span>+ Create Invoice</span>
           </button>
@@ -389,6 +392,24 @@ async function renderOverviewTab(container) {
     };
   }
 
+  const clearAllBtn = document.getElementById('clearAllAccountsDataBtn');
+  if (clearAllBtn) {
+    clearAllBtn.onclick = async () => {
+      if (!confirm('⚠️ WARNING: Are you sure you want to delete ALL invoices and ALL payments in CI360 Accounts?\n\nThis will permanently wipe all transactions. Client billing profiles will remain intact.')) return;
+      try {
+        clearAllBtn.disabled = true;
+        clearAllBtn.textContent = 'Clearing…';
+        const res = await apiPost('/accounts/clear-all', {});
+        flashToast(res.message || 'Accounts data cleared successfully');
+        renderContent();
+      } catch (err) {
+        flashToast(err.message, true);
+        clearAllBtn.disabled = false;
+        clearAllBtn.innerHTML = '<span>🗑️ Delete All Data</span>';
+      }
+    };
+  }
+
   document.getElementById('viewAllReceivablesBtn').onclick = () => {
     currentTab = 'receivables';
     render();
@@ -488,13 +509,36 @@ async function renderInvoicesTab(container) {
         </div>
       </div>
 
+      <!-- Bulk Selection & Action Bar -->
+      <div class="card" style="padding:10px 16px;margin-bottom:12px;background:var(--bg-card);border:1px solid var(--border-sm);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+        <div style="display:flex;align-items:center;gap:12px">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600;font-size:13px;margin:0;user-select:none">
+            <input type="checkbox" id="selectAllInvoicesCb" style="width:17px;height:17px;cursor:pointer;margin:0">
+            <span>Select All</span>
+          </label>
+          <span id="invoicesSelectedCounter" style="font-size:12px;color:var(--text-3);padding:2px 8px;background:var(--bg-2);border-radius:12px;border:1px solid var(--border-sm)">0 of ${invoices.length} selected</span>
+          <button class="btn ghost small" id="invoicesDeselectAllBtn" style="display:none;padding:2px 8px;font-size:11px">Clear Selection</button>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <button class="btn danger small" id="deleteSelectedInvoicesBtn" style="display:none">
+            🗑️ Delete Selected (<span id="deleteInvoicesSelectedCount">0</span>)
+          </button>
+          <button class="btn ghost danger small" id="deleteAllInvoicesBtn" title="Permanently delete all invoices" ${invoices.length === 0 ? 'disabled' : ''}>
+            💥 Delete All Invoices (${invoices.length})
+          </button>
+        </div>
+      </div>
+
       <!-- Invoices Table -->
       <div class="card table-card" style="padding:0;overflow:hidden">
         <div class="table-wrapper">
           <table>
             <thead>
               <tr>
-                <th style="padding-left:22px">Invoice #</th>
+                <th style="width:36px;padding-left:16px;text-align:center">
+                  <input type="checkbox" id="thSelectAllInvoices" style="width:16px;height:16px;cursor:pointer;margin:0" title="Select All">
+                </th>
+                <th>Invoice #</th>
                 <th>Client</th>
                 <th>Type</th>
                 <th>Issue Date</th>
@@ -509,7 +553,10 @@ async function renderInvoicesTab(container) {
             <tbody>
               ${invoices.map(inv => `
                 <tr>
-                  <td style="padding-left:22px">
+                  <td style="width:36px;padding-left:16px;text-align:center">
+                    <input type="checkbox" class="invoice-select-cb" data-id="${inv._id}" data-num="${escapeHtml(inv.invoiceNumber)}" style="width:16px;height:16px;cursor:pointer;margin:0">
+                  </td>
+                  <td>
                     <strong style="font-family:var(--font-heading);color:var(--brand-600)">${escapeHtml(inv.invoiceNumber)}</strong>
                   </td>
                   <td><strong>${escapeHtml(inv.clientName)}</strong></td>
@@ -531,7 +578,7 @@ async function renderInvoicesTab(container) {
                     <button class="btn ghost small edit-invoice-btn" data-id="${inv._id}" title="Edit Invoice">✏️</button>
                     <button class="btn danger small delete-invoice-btn" data-id="${inv._id}" title="Delete Invoice">🗑️</button>
                   </td>
-                </tr>`).join('') || `<tr><td colspan="10"><div class="empty" style="padding:36px">No invoices match the current filters.</div></td></tr>`}
+                </tr>`).join('') || `<tr><td colspan="11"><div class="empty" style="padding:36px">No invoices match the current filters.</div></td></tr>`}
             </tbody>
           </table>
         </div>
@@ -562,6 +609,90 @@ async function renderInvoicesTab(container) {
   });
 
   document.getElementById('newInvoiceBtn').onclick = () => openCreateInvoiceModal();
+
+  // Bulk selection logic
+  const selectAllCb = document.getElementById('selectAllInvoicesCb');
+  const thSelectAllCb = document.getElementById('thSelectAllInvoices');
+  const deselectBtn = document.getElementById('invoicesDeselectAllBtn');
+  const counterSpan = document.getElementById('invoicesSelectedCounter');
+  const deleteSelectedBtn = document.getElementById('deleteSelectedInvoicesBtn');
+  const deleteSelectedCount = document.getElementById('deleteInvoicesSelectedCount');
+  const deleteAllBtn = document.getElementById('deleteAllInvoicesBtn');
+  const rowCheckboxes = container.querySelectorAll('.invoice-select-cb');
+
+  function updateInvoicesSelectionUI() {
+    const selected = Array.from(rowCheckboxes).filter(cb => cb.checked);
+    const count = selected.length;
+    if (counterSpan) counterSpan.textContent = `${count} of ${invoices.length} selected`;
+    if (deleteSelectedCount) deleteSelectedCount.textContent = count;
+
+    if (count > 0) {
+      if (deleteSelectedBtn) deleteSelectedBtn.style.display = 'inline-flex';
+      if (deselectBtn) deselectBtn.style.display = 'inline-flex';
+    } else {
+      if (deleteSelectedBtn) deleteSelectedBtn.style.display = 'none';
+      if (deselectBtn) deselectBtn.style.display = 'none';
+    }
+
+    const allChecked = rowCheckboxes.length > 0 && selected.length === rowCheckboxes.length;
+    if (selectAllCb) selectAllCb.checked = allChecked;
+    if (thSelectAllCb) thSelectAllCb.checked = allChecked;
+  }
+
+  function setAllInvoicesChecked(checked) {
+    rowCheckboxes.forEach(cb => { cb.checked = checked; });
+    updateInvoicesSelectionUI();
+  }
+
+  if (selectAllCb) selectAllCb.onchange = (e) => setAllInvoicesChecked(e.target.checked);
+  if (thSelectAllCb) thSelectAllCb.onchange = (e) => setAllInvoicesChecked(e.target.checked);
+  if (deselectBtn) deselectBtn.onclick = () => setAllInvoicesChecked(false);
+
+  rowCheckboxes.forEach(cb => {
+    cb.onchange = () => updateInvoicesSelectionUI();
+  });
+
+  if (deleteSelectedBtn) {
+    deleteSelectedBtn.onclick = async () => {
+      const selectedIds = Array.from(rowCheckboxes).filter(cb => cb.checked).map(cb => cb.dataset.id);
+      if (!selectedIds.length) return;
+      if (!confirm(`Are you sure you want to permanently delete the ${selectedIds.length} selected invoice(s)? This cannot be undone.`)) return;
+
+      try {
+        deleteSelectedBtn.disabled = true;
+        deleteSelectedBtn.textContent = 'Deleting…';
+        const res = await apiPost('/accounts/invoices/bulk-delete', { ids: selectedIds });
+        flashToast(res.message || `Deleted ${selectedIds.length} invoice(s)`);
+        renderContent();
+      } catch (err) {
+        flashToast(err.message, true);
+        deleteSelectedBtn.disabled = false;
+        updateInvoicesSelectionUI();
+      }
+    };
+  }
+
+  if (deleteAllBtn) {
+    deleteAllBtn.onclick = async () => {
+      if (!invoices.length) {
+        flashToast('No invoices to delete', true);
+        return;
+      }
+      if (!confirm(`⚠️ DANGER: Are you sure you want to delete ALL ${invoices.length} invoices?\n\nThis will permanently remove all invoice records and unlink their payment records. This cannot be undone.`)) return;
+      
+      try {
+        deleteAllBtn.disabled = true;
+        deleteAllBtn.textContent = 'Deleting all…';
+        const res = await apiPost('/accounts/invoices/bulk-delete', { deleteAll: true });
+        flashToast(res.message || 'All invoices have been deleted.');
+        renderContent();
+      } catch (err) {
+        flashToast(err.message, true);
+        deleteAllBtn.disabled = false;
+        deleteAllBtn.textContent = `💥 Delete All Invoices (${invoices.length})`;
+      }
+    };
+  }
 
   container.querySelectorAll('.view-invoice-btn').forEach(b => {
     b.onclick = () => openViewInvoiceModal(b.dataset.id);
@@ -1241,13 +1372,36 @@ async function renderPaymentsTab(container) {
         </div>
       </div>
 
+      <!-- Bulk Selection & Action Bar -->
+      <div class="card" style="padding:10px 16px;margin-bottom:12px;background:var(--bg-card);border:1px solid var(--border-sm);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+        <div style="display:flex;align-items:center;gap:12px">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600;font-size:13px;margin:0;user-select:none">
+            <input type="checkbox" id="selectAllPaymentsCb" style="width:17px;height:17px;cursor:pointer;margin:0">
+            <span>Select All</span>
+          </label>
+          <span id="paymentsSelectedCounter" style="font-size:12px;color:var(--text-3);padding:2px 8px;background:var(--bg-2);border-radius:12px;border:1px solid var(--border-sm)">0 of ${payments.length} selected</span>
+          <button class="btn ghost small" id="paymentsDeselectAllBtn" style="display:none;padding:2px 8px;font-size:11px">Clear Selection</button>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <button class="btn danger small" id="deleteSelectedPaymentsBtn" style="display:none">
+            🗑️ Delete Selected (<span id="deletePaymentsSelectedCount">0</span>)
+          </button>
+          <button class="btn ghost danger small" id="deleteAllPaymentsBtn" title="Permanently delete all payments" ${payments.length === 0 ? 'disabled' : ''}>
+            💥 Delete All Payments (${payments.length})
+          </button>
+        </div>
+      </div>
+
       <!-- Payments Table -->
       <div class="card table-card" style="padding:0;overflow:hidden">
         <div class="table-wrapper">
           <table>
             <thead>
               <tr>
-                <th style="padding-left:22px">Payment #</th>
+                <th style="width:36px;padding-left:16px;text-align:center">
+                  <input type="checkbox" id="thSelectAllPayments" style="width:16px;height:16px;cursor:pointer;margin:0" title="Select All">
+                </th>
+                <th>Payment #</th>
                 <th>Client</th>
                 <th>Invoice #</th>
                 <th>Date</th>
@@ -1261,7 +1415,10 @@ async function renderPaymentsTab(container) {
             <tbody>
               ${payments.map(p => `
                 <tr>
-                  <td style="padding-left:22px">
+                  <td style="width:36px;padding-left:16px;text-align:center">
+                    <input type="checkbox" class="payment-select-cb" data-id="${p._id}" data-num="${escapeHtml(p.paymentNumber)}" style="width:16px;height:16px;cursor:pointer;margin:0">
+                  </td>
+                  <td>
                     <strong style="font-family:var(--font-heading);color:var(--green-600)">${escapeHtml(p.paymentNumber)}</strong>
                   </td>
                   <td><strong>${escapeHtml(p.clientName)}</strong></td>
@@ -1282,7 +1439,7 @@ async function renderPaymentsTab(container) {
                       🗑️
                     </button>
                   </td>
-                </tr>`).join('') || `<tr><td colspan="9"><div class="empty" style="padding:36px">No payment records match the current filters.</div></td></tr>`}
+                </tr>`).join('') || `<tr><td colspan="10"><div class="empty" style="padding:36px">No payment records match the current filters.</div></td></tr>`}
             </tbody>
           </table>
         </div>
@@ -1313,6 +1470,90 @@ async function renderPaymentsTab(container) {
   });
 
   document.getElementById('newPaymentBtn').onclick = () => openRecordPaymentModal();
+
+  // Bulk selection logic for payments
+  const selectAllCb = document.getElementById('selectAllPaymentsCb');
+  const thSelectAllCb = document.getElementById('thSelectAllPayments');
+  const deselectBtn = document.getElementById('paymentsDeselectAllBtn');
+  const counterSpan = document.getElementById('paymentsSelectedCounter');
+  const deleteSelectedBtn = document.getElementById('deleteSelectedPaymentsBtn');
+  const deleteSelectedCount = document.getElementById('deletePaymentsSelectedCount');
+  const deleteAllBtn = document.getElementById('deleteAllPaymentsBtn');
+  const rowCheckboxes = container.querySelectorAll('.payment-select-cb');
+
+  function updatePaymentsSelectionUI() {
+    const selected = Array.from(rowCheckboxes).filter(cb => cb.checked);
+    const count = selected.length;
+    if (counterSpan) counterSpan.textContent = `${count} of ${payments.length} selected`;
+    if (deleteSelectedCount) deleteSelectedCount.textContent = count;
+
+    if (count > 0) {
+      if (deleteSelectedBtn) deleteSelectedBtn.style.display = 'inline-flex';
+      if (deselectBtn) deselectBtn.style.display = 'inline-flex';
+    } else {
+      if (deleteSelectedBtn) deleteSelectedBtn.style.display = 'none';
+      if (deselectBtn) deselectBtn.style.display = 'none';
+    }
+
+    const allChecked = rowCheckboxes.length > 0 && selected.length === rowCheckboxes.length;
+    if (selectAllCb) selectAllCb.checked = allChecked;
+    if (thSelectAllCb) thSelectAllCb.checked = allChecked;
+  }
+
+  function setAllPaymentsChecked(checked) {
+    rowCheckboxes.forEach(cb => { cb.checked = checked; });
+    updatePaymentsSelectionUI();
+  }
+
+  if (selectAllCb) selectAllCb.onchange = (e) => setAllPaymentsChecked(e.target.checked);
+  if (thSelectAllCb) thSelectAllCb.onchange = (e) => setAllPaymentsChecked(e.target.checked);
+  if (deselectBtn) deselectBtn.onclick = () => setAllPaymentsChecked(false);
+
+  rowCheckboxes.forEach(cb => {
+    cb.onchange = () => updatePaymentsSelectionUI();
+  });
+
+  if (deleteSelectedBtn) {
+    deleteSelectedBtn.onclick = async () => {
+      const selectedIds = Array.from(rowCheckboxes).filter(cb => cb.checked).map(cb => cb.dataset.id);
+      if (!selectedIds.length) return;
+      if (!confirm(`Are you sure you want to permanently delete the ${selectedIds.length} selected payment(s)? This will restore linked invoice balances.`)) return;
+
+      try {
+        deleteSelectedBtn.disabled = true;
+        deleteSelectedBtn.textContent = 'Deleting…';
+        const res = await apiPost('/accounts/payments/bulk-delete', { ids: selectedIds });
+        flashToast(res.message || `Deleted ${selectedIds.length} payment(s)`);
+        renderContent();
+      } catch (err) {
+        flashToast(err.message, true);
+        deleteSelectedBtn.disabled = false;
+        updatePaymentsSelectionUI();
+      }
+    };
+  }
+
+  if (deleteAllBtn) {
+    deleteAllBtn.onclick = async () => {
+      if (!payments.length) {
+        flashToast('No payments to delete', true);
+        return;
+      }
+      if (!confirm(`⚠️ DANGER: Are you sure you want to delete ALL ${payments.length} payments?\n\nThis will restore all invoice balances to pending. This cannot be undone.`)) return;
+      
+      try {
+        deleteAllBtn.disabled = true;
+        deleteAllBtn.textContent = 'Deleting all…';
+        const res = await apiPost('/accounts/payments/bulk-delete', { deleteAll: true });
+        flashToast(res.message || 'All payments have been deleted.');
+        renderContent();
+      } catch (err) {
+        flashToast(err.message, true);
+        deleteAllBtn.disabled = false;
+        deleteAllBtn.textContent = `💥 Delete All Payments (${payments.length})`;
+      }
+    };
+  }
 
   container.querySelectorAll('.delete-payment-btn').forEach(b => {
     b.onclick = async () => {
