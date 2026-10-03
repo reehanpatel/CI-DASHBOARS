@@ -11,8 +11,11 @@ router.use(verifyToken);
 router.get('/', async (req, res) => {
   const filter = {};
   if (req.user.role === 'client') {
-    if (!req.user.clientId) return res.json([]);
-    filter.clientId = req.user.clientId;
+    if (req.user.clientId) {
+      filter.$or = [{ clientId: req.user.clientId }, { createdBy: req.user._id }];
+    } else {
+      filter.createdBy = req.user._id;
+    }
   } else if (req.query.mine === 'true' && req.user.personnelId) {
     filter['assignments.personId'] = req.user.personnelId;
   }

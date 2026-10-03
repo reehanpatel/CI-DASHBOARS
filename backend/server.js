@@ -596,8 +596,11 @@ var require_jobs = __commonJS({
     router.get("/", async (req, res) => {
       const filter = {};
       if (req.user.role === "client") {
-        if (!req.user.clientId) return res.json([]);
-        filter.clientId = req.user.clientId;
+        if (req.user.clientId) {
+          filter.$or = [{ clientId: req.user.clientId }, { createdBy: req.user._id }];
+        } else {
+          filter.createdBy = req.user._id;
+        }
       } else if (req.query.mine === "true" && req.user.personnelId) {
         filter["assignments.personId"] = req.user.personnelId;
       }
@@ -1579,13 +1582,15 @@ var require_dashboard = __commonJS({
       });
     });
     router.get("/client", requireRole("client"), async (req, res) => {
-      if (!req.user.clientId) return res.status(400).json({ error: "This login is not linked to a client record. Ask your admin to link it." });
       const period = req.query.period || "month";
       const { from, to } = periodRange(period);
+      const jobFilter = req.user.clientId
+        ? { $or: [{ clientId: req.user.clientId }, { createdBy: req.user._id }] }
+        : { createdBy: req.user._id };
       const [allJobs, client, rosterEntries] = await Promise.all([
-        Job.find({ clientId: req.user.clientId }).lean(),
-        Client.findById(req.user.clientId).lean(),
-        Roster.find({ clientId: req.user.clientId }).lean()
+        Job.find(jobFilter).lean(),
+        req.user.clientId ? Client.findById(req.user.clientId).lean() : null,
+        req.user.clientId ? Roster.find({ clientId: req.user.clientId }).lean() : []
       ]);
       const jobs = filterJobsInRange(allJobs, from, to);
       let value = 0, hours = 0;

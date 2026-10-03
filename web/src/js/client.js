@@ -18,10 +18,11 @@ async function boot(){
 }
 
 const CLIENT_TABS = [
-  { key:'logjob', label:'Log a Job',        icon:'➕' },
-  { key:'jobs',   label:'Work Delivered',    icon:'📦' },
-  { key:'billing',label:'Billing & Invoices',icon:'💳' },
-  { key:'team',   label:'Our Team',          icon:'👥' }
+  { key:'logjob',    label:'Log a Job',         icon:'➕' },
+  { key:'jobs',      label:'All Jobs Logged',   icon:'📋' },
+  { key:'delivered', label:'Work Delivered',    icon:'📦' },
+  { key:'billing',   label:'Billing & Invoices',icon:'💳' },
+  { key:'team',      label:'Our Team',          icon:'👥' }
 ];
 
 function render(){
@@ -46,9 +47,10 @@ async function renderTab(){
   c.innerHTML = renderSkeletonCards(3);
   try{
     const d = await apiGet('/dashboard/client?period=' + ui.period);
-    if(ui.tab==='jobs')      tabJobs(c, d);
-    else if(ui.tab==='billing') await tabBilling(c);
-    else if(ui.tab==='team') tabTeam(c, d);
+    if(ui.tab==='jobs')           tabJobs(c, d);
+    else if(ui.tab==='delivered') tabDelivered(c, d);
+    else if(ui.tab==='billing')   await tabBilling(c);
+    else if(ui.tab==='team')      tabTeam(c, d);
   }catch(err){ c.innerHTML = renderEmptyState('Something went wrong', err.message, '⚠️'); }
 }
 
@@ -191,110 +193,106 @@ function tabLogJob(c){
   };
 }
 
-/* ════════════════════════════ WORK DELIVERED ═══════════════════ */
-function tabJobs(c, d){
-  const jobs = d.jobs || [];
-  const priorityBadges = { Medium:'gray', High:'amber', Urgent:'red' };
+/* ════════════════════════════ CLIENT JOBS & DELIVERIES ═══════════════════ */
+let jobsFilter = 'all';
+let jobsSearch = '';
 
-  if(jobs.length === 0){
-    c.innerHTML = `
-      <div class="block">
-        <h2>Work Delivered <span class="eyebrow">No work logged yet</span></h2>
-        ${renderEmptyState('Nothing logged for your account yet', 'Log a new job to start tracking work delivered.', '📦', `<button class="btn gold" onclick="ui.tab='logjob';render()">Log Your First Job</button>`)}
-      </div>`;
-    return;
-  }
+function renderClientJobCard(j, priorityBadges) {
+  const isDone = j.status === 'Completed' || (j.clientApproval && j.clientApproval.status === 'Approved');
+  const isRev = j.clientApproval && j.clientApproval.status === 'Revision Requested';
+  const priBadge = priorityBadges[j.priority || 'Medium'] || 'gray';
+  const isMine = user && j.createdBy && (
+    (typeof j.createdBy === 'object' && String(j.createdBy._id) === String(user._id || user.id)) ||
+    String(j.createdBy) === String(user._id || user.id)
+  );
 
-  c.innerHTML = `
-    <div class="block">
-      <h2>Work Delivered <span class="eyebrow">${jobs.length} entries, all time</span></h2>
-      <div style="display:flex;flex-direction:column;gap:14px">
-        ${jobs.map(j=>{
-          const isDone = j.status==='Completed';
-          const priBadge = priorityBadges[j.priority||'Medium']||'gray';
-          return `
-          <div class="card" style="border-left:4px solid ${isDone?'var(--green-500)':'var(--amber-500)'};padding:18px 22px">
-            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:10px">
+  return `
+    <div class="card client-job-card" data-id="${j._id}" style="border-left:4px solid ${isDone ? 'var(--green-500)' : isRev ? 'var(--amber-500)' : 'var(--brand-500)'};padding:18px 22px">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:10px">
+        <div>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px">
+            <span style="font-size:15px;font-weight:800;color:var(--text-1)">${escapeHtml(j.title || 'Untitled Job')}</span>
+            ${isMine ? `<span class="badge blue" style="font-size:10.5px;padding:2px 8px">👤 Logged by You</span>` : ''}
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px">
+            <span class="badge ${isDone ? 'green' : isRev ? 'amber' : 'gold'}">
+              ${isDone ? '✓ Completed' : isRev ? '↺ Revision Requested' : '⏳ In Progress'}
+            </span>
+            <span class="badge ${priBadge}">${escapeHtml(j.priority || 'Medium')}</span>
+            ${(j.serviceNames || []).map(s => `<span class="badge gray">${escapeHtml(s)}</span>`).join('')}
+          </div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div style="font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.7px;color:var(--text-4)">Start Date</div>
+          <div style="font-size:13px;font-weight:700;color:var(--text-1)">${fmtDate(j.date)}</div>
+          ${j.completionDate ? `<div style="font-size:11px;color:var(--text-3);margin-top:2px">Due: ${fmtDate(j.completionDate)}</div>` : ''}
+        </div>
+      </div>
+      ${j.description ? `<div style="font-size:12.5px;color:var(--text-3);line-height:1.5;padding-top:10px;border-top:1px solid var(--border-xs)">${escapeHtml(j.description)}</div>` : ''}
+      ${j.preferredPersonName ? `<div style="margin-top:8px;font-size:12px;color:var(--text-4)">Assigned to: <strong style="color:var(--text-2)">${escapeHtml(j.preferredPersonName)}</strong></div>` : ''}
+      ${isDone && j.completionDate ? `<div style="margin-top:6px;font-size:12px;color:var(--s-green-text)">✓ Completed: ${fmtDate(j.completionDate)}</div>` : ''}
+
+      <!-- Brief Attachments & Completed Deliverables -->
+      ${(j.attachments && j.attachments.length) ? `
+        <div data-attachments="${encodeURIComponent(JSON.stringify(j.attachments))}">
+          ${renderAttachmentChips(j.attachments, { title: 'Initial Briefs & Assets' })}
+        </div>
+      ` : ''}
+
+      ${(j.deliverables && j.deliverables.length) ? `
+        <div data-attachments="${encodeURIComponent(JSON.stringify(j.deliverables))}">
+          ${renderAttachmentChips(j.deliverables, { title: 'Finished Deliverables & Artifacts' })}
+        </div>
+      ` : ''}
+
+      <!-- Client Deliverable Approval / Revision Status Box -->
+      ${(j.deliverables && j.deliverables.length) ? `
+        ${j.clientApproval && j.clientApproval.status === 'Approved' ? `
+          <div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:var(--r-sm);padding:10px 14px;margin-top:12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+            <div style="display:flex;align-items:center;gap:8px">
+              <span style="font-size:16px">✅</span>
               <div>
-                <div style="font-size:15px;font-weight:800;color:var(--text-1);margin-bottom:6px">${escapeHtml(j.title||'Untitled Job')}</div>
-                <div style="display:flex;flex-wrap:wrap;gap:6px">
-                  <span class="badge ${isDone?'green':'amber'}">${isDone?'✓ Completed':'⏳ In Progress'}</span>
-                  <span class="badge ${priBadge}">${escapeHtml(j.priority||'Medium')}</span>
-                  ${(j.serviceNames||[]).map(s=>`<span class="badge gray">${escapeHtml(s)}</span>`).join('')}
-                </div>
-              </div>
-              <div style="text-align:right;flex-shrink:0">
-                <div style="font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.7px;color:var(--text-4)">Start</div>
-                <div style="font-size:13px;font-weight:700;color:var(--text-1)">${fmtDate(j.date)}</div>
+                <div style="font-size:13px;font-weight:700;color:var(--green-500)">Approved &amp; Signed Off</div>
+                <div style="font-size:11.5px;color:var(--text-3)">Approved by ${escapeHtml(j.clientApproval.approvedBy || 'Client')} on ${fmtDate(j.clientApproval.approvedAt || j.completionDate)}</div>
               </div>
             </div>
-            ${j.description ? `<div style="font-size:12.5px;color:var(--text-3);line-height:1.5;padding-top:10px;border-top:1px solid var(--border-xs)">${escapeHtml(j.description)}</div>` : ''}
-            ${j.preferredPersonName ? `<div style="margin-top:8px;font-size:12px;color:var(--text-4)">Assigned to: <strong style="color:var(--text-2)">${escapeHtml(j.preferredPersonName)}</strong></div>` : ''}
-            ${j.completionDate ? `<div style="margin-top:6px;font-size:12px;color:var(--s-green-text)">✓ Completed: ${fmtDate(j.completionDate)}</div>` : ''}
-
-            <!-- Brief Attachments & Completed Deliverables -->
-            ${(j.attachments && j.attachments.length) ? `
-              <div data-attachments="${encodeURIComponent(JSON.stringify(j.attachments))}">
-                ${renderAttachmentChips(j.attachments, { title: 'Initial Briefs & Assets' })}
+            ${j.clientApproval.rating ? `<span class="badge gold" style="font-size:12px">${'★'.repeat(j.clientApproval.rating)} ${j.clientApproval.rating}/5</span>` : ''}
+          </div>
+        ` : j.clientApproval && j.clientApproval.status === 'Revision Requested' ? `
+          <div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-radius:var(--r-sm);padding:10px 14px;margin-top:12px">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px">
+              <div style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:var(--amber-500)">
+                <span>↺</span> Revision Requested
               </div>
-            ` : ''}
+              <span style="font-size:11px;color:var(--text-4)">${fmtDate((j.clientApproval.revisions || []).slice(-1)[0]?.requestedAt || j.updatedAt)}</span>
+            </div>
+            <div style="font-size:12.5px;color:var(--text-2);background:var(--bg-surface);border-radius:var(--r-xs);padding:8px 10px;margin-top:6px;line-height:1.4">
+              "${escapeHtml(j.clientApproval.feedback || 'Revision requested')}"
+            </div>
+          </div>
+        ` : `
+          <div style="background:linear-gradient(135deg,rgba(99,102,241,0.08) 0%,rgba(139,92,246,0.04) 100%);border:1px solid rgba(99,102,241,0.25);border-radius:var(--r-sm);padding:12px 14px;margin-top:12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+            <div>
+              <div style="font-size:13px;font-weight:700;color:var(--brand-500)">Deliverables Ready for Review</div>
+              <div style="font-size:11.5px;color:var(--text-3)">Please inspect the attached files above and approve or request revision.</div>
+            </div>
+            <div style="display:flex;gap:8px">
+              <button type="button" class="btn ghost small client-rev-btn" data-id="${j._id}" data-title="${escapeHtml(j.title || 'Job')}" style="border-color:rgba(245,158,11,0.4);color:var(--amber-500)">
+                ↺ Request Revision
+              </button>
+              <button type="button" class="btn gold small client-app-btn" data-id="${j._id}" data-title="${escapeHtml(j.title || 'Job')}">
+                ✓ Approve &amp; Sign Off
+              </button>
+            </div>
+          </div>
+        `}
+      ` : ''}
 
-            ${(j.deliverables && j.deliverables.length) ? `
-              <div data-attachments="${encodeURIComponent(JSON.stringify(j.deliverables))}">
-                ${renderAttachmentChips(j.deliverables, { title: 'Finished Deliverables & Artifacts' })}
-              </div>
-            ` : ''}
-
-            <!-- Client Deliverable Approval / Revision Status Box -->
-            ${(j.deliverables && j.deliverables.length) ? `
-              ${j.clientApproval && j.clientApproval.status === 'Approved' ? `
-                <div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:var(--r-sm);padding:10px 14px;margin-top:12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
-                  <div style="display:flex;align-items:center;gap:8px">
-                    <span style="font-size:16px">✅</span>
-                    <div>
-                      <div style="font-size:13px;font-weight:700;color:var(--green-500)">Approved &amp; Signed Off</div>
-                      <div style="font-size:11.5px;color:var(--text-3)">Approved by ${escapeHtml(j.clientApproval.approvedBy || 'Client')} on ${fmtDate(j.clientApproval.approvedAt || j.completionDate)}</div>
-                    </div>
-                  </div>
-                  ${j.clientApproval.rating ? `<span class="badge gold" style="font-size:12px">${'★'.repeat(j.clientApproval.rating)} ${j.clientApproval.rating}/5</span>` : ''}
-                </div>
-              ` : j.clientApproval && j.clientApproval.status === 'Revision Requested' ? `
-                <div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-radius:var(--r-sm);padding:10px 14px;margin-top:12px">
-                  <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px">
-                    <div style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:var(--amber-500)">
-                      <span>↺</span> Revision Requested
-                    </div>
-                    <span style="font-size:11px;color:var(--text-4)">${fmtDate((j.clientApproval.revisions || []).slice(-1)[0]?.requestedAt || j.updatedAt)}</span>
-                  </div>
-                  <div style="font-size:12.5px;color:var(--text-2);background:var(--bg-surface);border-radius:var(--r-xs);padding:8px 10px;margin-top:6px;line-height:1.4">
-                    "${escapeHtml(j.clientApproval.feedback || 'Revision requested')}"
-                  </div>
-                </div>
-              ` : `
-                <div style="background:linear-gradient(135deg,rgba(99,102,241,0.08) 0%,rgba(139,92,246,0.04) 100%);border:1px solid rgba(99,102,241,0.25);border-radius:var(--r-sm);padding:12px 14px;margin-top:12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
-                  <div>
-                    <div style="font-size:13px;font-weight:700;color:var(--brand-500)">Deliverables Ready for Review</div>
-                    <div style="font-size:11.5px;color:var(--text-3)">Please inspect the attached files above and approve or request revision.</div>
-                  </div>
-                  <div style="display:flex;gap:8px">
-                    <button type="button" class="btn ghost small client-rev-btn" data-id="${j._id}" data-title="${escapeHtml(j.title || 'Job')}" style="border-color:rgba(245,158,11,0.4);color:var(--amber-500)">
-                      ↺ Request Revision
-                    </button>
-                    <button type="button" class="btn gold small client-app-btn" data-id="${j._id}" data-title="${escapeHtml(j.title || 'Job')}">
-                      ✓ Approve &amp; Sign Off
-                    </button>
-                  </div>
-                </div>
-              `}
-            ` : ''}
-
-            ${renderSupportTicketSection(j._id, false)}
-          </div>`;
-        }).join('')}
-      </div>
+      ${renderSupportTicketSection(j._id, false)}
     </div>`;
+}
 
-  // Bind Approval & Revision Modal Buttons
+function bindJobCardActions(jobs) {
   document.querySelectorAll('.client-app-btn').forEach(btn => {
     btn.onclick = () => openClientApproveModal(btn.dataset.id, btn.dataset.title, () => renderTab());
   });
@@ -303,8 +301,174 @@ function tabJobs(c, d){
     btn.onclick = () => openClientRevisionModal(btn.dataset.id, btn.dataset.title, () => renderTab());
   });
 
-  // Bind ticket interactions for each job
   jobs.forEach(j => bindSupportTicketSection(j._id, false));
+}
+
+function tabJobs(c, d){
+  const allJobs = d.jobs || [];
+  const priorityBadges = { Medium:'gray', High:'amber', Urgent:'red' };
+
+  if(allJobs.length === 0){
+    c.innerHTML = `
+      <div class="block">
+        <h2>All Jobs Logged <span class="eyebrow">No jobs logged yet</span></h2>
+        ${renderEmptyState('No jobs logged yet', 'Log your first job to request projects, design, campaigns, or services from our team.', '📋', `<button class="btn gold" onclick="ui.tab='logjob';render()">➕ Log Your First Job</button>`)}
+      </div>`;
+    return;
+  }
+
+  function filterList(){
+    let list = allJobs;
+    if(jobsFilter === 'inprogress'){
+      list = list.filter(j => j.status !== 'Completed' && (!j.clientApproval || j.clientApproval.status !== 'Approved'));
+    } else if(jobsFilter === 'completed'){
+      list = list.filter(j => j.status === 'Completed' || (j.clientApproval && j.clientApproval.status === 'Approved'));
+    } else if(jobsFilter === 'revision'){
+      list = list.filter(j => j.clientApproval && j.clientApproval.status === 'Revision Requested');
+    }
+    if(jobsSearch){
+      const q = jobsSearch.toLowerCase();
+      list = list.filter(j => 
+        (j.title||'').toLowerCase().includes(q) || 
+        (j.description||'').toLowerCase().includes(q) || 
+        (j.serviceNames||[]).some(s=>s.toLowerCase().includes(q)) ||
+        (j.preferredPersonName||'').toLowerCase().includes(q)
+      );
+    }
+    return list;
+  }
+
+  const inProgCount = allJobs.filter(j => j.status !== 'Completed' && (!j.clientApproval || j.clientApproval.status !== 'Approved')).length;
+  const compCount = allJobs.filter(j => j.status === 'Completed' || (j.clientApproval && j.clientApproval.status === 'Approved')).length;
+  const revCount = allJobs.filter(j => j.clientApproval && j.clientApproval.status === 'Revision Requested').length;
+
+  function renderView(){
+    const filteredJobs = filterList();
+
+    c.innerHTML = `
+      <div class="block">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:18px">
+          <div>
+            <h2 style="margin-bottom:4px">All Jobs Logged <span class="eyebrow">${allJobs.length} total entries</span></h2>
+            <div style="font-size:12.5px;color:var(--text-3)">Track all projects and requests submitted by your account</div>
+          </div>
+          <button class="btn gold" type="button" id="tabJobsLogNewBtn" style="display:inline-flex;align-items:center;gap:6px">
+            <span>➕</span> Log a New Job
+          </button>
+        </div>
+
+        <!-- Metric Badges Row -->
+        <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(140px, 1fr));gap:10px;margin-bottom:16px">
+          <div class="card" style="padding:12px 14px;text-align:center">
+            <div style="font-size:11px;font-weight:700;color:var(--text-4);text-transform:uppercase;letter-spacing:0.5px">Total Logged</div>
+            <div style="font-size:22px;font-weight:800;color:var(--text-1);margin-top:2px">${allJobs.length}</div>
+          </div>
+          <div class="card" style="padding:12px 14px;text-align:center">
+            <div style="font-size:11px;font-weight:700;color:var(--amber-500);text-transform:uppercase;letter-spacing:0.5px">In Progress</div>
+            <div style="font-size:22px;font-weight:800;color:var(--amber-500);margin-top:2px">${inProgCount}</div>
+          </div>
+          <div class="card" style="padding:12px 14px;text-align:center">
+            <div style="font-size:11px;font-weight:700;color:var(--green-500);text-transform:uppercase;letter-spacing:0.5px">Completed</div>
+            <div style="font-size:22px;font-weight:800;color:var(--green-500);margin-top:2px">${compCount}</div>
+          </div>
+          ${revCount > 0 ? `
+          <div class="card" style="padding:12px 14px;text-align:center">
+            <div style="font-size:11px;font-weight:700;color:var(--red-500);text-transform:uppercase;letter-spacing:0.5px">Revisions</div>
+            <div style="font-size:22px;font-weight:800;color:var(--red-500);margin-top:2px">${revCount}</div>
+          </div>` : ''}
+        </div>
+
+        <!-- Filter & Search Bar -->
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px;background:var(--bg-surface);padding:10px 14px;border-radius:var(--r-sm);border:1px solid var(--border-xs)">
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <button type="button" class="btn ${jobsFilter==='all'?'primary':'ghost'} small filter-tab-btn" data-f="all">All (${allJobs.length})</button>
+            <button type="button" class="btn ${jobsFilter==='inprogress'?'primary':'ghost'} small filter-tab-btn" data-f="inprogress">In Progress (${inProgCount})</button>
+            <button type="button" class="btn ${jobsFilter==='completed'?'primary':'ghost'} small filter-tab-btn" data-f="completed">Completed (${compCount})</button>
+            ${revCount > 0 ? `<button type="button" class="btn ${jobsFilter==='revision'?'primary':'ghost'} small filter-tab-btn" data-f="revision">Revisions (${revCount})</button>` : ''}
+          </div>
+          <div style="flex:1;max-width:280px;min-width:180px">
+            <input type="text" id="clientJobSearchInput" value="${escapeHtml(jobsSearch)}" placeholder="Search jobs…" style="padding:6px 12px;font-size:12.5px;width:100%;border-radius:var(--r-xs)">
+          </div>
+        </div>
+
+        <!-- Jobs Listing -->
+        <div style="display:flex;flex-direction:column;gap:14px">
+          ${filteredJobs.length === 0 ? `
+            <div class="card empty" style="padding:32px 16px;text-align:center;font-size:13px;color:var(--text-4)">
+              No matching jobs found ${jobsSearch ? `for "${escapeHtml(jobsSearch)}"` : ''}
+            </div>
+          ` : filteredJobs.map(j => renderClientJobCard(j, priorityBadges)).join('')}
+        </div>
+      </div>`;
+
+    // Bind event handlers
+    const logNewBtn = document.getElementById('tabJobsLogNewBtn');
+    if(logNewBtn) logNewBtn.onclick = () => { ui.tab = 'logjob'; render(); };
+
+    c.querySelectorAll('.filter-tab-btn').forEach(btn => {
+      btn.onclick = () => {
+        jobsFilter = btn.dataset.f;
+        renderView();
+      };
+    });
+
+    const searchInput = document.getElementById('clientJobSearchInput');
+    if(searchInput){
+      searchInput.oninput = (e) => {
+        jobsSearch = e.target.value.trim();
+        renderView();
+        const freshInput = document.getElementById('clientJobSearchInput');
+        if(freshInput){
+          freshInput.focus();
+          freshInput.selectionStart = freshInput.selectionEnd = freshInput.value.length;
+        }
+      };
+    }
+
+    bindJobCardActions(filteredJobs);
+  }
+
+  renderView();
+}
+
+function tabDelivered(c, d){
+  const allJobs = d.jobs || [];
+  const deliveredJobs = allJobs.filter(j => (j.deliverables && j.deliverables.length > 0) || j.status === 'Completed' || (j.clientApproval && j.clientApproval.status === 'Approved'));
+  const priorityBadges = { Medium:'gray', High:'amber', Urgent:'red' };
+
+  if(deliveredJobs.length === 0){
+    c.innerHTML = `
+      <div class="block">
+        <h2>Work Delivered <span class="eyebrow">No delivered work yet</span></h2>
+        ${renderEmptyState('No completed deliverables yet', 'When the team uploads final deliverables and marks work complete, you can review and sign off on them here.', '📦', `<button class="btn ghost" onclick="ui.tab='jobs';render()">View All Jobs Logged</button>`)}
+      </div>`;
+    return;
+  }
+
+  const readyForReviewCount = deliveredJobs.filter(j => j.deliverables && j.deliverables.length && (!j.clientApproval || j.clientApproval.status === 'Pending')).length;
+
+  c.innerHTML = `
+    <div class="block">
+      <div style="margin-bottom:18px">
+        <h2 style="margin-bottom:4px">Work Delivered <span class="eyebrow">${deliveredJobs.length} completed deliverables</span></h2>
+        <div style="font-size:12.5px;color:var(--text-3)">Review deliverable files, approve completed projects, or request revisions</div>
+      </div>
+
+      ${readyForReviewCount > 0 ? `
+        <div style="background:linear-gradient(135deg,rgba(99,102,241,0.12),rgba(139,92,246,0.06));border:1px solid rgba(99,102,241,0.3);border-radius:var(--r-sm);padding:14px 18px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+          <div>
+            <div style="font-size:14px;font-weight:700;color:var(--brand-500)">🔔 ${readyForReviewCount} Deliverable${readyForReviewCount>1?'s':''} Waiting for Your Approval</div>
+            <div style="font-size:12px;color:var(--text-3);margin-top:2px">Please inspect the deliverables below and click Approve or Request Revision.</div>
+          </div>
+        </div>
+      ` : ''}
+
+      <div style="display:flex;flex-direction:column;gap:14px">
+        ${deliveredJobs.map(j => renderClientJobCard(j, priorityBadges)).join('')}
+      </div>
+    </div>`;
+
+  bindJobCardActions(deliveredJobs);
 }
 
 function openClientApproveModal(jobId, jobTitle, onDone) {

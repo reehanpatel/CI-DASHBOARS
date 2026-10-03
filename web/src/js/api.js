@@ -443,7 +443,6 @@ export function renderNotificationBell(){
             <span id="notifUnreadBadge" class="notif-header-count" style="display:none"></span>
           </div>
           <div class="notif-header-actions">
-            <button id="testNotifBtn" type="button" class="btn ghost small notif-action-btn" title="Test notification delivery on this phone/browser">🧪 Test</button>
             <button id="markAllReadBtn" type="button" class="btn ghost small notif-action-btn">Mark Read</button>
             <button id="clearNotifBtn" type="button" class="btn ghost small notif-action-btn">Clear</button>
             <button id="notifCloseBtn" type="button" class="notif-mobile-close" aria-label="Close notifications">✕</button>
@@ -486,7 +485,6 @@ export function initNotificationBell(){
   const list      = document.getElementById('notifList');
   const clearBtn  = document.getElementById('clearNotifBtn');
   const markReadBtn = document.getElementById('markAllReadBtn');
-  const testNotifBtn = document.getElementById('testNotifBtn');
   const notifEnableBtn = document.getElementById('notifEnableBtn');
   const notifDismissBannerBtn = document.getElementById('notifDismissBannerBtn');
   const permBanner = document.getElementById('notifPermissionBanner');
@@ -697,44 +695,6 @@ export function initNotificationBell(){
     }
   });
 
-  // Test Notification Button
-  if(testNotifBtn){
-    testNotifBtn.onclick = async (e) => {
-      e.stopPropagation();
-      if('Notification' in window && Notification.permission !== 'granted'){
-        const granted = await requestNotificationPermission();
-        if(!granted) return;
-      }
-      try{
-        testNotifBtn.disabled = true;
-        testNotifBtn.textContent = '…';
-        const res = await apiPost('/notifications/test', {});
-        const notif = res.notification || {
-          title: '🔔 CI360 Alert Test',
-          message: `Test alert delivered at ${new Date().toLocaleTimeString()}!`
-        };
-        await triggerSystemNotification({
-          title: notif.title,
-          message: notif.message,
-          type: 'test_alert',
-          id: notif._id || Date.now()
-        });
-        flashToast('✓ Test notification delivered to your device!');
-        await fetchNotifications();
-      }catch(err){
-        // Fallback test notification if backend endpoint is unavailable
-        await triggerSystemNotification({
-          title: '🔔 CI360 Alert Test',
-          message: `Local test notification delivered at ${new Date().toLocaleTimeString()}!`,
-          id: 'ci360-test-' + Date.now()
-        });
-        flashToast('✓ Local test notification delivered!');
-      }finally{
-        testNotifBtn.disabled = false;
-        testNotifBtn.textContent = '🧪 Test';
-      }
-    };
-  }
 
   // Filter chips
   dropdown.querySelectorAll('.notif-filter-btn').forEach(btn => {
@@ -970,9 +930,15 @@ export function renderAppShell({ user, currentRole, activeTab, tabs, title, subt
       },
       {
         key: 'jobs',
+        label: 'All Jobs',
+        iconSvg: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>`,
+        active: activeTab === 'jobs'
+      },
+      {
+        key: 'delivered',
         label: 'Delivered',
         iconSvg: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>`,
-        active: activeTab === 'jobs'
+        active: activeTab === 'delivered'
       },
       {
         key: 'team',
@@ -984,7 +950,7 @@ export function renderAppShell({ user, currentRole, activeTab, tabs, title, subt
         key: '__more__',
         label: 'More',
         iconSvg: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/><circle cx="5" cy="12" r="1.5"/></svg>`,
-        active: !['logjob', 'jobs', 'team'].includes(activeTab),
+        active: !['logjob', 'jobs', 'delivered', 'team'].includes(activeTab),
         isMore: true
       }
     ];
@@ -1036,20 +1002,7 @@ export function renderAppShell({ user, currentRole, activeTab, tabs, title, subt
             </div>
 
             <div class="topbar-breadcrumb-wrap">
-              <div class="topbar-breadcrumbs">
-                <span class="topbar-crumb-app">
-                  <span class="status-indicator-dot"></span>
-                  CI360
-                </span>
-                <span class="topbar-crumb-sep">/</span>
-                <span class="topbar-crumb-portal">${escapeHtml(roleBadge)}</span>
-                <span class="topbar-crumb-sep">/</span>
-                <span class="topbar-crumb-active">${escapeHtml(pageTitle)}</span>
-              </div>
-              <div class="topbar-title-row">
-                <h1 class="page-heading-title">${escapeHtml(pageTitle)}</h1>
-                ${subtitle ? `<span class="topbar-subtitle-pill" title="${escapeHtml(subtitle)}">${escapeHtml(subtitle)}</span>` : ''}
-              </div>
+              <h1 class="page-heading-title">${escapeHtml(pageTitle)}</h1>
             </div>
           </div>
 
