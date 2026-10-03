@@ -3,6 +3,7 @@ const User = require('../models/User');
 const Personnel = require('../models/Personnel');
 const Service = require('../models/Service');
 const Client = require('../models/Client');
+const { sendPushToUsers } = require('./webpush');
 
 // Helper to filter out duplicates: only insert if no unread notification exists for this user & entity & type
 async function filterDuplicateNotifications(docs, entityField, entityId) {
@@ -76,6 +77,12 @@ async function createNotificationsForJob({ type, title, message, job, actorId, a
 
     if (deduplicatedDocs.length) {
       await Notification.insertMany(deduplicatedDocs);
+      sendPushToUsers(deduplicatedDocs.map(d => d.userId), {
+        title,
+        message,
+        type: type || 'job_updated',
+        url: '/admin'
+      }).catch(e => console.warn('Push error:', e.message));
     }
     recordSyncUpdate('jobs');
   } catch (err) {
@@ -123,6 +130,12 @@ async function createNotificationForTarget({ type, title, message, target, actor
 
     if (deduplicatedDocs.length) {
       await Notification.insertMany(deduplicatedDocs);
+      sendPushToUsers(deduplicatedDocs.map(d => d.userId), {
+        title,
+        message,
+        type: type || 'target_updated',
+        url: '/employee'
+      }).catch(e => console.warn('Push error:', e.message));
     }
   } catch (err) {
     console.error('Error creating target notifications:', err.message);
@@ -161,6 +174,12 @@ async function createNotificationForTicket({ type, title, message, ticket, actor
 
     if (deduplicatedDocs.length) {
       await Notification.insertMany(deduplicatedDocs);
+      sendPushToUsers(deduplicatedDocs.map(d => d.userId), {
+        title,
+        message,
+        type: type || 'ticket_created',
+        url: '/admin'
+      }).catch(e => console.warn('Push error:', e.message));
     }
   } catch (err) {
     console.error('Error creating ticket notifications:', err.message);
@@ -222,6 +241,12 @@ async function createNotificationForTask({ type, title, message, task, actorId, 
 
     if (deduplicatedDocs.length) {
       await Notification.insertMany(deduplicatedDocs);
+      sendPushToUsers(deduplicatedDocs.map(d => d.userId), {
+        title,
+        message,
+        type: type || 'task_created',
+        url: '/employee'
+      }).catch(e => console.warn('Push error:', e.message));
     }
     recordSyncUpdate('tasks');
   } catch (err) {
@@ -270,6 +295,12 @@ async function createNotificationForInvoice({ type, title, message, invoice, act
     const deduplicatedDocs = await filterDuplicateNotifications(docs, 'invoiceId', invoice._id);
     if (deduplicatedDocs.length) {
       await Notification.insertMany(deduplicatedDocs);
+      sendPushToUsers(deduplicatedDocs.map(d => d.userId), {
+        title,
+        message,
+        type: type || 'invoice_issued',
+        url: '/accounts'
+      }).catch(e => console.warn('Push error:', e.message));
     }
     recordSyncUpdate('invoices');
   } catch (err) {

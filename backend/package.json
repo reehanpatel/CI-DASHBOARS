@@ -1,6 +1,6 @@
 {
   "name": "ci360-backend",
-  "version": "1.5.2",
+  "version": "1.5.3",
   "description": "CI360 Productivity Intelligence - Express & MongoDB Backend API",
   "main": "server.js",
   "scripts": {
@@ -16,7 +16,8 @@
     "express": "^4.19.2",
     "jsonwebtoken": "^9.0.2",
     "mongodb": "^6.0.0",
-    "mongoose": "^8.5.0"
+    "mongoose": "^8.5.0",
+    "web-push": "^3.6.7"
   },
   "devDependencies": {
     "mongodb-memory-server": "^11.2.0",

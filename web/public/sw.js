@@ -49,9 +49,10 @@ self.addEventListener('push', (event) => {
     body: data.message || data.body || 'You have a new update in CI360.',
     icon: '/logo.png',
     badge: '/logo.png',
-    tag: data.tag || 'ci360-push-' + Date.now(),
-    renotify: false,
-    vibrate: [150, 80, 150],
+    tag: data.tag || ('ci360-push-' + Date.now()),
+    renotify: true,
+    requireInteraction: false,
+    vibrate: [200, 100, 200, 100, 200],
     data: {
       url: data.url || '/'
     }

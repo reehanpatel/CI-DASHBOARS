@@ -2104,4 +2104,12 @@ app.get("*", (req, res) => {
 });
 
 var PORT = process.env.PORT || 4e3;
-app.listen(PORT, () => console.log(`CI360 backend server running on http://localhost:${PORT}`));
+app.listen(PORT, () => {
+  console.log(`CI360 backend server running on http://localhost:${PORT}`);
+  try {
+    const { startNotificationCron } = require('./utils/cronNotifications');
+    startNotificationCron();
+  } catch (err) {
+    console.warn('Could not start notification background cron:', err.message);
+  }
+});

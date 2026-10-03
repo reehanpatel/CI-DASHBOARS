@@ -150,6 +150,9 @@ export async function initServiceWorker(){
     try{
       swRegistration = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
       console.log('CI360 Service Worker active:', swRegistration.scope);
+      if(typeof Notification !== 'undefined' && Notification.permission === 'granted'){
+        registerPushSubscription(swRegistration).catch(()=>{});
+      }
     }catch(err){
       console.warn('CI360 Service Worker registration notice:', err);
     }
@@ -319,6 +322,7 @@ export async function requestNotificationPermission(){
     const banner = document.getElementById('notifPermissionBanner');
     if(perm === 'granted'){
       localStorage.setItem('ci360_notif_enabled', 'true');
+      await registerPushSubscription();
       if(banner){
         banner.classList.add('hidden');
         banner.style.setProperty('display', 'none', 'important');
@@ -435,28 +439,64 @@ export async function triggerSystemNotification({ title, message, type, id, url 
   }
 }
 
-export async function testDeviceNotification(){
-  playNotificationChime();
-  triggerPhoneVibration();
-  showInAppPopupAlert({
-    id: 'test-' + Date.now(),
-    title: '🔔 CI360 Alert Test',
-    message: 'Sound, vibration, in-app popup, and device notifications are active!',
-    type: 'test'
-  });
-  await triggerSystemNotification({
-    title: '🔔 CI360 Alert Test',
-    message: 'Sound, vibration, in-app popup, and device notifications are active on this device!',
-    type: 'test',
-    id: 'test-sys-' + Date.now()
-  });
-  flashToast('Test alert triggered on this device!');
+function urlBase64ToUint8Array(base64String) {
+  const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+  const base64 = (base64String + padding)
+    .replace(/-/g, '+')
+    .replace(/_/g, '/');
+  const rawData = window.atob(base64);
+  const outputArray = new Uint8Array(rawData.length);
+  for (let i = 0; i < rawData.length; ++i) {
+    outputArray[i] = rawData.charCodeAt(i);
+  }
+  return outputArray;
+}
+
+export async function registerPushSubscription(registration = null) {
+  try {
+    if (typeof window === 'undefined' || !('serviceWorker' in navigator) || !('PushManager' in window)) {
+      return null;
+    }
+    if (typeof Notification === 'undefined' || Notification.permission !== 'granted') {
+      return null;
+    }
+    const reg = registration || swRegistration || await navigator.serviceWorker.ready;
+    if (!reg || !reg.pushManager) return null;
+
+    let sub = await reg.pushManager.getSubscription();
+    if (!sub) {
+      const vapidRes = await apiGet('/notifications/vapid-public-key').catch(() => null);
+      const vapidKey = vapidRes && vapidRes.publicKey
+        ? vapidRes.publicKey
+        : 'BLU6W-Tq2_DQaI2HiUJujMzdddeVd52DUTtgxHVeLTywkctQIggkk5R3ZclRlJrhPfEwjH7Sq9sas5d5GSmqS5Q';
+
+      sub = await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(vapidKey)
+      });
+    }
+
+    if (sub) {
+      const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+      await api('/notifications/subscribe', {
+        method: 'POST',
+        body: JSON.stringify({
+          subscription: sub.toJSON ? sub.toJSON() : sub,
+          deviceType: isMobile ? 'mobile' : 'desktop'
+        })
+      }).catch(() => {});
+      return sub;
+    }
+  } catch (err) {
+    console.warn('Push subscription registration notice:', err.message);
+  }
+  return null;
 }
 
 if(typeof window !== 'undefined'){
   window.triggerSystemNotification = triggerSystemNotification;
   window.requestNotificationPermission = requestNotificationPermission;
-  window.testDeviceNotification = testDeviceNotification;
+  window.registerPushSubscription = registerPushSubscription;
 
   // On first user interaction anywhere in the app, prompt for notification permission if still default
   if('Notification' in window){
@@ -736,7 +776,6 @@ export function renderNotificationBell(){
             <span id="notifUnreadBadge" class="notif-header-count" style="display:none"></span>
           </div>
           <div class="notif-header-actions">
-            <button id="testNotifBtn" type="button" class="btn ghost small notif-action-btn" title="Test alerts on this device">🔔 Test</button>
             <button id="markAllReadBtn" type="button" class="btn ghost small notif-action-btn">Mark Read</button>
             <button id="clearNotifBtn" type="button" class="btn ghost small notif-action-btn">Clear</button>
             <button id="notifCloseBtn" type="button" class="notif-mobile-close" aria-label="Close notifications">✕</button>
@@ -831,12 +870,8 @@ export function initNotificationBell(){
     };
   }
 
-  const testNotifBtn = document.getElementById('testNotifBtn');
-  if(testNotifBtn){
-    testNotifBtn.onclick = async (e) => {
-      e.stopPropagation();
-      await testDeviceNotification();
-    };
+  if(isNotificationEnabled()){
+    registerPushSubscription();
   }
 
   // Clear any existing polling interval to ensure only one interval runs across tab switches
