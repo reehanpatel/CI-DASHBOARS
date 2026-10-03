@@ -5,7 +5,20 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CI360 — Productivity Intelligence</title>
 <script>
-  window.location.href = '/login';
+  (function(){
+    try {
+      var token = localStorage.getItem('ci360_token');
+      var user = JSON.parse(localStorage.getItem('ci360_user') || 'null');
+      if(token && user){
+        var isSuper = user.role === 'superadmin' || user.role === 'admin';
+        var isEkta = (user.name && user.name.toLowerCase().includes('ekta')) || (user.email && user.email.toLowerCase().includes('ekta'));
+        var target = isSuper ? '/admin' : ((user.role === 'accounts' || isEkta) ? '/accounts' : (user.role === 'employee' ? '/employee' : (user.role === 'client' ? '/client' : '/login')));
+        window.location.href = target;
+        return;
+      }
+    } catch(e){}
+    window.location.href = '/login';
+  })();
 </script>
 </head>
 <body>

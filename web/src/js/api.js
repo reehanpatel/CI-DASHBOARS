@@ -20,17 +20,32 @@ export function clearSession(){ localStorage.removeItem('ci360_token'); localSto
 export function requireAuth(expectedRole){
   const token = getToken();
   const user = getUser();
-  if(!token || !user){ window.location.href = '/login'; return null; }
+  if(!token || !user){
+    clearSession();
+    if(typeof window !== 'undefined' && window.location.pathname !== '/login'){
+      window.location.href = '/login';
+    }
+    return null;
+  }
   
+  const isSuper = user.role === 'superadmin' || user.role === 'admin';
   const isEkta = (user.name && user.name.toLowerCase().includes('ekta')) ||
                  (user.email && user.email.toLowerCase().includes('ekta'));
 
-  if(expectedRole && user.role !== expectedRole && user.role !== 'superadmin'){
+  if(expectedRole && user.role !== expectedRole && !isSuper){
     // Accounts role or Ekta can access both accounts and employee workspaces
     if((user.role === 'accounts' || isEkta) && (expectedRole === 'accounts' || expectedRole === 'employee')) {
       return user;
     }
-    window.location.href = user.role === 'superadmin' ? '/admin' : (user.role === 'accounts' || isEkta ? '/accounts' : (user.role === 'employee' ? '/employee' : '/client'));
+    const target = isSuper ? '/admin' : ((user.role === 'accounts' || isEkta) ? '/accounts' : (user.role === 'employee' ? '/employee' : (user.role === 'client' ? '/client' : null)));
+    if(!target || (typeof window !== 'undefined' && window.location.pathname.startsWith(target))){
+      clearSession();
+      if(typeof window !== 'undefined' && window.location.pathname !== '/login'){
+        window.location.href = '/login';
+      }
+      return null;
+    }
+    window.location.href = target;
     return null;
   }
   return user;
@@ -41,7 +56,13 @@ export async function api(path, options={}){
   const headers = Object.assign({'Content-Type':'application/json'}, options.headers||{});
   if(token) headers['Authorization'] = 'Bearer ' + token;
   const res = await fetch(API_BASE + path, Object.assign({}, options, {headers}));
-  if(res.status === 401){ clearSession(); window.location.href = '/login'; throw new Error('Session expired'); }
+  if(res.status === 401){
+    clearSession();
+    if(typeof window !== 'undefined' && window.location.pathname !== '/login'){
+      window.location.href = '/login';
+    }
+    throw new Error('Session expired');
+  }
   let data = null;
   try{ data = await res.json(); }catch(e){ /* no body or non-JSON body */ }
   if(!res.ok){ throw new Error((data && data.error) || ('Server status ' + res.status + ' — Backend waking up, please retry in 10s.')); }

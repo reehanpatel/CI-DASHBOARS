@@ -490,6 +490,24 @@
       <span id="viewDividerText">Sign in with credentials</span>
     </div>
 
+    <!-- Expired / Notice Box -->
+    <div id="sessionNotice" style="display:none;margin-bottom:18px;padding:12px 14px;border-radius:10px;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.3);color:#FDE68A;font-size:12.5px;font-weight:600;align-items:center;gap:10px;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+      <span id="sessionNoticeText">Your session has expired. Please sign in again.</span>
+    </div>
+
+    <!-- Active Session Card (If user is already signed in) -->
+    <div id="activeSessionBanner" style="display:none;margin-bottom:18px;padding:12px 14px;border-radius:12px;background:rgba(79,70,229,0.14);border:1px solid rgba(99,102,241,0.35);color:#EEF2FF;font-size:12.5px;align-items:center;justify-content:space-between;gap:10px;">
+      <div style="min-width:0">
+        <div style="font-weight:700;color:#FFFFFF;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" id="activeSessionName">Logged In</div>
+        <div style="font-size:11px;color:#A5B4FC" id="activeSessionRole">Active Session Detected</div>
+      </div>
+      <div style="display:flex;gap:6px;flex-shrink:0">
+        <button type="button" id="activeSessionGoBtn" style="background:#4F46E5;color:#FFFFFF;border:none;padding:7px 12px;border-radius:8px;font-size:11.5px;font-weight:700;cursor:pointer">Dashboard →</button>
+        <button type="button" id="activeSessionClearBtn" style="background:rgba(255,255,255,0.08);color:#94A3B8;border:none;padding:7px 10px;border-radius:8px;font-size:11.5px;cursor:pointer">Switch</button>
+      </div>
+    </div>
+
     <!-- SIGN IN VIEW -->
     <div id="signInView">
       <form id="loginForm" novalidate>
@@ -671,14 +689,49 @@
 </main>
 
 <script type="module">
-  import { getUser, getToken, setSession, apiPost } from '/src/js/api.js';
+  import { getUser, getToken, setSession, clearSession, apiPost } from '/src/js/api.js';
 
-  // Redirect if session already exists
-  (function(){
+  // Check URL parameters for session messages (e.g. ?expired=1)
+  const urlParams = new URLSearchParams(window.location.search);
+  if(urlParams.get('expired') || urlParams.get('loggedOut')){
+    const sessionNotice = document.getElementById('sessionNotice');
+    const sessionNoticeText = document.getElementById('sessionNoticeText');
+    if(sessionNotice && sessionNoticeText){
+      sessionNoticeText.textContent = urlParams.get('expired') 
+        ? 'Your session has expired. Please sign in again.' 
+        : 'You have been signed out successfully.';
+      sessionNotice.style.display = 'flex';
+    }
+  }
+
+  // Active session detection without aggressive/looping auto-redirect
+  (function initSessionUI(){
     const u = getUser();
-    if(u && getToken()){
+    const token = getToken();
+    const banner = document.getElementById('activeSessionBanner');
+    const nameEl = document.getElementById('activeSessionName');
+    const roleEl = document.getElementById('activeSessionRole');
+    const goBtn = document.getElementById('activeSessionGoBtn');
+    const clearBtn = document.getElementById('activeSessionClearBtn');
+
+    if(u && token && banner && nameEl && roleEl && goBtn && clearBtn){
+      const isSuper = u.role === 'superadmin' || u.role === 'admin';
       const isEkta = (u.name && u.name.toLowerCase().includes('ekta')) || (u.email && u.email.toLowerCase().includes('ekta'));
-      window.location.href = u.role==='superadmin' ? '/admin' : (u.role==='accounts' || isEkta ? '/accounts' : (u.role==='employee' ? '/employee' : '/client'));
+      const target = isSuper ? '/admin' : (u.role === 'accounts' || isEkta ? '/accounts' : (u.role === 'employee' ? '/employee' : '/client'));
+      const roleTitle = isSuper ? 'Administrator' : (u.role === 'accounts' || isEkta ? 'Accounts & Finance' : (u.role === 'employee' ? 'Team Member' : 'Client'));
+
+      nameEl.textContent = `Signed in as ${u.name || u.email || 'Active User'}`;
+      roleEl.textContent = `${roleTitle} Workspace`;
+      banner.style.display = 'flex';
+
+      goBtn.onclick = () => {
+        window.location.href = target;
+      };
+
+      clearBtn.onclick = () => {
+        clearSession();
+        banner.style.display = 'none';
+      };
     }
   })();
 
@@ -747,8 +800,9 @@
       }
       const data = await apiPost('/auth/login', { email, password });
       setSession(data.token, data.user);
+      const isSuper = data.user.role === 'superadmin' || data.user.role === 'admin';
       const isEkta = (data.user.name && data.user.name.toLowerCase().includes('ekta')) || (data.user.email && data.user.email.toLowerCase().includes('ekta'));
-      window.location.href = data.user.role === 'superadmin' ? '/admin' : (data.user.role === 'accounts' || isEkta ? '/accounts' : (data.user.role === 'employee' ? '/employee' : '/client'));
+      window.location.href = isSuper ? '/admin' : (data.user.role === 'accounts' || isEkta ? '/accounts' : (data.user.role === 'employee' ? '/employee' : '/client'));
     } catch(err) {
       errMsg.textContent = err.message || 'Invalid credentials. Please check and try again.';
       errBox.style.display = 'flex';
@@ -763,6 +817,7 @@
       `;
     }
   });
+
 
   // Handle Reset Password Submit
   document.getElementById('resetPasswordForm').addEventListener('submit', async(e) => {
