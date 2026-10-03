@@ -64,7 +64,8 @@ var require_auth = __commonJS({
         const header = req.headers.authorization || "";
         const token = header.startsWith("Bearer ") ? header.slice(7) : null;
         if (!token) return res.status(401).json({ error: "No token provided" });
-        const payload = jwt.verify(token, process.env.JWT_SECRET);
+        const secret = process.env.JWT_SECRET || "ci360-super-secret-jwt-key-2026";
+        const payload = jwt.verify(token, secret);
         const user = await User.findById(payload.id);
         if (!user || !user.active) return res.status(401).json({ error: "Invalid or inactive account" });
         req.user = user;
@@ -95,8 +96,9 @@ var require_auth2 = __commonJS({
     var User = require_User();
     var { verifyToken } = require_auth();
     var router = express2.Router();
+    const JWT_SECRET = process.env.JWT_SECRET || "ci360-super-secret-jwt-key-2026";
     function signToken(user) {
-      return jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: "12h" });
+      return jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, { expiresIn: "12h" });
     }
     function publicUser(user) {
       return {
@@ -132,6 +134,9 @@ var require_auth2 = __commonJS({
         if (!user || !user.active) {
           return res.status(401).json({ error: "Invalid username/email or password" });
         }
+        if (!user.passwordHash) {
+          return res.status(401).json({ error: "Account credentials incomplete. Please reset your password." });
+        }
         const match = await bcrypt.compare(password, user.passwordHash);
         if (!match) {
           return res.status(401).json({ error: "Invalid username/email or password" });
@@ -139,6 +144,7 @@ var require_auth2 = __commonJS({
         const token = signToken(user);
         res.json({ token, user: publicUser(user) });
       } catch (err) {
+        console.error("❌ Login error:", err);
         res.status(500).json({ error: "Login failed", detail: err.message });
       }
     });

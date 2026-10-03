@@ -7,8 +7,10 @@ const { verifyToken } = require('../middleware/auth');
 
 const router = express.Router();
 
+const JWT_SECRET = process.env.JWT_SECRET || 'ci360-super-secret-jwt-key-2026';
+
 function signToken(user) {
-  return jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '12h' });
+  return jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, { expiresIn: '12h' });
 }
 
 function publicUser(user) {
@@ -52,6 +54,10 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ error: 'Invalid username/email or password' });
     }
 
+    if (!user.passwordHash) {
+      return res.status(401).json({ error: 'Account credentials incomplete. Please reset your password.' });
+    }
+
     const match = await bcrypt.compare(password, user.passwordHash);
     if (!match) {
       return res.status(401).json({ error: 'Invalid username/email or password' });
@@ -60,6 +66,7 @@ router.post('/login', async (req, res) => {
     const token = signToken(user);
     res.json({ token, user: publicUser(user) });
   } catch (err) {
+    console.error('❌ Login error:', err);
     res.status(500).json({ error: 'Login failed', detail: err.message });
   }
 });

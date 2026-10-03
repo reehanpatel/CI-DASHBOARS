@@ -7,7 +7,8 @@ async function verifyToken(req, res, next) {
     const token = header.startsWith('Bearer ') ? header.slice(7) : null;
     if (!token) return res.status(401).json({ error: 'No token provided' });
 
-    const payload = jwt.verify(token, process.env.JWT_SECRET);
+    const secret = process.env.JWT_SECRET || 'ci360-super-secret-jwt-key-2026';
+    const payload = jwt.verify(token, secret);
     const user = await User.findById(payload.id);
     if (!user || !user.active) return res.status(401).json({ error: 'Invalid or inactive account' });
 
