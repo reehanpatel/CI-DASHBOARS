@@ -12,7 +12,7 @@ var require_db = __commonJS({
   "config/db.js"(exports2, module2) {
     var mongoose = require("mongoose");
     async function connectDB2() {
-      let uri = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/ci360";
+      let uri = process.env.MONGO_URI || process.env.MONGODB_URI || process.env.DATABASE_URL || "mongodb://127.0.0.1:27017/ci360";
       uri = uri.trim();
       if (uri.startsWith("mongodb:mongodb+srv://")) {
         uri = uri.replace("mongodb:mongodb+srv://", "mongodb+srv://");

@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 async function connectDB() {
-  let uri = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/ci360';
+  let uri = process.env.MONGO_URI || process.env.MONGODB_URI || process.env.DATABASE_URL || 'mongodb://127.0.0.1:27017/ci360';
 
   // Sanitize common formatting mistakes in URI string
   uri = uri.trim();
