@@ -424,6 +424,247 @@ if(typeof window !== 'undefined'){
   }
 }
 
+/* ── IN-APP POPUP NOTIFICATIONS & OVERDUE INVOICE MODAL ──────── */
+export function getOrCreateFloatingAlertContainer(){
+  if(typeof document === 'undefined') return null;
+  let container = document.getElementById('ci360FloatingContainer');
+  if(!container){
+    container = document.createElement('div');
+    container.id = 'ci360FloatingContainer';
+    container.className = 'ci360-floating-container';
+    document.body.appendChild(container);
+  }
+  return container;
+}
+
+export function showInAppPopupAlert({ id, title, message, type, time, actionText, onAction, persistent = false, timeout = 8000 }){
+  const container = getOrCreateFloatingAlertContainer();
+  if(!container) return;
+
+  const cardId = `ci360-pop-${id || Math.random().toString(36).slice(2, 9)}`;
+  const existing = document.getElementById(cardId);
+  if(existing) return;
+
+  let icon = '🔔';
+  let priority = 'info';
+  let tagText = 'UPDATE';
+  let defaultActionText = 'View Details';
+  let defaultNavTab = '';
+
+  const t = (type || '').toLowerCase();
+  const m = (message || '').toLowerCase();
+
+  if(t.includes('invoice_overdue')){
+    icon = '🚨'; priority = 'critical'; tagText = 'OVERDUE INVOICE';
+    defaultActionText = 'Pay / View Invoice'; defaultNavTab = 'billing';
+  } else if(t.includes('invoice_paid') || t.includes('payment')){
+    icon = '💳'; priority = 'success'; tagText = 'PAYMENT CLEARED';
+    defaultActionText = 'View Billing'; defaultNavTab = 'billing';
+  } else if(t.includes('invoice')){
+    icon = '🧾'; priority = 'info'; tagText = 'NEW INVOICE';
+    defaultActionText = 'View Invoice'; defaultNavTab = 'billing';
+  } else if(t.includes('job') && (m.includes('overdue') || t.includes('overdue'))){
+    icon = '⚠️'; priority = 'critical'; tagText = 'OVERDUE JOB';
+    defaultActionText = 'View Job'; defaultNavTab = 'jobs';
+  } else if(t.includes('job') && m.includes('due today')){
+    icon = '⏳'; priority = 'warning'; tagText = 'JOB DUE TODAY';
+    defaultActionText = 'View Job'; defaultNavTab = 'jobs';
+  } else if(t.includes('job_created')){
+    icon = '📋'; priority = 'info'; tagText = 'NEW JOB LOGGED';
+    defaultActionText = 'View Job'; defaultNavTab = 'jobs';
+  } else if(t.includes('job') || t.includes('status')){
+    icon = '🔄'; priority = 'info'; tagText = 'JOB UPDATED';
+    defaultActionText = 'View Job'; defaultNavTab = 'jobs';
+  } else if(t.includes('task') && (m.includes('overdue') || t.includes('overdue'))){
+    icon = '⚠️'; priority = 'critical'; tagText = 'OVERDUE TASK';
+    defaultActionText = 'Check Tasks'; defaultNavTab = 'dailytasks';
+  } else if(t.includes('task_completed')){
+    icon = '✅'; priority = 'success'; tagText = 'TASK COMPLETED';
+    defaultActionText = 'View Checklist'; defaultNavTab = 'dailytasks';
+  } else if(t.includes('task')){
+    icon = '📝'; priority = 'warning'; tagText = 'DAILY TASK';
+    defaultActionText = 'View Tasks'; defaultNavTab = 'dailytasks';
+  } else if(t.includes('ticket')){
+    icon = '💬'; priority = 'info'; tagText = 'SUPPORT TICKET';
+    defaultActionText = 'View Ticket'; defaultNavTab = 'tickets';
+  } else if(t.includes('target')){
+    icon = '🎉'; priority = 'success'; tagText = 'TARGET REACHED';
+    defaultActionText = 'View Targets'; defaultNavTab = 'targets';
+  }
+
+  const finalActionText = actionText || defaultActionText;
+
+  const card = document.createElement('div');
+  card.id = cardId;
+  card.className = `ci360-popup-card ci360-priority-${priority}`;
+  card.innerHTML = `
+    <div class="ci360-popup-indicator"></div>
+    <div class="ci360-popup-body">
+      <div class="ci360-popup-header">
+        <div class="ci360-popup-header-left">
+          <div class="ci360-popup-icon-badge">${icon}</div>
+          <span class="ci360-popup-tag ${priority}">${tagText}</span>
+          <span class="ci360-popup-time">${time || 'Just now'}</span>
+        </div>
+        <button type="button" class="ci360-popup-close-btn" aria-label="Dismiss">✕</button>
+      </div>
+      <div class="ci360-popup-title">${escapeHtml(title || 'CI360 Notification')}</div>
+      <div class="ci360-popup-message">${escapeHtml(message || '')}</div>
+      <div class="ci360-popup-footer">
+        <button type="button" class="ci360-popup-dismiss-link">Dismiss</button>
+        <button type="button" class="ci360-popup-action-btn">
+          ${finalActionText} →
+        </button>
+      </div>
+    </div>
+    <div class="ci360-popup-progress">
+      <div class="ci360-popup-progress-fill"></div>
+    </div>
+  `;
+
+  // Sound chime & phone vibration
+  playNotificationChime();
+  triggerPhoneVibration();
+
+  // Close handler
+  const closeCard = () => {
+    card.style.opacity = '0';
+    card.style.transform = 'translateX(40px) scale(0.95)';
+    setTimeout(() => card.remove(), 220);
+  };
+
+  card.querySelector('.ci360-popup-close-btn').onclick = (e) => {
+    e.stopPropagation();
+    closeCard();
+  };
+
+  card.querySelector('.ci360-popup-dismiss-link').onclick = (e) => {
+    e.stopPropagation();
+    closeCard();
+  };
+
+  // Action button click
+  card.querySelector('.ci360-popup-action-btn').onclick = (e) => {
+    e.stopPropagation();
+    if(typeof onAction === 'function'){
+      onAction();
+    } else if(defaultNavTab && typeof window.ci360NavTab === 'function'){
+      window.ci360NavTab(defaultNavTab);
+    }
+    // Mark as read on server if id is provided
+    if(id){
+      try { api(`/notifications/${id}/read`, { method: 'PATCH' }); } catch(err){}
+    }
+    closeCard();
+  };
+
+  // Manage container stacking (keep maximum 4 visible popups)
+  while(container.children.length >= 4){
+    container.removeChild(container.firstChild);
+  }
+
+  container.appendChild(card);
+
+  // Auto-dismiss timeout (unless critical and persistent)
+  if(!persistent){
+    const dismissDuration = priority === 'critical' ? 14000 : timeout;
+    setTimeout(() => {
+      if(document.body.contains(card)){
+        closeCard();
+      }
+    }, dismissDuration);
+  }
+}
+
+export function showClientOverdueInvoiceModal(overdueInvoices = []){
+  if(!overdueInvoices || !overdueInvoices.length) return;
+  // If dismissed in this session within last 45 minutes, don't show
+  const lastDismissed = sessionStorage.getItem('ci360_client_overdue_dismissed');
+  if(lastDismissed && (Date.now() - Number(lastDismissed) < 45 * 60 * 1000)) return;
+
+  const totalOverdue = overdueInvoices.reduce((s, i) => s + (Number(i.pendingAmount || i.totalAmount) || 0), 0);
+
+  const modalHtml = `
+    <div class="ci360-overdue-modal-card">
+      <div class="ci360-overdue-header">
+        <div class="ci360-overdue-alert-icon">⚠️</div>
+        <div>
+          <h2 style="margin:0;font-size:17px;font-weight:800;color:var(--red-600)">Action Required: Overdue Invoices</h2>
+          <p style="margin:4px 0 0;font-size:12.5px;color:var(--text-3);line-height:1.4">
+            You have outstanding balances past due date. Please process settlement to keep active deliverables on track.
+          </p>
+        </div>
+      </div>
+
+      <div class="ci360-overdue-amount-box">
+        <div>
+          <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-4);font-weight:700">Total Outstanding Overdue</div>
+          <div style="font-size:24px;font-weight:900;color:var(--red-600);margin-top:2px">${fmtINR(totalOverdue)}</div>
+        </div>
+        <span class="badge red" style="font-size:11px;padding:5px 10px">${overdueInvoices.length} Overdue Invoice${overdueInvoices.length > 1 ? 's' : ''}</span>
+      </div>
+
+      <div class="ci360-overdue-list">
+        ${overdueInvoices.map(inv => {
+          const due = inv.dueDate ? new Date(inv.dueDate) : new Date();
+          const daysOverdue = Math.max(1, Math.floor((Date.now() - due.getTime()) / (1000 * 60 * 60 * 24)));
+          return `
+            <div class="ci360-overdue-item">
+              <div>
+                <strong style="font-size:13px;color:var(--text-1)">${escapeHtml(inv.invoiceNumber)}</strong>
+                <div style="font-size:11.5px;color:var(--text-4);margin-top:2px">
+                  Due: ${fmtDate(inv.dueDate)} <span style="color:var(--red-600);font-weight:700">(${daysOverdue}d overdue)</span>
+                </div>
+              </div>
+              <div style="text-align:right">
+                <div style="font-size:14px;font-weight:800;color:var(--red-600)">${fmtINR(inv.pendingAmount || inv.totalAmount || 0)}</div>
+                <span class="badge red" style="font-size:9.5px;margin-top:2px">OVERDUE</span>
+              </div>
+            </div>`;
+        }).join('')}
+      </div>
+
+      <div class="ci360-overdue-bank-box">
+        <div style="font-weight:700;font-size:12px;color:var(--text-1);margin-bottom:4px">Settlement Bank & UPI Details:</div>
+        <div style="font-size:12px;color:var(--text-3);line-height:1.5">
+          Bank: <strong>HDFC Bank</strong> | A/C: <strong>50200088992211</strong><br>
+          IFSC: <strong>HDFC0001234</strong> | UPI: <strong>cognitoinnovo@hdfcbank</strong>
+        </div>
+      </div>
+
+      <div class="ci360-overdue-actions">
+        <button id="ci360OverdueRemindBtn" type="button" class="btn ghost" style="padding:10px 16px;font-size:12.5px">
+          Remind Me Later
+        </button>
+        <button id="ci360OverduePayBtn" type="button" class="btn gold" style="padding:10px 20px;font-size:13px;font-weight:700">
+          💳 View & Settle Invoices
+        </button>
+      </div>
+    </div>
+  `;
+
+  const modalBg = openModal(modalHtml);
+  const payBtn = modalBg.querySelector('#ci360OverduePayBtn');
+  const remindBtn = modalBg.querySelector('#ci360OverdueRemindBtn');
+
+  if(payBtn){
+    payBtn.onclick = () => {
+      sessionStorage.setItem('ci360_client_overdue_dismissed', String(Date.now()));
+      modalBg.remove();
+      if(typeof window.ci360NavTab === 'function'){
+        window.ci360NavTab('billing');
+      }
+    };
+  }
+
+  if(remindBtn){
+    remindBtn.onclick = () => {
+      sessionStorage.setItem('ci360_client_overdue_dismissed', String(Date.now()));
+      modalBg.remove();
+    };
+  }
+}
+
 /* ── NOTIFICATION BELL ───────────────────────────────────────── */
 export function renderNotificationBell(){
   const shouldShowBanner = !isNotificationBannerDismissed() && (typeof Notification === 'undefined' || Notification.permission === 'default');
@@ -629,7 +870,10 @@ export function initNotificationBell(){
     });
   }
 
-  async function fetchNotifications(){
+  let lastKnownTimestamps = { jobs: 0, tasks: 0, invoices: 0, tickets: 0 };
+  let hasReceivedFirstSync = false;
+
+  async function fetchNotifications(isManual = false){
     try{
       const data = await apiGet('/notifications');
       allNotifs = data.notifications || [];
@@ -645,6 +889,39 @@ export function initNotificationBell(){
 
       loadAlertedNotifIds();
 
+      // Check overdue invoices for clients
+      if(data.overdue && data.overdue.invoices && data.overdue.invoices.length > 0){
+        const user = (typeof getUser === 'function') ? getUser() : null;
+        if(user && user.role === 'client'){
+          showClientOverdueInvoiceModal(data.overdue.invoices);
+        }
+      }
+
+      // Check sync timestamps for live auto-updating without manual page refresh
+      if(data.syncTimestamps){
+        const cur = data.syncTimestamps;
+        if(!hasReceivedFirstSync){
+          lastKnownTimestamps = { ...cur };
+          hasReceivedFirstSync = true;
+        } else {
+          const changedKeys = [];
+          if(cur.jobs > (lastKnownTimestamps.jobs || 0)) changedKeys.push('jobs');
+          if(cur.tasks > (lastKnownTimestamps.tasks || 0)) changedKeys.push('tasks');
+          if(cur.invoices > (lastKnownTimestamps.invoices || 0)) changedKeys.push('invoices');
+          if(cur.tickets > (lastKnownTimestamps.tickets || 0)) changedKeys.push('tickets');
+
+          if(changedKeys.length > 0){
+            lastKnownTimestamps = { ...cur };
+            window.dispatchEvent(new CustomEvent('ci360:dataUpdated', { 
+              detail: { changedKeys, syncTimestamps: cur, overdue: data.overdue } 
+            }));
+            if(typeof window.ci360TriggerAutoUpdate === 'function'){
+              window.ci360TriggerAutoUpdate({ changedKeys, syncTimestamps: cur });
+            }
+          }
+        }
+      }
+
       // On initial fetch of the session: establish baseline and register all existing notifications
       // This guarantees opening the app or refreshing never spams old notifications!
       if(!isSessionBaselineEstablished){
@@ -655,6 +932,18 @@ export function initNotificationBell(){
         });
         saveAlertedNotifIds();
         isSessionBaselineEstablished = true;
+
+        // If there are critical unread items right on login (e.g. overdue invoice or overdue task), pop up the top one!
+        const criticalUnread = allNotifs.filter(n => !n.read && (n.type.includes('overdue') || (n.title && n.title.includes('Overdue'))));
+        if(criticalUnread.length > 0){
+          const topItem = criticalUnread[0];
+          showInAppPopupAlert({
+            id: String(topItem._id),
+            title: topItem.title,
+            message: topItem.message,
+            type: topItem.type
+          });
+        }
       } else {
         // Genuine new incoming unread notifications that arrived during the active session
         const newlyArrived = allNotifs.filter(n => !n.read && !alertedNotifIds.has(String(n._id)));
@@ -663,6 +952,17 @@ export function initNotificationBell(){
           for(const n of newlyArrived){
             const sid = String(n._id);
             seenNotifIds.add(sid);
+            alertedNotifIds.add(sid);
+
+            // Pop up interactive in-app toast card
+            showInAppPopupAlert({
+              id: sid,
+              title: n.title || 'CI360 Alert',
+              message: n.message || '',
+              type: n.type
+            });
+
+            // Trigger system / OS desktop notification
             await triggerSystemNotification({
               title: n.title || 'CI360 Alert',
               message: n.message || '',
@@ -671,6 +971,14 @@ export function initNotificationBell(){
             });
           }
           saveAlertedNotifIds();
+
+          // Also trigger view auto update so new items immediately appear without refresh
+          window.dispatchEvent(new CustomEvent('ci360:dataUpdated', { 
+            detail: { newNotifications: newlyArrived } 
+          }));
+          if(typeof window.ci360TriggerAutoUpdate === 'function'){
+            window.ci360TriggerAutoUpdate({ newNotifications: newlyArrived });
+          }
         }
       }
 
@@ -683,11 +991,14 @@ export function initNotificationBell(){
   // Expose fetchNotifications globally so other actions (like logging a job) can trigger an immediate check
   if(typeof window !== 'undefined'){
     window.ci360FetchNotifications = fetchNotifications;
+    window.showInAppPopupAlert = showInAppPopupAlert;
+    window.showClientOverdueInvoiceModal = showClientOverdueInvoiceModal;
   }
 
   fetchNotifications();
-  // Single coordinated responsive auto-polling interval every 20 seconds
-  window.__ci360PollInterval = setInterval(fetchNotifications, 20000);
+  // Fast responsive auto-polling interval every 6 seconds for real-time updates without manual refresh
+  window.__ci360PollInterval = setInterval(fetchNotifications, 6000);
+  window.addEventListener('focus', () => fetchNotifications(true));
   window.addEventListener('beforeunload', () => {
     if(window.__ci360PollInterval){
       clearInterval(window.__ci360PollInterval);

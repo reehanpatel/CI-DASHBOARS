@@ -5538,7 +5538,8 @@ html:not([data-theme="dark"]) textarea {
   .modal-actions,
   .accounts-header-banner,
   .btn,
-  .toast {
+  .toast,
+  .ci360-floating-container {
     display: none !important;
   }
   #printableInvoice, #printableInvoice * {
@@ -5556,5 +5557,350 @@ html:not([data-theme="dark"]) textarea {
     background: #FFFFFF !important;
     color: #000000 !important;
   }
+}
+
+/* ═════════════════════════════════════════════════════════════════════════
+   CI360 UNIVERSAL IN-APP POPUP NOTIFICATIONS & OVERDUE MODAL SYSTEM
+   ═════════════════════════════════════════════════════════════════════════ */
+.ci360-floating-container {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  z-index: 999999;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  pointer-events: none;
+  max-width: 420px;
+  width: calc(100vw - 48px);
+}
+
+@media (max-width: 640px) {
+  .ci360-floating-container {
+    top: 16px;
+    right: 16px;
+    left: 16px;
+    width: auto;
+    max-width: 100%;
+  }
+}
+
+.ci360-popup-card {
+  pointer-events: auto;
+  position: relative;
+  background: var(--bg-card);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-sm);
+  border-radius: 14px;
+  box-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: ci360SlideInRight 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transition: transform 0.2s ease, opacity 0.2s ease, box-shadow 0.2s ease;
+}
+
+[data-theme="light"] .ci360-popup-card {
+  box-shadow: 0 14px 34px -8px rgba(15, 23, 42, 0.18), 0 0 0 1px rgba(0, 0, 0, 0.06);
+}
+
+.ci360-popup-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 20px 42px -6px rgba(0, 0, 0, 0.42);
+}
+
+.ci360-popup-card.ci360-priority-critical {
+  border-color: rgba(239, 68, 68, 0.55);
+  box-shadow: 0 16px 36px -8px rgba(239, 68, 68, 0.28), 0 0 0 1px rgba(239, 68, 68, 0.4);
+}
+
+.ci360-popup-card.ci360-priority-warning {
+  border-color: rgba(245, 158, 11, 0.55);
+  box-shadow: 0 16px 36px -8px rgba(245, 158, 11, 0.22), 0 0 0 1px rgba(245, 158, 11, 0.4);
+}
+
+.ci360-popup-card.ci360-priority-info {
+  border-color: rgba(59, 130, 246, 0.45);
+}
+
+.ci360-popup-card.ci360-priority-success {
+  border-color: rgba(16, 185, 129, 0.45);
+}
+
+.ci360-popup-indicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 4px;
+  background: var(--gold-500);
+}
+.ci360-priority-critical .ci360-popup-indicator { background: #ef4444; }
+.ci360-priority-warning .ci360-popup-indicator { background: #f59e0b; }
+.ci360-priority-info .ci360-popup-indicator { background: #3b82f6; }
+.ci360-priority-success .ci360-popup-indicator { background: #10b981; }
+
+.ci360-popup-body {
+  padding: 14px 16px 14px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ci360-popup-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.ci360-popup-header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ci360-popup-icon-badge {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-sm);
+  flex-shrink: 0;
+}
+
+.ci360-popup-tag {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 2px 7px;
+  border-radius: 6px;
+  background: var(--bg-surface);
+  color: var(--text-2);
+  border: 1px solid var(--border-xs);
+}
+
+.ci360-popup-tag.critical { background: rgba(239, 68, 68, 0.15); color: #ef4444; border-color: rgba(239, 68, 68, 0.3); }
+.ci360-popup-tag.warning { background: rgba(245, 158, 11, 0.15); color: #f59e0b; border-color: rgba(245, 158, 11, 0.3); }
+.ci360-popup-tag.info { background: rgba(59, 130, 246, 0.15); color: #3b82f6; border-color: rgba(59, 130, 246, 0.3); }
+.ci360-popup-tag.success { background: rgba(16, 185, 129, 0.15); color: #10b981; border-color: rgba(16, 185, 129, 0.3); }
+
+.ci360-popup-time {
+  font-size: 11px;
+  color: var(--text-4);
+}
+
+.ci360-popup-close-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-4);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  font-size: 14px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s, background 0.15s;
+}
+
+.ci360-popup-close-btn:hover {
+  color: var(--text-1);
+  background: var(--bg-elevated);
+}
+
+.ci360-popup-title {
+  font-size: 13.5px;
+  font-weight: 800;
+  color: var(--text-1);
+  line-height: 1.35;
+}
+
+.ci360-popup-message {
+  font-size: 12.5px;
+  color: var(--text-3);
+  line-height: 1.45;
+  word-break: break-word;
+}
+
+.ci360-popup-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.ci360-popup-action-btn {
+  background: var(--gold-500);
+  color: #111827;
+  border: none;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 7px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: filter 0.15s, transform 0.15s;
+}
+
+.ci360-popup-action-btn:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+.ci360-priority-critical .ci360-popup-action-btn {
+  background: #ef4444;
+  color: #ffffff;
+}
+
+.ci360-popup-dismiss-link {
+  font-size: 11.5px;
+  color: var(--text-4);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+}
+.ci360-popup-dismiss-link:hover { color: var(--text-2); text-decoration: underline; }
+
+.ci360-popup-progress {
+  height: 3px;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.08);
+  position: relative;
+  overflow: hidden;
+}
+
+.ci360-popup-progress-fill {
+  height: 100%;
+  background: var(--gold-500);
+  width: 100%;
+  transform-origin: left;
+  animation: ci360ProgressShrink 8s linear forwards;
+}
+
+.ci360-priority-critical .ci360-popup-progress-fill { background: #ef4444; animation-duration: 14s; }
+.ci360-priority-warning .ci360-popup-progress-fill { background: #f59e0b; }
+.ci360-priority-info .ci360-popup-progress-fill { background: #3b82f6; }
+.ci360-priority-success .ci360-popup-progress-fill { background: #10b981; }
+
+@keyframes ci360SlideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(40px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes ci360ProgressShrink {
+  from { transform: scaleX(1); }
+  to { transform: scaleX(0); }
+}
+
+/* ── OVERDUE INVOICE MODAL ── */
+.ci360-overdue-modal-card {
+  max-width: 540px;
+  width: 100%;
+  background: var(--bg-card);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  border-radius: 16px;
+  box-shadow: 0 24px 60px -12px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(239, 68, 68, 0.25);
+  overflow: hidden;
+  animation: ci360ModalPop 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes ci360ModalPop {
+  from { opacity: 0; transform: scale(0.94); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.ci360-overdue-header {
+  padding: 22px 24px 18px;
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.14) 0%, rgba(245, 158, 11, 0.08) 100%);
+  border-bottom: 1px solid rgba(239, 68, 68, 0.2);
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.ci360-overdue-alert-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+  animation: ci360PulseGlow 2s infinite ease-in-out;
+}
+
+@keyframes ci360PulseGlow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+  50% { box-shadow: 0 0 14px 4px rgba(239, 68, 68, 0.25); }
+}
+
+.ci360-overdue-amount-box {
+  margin: 20px 24px 16px;
+  padding: 16px 20px;
+  background: var(--bg-elevated);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ci360-overdue-list {
+  max-height: 220px;
+  overflow-y: auto;
+  margin: 0 24px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ci360-overdue-item {
+  padding: 12px 14px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-sm);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.ci360-overdue-bank-box {
+  margin: 0 24px 20px;
+  padding: 14px 18px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-sm);
+  border-radius: 10px;
+}
+
+.ci360-overdue-actions {
+  padding: 16px 24px 20px;
+  border-top: 1px solid var(--border-xs);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  background: var(--bg-card);
 }
 

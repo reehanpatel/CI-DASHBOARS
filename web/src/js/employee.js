@@ -1820,4 +1820,14 @@ function openEmpTargetModal(t){
   };
 }
 
+// Live auto-update without needing manual page refresh
+window.addEventListener('ci360:dataUpdated', (e) => {
+  const activeEl = document.activeElement;
+  const isTyping = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || activeEl.isContentEditable);
+  const hasOpenModal = document.querySelector('.modal-bg, .modal-backdrop, #jobModal');
+  if (!isTyping && !hasOpenModal && ui.tab !== 'logjob') {
+    renderTab();
+  }
+});
+
 boot();

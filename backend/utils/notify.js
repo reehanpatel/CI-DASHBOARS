@@ -77,6 +77,7 @@ async function createNotificationsForJob({ type, title, message, job, actorId, a
     if (deduplicatedDocs.length) {
       await Notification.insertMany(deduplicatedDocs);
     }
+    recordSyncUpdate('jobs');
   } catch (err) {
     console.error('Error creating job notifications:', err.message);
   }
@@ -222,8 +223,57 @@ async function createNotificationForTask({ type, title, message, task, actorId, 
     if (deduplicatedDocs.length) {
       await Notification.insertMany(deduplicatedDocs);
     }
+    recordSyncUpdate('tasks');
   } catch (err) {
     console.error('Error creating task notification:', err.message);
+  }
+}
+
+function recordSyncUpdate(entity) {
+  const now = Date.now();
+  if (entity === 'jobs') global.__ci360LastJobUpdate = now;
+  else if (entity === 'tasks') global.__ci360LastTaskUpdate = now;
+  else if (entity === 'invoices') global.__ci360LastInvoiceUpdate = now;
+  else if (entity === 'tickets') global.__ci360LastTicketUpdate = now;
+  global.__ci360LastGlobalUpdate = now;
+}
+
+async function createNotificationForInvoice({ type, title, message, invoice, actorId, actorName }) {
+  try {
+    if (!invoice) return;
+    const targetUserIds = new Set();
+
+    // 1. Client user(s) tied to invoice.clientId
+    if (invoice.clientId) {
+      const clientUsers = await User.find({ clientId: invoice.clientId, active: true });
+      clientUsers.forEach(u => targetUserIds.add(String(u._id)));
+    }
+
+    // 2. Accounts and Superadmin staff
+    const staff = await User.find({ role: { $in: ['superadmin', 'admin', 'accounts'] }, active: true });
+    staff.forEach(u => targetUserIds.add(String(u._id)));
+
+    // Do not notify the person who triggered it unless it's an overdue alert
+    if (actorId && type !== 'invoice_overdue') {
+      targetUserIds.delete(String(actorId));
+    }
+
+    const docs = Array.from(targetUserIds).map(uId => ({
+      userId: uId,
+      type: type || 'invoice_issued',
+      title,
+      message,
+      invoiceId: invoice._id,
+      read: false
+    }));
+
+    const deduplicatedDocs = await filterDuplicateNotifications(docs, 'invoiceId', invoice._id);
+    if (deduplicatedDocs.length) {
+      await Notification.insertMany(deduplicatedDocs);
+    }
+    recordSyncUpdate('invoices');
+  } catch (err) {
+    console.error('Error creating invoice notification:', err.message);
   }
 }
 
@@ -231,5 +281,7 @@ module.exports = {
   createNotificationsForJob, 
   createNotificationForTarget, 
   createNotificationForTicket,
-  createNotificationForTask
+  createNotificationForTask,
+  createNotificationForInvoice,
+  recordSyncUpdate
 };

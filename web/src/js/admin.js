@@ -2889,5 +2889,15 @@ window.adminClearCompletedTasks = async function(targetPId) {
   } catch(err) { flashToast(err.message, true); }
 };
 
+// Live auto-update without needing manual page refresh
+window.addEventListener('ci360:dataUpdated', () => {
+  const activeEl = document.activeElement;
+  const isTyping = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || activeEl.isContentEditable);
+  const hasOpenModal = document.querySelector('.modal-bg, .modal-backdrop, #jobModal, .modal');
+  if (!isTyping && !hasOpenModal && ui.tab !== 'logjob') {
+    renderTab();
+  }
+});
+
 boot();
 

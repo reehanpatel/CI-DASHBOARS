@@ -7,6 +7,7 @@ const Client = require('../models/Client');
 const Service = require('../models/Service');
 const SystemSetting = require('../models/SystemSetting');
 const { verifyToken, requireRole } = require('../middleware/auth');
+const { createNotificationForInvoice, recordSyncUpdate } = require('../utils/notify');
 
 const router = express.Router();
 
@@ -428,6 +429,14 @@ router.post('/invoices', async (req, res) => {
       createdByName: req.user ? req.user.name : 'System'
     });
 
+    await createNotificationForInvoice({
+      type: 'invoice_issued',
+      title: '🧾 New Invoice Issued',
+      message: `Invoice #${invoice.invoiceNumber} for ₹${(invoice.totalAmount || 0).toLocaleString('en-IN')} has been issued to ${invoice.clientName}.`,
+      invoice,
+      actorId: req.user ? req.user._id : null
+    });
+
     res.status(201).json(invoice);
   } catch (err) {
     res.status(500).json({ error: 'Failed to create invoice', detail: err.message });
@@ -674,6 +683,16 @@ router.post('/payments', async (req, res) => {
       invoice.pendingAmount = Math.max(0, invoice.totalAmount - invoice.amountPaid);
       invoice.syncStatus();
       await invoice.save();
+
+      await createNotificationForInvoice({
+        type: invoice.pendingAmount <= 0 ? 'invoice_paid' : 'payment_received',
+        title: invoice.pendingAmount <= 0 ? '✅ Invoice Fully Settled' : '💳 Payment Received',
+        message: `Payment of ₹${numAmount.toLocaleString('en-IN')} recorded for Invoice #${invoice.invoiceNumber}. Remaining balance: ₹${invoice.pendingAmount.toLocaleString('en-IN')}.`,
+        invoice,
+        actorId: req.user ? req.user._id : null
+      });
+    } else {
+      recordSyncUpdate('invoices');
     }
 
     res.status(201).json({

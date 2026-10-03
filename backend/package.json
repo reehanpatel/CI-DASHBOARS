@@ -1,6 +1,6 @@
 {
   "name": "ci360-backend",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "CI360 Productivity Intelligence - Express & MongoDB Backend API",
   "main": "server.js",
   "scripts": {

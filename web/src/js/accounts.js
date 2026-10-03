@@ -2700,6 +2700,16 @@ async function renderTallyTab(container) {
   setTimeout(checkTallyConnection, 600);
 }
 
+// Live auto-update without needing manual page refresh
+window.addEventListener('ci360:dataUpdated', () => {
+  const activeEl = document.activeElement;
+  const isTyping = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || activeEl.isContentEditable);
+  const hasOpenModal = document.querySelector('.modal-bg, .modal-backdrop, .modal');
+  if (!isTyping && !hasOpenModal) {
+    renderContent();
+  }
+});
+
 // Auto-run init
 init();
 

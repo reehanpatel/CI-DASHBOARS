@@ -49,7 +49,7 @@ async function renderTab(){
   c.innerHTML = renderSkeletonCards(3);
   try{
     const d = await apiGet('/dashboard/client?period=' + ui.period);
-    if(ui.tab==='dashboard')      tabDashboardOverview(c, d);
+    if(ui.tab==='dashboard')      await tabDashboardOverview(c, d);
     else if(ui.tab==='jobs')      tabJobs(c, d);
     else if(ui.tab==='delivered') tabDelivered(c, d);
     else if(ui.tab==='billing')   await tabBilling(c);
@@ -58,11 +58,22 @@ async function renderTab(){
 }
 
 /* ════════════════════════════ CLIENT DASHBOARD OVERVIEW ═══════════════════ */
-function tabDashboardOverview(c, d){
+async function tabDashboardOverview(c, d){
   const clientName = d.client?.name || user?.name || 'Valued Client';
   const clientCode = d.client?.code || 'CI360-ACC';
   const clientTier = d.client?.nature || d.client?.difficulty || 'Retainer Account';
   const allJobs = d.jobs || [];
+
+  // Check client overdue invoices for proactive alert and popup modal
+  let overdueInvoices = [];
+  try {
+    const portal = await apiGet('/accounts/client-portal');
+    const invs = portal.invoices || [];
+    overdueInvoices = invs.filter(i => i.status === 'overdue' || (i.pendingAmount > 0 && new Date(i.dueDate) < new Date()));
+    if (overdueInvoices.length > 0 && typeof window.showClientOverdueInvoiceModal === 'function') {
+      window.showClientOverdueInvoiceModal(overdueInvoices);
+    }
+  } catch(e){}
 
   const periodJobs = (ui.period === 'all') ? allJobs : allJobs.filter(j => {
     if (!j.date) return true;
@@ -122,6 +133,26 @@ function tabDashboardOverview(c, d){
   c.innerHTML = `
     <div class="block client-overview-container" style="max-width:1280px;margin:0 auto">
       
+      <!-- Overdue Invoice Urgent Alert (if any) -->
+      ${overdueInvoices.length > 0 ? `
+        <div class="card" style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.35);margin-bottom:20px;padding:16px 22px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;border-radius:var(--r-xl);box-shadow:0 8px 24px -6px rgba(239,68,68,0.2)">
+          <div style="display:flex;align-items:center;gap:14px">
+            <div style="width:42px;height:42px;border-radius:12px;background:rgba(239,68,68,0.2);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">🚨</div>
+            <div>
+              <strong style="color:var(--red-600);font-size:14px">Immediate Action Required: ${overdueInvoices.length} Overdue Invoice${overdueInvoices.length > 1 ? 's' : ''}</strong>
+              <div style="font-size:12.5px;color:var(--text-3);margin-top:2px">
+                Total outstanding overdue balance: <strong style="color:var(--red-600);font-weight:800">${fmtINR(overdueInvoices.reduce((s,i)=>s+(Number(i.pendingAmount||i.totalAmount)||0),0))}</strong>. Please settle to keep active deliverable pipelines moving smoothly.
+              </div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <button class="btn gold" onclick="window.ci360NavTab('billing')" style="font-weight:700;padding:9px 18px;font-size:13px">
+              💳 Pay & Settle Now →
+            </button>
+          </div>
+        </div>
+      ` : ''}
+
       <!-- Welcome Hero Banner -->
       <div class="card client-hero-card" style="background:linear-gradient(135deg, rgba(79,70,229,0.08) 0%, rgba(14,165,233,0.05) 50%, rgba(245,158,11,0.04) 100%);border:1px solid rgba(99,102,241,0.22);border-radius:var(--r-xl);padding:24px 28px;margin-bottom:24px;box-shadow:var(--shadow-sm)">
         <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px">
@@ -1117,5 +1148,14 @@ async function tabBilling(c){
         </div>` : ''}
     </div>`;
 }
+
+// Live auto-update without needing manual page refresh
+window.addEventListener('ci360:dataUpdated', (e) => {
+  const activeEl = document.activeElement;
+  const isTyping = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || activeEl.isContentEditable);
+  if (!isTyping && ui.tab !== 'logjob') {
+    renderTab();
+  }
+});
 
 boot();

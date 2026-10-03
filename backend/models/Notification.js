@@ -11,6 +11,7 @@ const NotificationSchema = new mongoose.Schema({
   jobId: { type: mongoose.Schema.Types.ObjectId, ref: 'Job', default: null },
   targetId: { type: mongoose.Schema.Types.ObjectId, ref: 'Target', default: null },
   taskId: { type: mongoose.Schema.Types.ObjectId, ref: 'Task', default: null },
+  invoiceId: { type: mongoose.Schema.Types.ObjectId, ref: 'Invoice', default: null },
   read: { type: Boolean, default: false },
   dismissed: { type: Boolean, default: false },
   attachments: [{
