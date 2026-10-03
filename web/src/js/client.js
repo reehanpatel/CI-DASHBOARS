@@ -1,7 +1,7 @@
 let user = null;
 let servicesCache = [];
 let personnelCache = [];
-let ui = { tab: 'logjob', period: 'month' };
+let ui = { tab: 'dashboard', period: 'month' };
 let draft = { title: '', serviceId: '', date: new Date().toISOString().slice(0,10), completionDate: '', desc: '', priority: 'Medium', preferredPersonId: '' };
 const ROLE_COLUMNS = [['strategy','Strategy'],['cs','CS'],['website','Website'],['design','Design'],['copy','Copy'],['edit','Edit'],['shoot','Shoot'],['seo','SEO'],['smo','SMO'],['qc','Quality Check']];
 
@@ -18,11 +18,12 @@ async function boot(){
 }
 
 const CLIENT_TABS = [
-  { key:'logjob',    label:'Log a Job',         icon:'➕' },
-  { key:'jobs',      label:'All Jobs Logged',   icon:'📋' },
-  { key:'delivered', label:'Work Delivered',    icon:'📦' },
-  { key:'billing',   label:'Billing & Invoices',icon:'💳' },
-  { key:'team',      label:'Our Team',          icon:'👥' }
+  { key:'dashboard', label:'Overview Dashboard', icon:'📊' },
+  { key:'jobs',      label:'All Jobs Logged',    icon:'📋' },
+  { key:'logjob',    label:'Log a Job',          icon:'➕' },
+  { key:'delivered', label:'Work Delivered',     icon:'📦' },
+  { key:'billing',   label:'Billing & Invoices', icon:'💳' },
+  { key:'team',      label:'Our Team',           icon:'👥' }
 ];
 
 function render(){
@@ -39,6 +40,7 @@ function render(){
   bindAppShellEvents((newTab)=>{ ui.tab = newTab; render(); });
   renderTab();
 }
+window.ci360NavTab = (newTab) => { ui.tab = newTab; render(); };
 
 async function renderTab(){
   const c = document.getElementById('content');
@@ -47,11 +49,374 @@ async function renderTab(){
   c.innerHTML = renderSkeletonCards(3);
   try{
     const d = await apiGet('/dashboard/client?period=' + ui.period);
-    if(ui.tab==='jobs')           tabJobs(c, d);
+    if(ui.tab==='dashboard')      tabDashboardOverview(c, d);
+    else if(ui.tab==='jobs')      tabJobs(c, d);
     else if(ui.tab==='delivered') tabDelivered(c, d);
     else if(ui.tab==='billing')   await tabBilling(c);
     else if(ui.tab==='team')      tabTeam(c, d);
   }catch(err){ c.innerHTML = renderEmptyState('Something went wrong', err.message, '⚠️'); }
+}
+
+/* ════════════════════════════ CLIENT DASHBOARD OVERVIEW ═══════════════════ */
+function tabDashboardOverview(c, d){
+  const clientName = d.client?.name || user?.name || 'Valued Client';
+  const clientCode = d.client?.code || 'CI360-ACC';
+  const clientTier = d.client?.nature || d.client?.difficulty || 'Retainer Account';
+  const allJobs = d.jobs || [];
+
+  const periodJobs = (ui.period === 'all') ? allJobs : allJobs.filter(j => {
+    if (!j.date) return true;
+    const dStr = j.date.slice(0, 10);
+    return (!d.from || dStr >= d.from) && (!d.to || dStr <= d.to);
+  });
+
+  const totalCount = periodJobs.length;
+  const completedJobs = periodJobs.filter(j => j.status === 'Completed' || (j.clientApproval && j.clientApproval.status === 'Approved') || j.completionDate);
+  const completedCount = completedJobs.length;
+  const inProgressJobs = periodJobs.filter(j => !j.completionDate && j.status !== 'Completed' && (!j.clientApproval || j.clientApproval.status !== 'Approved'));
+  const inProgressCount = inProgressJobs.length;
+  const revisionJobs = periodJobs.filter(j => j.clientApproval && j.clientApproval.status === 'Revision Requested');
+  const revisionCount = revisionJobs.length;
+
+  const totalHours = (d.stats?.hours != null ? Number(d.stats.hours) : periodJobs.reduce((acc, j) => {
+    let h = 0;
+    (j.assignments || []).forEach(a => h += Number(a.hours) || 0);
+    return acc + h;
+  }, 0));
+
+  const completionRate = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : (allJobs.length > 0 ? Math.round((allJobs.filter(j=>j.completionDate).length / allJobs.length) * 100) : 100);
+
+  // Deliverables awaiting client sign-off
+  const pendingApprovals = allJobs.filter(j => j.deliverables && j.deliverables.length && (!j.clientApproval || j.clientApproval.status === 'Pending'));
+
+  // Service breakdown
+  const serviceCounts = {};
+  periodJobs.forEach(j => {
+    const sNames = (j.serviceNames && j.serviceNames.length) ? j.serviceNames : ['General Deliverable'];
+    sNames.forEach(n => {
+      serviceCounts[n] = (serviceCounts[n] || 0) + 1;
+    });
+  });
+  const serviceList = Object.entries(serviceCounts).sort((a,b)=>b[1]-a[1]);
+
+  // Priority count
+  const urgentCount = periodJobs.filter(j => j.priority === 'Urgent').length;
+  const highCount = periodJobs.filter(j => j.priority === 'High').length;
+
+  // Account roster
+  const roster = d.roster || [];
+  const assignedTeam = [];
+  roster.forEach(r => {
+    ROLE_COLUMNS.forEach(([key, label]) => {
+      const names = String(r.roles?.[key] || '').split(',').map(s=>s.trim()).filter(Boolean);
+      names.forEach(name => {
+        if (!assignedTeam.some(t => t.name === name)) {
+          assignedTeam.push({ name, role: label });
+        }
+      });
+    });
+  });
+
+  const recentJobs = allJobs.slice(0, 5);
+
+  c.innerHTML = `
+    <div class="block client-overview-container" style="max-width:1280px;margin:0 auto">
+      
+      <!-- Welcome Hero Banner -->
+      <div class="card client-hero-card" style="background:linear-gradient(135deg, rgba(79,70,229,0.08) 0%, rgba(14,165,233,0.05) 50%, rgba(245,158,11,0.04) 100%);border:1px solid rgba(99,102,241,0.22);border-radius:var(--r-xl);padding:24px 28px;margin-bottom:24px;box-shadow:var(--shadow-sm)">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px">
+          <div style="display:flex;align-items:center;gap:18px">
+            <div style="width:54px;height:54px;border-radius:var(--r-lg);background:linear-gradient(135deg,var(--brand-500) 0%,#4338CA 100%);color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900;box-shadow:0 8px 16px -4px rgba(79,70,229,0.4);flex-shrink:0">
+              ${clientName.slice(0,2).toUpperCase()}
+            </div>
+            <div>
+              <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:4px">
+                <h1 style="font-size:24px;font-weight:800;color:var(--text-1);margin:0;letter-spacing:-0.5px">${escapeHtml(clientName)}</h1>
+                <span class="badge blue" style="font-size:11px;font-weight:700">${escapeHtml(clientCode)}</span>
+                <span class="badge gold" style="font-size:11px;font-weight:700">★ ${escapeHtml(clientTier)}</span>
+              </div>
+              <p style="font-size:13.5px;color:var(--text-3);margin:0">
+                Client Workspace &amp; Deliverables Command Center · Real-time pipeline, team allocation, and asset tracking
+              </p>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <button class="btn gold" id="btnHeroLogJob" style="display:inline-flex;align-items:center;gap:8px;font-weight:700;padding:9px 18px;border-radius:var(--r-md);box-shadow:0 4px 12px rgba(245,158,11,0.25)">
+              <span>➕</span> Log New Job
+            </button>
+            <button class="btn ghost" id="btnHeroInvoices" style="display:inline-flex;align-items:center;gap:8px;font-weight:600;padding:9px 16px;border-radius:var(--r-md)">
+              <span>💳</span> View Invoices
+            </button>
+          </div>
+        </div>
+
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;margin-top:22px;padding-top:18px;border-top:1px solid var(--border-xs)">
+          <div style="font-size:12.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--text-4)">
+            Reporting Period Filter
+          </div>
+          <div id="overviewPeriodWrapper">
+            ${renderPeriodPicker(ui.period)}
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Required: Pending Approval Banner -->
+      ${pendingApprovals.length > 0 ? `
+        <div class="card" style="background:linear-gradient(135deg, rgba(245,158,11,0.12) 0%, rgba(217,119,6,0.05) 100%);border:1px solid var(--amber-500);border-radius:var(--r-lg);padding:16px 22px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px">
+          <div style="display:flex;align-items:center;gap:14px">
+            <div style="width:40px;height:40px;border-radius:50%;background:rgba(245,158,11,0.2);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">
+              🔔
+            </div>
+            <div>
+              <div style="font-size:15px;font-weight:800;color:var(--text-1);margin-bottom:2px">
+                Deliverables Ready for Review &amp; Approval
+              </div>
+              <div style="font-size:13px;color:var(--text-2)">
+                You have <strong style="color:var(--amber-500)">${pendingApprovals.length} job(s)</strong> with finished creative assets awaiting your client sign-off or feedback.
+              </div>
+            </div>
+          </div>
+          <button class="btn gold" id="btnReviewNow" style="font-size:13px;font-weight:700;padding:8px 18px">
+            Review Deliverables Now →
+          </button>
+        </div>
+      ` : ''}
+
+      <!-- 4 KPI Summary Cards -->
+      <section class="block block-kpi-grid" style="margin-bottom:24px">
+        <div class="grid grid-4" style="gap:16px">
+          
+          <div class="card kpi" style="border-top:3px solid var(--brand-500);padding:20px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+              <div class="label" style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--text-3)">Work Orders Logged</div>
+              <div style="font-size:20px">📋</div>
+            </div>
+            <div class="value" style="font-size:32px;font-weight:900;color:var(--text-1);line-height:1">${totalCount}</div>
+            <div class="sub" style="font-size:12px;color:var(--text-4);margin-top:6px">${allJobs.length} all-time requests recorded</div>
+          </div>
+
+          <div class="card kpi" style="border-top:3px solid var(--amber-500);padding:20px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+              <div class="label" style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--text-3)">Active in Production</div>
+              <div style="font-size:20px">⏳</div>
+            </div>
+            <div class="value" style="font-size:32px;font-weight:900;color:var(--amber-500);line-height:1">${inProgressCount}</div>
+            <div class="sub" style="font-size:12px;color:var(--text-4);margin-top:6px">${revisionCount > 0 ? `<strong style="color:var(--amber-600)">${revisionCount}</strong> in revision review` : 'Under active execution'}</div>
+          </div>
+
+          <div class="card kpi" style="border-top:3px solid var(--green-500);padding:20px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+              <div class="label" style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--text-3)">Delivered &amp; Signed Off</div>
+              <div style="font-size:20px">✅</div>
+            </div>
+            <div class="value" style="font-size:32px;font-weight:900;color:var(--green-500);line-height:1">${completedCount}</div>
+            <div class="sub" style="font-size:12px;color:var(--text-4);margin-top:6px">${completionRate}% delivery fulfillment rate</div>
+          </div>
+
+          <div class="card kpi" style="border-top:3px solid #8B5CF6;padding:20px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+              <div class="label" style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--text-3)">Dedicated Effort</div>
+              <div style="font-size:20px">⏱️</div>
+            </div>
+            <div class="value" style="font-size:32px;font-weight:900;color:#8B5CF6;line-height:1">${totalHours.toFixed(1)} <span style="font-size:18px;font-weight:600">hrs</span></div>
+            <div class="sub" style="font-size:12px;color:var(--text-4);margin-top:6px">Tracked creative &amp; production hours</div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- 2-Column Delivery Health & Retainer Distribution -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(340px, 1fr));gap:20px;margin-bottom:24px">
+        
+        <!-- Delivery Progress Card -->
+        <div class="card" style="padding:22px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+            <h3 style="font-size:16px;font-weight:800;color:var(--text-1);margin:0">Delivery Performance &amp; Health</h3>
+            <span class="badge ${completionRate >= 80 ? 'green' : 'gold'}" style="font-weight:700">${completionRate}% Complete</span>
+          </div>
+
+          <div style="margin-bottom:16px">
+            <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:700;color:var(--text-3);margin-bottom:6px">
+              <span>Fulfillment Rate</span>
+              <span>${completedCount} of ${totalCount} Jobs Completed</span>
+            </div>
+            <div style="width:100%;height:10px;background:var(--border-sm);border-radius:10px;overflow:hidden;display:flex">
+              <div style="width:${completionRate}%;background:linear-gradient(90deg, var(--green-500), #059669);border-radius:10px;transition:width 0.6s ease"></div>
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:10px;text-align:center;padding:12px 8px;background:var(--bg-surface);border-radius:var(--r-md);border:1px solid var(--border-xs)">
+            <div>
+              <div style="font-size:11px;font-weight:700;color:var(--text-4);text-transform:uppercase">Completed</div>
+              <div style="font-size:18px;font-weight:900;color:var(--green-500);margin-top:2px">${completedCount}</div>
+            </div>
+            <div style="border-left:1px solid var(--border-sm);border-right:1px solid var(--border-sm)">
+              <div style="font-size:11px;font-weight:700;color:var(--text-4);text-transform:uppercase">In Progress</div>
+              <div style="font-size:18px;font-weight:900;color:var(--amber-500);margin-top:2px">${inProgressCount}</div>
+            </div>
+            <div>
+              <div style="font-size:11px;font-weight:700;color:var(--text-4);text-transform:uppercase">Urgent / High</div>
+              <div style="font-size:18px;font-weight:900;color:var(--brand-500);margin-top:2px">${urgentCount + highCount}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Services Retainer Breakdown -->
+        <div class="card" style="padding:22px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+            <h3 style="font-size:16px;font-weight:800;color:var(--text-1);margin:0">Services Retainer Breakdown</h3>
+            <span style="font-size:12px;font-weight:700;color:var(--text-3)">${serviceList.length} Active Services</span>
+          </div>
+
+          ${serviceList.length > 0 ? `
+            <div style="display:flex;flex-direction:column;gap:12px">
+              ${serviceList.slice(0, 5).map(([name, count]) => {
+                const pct = Math.round((count / (totalCount || 1)) * 100);
+                return `
+                  <div>
+                    <div style="display:flex;justify-content:space-between;font-size:12.5px;font-weight:700;color:var(--text-2);margin-bottom:4px">
+                      <span>${escapeHtml(name)}</span>
+                      <span style="color:var(--text-4)">${count} job(s) (${pct}%)</span>
+                    </div>
+                    <div style="width:100%;height:7px;background:var(--border-sm);border-radius:6px;overflow:hidden">
+                      <div style="width:${pct}%;height:100%;background:linear-gradient(90deg, var(--brand-500), #6366F1);border-radius:6px"></div>
+                    </div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          ` : `
+            <div class="empty" style="padding:20px">No service activity recorded for this period.</div>
+          `}
+        </div>
+
+      </div>
+
+      <!-- Dedicated Account Team Snapshot -->
+      <div class="card" style="padding:22px;margin-bottom:24px">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px">
+          <div>
+            <h3 style="font-size:16px;font-weight:800;color:var(--text-1);margin:0 0 2px 0">Your Dedicated Account Team</h3>
+            <p style="font-size:12.5px;color:var(--text-3);margin:0">Directly assigned creative specialists and client success partners</p>
+          </div>
+          <button class="btn ghost small" id="btnMeetTeam" style="font-weight:700">
+            View Full Team Roster →
+          </button>
+        </div>
+
+        ${assignedTeam.length > 0 ? `
+          <div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(220px, 1fr));gap:14px">
+            ${assignedTeam.slice(0, 6).map(m => `
+              <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--bg-surface);border:1px solid var(--border-xs);border-radius:var(--r-md)">
+                <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#4F46E5 0%,#7C3AED 100%);color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;flex-shrink:0">
+                  ${m.name.slice(0,2).toUpperCase()}
+                </div>
+                <div style="min-width:0;flex:1">
+                  <div style="font-size:13.5px;font-weight:800;color:var(--text-1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(m.name)}</div>
+                  <div style="font-size:11px;font-weight:600;color:var(--brand-500);text-transform:uppercase">${escapeHtml(m.role)}</div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        ` : `
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:16px;background:var(--bg-surface);border-radius:var(--r-md);flex-wrap:wrap;gap:12px">
+            <div style="font-size:13px;color:var(--text-3)">
+              Your account is supported by our full multi-disciplinary creative studio.
+            </div>
+            <button class="btn gold small" onclick="ci360NavTab('team')">Meet the Team</button>
+          </div>
+        `}
+      </div>
+
+      <!-- Recent Work Orders & Active Jobs Table -->
+      <div class="card table-card" style="padding:0;overflow:hidden;margin-bottom:24px">
+        <div style="padding:18px 24px;border-bottom:1px solid var(--border-sm);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+          <div>
+            <h3 style="font-size:16px;font-weight:800;color:var(--text-1);margin:0 0 2px 0">Recent Work Orders &amp; Requests</h3>
+            <p style="font-size:12.5px;color:var(--text-3);margin:0">Latest deliverables in your production queue</p>
+          </div>
+          <button class="btn ghost small" id="btnViewAllJobs" style="font-weight:700">
+            View All Jobs (${allJobs.length}) →
+          </button>
+        </div>
+
+        ${recentJobs.length > 0 ? `
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th style="padding-left:24px">Job Title</th>
+                  <th>Service</th>
+                  <th>Priority</th>
+                  <th>Start Date</th>
+                  <th>Delivery Due</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${recentJobs.map(j => {
+                  const isDone = j.status === 'Completed' || (j.clientApproval && j.clientApproval.status === 'Approved') || j.completionDate;
+                  const isRev = j.clientApproval && j.clientApproval.status === 'Revision Requested';
+                  const priColor = j.priority === 'Urgent' ? 'red' : (j.priority === 'High' ? 'amber' : 'blue');
+                  return `
+                    <tr style="cursor:pointer" onclick="ci360NavTab('jobs')">
+                      <td style="padding-left:24px;font-weight:800;color:var(--text-1)">
+                        ${escapeHtml(j.title || 'Untitled Request')}
+                      </td>
+                      <td>
+                        ${(j.serviceNames || []).map(s => `<span class="badge gray" style="font-size:11px">${escapeHtml(s)}</span>`).join(' ') || '<span style="color:var(--text-4)">—</span>'}
+                      </td>
+                      <td>
+                        <span class="badge ${priColor}" style="font-size:11px;font-weight:700">${escapeHtml(j.priority || 'Medium')}</span>
+                      </td>
+                      <td style="font-size:12.5px;color:var(--text-3)">${fmtDate(j.date)}</td>
+                      <td style="font-size:12.5px;color:var(--text-2);font-weight:600">${j.completionDate ? fmtDate(j.completionDate) : '—'}</td>
+                      <td>
+                        <span class="badge ${isDone ? 'green' : (isRev ? 'amber' : 'gold')}" style="font-weight:700">
+                          ${isDone ? '✓ Completed' : (isRev ? '↺ Revision' : '⏳ In Progress')}
+                        </span>
+                      </td>
+                    </tr>
+                  `;
+                }).join('')}
+              </tbody>
+            </table>
+          </div>
+        ` : `
+          <div class="empty" style="padding:36px 20px">
+            <div style="font-size:32px;margin-bottom:10px">📝</div>
+            <h4 style="margin:0 0 6px 0;font-size:16px;font-weight:800;color:var(--text-1)">No Jobs Logged Yet</h4>
+            <p style="font-size:13px;color:var(--text-3);margin:0 0 16px 0">Submit your first creative brief or task request to get started.</p>
+            <button class="btn gold" onclick="ci360NavTab('logjob')">➕ Log Your First Job</button>
+          </div>
+        `}
+      </div>
+
+    </div>
+  `;
+
+  // Bind interactive elements
+  const btnHeroLogJob = document.getElementById('btnHeroLogJob');
+  if (btnHeroLogJob) btnHeroLogJob.onclick = () => { ui.tab = 'logjob'; render(); };
+
+  const btnHeroInvoices = document.getElementById('btnHeroInvoices');
+  if (btnHeroInvoices) btnHeroInvoices.onclick = () => { ui.tab = 'billing'; render(); };
+
+  const btnReviewNow = document.getElementById('btnReviewNow');
+  if (btnReviewNow) btnReviewNow.onclick = () => { ui.tab = 'delivered'; render(); };
+
+  const btnMeetTeam = document.getElementById('btnMeetTeam');
+  if (btnMeetTeam) btnMeetTeam.onclick = () => { ui.tab = 'team'; render(); };
+
+  const btnViewAllJobs = document.getElementById('btnViewAllJobs');
+  if (btnViewAllJobs) btnViewAllJobs.onclick = () => { ui.tab = 'jobs'; render(); };
+
+  document.querySelectorAll('#overviewPeriodWrapper [data-period]').forEach(b => {
+    b.onclick = () => {
+      ui.period = b.dataset.period;
+      renderTab();
+    };
+  });
 }
 
 /* ════════════════════════════ LOG A JOB ════════════════════════ */
