@@ -88,24 +88,58 @@ router.get('/admin', requireRole('superadmin'), async (req, res) => {
 });
 
 // ---- EMPLOYEE OVERVIEW ----
-router.get('/employee', requireRole('employee'), async (req, res) => {
-  if (!req.user.personnelId) return res.status(400).json({ error: 'This login is not linked to a personnel record. Ask your admin to link it.' });
+router.get('/employee', requireRole('employee', 'superadmin', 'accounts'), async (req, res) => {
   const period = req.query.period || 'month';
   const { from, to } = periodRange(period);
   const weeks = weeksBetween(from, to);
 
+  let personId = req.user.personnelId;
+  if (!personId) {
+    const matched = await Personnel.findOne({
+      $or: [
+        { name: new RegExp(`^${req.user.name}$`, 'i') },
+        { email: req.user.email }
+      ]
+    }).lean();
+    if (matched) {
+      personId = matched._id;
+    }
+  }
+
+  if (!personId) {
+    return res.json({
+      period, from, to,
+      person: { name: req.user.name, duties: 'Team Member', capacity: 48, status: 'active' },
+      stats: { hours: 0, revenue: 0, jobCount: 0, utilization: 0, label: 'Optimal', badge: 'green' },
+      recentJobs: [],
+      allJobs: [],
+      accountsCount: 0,
+      accounts: []
+    });
+  }
+
   const [allJobs, person, roster] = await Promise.all([
-    Job.find({ 'assignments.personId': req.user.personnelId }).populate('clientId', 'name').lean(),
-    Personnel.findById(req.user.personnelId).lean(),
+    Job.find({ 'assignments.personId': personId }).populate('clientId', 'name').lean(),
+    Personnel.findById(personId).lean(),
     Roster.find().lean(),
   ]);
-  if (!person) return res.status(404).json({ error: 'Personnel record not found' });
+  if (!person) {
+    return res.json({
+      period, from, to,
+      person: { name: req.user.name, duties: 'Team Member', capacity: 48, status: 'active' },
+      stats: { hours: 0, revenue: 0, jobCount: 0, utilization: 0, label: 'Optimal', badge: 'green' },
+      recentJobs: [],
+      allJobs: [],
+      accountsCount: 0,
+      accounts: []
+    });
+  }
 
   const jobs = filterJobsInRange(allJobs, from, to);
   let hours = 0, revenue = 0;
   jobs.forEach(j => {
     (j.assignments || []).forEach(a => {
-      if (String(a.personId) === String(req.user.personnelId)) {
+      if (String(a.personId) === String(personId)) {
         hours += Number(a.hours) || 0;
         revenue += (Number(j.value) || 0) * (Number(a.percent) || 0) / 100;
       }
@@ -121,6 +155,7 @@ router.get('/employee', requireRole('employee'), async (req, res) => {
     person: { name: person.name, duties: person.duties, capacity: person.capacity, status: person.status },
     stats: { hours, revenue, jobCount: jobs.length, utilization, ...utilStatus(utilization) },
     recentJobs: jobs.slice(0, 20),
+    allJobs: allJobs.sort((a, b) => new Date(b.date) - new Date(a.date)),
     accountsCount: myAccounts.length,
     accounts: myAccounts.map(r => ({ id: r._id, clientId: r.clientId, difficulty: r.difficulty, nature: r.nature })),
   });

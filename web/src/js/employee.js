@@ -1,6 +1,6 @@
 let user = null;
 let cache = { personnel: [], clients: [], services: [] };
-let ui = { tab: 'myjobs', period: 'month', ticketsFilter: 'all' };
+let ui = { tab: 'dashboard', period: 'month', ticketsFilter: 'all' };
 
 async function boot(){
   initTheme();
@@ -19,10 +19,11 @@ function isLeadManager(){ return user && (/mansi/i.test(user.name) || /urna/i.te
 function getEmployeeTabs() {
   const isAccountsAccess = user && (user.role === 'accounts' || user.role === 'superadmin' || /ekta/i.test(user.name) || /ekta/i.test(user.email));
   const tabs = [
-    { key: 'myjobs',     label: 'My Jobs',         icon: '📋' },
-    { key: 'dailytasks', label: 'Daily Tasks',     icon: '✅' },
-    { key: 'tickets',    label: 'Support Tickets', icon: '🎫' },
-    { key: 'targets',    label: 'My Targets',      icon: '🎯' }
+    { key: 'dashboard',  label: 'Overview Dashboard', icon: '📊' },
+    { key: 'myjobs',     label: 'My Jobs',            icon: '📋' },
+    { key: 'dailytasks', label: 'Daily Tasks',        icon: '✅' },
+    { key: 'tickets',    label: 'Support Tickets',    icon: '🎫' },
+    { key: 'targets',    label: 'My Targets',         icon: '🎯' }
   ];
   if (isAccountsAccess) {
     tabs.push({ key: 'accounts_redirect', label: 'Accounts Dashboard 💰', icon: '💳' });
@@ -40,7 +41,7 @@ function render(){
     activeTab: ui.tab,
     tabs: tabs,
     title: activeTabObj.label,
-    subtitle: isLeadManager() ? 'Lead Workspace · Mansi & Urna Management' : 'Employee Workspace & Daily Task Checklist'
+    subtitle: isLeadManager() ? 'Lead Workspace · Mansi & Urna Management' : 'Employee Workspace & Productivity Dashboard'
   });
   bindAppShellEvents((newTab)=>{ 
     if (newTab === 'accounts_redirect') {
@@ -66,7 +67,8 @@ async function renderTab(){
   if(!c) return;
   c.innerHTML = renderSkeletonCards(3);
   try{
-    if(ui.tab==='myjobs')                                 await tabMyJobs(c);
+    if(ui.tab==='dashboard')                              await tabEmployeeDashboard(c);
+    else if(ui.tab==='myjobs')                            await tabMyJobs(c);
     else if(ui.tab==='dailytasks' || ui.tab==='mytasks') await tabDailyTasks(c);
     else if(ui.tab==='tickets')                           await tabTickets(c);
     else if(ui.tab==='targets')                           await tabTargets(c);
@@ -82,6 +84,331 @@ function periodPicker(){
 function bindPeriodPicker(){
   document.querySelectorAll('[data-period]').forEach(b=>{
     b.onclick = ()=>{ ui.period = b.dataset.period; renderTab(); };
+  });
+}
+
+/* ════════════════════════════ EMPLOYEE DASHBOARD OVERVIEW ═══════════════════ */
+async function tabEmployeeDashboard(c){
+  const [dash, allMyJobs, allTasks, allTickets] = await Promise.all([
+    apiGet('/dashboard/employee?period=' + ui.period).catch(() => ({ stats: {}, person: {}, recentJobs: [], accounts: [] })),
+    apiGet('/jobs?mine=true').catch(() => []),
+    apiGet('/tasks').catch(() => []),
+    apiGet('/tickets').catch(() => [])
+  ]);
+
+  const person = dash.person || {};
+  const empName = person.name || user?.name || 'Team Member';
+  const duties = person.duties || 'Creative Specialist';
+  const capacity = Number(person.capacity) || 48;
+  const stats = dash.stats || { hours: 0, revenue: 0, jobCount: 0, utilization: 0, label: 'Optimal', badge: 'green' };
+
+  // Jobs filtering and breakdown
+  const jobs = allMyJobs || [];
+  const completedJobs = jobs.filter(j => j.status === 'Completed' || (j.clientApproval && j.clientApproval.status === 'Approved') || j.completionDate);
+  const inProgressJobs = jobs.filter(j => !j.completionDate && j.status !== 'Completed' && (!j.clientApproval || j.clientApproval.status !== 'Approved'));
+  const revisionJobs = jobs.filter(j => j.clientApproval && j.clientApproval.status === 'Revision Requested');
+  const urgentJobs = inProgressJobs.filter(j => j.priority === 'Urgent');
+  const highJobs = inProgressJobs.filter(j => j.priority === 'High');
+
+  // Today's tasks calculation
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const todayTasks = (allTasks || []).filter(t => {
+    if (!t.date) return true;
+    return t.date.slice(0, 10) === todayStr;
+  });
+  const todayDone = todayTasks.filter(t => t.status === 'Completed');
+  const todayPending = todayTasks.filter(t => t.status !== 'Completed');
+  const taskProgressPct = todayTasks.length > 0 ? Math.round((todayDone.length / todayTasks.length) * 100) : 100;
+
+  // Active support tickets assigned
+  const myTickets = (allTickets || []).filter(tk => {
+    return tk.status !== 'resolved' && tk.status !== 'closed';
+  });
+
+  // Client accounts assigned
+  const accounts = dash.accounts || [];
+
+  c.innerHTML = `
+    <div class="block employee-overview-container" style="max-width:1280px;margin:0 auto">
+      
+      <!-- Employee Profile Hero Card -->
+      <div class="card employee-hero-card" style="background:linear-gradient(135deg, rgba(79,70,229,0.08) 0%, rgba(14,165,233,0.05) 50%, rgba(16,185,129,0.05) 100%);border:1px solid rgba(99,102,241,0.22);border-radius:var(--r-xl);padding:24px 28px;margin-bottom:24px;box-shadow:var(--shadow-sm)">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px">
+          
+          <div style="display:flex;align-items:center;gap:18px">
+            <div style="width:56px;height:56px;border-radius:var(--r-lg);background:linear-gradient(135deg,#4F46E5 0%,#7C3AED 100%);color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900;box-shadow:0 8px 16px -4px rgba(79,70,229,0.4);flex-shrink:0">
+              ${empName.slice(0,2).toUpperCase()}
+            </div>
+            <div>
+              <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:4px">
+                <h1 style="font-size:24px;font-weight:800;color:var(--text-1);margin:0;letter-spacing:-0.5px">${escapeHtml(empName)}</h1>
+                <span class="badge blue" style="font-size:11px;font-weight:700">${escapeHtml(duties)}</span>
+                <span class="badge ${stats.badge || 'green'}" style="font-size:11px;font-weight:700">● ${escapeHtml(stats.label || 'Optimal Pace')}</span>
+              </div>
+              <p style="font-size:13.5px;color:var(--text-3);margin:0">
+                Personal Workspace &amp; Performance Radar · Standard Capacity: <strong>${capacity}h / week</strong>
+              </p>
+            </div>
+          </div>
+
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <button class="btn primary" id="btnEmpQuickJobs" style="display:inline-flex;align-items:center;gap:8px;font-weight:700;padding:9px 18px;border-radius:var(--r-md)">
+              <span>📋</span> My Jobs (${jobs.length})
+            </button>
+            <button class="btn secondary" id="btnEmpQuickTasks" style="display:inline-flex;align-items:center;gap:8px;font-weight:600;padding:9px 16px;border-radius:var(--r-md)">
+              <span>✅</span> Daily Tasks
+            </button>
+          </div>
+
+        </div>
+
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;margin-top:22px;padding-top:18px;border-top:1px solid var(--border-xs)">
+          <div style="font-size:12.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--text-4)">
+            Period Performance Scope
+          </div>
+          <div id="empOverviewPeriodWrapper">
+            ${renderPeriodPicker(ui.period)}
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Banner: Urgent / Revision Alerts -->
+      ${(urgentJobs.length > 0 || revisionJobs.length > 0 || myTickets.length > 0) ? `
+        <div class="card" style="background:linear-gradient(135deg, rgba(239,68,68,0.08) 0%, rgba(245,158,11,0.06) 100%);border:1px solid rgba(239,68,68,0.3);border-radius:var(--r-lg);padding:16px 22px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px">
+          <div style="display:flex;align-items:center;gap:14px">
+            <span style="font-size:24px">⚡</span>
+            <div>
+              <div style="font-size:15px;font-weight:800;color:var(--text-1);margin-bottom:2px">
+                High Priority Focus Items
+              </div>
+              <div style="font-size:13px;color:var(--text-2);display:flex;gap:12px;flex-wrap:wrap">
+                ${urgentJobs.length > 0 ? `<span style="color:var(--red);font-weight:700">🔴 ${urgentJobs.length} Urgent Job(s)</span>` : ''}
+                ${revisionJobs.length > 0 ? `<span style="color:var(--amber-500);font-weight:700">↺ ${revisionJobs.length} Revision Request(s)</span>` : ''}
+                ${myTickets.length > 0 ? `<span style="color:var(--brand-500);font-weight:700">🎫 ${myTickets.length} Open Ticket(s)</span>` : ''}
+              </div>
+            </div>
+          </div>
+          <button class="btn ghost small" onclick="ci360NavTab('myjobs')" style="font-weight:700">
+            Open Queue →
+          </button>
+        </div>
+      ` : ''}
+
+      <!-- 4 KPI Summary Cards -->
+      <section class="block block-kpi-grid" style="margin-bottom:24px">
+        <div class="grid grid-4" style="gap:16px">
+
+          <div class="card kpi" style="border-top:3px solid var(--brand-500);padding:20px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+              <div class="label" style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--text-3)">Capacity Utilization</div>
+              <div style="font-size:20px">📈</div>
+            </div>
+            <div class="value" style="font-size:32px;font-weight:900;color:var(--text-1);line-height:1">${Number(stats.utilization || 0).toFixed(0)}%</div>
+            <div class="sub" style="font-size:12px;color:var(--text-4);margin-top:6px">${Number(stats.hours || 0).toFixed(1)} hrs tracked this period</div>
+          </div>
+
+          <div class="card kpi" style="border-top:3px solid var(--amber-500);padding:20px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+              <div class="label" style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--text-3)">Active Workload</div>
+              <div style="font-size:20px">⏳</div>
+            </div>
+            <div class="value" style="font-size:32px;font-weight:900;color:var(--amber-500);line-height:1">${inProgressJobs.length}</div>
+            <div class="sub" style="font-size:12px;color:var(--text-4);margin-top:6px">${completedJobs.length} completed deliverables</div>
+          </div>
+
+          <div class="card kpi" style="border-top:3px solid var(--green-500);padding:20px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+              <div class="label" style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--text-3)">Today's Task Progress</div>
+              <div style="font-size:20px">✅</div>
+            </div>
+            <div class="value" style="font-size:32px;font-weight:900;color:var(--green-500);line-height:1">${todayDone.length} <span style="font-size:18px;font-weight:600;color:var(--text-4)">/ ${todayTasks.length}</span></div>
+            <div class="sub" style="font-size:12px;color:var(--text-4);margin-top:6px">${taskProgressPct}% of today's checklist completed</div>
+          </div>
+
+          <div class="card kpi" style="border-top:3px solid #8B5CF6;padding:20px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+              <div class="label" style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--text-3)">Value Output Tracked</div>
+              <div style="font-size:20px">💰</div>
+            </div>
+            <div class="value" style="font-size:32px;font-weight:900;color:#8B5CF6;line-height:1">${fmtINR(stats.revenue || 0)}</div>
+            <div class="sub" style="font-size:12px;color:var(--text-4);margin-top:6px">Revenue deliverable contribution</div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- 2-Column: Today's Tasks & Assigned Accounts -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(340px, 1fr));gap:20px;margin-bottom:24px">
+        
+        <!-- Today's Tasks Card -->
+        <div class="card" style="padding:22px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+            <div>
+              <h3 style="font-size:16px;font-weight:800;color:var(--text-1);margin:0 0 2px 0">Today's Task Checklist</h3>
+              <p style="font-size:12px;color:var(--text-3);margin:0">${todayPending.length} pending · ${todayDone.length} done</p>
+            </div>
+            <button class="btn secondary small" onclick="ci360NavTab('dailytasks')" style="font-size:12px">
+              Open Checklist →
+            </button>
+          </div>
+
+          <!-- Progress Bar -->
+          <div style="margin-bottom:16px">
+            <div style="width:100%;height:8px;background:var(--border-sm);border-radius:8px;overflow:hidden">
+              <div style="width:${taskProgressPct}%;height:100%;background:linear-gradient(90deg, var(--green-500), #059669);border-radius:8px;transition:width 0.4s ease"></div>
+            </div>
+          </div>
+
+          ${todayTasks.length > 0 ? `
+            <div style="display:flex;flex-direction:column;gap:10px">
+              ${todayTasks.slice(0, 5).map(t => {
+                const isComplete = t.status === 'Completed';
+                return `
+                  <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;background:var(--bg-surface);border:1px solid var(--border-xs);border-radius:var(--r-md)">
+                    <div style="display:flex;align-items:center;gap:10px;min-width:0">
+                      <span style="font-size:16px">${isComplete ? '✅' : '⚪'}</span>
+                      <span style="font-size:13px;font-weight:600;color:${isComplete ? 'var(--text-4)' : 'var(--text-1)'};${isComplete ? 'text-decoration:line-through' : ''};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+                        ${escapeHtml(t.title || 'Task')}
+                      </span>
+                    </div>
+                    <span class="badge ${t.priority === 'Urgent' ? 'red' : (t.priority === 'High' ? 'amber' : 'gray')}" style="font-size:10.5px">
+                      ${escapeHtml(t.priority || 'Normal')}
+                    </span>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          ` : `
+            <div class="empty" style="padding:24px 10px;text-align:center">
+              <div style="font-size:24px;margin-bottom:6px">✨</div>
+              <div style="font-size:13.5px;font-weight:700;color:var(--text-2)">No tasks logged for today</div>
+              <p style="font-size:12px;color:var(--text-4);margin:4px 0 12px 0">Plan your day and log your milestones.</p>
+              <button class="btn secondary small" onclick="ci360NavTab('dailytasks')">➕ Add Today's Tasks</button>
+            </div>
+          `}
+        </div>
+
+        <!-- Assigned Client Accounts Card -->
+        <div class="card" style="padding:22px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+            <div>
+              <h3 style="font-size:16px;font-weight:800;color:var(--text-1);margin:0 0 2px 0">Assigned Client Accounts</h3>
+              <p style="font-size:12px;color:var(--text-3);margin:0">${accounts.length} active client accounts on roster</p>
+            </div>
+            <span class="badge gold" style="font-weight:700">${accounts.length} Accounts</span>
+          </div>
+
+          ${accounts.length > 0 ? `
+            <div style="display:flex;flex-direction:column;gap:10px">
+              ${accounts.slice(0, 5).map(acc => {
+                const cObj = cache.clients.find(c => String(c._id) === String(acc.clientId)) || {};
+                const cName = cObj.name || 'Client Account';
+                return `
+                  <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px;background:var(--bg-surface);border:1px solid var(--border-xs);border-radius:var(--r-md)">
+                    <div style="display:flex;align-items:center;gap:10px;min-width:0">
+                      <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--brand-500) 0%,#4338CA 100%);color:#FFF;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0">
+                        ${cName.slice(0,2).toUpperCase()}
+                      </div>
+                      <div style="min-width:0">
+                        <div style="font-size:13.5px;font-weight:700;color:var(--text-1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(cName)}</div>
+                        <div style="font-size:11px;color:var(--text-4)">${escapeHtml(acc.nature || 'Retainer')} · ${escapeHtml(acc.difficulty || 'Normal')}</div>
+                      </div>
+                    </div>
+                    <span class="badge blue" style="font-size:11px;font-weight:600">Active</span>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          ` : `
+            <div class="empty" style="padding:24px 10px;text-align:center">
+              <div style="font-size:24px;margin-bottom:6px">🏢</div>
+              <div style="font-size:13.5px;font-weight:700;color:var(--text-2)">No dedicated roster accounts</div>
+              <p style="font-size:12px;color:var(--text-4);margin:4px 0 0 0">Jobs assigned across studio accounts.</p>
+            </div>
+          `}
+        </div>
+
+      </div>
+
+      <!-- Recent Assigned Jobs Table -->
+      <div class="card table-card" style="padding:0;overflow:hidden;margin-bottom:24px">
+        <div style="padding:18px 24px;border-bottom:1px solid var(--border-sm);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+          <div>
+            <h3 style="font-size:16px;font-weight:800;color:var(--text-1);margin:0 0 2px 0">Assigned Production Jobs</h3>
+            <p style="font-size:12.5px;color:var(--text-3);margin:0">Recent deliverables assigned to your workflow</p>
+          </div>
+          <button class="btn secondary small" onclick="ci360NavTab('myjobs')" style="font-weight:700">
+            View All Jobs (${jobs.length}) →
+          </button>
+        </div>
+
+        ${jobs.length > 0 ? `
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th style="padding-left:24px">Job Title</th>
+                  <th>Client</th>
+                  <th>Priority</th>
+                  <th>Start Date</th>
+                  <th>Due Date</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${jobs.slice(0, 6).map(j => {
+                  const isDone = j.status === 'Completed' || (j.clientApproval && j.clientApproval.status === 'Approved') || j.completionDate;
+                  const isRev = j.clientApproval && j.clientApproval.status === 'Revision Requested';
+                  const cName = j.clientId?.name || clientName(j.clientId) || 'Client';
+                  const priColor = j.priority === 'Urgent' ? 'red' : (j.priority === 'High' ? 'amber' : 'gray');
+                  return `
+                    <tr style="cursor:pointer" onclick="ci360NavTab('myjobs')">
+                      <td style="padding-left:24px;font-weight:800;color:var(--text-1)">
+                        ${escapeHtml(j.title || 'Untitled Job')}
+                      </td>
+                      <td>
+                        <span class="badge blue" style="font-size:11px">${escapeHtml(cName)}</span>
+                      </td>
+                      <td>
+                        <span class="badge ${priColor}" style="font-size:11px;font-weight:700">${escapeHtml(j.priority || 'Medium')}</span>
+                      </td>
+                      <td style="font-size:12.5px;color:var(--text-3)">${fmtDate(j.date)}</td>
+                      <td style="font-size:12.5px;color:var(--text-2);font-weight:600">${j.completionDate ? fmtDate(j.completionDate) : '—'}</td>
+                      <td>
+                        <span class="badge ${isDone ? 'green' : (isRev ? 'red' : 'amber')}" style="font-weight:700">
+                          ${isDone ? '✓ Completed' : (isRev ? '↺ Revision' : '⏳ In Progress')}
+                        </span>
+                      </td>
+                    </tr>
+                  `;
+                }).join('')}
+              </tbody>
+            </table>
+          </div>
+        ` : `
+          <div class="empty" style="padding:36px 20px">
+            <div style="font-size:32px;margin-bottom:10px">📋</div>
+            <h4 style="margin:0 0 6px 0;font-size:16px;font-weight:800;color:var(--text-1)">No Jobs Assigned Yet</h4>
+            <p style="font-size:13px;color:var(--text-3);margin:0">Admins will assign jobs to your workflow.</p>
+          </div>
+        `}
+      </div>
+
+    </div>
+  `;
+
+  // Bind interactive buttons
+  const btnEmpQuickJobs = document.getElementById('btnEmpQuickJobs');
+  if (btnEmpQuickJobs) btnEmpQuickJobs.onclick = () => { ui.tab = 'myjobs'; render(); };
+
+  const btnEmpQuickTasks = document.getElementById('btnEmpQuickTasks');
+  if (btnEmpQuickTasks) btnEmpQuickTasks.onclick = () => { ui.tab = 'dailytasks'; render(); };
+
+  document.querySelectorAll('#empOverviewPeriodWrapper [data-period]').forEach(b => {
+    b.onclick = () => {
+      ui.period = b.dataset.period;
+      renderTab();
+    };
   });
 }
 
