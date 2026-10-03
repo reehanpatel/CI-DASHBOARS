@@ -537,7 +537,7 @@ var require_Job = __commonJS({
         uploadedAt: { type: Date, default: Date.now }
       }]
     }, { timestamps: true });
-    module2.exports = mongoose.model("Job", JobSchema);
+    module2.exports = mongoose.models.Job || mongoose.model("Job", JobSchema);
   }
 });
 var require_Notification = __commonJS({
@@ -553,6 +553,8 @@ var require_Notification = __commonJS({
       message: { type: String, required: true },
       jobId: { type: mongoose.Schema.Types.ObjectId, ref: "Job", default: null },
       targetId: { type: mongoose.Schema.Types.ObjectId, ref: "Target", default: null },
+      taskId: { type: mongoose.Schema.Types.ObjectId, ref: "Task", default: null },
+      invoiceId: { type: mongoose.Schema.Types.ObjectId, ref: "Invoice", default: null },
       read: { type: Boolean, default: false },
       attachments: [{
         name: { type: String, required: true },
@@ -561,7 +563,7 @@ var require_Notification = __commonJS({
         type: { type: String, default: "" }
       }]
     }, { timestamps: true });
-    module2.exports = mongoose.model("Notification", NotificationSchema);
+    module2.exports = mongoose.models.Notification || mongoose.model("Notification", NotificationSchema);
   }
 });
 var require_notify = __commonJS({
@@ -2032,11 +2034,11 @@ app.use("/api/users", require_users());
 app.use("/api/personnel", require_personnel());
 app.use("/api/clients", require_clients());
 app.use("/api/services", require_services());
-app.use("/api/jobs", require("./routes/jobs"));
+app.use("/api/jobs", require_jobs());
 app.use("/api/roster", require_roster());
 app.use("/api/targets", require_targets());
 app.use("/api/salary", require_salary());
-app.use("/api/dashboard", require("./routes/dashboard"));
+app.use("/api/dashboard", require_dashboard());
 app.use("/api/notifications", require("./routes/notifications"));
 app.use("/api/tickets", require("./routes/tickets"));
 app.use("/api/upload", require_upload());

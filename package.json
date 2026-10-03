@@ -1,6 +1,6 @@
 {
   "name": "ci360-productivity-suite",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "description": "CI360 Productivity Intelligence - Node.js Express backend API & Vite web frontend",
   "main": "backend/server.js",
   "private": true,
