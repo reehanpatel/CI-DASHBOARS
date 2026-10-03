@@ -5,6 +5,7 @@ const SupportTicket = mongoose.models.SupportTicket || require('../models/Suppor
 const Job = mongoose.models.Job || require('../models/Job');
 const Personnel = mongoose.models.Personnel || require('../models/Personnel');
 const { verifyToken } = require('../middleware/auth');
+const { createNotificationForTicket } = require('../utils/notify');
 
 router.use(verifyToken);
 
@@ -46,6 +47,15 @@ router.post('/', async (req, res) => {
         uploadedAt: att.uploadedAt || new Date()
       }))
     });
+
+    createNotificationForTicket({
+      type: 'ticket_created',
+      title: `🎫 New Ticket: ${ticket.subject}`,
+      message: `${ticket.userName} opened ticket "${ticket.subject}".`,
+      ticket,
+      actorId: req.user._id,
+      actorName: req.user.name
+    }).catch(e => console.warn('Ticket notification error:', e.message));
 
     const populated = await SupportTicket.findById(ticket._id)
       .populate('jobId', 'title')
@@ -204,6 +214,16 @@ router.put('/:id', async (req, res) => {
 
     const updated = await SupportTicket.findByIdAndUpdate(req.params.id, update, { new: true })
       .populate('jobId', 'title');
+
+    createNotificationForTicket({
+      type: adminReply !== undefined ? 'ticket_replied' : 'ticket_updated',
+      title: adminReply !== undefined ? `💬 Ticket Replied: ${updated.subject}` : `🎫 Ticket ${updated.status}: ${updated.subject}`,
+      message: adminReply !== undefined ? `${req.user.name || 'Manager'} replied to ticket "${updated.subject}".` : `Ticket "${updated.subject}" status changed to ${updated.status}.`,
+      ticket: updated,
+      actorId: req.user._id,
+      actorName: req.user.name
+    }).catch(e => console.warn('Ticket reply notification error:', e.message));
+
     res.json(updated);
   } catch (err) {
     res.status(500).json({ error: err.message });

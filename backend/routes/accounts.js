@@ -536,6 +536,15 @@ router.patch('/invoices/:id/status', async (req, res) => {
 
     invoice.status = status;
     await invoice.save();
+
+    await createNotificationForInvoice({
+      type: status === 'overdue' ? 'invoice_overdue' : (status === 'paid' ? 'invoice_paid' : 'invoice_status'),
+      title: status === 'overdue' ? '⚠️ Invoice Marked Overdue' : (status === 'paid' ? '✅ Invoice Marked Paid' : `🧾 Invoice Status: ${status}`),
+      message: `Invoice #${invoice.invoiceNumber} for ₹${(invoice.totalAmount || 0).toLocaleString('en-IN')} status changed to ${status}.`,
+      invoice,
+      actorId: req.user ? req.user._id : null
+    });
+
     res.json(invoice);
   } catch (err) {
     res.status(500).json({ error: 'Failed to update invoice status', detail: err.message });

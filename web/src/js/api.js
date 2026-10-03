@@ -45,6 +45,17 @@ export async function api(path, options={}){
   let data = null;
   try{ data = await res.json(); }catch(e){ /* no body or non-JSON body */ }
   if(!res.ok){ throw new Error((data && data.error) || ('Server status ' + res.status + ' — Backend waking up, please retry in 10s.')); }
+
+  // If this was a mutating request (POST, PUT, PATCH, DELETE) and not notification read/delete,
+  // immediately fetch notifications so alerts, popups, and sounds trigger instantly!
+  if(options.method && options.method !== 'GET' && !path.includes('/notifications')){
+    if(typeof window !== 'undefined' && typeof window.ci360FetchNotifications === 'function'){
+      setTimeout(() => {
+        try { window.ci360FetchNotifications(); } catch(e){}
+      }, 350);
+    }
+  }
+
   return data;
 }
 
@@ -530,6 +541,8 @@ export function getOrCreateFloatingAlertContainer(){
 }
 
 export function showInAppPopupAlert({ id, title, message, type, time, actionText, onAction, persistent = false, timeout = 8000 }){
+  playNotificationChime();
+  triggerPhoneVibration();
   const container = getOrCreateFloatingAlertContainer();
   if(!container) return;
 
@@ -1029,7 +1042,6 @@ export function initNotificationBell(){
           const itemsToAlert = unalertedUnread.slice(0, 3);
           for(const n of itemsToAlert){
             const sid = String(n._id);
-            alertedNotifIds.add(sid);
             showInAppPopupAlert({
               id: sid,
               title: n.title || 'CI360 Alert',
@@ -1060,7 +1072,6 @@ export function initNotificationBell(){
           for(const n of newlyArrived){
             const sid = String(n._id);
             seenNotifIds.add(sid);
-            alertedNotifIds.add(sid);
 
             // Pop up interactive in-app toast card
             showInAppPopupAlert({
