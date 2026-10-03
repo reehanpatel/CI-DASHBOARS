@@ -208,16 +208,39 @@ if(typeof window !== 'undefined'){
   });
 }
 
+/* ── AUDIO & VIBRATION ENGINES (DESKTOP & MOBILE PHONE) ── */
+let unlockedAudioCtx = null;
+
+function unlockAudioOnFirstInteraction(){
+  if(typeof window === 'undefined') return;
+  const unlock = () => {
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if(AudioCtx){
+        if(!unlockedAudioCtx) unlockedAudioCtx = new AudioCtx();
+        if(unlockedAudioCtx.state === 'suspended') unlockedAudioCtx.resume();
+      }
+    } catch(e){}
+    window.removeEventListener('touchstart', unlock, true);
+    window.removeEventListener('pointerdown', unlock, true);
+    window.removeEventListener('click', unlock, true);
+  };
+  window.addEventListener('touchstart', unlock, true);
+  window.addEventListener('pointerdown', unlock, true);
+  window.addEventListener('click', unlock, true);
+}
+unlockAudioOnFirstInteraction();
+
 export function playNotificationChime(){
   try{
     const now = Date.now();
-    // Throttle: Never play chime repeatedly within 5 seconds
-    if(now - lastChimeTimestamp < 5000) return;
+    // Throttle: Never play chime repeatedly within 2.5 seconds
+    if(now - lastChimeTimestamp < 2500) return;
     lastChimeTimestamp = now;
 
     const AudioCtx = window.AudioContext || window.webkitAudioContext;
     if(!AudioCtx) return;
-    const ctx = new AudioCtx();
+    const ctx = unlockedAudioCtx || new AudioCtx();
     if(ctx.state === 'suspended') ctx.resume();
     const curTime = ctx.currentTime;
 
@@ -227,39 +250,40 @@ export function playNotificationChime(){
     osc1.type = 'sine';
     osc1.frequency.setValueAtTime(587.33, curTime);
     gain1.gain.setValueAtTime(0, curTime);
-    gain1.gain.linearRampToValueAtTime(0.2, curTime + 0.02);
-    gain1.gain.exponentialRampToValueAtTime(0.001, curTime + 0.35);
+    gain1.gain.linearRampToValueAtTime(0.25, curTime + 0.02);
+    gain1.gain.exponentialRampToValueAtTime(0.001, curTime + 0.38);
     osc1.connect(gain1);
     gain1.connect(ctx.destination);
     osc1.start(curTime);
-    osc1.stop(curTime + 0.35);
+    osc1.stop(curTime + 0.38);
 
-    // Harmonic 2: 880 Hz (A5) with slight offset
+    // Harmonic 2: 880 Hz (A5) with pleasant harmonic bell chime
     const osc2 = ctx.createOscillator();
     const gain2 = ctx.createGain();
     osc2.type = 'sine';
     osc2.frequency.setValueAtTime(880, curTime + 0.12);
     gain2.gain.setValueAtTime(0, curTime + 0.12);
-    gain2.gain.linearRampToValueAtTime(0.22, curTime + 0.14);
-    gain2.gain.exponentialRampToValueAtTime(0.001, curTime + 0.55);
+    gain2.gain.linearRampToValueAtTime(0.28, curTime + 0.14);
+    gain2.gain.exponentialRampToValueAtTime(0.001, curTime + 0.6);
     osc2.connect(gain2);
     gain2.connect(ctx.destination);
     osc2.start(curTime + 0.12);
-    osc2.stop(curTime + 0.55);
+    osc2.stop(curTime + 0.6);
   }catch(e){
-    // AudioContext blocked by browser autoplay policy until user gesture
+    // Browser autoplay policy until user gesture
   }
 }
 
 export function triggerPhoneVibration(){
   try{
     const now = Date.now();
-    // Throttle: Never vibrate repeatedly within 5 seconds
-    if(now - lastVibrateTimestamp < 5000) return;
+    // Throttle: Never vibrate repeatedly within 2.5 seconds
+    if(now - lastVibrateTimestamp < 2500) return;
     lastVibrateTimestamp = now;
 
     if('vibrate' in navigator){
-      navigator.vibrate([150, 80, 150]);
+      // Distinct double buzz on phone
+      navigator.vibrate([200, 100, 200, 100, 200]);
     }
   }catch(e){}
 }
@@ -287,7 +311,7 @@ export function isNotificationBannerDismissed(){
 
 export async function requestNotificationPermission(){
   if(!('Notification' in window)){
-    flashToast('Your browser does not support notifications.', true);
+    flashToast('Your device browser does not support Web Notifications.', true);
     return false;
   }
   try{
@@ -300,10 +324,12 @@ export async function requestNotificationPermission(){
         banner.style.setProperty('display', 'none', 'important');
         banner.remove();
       }
-      flashToast('Notifications enabled for this device!');
+      flashToast('Notifications successfully enabled on this device!');
+      playNotificationChime();
+      triggerPhoneVibration();
       await triggerSystemNotification({
-        title: 'CI360 Notifications Active 🔔',
-        message: 'You will now receive instant alerts on this device for jobs and tasks.',
+        title: 'CI360 Alerts Active 🔔',
+        message: 'Instant notifications are now live on this device for jobs, tasks, and overdue invoices!',
         id: 'ci360-perm-welcome'
       });
       return true;
@@ -312,7 +338,7 @@ export async function requestNotificationPermission(){
         banner.classList.add('hidden');
         banner.style.setProperty('display', 'none', 'important');
       }
-      flashToast('Notification permission was declined.', true);
+      flashToast('Notification permission was not granted.', true);
       return false;
     }
   }catch(e){
@@ -325,16 +351,16 @@ export async function triggerSystemNotification({ title, message, type, id, url 
   const strId = id ? String(id) : null;
   loadAlertedNotifIds();
 
-  // STRICT RULE: GIVE NOTIFICATION ONCE ONLY, NEVER REPEATEDLY
+  // Deduplication check
   if(strId && alertedNotifIds.has(strId)){
-    return; // Already notified once! Stop immediately.
+    return;
   }
   if(strId){
     alertedNotifIds.add(strId);
     saveAlertedNotifIds();
   }
 
-  // Play sound & phone vibration (both safely throttled)
+  // Play chime and vibrate mobile phone
   playNotificationChime();
   triggerPhoneVibration();
 
@@ -342,11 +368,12 @@ export async function triggerSystemNotification({ title, message, type, id, url 
     return;
   }
 
-  // If permission is default, ask for permission
+  // If permission is default, try requesting on desktop or fallback
   if(Notification.permission === 'default'){
     try {
       const p = await Notification.requestPermission();
       if(p !== 'granted') return;
+      localStorage.setItem('ci360_notif_enabled', 'true');
     } catch(e){
       return;
     }
@@ -364,16 +391,38 @@ export async function triggerSystemNotification({ title, message, type, id, url 
     body: message || 'You have a new update in CI360.',
     icon: iconUrl,
     badge: iconUrl,
-    tag: strId ? `ci360-notif-${strId}` : 'ci360-alert',
-    renotify: false, // Critical: NEVER re-alert the device repeatedly for existing notifications
-    vibrate: [150, 80, 150],
+    tag: strId ? `ci360-notif-${strId}` : ('ci360-alert-' + Date.now()),
+    renotify: true,
+    vibrate: [200, 100, 200, 100, 200],
     data: {
       url: url || (typeof window !== 'undefined' ? window.location.href : ''),
       type: type || 'general'
     }
   };
 
-  // 1. Direct window Notification for desktop Chrome (instant & reliable)
+  // 1. Send to Service Worker via postMessage (Crucial for mobile Android Chrome & PWA)
+  try {
+    if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+      navigator.serviceWorker.controller.postMessage({
+        type: 'SHOW_NOTIFICATION',
+        title,
+        options
+      });
+    }
+  } catch(e){}
+
+  // 2. Fallback via active ServiceWorker registration
+  try {
+    if ('serviceWorker' in navigator) {
+      const reg = swRegistration || await navigator.serviceWorker.getRegistration();
+      if (reg && reg.showNotification) {
+        await reg.showNotification(title, options);
+        return;
+      }
+    }
+  } catch(err){}
+
+  // 3. Direct window Notification for desktop Chrome, Edge, Safari, Firefox
   try {
     const n = new Notification(title, options);
     n.onclick = () => {
@@ -382,31 +431,32 @@ export async function triggerSystemNotification({ title, message, type, id, url 
     };
     return;
   } catch(e) {
-    // Mobile Chrome throws error on new Notification() and requires ServiceWorker
+    // Expected on mobile Android Chrome
   }
+}
 
-  // 2. Fallback for mobile Android Chrome: Service Worker showNotification
-  try {
-    if(swRegistration && swRegistration.showNotification){
-      await swRegistration.showNotification(title, options);
-      return;
-    }
-    if('serviceWorker' in navigator){
-      const reg = await Promise.race([
-        navigator.serviceWorker.ready,
-        new Promise(res => setTimeout(() => res(null), 400))
-      ]);
-      if(reg && reg.showNotification){
-        await reg.showNotification(title, options);
-      }
-    }
-  } catch(err){
-    console.warn('Service Worker notification dispatch:', err);
-  }
+export async function testDeviceNotification(){
+  playNotificationChime();
+  triggerPhoneVibration();
+  showInAppPopupAlert({
+    id: 'test-' + Date.now(),
+    title: '🔔 CI360 Alert Test',
+    message: 'Sound, vibration, in-app popup, and device notifications are active!',
+    type: 'test'
+  });
+  await triggerSystemNotification({
+    title: '🔔 CI360 Alert Test',
+    message: 'Sound, vibration, in-app popup, and device notifications are active on this device!',
+    type: 'test',
+    id: 'test-sys-' + Date.now()
+  });
+  flashToast('Test alert triggered on this device!');
 }
 
 if(typeof window !== 'undefined'){
   window.triggerSystemNotification = triggerSystemNotification;
+  window.requestNotificationPermission = requestNotificationPermission;
+  window.testDeviceNotification = testDeviceNotification;
 
   // On first user interaction anywhere in the app, prompt for notification permission if still default
   if('Notification' in window){
@@ -419,8 +469,10 @@ if(typeof window !== 'undefined'){
         }).catch(()=>{});
       }
       window.removeEventListener('click', promptOnUserInteraction, true);
+      window.removeEventListener('touchstart', promptOnUserInteraction, true);
     };
     window.addEventListener('click', promptOnUserInteraction, true);
+    window.addEventListener('touchstart', promptOnUserInteraction, true);
   }
 }
 
@@ -684,6 +736,7 @@ export function renderNotificationBell(){
             <span id="notifUnreadBadge" class="notif-header-count" style="display:none"></span>
           </div>
           <div class="notif-header-actions">
+            <button id="testNotifBtn" type="button" class="btn ghost small notif-action-btn" title="Test alerts on this device">🔔 Test</button>
             <button id="markAllReadBtn" type="button" class="btn ghost small notif-action-btn">Mark Read</button>
             <button id="clearNotifBtn" type="button" class="btn ghost small notif-action-btn">Clear</button>
             <button id="notifCloseBtn" type="button" class="notif-mobile-close" aria-label="Close notifications">✕</button>
@@ -775,6 +828,14 @@ export function initNotificationBell(){
       hidePermBanner();
       await requestNotificationPermission();
       hidePermBanner();
+    };
+  }
+
+  const testNotifBtn = document.getElementById('testNotifBtn');
+  if(testNotifBtn){
+    testNotifBtn.onclick = async (e) => {
+      e.stopPropagation();
+      await testDeviceNotification();
     };
   }
 
@@ -922,28 +983,40 @@ export function initNotificationBell(){
         }
       }
 
-      // On initial fetch of the session: establish baseline and register all existing notifications
-      // This guarantees opening the app or refreshing never spams old notifications!
+      // Device-aware initial session baseline:
+      // When user opens on phone or desktop, unalerted unread items alert the device (up to 3 recent items)
+      // so phone or desktop catches up with any alerts logged while away!
       if(!isSessionBaselineEstablished){
-        allNotifs.forEach(n => {
-          const sid = String(n._id);
-          seenNotifIds.add(sid);
-          alertedNotifIds.add(sid);
-        });
-        saveAlertedNotifIds();
-        isSessionBaselineEstablished = true;
+        const unalertedUnread = allNotifs.filter(n => !n.read && !alertedNotifIds.has(String(n._id)));
+        allNotifs.forEach(n => seenNotifIds.add(String(n._id)));
 
-        // If there are critical unread items right on login (e.g. overdue invoice or overdue task), pop up the top one!
-        const criticalUnread = allNotifs.filter(n => !n.read && (n.type.includes('overdue') || (n.title && n.title.includes('Overdue'))));
-        if(criticalUnread.length > 0){
-          const topItem = criticalUnread[0];
-          showInAppPopupAlert({
-            id: String(topItem._id),
-            title: topItem.title,
-            message: topItem.message,
-            type: topItem.type
-          });
+        if(unalertedUnread.length > 0){
+          const itemsToAlert = unalertedUnread.slice(0, 3);
+          for(const n of itemsToAlert){
+            const sid = String(n._id);
+            alertedNotifIds.add(sid);
+            showInAppPopupAlert({
+              id: sid,
+              title: n.title || 'CI360 Alert',
+              message: n.message || '',
+              type: n.type
+            });
+            await triggerSystemNotification({
+              title: n.title || 'CI360 Alert',
+              message: n.message || '',
+              type: n.type,
+              id: sid
+            });
+          }
+          // Mark older unread items as alerted on this device to prevent flood
+          unalertedUnread.forEach(n => alertedNotifIds.add(String(n._id)));
+          saveAlertedNotifIds();
+        } else {
+          // Record existing notifications as alerted on this device
+          allNotifs.forEach(n => alertedNotifIds.add(String(n._id)));
+          saveAlertedNotifIds();
         }
+        isSessionBaselineEstablished = true;
       } else {
         // Genuine new incoming unread notifications that arrived during the active session
         const newlyArrived = allNotifs.filter(n => !n.read && !alertedNotifIds.has(String(n._id)));

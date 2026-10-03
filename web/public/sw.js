@@ -18,8 +18,8 @@ self.addEventListener('message', (event) => {
       icon: options.icon || '/logo.png',
       badge: options.badge || '/logo.png',
       tag: options.tag || 'ci360-notification',
-      renotify: false,
-      vibrate: [150, 80, 150],
+      renotify: options.renotify !== undefined ? options.renotify : true,
+      vibrate: options.vibrate || [200, 100, 200, 100, 200],
       data: options.data || { url: '/' },
       actions: [
         { action: 'open', title: 'View Details' },
