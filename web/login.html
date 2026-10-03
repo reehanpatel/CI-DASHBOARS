@@ -800,6 +800,11 @@
       }
       const data = await apiPost('/auth/login', { email, password });
       setSession(data.token, data.user);
+      try {
+        if (typeof window.registerPushSubscription === 'function') {
+          window.registerPushSubscription().catch(() => {});
+        }
+      } catch (e) {}
       const isSuper = data.user.role === 'superadmin' || data.user.role === 'admin';
       const isEkta = (data.user.name && data.user.name.toLowerCase().includes('ekta')) || (data.user.email && data.user.email.toLowerCase().includes('ekta'));
       window.location.href = isSuper ? '/admin' : (data.user.role === 'accounts' || isEkta ? '/accounts' : (data.user.role === 'employee' ? '/employee' : '/client'));

@@ -19,6 +19,22 @@ async function verifyToken(req, res, next) {
   }
 }
 
+async function optionalToken(req, res, next) {
+  try {
+    const header = req.headers.authorization || '';
+    const token = header.startsWith('Bearer ') ? header.slice(7) : null;
+    if (token) {
+      const secret = process.env.JWT_SECRET || 'ci360-super-secret-jwt-key-2026';
+      const payload = jwt.verify(token, secret);
+      const user = await User.findById(payload.id);
+      if (user && user.active) {
+        req.user = user;
+      }
+    }
+  } catch (err) {}
+  next();
+}
+
 function requireRole(...roles) {
   return (req, res, next) => {
     if (!req.user) {
@@ -37,4 +53,5 @@ function requireRole(...roles) {
   };
 }
 
-module.exports = { verifyToken, requireRole };
+module.exports = { verifyToken, optionalToken, requireRole };
+

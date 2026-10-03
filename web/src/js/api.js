@@ -56,15 +56,23 @@ export async function api(path, options={}){
   const headers = Object.assign({'Content-Type':'application/json'}, options.headers||{});
   if(token) headers['Authorization'] = 'Bearer ' + token;
   const res = await fetch(API_BASE + path, Object.assign({}, options, {headers}));
-  if(res.status === 401){
-    clearSession();
-    if(typeof window !== 'undefined' && window.location.pathname !== '/login'){
-      window.location.href = '/login';
-    }
-    throw new Error('Session expired');
-  }
+
   let data = null;
   try{ data = await res.json(); }catch(e){ /* no body or non-JSON body */ }
+
+  if(res.status === 401){
+    // If login attempt failed, return the specific backend error message directly
+    if(path === '/auth/login' || path.includes('/auth/login')){
+      throw new Error((data && data.error) || 'Invalid username/email or password.');
+    }
+
+    clearSession();
+    if(typeof window !== 'undefined' && window.location.pathname !== '/login'){
+      window.location.href = '/login?expired=1';
+    }
+    throw new Error((data && data.error) || 'Session expired. Please sign in again.');
+  }
+
   if(!res.ok){ throw new Error((data && data.error) || ('Server status ' + res.status + ' — Backend waking up, please retry in 10s.')); }
 
   // If this was a mutating request (POST, PUT, PATCH, DELETE) and not notification read/delete,
@@ -182,7 +190,7 @@ export async function initServiceWorker(){
     try{
       swRegistration = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
       console.log('CI360 Service Worker active:', swRegistration.scope);
-      if(typeof Notification !== 'undefined' && Notification.permission === 'granted'){
+      if(typeof Notification !== 'undefined' && Notification.permission === 'granted' && getToken()){
         registerPushSubscription(swRegistration).catch(()=>{});
       }
     }catch(err){
@@ -490,6 +498,11 @@ export async function registerPushSubscription(registration = null) {
       return null;
     }
     if (typeof Notification === 'undefined' || Notification.permission !== 'granted') {
+      return null;
+    }
+    const token = getToken();
+    if (!token) {
+      // Do not subscribe unauthenticated visitors to prevent 401 errors on login page
       return null;
     }
     const reg = registration || swRegistration || await navigator.serviceWorker.ready;

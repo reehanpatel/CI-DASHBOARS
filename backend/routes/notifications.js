@@ -5,10 +5,68 @@ const Job = require('../models/Job');
 const Target = require('../models/Target');
 const Personnel = require('../models/Personnel');
 const Service = require('../models/Service');
-const { verifyToken } = require('../middleware/auth');
+const { verifyToken, optionalToken } = require('../middleware/auth');
 
 const Task = require('../models/Task');
 
+// GET /api/notifications/vapid-public-key (Public: needed before login to prepare subscription)
+router.get('/vapid-public-key', (req, res) => {
+  try {
+    const { VAPID_PUBLIC_KEY } = require('../utils/webpush');
+    res.json({ publicKey: VAPID_PUBLIC_KEY });
+  } catch (err) {
+    res.json({ publicKey: 'BLU6W-Tq2_DQaI2HiUJujMzdddeVd52DUTtgxHVeLTywkctQIggkk5R3ZclRlJrhPfEwjH7Sq9sas5d5GSmqS5Q' });
+  }
+});
+
+// POST /api/notifications/subscribe (Uses optionalToken so unauthenticated devices can register safely without 401)
+router.post('/subscribe', optionalToken, async (req, res) => {
+  try {
+    const { subscription, deviceType } = req.body;
+    if (!subscription || !subscription.endpoint || !subscription.keys) {
+      return res.status(400).json({ error: 'Valid push subscription object required' });
+    }
+    const PushSubscription = require('../models/PushSubscription');
+    const updateDoc = {
+      endpoint: subscription.endpoint,
+      keys: {
+        p256dh: subscription.keys.p256dh,
+        auth: subscription.keys.auth
+      },
+      userAgent: req.headers['user-agent'] || '',
+      deviceType: deviceType || 'desktop'
+    };
+    if (req.user && req.user._id) {
+      updateDoc.userId = req.user._id;
+    }
+    await PushSubscription.findOneAndUpdate(
+      { endpoint: subscription.endpoint },
+      updateDoc,
+      { upsert: true, new: true }
+    );
+    res.json({ success: true, message: 'Push subscription registered successfully' });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to save push subscription', detail: err.message });
+  }
+});
+
+// POST /api/notifications/unsubscribe
+router.post('/unsubscribe', optionalToken, async (req, res) => {
+  try {
+    const { endpoint } = req.body;
+    if (endpoint) {
+      const PushSubscription = require('../models/PushSubscription');
+      const query = { endpoint };
+      if (req.user && req.user._id) query.userId = req.user._id;
+      await PushSubscription.deleteOne(query);
+    }
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to remove push subscription', detail: err.message });
+  }
+});
+
+// Protect remaining notification endpoints
 router.use(verifyToken);
 
 // GET /api/notifications
@@ -222,52 +280,5 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
-// GET /api/notifications/vapid-public-key
-router.get('/vapid-public-key', (req, res) => {
-  const { VAPID_PUBLIC_KEY } = require('../utils/webpush');
-  res.json({ publicKey: VAPID_PUBLIC_KEY });
-});
-
-// POST /api/notifications/subscribe
-router.post('/subscribe', async (req, res) => {
-  try {
-    const { subscription, deviceType } = req.body;
-    if (!subscription || !subscription.endpoint || !subscription.keys) {
-      return res.status(400).json({ error: 'Valid push subscription object required' });
-    }
-    const PushSubscription = require('../models/PushSubscription');
-    await PushSubscription.findOneAndUpdate(
-      { endpoint: subscription.endpoint },
-      {
-        userId: req.user._id,
-        endpoint: subscription.endpoint,
-        keys: {
-          p256dh: subscription.keys.p256dh,
-          auth: subscription.keys.auth
-        },
-        userAgent: req.headers['user-agent'] || '',
-        deviceType: deviceType || 'desktop'
-      },
-      { upsert: true, new: true }
-    );
-    res.json({ success: true, message: 'Push subscription registered successfully' });
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to save push subscription', detail: err.message });
-  }
-});
-
-// POST /api/notifications/unsubscribe
-router.post('/unsubscribe', async (req, res) => {
-  try {
-    const { endpoint } = req.body;
-    if (endpoint) {
-      const PushSubscription = require('../models/PushSubscription');
-      await PushSubscription.deleteOne({ endpoint, userId: req.user._id });
-    }
-    res.json({ success: true });
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to remove push subscription', detail: err.message });
-  }
-});
-
 module.exports = router;
+
