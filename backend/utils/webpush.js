@@ -1,5 +1,6 @@
 const webpush = require('web-push');
 const PushSubscription = require('../models/PushSubscription');
+const User = require('../models/User');
 
 const VAPID_PUBLIC_KEY = process.env.VAPID_PUBLIC_KEY || 'BLU6W-Tq2_DQaI2HiUJujMzdddeVd52DUTtgxHVeLTywkctQIggkk5R3ZclRlJrhPfEwjH7Sq9sas5d5GSmqS5Q';
 const VAPID_PRIVATE_KEY = process.env.VAPID_PRIVATE_KEY || '4L4WTmaqLe2KrOYUf2kXmaLumgmuImYJ6qDdbUVUnsE';
@@ -24,16 +25,32 @@ async function sendPushToUsers(userIds, payload = {}) {
     const subscriptions = await PushSubscription.find({ userId: { $in: ids } });
     if (!subscriptions || !subscriptions.length) return;
 
-    const dataPayload = JSON.stringify({
-      title: payload.title || 'CI360 Notification',
-      message: payload.message || payload.body || 'You have an update in CI360.',
-      url: payload.url || '/',
-      type: payload.type || 'general',
-      tag: payload.tag || ('ci360-push-' + Date.now())
-    });
+    let userRoleMap = new Map();
+    try {
+      const users = await User.find({ _id: { $in: ids } }).select('_id role');
+      users.forEach(u => userRoleMap.set(String(u._id), u.role));
+    } catch(e){}
 
     const sendPromises = subscriptions.map(async (sub) => {
       try {
+        const uRole = userRoleMap.get(String(sub.userId));
+        let userTargetUrl = payload.url || '/';
+        if (uRole === 'employee' && (userTargetUrl === '/admin' || userTargetUrl === '/')) {
+          userTargetUrl = '/employee';
+        } else if (uRole === 'client' && (userTargetUrl === '/admin' || userTargetUrl === '/')) {
+          userTargetUrl = '/client';
+        } else if (uRole === 'accounts' && (userTargetUrl === '/admin' || userTargetUrl === '/')) {
+          userTargetUrl = '/accounts';
+        }
+
+        const dataPayload = JSON.stringify({
+          title: payload.title || 'CI360 Notification',
+          message: payload.message || payload.body || 'You have an update in CI360.',
+          url: userTargetUrl,
+          type: payload.type || 'general',
+          tag: payload.tag || ('ci360-push-' + Date.now())
+        });
+
         const pushConfig = {
           endpoint: sub.endpoint,
           keys: {

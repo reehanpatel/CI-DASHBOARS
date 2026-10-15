@@ -53,12 +53,28 @@ function render(){
   });
   renderTab();
 }
-window.ci360NavTab = (tabName) => { 
+window.ci360NavTab = (tabName, highlightId = null) => { 
   if (tabName === 'accounts_redirect') {
     window.location.href = '/accounts';
     return;
   }
+  // Normalize tab names across roles and notifications
+  if (tabName === 'jobs' || tabName === 'myjobs') {
+    tabName = 'myjobs';
+  } else if (tabName === 'tasks' || tabName === 'mytasks' || tabName === 'dailytasks') {
+    tabName = 'dailytasks';
+  } else if (tabName === 'ticket' || tabName === 'tickets') {
+    tabName = 'tickets';
+  } else if (tabName === 'target' || tabName === 'targets') {
+    tabName = 'targets';
+  } else if (tabName === 'dashboard' || tabName === 'overview') {
+    tabName = 'dashboard';
+  }
+
   ui.tab = tabName; 
+  if (highlightId) {
+    ui.highlightId = highlightId;
+  }
   render(); 
 };
 
@@ -67,11 +83,15 @@ async function renderTab(){
   if(!c) return;
   c.innerHTML = renderSkeletonCards(3);
   try{
-    if(ui.tab==='dashboard')                              await tabEmployeeDashboard(c);
-    else if(ui.tab==='myjobs')                            await tabMyJobs(c);
-    else if(ui.tab==='dailytasks' || ui.tab==='mytasks') await tabDailyTasks(c);
-    else if(ui.tab==='tickets')                           await tabTickets(c);
-    else if(ui.tab==='targets')                           await tabTargets(c);
+    if(ui.tab==='dashboard')                                                await tabEmployeeDashboard(c);
+    else if(ui.tab==='myjobs' || ui.tab==='jobs')                          await tabMyJobs(c);
+    else if(ui.tab==='dailytasks' || ui.tab==='mytasks' || ui.tab==='tasks') await tabDailyTasks(c);
+    else if(ui.tab==='tickets' || ui.tab==='ticket')                       await tabTickets(c);
+    else if(ui.tab==='targets' || ui.tab==='target')                       await tabTargets(c);
+    else {
+      ui.tab = 'dashboard';
+      await tabEmployeeDashboard(c);
+    }
   }catch(err){
     c.innerHTML = renderEmptyState('Something went wrong', err.message, '⚠️');
   }
@@ -447,7 +467,7 @@ async function tabMyJobs(c){
           const priBadge = priorityBadges[j.priority||'Medium'] || 'gray';
 
           return `
-          <div class="job-card" style="background:var(--bg-card);border:1px solid var(--border-sm);border-radius:var(--r-md);padding:20px 22px;box-shadow:var(--shadow-xs);transition:all var(--t-fast);border-left:4px solid ${isApproved ? 'var(--green-500)' : (isRevisionReq ? 'var(--red-500)' : (isDone ? 'var(--green-500)' : 'var(--brand-500)'))}">
+          <div class="job-card" id="job-card-${j._id}" style="background:var(--bg-card);border:1px solid var(--border-sm);border-radius:var(--r-md);padding:20px 22px;box-shadow:var(--shadow-xs);transition:all var(--t-fast);border-left:4px solid ${isApproved ? 'var(--green-500)' : (isRevisionReq ? 'var(--red-500)' : (isDone ? 'var(--green-500)' : 'var(--brand-500)'))}">
             <!-- Header row -->
             <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px;flex-wrap:wrap">
               <div style="min-width:0">
@@ -640,6 +660,20 @@ async function tabMyJobs(c){
 
   // Bind ticket interactions for each job
   jobs.forEach(j => bindSupportTicketSection(j._id, isLeadManager()));
+
+  // Auto-scroll and highlight target job if opened from notification
+  if(ui.highlightId){
+    const hId = ui.highlightId;
+    delete ui.highlightId;
+    setTimeout(() => {
+      const targetEl = document.getElementById('job-card-' + hId);
+      if(targetEl){
+        targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        targetEl.classList.add('pulse-highlight');
+        setTimeout(() => targetEl.classList.remove('pulse-highlight'), 2200);
+      }
+    }, 150);
+  }
 }
 
 /* ════════════════════════════ DAILY TASKS (CHECKLIST) ════════════════════════════ */
@@ -1028,6 +1062,20 @@ async function tabDailyTasks(c) {
     dailyTaskUi.search = '';
     renderTab();
   };
+
+  // Auto-scroll and highlight target task if opened from notification
+  if(ui.highlightId){
+    const hId = ui.highlightId;
+    delete ui.highlightId;
+    setTimeout(() => {
+      const targetRow = document.getElementById('daily-row-' + hId);
+      if(targetRow){
+        targetRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        targetRow.classList.add('pulse-highlight');
+        setTimeout(() => targetRow.classList.remove('pulse-highlight'), 2200);
+      }
+    }, 150);
+  }
 }
 
 /* ── DAILY CHECKLIST ACTIONS ── */

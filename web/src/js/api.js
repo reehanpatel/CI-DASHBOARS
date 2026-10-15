@@ -683,18 +683,33 @@ export function showInAppPopupAlert({ id, title, message, type, time, actionText
   };
 
   // Action button click
-  card.querySelector('.ci360-popup-action-btn').onclick = (e) => {
-    e.stopPropagation();
+  const executeAction = () => {
     if(typeof onAction === 'function'){
       onAction();
     } else if(defaultNavTab && typeof window.ci360NavTab === 'function'){
-      window.ci360NavTab(defaultNavTab);
+      const curUser = (typeof getUser === 'function') ? getUser() : null;
+      let navTarget = defaultNavTab;
+      if(curUser && curUser.role === 'employee' && (navTarget === 'jobs' || navTarget === 'myjobs')){
+        navTarget = 'myjobs';
+      }
+      window.ci360NavTab(navTarget);
     }
     // Mark as read on server if id is provided
     if(id){
       try { api(`/notifications/${id}/read`, { method: 'PATCH' }); } catch(err){}
     }
     closeCard();
+  };
+
+  card.querySelector('.ci360-popup-action-btn').onclick = (e) => {
+    e.stopPropagation();
+    executeAction();
+  };
+
+  card.style.cursor = 'pointer';
+  card.onclick = (e) => {
+    if(e.target.closest('.ci360-popup-close-btn') || e.target.closest('.ci360-popup-dismiss-link')) return;
+    executeAction();
   };
 
   // Manage container stacking (keep maximum 4 visible popups)
@@ -858,6 +873,145 @@ export function renderNotificationBell(){
     </div>`;
 }
 
+export function getNotifIcon(type){
+  if(!type) return '🔔';
+  if(type.startsWith('task_completed')) return '🎉';
+  if(type.startsWith('task_due')) return '⚡';
+  if(type.startsWith('task')) return '✅';
+  if(type.startsWith('target_completed')) return '🎉';
+  if(type.startsWith('target')) return '🎯';
+  if(type.startsWith('job_due')) return '⏳';
+  if(type.startsWith('job')) return '📋';
+  if(type.startsWith('ticket')) return '🎫';
+  if(type.startsWith('status')) return '🔄';
+  if(type.startsWith('test')) return '🧪';
+  return '🔔';
+}
+
+export function timeAgo(dateStr){
+  if(!dateStr) return '';
+  const d = new Date(dateStr);
+  const now = new Date();
+  const sec = Math.floor((now - d) / 1000);
+  if(sec < 60) return 'Just now';
+  const min = Math.floor(sec / 60);
+  if(min < 60) return `${min}m ago`;
+  const hr = Math.floor(min / 60);
+  if(hr < 24) return `${hr}h ago`;
+  const days = Math.floor(hr / 24);
+  if(days === 1) return 'Yesterday';
+  if(days < 7) return `${days}d ago`;
+  return fmtDate(dateStr);
+}
+
+export function openNotificationModal(n){
+  if(!n) return;
+  const icon = getNotifIcon(n.type);
+  const type = (n.type || '').toLowerCase();
+  const title = n.title || 'Notification';
+  const message = n.message || '';
+  const dateStr = n.createdAt ? (fmtDate(n.createdAt) + ' at ' + new Date(n.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })) : 'Recently';
+  const timeStr = timeAgo(n.createdAt);
+  const curUser = (typeof getUser === 'function') ? getUser() : null;
+  const isEmployee = curUser && curUser.role === 'employee';
+
+  let badgeLabel = 'Update';
+  let badgeClass = 'blue';
+  let actionBtnText = '';
+  let targetTab = '';
+  const highlightId = n.jobId || n.taskId || n.ticketId || n.targetId || null;
+
+  if(type.includes('job')){
+    badgeLabel = 'Job Deliverable';
+    badgeClass = 'blue';
+    targetTab = isEmployee ? 'myjobs' : 'jobs';
+    actionBtnText = isEmployee ? 'Open in My Jobs 📋' : 'View Job 📁';
+  } else if(type.includes('task')){
+    badgeLabel = 'Daily Task';
+    badgeClass = 'green';
+    targetTab = 'dailytasks';
+    actionBtnText = 'Open Daily Tasks ✅';
+  } else if(type.includes('ticket')){
+    badgeLabel = 'Support Ticket';
+    badgeClass = 'brand';
+    targetTab = 'tickets';
+    actionBtnText = 'Open Support Tickets 🎫';
+  } else if(type.includes('target')){
+    badgeLabel = 'Target Goal';
+    badgeClass = 'gold';
+    targetTab = 'targets';
+    actionBtnText = 'View My Targets 🎯';
+  } else if(type.includes('invoice') || type.includes('billing')){
+    badgeLabel = 'Billing & Invoice';
+    badgeClass = 'purple';
+    targetTab = 'billing';
+    actionBtnText = 'Open Billing 💳';
+  }
+
+  const hasAttachments = Array.isArray(n.attachments) && n.attachments.length > 0;
+
+  const bg = openModal(`
+    <div class="notif-detail-modal" style="padding:4px 0">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid var(--border-xs)">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="width:44px;height:44px;border-radius:12px;background:var(--bg-elevated);border:1px solid var(--border-sm);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;box-shadow:var(--shadow-xs)">
+            ${icon}
+          </div>
+          <div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;flex-wrap:wrap">
+              <span class="badge ${badgeClass}" style="font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px">${badgeLabel}</span>
+              <span style="font-size:11.5px;color:var(--text-4)">${timeStr}</span>
+            </div>
+            <div style="font-size:11px;color:var(--text-4)">${dateStr}</div>
+          </div>
+        </div>
+        <button type="button" class="btn ghost small notif-modal-close-btn" aria-label="Close" style="padding:4px 8px;font-size:16px;line-height:1;border-radius:6px;color:var(--text-3)">✕</button>
+      </div>
+
+      <h3 style="font-size:16.5px;font-weight:800;color:var(--text-1);margin:0 0 12px 0;line-height:1.35;letter-spacing:-0.3px">
+        ${escapeHtml(title)}
+      </h3>
+
+      <div style="background:var(--bg-elevated);border:1px solid var(--border-xs);border-radius:var(--r-md);padding:14px 16px;margin-bottom:16px;font-size:13.5px;color:var(--text-2);line-height:1.6;white-space:pre-wrap;word-break:break-word">
+        ${escapeHtml(message)}
+      </div>
+
+      ${hasAttachments ? `
+        <div style="margin-bottom:16px">
+          <div style="font-size:11.5px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Attachments (${n.attachments.length})</div>
+          ${renderAttachmentChips(n.attachments, { title: 'Attachments' })}
+        </div>
+      ` : ''}
+
+      <div class="modal-actions" style="margin-top:20px;padding-top:14px;border-top:1px solid var(--border-xs);display:flex;justify-content:flex-end;align-items:center;gap:10px;flex-wrap:wrap">
+        <button type="button" class="btn secondary notif-modal-dismiss-btn" style="font-weight:600">Close</button>
+        ${targetTab ? `
+          <button type="button" class="btn primary notif-modal-go-btn" style="font-weight:700;display:inline-flex;align-items:center;gap:6px">
+            <span>${actionBtnText}</span>
+          </button>
+        ` : ''}
+      </div>
+    </div>
+  `);
+
+  const closeModal = () => bg.remove();
+  const closeBtn = bg.querySelector('.notif-modal-close-btn');
+  const dismissBtn = bg.querySelector('.notif-modal-dismiss-btn');
+  const goBtn = bg.querySelector('.notif-modal-go-btn');
+
+  if(closeBtn) closeBtn.onclick = closeModal;
+  if(dismissBtn) dismissBtn.onclick = closeModal;
+
+  if(goBtn){
+    goBtn.onclick = () => {
+      closeModal();
+      if(typeof window.ci360NavTab === 'function'){
+        window.ci360NavTab(targetTab, highlightId);
+      }
+    };
+  }
+}
+
 export function initNotificationBell(){
   const bellBtn   = document.getElementById('notifBellBtn');
   const dropdown  = document.getElementById('notifDropdown');
@@ -932,37 +1086,6 @@ export function initNotificationBell(){
   let allNotifs = [];
   let currentFilter = 'all';
 
-  function getNotifIcon(type){
-    if(!type) return '🔔';
-    if(type.startsWith('task_completed')) return '🎉';
-    if(type.startsWith('task_due')) return '⚡';
-    if(type.startsWith('task')) return '✅';
-    if(type.startsWith('target_completed')) return '🎉';
-    if(type.startsWith('target')) return '🎯';
-    if(type.startsWith('job_due')) return '⏳';
-    if(type.startsWith('job')) return '📋';
-    if(type.startsWith('ticket')) return '🎫';
-    if(type.startsWith('status')) return '🔄';
-    if(type.startsWith('test')) return '🧪';
-    return '🔔';
-  }
-
-  function timeAgo(dateStr){
-    if(!dateStr) return '';
-    const d = new Date(dateStr);
-    const now = new Date();
-    const sec = Math.floor((now - d) / 1000);
-    if(sec < 60) return 'Just now';
-    const min = Math.floor(sec / 60);
-    if(min < 60) return `${min}m ago`;
-    const hr = Math.floor(min / 60);
-    if(hr < 24) return `${hr}h ago`;
-    const days = Math.floor(hr / 24);
-    if(days === 1) return 'Yesterday';
-    if(days < 7) return `${days}d ago`;
-    return fmtDate(dateStr);
-  }
-
   function renderList(){
     if(!list) return;
     let filtered = allNotifs;
@@ -988,26 +1111,43 @@ export function initNotificationBell(){
             </div>
             <div style="font-size:12px;color:var(--text-3);line-height:1.4">${escapeHtml(n.message)}</div>
           </div>
+          <div style="color:var(--text-4);font-size:16px;line-height:1;margin-top:2px;flex-shrink:0">›</div>
         </div>`;
     }).join('');
 
     list.querySelectorAll('.notif-item').forEach(item => {
       item.onclick = async () => {
         const id = item.dataset.id;
-        const type = item.dataset.type;
+        const notif = allNotifs.find(n => String(n._id) === String(id));
         if(id && item.classList.contains('unread')){
           item.classList.remove('unread');
           try { await api(`/notifications/${id}/read`, { method: 'PATCH' }); } catch(e){}
+          const unreadCount = allNotifs.filter(n => !n.read && String(n._id) !== String(id)).length;
+          if(badge){
+            badge.style.display = unreadCount > 0 ? 'flex' : 'none';
+            badge.textContent = unreadCount > 99 ? '99+' : unreadCount;
+          }
+          if(unreadTxt){
+            unreadTxt.textContent = unreadCount > 0 ? `${unreadCount} new` : '';
+            unreadTxt.style.display = unreadCount > 0 ? 'inline-block' : 'none';
+          }
         }
         closeDropdown();
-        if(type && type.includes('task') && typeof window.ci360NavTab === 'function') {
-          window.ci360NavTab('dailytasks');
-        } else if(type && type.includes('job') && typeof window.ci360NavTab === 'function') {
-          window.ci360NavTab('jobs');
-        } else if(type && type.includes('ticket') && typeof window.ci360NavTab === 'function') {
-          window.ci360NavTab('tickets');
-        } else if(type && type.includes('target') && typeof window.ci360NavTab === 'function') {
-          window.ci360NavTab('targets');
+        if(notif){
+          openNotificationModal(notif);
+        } else {
+          const type = item.dataset.type;
+          const u = (typeof getUser === 'function') ? getUser() : null;
+          const isEmp = u && u.role === 'employee';
+          if(type && type.includes('task') && typeof window.ci360NavTab === 'function') {
+            window.ci360NavTab('dailytasks');
+          } else if(type && type.includes('job') && typeof window.ci360NavTab === 'function') {
+            window.ci360NavTab(isEmp ? 'myjobs' : 'jobs');
+          } else if(type && type.includes('ticket') && typeof window.ci360NavTab === 'function') {
+            window.ci360NavTab('tickets');
+          } else if(type && type.includes('target') && typeof window.ci360NavTab === 'function') {
+            window.ci360NavTab('targets');
+          }
         }
       };
     });
@@ -1242,9 +1382,15 @@ export function initNotificationBell(){
     };
   }
 
-  document.addEventListener('click', (e)=>{
-    if(!dropdown.contains(e.target) && e.target !== bellBtn) dropdown.style.display='none';
-  });
+  if(window.__ci360NotifDocClickHandler){
+    document.removeEventListener('click', window.__ci360NotifDocClickHandler);
+  }
+  window.__ci360NotifDocClickHandler = (e) => {
+    if(!dropdown.contains(e.target) && !bellBtn.contains(e.target)){
+      closeDropdown();
+    }
+  };
+  document.addEventListener('click', window.__ci360NotifDocClickHandler);
 
   if(clearBtn){
     clearBtn.onclick = async(e)=>{
@@ -1259,6 +1405,23 @@ export function initNotificationBell(){
       }catch(err){ flashToast(err.message, true); }
     };
   }
+
+  // Auto-open notification from URL parameter (?notifId=...)
+  try {
+    const urlParams = new URLSearchParams(window.location.search);
+    const targetNotifId = urlParams.get('notifId');
+    if(targetNotifId){
+      apiGet('/notifications').then(data => {
+        const notifs = data.notifications || [];
+        const match = notifs.find(n => String(n._id) === String(targetNotifId));
+        if(match){
+          openNotificationModal(match);
+          const cleanUrl = window.location.pathname + window.location.hash;
+          window.history.replaceState(null, '', cleanUrl);
+        }
+      }).catch(()=>{});
+    }
+  } catch(e){}
 }
 
 /* ── APP SHELL ───────────────────────────────────────────────── */
@@ -2169,21 +2332,6 @@ function getInitials(name) {
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }
 
-function timeAgo(date) {
-  if (!date) return '';
-  const now = new Date();
-  const past = new Date(date);
-  const diffSec = Math.floor((now - past) / 1000);
-  if (diffSec < 60) return 'Just now';
-  const diffMin = Math.floor(diffSec / 60);
-  if (diffMin < 60) return `${diffMin}m ago`;
-  const diffHr = Math.floor(diffMin / 60);
-  if (diffHr < 24) return `${diffHr}h ago`;
-  const diffDay = Math.floor(diffHr / 24);
-  if (diffDay < 7) return `${diffDay}d ago`;
-  return fmtDate(date);
-}
-
 /* ── FILE ATTACHMENTS & UPLOADER UTILITIES ──────────────────── */
 export function fmtFileSize(bytes) {
   bytes = Number(bytes) || 0;
@@ -2843,6 +2991,7 @@ Object.assign(window, {
   renderAttachmentChips, uploadFilesToServer, renderAttachmentUploader,
   bindAttachmentUploader, getUploaderAttachments, setUploaderAttachments,
   renderRoleSwitcher, bindRoleSwitcher, renderNotificationBell, initNotificationBell,
+  openNotificationModal, getNotifIcon,
   renderAppShell, bindAppShellEvents, renderSkeletonCards, renderEmptyState,
   renderKpiCard, renderBadge, renderProgressBar, renderPeriodPicker,
   renderSupportTicketSection, bindSupportTicketSection
