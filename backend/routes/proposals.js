@@ -5,6 +5,7 @@ const crypto = require('crypto');
 const Proposal = mongoose.models.Proposal || require('../models/Proposal');
 const ProposalRateCard = mongoose.models.ProposalRateCard || require('../models/ProposalRateCard');
 const SystemSetting = mongoose.models.SystemSetting || require('../models/SystemSetting');
+const Client = mongoose.models.Client || require('../models/Client');
 const { verifyToken, requireRole } = require('../middleware/auth');
 const { DEFAULT_RATE_CARD } = require('../utils/proposalDefaults');
 
@@ -271,20 +272,50 @@ router.get('/', async (req, res) => {
   try {
     const { status, search, client } = req.query;
     const filter = {};
-    if (status && status !== 'all') {
-      filter.status = status;
-    }
-    if (client) {
-      filter.client = new RegExp(client, 'i');
-    }
-    if (search) {
-      const q = search.trim();
-      filter.$or = [
-        { client: { $regex: q, $options: 'i' } },
-        { title: { $regex: q, $options: 'i' } },
-        { ref: { $regex: q, $options: 'i' } },
-        { contact: { $regex: q, $options: 'i' } }
-      ];
+
+    // Role-specific scoping: Clients can only see approved/released proposals for their organisation
+    if (req.user && req.user.role === 'client') {
+      let clientName = '';
+      if (req.user.clientId) {
+        const cDoc = await Client.findById(req.user.clientId).lean();
+        if (cDoc && cDoc.name) clientName = cDoc.name;
+      }
+
+      const clientMatch = [];
+      if (clientName) {
+        clientMatch.push({ client: new RegExp(clientName.trim(), 'i') });
+        clientMatch.push({ clientShort: new RegExp(clientName.trim(), 'i') });
+      }
+      if (req.user.name) {
+        clientMatch.push({ contact: new RegExp(req.user.name.trim(), 'i') });
+      }
+      if (req.user.email) {
+        clientMatch.push({ contactEmail: req.user.email.toLowerCase().trim() });
+      }
+
+      if (!clientMatch.length) {
+        return res.json([]);
+      }
+
+      filter.$or = clientMatch;
+      // Clients may only access verified and released proposals
+      filter.status = { $in: ['approved', 'with_client', 'won', 'changes'] };
+    } else {
+      if (status && status !== 'all') {
+        filter.status = status;
+      }
+      if (client) {
+        filter.client = new RegExp(client, 'i');
+      }
+      if (search) {
+        const q = search.trim();
+        filter.$or = [
+          { client: { $regex: q, $options: 'i' } },
+          { title: { $regex: q, $options: 'i' } },
+          { ref: { $regex: q, $options: 'i' } },
+          { contact: { $regex: q, $options: 'i' } }
+        ];
+      }
     }
 
     const proposals = await Proposal.find(filter)
@@ -304,6 +335,29 @@ router.get('/:id', async (req, res) => {
       .populate('createdBy', 'name email role')
       .populate('approval.approverId', 'name email role');
     if (!proposal) return res.status(404).json({ error: 'Proposal not found' });
+
+    // Client role authorization check
+    if (req.user && req.user.role === 'client') {
+      let clientName = '';
+      if (req.user.clientId) {
+        const cDoc = await Client.findById(req.user.clientId).lean();
+        if (cDoc && cDoc.name) clientName = cDoc.name;
+      }
+      const matchName = clientName && (
+        (proposal.client && proposal.client.toLowerCase().includes(clientName.toLowerCase())) ||
+        (proposal.clientShort && proposal.clientShort.toLowerCase().includes(clientName.toLowerCase()))
+      );
+      const matchContact = req.user.name && proposal.contact && proposal.contact.toLowerCase().includes(req.user.name.toLowerCase());
+      const matchEmail = req.user.email && proposal.contactEmail && proposal.contactEmail.toLowerCase() === req.user.email.toLowerCase();
+
+      if (!matchName && !matchContact && !matchEmail) {
+        return res.status(403).json({ error: 'You do not have permission to view this proposal' });
+      }
+      if (!['approved', 'with_client', 'won', 'changes'].includes(proposal.status)) {
+        return res.status(403).json({ error: 'This proposal has not been released yet' });
+      }
+    }
+
     res.json(proposal);
   } catch (err) {
     res.status(500).json({ error: err.message });

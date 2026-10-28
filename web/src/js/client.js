@@ -22,6 +22,7 @@ const CLIENT_TABS = [
   { key:'jobs',      label:'All Jobs Logged',    icon:'📋' },
   { key:'logjob',    label:'Log a Job',          icon:'➕' },
   { key:'delivered', label:'Work Delivered',     icon:'📦' },
+  { key:'proposals', label:'Proposals & Scope', icon:'📜' },
   { key:'billing',   label:'Billing & Invoices', icon:'💳' },
   { key:'team',      label:'Our Team',           icon:'👥' }
 ];
@@ -52,6 +53,7 @@ async function renderTab(){
     if(ui.tab==='dashboard')      await tabDashboardOverview(c, d);
     else if(ui.tab==='jobs')      tabJobs(c, d);
     else if(ui.tab==='delivered') tabDelivered(c, d);
+    else if(ui.tab==='proposals') await tabProposals(c, d);
     else if(ui.tab==='billing')   await tabBilling(c);
     else if(ui.tab==='team')      tabTeam(c, d);
   }catch(err){ c.innerHTML = renderEmptyState('Something went wrong', err.message, '⚠️'); }
@@ -73,6 +75,13 @@ async function tabDashboardOverview(c, d){
     if (overdueInvoices.length > 0 && typeof window.showClientOverdueInvoiceModal === 'function') {
       window.showClientOverdueInvoiceModal(overdueInvoices);
     }
+  } catch(e){}
+
+  // Check client proposals
+  let clientProposals = [];
+  try {
+    const props = await apiGet('/proposals') || [];
+    clientProposals = props.filter(p => ['approved', 'with_client', 'won', 'changes'].includes(p.status));
   } catch(e){}
 
   const periodJobs = (ui.period === 'all') ? allJobs : allJobs.filter(j => {
@@ -175,6 +184,9 @@ async function tabDashboardOverview(c, d){
             <button class="btn gold" id="btnHeroLogJob" style="display:inline-flex;align-items:center;gap:8px;font-weight:700;padding:9px 18px;border-radius:var(--r-md);box-shadow:0 4px 12px rgba(245,158,11,0.25)">
               <span>➕</span> Log New Job
             </button>
+            <button class="btn" id="btnHeroProposals" style="display:inline-flex;align-items:center;gap:8px;font-weight:600;padding:9px 16px;border-radius:var(--r-md);background:var(--bg-surface);border:1px solid var(--border-sm);">
+              <span>📜</span> Proposals &amp; Scope
+            </button>
             <button class="btn ghost" id="btnHeroInvoices" style="display:inline-flex;align-items:center;gap:8px;font-weight:600;padding:9px 16px;border-radius:var(--r-md)">
               <span>💳</span> View Invoices
             </button>
@@ -190,6 +202,26 @@ async function tabDashboardOverview(c, d){
           </div>
         </div>
       </div>
+
+      <!-- Action Required: Proposal Released Alert (if any pending) -->
+      ${clientProposals.some(p => p.status === 'with_client' || p.status === 'approved') ? `
+        <div class="card" style="background:linear-gradient(135deg, rgba(79,70,229,0.08) 0%, rgba(14,165,233,0.06) 100%);border:1px solid var(--brand-500);border-radius:var(--r-lg);padding:16px 22px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;">
+          <div style="display:flex;align-items:center;gap:14px;">
+            <div style="width:40px;height:40px;border-radius:50%;background:rgba(79,70,229,0.18);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">📜</div>
+            <div>
+              <strong style="color:var(--text-1);font-size:14px;">Action Required: Commercial Proposal & Scope Released</strong>
+              <div style="font-size:12.5px;color:var(--text-3);margin-top:2px;">
+                You have active proposals released by CI360 administration ready for your review and online sign-off.
+              </div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <button class="btn primary small" onclick="window.ci360NavTab('proposals')" style="font-weight:700;">
+              Review Proposals & SOW →
+            </button>
+          </div>
+        </div>
+      ` : ''}
 
       <!-- Action Required: Pending Approval Banner -->
       ${pendingApprovals.length > 0 ? `
@@ -429,6 +461,9 @@ async function tabDashboardOverview(c, d){
   // Bind interactive elements
   const btnHeroLogJob = document.getElementById('btnHeroLogJob');
   if (btnHeroLogJob) btnHeroLogJob.onclick = () => { ui.tab = 'logjob'; render(); };
+
+  const btnHeroProposals = document.getElementById('btnHeroProposals');
+  if (btnHeroProposals) btnHeroProposals.onclick = () => { ui.tab = 'proposals'; render(); };
 
   const btnHeroInvoices = document.getElementById('btnHeroInvoices');
   if (btnHeroInvoices) btnHeroInvoices.onclick = () => { ui.tab = 'billing'; render(); };
@@ -980,6 +1015,177 @@ function openClientRevisionModal(jobId, jobTitle, onDone) {
       btn.textContent = '↺ Send Revision Request';
     }
   };
+}
+
+/* ════════════════════════════ PROPOSALS & SCOPE ═══════════════════════════ */
+async function tabProposals(c, d) {
+  let proposals = [];
+  try {
+    proposals = await apiGet('/proposals') || [];
+  } catch (e) {
+    proposals = [];
+  }
+
+  const clientProposals = proposals.filter(p => ['approved', 'with_client', 'won', 'changes'].includes(p.status));
+
+  c.innerHTML = `
+    <div class="block">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
+        <div>
+          <h2>Commercial Proposals & Scope <span class="eyebrow">${clientProposals.length} mandates</span></h2>
+          <p style="font-size:13px;color:var(--text-3);margin:0;">
+            Official service proposals, deliverables scope, rate cards, and SLA governance released by CI360 administration.
+          </p>
+        </div>
+      </div>
+
+      <!-- Quick KPI Cards -->
+      <div class="grid grid-3" style="margin-bottom:24px;">
+        <div class="card kpi">
+          <div class="kpi-header"><span class="kpi-label">Active Proposals</span><span class="badge blue">Scope</span></div>
+          <div class="kpi-value">${clientProposals.length}</div>
+          <div style="font-size:12px;color:var(--text-3);margin-top:4px;">Released & ready for review / reference</div>
+        </div>
+
+        <div class="card kpi" style="border-left:3px solid var(--green-500);">
+          <div class="kpi-header"><span class="kpi-label">Signed / Approved</span><span class="badge green">Signed</span></div>
+          <div class="kpi-value" style="color:var(--green-600);">${clientProposals.filter(p => p.status === 'won').length}</div>
+          <div style="font-size:12px;color:var(--text-3);margin-top:4px;">Accepted mandates in execution</div>
+        </div>
+
+        <div class="card kpi" style="border-left:3px solid var(--amber-500);">
+          <div class="kpi-header"><span class="kpi-label">Awaiting Sign-off</span><span class="badge amber">Pending</span></div>
+          <div class="kpi-value" style="color:var(--amber-600);">${clientProposals.filter(p => p.status === 'with_client' || p.status === 'approved').length}</div>
+          <div style="font-size:12px;color:var(--text-3);margin-top:4px;">Open for online sign-off</div>
+        </div>
+      </div>
+
+      <!-- Proposals List -->
+      ${clientProposals.length === 0 ? `
+        <div class="card" style="padding:48px 24px;text-align:center;">
+          <div style="font-size:42px;margin-bottom:12px;">📜</div>
+          <h3 style="margin:0 0 8px 0;font-size:17px;font-weight:800;color:var(--text-1);">No Released Proposals Found</h3>
+          <p class="muted" style="max-width:540px;margin:0 auto 16px;font-size:13.5px;">
+            Proposals released by CI360 will automatically appear here. If you were sent a direct review link by your account director, you can also view or download it directly at any time.
+          </p>
+        </div>
+      ` : `
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          ${clientProposals.map(p => {
+            const isSigned = p.status === 'won';
+            const statusLabel = isSigned
+              ? '<span class="badge green" style="font-weight:700;">🎉 Officially Signed & Approved</span>'
+              : (p.status === 'changes' ? '<span class="badge amber">⚠️ Revision Requested</span>' : '<span class="badge blue">⏳ Awaiting Your Review & Sign-off</span>');
+
+            return `
+              <div class="card" style="border:1px solid var(--border-sm);padding:20px;border-radius:var(--r-lg);">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:14px;margin-bottom:14px;">
+                  <div>
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap;">
+                      <span class="badge gray" style="font-family:var(--font-mono);font-size:11.5px;">${escapeHtml(p.ref || 'CI360-PR')}</span>
+                      ${statusLabel}
+                      ${p.approval && p.approval.pinVerified ? '<span class="badge green" style="font-size:11px;">🔐 Admin PIN Verified</span>' : ''}
+                    </div>
+                    <h3 style="margin:0;font-size:18px;font-weight:800;color:var(--text-1);">${escapeHtml(p.title || 'Service Scope Proposal')}</h3>
+                    <p class="muted small" style="margin:4px 0 0;">${escapeHtml(p.subtitle || p.oneLine || 'Comprehensive Marketing & Growth Strategy')}</p>
+                  </div>
+
+                  <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+                    ${p.shareId ? `
+                      <a href="/proposal?p=${encodeURIComponent(p.shareId)}" target="_blank" class="btn primary small" style="font-weight:700;">
+                        👁️ Review & Sign Online
+                      </a>
+                    ` : ''}
+                    <button class="btn small" data-client-pdf="${escapeHtml(p._id)}" style="font-weight:600;">
+                      📄 Download PDF
+                    </button>
+                    <button class="btn small" data-client-word="${escapeHtml(p._id)}">
+                      📝 Download Word (.docx)
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Scope Metadata Pills -->
+                <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));gap:12px;padding:14px 16px;background:var(--bg-elevated);border-radius:var(--r-md);margin-bottom:14px;font-size:13px;">
+                  <div>
+                    <span class="muted" style="display:block;font-size:11.5px;">Engagement Term</span>
+                    <strong style="color:var(--text-1);">${p.term ? `${p.term} Months Retainer` : 'Project Based'}</strong>
+                  </div>
+                  <div>
+                    <span class="muted" style="display:block;font-size:11.5px;">Proposal Date</span>
+                    <strong style="color:var(--text-1);">${fmtDate(p.date)}</strong>
+                  </div>
+                  <div>
+                    <span class="muted" style="display:block;font-size:11.5px;">Validity</span>
+                    <strong style="color:var(--text-1);">${p.validity || 30} days from issue</strong>
+                  </div>
+                  <div>
+                    <span class="muted" style="display:block;font-size:11.5px;">Primary Point of Contact</span>
+                    <strong style="color:var(--text-1);">${escapeHtml(p.contact || 'Account Director')}</strong>
+                  </div>
+                </div>
+
+                <!-- Deliverables / Heads Summary -->
+                ${(p.heads && p.heads.length) ? `
+                  <div style="font-size:12.5px;color:var(--text-2);margin-bottom:8px;">
+                    <strong>Included Scope Areas:</strong> ${p.heads.map(h => escapeHtml(h.title)).join(' • ')}
+                  </div>
+                ` : ''}
+
+                ${p.clientResponse && p.clientResponse.decision ? `
+                  <div style="margin-top:12px;padding:10px 14px;background:var(--bg-surface);border-radius:var(--r-sm);border-left:3px solid ${p.clientResponse.decision === 'approved' ? 'var(--green-500)' : 'var(--amber-500)'};font-size:12.5px;">
+                    <strong>${p.clientResponse.decision === 'approved' ? 'Signed by' : 'Feedback from'} ${escapeHtml(p.clientResponse.name)}:</strong>
+                    ${p.clientResponse.comment ? ` “${escapeHtml(p.clientResponse.comment)}”` : ' Formal confirmation submitted.'}
+                    <span class="muted small">(${new Date(p.clientResponse.at).toLocaleDateString('en-GB')})</span>
+                  </div>
+                ` : ''}
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `}
+    </div>
+  `;
+
+  // Bind direct PDF download buttons
+  c.querySelectorAll('[data-client-pdf]').forEach(btn => {
+    btn.onclick = async () => {
+      const pid = btn.dataset.clientPdf;
+      const prop = clientProposals.find(x => x._id === pid);
+      if (!prop) return;
+      btn.disabled = true;
+      btn.textContent = 'Generating PDF…';
+      try {
+        const { exportPdfDoc } = await import('./proposals.js');
+        const rateDoc = await apiGet('/proposals/ratecard').catch(() => ({}));
+        await exportPdfDoc(prop, rateDoc.settings || {}, btn);
+      } catch (err) {
+        flashToast('Failed to download PDF: ' + err.message, true);
+        btn.disabled = false;
+        btn.textContent = '📄 Download PDF';
+      }
+    };
+  });
+
+  // Bind direct Word download buttons
+  c.querySelectorAll('[data-client-word]').forEach(btn => {
+    btn.onclick = async () => {
+      const pid = btn.dataset.clientWord;
+      const prop = clientProposals.find(x => x._id === pid);
+      if (!prop) return;
+      btn.disabled = true;
+      btn.textContent = 'Generating Word…';
+      try {
+        const { exportWordDocx } = await import('./proposals.js');
+        const rateDoc = await apiGet('/proposals/ratecard').catch(() => ({}));
+        await exportWordDocx(prop, rateDoc.settings || {}, btn);
+      } catch (err) {
+        flashToast('Failed to download Word document: ' + err.message, true);
+        btn.disabled = false;
+        btn.textContent = '📝 Download Word (.docx)';
+      }
+    };
+  });
 }
 
 /* ════════════════════════════ OUR TEAM ═════════════════════════ */

@@ -146,7 +146,7 @@ function whatYouGet(h, cur) {
   return parts.join('\n\n');
 }
 
-function docModel(p, co, opts = {}) {
+export function docModel(p, co, opts = {}) {
   const cur = p.currency || 'INR', T = totals(p), B = [];
   let n = 0; const H = t => B.push({ t: 'h', n: ++n, text: t });
   const gstWord = cur === 'INR' ? 'GST' : 'Tax';
@@ -520,8 +520,59 @@ export async function exportPdfDoc(p, co, btn, opts = {}) {
     const model = docModel(p, co, opts);
     const htmlString = paperHTML(model, true);
 
+    const pdfContainer = document.createElement('div');
+    pdfContainer.style.position = 'fixed';
+    pdfContainer.style.left = '-9999px';
+    pdfContainer.style.top = '0';
+    pdfContainer.style.width = '794px';
+    pdfContainer.style.background = '#FFFFFF';
+    pdfContainer.style.color = '#1C2430';
+    pdfContainer.innerHTML = `
+      <style>
+        .paper, .paper.print { background: #FFFFFF !important; color: #1C2430 !important; font-family: Arial, Helvetica, sans-serif !important; width: 794px !important; margin: 0 !important; box-shadow: none !important; }
+        .paper .cover { background: #0F2A4A !important; color: #FFFFFF !important; min-height: 980px !important; padding: 50px 44px 44px !important; }
+        .paper .cv-brand { color: #D4A657 !important; font-family: Georgia, serif !important; font-weight: 700 !important; font-size: 19px !important; }
+        .paper .cv-kicker { color: #AEBBCD !important; font-size: 13px !important; }
+        .paper .cover h1 { color: #FFFFFF !important; font-family: Georgia, serif !important; font-size: 34px !important; margin: 8px 0 12px !important; }
+        .paper .cv-sub { color: #D9E1EC !important; font-family: Georgia, serif !important; font-style: italic !important; font-size: 16px !important; }
+        .paper .cv-rule { background: #B8893A !important; height: 2px !important; margin-bottom: 18px !important; }
+        .paper .cv-meta dt { color: #C9A35E !important; font-weight: 700 !important; }
+        .paper .cv-meta dd { color: #FFFFFF !important; }
+        .paper .body { background: #FFFFFF !important; color: #1C2430 !important; padding: 36px 44px 44px !important; }
+        .paper h2 { color: #0F2A4A !important; font-family: Georgia, serif !important; font-size: 19px !important; border-bottom: 1.5px solid #B8893A !important; margin: 26px 0 12px !important; }
+        .paper h2 .n { color: #B8893A !important; }
+        .paper h3 { color: #0F2A4A !important; font-family: Georgia, serif !important; font-size: 14.5px !important; margin: 14px 0 6px !important; font-weight: 700 !important; }
+        .paper p { color: #1E293B !important; font-size: 13.5px !important; line-height: 1.6 !important; margin: 0 0 9px !important; }
+        .paper ul, .paper ol { color: #1E293B !important; margin: 0 0 10px !important; padding-left: 20px !important; }
+        .paper li { color: #1E293B !important; font-size: 13.5px !important; line-height: 1.5 !important; margin-bottom: 4px !important; }
+        .paper li::marker { color: #B8893A !important; }
+        .paper strong { color: #0F172A !important; }
+        .paper table { width: 100% !important; border-collapse: collapse !important; font-size: 12.5px !important; margin: 6px 0 12px !important; background: #FFFFFF !important; color: #1C2430 !important; }
+        .paper th, .paper td { border: 1px solid #D5DCE5 !important; padding: 7px 9px !important; color: #1C2430 !important; }
+        .paper table.pt thead th { background: #0F2A4A !important; color: #FFFFFF !important; border-color: #0F2A4A !important; font-weight: 700 !important; }
+        .paper table.kv th { background: #F1F4F8 !important; color: #0F2A4A !important; font-weight: 700 !important; }
+        .paper table.kv td { background: #FFFFFF !important; color: #1C2430 !important; }
+        .paper tr.alt td { background: #F8FAFC !important; color: #1C2430 !important; }
+        .paper tr.hl td { background: #FDF6E2 !important; color: #0F2A4A !important; font-size: 13.5px !important; }
+        .paper tr.group td { background: #E2E8F0 !important; color: #0F2A4A !important; font-weight: 700 !important; }
+        .paper tr.sub td { color: #64748B !important; font-style: italic !important; }
+        .paper tr.grand td { background: #0F2A4A !important; color: #FFFFFF !important; font-weight: 700 !important; }
+        .paper tr.grand td * { color: #FFFFFF !important; }
+        .paper .desc { color: #475569 !important; font-size: 11.5px !important; }
+        .paper .pnote { color: #475569 !important; font-style: italic !important; }
+        .paper .approved-stamp { border: 1.5px solid #2F6B45 !important; background: #ECFDF5 !important; color: #2F6B45 !important; font-weight: 700 !important; }
+        .paper .approved-stamp.admin-stamp { border-color: #0F2A4A !important; background: #F1F4F8 !important; color: #0F2A4A !important; }
+        .paper .sig .who { color: #0F2A4A !important; font-family: Georgia, serif !important; font-weight: 700 !important; }
+        .paper .sig .ln { border-bottom: 1px solid #CBD5E1 !important; color: #1E293B !important; }
+        .paper .sig .ln span { color: #64748B !important; }
+        .paper .foot { color: #64748B !important; }
+      </style>
+      ${htmlString}
+    `;
+    document.body.appendChild(pdfContainer);
+
     const opt = {
-      margin: [14, 15, 16, 15],
+      margin: [10, 10, 12, 10],
       filename: `${p.clientShort || p.client || 'Client'} - ${p.title || 'Proposal'}.pdf`.replace(/[\\/:*?"<>|]+/g, '_'),
       image: { type: 'jpeg', quality: 0.98 },
       html2canvas: { scale: 2, backgroundColor: '#ffffff', scrollX: 0, scrollY: 0, useCORS: true },
@@ -529,7 +580,11 @@ export async function exportPdfDoc(p, co, btn, opts = {}) {
       pagebreak: { mode: ['css', 'legacy'], avoid: ['tr', 'h2', 'h3', 'li', 'p', '.sig', '.kv', '.approved-stamp'] }
     };
 
-    await h2p().set(opt).from(htmlString, 'string').save();
+    try {
+      await h2p().set(opt).from(pdfContainer).save();
+    } finally {
+      pdfContainer.remove();
+    }
   } catch (err) {
     alert('PDF export error: ' + err.message);
   } finally {
@@ -551,6 +606,7 @@ export class ProposalStudioController {
     this.proposals = [];
     this.rateDoc = null;
     this.pinStatus = { isConfigured: false, defaultPinHint: '3600' };
+    this.personnel = [];
     this.currentView = 'list'; // 'list' | 'editor' | 'ratecard' | 'settings' | 'audit'
     this.activeStep = 'brief'; // 'brief' | 'scope' | 'content' | 'team' | 'terms' | 'approve'
     this.activeProposal = null;
@@ -564,14 +620,16 @@ export class ProposalStudioController {
   async init() {
     this.container.innerHTML = `<div class="card" style="padding:40px;text-align:center"><div class="loading">Loading Proposal Studio…</div></div>`;
     try {
-      const [proposals, rateDoc, pinStatus] = await Promise.all([
+      const [proposals, rateDoc, pinStatus, personnel] = await Promise.all([
         apiGet('/proposals'),
         apiGet('/proposals/ratecard'),
-        apiGet('/proposals/pin/status')
+        apiGet('/proposals/pin/status'),
+        apiGet('/personnel').catch(() => [])
       ]);
       this.proposals = proposals || [];
       this.rateDoc = rateDoc;
       this.pinStatus = pinStatus || { isConfigured: false, defaultPinHint: '3600' };
+      this.personnel = personnel || [];
       this.render();
     } catch (err) {
       this.container.innerHTML = `
@@ -764,8 +822,13 @@ export class ProposalStudioController {
                       ${isPinApproved ? `<div class="small" style="color:var(--green-600);font-size:11px;margin-top:2px;">🔐 PIN Verified</div>` : ''}
                     </td>
                     <td style="padding:14px 16px;text-align:right;" onclick="event.stopPropagation();">
-                      <div style="display:inline-flex;gap:6px;align-items:center;">
+                      <div style="display:inline-flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end;">
                         <button class="btn small" data-edit-p="${escapeHtml(p._id)}" title="Edit proposal">✏️ Edit</button>
+                        <button class="btn small" data-list-pdf="${escapeHtml(p._id)}" title="Download PDF document directly">📄 PDF</button>
+                        <button class="btn small" data-list-word="${escapeHtml(p._id)}" title="Download Word (.docx) document directly">📝 Word</button>
+                        ${p.shareId ? `
+                          <button class="btn small ghost" data-list-share="${escapeHtml(p.shareId)}" title="Copy direct client review link">🔗 Link</button>
+                        ` : ''}
                         ${this.isAdmin ? `
                           ${p.status === 'pending' || !isPinApproved ? `
                             <button class="btn small gold" data-quick-pin="${escapeHtml(p._id)}" title="Approve with Admin PIN">🔐 Approve</button>
@@ -818,6 +881,38 @@ export class ProposalStudioController {
       btn.onclick = (e) => {
         e.stopPropagation();
         this.openProposal(btn.dataset.editP);
+      };
+    });
+
+    el.querySelectorAll('[data-list-pdf]').forEach(btn => {
+      btn.onclick = async (e) => {
+        e.stopPropagation();
+        const p = this.proposals.find(x => x._id === btn.dataset.listPdf);
+        if (p) {
+          await exportPdfDoc(p, this.rateDoc?.settings, btn);
+        }
+      };
+    });
+
+    el.querySelectorAll('[data-list-word]').forEach(btn => {
+      btn.onclick = async (e) => {
+        e.stopPropagation();
+        const p = this.proposals.find(x => x._id === btn.dataset.listWord);
+        if (p) {
+          await exportWordDocx(p, this.rateDoc?.settings, btn);
+        }
+      };
+    });
+
+    el.querySelectorAll('[data-list-share]').forEach(btn => {
+      btn.onclick = (e) => {
+        e.stopPropagation();
+        const url = `${window.location.origin}/proposal?p=${btn.dataset.listShare}`;
+        navigator.clipboard.writeText(url).then(() => {
+          flashToast('Direct client proposal link copied! 📋');
+        }).catch(() => {
+          prompt('Copy client link:', url);
+        });
       };
     });
 
@@ -1807,57 +1902,138 @@ export class ProposalStudioController {
   renderStepTeam(el) {
     const p = this.activeProposal;
     const teamLib = (this.rateDoc && this.rateDoc.settings && this.rateDoc.settings.team) || [];
+    const activePersonnel = (this.personnel || []).filter(x => x.status !== 'inactive');
+
+    // Build unified employee pool for engagement roles & escalation paths
+    const employeePool = [];
+    activePersonnel.forEach(emp => {
+      employeePool.push({
+        id: 'emp_' + emp._id,
+        name: emp.name,
+        role: emp.duties || emp.role || 'Team Member',
+        resp: emp.duties ? `Execution lead for ${emp.duties}` : 'Mandate execution and client deliverables'
+      });
+    });
+    teamLib.forEach(m => {
+      if (!employeePool.some(e => e.name.toLowerCase() === m.name.toLowerCase())) {
+        employeePool.push({
+          id: m.id,
+          name: m.name,
+          role: m.engRole || m.role || 'Specialist',
+          resp: m.resp || ''
+        });
+      }
+    });
+
+    if (!Array.isArray(p.escalation) || !p.escalation.length) {
+      p.escalation = [
+        { name: 'Mansi Bagdai', role: 'Strategy & Growth Lead, Account Lead', when: 'Day-to-day operational matters not resolved within 1 working day' },
+        { name: 'Urna Banerji', role: 'COO', when: 'Delivery, quality, or timeline concerns not resolved within 2 working days' },
+        { name: 'Pramit Ghosh', role: 'Founder & CEO', when: 'Commercial or strategic relationship matters, or anything unresolved at Level 2' }
+      ];
+    }
 
     el.innerHTML = `
+      <!-- Named Team -->
       <div class="card" style="margin-bottom:16px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
           <div>
             <h3 style="font-size:17px;font-weight:700;margin:0 0 2px 0;">Named CI360 Account Team</h3>
-            <p class="muted small" style="margin:0;">Who will work on the mandate and what each lead specifically owns.</p>
+            <p class="muted small" style="margin:0;">Select from all employees in your team (${activePersonnel.length} available) or enter custom role assignments for this engagement.</p>
           </div>
-          <button class="btn small" id="ps-add-team-btn">+ Add Member</button>
+          <button class="btn small" id="ps-add-team-btn">+ Add Team Member</button>
         </div>
 
-        <table class="table" style="width:100%;">
-          <thead>
-            <tr style="background:var(--bg-elevated);">
-              <th style="width:200px;">From Team Library</th>
-              <th>Name</th>
-              <th>Engagement Role</th>
-              <th>Responsibility</th>
-              <th style="width:40px;"></th>
-            </tr>
-          </thead>
-          <tbody>
-            ${(p.team || []).map(t => `
-              <tr data-team-id="${escapeHtml(t.id)}">
-                <td>
-                  <select class="input" data-t-select>
-                    <option value="">Custom member...</option>
-                    ${teamLib.map(m => `<option value="${escapeHtml(m.id)}" ${t.memberId === m.id ? 'selected' : ''}>${escapeHtml(m.name)} (${escapeHtml(m.role)})</option>`).join('')}
-                  </select>
-                </td>
-                <td><input type="text" class="input" data-t-field="name" value="${escapeHtml(t.name)}"></td>
-                <td><input type="text" class="input" data-t-field="role" value="${escapeHtml(t.role)}"></td>
-                <td><input type="text" class="input" data-t-field="resp" value="${escapeHtml(t.resp)}"></td>
-                <td><button class="btn small danger" data-t-action="remove">✕</button></td>
+        <div class="scroll">
+          <table class="table" style="width:100%;">
+            <thead>
+              <tr style="background:var(--bg-elevated);">
+                <th style="width:230px;">Select Employee / Role</th>
+                <th style="min-width:160px;">Name</th>
+                <th style="min-width:180px;">Engagement Role</th>
+                <th style="min-width:240px;">Responsibility</th>
+                <th style="width:40px;"></th>
               </tr>
-            `).join('')}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              ${(p.team || []).map(t => `
+                <tr data-team-id="${escapeHtml(t.id)}">
+                  <td>
+                    <select class="input" data-t-select style="font-size:12.5px;">
+                      <option value="">Select Employee...</option>
+                      ${employeePool.map(m => `<option value="${escapeHtml(m.id)}" ${t.memberId === m.id || t.name === m.name ? 'selected' : ''}>${escapeHtml(m.name)} (${escapeHtml(m.role)})</option>`).join('')}
+                    </select>
+                  </td>
+                  <td><input type="text" class="input" data-t-field="name" value="${escapeHtml(t.name)}" placeholder="Full Name"></td>
+                  <td><input type="text" class="input" data-t-field="role" value="${escapeHtml(t.role)}" placeholder="e.g. Account Lead"></td>
+                  <td><input type="text" class="input" data-t-field="resp" value="${escapeHtml(t.resp)}" placeholder="Specific ownership"></td>
+                  <td><button class="btn small danger" data-t-action="remove" title="Remove member">✕</button></td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
       </div>
 
+      <!-- Escalation Path Matrix -->
       <div class="card" style="margin-bottom:16px;">
-        <h3 style="font-size:17px;font-weight:700;margin:0 0 12px 0;">Client-Side Contacts & Approvers</h3>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+          <div>
+            <h3 style="font-size:17px;font-weight:700;margin:0 0 2px 0;">🚨 Escalation Path & SLA Matrix</h3>
+            <p class="muted small" style="margin:0;">Define tiered contacts for client escalation with SLA conditions and resolution triggers.</p>
+          </div>
+          <button class="btn small" id="ps-add-escl-btn">+ Add Escalation Level</button>
+        </div>
+
+        <div class="scroll">
+          <table class="table" style="width:100%;">
+            <thead>
+              <tr style="background:var(--bg-elevated);">
+                <th style="width:90px;">Tier</th>
+                <th style="width:230px;">Select Employee</th>
+                <th style="min-width:160px;">Contact Name</th>
+                <th style="min-width:180px;">Designation / Title</th>
+                <th style="min-width:240px;">When to Escalate (Trigger Condition / SLA)</th>
+                <th style="width:40px;"></th>
+              </tr>
+            </thead>
+            <tbody>
+              ${p.escalation.map((e, idx) => `
+                <tr data-escl-idx="${idx}">
+                  <td><span class="badge blue">Level ${idx + 1}</span></td>
+                  <td>
+                    <select class="input" data-e-select style="font-size:12.5px;">
+                      <option value="">Select Employee...</option>
+                      ${employeePool.map(m => `<option value="${escapeHtml(m.name)}" ${e.name === m.name ? 'selected' : ''}>${escapeHtml(m.name)} (${escapeHtml(m.role)})</option>`).join('')}
+                    </select>
+                  </td>
+                  <td><input type="text" class="input" data-e-field="name" value="${escapeHtml(e.name || '')}" placeholder="Contact Name"></td>
+                  <td><input type="text" class="input" data-e-field="role" value="${escapeHtml(e.role || '')}" placeholder="Designation / Role"></td>
+                  <td><input type="text" class="input" data-e-field="when" value="${escapeHtml(e.when || '')}" placeholder="Trigger SLA or condition"></td>
+                  <td><button class="btn small danger" data-e-action="remove" title="Remove level">✕</button></td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Client Side Contacts -->
+      <div class="card" style="margin-bottom:16px;">
+        <h3 style="font-size:17px;font-weight:700;margin:0 0 6px 0;">Client-Side Contacts & Approvers</h3>
+        <p class="muted small" style="margin:0 0 10px 0;">Named client contacts responsible for briefs, feedback approvals, and commercial sign-offs.</p>
         <textarea class="input" id="ps-f-clientTeam" rows="2" placeholder="e.g. Content approval: Sachin Nagi; Commercial sign-off: Pramit Ghosh">${escapeHtml(p.clientTeam)}</textarea>
       </div>
 
+      <!-- Meeting Cadence -->
       <div class="card">
-        <h3 style="font-size:17px;font-weight:700;margin:0 0 12px 0;">How We Work Together (Meeting Cadence)</h3>
+        <h3 style="font-size:17px;font-weight:700;margin:0 0 6px 0;">How We Work Together (Governance & Meeting Cadence)</h3>
+        <p class="muted small" style="margin:0 0 10px 0;">Regular touchpoints, review calls, content calendar approval flow, and reporting rhythm.</p>
         <textarea class="input" id="ps-f-cadence" rows="4">${escapeHtml(p.cadence)}</textarea>
       </div>
     `;
 
+    // Team events
     el.querySelector('#ps-add-team-btn').onclick = () => {
       p.team.push({ id: uid(), memberId: '', name: '', role: '', resp: '' });
       this.scheduleAutoSave();
@@ -1873,11 +2049,11 @@ export class ProposalStudioController {
       const sel = row.querySelector('[data-t-select]');
       if (sel) {
         sel.onchange = () => {
-          const m = teamLib.find(x => x.id === sel.value);
+          const m = employeePool.find(x => x.id === sel.value);
           if (m) {
             t.memberId = m.id;
             t.name = m.name;
-            t.role = m.engRole || m.role;
+            t.role = m.role;
             t.resp = m.resp || '';
           } else {
             t.memberId = '';
@@ -1900,6 +2076,55 @@ export class ProposalStudioController {
       if (rm) {
         rm.onclick = () => {
           p.team = p.team.filter(x => x.id !== tId);
+          this.scheduleAutoSave();
+          this.renderStepTeam(el);
+          this.refreshLivePaper();
+        };
+      }
+    });
+
+    // Escalation Matrix events
+    const addEsclBtn = el.querySelector('#ps-add-escl-btn');
+    if (addEsclBtn) {
+      addEsclBtn.onclick = () => {
+        p.escalation.push({ name: '', role: '', when: '' });
+        this.scheduleAutoSave();
+        this.renderStepTeam(el);
+        this.refreshLivePaper();
+      };
+    }
+
+    el.querySelectorAll('tr[data-escl-idx]').forEach(row => {
+      const idx = Number(row.dataset.esclIdx);
+      const e = p.escalation[idx];
+      if (!e) return;
+
+      const sel = row.querySelector('[data-e-select]');
+      if (sel) {
+        sel.onchange = () => {
+          const emp = employeePool.find(x => x.name === sel.value);
+          if (emp) {
+            e.name = emp.name;
+            e.role = emp.role;
+          }
+          this.scheduleAutoSave();
+          this.renderStepTeam(el);
+          this.refreshLivePaper();
+        };
+      }
+
+      row.querySelectorAll('[data-e-field]').forEach(inp => {
+        inp.oninput = () => {
+          e[inp.dataset.eField] = inp.value;
+          this.scheduleAutoSave();
+          this.refreshLivePaper();
+        };
+      });
+
+      const rm = row.querySelector('[data-e-action="remove"]');
+      if (rm) {
+        rm.onclick = () => {
+          p.escalation.splice(idx, 1);
           this.scheduleAutoSave();
           this.renderStepTeam(el);
           this.refreshLivePaper();
@@ -2103,10 +2328,24 @@ export class ProposalStudioController {
         ${p.shareId ? `
           <div style="margin-bottom:14px;">
             <label class="label">Live Client Link (Version ${p.sharedVersion})</label>
-            <div style="display:flex;gap:8px;">
-              <input type="text" class="input" id="ps-share-link-input" readonly value="${escapeHtml(clientLink)}">
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <input type="text" class="input" id="ps-share-link-input" readonly value="${escapeHtml(clientLink)}" style="flex:1;min-width:240px;">
               <button class="btn" id="ps-copy-link-btn">📋 Copy Link</button>
               <a href="/proposal?p=${escapeHtml(p.shareId)}" target="_blank" class="btn">👁️ Open View</a>
+            </div>
+          </div>
+
+          <!-- Non-Portal / Offline Client Direct Download Section -->
+          <div style="margin-bottom:16px;padding:14px 16px;background:var(--bg-elevated);border-radius:var(--r-md);border:1px solid var(--border-sm);">
+            <div style="font-weight:700;color:var(--text-1);margin-bottom:4px;display:flex;align-items:center;gap:6px;">
+              <span>💾 Client Direct Download Options</span>
+              <span class="badge blue" style="font-size:11px;">If client is not registered on portal</span>
+            </div>
+            <p class="muted small" style="margin:0 0 12px 0;">If the client does not have a CI360 portal account, download the file directly or copy the public download link to send via email/WhatsApp:</p>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <button class="btn" id="ps-step6-dl-pdf">📄 Download PDF</button>
+              <button class="btn" id="ps-step6-dl-word">📝 Download Word (.docx)</button>
+              <button class="btn ghost" id="ps-step6-copy-pdf-link">🔗 Copy Direct PDF Link</button>
             </div>
           </div>
         ` : ''}
@@ -2246,6 +2485,35 @@ export class ProposalStudioController {
           } catch (e) {
             alert('Press Ctrl+C to copy: ' + inp.value);
           }
+        }
+      };
+    }
+
+    // Step 6 Direct Download buttons (Offline / Non-Portal Client)
+    const dlPdfBtn = el.querySelector('#ps-step6-dl-pdf');
+    if (dlPdfBtn) {
+      dlPdfBtn.onclick = async () => {
+        await exportPdfDoc(p, this.rateDoc?.settings, dlPdfBtn);
+      };
+    }
+
+    const dlWordBtn = el.querySelector('#ps-step6-dl-word');
+    if (dlWordBtn) {
+      dlWordBtn.onclick = async () => {
+        await exportWordDocx(p, this.rateDoc?.settings, dlWordBtn);
+      };
+    }
+
+    const copyPdfLinkBtn = el.querySelector('#ps-step6-copy-pdf-link');
+    if (copyPdfLinkBtn) {
+      copyPdfLinkBtn.onclick = async () => {
+        const directPdfUrl = `${window.location.origin}/proposal?p=${p.shareId}&dl=pdf`;
+        try {
+          await navigator.clipboard.writeText(directPdfUrl);
+          copyPdfLinkBtn.textContent = 'Copied ✓';
+          setTimeout(() => copyPdfLinkBtn.textContent = '🔗 Copy Direct PDF Link', 2000);
+        } catch (e) {
+          prompt('Direct PDF Download Link:', directPdfUrl);
         }
       };
     }

@@ -63,7 +63,7 @@ body {
 </main>
 
 <script type="module">
-import { paperHTML, exportPdfDoc } from '/src/js/proposals.js';
+import { paperHTML, docModel, exportPdfDoc, exportWordDocx } from '/src/js/proposals.js';
 
 const root = document.getElementById('proposal-client-root');
 const params = new URLSearchParams(window.location.search);
@@ -119,6 +119,15 @@ function renderClientView() {
           Review the scope, deliverables, and commercial terms, then approve online or request changes.
         </p>
 
+        <!-- Direct Document Downloads -->
+        <div style="margin-bottom:16px;padding:12px;background:var(--bg-elevated);border-radius:var(--r-md);border:1px solid var(--border-sm);">
+          <div style="font-weight:700;font-size:12.5px;color:var(--text-1);margin-bottom:8px;">💾 Download Document Files</div>
+          <div style="display:flex;gap:6px;flex-direction:column;">
+            <button class="btn small" id="client-download-pdf-btn" style="width:100%;font-weight:700;">📄 Download PDF Document</button>
+            <button class="btn small" id="client-download-word-btn" style="width:100%;">📝 Download Word (.docx)</button>
+          </div>
+        </div>
+
         ${isAnswered ? `
           <div style="padding:14px;border-radius:var(--r-md);background:${clientResponse.decision === 'approved' ? 'var(--green-50, #ECFDF5)' : 'var(--amber-50, #FFFBEB)'};border:1px solid ${clientResponse.decision === 'approved' ? 'rgba(16,185,129,0.3)' : 'rgba(245,158,11,0.3)'};margin-bottom:14px;">
             <strong style="color:${clientResponse.decision === 'approved' ? 'var(--green-600)' : 'var(--amber-600)'}">
@@ -129,7 +138,6 @@ function renderClientView() {
             </div>
             ${clientResponse.comment ? `<p style="margin:8px 0 0;font-size:13.5px;color:var(--text-2);">“${clientResponse.comment}”</p>` : ''}
           </div>
-          <button class="btn" id="client-download-pdf-btn" style="width:100%;margin-bottom:10px;">📄 Download PDF Copy</button>
           <button class="btn ghost small" id="client-change-btn" style="width:100%;">Update My Response</button>
         ` : `
           <form id="client-response-form">
@@ -156,20 +164,33 @@ function renderClientView() {
             <button type="submit" class="btn gold" id="client-submit-btn" style="width:100%;font-weight:700;margin-bottom:10px;">
               Confirm & Submit Response
             </button>
-            <button type="button" class="btn" id="client-download-pdf-btn" style="width:100%;">📄 Download PDF Copy</button>
           </form>
         `}
       </div>
     </div>
   `;
 
-  // Draw paper
+  // Draw paper using complete proposal model
   updatePaperPreview();
 
   // Download PDF
   const pdfBtn = root.querySelector('#client-download-pdf-btn');
   if (pdfBtn) {
     pdfBtn.onclick = () => exportPdfDoc(proposal, company, pdfBtn);
+  }
+
+  // Download Word
+  const wordBtn = root.querySelector('#client-download-word-btn');
+  if (wordBtn) {
+    wordBtn.onclick = () => exportWordDocx(proposal, company, wordBtn);
+  }
+
+  // Handle direct download params (?dl=pdf or ?dl=word)
+  const dlParam = params.get('dl');
+  if (dlParam === 'pdf' && pdfBtn) {
+    exportPdfDoc(proposal, company, pdfBtn);
+  } else if (dlParam === 'word' && wordBtn) {
+    exportWordDocx(proposal, company, wordBtn);
   }
 
   // Change response button
@@ -256,27 +277,7 @@ function updatePaperPreview() {
   const preview = root.querySelector('#client-paper-preview');
   if (preview && activeData) {
     const { proposal, company } = activeData;
-    // Build and insert model
-    const m = {
-      cover: {
-        brand: company.name || 'CI360 Degrees',
-        title: proposal.title || 'Proposal',
-        subtitle: proposal.subtitle,
-        kicker: proposal.kicker || 'Proposal for sign-off',
-        meta: [
-          ['Prepared for', proposal.client],
-          ['Reference', proposal.ref],
-          ['Date', proposal.date],
-          ['Valid until', proposal.validity ? `${proposal.validity} days` : '30 days']
-        ]
-      },
-      blocks: [
-        { t: 'stamp', text: proposal.approval && proposal.approval.decision === 'approved' ? `🔐 Internally Approved with Admin PIN on ${proposal.approval.at}` : 'Official Proposal', type: 'admin' },
-        ...(proposal.sections || []).map(s => ({ t: 'h', n: 1, text: s.title })),
-        { t: 'sig', left: { who: 'For ' + proposal.client, name: '', role: '' }, right: { who: 'For ' + company.name, name: company.signatory || 'Pramit Ghosh', role: company.signRole || 'Founder & CEO' } }
-      ],
-      foot: company.website || 'ci360degrees.com'
-    };
+    const m = docModel(proposal, company, { approval: activeData.clientResponse });
     preview.innerHTML = paperHTML(m);
   }
 }
