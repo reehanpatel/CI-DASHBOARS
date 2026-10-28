@@ -976,7 +976,7 @@ export class ProposalStudioController {
     return '<span class="badge gray">Draft</span>';
   }
 
-  createNewProposal() {
+  async createNewProposal() {
     const d = new Date();
     const year = d.getFullYear();
     const rand = Math.floor(100 + Math.random() * 900);
@@ -988,8 +988,8 @@ export class ProposalStudioController {
       subtitle: 'Comprehensive Strategy, Creative Production & Growth Execution',
       kicker: 'Proposal for sign-off',
       oneLine: 'Integrated marketing, creative content production, and managed digital visibility.',
-      client: '',
-      clientShort: '',
+      client: 'Client',
+      clientShort: 'Client',
       contact: '',
       contactRole: '',
       industry: '',
@@ -1073,6 +1073,9 @@ export class ProposalStudioController {
     if (defPkg) {
       this.activeProposal.heads.push(this.createHeadFromPackage(defPkg));
     }
+
+    // Auto-save initial draft so it has an official MongoDB _id
+    await this.saveActiveProposal(true);
 
     this.activeStep = 'brief';
     this.currentView = 'editor';
@@ -2472,8 +2475,11 @@ export class ProposalStudioController {
     // Bind Approve with PIN (Admin only)
     const approveBtn = el.querySelector('#ps-btn-approve-pin') || el.querySelector('#ps-btn-reauthorize-pin');
     if (approveBtn) {
-      approveBtn.onclick = () => {
-        this.showAdminPinModal(p, 'Approved with Admin PIN', () => {
+      approveBtn.onclick = async () => {
+        if (!p._id || p._id === 'undefined') {
+          await this.saveActiveProposal(true);
+        }
+        this.showAdminPinModal(this.activeProposal || p, 'Approved with Admin PIN', () => {
           this.renderProposalEditor(this.container.querySelector('#ps-view-content'));
         });
       };
@@ -2482,8 +2488,11 @@ export class ProposalStudioController {
     // Bind Release with PIN (Admin only)
     const releaseBtn = el.querySelector('#ps-btn-release-pin');
     if (releaseBtn) {
-      releaseBtn.onclick = () => {
-        this.showAdminPinModal(p, 'Released to Client with Admin PIN', () => {
+      releaseBtn.onclick = async () => {
+        if (!p._id || p._id === 'undefined') {
+          await this.saveActiveProposal(true);
+        }
+        this.showAdminPinModal(this.activeProposal || p, 'Released to Client with Admin PIN', () => {
           this.renderProposalEditor(this.container.querySelector('#ps-view-content'));
         }, true);
       };
@@ -2634,7 +2643,26 @@ export class ProposalStudioController {
       errorDiv.style.display = 'none';
 
       try {
-        const endpoint = isRelease ? `/proposals/${proposal._id}/release` : `/proposals/${proposal._id}/approve`;
+        let targetId = proposal._id || this.activeProposal?._id;
+        if (!targetId || targetId === 'undefined') {
+          submitBtn.textContent = 'Saving proposal…';
+          if (this.activeProposal && (!this.activeProposal.client || !this.activeProposal.client.trim())) {
+            this.activeProposal.client = 'Client';
+          }
+          await this.saveActiveProposal(true);
+          targetId = this.activeProposal?._id;
+          if (targetId) {
+            proposal._id = targetId;
+            Object.assign(proposal, this.activeProposal);
+          }
+        }
+
+        if (!targetId || targetId === 'undefined') {
+          throw new Error('Please ensure proposal is saved before authorizing.');
+        }
+
+        submitBtn.textContent = 'Verifying PIN…';
+        const endpoint = isRelease ? `/proposals/${targetId}/release` : `/proposals/${targetId}/approve`;
         const res = await apiPost(endpoint, {
           pin: enteredPin,
           note: enteredNote,
@@ -2644,8 +2672,10 @@ export class ProposalStudioController {
         // Update proposal in memory
         if (res.proposal) {
           Object.assign(proposal, res.proposal);
-          const idx = this.proposals.findIndex(x => x._id === proposal._id);
+          if (this.activeProposal) Object.assign(this.activeProposal, res.proposal);
+          const idx = this.proposals.findIndex(x => x._id === res.proposal._id);
           if (idx >= 0) this.proposals[idx] = res.proposal;
+          else this.proposals.unshift(res.proposal);
         }
 
         modal.remove();

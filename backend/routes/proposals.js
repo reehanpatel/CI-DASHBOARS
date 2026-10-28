@@ -329,6 +329,14 @@ router.get('/', async (req, res) => {
   }
 });
 
+// Validate MongoDB ObjectId on all /:id parameters
+router.param('id', (req, res, next, id) => {
+  if (!id || id === 'undefined' || !mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ error: 'Invalid or missing proposal ID' });
+  }
+  next();
+});
+
 // GET /api/proposals/:id
 router.get('/:id', async (req, res) => {
   try {
@@ -370,7 +378,7 @@ router.post('/', async (req, res) => {
   try {
     const data = req.body;
     if (!data.client || !data.client.trim()) {
-      return res.status(400).json({ error: 'Client organisation name is required' });
+      data.client = (data.clientShort && data.clientShort.trim()) || 'Client';
     }
 
     if (!data.ref) {
