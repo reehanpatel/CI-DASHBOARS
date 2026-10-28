@@ -605,7 +605,7 @@ export class ProposalStudioController {
     this.isAdmin = this.userRole === 'admin' || this.userRole === 'superadmin' || this.currentUser.role === 'admin' || this.currentUser.role === 'superadmin';
     this.proposals = [];
     this.rateDoc = null;
-    this.pinStatus = { isConfigured: false, defaultPinHint: '3600' };
+    this.pinStatus = { isConfigured: false, defaultPinHint: null };
     this.personnel = [];
     this.currentView = 'list'; // 'list' | 'editor' | 'ratecard' | 'settings' | 'audit'
     this.activeStep = 'brief'; // 'brief' | 'scope' | 'content' | 'team' | 'terms' | 'approve'
@@ -628,7 +628,7 @@ export class ProposalStudioController {
       ]);
       this.proposals = proposals || [];
       this.rateDoc = rateDoc;
-      this.pinStatus = pinStatus || { isConfigured: false, defaultPinHint: '3600' };
+      this.pinStatus = pinStatus || { isConfigured: false, defaultPinHint: null };
       this.personnel = personnel || [];
       this.render();
     } catch (err) {
@@ -652,7 +652,7 @@ export class ProposalStudioController {
             <div style="display:flex;align-items:center;gap:10px;">
               <h2 style="margin:0;font-size:22px;font-weight:800;color:var(--text-1);">Proposal Studio</h2>
               <span class="ps-badge-gold">CI360 Studio</span>
-              ${this.pinStatus.isConfigured ? '<span class="badge green" title="Admin Approval PIN is secured and active">🔐 PIN Protected</span>' : '<span class="badge amber" title="Default PIN active (3600). Change in PIN Settings">⚠️ Default PIN (3600)</span>'}
+              <span class="badge green" title="Admin Approval PIN is secured and active">🔐 PIN Protected</span>
             </div>
             <p class="muted small" style="margin:4px 0 0;">Branded proposal generation, comprehensive rate card pricing, and secure Admin PIN authorization audit trail.</p>
           </div>
@@ -2563,7 +2563,6 @@ export class ProposalStudioController {
               <input type="password" id="ps-modal-pin-input" class="input" style="font-size:22px;letter-spacing:6px;text-align:center;padding:12px;font-family:var(--font-mono);" placeholder="••••" maxlength="8" autocomplete="off" autofocus required>
               <button type="button" id="ps-toggle-pin-visibility" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:0;cursor:pointer;font-size:16px;">👁️</button>
             </div>
-            ${!this.pinStatus.isConfigured ? '<p class="small muted" style="margin:4px 0 0;color:var(--amber-600);">💡 Default PIN is <strong>3600</strong> (customize in Settings & PIN)</p>' : ''}
           </div>
 
           <div style="margin-bottom:16px;">

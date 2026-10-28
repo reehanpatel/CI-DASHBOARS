@@ -211,9 +211,10 @@ router.get('/pin/status', async (req, res) => {
   try {
     const pinSetting = await SystemSetting.findOne({ key: 'admin_proposal_pin' });
     const isConfigured = !!(pinSetting && pinSetting.value && pinSetting.value.hash);
+    const isAdmin = req.user && (req.user.role === 'admin' || req.user.role === 'superadmin');
     res.json({
       isConfigured,
-      defaultPinHint: isConfigured ? null : DEFAULT_PIN,
+      defaultPinHint: (isAdmin && !isConfigured) ? DEFAULT_PIN : null,
       lastUpdated: pinSetting ? pinSetting.value?.updatedAt : null,
       updatedBy: pinSetting ? pinSetting.value?.updatedBy : null
     });
