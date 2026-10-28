@@ -5932,4 +5932,385 @@ html:not([data-theme="dark"]) textarea {
   gap: 12px;
   background: var(--bg-card);
 }
+
+/* ============================================================
+   CI360 PROPOSAL STUDIO & RATE CARD STYLES
+   ============================================================ */
+.ps-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.ps-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 4px;
+}
+
+.ps-badge-gold {
+  display: inline-flex;
+  align-items: center;
+  background: linear-gradient(135deg, #B8893A, #D4A657);
+  color: #1A1305;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.ps-subnav {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.ps-nav-btn {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-sm);
+  color: var(--text-2);
+  padding: 8px 14px;
+  border-radius: var(--r-md);
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--t-fast);
+}
+
+.ps-nav-btn:hover {
+  background: var(--bg-hover);
+  color: var(--text-1);
+}
+
+.ps-nav-btn.active {
+  background: #0F2A4A;
+  border-color: #0F2A4A;
+  color: #FFFFFF;
+}
+
+[data-theme="dark"] .ps-nav-btn.active {
+  background: var(--brand-600);
+  border-color: var(--brand-600);
+}
+
+.ps-row-hover:hover td {
+  background: var(--bg-hover);
+}
+
+/* Proposal Editor Layout */
+.ps-editor-container {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.ps-editor-topbar {
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.ps-steps-bar {
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+}
+
+.ps-step-btn {
+  background: none;
+  border: 0;
+  padding: 9px 14px;
+  border-radius: var(--r-sm);
+  color: var(--text-3);
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all var(--t-fast);
+}
+
+.ps-step-btn:hover {
+  color: var(--text-1);
+  background: var(--bg-hover);
+}
+
+.ps-step-btn.active {
+  background: var(--brand-50, #EEF2FF);
+  color: var(--brand-600);
+  font-weight: 700;
+}
+
+[data-theme="dark"] .ps-step-btn.active {
+  background: rgba(99, 102, 241, 0.2);
+  color: var(--brand-400);
+}
+
+.ps-editor-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+
+@media (max-width: 1100px) {
+  .ps-editor-split {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Paper Document Styles (Faithfully Branded for CI360) */
+.paperwrap {
+  background: #DCE1E8;
+  border-radius: var(--r-md);
+  padding: 24px 16px;
+  overflow-x: auto;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.paper {
+  background: #FFFFFF;
+  color: #1C2430;
+  width: 100%;
+  max-width: 794px;
+  margin: 0 auto;
+  font: 13.5px/1.6 Arial, Helvetica, sans-serif;
+  box-shadow: 0 4px 18px rgba(15, 42, 74, 0.15);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.paper .cover {
+  background: #0F2A4A;
+  color: #FFFFFF;
+  padding: 50px 44px 44px;
+  min-height: 520px;
+  display: flex;
+  flex-direction: column;
+}
+
+.paper .cv-brand {
+  font-family: Georgia, serif;
+  font-weight: 700;
+  color: #D4A657;
+  font-size: 18px;
+}
+
+.paper .cv-kicker {
+  margin-top: auto;
+  color: #AEBBCD;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.paper .cover h1 {
+  font-family: Georgia, serif;
+  font-size: 34px;
+  line-height: 1.16;
+  margin: 8px 0 12px;
+  color: #FFFFFF;
+  max-width: 18em;
+}
+
+.paper .cv-sub {
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-size: 16px;
+  color: #D9E1EC;
+  margin: 0 0 36px;
+  max-width: 32em;
+}
+
+.paper .cv-rule {
+  height: 2px;
+  background: #B8893A;
+  margin-bottom: 18px;
+}
+
+.paper .cv-meta {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 6px 14px;
+  margin: 0;
+  font-size: 13px;
+}
+
+.paper .cv-meta dt {
+  color: #C9A35E;
+  font-weight: 700;
+}
+
+.paper .cv-meta dd {
+  margin: 0;
+  color: #FFFFFF;
+}
+
+.paper .body {
+  padding: 36px 44px 44px;
+}
+
+.paper h2 {
+  font-family: Georgia, serif;
+  color: #0F2A4A;
+  font-size: 19px;
+  padding-bottom: 6px;
+  border-bottom: 1.5px solid #B8893A;
+  margin: 26px 0 12px;
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+}
+
+.paper .body > h2:first-child,
+.paper .body > table.kv:first-child {
+  margin-top: 0;
+}
+
+.paper h2 .n {
+  color: #B8893A;
+}
+
+.paper h3 {
+  font-family: Georgia, serif;
+  color: #0F2A4A;
+  font-size: 14.5px;
+  margin: 14px 0 6px;
+}
+
+.paper p {
+  margin: 0 0 9px;
+  max-width: 72ch;
+}
+
+.paper ul, .paper ol {
+  margin: 0 0 10px;
+  padding-left: 20px;
+}
+
+.paper li {
+  margin-bottom: 4px;
+}
+
+.paper li::marker {
+  color: #B8893A;
+}
+
+.paper table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+  margin: 6px 0 12px;
+}
+
+.paper th, .paper td {
+  border: 1px solid #D5DCE5;
+  padding: 7px 9px;
+  vertical-align: top;
+  text-align: left;
+}
+
+.paper .r {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.paper table.pt thead th {
+  background: #0F2A4A;
+  color: #FFFFFF;
+  border-color: #0F2A4A;
+}
+
+.paper table.kv th {
+  background: #F1F4F8;
+  width: 26%;
+  font-weight: 700;
+}
+
+.paper tr.alt td { background: #F1F4F8; }
+.paper tr.hl td { background: #EFE3CC; font-size: 13.5px; }
+.paper tr.group td { background: #E4E9F0; font-weight: 700; }
+.paper tr.sub td { color: #5A6577; font-style: italic; border-top: 0; }
+.paper tr.grand td {
+  background: #0F2A4A;
+  color: #FFFFFF;
+  font-weight: 700;
+  font-size: 13.5px;
+  border-color: #0F2A4A;
+}
+
+.paper tr.grand .desc { color: #D9E1EC; }
+.paper .desc { color: #5A6577; font-size: 11.5px; margin-top: 2px; }
+.paper .pnote { font-style: italic; color: #5A6577; font-size: 12px; }
+
+.paper .approved-stamp {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0 12px;
+  padding: 8px 14px;
+  border: 1.5px solid #2F6B45;
+  background: #ECFDF5;
+  color: #2F6B45;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.paper .approved-stamp.admin-stamp {
+  border-color: #0F2A4A;
+  background: #F1F4F8;
+  color: #0F2A4A;
+}
+
+.paper .choices p { margin-bottom: 12px; }
+.paper .box { margin-right: 14px; white-space: nowrap; }
+.paper .blank { display: inline-block; min-width: 220px; border-bottom: 1px solid #1C2430; }
+
+.paper .sig {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 36px;
+  margin-top: 20px;
+}
+
+.paper .sig .who {
+  font-family: Georgia, serif;
+  font-weight: 700;
+  color: #0F2A4A;
+  margin-bottom: 14px;
+}
+
+.paper .sig .ln {
+  border-bottom: 1px solid #D5DCE5;
+  padding: 10px 0 4px;
+  font-size: 12.5px;
+}
+
+.paper .sig .ln span { color: #5A6577; }
+.paper .foot {
+  font-size: 11px;
+  color: #5A6577;
+  margin-top: 28px;
+  padding-top: 10px;
+  border-top: 1px solid #D5DCE5;
+  text-align: center;
+}
+
+/* Print simulation for PDF */
+.paper.print {
+  max-width: none;
+  box-shadow: none;
+}
+.paper.print .cover { min-height: 960px; }
+.paper.print .pb { break-after: page; page-break-after: always; height: 0; }
+
 

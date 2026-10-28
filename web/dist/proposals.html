@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>CI360 — Proposal Studio & Rate Card</title>
+<script>
+  (function(){
+    try {
+      if(window.location.pathname.endsWith('.html')){
+        var cleanPath = window.location.pathname.slice(0, -5);
+        if(cleanPath === '/index') cleanPath = '/';
+        window.history.replaceState(null, '', (cleanPath || '/') + window.location.search + window.location.hash);
+      }
+    } catch(e){}
+    try {
+      var t = localStorage.getItem('ci360_theme') || 'light';
+      document.documentElement.setAttribute('data-theme', t);
+    } catch(e){}
+  })();
+</script>
+<link rel="icon" type="image/png" href="/logo.png">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#4F46E5">
+  <script type="module" crossorigin src="/assets/proposals-DKhhVzrs.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/api-sGh9QbEi.js">
+  <link rel="modulepreload" crossorigin href="/assets/proposals-lhULO1Z2.js">
+  <link rel="stylesheet" crossorigin href="/assets/api-FCHYqcG2.css">
+</head>
+<body>
+<div id="app"><div class="loading">Loading Proposal Studio…</div></div>
+</body>
+</html>

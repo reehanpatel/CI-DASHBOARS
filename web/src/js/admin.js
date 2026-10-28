@@ -1,3 +1,5 @@
+import { initProposalStudio } from './proposals.js';
+
 let user = null;
 let cache = { personnel: [], clients: [], services: [], salaryGrades: [], salaryAssignments: [] };
 let dash = null; // last /api/dashboard/admin response
@@ -36,6 +38,7 @@ function clientName(id){ const c = cache.clients.find(c=>c._id===id); return c ?
 const ADMIN_TABS = [
   { key: 'dashboard', label: 'Dashboard', icon: '📊' },
   { key: 'dailytasks', label: 'Daily Tasks', icon: '✅' },
+  { key: 'proposals', label: 'Proposal Studio', icon: '📜' },
   { key: 'logjob', label: 'Log a Job', icon: '➕' },
   { key: 'jobs', label: 'All Jobs', icon: '📁' },
   { key: 'tickets', label: 'Support Tickets', icon: '🎫' },
@@ -78,6 +81,7 @@ async function renderTab(){
   try{
     if(ui.tab==='dashboard') await tabDashboard(c);
     else if(ui.tab==='dailytasks') await tabDailyTasks(c);
+    else if(ui.tab==='proposals') await tabProposals(c);
     else if(ui.tab==='logjob') tabLogJob(c);
     else if(ui.tab==='jobs') await tabJobs(c);
     else if(ui.tab==='tickets') await tabTickets(c);
@@ -92,6 +96,12 @@ async function renderTab(){
   }catch(err){
     c.innerHTML = `<div class="empty"><h3>Something went wrong</h3>${escapeHtml(err.message)}</div>`;
   }
+}
+
+async function tabProposals(c) {
+  c.innerHTML = '<div id="proposals-module-root"></div>';
+  const root = c.querySelector('#proposals-module-root');
+  initProposalStudio(root);
 }
 
 function periodPicker(){
@@ -175,7 +185,7 @@ async function tabDashboard(c){
     </section>
 
     <!-- Accounts & Billing Quick Link -->
-    <div class="card" style="background:linear-gradient(135deg, rgba(79, 70, 229, 0.08) 0%, rgba(245, 158, 11, 0.08) 100%);border:1px solid rgba(99, 102, 241, 0.25);margin-bottom:28px;padding:20px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px">
+    <div class="card" style="background:linear-gradient(135deg, rgba(79, 70, 229, 0.08) 0%, rgba(245, 158, 11, 0.08) 100%);border:1px solid rgba(99, 102, 241, 0.25);margin-bottom:16px;padding:20px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px">
       <div style="display:flex;align-items:center;gap:14px">
         <div style="width:44px;height:44px;background:var(--brand-500);color:#FFFFFF;border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">
           💳
@@ -188,6 +198,22 @@ async function tabDashboard(c){
       <a href="/accounts" class="btn gold" style="text-decoration:none;display:inline-flex;align-items:center;gap:8px">
         <span>Open Accounts Dashboard →</span>
       </a>
+    </div>
+
+    <!-- Proposal Studio & Rate Card Quick Link -->
+    <div class="card" style="background:linear-gradient(135deg, rgba(15, 42, 74, 0.08) 0%, rgba(184, 137, 58, 0.12) 100%);border:1px solid rgba(184, 137, 58, 0.35);margin-bottom:28px;padding:20px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px">
+      <div style="display:flex;align-items:center;gap:14px">
+        <div style="width:44px;height:44px;background:#0F2A4A;color:#D4A657;border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">
+          📜
+        </div>
+        <div>
+          <h3 style="font-size:16px;font-weight:800;color:var(--text-1);margin:0 0 3px 0">CI360 Proposal Studio & Rate Card</h3>
+          <p style="font-size:12.5px;color:var(--text-3);margin:0">Build branded client proposals with automatic volume discount rate card pricing, and authorize sign-offs with secure Admin PIN approval.</p>
+        </div>
+      </div>
+      <button onclick="window.ci360NavTab('proposals')" class="btn gold" style="display:inline-flex;align-items:center;gap:8px;font-weight:700;">
+        <span>Open Proposal Studio →</span>
+      </button>
     </div>
 
     <section class="block">

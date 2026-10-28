@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>CI360 — Proposal Studio & Rate Card</title>
+<script>
+  (function(){
+    try {
+      if(window.location.pathname.endsWith('.html')){
+        var cleanPath = window.location.pathname.slice(0, -5);
+        if(cleanPath === '/index') cleanPath = '/';
+        window.history.replaceState(null, '', (cleanPath || '/') + window.location.search + window.location.hash);
+      }
+    } catch(e){}
+    try {
+      var t = localStorage.getItem('ci360_theme') || 'light';
+      document.documentElement.setAttribute('data-theme', t);
+    } catch(e){}
+  })();
+</script>
+<link rel="icon" type="image/png" href="/logo.png">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#4F46E5">
+<link rel="stylesheet" href="/src/css/style.css">
+</head>
+<body>
+<div id="app"><div class="loading">Loading Proposal Studio…</div></div>
+<script type="module">
+  import { requireAuth, renderAppShell, bindAppShellEvents } from '/src/js/api.js';
+  import { initProposalStudio } from '/src/js/proposals.js';
+
+  const user = requireAuth('superadmin');
+  if (user) {
+    const app = document.getElementById('app');
+    app.innerHTML = renderAppShell({
+      user,
+      currentRole: 'superadmin',
+      activeTab: 'proposals',
+      tabs: [
+        { key: 'dashboard', label: 'Dashboard', icon: '📊' },
+        { key: 'proposals', label: 'Proposal Studio', icon: '📜' },
+        { key: 'jobs', label: 'All Jobs', icon: '📁' },
+        { key: 'tickets', label: 'Support Tickets', icon: '🎫' },
+        { key: 'accounts', label: 'Client Roster', icon: '🏢' },
+        { key: 'manage', label: 'Manage', icon: '⚙️' }
+      ],
+      title: 'Proposal Studio & Rate Card',
+      subtitle: 'Branded Proposals, Rate Card Pricing & Admin PIN Approval'
+    });
+
+    bindAppShellEvents((newTab) => {
+      if (newTab === 'dashboard') window.location.href = '/admin';
+      else if (newTab === 'proposals') window.location.href = '/proposals';
+      else window.location.href = '/admin';
+    });
+
+    const c = document.getElementById('content');
+    if (c) {
+      initProposalStudio(c);
+    }
+  }
+</script>
+</body>
+</html>

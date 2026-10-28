@@ -26,6 +26,8 @@ export default defineConfig({
           else if (rawUrl === '/accounts') req.url = req.url.replace('/accounts', '/accounts.html');
           else if (rawUrl === '/employee') req.url = req.url.replace('/employee', '/employee.html');
           else if (rawUrl === '/client') req.url = req.url.replace('/client', '/client.html');
+          else if (rawUrl === '/proposals') req.url = req.url.replace('/proposals', '/proposals.html');
+          else if (rawUrl === '/proposal') req.url = req.url.replace('/proposal', '/proposal.html');
           next();
         });
       },
@@ -40,6 +42,8 @@ export default defineConfig({
         accounts: resolve(__dirname, 'accounts.html'),
         employee: resolve(__dirname, 'employee.html'),
         client: resolve(__dirname, 'client.html'),
+        proposals: resolve(__dirname, 'proposals.html'),
+        proposal: resolve(__dirname, 'proposal.html'),
       },
     },
   },

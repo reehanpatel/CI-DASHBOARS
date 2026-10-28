@@ -2044,6 +2044,7 @@ app.use("/api/tickets", require("./routes/tickets"));
 app.use("/api/upload", require_upload());
 app.use("/api/tasks", require("./routes/tasks"));
 app.use("/api/accounts", require("./routes/accounts"));
+app.use("/api/proposals", require("./routes/proposals"));
 
 var webDistPath = path.join(__dirname, "../web/dist");
 var webSrcPath = path.join(__dirname, "../web");
@@ -2073,6 +2074,8 @@ app.get("/admin", (req, res) => res.sendFile(getHtmlFile("admin.html")));
 app.get("/accounts", (req, res) => res.sendFile(getHtmlFile("accounts.html")));
 app.get("/employee", (req, res) => res.sendFile(getHtmlFile("employee.html")));
 app.get("/client", (req, res) => res.sendFile(getHtmlFile("client.html")));
+app.get("/proposals", (req, res) => res.sendFile(getHtmlFile("proposals.html")));
+app.get("/proposal", (req, res) => res.sendFile(getHtmlFile("proposal.html")));
 
 if (fs.existsSync(webDistPath)) {
   app.use(express.static(webDistPath));

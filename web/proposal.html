@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>CI360 — Client Proposal Review</title>
+<link rel="icon" type="image/png" href="/logo.png">
+<link rel="stylesheet" href="/src/css/style.css">
+<style>
+body {
+  margin: 0;
+  background: var(--bg-base);
+  color: var(--text-1);
+  font-family: var(--font-sans);
+}
+.client-view-wrap {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 20px 80px;
+}
+.client-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 24px;
+  background: #0F2A4A;
+  color: #FFFFFF;
+}
+.client-brand {
+  font-family: Georgia, serif;
+  font-size: 19px;
+  font-weight: 700;
+  color: #D4A657;
+}
+.client-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 24px;
+  align-items: start;
+  margin-top: 24px;
+}
+@media (max-width: 960px) {
+  .client-split {
+    grid-template-columns: 1fr;
+  }
+}
+.respond-card {
+  position: sticky;
+  top: 24px;
+}
+</style>
+</head>
+<body>
+<header class="client-top">
+  <div class="client-brand">CI360 Degrees <b>Proposal Portal</b></div>
+  <div style="font-size:13px;color:#AEBBCD;">Client Sign-off & Review</div>
+</header>
+
+<main class="client-view-wrap" id="proposal-client-root">
+  <div class="card" style="padding:48px;text-align:center;">
+    <div class="loading">Opening proposal document…</div>
+  </div>
+</main>
+
+<script type="module">
+import { paperHTML, exportPdfDoc } from '/src/js/proposals.js';
+
+const root = document.getElementById('proposal-client-root');
+const params = new URLSearchParams(window.location.search);
+const shareId = params.get('p');
+
+if (!shareId) {
+  root.innerHTML = `
+    <div class="card" style="padding:48px;text-align:center;">
+      <h3>Invalid Proposal Link</h3>
+      <p class="muted">No proposal identifier provided. Please use the exact link sent to you by your CI360 contact.</p>
+    </div>
+  `;
+} else {
+  loadProposal(shareId);
+}
+
+let activeData = null;
+
+async function loadProposal(id) {
+  try {
+    const res = await fetch(`/api/proposals/shared/${encodeURIComponent(id)}`);
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || 'Proposal not found or link has expired');
+    }
+    activeData = await res.json();
+    renderClientView();
+  } catch (err) {
+    root.innerHTML = `
+      <div class="card" style="padding:48px;text-align:center;">
+        <h3>Unable to Open Proposal</h3>
+        <p class="muted">${err.message}</p>
+      </div>
+    `;
+  }
+}
+
+function renderClientView() {
+  const { proposal, company, version, clientResponse } = activeData;
+  const isAnswered = clientResponse && clientResponse.decision;
+
+  root.innerHTML = `
+    <div class="client-split">
+      <div class="paperwrap" id="client-paper-preview">
+        <!-- Render paper inside -->
+      </div>
+
+      <div class="card respond-card">
+        <h3 style="margin:0 0 4px 0;font-size:18px;font-weight:800;color:var(--text-1);">
+          ${isAnswered ? (clientResponse.decision === 'approved' ? '🎉 Proposal Approved' : '⚠️ Modification Requested') : 'Sign-off & Response'}
+        </h3>
+        <p class="muted small" style="margin:0 0 16px 0;">
+          Review the scope, deliverables, and commercial terms, then approve online or request changes.
+        </p>
+
+        ${isAnswered ? `
+          <div style="padding:14px;border-radius:var(--r-md);background:${clientResponse.decision === 'approved' ? 'var(--green-50, #ECFDF5)' : 'var(--amber-50, #FFFBEB)'};border:1px solid ${clientResponse.decision === 'approved' ? 'rgba(16,185,129,0.3)' : 'rgba(245,158,11,0.3)'};margin-bottom:14px;">
+            <strong style="color:${clientResponse.decision === 'approved' ? 'var(--green-600)' : 'var(--amber-600)'}">
+              ${clientResponse.decision === 'approved' ? 'Proposal Officially Approved' : 'Revision Requested'}
+            </strong>
+            <div class="small muted" style="margin-top:2px;">
+              Submitted by <strong>${clientResponse.name}</strong> (${clientResponse.role || 'Client'}) on ${new Date(clientResponse.at).toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' })}
+            </div>
+            ${clientResponse.comment ? `<p style="margin:8px 0 0;font-size:13.5px;color:var(--text-2);">“${clientResponse.comment}”</p>` : ''}
+          </div>
+          <button class="btn" id="client-download-pdf-btn" style="width:100%;margin-bottom:10px;">📄 Download PDF Copy</button>
+          <button class="btn ghost small" id="client-change-btn" style="width:100%;">Update My Response</button>
+        ` : `
+          <form id="client-response-form">
+            <div style="display:flex;gap:8px;margin-bottom:14px;">
+              <button type="button" class="btn primary" id="btn-decide-approve" style="flex:1;background:var(--green-600);border-color:var(--green-600);color:#fff;font-weight:700;">✓ Approve</button>
+              <button type="button" class="btn" id="btn-decide-changes" style="flex:1;">Request Changes</button>
+            </div>
+
+            <div style="margin-bottom:12px;">
+              <label class="label">Your Name *</label>
+              <input type="text" class="input" id="client-res-name" value="${proposal.contact || ''}" placeholder="Full Name" required>
+            </div>
+            <div style="margin-bottom:12px;">
+              <label class="label">Designation / Role</label>
+              <input type="text" class="input" id="client-res-role" value="${proposal.contactRole || ''}" placeholder="e.g. Director / VP">
+            </div>
+            <div style="margin-bottom:14px;">
+              <label class="label" id="client-comment-label">Comments / Remarks (Optional)</label>
+              <textarea class="input" id="client-res-comment" rows="3" placeholder="Additional notes or specifications..."></textarea>
+            </div>
+
+            <div id="client-res-error" style="color:var(--red-500);font-size:13px;margin-bottom:12px;display:none;"></div>
+
+            <button type="submit" class="btn gold" id="client-submit-btn" style="width:100%;font-weight:700;margin-bottom:10px;">
+              Confirm & Submit Response
+            </button>
+            <button type="button" class="btn" id="client-download-pdf-btn" style="width:100%;">📄 Download PDF Copy</button>
+          </form>
+        `}
+      </div>
+    </div>
+  `;
+
+  // Draw paper
+  updatePaperPreview();
+
+  // Download PDF
+  const pdfBtn = root.querySelector('#client-download-pdf-btn');
+  if (pdfBtn) {
+    pdfBtn.onclick = () => exportPdfDoc(proposal, company, pdfBtn);
+  }
+
+  // Change response button
+  const changeBtn = root.querySelector('#client-change-btn');
+  if (changeBtn) {
+    changeBtn.onclick = () => {
+      activeData.clientResponse = null;
+      renderClientView();
+    };
+  }
+
+  // Bind Form
+  const form = root.querySelector('#client-response-form');
+  if (form) {
+    let chosenDecision = 'approved';
+    const btnApprove = root.querySelector('#btn-decide-approve');
+    const btnChanges = root.querySelector('#btn-decide-changes');
+    const commentLabel = root.querySelector('#client-comment-label');
+
+    btnApprove.onclick = () => {
+      chosenDecision = 'approved';
+      btnApprove.style.background = 'var(--green-600)';
+      btnApprove.style.color = '#fff';
+      btnChanges.style.background = 'var(--bg-surface)';
+      btnChanges.style.color = 'var(--text-1)';
+      commentLabel.textContent = 'Comments / Remarks (Optional)';
+    };
+
+    btnChanges.onclick = () => {
+      chosenDecision = 'changes';
+      btnChanges.style.background = 'var(--amber-500)';
+      btnChanges.style.color = '#fff';
+      btnApprove.style.background = 'var(--bg-surface)';
+      btnApprove.style.color = 'var(--text-1)';
+      commentLabel.textContent = 'Please Describe the Required Changes *';
+    };
+
+    form.onsubmit = async (e) => {
+      e.preventDefault();
+      const name = root.querySelector('#client-res-name').value.trim();
+      const role = root.querySelector('#client-res-role').value.trim();
+      const comment = root.querySelector('#client-res-comment').value.trim();
+      const errDiv = root.querySelector('#client-res-error');
+
+      if (!name) {
+        errDiv.textContent = 'Please enter your name';
+        errDiv.style.display = 'block';
+        return;
+      }
+      if (chosenDecision === 'changes' && !comment) {
+        errDiv.textContent = 'Please describe what needs to be changed in the remarks field';
+        errDiv.style.display = 'block';
+        return;
+      }
+
+      const submitBtn = root.querySelector('#client-submit-btn');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Submitting…';
+
+      try {
+        const res = await fetch(`/api/proposals/shared/${encodeURIComponent(shareId)}/respond`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ decision: chosenDecision, name, role, comment, answers: {} })
+        });
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.error || 'Failed to submit response');
+        }
+        const data = await res.json();
+        activeData.clientResponse = data.response;
+        renderClientView();
+      } catch (err) {
+        errDiv.textContent = err.message;
+        errDiv.style.display = 'block';
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Confirm & Submit Response';
+      }
+    };
+  }
+}
+
+function updatePaperPreview() {
+  const preview = root.querySelector('#client-paper-preview');
+  if (preview && activeData) {
+    const { proposal, company } = activeData;
+    // Build and insert model
+    const m = {
+      cover: {
+        brand: company.name || 'CI360 Degrees',
+        title: proposal.title || 'Proposal',
+        subtitle: proposal.subtitle,
+        kicker: proposal.kicker || 'Proposal for sign-off',
+        meta: [
+          ['Prepared for', proposal.client],
+          ['Reference', proposal.ref],
+          ['Date', proposal.date],
+          ['Valid until', proposal.validity ? `${proposal.validity} days` : '30 days']
+        ]
+      },
+      blocks: [
+        { t: 'stamp', text: proposal.approval && proposal.approval.decision === 'approved' ? `🔐 Internally Approved with Admin PIN on ${proposal.approval.at}` : 'Official Proposal', type: 'admin' },
+        ...(proposal.sections || []).map(s => ({ t: 'h', n: 1, text: s.title })),
+        { t: 'sig', left: { who: 'For ' + proposal.client, name: '', role: '' }, right: { who: 'For ' + company.name, name: company.signatory || 'Pramit Ghosh', role: company.signRole || 'Founder & CEO' } }
+      ],
+      foot: company.website || 'ci360degrees.com'
+    };
+    preview.innerHTML = paperHTML(m);
+  }
+}
+</script>
+</body>
+</html>
