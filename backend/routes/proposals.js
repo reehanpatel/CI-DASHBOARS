@@ -238,6 +238,9 @@ router.post('/pin/verify', async (req, res) => {
 // POST /api/proposals/pin/update
 router.post('/pin/update', async (req, res) => {
   try {
+    if (req.user.role !== 'admin' && req.user.role !== 'superadmin') {
+      return res.status(403).json({ error: 'Only an authorized Admin can update the Admin PIN' });
+    }
     const { currentPin, newPin } = req.body;
     if (!newPin || newPin.trim().length < 4) {
       return res.status(400).json({ error: 'New PIN must be at least 4 digits' });
@@ -427,6 +430,10 @@ router.post('/:id/request-approval', async (req, res) => {
 // POST /api/proposals/:id/approve (Requires Admin PIN)
 router.post('/:id/approve', async (req, res) => {
   try {
+    if (req.user.role !== 'admin' && req.user.role !== 'superadmin') {
+      return res.status(403).json({ error: 'Only an authorized Admin can approve proposals with Admin PIN' });
+    }
+
     const { pin, note, action = 'Approved with Admin PIN' } = req.body;
 
     // Verify Admin PIN
@@ -486,6 +493,10 @@ router.post('/:id/approve', async (req, res) => {
 // POST /api/proposals/:id/finalize (Requires Admin PIN)
 router.post('/:id/finalize', async (req, res) => {
   try {
+    if (req.user.role !== 'admin' && req.user.role !== 'superadmin') {
+      return res.status(403).json({ error: 'Only an authorized Admin can finalize proposals' });
+    }
+
     const { pin, note } = req.body;
 
     const isPinValid = await verifyAdminPin(pin);
@@ -531,6 +542,10 @@ router.post('/:id/finalize', async (req, res) => {
 // POST /api/proposals/:id/release (Requires Admin PIN)
 router.post('/:id/release', async (req, res) => {
   try {
+    if (req.user.role !== 'admin' && req.user.role !== 'superadmin') {
+      return res.status(403).json({ error: 'Only an authorized Admin can release proposals to clients' });
+    }
+
     const { pin, note } = req.body;
 
     const isPinValid = await verifyAdminPin(pin);
@@ -543,6 +558,13 @@ router.post('/:id/release', async (req, res) => {
 
     const proposal = await Proposal.findById(req.params.id);
     if (!proposal) return res.status(404).json({ error: 'Proposal not found' });
+
+    // Must be approved by an Admin first
+    if (proposal.status !== 'approved' || !proposal.approval || !proposal.approval.pinVerified) {
+      return res.status(400).json({
+        error: 'Proposal must be approved by an Admin with PIN before it can be released to client.'
+      });
+    }
 
     if (!proposal.shareId) {
       proposal.shareId = crypto.randomBytes(9).toString('hex');

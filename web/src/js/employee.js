@@ -1,3 +1,5 @@
+import { initProposalStudio } from './proposals.js';
+
 let user = null;
 let cache = { personnel: [], clients: [], services: [] };
 let ui = { tab: 'dashboard', period: 'month', ticketsFilter: 'all' };
@@ -22,6 +24,7 @@ function getEmployeeTabs() {
     { key: 'dashboard',  label: 'Overview Dashboard', icon: '📊' },
     { key: 'myjobs',     label: 'My Jobs',            icon: '📋' },
     { key: 'dailytasks', label: 'Daily Tasks',        icon: '✅' },
+    { key: 'proposals',  label: 'Proposal Studio',    icon: '📜' },
     { key: 'tickets',    label: 'Support Tickets',    icon: '🎫' },
     { key: 'targets',    label: 'My Targets',         icon: '🎯' }
   ];
@@ -67,6 +70,8 @@ window.ci360NavTab = (tabName, highlightId = null) => {
     tabName = 'tickets';
   } else if (tabName === 'target' || tabName === 'targets') {
     tabName = 'targets';
+  } else if (tabName === 'proposal' || tabName === 'proposals') {
+    tabName = 'proposals';
   } else if (tabName === 'dashboard' || tabName === 'overview') {
     tabName = 'dashboard';
   }
@@ -86,6 +91,7 @@ async function renderTab(){
     if(ui.tab==='dashboard')                                                await tabEmployeeDashboard(c);
     else if(ui.tab==='myjobs' || ui.tab==='jobs')                          await tabMyJobs(c);
     else if(ui.tab==='dailytasks' || ui.tab==='mytasks' || ui.tab==='tasks') await tabDailyTasks(c);
+    else if(ui.tab==='proposals' || ui.tab==='proposal')                   await tabProposals(c);
     else if(ui.tab==='tickets' || ui.tab==='ticket')                       await tabTickets(c);
     else if(ui.tab==='targets' || ui.tab==='target')                       await tabTargets(c);
     else {
@@ -95,6 +101,12 @@ async function renderTab(){
   }catch(err){
     c.innerHTML = renderEmptyState('Something went wrong', err.message, '⚠️');
   }
+}
+
+async function tabProposals(c) {
+  c.innerHTML = '<div id="proposals-module-root"></div>';
+  const root = c.querySelector('#proposals-module-root');
+  initProposalStudio(root, { userRole: 'employee', currentUser: user });
 }
 
 function periodPicker(){
@@ -177,6 +189,9 @@ async function tabEmployeeDashboard(c){
             </button>
             <button class="btn secondary" id="btnEmpQuickTasks" style="display:inline-flex;align-items:center;gap:8px;font-weight:600;padding:9px 16px;border-radius:var(--r-md)">
               <span>✅</span> Daily Tasks
+            </button>
+            <button class="btn gold" id="btnEmpQuickProposals" style="display:inline-flex;align-items:center;gap:8px;font-weight:700;padding:9px 16px;border-radius:var(--r-md)">
+              <span>📜</span> Proposal Studio
             </button>
           </div>
 
@@ -423,6 +438,9 @@ async function tabEmployeeDashboard(c){
 
   const btnEmpQuickTasks = document.getElementById('btnEmpQuickTasks');
   if (btnEmpQuickTasks) btnEmpQuickTasks.onclick = () => { ui.tab = 'dailytasks'; render(); };
+
+  const btnEmpQuickProposals = document.getElementById('btnEmpQuickProposals');
+  if (btnEmpQuickProposals) btnEmpQuickProposals.onclick = () => { ui.tab = 'proposals'; render(); };
 
   document.querySelectorAll('#empOverviewPeriodWrapper [data-period]').forEach(b => {
     b.onclick = () => {

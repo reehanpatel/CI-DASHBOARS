@@ -545,6 +545,9 @@ export class ProposalStudioController {
   constructor(container, options = {}) {
     this.container = container;
     this.options = options;
+    this.currentUser = options.currentUser || getUser() || {};
+    this.userRole = options.userRole || this.currentUser.role || 'employee';
+    this.isAdmin = this.userRole === 'admin' || this.userRole === 'superadmin' || this.currentUser.role === 'admin' || this.currentUser.role === 'superadmin';
     this.proposals = [];
     this.rateDoc = null;
     this.pinStatus = { isConfigured: false, defaultPinHint: '3600' };
@@ -597,10 +600,12 @@ export class ProposalStudioController {
           </div>
 
           <div class="ps-subnav">
-            <button class="ps-nav-btn ${this.currentView === 'list' ? 'active' : ''}" data-ps-view="list">📁 All Proposals (${this.proposals.length})</button>
+            <button class="ps-nav-btn ${this.currentView === 'list' ? 'active' : ''}" data-ps-view="list">📁 Proposals (${this.proposals.length})</button>
             <button class="ps-nav-btn ${this.currentView === 'ratecard' ? 'active' : ''}" data-ps-view="ratecard">🏷️ Rate Card & Packages</button>
-            <button class="ps-nav-btn ${this.currentView === 'audit' ? 'active' : ''}" data-ps-view="audit">🛡️ Admin PIN Audit Trail</button>
-            <button class="ps-nav-btn ${this.currentView === 'settings' ? 'active' : ''}" data-ps-view="settings">⚙️ Settings & PIN</button>
+            ${this.isAdmin ? `
+              <button class="ps-nav-btn ${this.currentView === 'audit' ? 'active' : ''}" data-ps-view="audit">🛡️ Admin PIN Audit Trail</button>
+              <button class="ps-nav-btn ${this.currentView === 'settings' ? 'active' : ''}" data-ps-view="settings">⚙️ Settings & PIN</button>
+            ` : ''}
             <button class="btn gold" id="ps-btn-new-proposal">✨ New Proposal</button>
           </div>
         </div>
@@ -740,7 +745,7 @@ export class ProposalStudioController {
                   <tr style="cursor:pointer;" class="ps-row-hover" data-open-proposal="${escapeHtml(p._id)}">
                     <td style="padding:14px 16px;">
                       <div style="font-weight:700;color:var(--text-1);font-size:14.5px;">${escapeHtml(p.title || 'Untitled Proposal')}</div>
-                      <div class="muted small" style="font-family:var(--font-mono);">${escapeHtml(p.ref)}</div>
+                      <div class="muted small" style="font-family:var(--font-mono);">${escapeHtml(p.ref)}${p.createdBy && p.createdBy.name ? ` · <span style="color:var(--text-3);">By ${escapeHtml(p.createdBy.name)}</span>` : ''}</div>
                     </td>
                     <td style="padding:14px 16px;">
                       <div style="font-weight:600;color:var(--text-1);">${escapeHtml(p.client)}</div>
@@ -759,11 +764,17 @@ export class ProposalStudioController {
                       ${isPinApproved ? `<div class="small" style="color:var(--green-600);font-size:11px;margin-top:2px;">🔐 PIN Verified</div>` : ''}
                     </td>
                     <td style="padding:14px 16px;text-align:right;" onclick="event.stopPropagation();">
-                      <div style="display:inline-flex;gap:6px;">
+                      <div style="display:inline-flex;gap:6px;align-items:center;">
                         <button class="btn small" data-edit-p="${escapeHtml(p._id)}" title="Edit proposal">✏️ Edit</button>
-                        ${p.status === 'pending' || !isPinApproved ? `
-                          <button class="btn small gold" data-quick-pin="${escapeHtml(p._id)}" title="Approve with Admin PIN">🔐 Approve</button>
-                        ` : ''}
+                        ${this.isAdmin ? `
+                          ${p.status === 'pending' || !isPinApproved ? `
+                            <button class="btn small gold" data-quick-pin="${escapeHtml(p._id)}" title="Approve with Admin PIN">🔐 Approve</button>
+                          ` : ''}
+                        ` : `
+                          ${p.status === 'draft' ? `
+                            <button class="btn small gold" data-quick-submit="${escapeHtml(p._id)}" title="Submit for Admin Approval">📤 Submit</button>
+                          ` : ''}
+                        `}
                       </div>
                     </td>
                   </tr>
@@ -815,6 +826,28 @@ export class ProposalStudioController {
         e.stopPropagation();
         const p = this.proposals.find(x => x._id === btn.dataset.quickPin);
         if (p) this.showAdminPinModal(p, 'Approved with Admin PIN', () => this.init());
+      };
+    });
+
+    el.querySelectorAll('[data-quick-submit]').forEach(btn => {
+      btn.onclick = async (e) => {
+        e.stopPropagation();
+        const id = btn.dataset.quickSubmit;
+        try {
+          btn.disabled = true;
+          btn.textContent = 'Submitting…';
+          await apiPost(`/proposals/${id}/request-approval`, {
+            note: `Submitted by ${this.currentUser.name || 'employee'}`
+          });
+          flashToast('Proposal submitted to Admin for approval! ⏳');
+          const updated = await apiGet('/proposals');
+          this.proposals = updated || [];
+          this.renderProposalList(el);
+        } catch (err) {
+          alert(err.message);
+          btn.disabled = false;
+          btn.textContent = '📤 Submit';
+        }
       };
     });
   }
@@ -1991,14 +2024,14 @@ export class ProposalStudioController {
 
     el.innerHTML = `
       <!-- Admin PIN Status Card -->
-      <div class="card" style="margin-bottom:16px;border-left:4px solid ${isPinApproved ? 'var(--green-500)' : 'var(--amber-500)'}">
+      <div class="card" style="margin-bottom:16px;border-left:4px solid ${isPinApproved ? 'var(--green-500)' : (isPending ? 'var(--amber-500)' : 'var(--border-md)')}">
         <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
           <div>
             <div style="display:flex;align-items:center;gap:8px;">
               <h3 style="font-size:18px;font-weight:800;color:var(--text-1);margin:0;">
                 Internal Admin Approval & Sign-off
               </h3>
-              ${isPinApproved ? '<span class="badge green">🔐 VERIFIED WITH ADMIN PIN</span>' : '<span class="badge amber">UNAPPROVED</span>'}
+              ${isPinApproved ? '<span class="badge green">🔐 VERIFIED WITH ADMIN PIN</span>' : (isPending ? '<span class="badge amber">⏳ AWAITING ADMIN PIN</span>' : '<span class="badge gray">DRAFT (UNAPPROVED)</span>')}
             </div>
             <p class="muted small" style="margin:4px 0 0;">
               Proposals must be signed off by an authorized admin using their secure PIN before Word/PDF downloads or client links can be released.
@@ -2009,14 +2042,30 @@ export class ProposalStudioController {
             <button class="btn" id="ps-step6-preview-btn" style="font-weight:700;">
               👁️ Preview Proposal Document
             </button>
-            ${!isPinApproved ? `
-              <button class="btn gold" id="ps-btn-approve-pin" style="font-weight:700;">
-                🔐 Authorize & Approve with Admin PIN
-              </button>
+            ${this.isAdmin ? `
+              ${!isPinApproved ? `
+                <button class="btn gold" id="ps-btn-approve-pin" style="font-weight:700;">
+                  🔐 Authorize & Approve with Admin PIN
+                </button>
+              ` : `
+                <button class="btn" id="ps-btn-reauthorize-pin">
+                  🔄 Re-authorize / Sign Again
+                </button>
+              `}
             ` : `
-              <button class="btn" id="ps-btn-reauthorize-pin">
-                🔄 Re-authorize / Sign Again
-              </button>
+              ${!isPinApproved ? `
+                ${isPending ? `
+                  <button class="btn" disabled style="font-weight:700;color:var(--amber-500);background:var(--bg-elevated);">
+                    ⏳ Submitted for Admin Sign-off
+                  </button>
+                ` : `
+                  <button class="btn gold" id="ps-btn-emp-submit" style="font-weight:700;">
+                    📤 Submit for Admin Approval
+                  </button>
+                `}
+              ` : `
+                <span class="badge green" style="font-size:13px;padding:7px 14px;font-weight:700;">🔐 Admin Approved</span>
+              `}
             `}
           </div>
         </div>
@@ -2035,17 +2084,21 @@ export class ProposalStudioController {
               </div>
             </div>
           </div>
-        ` : `
+        ` : (isPending ? `
           <div style="margin-top:14px;padding:12px 16px;background:var(--amber-50, rgba(245,158,11,0.08));border:1px solid rgba(245,158,11,0.25);border-radius:var(--r-md);font-size:13.5px;color:var(--amber-600);">
-            ⚠️ This proposal is currently in draft / awaiting approval. Enter your Admin PIN to authorize and release it.
+            ⏳ This proposal has been submitted and is currently awaiting Admin PIN authorization. Once an Admin reviews and approves it, client release will be unlocked.
           </div>
-        `}
+        ` : `
+          <div style="margin-top:14px;padding:12px 16px;background:var(--bg-elevated);border:1px solid var(--border-sm);border-radius:var(--r-md);font-size:13.5px;color:var(--text-2);">
+            📝 <strong>Employee Draft Mode:</strong> Any team member can design deliverables and commercial pricing. Click <strong>Submit for Admin Approval</strong> when ready. Only an authorized Admin can enter their secure PIN to approve and release the proposal.
+          </div>
+        `)}
       </div>
 
       <!-- Release & Sharing Card -->
       <div class="card" style="margin-bottom:16px;">
         <h3 style="font-size:17px;font-weight:700;margin:0 0 6px 0;">Client Release & Online Share Link</h3>
-        <p class="muted small" style="margin:0 0 14px 0;">Share a secure online copy with the client so they can review sign-off choices, approve, or request modifications.</p>
+        <p class="muted small" style="margin:0 0 14px 0;">Proposals must be approved by an Admin with their secure PIN before being released to clients.</p>
 
         ${p.shareId ? `
           <div style="margin-bottom:14px;">
@@ -2059,12 +2112,25 @@ export class ProposalStudioController {
         ` : ''}
 
         <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
-          <button class="btn primary" id="ps-btn-release-pin" ${isPinApproved ? '' : 'disabled title="Approve with PIN first"'}>
-            🚀 ${p.shareId ? 'Update & Release New Version to Client' : 'Release Proposal to Client'}
-          </button>
-          <span class="muted small">
-            ${isPinApproved ? 'Unlocked ✓ Ready to release.' : '🔒 Unlocks after Admin PIN approval.'}
-          </span>
+          ${this.isAdmin ? `
+            <button class="btn primary" id="ps-btn-release-pin" ${isPinApproved ? '' : 'disabled title="Approve with PIN first"'}>
+              🚀 ${p.shareId ? 'Update & Release New Version to Client' : 'Release Proposal to Client'}
+            </button>
+            <span class="muted small">
+              ${isPinApproved ? 'Unlocked ✓ Ready to release with Admin PIN.' : '🔒 Unlocks after Admin PIN approval.'}
+            </span>
+          ` : `
+            ${p.shareId ? `
+              <span class="badge green" style="font-size:13px;padding:6px 12px;">🚀 Released to Client by Admin</span>
+            ` : `
+              <button class="btn" disabled style="opacity:0.6;cursor:not-allowed;">
+                🔒 Release Proposal to Client (Admin Only)
+              </button>
+              <span class="muted small">
+                ${isPinApproved ? 'Admin must authorize initial release to client.' : 'Requires Admin PIN approval before release.'}
+              </span>
+            `}
+          `}
         </div>
 
         ${p.clientResponse && p.clientResponse.decision ? `
@@ -2124,7 +2190,29 @@ export class ProposalStudioController {
       prevBtn.onclick = () => this.showPreviewModal();
     }
 
-    // Bind Approve with PIN
+    // Bind Employee Submit for Approval
+    const empSubmitBtn = el.querySelector('#ps-btn-emp-submit');
+    if (empSubmitBtn) {
+      empSubmitBtn.onclick = async () => {
+        try {
+          empSubmitBtn.disabled = true;
+          empSubmitBtn.textContent = 'Submitting…';
+          await apiPost(`/proposals/${p._id}/request-approval`, {
+            note: `Submitted by ${this.currentUser.name || 'team member'}`
+          });
+          flashToast('Submitted to Admin for review & PIN sign-off! ⏳');
+          const updated = await apiGet(`/proposals/${p._id}`);
+          this.activeProposal = updated;
+          this.renderProposalEditor(this.container.querySelector('#ps-view-content'));
+        } catch (err) {
+          alert(err.message);
+          empSubmitBtn.disabled = false;
+          empSubmitBtn.textContent = '📤 Submit for Admin Approval';
+        }
+      };
+    }
+
+    // Bind Approve with PIN (Admin only)
     const approveBtn = el.querySelector('#ps-btn-approve-pin') || el.querySelector('#ps-btn-reauthorize-pin');
     if (approveBtn) {
       approveBtn.onclick = () => {
@@ -2134,7 +2222,7 @@ export class ProposalStudioController {
       };
     }
 
-    // Bind Release with PIN
+    // Bind Release with PIN (Admin only)
     const releaseBtn = el.querySelector('#ps-btn-release-pin');
     if (releaseBtn) {
       releaseBtn.onclick = () => {
