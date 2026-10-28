@@ -1,4 +1,4 @@
-import { apiGet, apiPost, apiPut, apiDelete, fmtINR, escapeHtml, getToken, getUser } from './api.js';
+import { apiGet, apiPost, apiPut, apiDelete, fmtINR, escapeHtml, getToken, getUser, flashToast } from './api.js';
 
 /* ==========================================================================
    CI360 PROPOSAL STUDIO & RATE CARD MODULE
@@ -522,17 +522,20 @@ export async function exportPdfDoc(p, co, btn, opts = {}) {
 
     const pdfContainer = document.createElement('div');
     pdfContainer.setAttribute('data-theme', 'light');
-    pdfContainer.style.position = 'fixed';
-    pdfContainer.style.left = '-9999px';
+    pdfContainer.style.position = 'absolute';
+    pdfContainer.style.left = '0';
     pdfContainer.style.top = '0';
     pdfContainer.style.width = '794px';
+    pdfContainer.style.zIndex = '-9999';
+    pdfContainer.style.opacity = '1';
+    pdfContainer.style.pointerEvents = 'none';
     pdfContainer.style.background = '#FFFFFF';
     pdfContainer.style.color = '#1C2430';
     pdfContainer.innerHTML = `
       <style>
         * { box-sizing: border-box; }
         .paper, .paper.print { background: #FFFFFF !important; color: #1C2430 !important; font-family: Arial, Helvetica, sans-serif !important; width: 794px !important; margin: 0 !important; box-shadow: none !important; }
-        .paper .cover { background: #0F2A4A !important; color: #FFFFFF !important; min-height: 980px !important; padding: 50px 44px 44px !important; }
+        .paper .cover { background: #0F2A4A !important; color: #FFFFFF !important; box-sizing: border-box !important; min-height: 940px !important; max-height: 1040px !important; padding: 48px 40px !important; page-break-after: always !important; break-after: page !important; }
         .paper .cv-brand { color: #D4A657 !important; font-family: Georgia, serif !important; font-weight: 700 !important; font-size: 19px !important; }
         .paper .cv-kicker { color: #AEBBCD !important; font-size: 13px !important; }
         .paper .cover h1 { color: #FFFFFF !important; font-family: Georgia, serif !important; font-size: 34px !important; margin: 8px 0 12px !important; }
@@ -540,6 +543,7 @@ export async function exportPdfDoc(p, co, btn, opts = {}) {
         .paper .cv-rule { background: #B8893A !important; height: 2px !important; margin-bottom: 18px !important; }
         .paper .cv-meta dt { color: #C9A35E !important; font-weight: 700 !important; }
         .paper .cv-meta dd { color: #FFFFFF !important; }
+        .paper .pb { break-after: page !important; page-break-after: always !important; height: 0 !important; line-height: 0 !important; }
         .paper .body { background: #FFFFFF !important; color: #1C2430 !important; padding: 36px 44px 44px !important; }
         .paper h2 { color: #0F2A4A !important; font-family: Georgia, serif !important; font-size: 19px !important; border-bottom: 1.5px solid #B8893A !important; margin: 26px 0 12px !important; }
         .paper h2 .n { color: #B8893A !important; }
@@ -589,11 +593,22 @@ export async function exportPdfDoc(p, co, btn, opts = {}) {
     `;
     document.body.appendChild(pdfContainer);
 
+    // Give browser layout engine time to compute dimensions and styles
+    await new Promise(r => setTimeout(r, 250));
+
     const opt = {
       margin: [10, 10, 12, 10],
       filename: `${p.clientShort || p.client || 'Client'} - ${p.title || 'Proposal'}.pdf`.replace(/[\\/:*?"<>|]+/g, '_'),
       image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, backgroundColor: '#ffffff', scrollX: 0, scrollY: 0, useCORS: true },
+      html2canvas: { 
+        scale: 2, 
+        backgroundColor: '#ffffff', 
+        scrollX: 0, 
+        scrollY: 0, 
+        windowWidth: 794,
+        useCORS: true,
+        logging: false
+      },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
       pagebreak: { mode: ['css', 'legacy'], avoid: ['tr', 'h2', 'h3', 'li', 'p', '.sig', '.kv', '.approved-stamp'] }
     };
@@ -856,6 +871,7 @@ export class ProposalStudioController {
                             <button class="btn small gold" data-quick-submit="${escapeHtml(p._id)}" title="Submit for Admin Approval">📤 Submit</button>
                           ` : ''}
                         `}
+                        <button class="btn small ghost text-red" data-delete-p="${escapeHtml(p._id)}" title="Delete proposal">🗑️</button>
                       </div>
                     </td>
                   </tr>
@@ -960,6 +976,28 @@ export class ProposalStudioController {
           alert(err.message);
           btn.disabled = false;
           btn.textContent = '📤 Submit';
+        }
+      };
+    });
+
+    el.querySelectorAll('[data-delete-p]').forEach(btn => {
+      btn.onclick = async (e) => {
+        e.stopPropagation();
+        const id = btn.dataset.deleteP;
+        const p = this.proposals.find(x => x._id === id);
+        const title = p?.title || p?.ref || 'this proposal';
+        if (!confirm(`Are you sure you want to permanently delete proposal "${title}"?`)) return;
+        try {
+          btn.disabled = true;
+          btn.textContent = '…';
+          await apiDelete(`/proposals/${id}`);
+          flashToast('Proposal deleted successfully');
+          this.proposals = this.proposals.filter(x => x._id !== id);
+          this.renderProposalList(el);
+        } catch (err) {
+          alert('Failed to delete proposal: ' + err.message);
+          btn.disabled = false;
+          btn.textContent = '🗑️';
         }
       };
     });
@@ -1216,6 +1254,7 @@ export class ProposalStudioController {
               📝 Word
             </button>
             <button class="btn small primary" id="ps-manual-save-btn">Save Changes</button>
+            <button class="btn small ghost text-red" id="ps-editor-delete-btn" title="Delete this proposal">🗑️ Delete</button>
           </div>
         </div>
 
@@ -1241,6 +1280,34 @@ export class ProposalStudioController {
     };
 
     el.querySelector('#ps-manual-save-btn').onclick = () => this.saveActiveProposal();
+
+    const editorDelBtn = el.querySelector('#ps-editor-delete-btn');
+    if (editorDelBtn) {
+      editorDelBtn.onclick = async () => {
+        if (!p._id) {
+          this.activeProposal = null;
+          this.currentView = 'list';
+          this.render();
+          return;
+        }
+        const title = p.title || p.ref || 'this proposal';
+        if (!confirm(`Are you sure you want to permanently delete proposal "${title}"?`)) return;
+        try {
+          editorDelBtn.disabled = true;
+          editorDelBtn.textContent = 'Deleting…';
+          await apiDelete(`/proposals/${p._id}`);
+          flashToast('Proposal deleted successfully');
+          this.proposals = this.proposals.filter(x => x._id !== p._id);
+          this.activeProposal = null;
+          this.currentView = 'list';
+          this.render();
+        } catch (err) {
+          alert('Failed to delete proposal: ' + err.message);
+          editorDelBtn.disabled = false;
+          editorDelBtn.textContent = '🗑️ Delete';
+        }
+      };
+    }
 
     // Bind Preview Proposal Document button
     const openPreviewBtn = el.querySelector('#ps-open-preview-modal-btn');

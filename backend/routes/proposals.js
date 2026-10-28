@@ -431,6 +431,9 @@ router.put('/:id', async (req, res) => {
 // DELETE /api/proposals/:id
 router.delete('/:id', async (req, res) => {
   try {
+    if (req.user && req.user.role === 'client') {
+      return res.status(403).json({ error: 'Clients cannot delete proposals' });
+    }
     const proposal = await Proposal.findByIdAndDelete(req.params.id);
     if (!proposal) return res.status(404).json({ error: 'Proposal not found' });
     res.json({ success: true, message: 'Proposal deleted' });
