@@ -737,6 +737,29 @@ export class ProposalStudioController {
   renderProposalList(el) {
     let list = [...this.proposals];
 
+    // For employees, only show proposals if employee is in escalation plan or role of engagement (or created it)
+    if (!this.isAdmin) {
+      const empName = (this.currentUser?.name || '').toLowerCase().trim();
+      const empId = String(this.currentUser?._id || this.currentUser?.id || '');
+      list = list.filter(p => {
+        const inTeam = Array.isArray(p.team) && p.team.some(t =>
+          (t.name && empName && t.name.toLowerCase().includes(empName)) ||
+          (t.memberId && empId && (t.memberId === empId || t.memberId === 'emp_' + empId))
+        );
+        const inEscalation = Array.isArray(p.escalation) && p.escalation.some(e =>
+          e.name && empName && e.name.toLowerCase().includes(empName)
+        );
+        const isCreator = (p.createdBy && (
+          (typeof p.createdBy === 'object' && String(p.createdBy._id || p.createdBy.id) === empId) ||
+          String(p.createdBy) === empId ||
+          (p.createdBy.email && this.currentUser?.email && p.createdBy.email.toLowerCase() === this.currentUser.email.toLowerCase())
+        ));
+        return inTeam || inEscalation || isCreator;
+      });
+    }
+
+    const baseEmployeeList = list;
+
     if (this.statusFilter !== 'all') {
       list = list.filter(p => p.status === this.statusFilter);
     }
@@ -751,17 +774,17 @@ export class ProposalStudioController {
     }
 
     // Counts by status
-    const pendingCount = this.proposals.filter(p => p.status === 'pending').length;
-    const approvedCount = this.proposals.filter(p => p.status === 'approved' || p.status === 'with_client' || p.status === 'won').length;
-    const totalContractValue = this.proposals.reduce((sum, p) => sum + totals(p).contract, 0);
+    const pendingCount = baseEmployeeList.filter(p => p.status === 'pending').length;
+    const approvedCount = baseEmployeeList.filter(p => p.status === 'approved' || p.status === 'with_client' || p.status === 'won').length;
+    const totalContractValue = baseEmployeeList.reduce((sum, p) => sum + totals(p).contract, 0);
 
     el.innerHTML = `
       <!-- Stats Overview Banner -->
       <div class="grid grid-4" style="margin-bottom:20px;">
         <div class="card kpi">
-          <div class="label">Total Proposals</div>
-          <div class="value">${this.proposals.length}</div>
-          <div class="sub">Active scope documents</div>
+          <div class="label">${this.isAdmin ? 'Total Proposals' : 'My Assigned Proposals'}</div>
+          <div class="value">${baseEmployeeList.length}</div>
+          <div class="sub">${this.isAdmin ? 'Active scope documents' : 'Role of engagement or escalation'}</div>
         </div>
         <div class="card kpi">
           <div class="label">Awaiting Admin PIN</div>
@@ -871,6 +894,11 @@ export class ProposalStudioController {
                             <button class="btn small gold" data-quick-submit="${escapeHtml(p._id)}" title="Submit for Admin Approval">📤 Submit</button>
                           ` : ''}
                         `}
+                        ${(p.status === 'approved' || isPinApproved) && p.status !== 'won' ? `
+                          <button class="btn small primary" data-send-client="${escapeHtml(p._id)}" title="Send authorized proposal to client">
+                            📤 ${p.status === 'with_client' ? 'Re-send' : 'Send to Client'}
+                          </button>
+                        ` : ''}
                         <button class="btn small ghost text-red" data-delete-p="${escapeHtml(p._id)}" title="Delete proposal">🗑️</button>
                       </div>
                     </td>
@@ -1001,6 +1029,29 @@ export class ProposalStudioController {
         }
       };
     });
+
+    el.querySelectorAll('[data-send-client]').forEach(btn => {
+      btn.onclick = async (e) => {
+        e.stopPropagation();
+        const id = btn.dataset.sendClient;
+        try {
+          btn.disabled = true;
+          btn.textContent = 'Sending…';
+          const res = await apiPost(`/proposals/${id}/send-to-client`);
+          flashToast('Proposal sent to client! 📤');
+          const clientUrl = `${window.location.origin}/proposal?p=${res.shareId || res.proposal?.shareId}`;
+          navigator.clipboard.writeText(clientUrl).catch(() => {});
+          alert(`Proposal successfully sent to client!\n\nDirect review link:\n${clientUrl}\n\n(Link copied to clipboard)`);
+          const updated = await apiGet('/proposals');
+          this.proposals = updated || [];
+          this.renderProposalList(el);
+        } catch (err) {
+          alert('Failed to send to client: ' + err.message);
+          btn.disabled = false;
+          btn.textContent = '📤 Send to Client';
+        }
+      };
+    });
   }
 
   renderStatusBadge(p) {
@@ -1073,13 +1124,22 @@ export class ProposalStudioController {
         'Two revision rounds on every deliverable',
         'Use of CI360’s design, scheduling and AI tool stack at no extra cost'
       ],
-      team: (co.team || []).slice(0, 4).map(m => ({
-        id: uid(),
-        memberId: m.id,
-        name: m.name,
-        role: m.engRole || m.role,
-        resp: m.resp || ''
-      })),
+      team: [
+        ...(this.currentUser?.name && !this.isAdmin ? [{
+          id: uid(),
+          memberId: this.currentUser._id ? 'emp_' + this.currentUser._id : '',
+          name: this.currentUser.name,
+          role: 'Engagement Lead',
+          resp: 'Project lead and primary client engagement liaison'
+        }] : []),
+        ...((co.team || []).slice(0, 4).filter(m => !this.currentUser?.name || m.name.toLowerCase() !== this.currentUser.name.toLowerCase()).map(m => ({
+          id: uid(),
+          memberId: m.id,
+          name: m.name,
+          role: m.engRole || m.role,
+          resp: m.resp || ''
+        })))
+      ],
       clientTeam: 'Point of Contact for Approvals: TBD on signing',
       cadence: '**How we work together**\n- Weekly 30-minute status call with the client’s designated point of contact.\n- Shared tracker for requests, deliverables, and revisions.\n- Monthly performance report by the 5th working day followed by an executive review call.\n- Quarterly strategy review to reset targets and priorities.',
       escalation: [
@@ -1254,6 +1314,11 @@ export class ProposalStudioController {
               📝 Word
             </button>
             <button class="btn small primary" id="ps-manual-save-btn">Save Changes</button>
+            ${(isPinApproved || p.status === 'approved' || p.status === 'with_client') && p.status !== 'won' ? `
+              <button class="btn small primary" id="ps-editor-send-client-btn" style="background:#0F2A4A;color:#FFFFFF;border-color:#0F2A4A;" title="Send proposal to client">
+                📤 ${p.status === 'with_client' ? 'Re-send Link' : 'Send to Client'}
+              </button>
+            ` : ''}
             <button class="btn small ghost text-red" id="ps-editor-delete-btn" title="Delete this proposal">🗑️ Delete</button>
           </div>
         </div>
@@ -1305,6 +1370,28 @@ export class ProposalStudioController {
           alert('Failed to delete proposal: ' + err.message);
           editorDelBtn.disabled = false;
           editorDelBtn.textContent = '🗑️ Delete';
+        }
+      };
+    }
+
+    const editorSendClientBtn = el.querySelector('#ps-editor-send-client-btn');
+    if (editorSendClientBtn) {
+      editorSendClientBtn.onclick = async () => {
+        try {
+          editorSendClientBtn.disabled = true;
+          editorSendClientBtn.textContent = 'Sending…';
+          const res = await apiPost(`/proposals/${p._id}/send-to-client`);
+          flashToast('Proposal sent to client! 📤');
+          const clientUrl = `${window.location.origin}/proposal?p=${res.shareId || res.proposal?.shareId}`;
+          navigator.clipboard.writeText(clientUrl).catch(() => {});
+          alert(`Proposal successfully sent to client!\n\nDirect review link:\n${clientUrl}\n\n(Link copied to clipboard)`);
+          const updated = await apiGet(`/proposals/${p._id}`);
+          this.activeProposal = updated;
+          this.renderProposalEditor(el);
+        } catch (err) {
+          alert('Failed to send to client: ' + err.message);
+          editorSendClientBtn.disabled = false;
+          editorSendClientBtn.textContent = '📤 Send to Client';
         }
       };
     }
@@ -2439,24 +2526,25 @@ export class ProposalStudioController {
         ` : ''}
 
         <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
-          ${this.isAdmin ? `
-            <button class="btn primary" id="ps-btn-release-pin" ${isPinApproved ? '' : 'disabled title="Approve with PIN first"'}>
-              🚀 ${p.shareId ? 'Update & Release New Version to Client' : 'Release Proposal to Client'}
+          ${isPinApproved ? `
+            <button class="btn primary" id="ps-step6-send-client-btn" style="font-weight:700;">
+              📤 ${p.shareId ? 'Re-send / Copy Client Review Link' : 'Send to Client'}
             </button>
-            <span class="muted small">
-              ${isPinApproved ? 'Unlocked ✓ Ready to release with Admin PIN.' : '🔒 Unlocks after Admin PIN approval.'}
+            ${this.isAdmin ? `
+              <button class="btn" id="ps-btn-release-pin" title="Record updated release version with Admin PIN">
+                🚀 Update Version with Admin PIN
+              </button>
+            ` : ''}
+            <span class="muted small" style="color:var(--green-600);font-weight:600;">
+              ✓ Proposal authorized by Admin. Ready for client delivery.
             </span>
           ` : `
-            ${p.shareId ? `
-              <span class="badge green" style="font-size:13px;padding:6px 12px;">🚀 Released to Client by Admin</span>
-            ` : `
-              <button class="btn" disabled style="opacity:0.6;cursor:not-allowed;">
-                🔒 Release Proposal to Client (Admin Only)
-              </button>
-              <span class="muted small">
-                ${isPinApproved ? 'Admin must authorize initial release to client.' : 'Requires Admin PIN approval before release.'}
-              </span>
-            `}
+            <button class="btn" disabled style="opacity:0.6;cursor:not-allowed;">
+              🔒 Send to Client (Requires Admin PIN Approval First)
+            </button>
+            <span class="muted small">
+              ${isPending ? '⏳ Awaiting Admin review and PIN sign-off.' : 'Draft must be submitted and approved by Admin.'}
+            </span>
           `}
         </div>
 
@@ -2562,6 +2650,28 @@ export class ProposalStudioController {
         this.showAdminPinModal(this.activeProposal || p, 'Released to Client with Admin PIN', () => {
           this.renderProposalEditor(this.container.querySelector('#ps-view-content'));
         }, true);
+      };
+    }
+
+    const sendClientDirectBtn = el.querySelector('#ps-step6-send-client-btn');
+    if (sendClientDirectBtn) {
+      sendClientDirectBtn.onclick = async () => {
+        try {
+          sendClientDirectBtn.disabled = true;
+          sendClientDirectBtn.textContent = 'Sending…';
+          const res = await apiPost(`/proposals/${p._id}/send-to-client`);
+          flashToast('Proposal sent to client! 📤');
+          const clientUrl = `${window.location.origin}/proposal?p=${res.shareId || res.proposal?.shareId}`;
+          navigator.clipboard.writeText(clientUrl).catch(() => {});
+          alert(`Proposal successfully sent to client!\n\nDirect review link:\n${clientUrl}\n\n(Link copied to clipboard)`);
+          const updated = await apiGet(`/proposals/${p._id}`);
+          this.activeProposal = updated;
+          this.renderProposalEditor(this.container.querySelector('#ps-view-content'));
+        } catch (err) {
+          alert('Failed to send to client: ' + err.message);
+          sendClientDirectBtn.disabled = false;
+          sendClientDirectBtn.textContent = '📤 Send to Client';
+        }
       };
     }
 

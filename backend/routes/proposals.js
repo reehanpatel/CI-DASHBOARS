@@ -301,6 +301,50 @@ router.get('/', async (req, res) => {
       filter.$or = clientMatch;
       // Clients may only access verified and released proposals
       filter.status = { $in: ['approved', 'with_client', 'won', 'changes'] };
+    } else if (req.user && req.user.role === 'employee') {
+      // Employee scoping: only show proposals if employee is in escalation plan or role of engagement
+      const empName = (req.user.name || '').trim();
+      const empId = req.user._id;
+
+      const empConditions = [];
+      if (empName) {
+        empConditions.push({ 'team.name': new RegExp('^' + empName + '$', 'i') });
+        empConditions.push({ 'team.name': new RegExp(empName, 'i') });
+        empConditions.push({ 'escalation.name': new RegExp('^' + empName + '$', 'i') });
+        empConditions.push({ 'escalation.name': new RegExp(empName, 'i') });
+      }
+      if (empId) {
+        empConditions.push({ 'team.memberId': String(empId) });
+        empConditions.push({ 'team.memberId': 'emp_' + String(empId) });
+        empConditions.push({ createdBy: empId });
+      }
+
+      const andClauses = [];
+      if (empConditions.length) {
+        andClauses.push({ $or: empConditions });
+      }
+
+      if (status && status !== 'all') {
+        andClauses.push({ status });
+      }
+      if (client) {
+        andClauses.push({ client: new RegExp(client, 'i') });
+      }
+      if (search) {
+        const q = search.trim();
+        andClauses.push({
+          $or: [
+            { client: { $regex: q, $options: 'i' } },
+            { title: { $regex: q, $options: 'i' } },
+            { ref: { $regex: q, $options: 'i' } },
+            { contact: { $regex: q, $options: 'i' } }
+          ]
+        });
+      }
+
+      if (andClauses.length) {
+        filter.$and = andClauses;
+      }
     } else {
       if (status && status !== 'all') {
         filter.status = status;
@@ -364,6 +408,29 @@ router.get('/:id', async (req, res) => {
       }
       if (!['approved', 'with_client', 'won', 'changes'].includes(proposal.status)) {
         return res.status(403).json({ error: 'This proposal has not been released yet' });
+      }
+    }
+
+    // Employee role authorization check: must be in engagement role, escalation plan, or creator
+    if (req.user && req.user.role === 'employee') {
+      const empName = (req.user.name || '').trim().toLowerCase();
+      const empId = String(req.user._id);
+      const isCreator = proposal.createdBy && (
+        String(proposal.createdBy._id || proposal.createdBy) === empId ||
+        (proposal.createdBy.email && req.user.email && proposal.createdBy.email.toLowerCase() === req.user.email.toLowerCase())
+      );
+      const inTeam = Array.isArray(proposal.team) && proposal.team.some(t =>
+        (t.name && empName && t.name.toLowerCase().includes(empName)) ||
+        (t.memberId && (t.memberId === empId || t.memberId === 'emp_' + empId))
+      );
+      const inEscalation = Array.isArray(proposal.escalation) && proposal.escalation.some(e =>
+        e.name && empName && e.name.toLowerCase().includes(empName)
+      );
+
+      if (!isCreator && !inTeam && !inEscalation) {
+        return res.status(403).json({
+          error: 'Access restricted: You are not assigned to this proposal’s engagement role or escalation path.'
+        });
       }
     }
 
@@ -665,6 +732,67 @@ router.post('/:id/release', async (req, res) => {
     res.json({
       success: true,
       message: 'Proposal released to client successfully with Admin PIN',
+      shareId: proposal.shareId,
+      shareUrl,
+      sharedVersion: proposal.sharedVersion,
+      proposal
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/proposals/:id/send-to-client
+// Allows authorized staff or admin to send an already authorized proposal directly to client
+router.post('/:id/send-to-client', async (req, res) => {
+  try {
+    const proposal = await Proposal.findById(req.params.id);
+    if (!proposal) return res.status(404).json({ error: 'Proposal not found' });
+
+    // Verify proposal has been authorized internally by Admin PIN
+    const isAuthorized = proposal.status === 'approved' || 
+      proposal.status === 'with_client' || 
+      (proposal.approval && proposal.approval.decision === 'approved' && proposal.approval.pinVerified);
+
+    if (!isAuthorized) {
+      return res.status(400).json({
+        error: 'Proposal must be authorized by an Admin with PIN before it can be sent to client.'
+      });
+    }
+
+    if (!proposal.shareId) {
+      proposal.shareId = crypto.randomBytes(9).toString('hex');
+    }
+    proposal.sharedVersion = (proposal.sharedVersion || 0) + 1;
+    proposal.sharedAt = new Date();
+    proposal.status = 'with_client';
+
+    const hash = computeContentHash(proposal);
+    proposal.contentHash = hash;
+
+    // Record audit event
+    proposal.approvalHistory.push({
+      adminId: req.user._id,
+      adminName: req.user.name || 'CI360 Staff',
+      adminEmail: req.user.email,
+      adminRole: req.user.role,
+      action: `Sent to Client (v${proposal.sharedVersion})`,
+      pinVerified: true,
+      note: (req.body.note || 'Sent to client for online review and sign-off').trim(),
+      hash,
+      timestamp: new Date(),
+      ip: req.ip || req.headers['x-forwarded-for'] || ''
+    });
+
+    await proposal.save();
+
+    const host = req.get('host') || 'localhost:3000';
+    const protocol = req.protocol || 'http';
+    const shareUrl = `${protocol}://${host}/proposal?p=${proposal.shareId}`;
+
+    res.json({
+      success: true,
+      message: 'Proposal sent to client successfully',
       shareId: proposal.shareId,
       shareUrl,
       sharedVersion: proposal.sharedVersion,
