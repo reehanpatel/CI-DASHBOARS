@@ -6275,39 +6275,56 @@ html:not([data-theme="dark"]) textarea {
 }
 
 .paper table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 12.5px;
-  margin: 6px 0 12px;
+  width: 100% !important;
+  border-collapse: collapse !important;
+  font-size: 12.5px !important;
+  margin: 6px 0 12px !important;
   background: #FFFFFF !important;
   color: #1C2430 !important;
 }
 
+.paper thead, .paper tbody {
+  background: #FFFFFF !important;
+}
+
 .paper th, .paper td {
   border: 1px solid #D5DCE5 !important;
-  padding: 7px 9px;
-  vertical-align: top;
-  text-align: left;
+  padding: 7px 9px !important;
+  vertical-align: top !important;
+  text-align: left !important;
   color: #1C2430 !important;
+  background: #FFFFFF !important;
+}
+
+.paper tbody tr {
+  background: #FFFFFF !important;
+}
+
+.paper tbody tr:hover td {
+  background: inherit !important;
 }
 
 .paper .r {
   text-align: right !important;
-  white-space: nowrap;
+  white-space: nowrap !important;
 }
 
 .paper table.pt thead th {
   background: #0F2A4A !important;
   color: #FFFFFF !important;
-  border-color: #0F2A4A !important;
-  font-weight: 700;
+  border: 1px solid #0F2A4A !important;
+  font-weight: 700 !important;
+}
+
+.paper table.pt thead th * {
+  color: #FFFFFF !important;
 }
 
 .paper table.kv th {
   background: #F1F4F8 !important;
   color: #0F2A4A !important;
-  width: 26%;
-  font-weight: 700;
+  width: 26% !important;
+  font-weight: 700 !important;
   border: 1px solid #D5DCE5 !important;
 }
 
@@ -6317,24 +6334,105 @@ html:not([data-theme="dark"]) textarea {
   border: 1px solid #D5DCE5 !important;
 }
 
-.paper tr.alt td { background: #F8FAFC !important; color: #1C2430 !important; }
-.paper tr.hl td { background: #FDF6E2 !important; color: #0F2A4A !important; font-size: 13.5px; }
-.paper tr.group td { background: #E2E8F0 !important; color: #0F2A4A !important; font-weight: 700; }
-.paper tr.sub td { color: #64748B !important; font-style: italic; border-top: 0; }
+.paper tr.alt td {
+  background: #F8FAFC !important;
+  color: #1C2430 !important;
+}
+
+.paper tr.sum td {
+  background: #F8FAFC !important;
+  color: #0F2A4A !important;
+  font-weight: 700 !important;
+  border-top: 1.5px solid #0F2A4A !important;
+}
+
+.paper tr.sum td * {
+  color: #0F2A4A !important;
+  font-weight: 700 !important;
+}
+
+.paper tr.hl td {
+  background: #FDF6E2 !important;
+  color: #0F2A4A !important;
+  font-size: 13.5px !important;
+}
+
+.paper tr.hl td * {
+  color: #0F2A4A !important;
+}
+
+.paper tr.group td {
+  background: #E2E8F0 !important;
+  color: #0F2A4A !important;
+  font-weight: 700 !important;
+}
+
+.paper tr.group td * {
+  color: #0F2A4A !important;
+  font-weight: 700 !important;
+}
+
+.paper tr.sub td {
+  background: #FFFFFF !important;
+  color: #64748B !important;
+  font-style: italic !important;
+  border-top: 0 !important;
+}
+
+.paper tr.sub td * {
+  color: #64748B !important;
+}
+
 .paper tr.grand td {
   background: #0F2A4A !important;
   color: #FFFFFF !important;
-  font-weight: 700;
-  font-size: 13.5px;
-  border-color: #0F2A4A !important;
+  font-weight: 700 !important;
+  font-size: 13.5px !important;
+  border: 1px solid #0F2A4A !important;
 }
+
 .paper tr.grand td * {
   color: #FFFFFF !important;
 }
 
+.paper td p,
+.paper td ul,
+.paper td ol,
+.paper td li,
+.paper td div,
+.paper td span {
+  background: transparent !important;
+}
+
+.paper td p {
+  color: #1E293B !important;
+  margin: 0 0 4px !important;
+}
+
+.paper td ul, .paper td ol {
+  color: #1E293B !important;
+  margin: 0 0 6px !important;
+  padding-left: 18px !important;
+}
+
+.paper td li {
+  color: #1E293B !important;
+  margin-bottom: 3px !important;
+}
+
+.paper td li::marker {
+  color: #B8893A !important;
+}
+
+.paper td strong,
+.paper td b {
+  color: #0F172A !important;
+  font-weight: 700 !important;
+}
+
 .paper tr.grand .desc { color: #D9E1EC !important; }
-.paper .desc { color: #475569 !important; font-size: 11.5px; margin-top: 2px; }
-.paper .pnote { font-style: italic; color: #475569 !important; font-size: 12px; }
+.paper .desc { color: #475569 !important; font-size: 11.5px !important; margin-top: 2px !important; }
+.paper .pnote { font-style: italic !important; color: #475569 !important; font-size: 12px !important; }
 
 .paper .approved-stamp {
   display: inline-flex;

@@ -521,6 +521,7 @@ export async function exportPdfDoc(p, co, btn, opts = {}) {
     const htmlString = paperHTML(model, true);
 
     const pdfContainer = document.createElement('div');
+    pdfContainer.setAttribute('data-theme', 'light');
     pdfContainer.style.position = 'fixed';
     pdfContainer.style.left = '-9999px';
     pdfContainer.style.top = '0';
@@ -529,6 +530,7 @@ export async function exportPdfDoc(p, co, btn, opts = {}) {
     pdfContainer.style.color = '#1C2430';
     pdfContainer.innerHTML = `
       <style>
+        * { box-sizing: border-box; }
         .paper, .paper.print { background: #FFFFFF !important; color: #1C2430 !important; font-family: Arial, Helvetica, sans-serif !important; width: 794px !important; margin: 0 !important; box-shadow: none !important; }
         .paper .cover { background: #0F2A4A !important; color: #FFFFFF !important; min-height: 980px !important; padding: 50px 44px 44px !important; }
         .paper .cv-brand { color: #D4A657 !important; font-family: Georgia, serif !important; font-weight: 700 !important; font-size: 19px !important; }
@@ -548,18 +550,34 @@ export async function exportPdfDoc(p, co, btn, opts = {}) {
         .paper li::marker { color: #B8893A !important; }
         .paper strong { color: #0F172A !important; }
         .paper table { width: 100% !important; border-collapse: collapse !important; font-size: 12.5px !important; margin: 6px 0 12px !important; background: #FFFFFF !important; color: #1C2430 !important; }
-        .paper th, .paper td { border: 1px solid #D5DCE5 !important; padding: 7px 9px !important; color: #1C2430 !important; }
-        .paper table.pt thead th { background: #0F2A4A !important; color: #FFFFFF !important; border-color: #0F2A4A !important; font-weight: 700 !important; }
-        .paper table.kv th { background: #F1F4F8 !important; color: #0F2A4A !important; font-weight: 700 !important; }
-        .paper table.kv td { background: #FFFFFF !important; color: #1C2430 !important; }
+        .paper thead, .paper tbody { background: #FFFFFF !important; }
+        .paper tbody tr { background: #FFFFFF !important; }
+        .paper th, .paper td { border: 1px solid #D5DCE5 !important; padding: 7px 9px !important; color: #1C2430 !important; background: #FFFFFF !important; vertical-align: top !important; text-align: left !important; }
+        .paper .r { text-align: right !important; white-space: nowrap !important; }
+        .paper table.pt thead th { background: #0F2A4A !important; color: #FFFFFF !important; border: 1px solid #0F2A4A !important; font-weight: 700 !important; }
+        .paper table.pt thead th * { color: #FFFFFF !important; }
+        .paper table.kv th { background: #F1F4F8 !important; color: #0F2A4A !important; font-weight: 700 !important; border: 1px solid #D5DCE5 !important; }
+        .paper table.kv td { background: #FFFFFF !important; color: #1C2430 !important; border: 1px solid #D5DCE5 !important; }
         .paper tr.alt td { background: #F8FAFC !important; color: #1C2430 !important; }
+        .paper tr.sum td { background: #F8FAFC !important; color: #0F2A4A !important; font-weight: 700 !important; border-top: 1.5px solid #0F2A4A !important; }
+        .paper tr.sum td * { color: #0F2A4A !important; font-weight: 700 !important; }
         .paper tr.hl td { background: #FDF6E2 !important; color: #0F2A4A !important; font-size: 13.5px !important; }
+        .paper tr.hl td * { color: #0F2A4A !important; }
         .paper tr.group td { background: #E2E8F0 !important; color: #0F2A4A !important; font-weight: 700 !important; }
-        .paper tr.sub td { color: #64748B !important; font-style: italic !important; }
-        .paper tr.grand td { background: #0F2A4A !important; color: #FFFFFF !important; font-weight: 700 !important; }
+        .paper tr.group td * { color: #0F2A4A !important; font-weight: 700 !important; }
+        .paper tr.sub td { background: #FFFFFF !important; color: #64748B !important; font-style: italic !important; border-top: 0 !important; }
+        .paper tr.sub td * { color: #64748B !important; }
+        .paper tr.grand td { background: #0F2A4A !important; color: #FFFFFF !important; font-weight: 700 !important; font-size: 13.5px !important; border: 1px solid #0F2A4A !important; }
         .paper tr.grand td * { color: #FFFFFF !important; }
-        .paper .desc { color: #475569 !important; font-size: 11.5px !important; }
-        .paper .pnote { color: #475569 !important; font-style: italic !important; }
+        .paper td p, .paper td ul, .paper td ol, .paper td li, .paper td div, .paper td span { background: transparent !important; }
+        .paper td p { color: #1E293B !important; margin: 0 0 4px !important; }
+        .paper td ul, .paper td ol { color: #1E293B !important; margin: 0 0 6px !important; padding-left: 18px !important; }
+        .paper td li { color: #1E293B !important; margin-bottom: 3px !important; }
+        .paper td li::marker { color: #B8893A !important; }
+        .paper td strong, .paper td b { color: #0F172A !important; font-weight: 700 !important; }
+        .paper tr.grand .desc { color: #D9E1EC !important; }
+        .paper .desc { color: #475569 !important; font-size: 11.5px !important; margin-top: 2px !important; }
+        .paper .pnote { color: #475569 !important; font-style: italic !important; font-size: 12px !important; }
         .paper .approved-stamp { border: 1.5px solid #2F6B45 !important; background: #ECFDF5 !important; color: #2F6B45 !important; font-weight: 700 !important; }
         .paper .approved-stamp.admin-stamp { border-color: #0F2A4A !important; background: #F1F4F8 !important; color: #0F2A4A !important; }
         .paper .sig .who { color: #0F2A4A !important; font-family: Georgia, serif !important; font-weight: 700 !important; }
@@ -1291,7 +1309,7 @@ export class ProposalStudioController {
 
       <!-- Scrollable Centered Document Container -->
       <div style="flex:1;overflow-y:auto;padding:36px 16px;background:#DCE1E8;">
-        <div style="max-width:820px;margin:0 auto;box-shadow:0 8px 30px rgba(0,0,0,0.25);border-radius:6px;overflow:hidden;" id="ps-modal-live-paper">
+        <div style="max-width:820px;margin:0 auto;box-shadow:0 8px 30px rgba(0,0,0,0.25);border-radius:6px;overflow:hidden;" id="ps-modal-live-paper" data-theme="light">
           ${paperHTML(docModel(p, co))}
         </div>
       </div>
