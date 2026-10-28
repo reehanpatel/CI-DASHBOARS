@@ -1,4 +1,4 @@
-import"./api-sGh9QbEi.js";import{e as R,p as S}from"./proposals-lhULO1Z2.js";const t=document.getElementById("proposal-client-root"),q=new URLSearchParams(window.location.search),u=q.get("p");u?$(u):t.innerHTML=`
+import"./api-fIERhmPm.js";import{e as R,p as S}from"./proposals-3JdNAc5G.js";const t=document.getElementById("proposal-client-root"),q=new URLSearchParams(window.location.search),u=q.get("p");u?$(u):t.innerHTML=`
     <div class="card" style="padding:48px;text-align:center;">
       <h3>Invalid Proposal Link</h3>
       <p class="muted">No proposal identifier provided. Please use the exact link sent to you by your CI360 contact.</p>

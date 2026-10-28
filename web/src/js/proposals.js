@@ -1048,12 +1048,24 @@ export class ProposalStudioController {
             ${this.renderStatusBadge(p)}
           </div>
 
-          <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
             <div id="ps-save-state" class="muted small" style="font-weight:600;">Saved ✓</div>
-            <div style="text-align:right;">
+            <div style="text-align:right;margin-right:4px;">
               <span class="muted small">Contract Value:</span>
               <strong style="color:var(--brand-600);font-size:16px;margin-left:4px;">${money(T.contract, p.currency)}</strong>
             </div>
+
+            <!-- PROPER PREVIEW BUTTON -->
+            <button class="btn gold" id="ps-open-preview-modal-btn" style="font-weight:700;display:inline-flex;align-items:center;gap:8px;">
+              <span>👁️ Preview Proposal Document</span>
+            </button>
+
+            <button class="btn small" id="ps-preview-pdf-btn" ${isPinApproved ? '' : 'disabled title="Requires Admin PIN Approval"'}>
+              📄 Download PDF
+            </button>
+            <button class="btn small" id="ps-preview-docx-btn" ${isPinApproved ? '' : 'disabled title="Requires Admin PIN Approval"'}>
+              📝 Word
+            </button>
             <button class="btn small primary" id="ps-manual-save-btn">Save Changes</button>
           </div>
         </div>
@@ -1068,28 +1080,8 @@ export class ProposalStudioController {
           `).join('')}
         </div>
 
-        <!-- Step Body & Live Paper Preview Grid -->
-        <div class="ps-editor-split">
-          <!-- Left Column: Step Settings -->
-          <div class="ps-step-content" id="ps-step-pane"></div>
-
-          <!-- Right Column: Interactive Paper Preview -->
-          <div class="ps-paper-preview-col">
-            <div class="card" style="padding:14px;display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-              <div style="font-weight:700;font-size:13px;display:flex;align-items:center;gap:6px;">
-                <span>📄 Live Branded Preview</span>
-                <span class="muted small">(${p.currency})</span>
-              </div>
-              <div style="display:flex;gap:6px;">
-                <button class="btn small" id="ps-preview-docx-btn" ${isPinApproved ? '' : 'disabled title="Requires Admin PIN Approval"'}>Word (.docx)</button>
-                <button class="btn small" id="ps-preview-pdf-btn" ${isPinApproved ? '' : 'disabled title="Requires Admin PIN Approval"'}>PDF Document</button>
-              </div>
-            </div>
-            <div class="paperwrap" id="ps-live-paper">
-              ${paperHTML(docModel(p, co))}
-            </div>
-          </div>
-        </div>
+        <!-- Full Width Step Content (Spacious, Proper UI) -->
+        <div class="ps-step-content-full" id="ps-step-pane"></div>
       </div>
     `;
 
@@ -1100,6 +1092,12 @@ export class ProposalStudioController {
     };
 
     el.querySelector('#ps-manual-save-btn').onclick = () => this.saveActiveProposal();
+
+    // Bind Preview Proposal Document button
+    const openPreviewBtn = el.querySelector('#ps-open-preview-modal-btn');
+    if (openPreviewBtn) {
+      openPreviewBtn.onclick = () => this.showPreviewModal();
+    }
 
     el.querySelectorAll('[data-step]').forEach(btn => {
       btn.onclick = () => {
@@ -1114,7 +1112,7 @@ export class ProposalStudioController {
     const pdfBtn = el.querySelector('#ps-preview-pdf-btn');
     if (pdfBtn) pdfBtn.onclick = () => exportPdfDoc(p, co, pdfBtn);
 
-    // Render active step
+    // Render active step full-width
     const pane = el.querySelector('#ps-step-pane');
     if (this.activeStep === 'brief') this.renderStepBrief(pane);
     else if (this.activeStep === 'scope') this.renderStepScope(pane);
@@ -1124,11 +1122,77 @@ export class ProposalStudioController {
     else if (this.activeStep === 'approve') this.renderStepApprove(pane);
   }
 
+  showPreviewModal() {
+    const p = this.activeProposal;
+    if (!p) return;
+    const co = (this.rateDoc && this.rateDoc.settings) || {};
+    const isPinApproved = p.approval && p.approval.decision === 'approved' && p.approval.pinVerified;
+
+    // Remove existing modal if any
+    const existing = document.querySelector('.ps-preview-modal-overlay');
+    if (existing) existing.remove();
+
+    const modal = document.createElement('div');
+    modal.className = 'modal-backdrop ps-preview-modal-overlay';
+    modal.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,0.8);backdrop-filter:blur(6px);display:flex;flex-direction:column;z-index:99999;padding:0;animation:modalFade 0.2s ease;';
+
+    modal.innerHTML = `
+      <!-- Modal Top Control Bar -->
+      <div style="background:#0F2A4A;color:#FFFFFF;padding:12px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,0.12);flex-shrink:0;flex-wrap:wrap;gap:12px;">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <span style="font-size:22px;">📄</span>
+          <div>
+            <strong style="font-size:16px;color:#FFFFFF;">${escapeHtml(p.client || 'Client')} — ${escapeHtml(p.title || 'Proposal')}</strong>
+            <span class="muted small" style="color:#AEBBCD;margin-left:8px;font-family:var(--font-mono);">(${escapeHtml(p.ref)})</span>
+          </div>
+          ${isPinApproved ? '<span class="badge green" style="background:#059669;color:#fff;">🔐 PIN Approved</span>' : '<span class="badge amber" style="background:#D97706;color:#fff;">Draft / Unapproved</span>'}
+        </div>
+
+        <div style="display:flex;align-items:center;gap:10px;">
+          <button class="btn small" id="ps-modal-export-docx" ${isPinApproved ? '' : 'disabled title="Requires Admin PIN Approval"'} style="background:rgba(255,255,255,0.12);color:#fff;border-color:rgba(255,255,255,0.25);">
+            📝 Download Word (.docx)
+          </button>
+          <button class="btn small gold" id="ps-modal-export-pdf" ${isPinApproved ? '' : 'disabled title="Requires Admin PIN Approval"'} style="font-weight:700;">
+            📄 Download PDF
+          </button>
+          <button class="btn small" id="ps-close-preview-modal" style="background:rgba(255,255,255,0.2);color:#fff;border-color:transparent;font-weight:700;margin-left:6px;">
+            ✕ Close Preview
+          </button>
+        </div>
+      </div>
+
+      <!-- Scrollable Centered Document Container -->
+      <div style="flex:1;overflow-y:auto;padding:36px 16px;background:#DCE1E8;">
+        <div style="max-width:820px;margin:0 auto;box-shadow:0 8px 30px rgba(0,0,0,0.25);border-radius:6px;overflow:hidden;" id="ps-modal-live-paper">
+          ${paperHTML(docModel(p, co))}
+        </div>
+      </div>
+    `;
+
+    document.body.append(modal);
+
+    modal.querySelector('#ps-close-preview-modal').onclick = () => modal.remove();
+
+    const docxBtn = modal.querySelector('#ps-modal-export-docx');
+    if (docxBtn) docxBtn.onclick = () => exportWordDocx(p, co, docxBtn);
+
+    const pdfBtn = modal.querySelector('#ps-modal-export-pdf');
+    if (pdfBtn) pdfBtn.onclick = () => exportPdfDoc(p, co, pdfBtn);
+
+    const handleEsc = (e) => {
+      if (e.key === 'Escape') {
+        modal.remove();
+        window.removeEventListener('keydown', handleEsc);
+      }
+    };
+    window.addEventListener('keydown', handleEsc);
+  }
+
   refreshLivePaper() {
-    const previewEl = this.container.querySelector('#ps-live-paper');
-    if (previewEl && this.activeProposal) {
+    const modalPaper = document.querySelector('#ps-modal-live-paper');
+    if (modalPaper && this.activeProposal) {
       const co = (this.rateDoc && this.rateDoc.settings) || {};
-      previewEl.innerHTML = paperHTML(docModel(this.activeProposal, co));
+      modalPaper.innerHTML = paperHTML(docModel(this.activeProposal, co));
     }
   }
 
@@ -1503,17 +1567,17 @@ export class ProposalStudioController {
         </div>
 
         <!-- Lines Table -->
-        <div class="scroll" style="margin-bottom:10px;">
-          <table class="table" style="width:100%;margin:0;font-size:13px;">
+        <div class="scroll" style="margin-bottom:12px;overflow-x:auto;">
+          <table class="table" style="width:100%;min-width:920px;margin:0;font-size:13px;">
             <thead>
-              <tr style="background:var(--bg-card);">
-                <th>Service Deliverable</th>
-                <th>Inclusions / Description</th>
-                <th style="width:70px;text-align:right;">Qty</th>
-                <th style="width:80px;">Unit</th>
-                <th style="width:95px;text-align:right;">Rate</th>
-                <th style="width:105px;text-align:right;">Net</th>
-                <th style="width:40px;"></th>
+              <tr style="background:var(--bg-elevated);">
+                <th style="min-width:230px;">Service Deliverable</th>
+                <th style="min-width:320px;">Inclusions / Description</th>
+                <th style="width:85px;text-align:center;">Qty</th>
+                <th style="width:100px;">Unit</th>
+                <th style="width:125px;text-align:right;">Rate</th>
+                <th style="width:130px;text-align:right;">Net Amount</th>
+                <th style="width:44px;text-align:center;"></th>
               </tr>
             </thead>
             <tbody>
@@ -1523,16 +1587,16 @@ export class ProposalStudioController {
                 const lineNet = g * (1 - sp / 100);
                 return `
                   <tr data-line-id="${escapeHtml(l.id)}">
-                    <td><input type="text" class="input" data-line-field="service" value="${escapeHtml(l.service)}"></td>
-                    <td><input type="text" class="input" data-line-field="desc" value="${escapeHtml(l.desc)}" placeholder="What this line covers..."></td>
-                    <td><input type="number" class="input" data-line-field="qty" value="${escapeHtml(l.qty)}" min="0" style="text-align:right;"></td>
-                    <td><input type="text" class="input" data-line-field="unit" value="${escapeHtml(l.unit)}"></td>
-                    <td><input type="number" class="input" data-line-field="rate" value="${escapeHtml(l.rate)}" min="0" style="text-align:right;"></td>
-                    <td style="text-align:right;font-weight:700;font-variant-numeric:tabular-nums;padding-top:14px;">
+                    <td><input type="text" class="input" data-line-field="service" value="${escapeHtml(l.service)}" style="font-weight:600;width:100%;"></td>
+                    <td><input type="text" class="input" data-line-field="desc" value="${escapeHtml(l.desc)}" placeholder="What this line covers..." style="width:100%;"></td>
+                    <td><input type="number" class="input" data-line-field="qty" value="${escapeHtml(l.qty)}" min="0" style="text-align:center;width:100%;font-weight:700;font-variant-numeric:tabular-nums;"></td>
+                    <td><input type="text" class="input" data-line-field="unit" value="${escapeHtml(l.unit)}" style="width:100%;"></td>
+                    <td><input type="number" class="input" data-line-field="rate" value="${escapeHtml(l.rate)}" min="0" style="text-align:right;width:100%;font-weight:700;font-variant-numeric:tabular-nums;"></td>
+                    <td style="text-align:right;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap;padding:12px 10px;">
                       ${money(lineNet, p.currency)}
-                      ${sp ? `<div style="color:var(--green-600);font-size:11px;font-weight:400;">(${sp}% vol)</div>` : ''}
+                      ${sp ? `<div style="color:var(--green-600);font-size:11px;font-weight:500;">(${sp}% vol disc)</div>` : ''}
                     </td>
-                    <td><button class="btn small danger" data-line-action="remove" style="padding:4px 6px;">✕</button></td>
+                    <td style="text-align:center;"><button class="btn small danger" data-line-action="remove" style="padding:6px 10px;line-height:1;" title="Remove deliverable">✕</button></td>
                   </tr>
                 `;
               }).join('')}
@@ -1941,7 +2005,10 @@ export class ProposalStudioController {
             </p>
           </div>
 
-          <div style="display:flex;gap:8px;">
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+            <button class="btn" id="ps-step6-preview-btn" style="font-weight:700;">
+              👁️ Preview Proposal Document
+            </button>
             ${!isPinApproved ? `
               <button class="btn gold" id="ps-btn-approve-pin" style="font-weight:700;">
                 🔐 Authorize & Approve with Admin PIN
@@ -2050,6 +2117,12 @@ export class ProposalStudioController {
         </div>
       </div>
     `;
+
+    // Bind Preview Document
+    const prevBtn = el.querySelector('#ps-step6-preview-btn');
+    if (prevBtn) {
+      prevBtn.onclick = () => this.showPreviewModal();
+    }
 
     // Bind Approve with PIN
     const approveBtn = el.querySelector('#ps-btn-approve-pin') || el.querySelector('#ps-btn-reauthorize-pin');
