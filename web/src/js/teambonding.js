@@ -900,10 +900,6 @@ export async function initTeamBonding(container, options = {}) {
               <span class="stat-num">${myStats.gamesPlayed > 0 ? Math.round(((myStats.wins||0)/myStats.gamesPlayed)*100) : 0}%</span>
               <span class="stat-lbl">Win Rate</span>
             </div>
-            <div class="lounge-stat-card chess-stat">
-              <span class="stat-num">${myStats.chessRating || 1200}</span>
-              <span class="stat-lbl">Chess Elo Rating ♟️</span>
-            </div>
           </div>
 
           <!-- Section 1: Available Games Cards -->
@@ -3134,10 +3130,6 @@ function injectBondingStyles() {
 
     .lounge-stat-card.highlight .stat-num {
       color: #10b981;
-    }
-
-    .lounge-stat-card.chess-stat .stat-num {
-      color: #6366f1;
     }
 
     .lounge-section {

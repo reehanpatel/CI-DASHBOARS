@@ -902,14 +902,6 @@ async function awardGameMatchResult(match) {
       s2.streak = 0;
       s2.points += 10;
       s2.gameStats[gameType].losses += 1;
-
-      if (gameType === 'chess') {
-        const k = 32;
-        const ea = 1 / (1 + Math.pow(10, ((s2.chessRating || 1200) - (s1.chessRating || 1200)) / 400));
-        const delta = Math.round(k * (1 - ea));
-        s1.chessRating = Math.max(600, (s1.chessRating || 1200) + delta);
-        s2.chessRating = Math.max(600, (s2.chessRating || 1200) - delta);
-      }
     } else if (isP2Winner) {
       s2.wins += 1;
       s2.streak = (s2.streak || 0) + 1;
@@ -920,14 +912,6 @@ async function awardGameMatchResult(match) {
       s1.streak = 0;
       s1.points += 10;
       s1.gameStats[gameType].losses += 1;
-
-      if (gameType === 'chess') {
-        const k = 32;
-        const ea = 1 / (1 + Math.pow(10, ((s1.chessRating || 1200) - (s2.chessRating || 1200)) / 400));
-        const delta = Math.round(k * (1 - ea));
-        s2.chessRating = Math.max(600, (s2.chessRating || 1200) + delta);
-        s1.chessRating = Math.max(600, (s1.chessRating || 1200) - delta);
-      }
     }
 
     s1.lastPlayedAt = new Date();
@@ -997,7 +981,6 @@ router.get('/games/overview', async (req, res) => {
         losses: 0,
         draws: 0,
         gamesPlayed: 0,
-        chessRating: 1200,
         gameStats: {}
       }
     });
@@ -1771,7 +1754,6 @@ router.get('/leaderboard', async (req, res) => {
         draws: s.draws || 0,
         gamesPlayed: total,
         winRate,
-        chessRating: s.chessRating || 1200,
         gameStats: s.gameStats || {},
         badges: s.badges || [],
         streak: s.streak || 0

@@ -17,11 +17,9 @@ const BondingScoreSchema = new mongoose.Schema({
   draws: { type: Number, default: 0 },
   gamesPlayed: { type: Number, default: 0 },
   streak: { type: Number, default: 0 },
-  chessRating: { type: Number, default: 1200 },
   gameStats: {
     chess: { type: GameStatSchema, default: () => ({}) },
-    tictactoe: { type: GameStatSchema, default: () => ({}) },
-    connectfour: { type: GameStatSchema, default: () => ({}) }
+    tictactoe: { type: GameStatSchema, default: () => ({}) }
   },
   badges: [{ type: String }],
   lastPlayedAt: { type: Date, default: Date.now }
