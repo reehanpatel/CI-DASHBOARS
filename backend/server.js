@@ -59,7 +59,7 @@ var require_User = __commonJS({
       name: { type: String, required: true, trim: true },
       email: { type: String, required: true, unique: true, lowercase: true, trim: true },
       passwordHash: { type: String, required: true },
-      role: { type: String, enum: ["superadmin", "accounts", "employee", "client"], required: true },
+      role: { type: String, enum: ["superadmin", "admin", "accounts", "employee", "client"], required: true },
       // Link an employee login to their Personnel record
       personnelId: { type: mongoose.Schema.Types.ObjectId, ref: "Personnel", default: null },
       // Link a client login to their Client record
@@ -100,6 +100,9 @@ var require_auth = __commonJS({
         const isEkta = (req.user.email && req.user.email.toLowerCase().includes("ekta")) ||
                        (req.user.name && req.user.name.toLowerCase().includes("ekta"));
         if (roles.includes("accounts") && isEkta) {
+          return next();
+        }
+        if ((roles.includes("superadmin") || roles.includes("admin")) && (req.user.role === "superadmin" || req.user.role === "admin")) {
           return next();
         }
         if (!roles.includes(req.user.role)) {
@@ -309,9 +312,13 @@ var require_users = __commonJS({
     });
     router.post("/", async (req, res) => {
       try {
-        const { name, email, password, role, personnelId, clientId } = req.body;
+        let { name, email, password, role, personnelId, clientId } = req.body;
         if (!name || !email || !password || !role) return res.status(400).json({ error: "name, email, password and role are required" });
-        if (!["superadmin", "accounts", "employee", "client"].includes(role)) return res.status(400).json({ error: "Invalid role" });
+        if (!["superadmin", "admin", "accounts", "employee", "client"].includes(role)) return res.status(400).json({ error: "Invalid role" });
+        // Only 2 superadmins allowed in the system. Any added administrator must be 'admin'
+        if (role === "superadmin") {
+          role = "admin";
+        }
         const existing = await User.findOne({ email: email.toLowerCase().trim() });
         if (existing) return res.status(400).json({ error: "A user with that email already exists" });
         const passwordHash = await bcrypt.hash(password, 10);
@@ -337,7 +344,12 @@ var require_users = __commonJS({
         if (!user) return res.status(404).json({ error: "User not found" });
         if (name != null) user.name = name;
         if (email != null) user.email = email.toLowerCase().trim();
-        if (role != null) user.role = role;
+        if (role != null) {
+          if (role === "superadmin" && user.role !== "superadmin") {
+            role = "admin";
+          }
+          user.role = role;
+        }
         if (personnelId !== void 0) user.personnelId = role === "employee" || user.role === "employee" ? personnelId : null;
         if (clientId !== void 0) user.clientId = role === "client" || user.role === "client" ? clientId : null;
         if (active != null) user.active = active;

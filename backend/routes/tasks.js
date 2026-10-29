@@ -8,12 +8,14 @@ const { createNotificationForTask } = require('../utils/notify');
 const router = express.Router();
 router.use(verifyToken);
 
+const isAdminRole = (user) => user && (user.role === 'superadmin' || user.role === 'admin');
+
 // GET /api/tasks
 router.get('/', async (req, res) => {
   try {
     const filter = { isDeleted: { $ne: true } };
 
-    if (req.user.role !== 'superadmin' || req.query.mine === 'true') {
+    if (!isAdminRole(req.user) || req.query.mine === 'true') {
       const userConditions = [{ userId: req.user._id }];
       if (req.user.personnelId) {
         userConditions.push({ personnelId: req.user.personnelId });
@@ -132,7 +134,7 @@ router.post('/', async (req, res) => {
     const isCompleted = status === 'Completed';
 
     // Handle Admin bulk assignment to all team members
-    if (req.user.role === 'superadmin' && (assignAll === true || reqPersonnelId === 'all')) {
+    if (isAdminRole(req.user) && (assignAll === true || reqPersonnelId === 'all')) {
       const allPersonnel = await Personnel.find({ status: { $ne: 'inactive' } });
       const User = mongoose.models.User || require('../models/User');
       const createdTasks = [];
@@ -171,7 +173,7 @@ router.post('/', async (req, res) => {
     let personnelId = reqPersonnelId || req.user.personnelId || null;
     let targetUserId = req.user._id;
 
-    if (req.user.role === 'superadmin' && reqPersonnelId) {
+    if (isAdminRole(req.user) && reqPersonnelId) {
       personnelId = reqPersonnelId;
       const User = mongoose.models.User || require('../models/User');
       const linkedUser = await User.findOne({ personnelId: reqPersonnelId });
@@ -228,7 +230,7 @@ router.post('/', async (req, res) => {
 router.put('/:id', async (req, res) => {
   try {
     let taskQuery = { _id: req.params.id };
-    if (req.user.role !== 'superadmin') {
+    if (!isAdminRole(req.user)) {
       const userConditions = [{ userId: req.user._id }];
       if (req.user.personnelId) userConditions.push({ personnelId: req.user.personnelId });
       taskQuery.$or = userConditions;
@@ -261,7 +263,7 @@ router.put('/:id', async (req, res) => {
 
     if (title !== undefined) task.title = title.trim();
     if (description !== undefined) task.description = description.trim();
-    if (personnelId !== undefined && req.user.role === 'superadmin') {
+    if (personnelId !== undefined && isAdminRole(req.user)) {
       task.personnelId = personnelId || null;
     }
     if (status !== undefined) {
@@ -333,7 +335,7 @@ router.put('/:id', async (req, res) => {
 router.patch('/:id/toggle', async (req, res) => {
   try {
     let taskQuery = { _id: req.params.id };
-    if (req.user.role !== 'superadmin') {
+    if (!isAdminRole(req.user)) {
       const userConditions = [{ userId: req.user._id }];
       if (req.user.personnelId) userConditions.push({ personnelId: req.user.personnelId });
       taskQuery.$or = userConditions;
@@ -383,7 +385,7 @@ router.post('/bulk-import', async (req, res) => {
     let targetPersonnelId = reqPersonnelId || req.user.personnelId || null;
     let targetUserId = req.user._id;
 
-    if (req.user.role === 'superadmin' && reqPersonnelId && reqPersonnelId !== 'all') {
+    if (isAdminRole(req.user) && reqPersonnelId && reqPersonnelId !== 'all') {
       targetPersonnelId = reqPersonnelId;
       const User = mongoose.models.User || require('../models/User');
       const linkedUser = await User.findOne({ personnelId: reqPersonnelId });
@@ -449,7 +451,7 @@ router.post('/bulk-import', async (req, res) => {
 router.get('/backup', async (req, res) => {
   try {
     const filter = { isDeleted: { $ne: true } };
-    if (req.user.role !== 'superadmin' || req.query.mine === 'true') {
+    if (!isAdminRole(req.user) || req.query.mine === 'true') {
       filter.userId = req.user._id;
     }
 
@@ -599,7 +601,7 @@ router.patch('/:id/checklist/:checkId', async (req, res) => {
 router.delete('/:id', async (req, res) => {
   try {
     let taskQuery = { _id: req.params.id };
-    if (req.user.role !== 'superadmin') {
+    if (!isAdminRole(req.user)) {
       const userConditions = [{ userId: req.user._id }];
       if (req.user.personnelId) userConditions.push({ personnelId: req.user.personnelId });
       taskQuery.$or = userConditions;
@@ -625,7 +627,7 @@ router.delete('/:id', async (req, res) => {
 router.post('/clear-completed', async (req, res) => {
   try {
     const filter = { status: 'Completed', isDeleted: { $ne: true } };
-    if (req.user.role !== 'superadmin' || req.body.mine === true) {
+    if (!isAdminRole(req.user) || req.body.mine === true) {
       const userConditions = [{ userId: req.user._id }];
       if (req.user.personnelId) userConditions.push({ personnelId: req.user.personnelId });
       filter.$or = userConditions;

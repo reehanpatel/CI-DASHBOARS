@@ -112,7 +112,7 @@ router.get('/', async (req, res) => {
           });
         }
       }
-    } else if (['superadmin', 'accounts'].includes(req.user.role)) {
+    } else if (['superadmin', 'admin', 'accounts'].includes(req.user.role)) {
       overdueInvoices = await Invoice.find({
         status: 'overdue',
         pendingAmount: { $gt: 0 }
@@ -190,7 +190,7 @@ router.get('/', async (req, res) => {
 
     // 4. Check for active/due/overdue tasks
     let overdueTasksList = [];
-    if (req.user.role === 'employee' || req.user.role === 'superadmin') {
+    if (req.user.role === 'employee' || req.user.role === 'superadmin' || req.user.role === 'admin') {
       const activeTasks = await Task.find({ userId, status: { $ne: 'Completed' } }).limit(30);
       for (const t of activeTasks) {
         const taskDateStr = t.dueDate ? new Date(t.dueDate).toISOString().slice(0, 10) : todayStr;

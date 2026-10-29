@@ -15,16 +15,19 @@ router.post('/', async (req, res) => {
   try {
     const { name, email, password, role, personnelId, clientId } = req.body;
     if (!name || !email || !password || !role) return res.status(400).json({ error: 'name, email, password and role are required' });
-    if (!['superadmin', 'accounts', 'employee', 'client'].includes(role)) return res.status(400).json({ error: 'Invalid role' });
+    if (!['superadmin', 'admin', 'accounts', 'employee', 'client'].includes(role)) return res.status(400).json({ error: 'Invalid role' });
+
+    // Enforce rule: new administrative users are created as 'admin' only, keeping only 2 superadmins
+    const assignedRole = (role === 'superadmin') ? 'admin' : role;
 
     const existing = await User.findOne({ email: email.toLowerCase().trim() });
     if (existing) return res.status(400).json({ error: 'A user with that email already exists' });
 
     const passwordHash = await bcrypt.hash(password, 10);
     const user = await User.create({
-      name, email: email.toLowerCase().trim(), passwordHash, role,
-      personnelId: role === 'employee' ? (personnelId || null) : null,
-      clientId: role === 'client' ? (clientId || null) : null,
+      name, email: email.toLowerCase().trim(), passwordHash, role: assignedRole,
+      personnelId: assignedRole === 'employee' ? (personnelId || null) : null,
+      clientId: assignedRole === 'client' ? (clientId || null) : null,
     });
     const clean = user.toObject(); delete clean.passwordHash;
     res.status(201).json(clean);
@@ -41,9 +44,12 @@ router.put('/:id', async (req, res) => {
 
     if (name != null) user.name = name;
     if (email != null) user.email = email.toLowerCase().trim();
-    if (role != null) user.role = role;
-    if (personnelId !== undefined) user.personnelId = role === 'employee' || user.role === 'employee' ? personnelId : null;
-    if (clientId !== undefined) user.clientId = role === 'client' || user.role === 'client' ? clientId : null;
+    if (role != null) {
+      // Preserve existing superadmins, but don't allow creating new superadmins
+      user.role = (role === 'superadmin' && user.role !== 'superadmin') ? 'admin' : role;
+    }
+    if (personnelId !== undefined) user.personnelId = (user.role === 'employee') ? personnelId : null;
+    if (clientId !== undefined) user.clientId = (user.role === 'client') ? clientId : null;
     if (active != null) user.active = active;
     if (password) user.passwordHash = await bcrypt.hash(password, 10);
 

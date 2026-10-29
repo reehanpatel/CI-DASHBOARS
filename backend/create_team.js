@@ -29,7 +29,7 @@ const teamDuties = {
   'External': 'SEO and other requirements, as needed'
 };
 
-const superadminNames = ['Pramit', 'Aashit', 'Urna', 'Mansi'];
+const adminNames = ['Pramit', 'Aashit', 'Urna', 'Mansi'];
 
 async function createTeam() {
   try {
@@ -42,11 +42,11 @@ async function createTeam() {
     const results = [];
 
     for (const [name, duties] of Object.entries(teamDuties)) {
-      const isSuper = superadminNames.includes(name);
+      const isAdmin = adminNames.includes(name);
       const isAccounts = name.toLowerCase() === 'ekta';
-      const role = isSuper ? 'superadmin' : (isAccounts ? 'accounts' : 'employee');
-      const pass = isSuper ? 'Admin123!' : 'Employee123!';
-      const hash = isSuper ? adminHash : empHash;
+      const role = isAdmin ? 'admin' : (isAccounts ? 'accounts' : 'employee');
+      const pass = isAdmin ? 'Admin123!' : 'Employee123!';
+      const hash = isAdmin ? adminHash : empHash;
 
       // Create or update Personnel with exact duties
       let p = await Personnel.findOne({ name });
@@ -77,7 +77,7 @@ async function createTeam() {
         await u.save();
       }
 
-      results.push({ Name: p.name, Duties: p.duties, Username: slug, Email: email, Role: isSuper ? 'Super Admin' : 'Employee' });
+      results.push({ Name: p.name, Duties: p.duties, Username: slug, Email: email, Role: isAdmin ? 'Admin' : (isAccounts ? 'Accounts' : 'Employee') });
     }
 
     console.log(`\n✅ Successfully updated ${results.length} Team Members with Posts & Duties:`);

@@ -9,10 +9,10 @@ const { createNotificationForTicket } = require('../utils/notify');
 
 router.use(verifyToken);
 
-// Helper: Check if user is a primary manager (superadmin, Mansi, or Urna)
+// Helper: Check if user is a primary manager (superadmin, admin, Mansi, or Urna)
 const isManager = (user) => {
   if (!user) return false;
-  if (user.role === 'superadmin') return true;
+  if (user.role === 'superadmin' || user.role === 'admin') return true;
   return /mansi/i.test(user.name) || /urna/i.test(user.name);
 };
 

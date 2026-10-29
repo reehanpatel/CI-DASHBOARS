@@ -46,6 +46,10 @@ function requireRole(...roles) {
     if (roles.includes('accounts') && isEkta) {
       return next();
     }
+    // Both superadmin and admin have administrative access when either is required
+    if ((roles.includes('superadmin') || roles.includes('admin')) && (req.user.role === 'superadmin' || req.user.role === 'admin')) {
+      return next();
+    }
     if (!roles.includes(req.user.role)) {
       return res.status(403).json({ error: 'You do not have permission to do that' });
     }

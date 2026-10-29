@@ -1489,7 +1489,7 @@ export function renderAppShell({ user, currentRole, activeTab, tabs, title, subt
         isMore: true
       }
     ];
-  } else if (currentRole === 'superadmin') {
+  } else if (currentRole === 'superadmin' || currentRole === 'admin') {
     mobileNavItems = [
       {
         key: 'dashboard',

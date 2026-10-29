@@ -130,7 +130,7 @@ router.put('/:id', requireRole('superadmin', 'employee'), async (req, res) => {
   if (completed !== undefined) target.completed = Number(completed) || 0;
   if (serviceId) target.serviceId = serviceId;
   if (attachments !== undefined) target.attachments = attachments;
-  if (personId && req.user.role === 'superadmin') target.personId = personId;
+  if (personId && (req.user.role === 'superadmin' || req.user.role === 'admin')) target.personId = personId;
 
   await target.save();
 

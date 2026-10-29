@@ -1815,16 +1815,19 @@ async function tabUsers(c){
     }
 
     tbody.innerHTML = list.map(u => {
-      const isAdm = u.role === 'superadmin' || u.role === 'admin';
+      const isSuper = u.role === 'superadmin';
+      const isAdm = u.role === 'admin';
       const isAcc = u.role === 'accounts';
       const isEmp = u.role === 'employee';
-      const roleBadge = isAdm 
-        ? `<span class="badge gold" style="font-weight:700">👑 Admin</span>` 
-        : (isAcc 
-            ? `<span class="badge amber" style="font-weight:700">💳 Accounts</span>` 
-            : (isEmp 
-                ? `<span class="badge blue" style="font-weight:700">💼 Employee</span>` 
-                : `<span class="badge green" style="font-weight:700">🤝 Client</span>`));
+      const roleBadge = isSuper 
+        ? `<span class="badge gold" style="font-weight:700">👑 Superadmin</span>` 
+        : (isAdm
+            ? `<span class="badge gold" style="font-weight:700">🛡️ Admin</span>`
+            : (isAcc 
+                ? `<span class="badge amber" style="font-weight:700">💳 Accounts</span>` 
+                : (isEmp 
+                    ? `<span class="badge blue" style="font-weight:700">💼 Employee</span>` 
+                    : `<span class="badge green" style="font-weight:700">🤝 Client</span>`)));
       
       const linked = u.personnelId ? escapeHtml(u.personnelId.name) : (u.clientId ? escapeHtml(u.clientId.name) : '<span class="muted">—</span>');
 
@@ -1963,7 +1966,7 @@ function openUserModal(u){
     </div>
     <div class="field-row">
       <div class="field"><label>Role</label><select id="uRole">
-        <option value="superadmin" ${role0==='superadmin'?'selected':''}>Admin</option>
+        <option value="admin" ${role0==='admin'||role0==='superadmin'?'selected':''}>Admin</option>
         <option value="accounts" ${role0==='accounts'?'selected':''}>Accounts & Finance</option>
         <option value="employee" ${role0==='employee'?'selected':''}>Employee</option>
         <option value="client" ${role0==='client'?'selected':''}>Client</option></select></div>
