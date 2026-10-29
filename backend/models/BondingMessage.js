@@ -15,7 +15,7 @@ const BondingMessageSchema = new mongoose.Schema({
   },
   content: { type: String, default: '', trim: true },
   challengeData: {
-    gameType: { type: String, enum: ['trivia', 'tictactoe', 'wordle', 'speedtyper', 'memory'], default: 'trivia' },
+    gameType: { type: String, enum: ['chess', 'tictactoe', 'connectfour', 'trivia', 'wordle', 'speedtyper', 'memory'], default: 'chess' },
     gameTitle: { type: String, default: '' },
     status: { type: String, enum: ['pending', 'active', 'completed', 'declined'], default: 'active' },
     targetUserId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
