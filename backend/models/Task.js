@@ -12,8 +12,8 @@ const TaskSchema = new mongoose.Schema({
   description: { type: String, default: '', trim: true },
   status: { 
     type: String, 
-    enum: ['Todo', 'In Progress', 'Review', 'Completed'], 
-    default: 'Todo' 
+    enum: ['Todo', 'Pending', 'In Progress', 'Review', 'Completed'], 
+    default: 'Pending' 
   },
   priority: { 
     type: String, 
@@ -21,6 +21,9 @@ const TaskSchema = new mongoose.Schema({
     default: 'Medium' 
   },
   dueDate: { type: Date, default: null },
+  dateStr: { type: String, default: '', index: true },
+  startTime: { type: String, default: '', trim: true },
+  dueTime: { type: String, default: '', trim: true },
   category: { type: String, default: 'General', trim: true },
   jobId: { type: mongoose.Schema.Types.ObjectId, ref: 'Job', default: null },
   clientId: { type: mongoose.Schema.Types.ObjectId, ref: 'Client', default: null },

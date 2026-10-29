@@ -627,13 +627,13 @@ export function showInAppPopupAlert({ id, title, message, type, time, actionText
     defaultActionText = 'View Job'; defaultNavTab = 'jobs';
   } else if(t.includes('task') && (m.includes('overdue') || t.includes('overdue'))){
     icon = '⚠️'; priority = 'critical'; tagText = 'OVERDUE TASK';
-    defaultActionText = 'Check Tasks'; defaultNavTab = 'dailytasks';
+    defaultActionText = 'Check Planner'; defaultNavTab = 'dailytasks';
   } else if(t.includes('task_completed')){
     icon = '✅'; priority = 'success'; tagText = 'TASK COMPLETED';
-    defaultActionText = 'View Checklist'; defaultNavTab = 'dailytasks';
+    defaultActionText = 'View Planner'; defaultNavTab = 'dailytasks';
   } else if(t.includes('task')){
-    icon = '📝'; priority = 'warning'; tagText = 'DAILY TASK';
-    defaultActionText = 'View Tasks'; defaultNavTab = 'dailytasks';
+    icon = '📅'; priority = 'warning'; tagText = 'DAILY PLANNER';
+    defaultActionText = 'Open Planner'; defaultNavTab = 'dailytasks';
   } else if(t.includes('ticket')){
     icon = '💬'; priority = 'info'; tagText = 'SUPPORT TICKET';
     defaultActionText = 'View Ticket'; defaultNavTab = 'tickets';
@@ -938,10 +938,10 @@ export function openNotificationModal(n){
     targetTab = isEmployee ? 'myjobs' : 'jobs';
     actionBtnText = isEmployee ? 'Open in My Jobs 📋' : 'View Job 📁';
   } else if(type.includes('task')){
-    badgeLabel = 'Daily Task';
+    badgeLabel = 'Daily Planner';
     badgeClass = 'green';
     targetTab = 'dailytasks';
-    actionBtnText = 'Open Daily Tasks ✅';
+    actionBtnText = 'Open Daily Planner 📅';
   } else if(type.includes('ticket')){
     badgeLabel = 'Support Ticket';
     badgeClass = 'brand';
@@ -1499,7 +1499,7 @@ export function renderAppShell({ user, currentRole, activeTab, tabs, title, subt
       },
       {
         key: 'dailytasks',
-        label: 'Tasks',
+        label: 'Planner',
         iconSvg: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>`,
         active: activeTab === 'dailytasks'
       },
@@ -1533,7 +1533,7 @@ export function renderAppShell({ user, currentRole, activeTab, tabs, title, subt
       },
       {
         key: 'dailytasks',
-        label: 'Tasks',
+        label: 'Planner',
         iconSvg: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>`,
         active: activeTab === 'dailytasks'
       },

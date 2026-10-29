@@ -1,4 +1,5 @@
 import { initProposalStudio } from './proposals.js';
+import { initDailyPlanner } from './planner.js';
 import { renderAccountSettingsCard, bindAccountSettingsCard } from './api.js';
 
 let user = null;
@@ -38,7 +39,7 @@ function clientName(id){ const c = cache.clients.find(c=>c._id===id); return c ?
 
 const ADMIN_TABS = [
   { key: 'dashboard', label: 'Dashboard', icon: '📊' },
-  { key: 'dailytasks', label: 'Daily Tasks', icon: '✅' },
+  { key: 'dailytasks', label: 'Daily Planner', icon: '📅' },
   { key: 'proposals', label: 'Proposal Studio', icon: '📜' },
   { key: 'logjob', label: 'Log a Job', icon: '➕' },
   { key: 'jobs', label: 'All Jobs', icon: '📁' },
@@ -2033,10 +2034,11 @@ function shiftAdminDateStr(dateStr, deltaDays) {
 }
 
 async function tabDailyTasks(c) {
-  const [allTasks, personnelList] = await Promise.all([
-    apiGet('/tasks'),
-    apiGet('/personnel').catch(() => cache.personnel || [])
-  ]);
+  initDailyPlanner(c, {
+    userRole: 'superadmin',
+    currentUser: user
+  });
+  return;
 
   const today = new Date();
   const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;

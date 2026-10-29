@@ -1,4 +1,5 @@
 import { initProposalStudio } from './proposals.js';
+import { initDailyPlanner } from './planner.js';
 import { renderAccountSettingsCard, bindAccountSettingsCard } from './api.js';
 
 let user = null;
@@ -24,7 +25,7 @@ function getEmployeeTabs() {
   const tabs = [
     { key: 'dashboard',  label: 'Overview Dashboard', icon: '📊' },
     { key: 'myjobs',     label: 'My Jobs',            icon: '📋' },
-    { key: 'dailytasks', label: 'Daily Tasks',        icon: '✅' },
+    { key: 'dailytasks', label: 'Daily Planner',      icon: '📅' },
     { key: 'proposals',  label: 'Proposal Studio',    icon: '📜' },
     { key: 'targets',    label: 'My Targets',         icon: '🎯' },
     { key: 'settings',   label: 'Settings',           icon: '⚙️' }
@@ -828,10 +829,11 @@ function getFriendlyDayLabel(dateStr) {
 }
 
 async function tabDailyTasks(c) {
-  const allTasks = await getLocalOrApiTasks();
-  const today = new Date();
-  const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
-  const activeDate = dailyTaskUi.date; // YYYY-MM-DD or 'all'
+  initDailyPlanner(c, {
+    userRole: 'employee',
+    currentUser: user
+  });
+  return;
 
   // Filter by date
   let dateFiltered = allTasks;
