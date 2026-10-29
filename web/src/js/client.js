@@ -718,8 +718,6 @@ function renderClientJobCard(j, priorityBadges) {
           </div>
         `}
       ` : ''}
-
-      ${renderSupportTicketSection(j._id, false)}
     </div>`;
 }
 
@@ -731,8 +729,6 @@ function bindJobCardActions(jobs) {
   document.querySelectorAll('.client-rev-btn').forEach(btn => {
     btn.onclick = () => openClientRevisionModal(btn.dataset.id, btn.dataset.title, () => renderTab());
   });
-
-  jobs.forEach(j => bindSupportTicketSection(j._id, false));
 }
 
 function tabJobs(c, d){

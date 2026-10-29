@@ -1527,10 +1527,10 @@ export function renderAppShell({ user, currentRole, activeTab, tabs, title, subt
         active: activeTab === 'dailytasks'
       },
       {
-        key: 'tickets',
-        label: 'Tickets',
-        iconSvg: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M13 5v2"/><path d="M13 17v2"/></svg>`,
-        active: activeTab === 'tickets'
+        key: 'proposals',
+        label: 'Proposals',
+        iconSvg: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>`,
+        active: activeTab === 'proposals'
       },
       {
         key: 'targets',
@@ -1542,7 +1542,7 @@ export function renderAppShell({ user, currentRole, activeTab, tabs, title, subt
         key: '__more__',
         label: 'More',
         iconSvg: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/><circle cx="5" cy="12" r="1.5"/></svg>`,
-        active: !['myjobs', 'dailytasks', 'tickets', 'targets'].includes(activeTab),
+        active: !['myjobs', 'dailytasks', 'proposals', 'targets'].includes(activeTab),
         isMore: true
       }
     ];
@@ -1981,21 +1981,16 @@ export function bindAppShellEvents(onTabChange){
       e.stopPropagation();
       const userDropdown = document.getElementById('topbarUserDropdown');
       if(userDropdown) userDropdown.style.display = 'none';
-      const ticketsTab = document.querySelector('[data-tab="tickets"]');
-      if(ticketsTab && onTabChange) {
-        onTabChange('tickets');
-      } else {
-        openModal(`
-          <div style="padding:24px;text-align:center;">
-            <div style="font-size:36px;margin-bottom:12px;">💬</div>
-            <h3 style="margin-bottom:8px;font-size:18px;color:var(--text-1)">CI360 Help & Support</h3>
-            <p style="font-size:13px;color:var(--text-3);line-height:1.5;margin-bottom:20px;">
-              For immediate technical assistance, client onboarding, or support tickets, reach out to your system administrator or use the Support Tickets portal.
-            </p>
-            <button class="btn primary full" type="button" onclick="this.closest('.modal-bg').remove()">Close</button>
-          </div>
-        `);
-      }
+      openModal(`
+        <div style="padding:24px;text-align:center;">
+          <div style="font-size:36px;margin-bottom:12px;">💬</div>
+          <h3 style="margin-bottom:8px;font-size:18px;color:var(--text-1)">CI360 Help & Support</h3>
+          <p style="font-size:13px;color:var(--text-3);line-height:1.5;margin-bottom:20px;">
+            For immediate technical assistance, client onboarding, or workspace inquiries, reach out to your system administrator or support team.
+          </p>
+          <button class="btn primary full" type="button" onclick="this.closest('.modal-bg').remove()">Close</button>
+        </div>
+      `);
     };
   }
 

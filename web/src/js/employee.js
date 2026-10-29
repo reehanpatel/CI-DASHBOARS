@@ -2,7 +2,7 @@ import { initProposalStudio } from './proposals.js';
 
 let user = null;
 let cache = { personnel: [], clients: [], services: [] };
-let ui = { tab: 'dashboard', period: 'month', ticketsFilter: 'all' };
+let ui = { tab: 'dashboard', period: 'month' };
 
 async function boot(){
   initTheme();
@@ -25,7 +25,6 @@ function getEmployeeTabs() {
     { key: 'myjobs',     label: 'My Jobs',            icon: '📋' },
     { key: 'dailytasks', label: 'Daily Tasks',        icon: '✅' },
     { key: 'proposals',  label: 'Proposal Studio',    icon: '📜' },
-    { key: 'tickets',    label: 'Support Tickets',    icon: '🎫' },
     { key: 'targets',    label: 'My Targets',         icon: '🎯' }
   ];
   if (isAccountsAccess) {
@@ -66,8 +65,6 @@ window.ci360NavTab = (tabName, highlightId = null) => {
     tabName = 'myjobs';
   } else if (tabName === 'tasks' || tabName === 'mytasks' || tabName === 'dailytasks') {
     tabName = 'dailytasks';
-  } else if (tabName === 'ticket' || tabName === 'tickets') {
-    tabName = 'tickets';
   } else if (tabName === 'target' || tabName === 'targets') {
     tabName = 'targets';
   } else if (tabName === 'proposal' || tabName === 'proposals') {
@@ -92,7 +89,6 @@ async function renderTab(){
     else if(ui.tab==='myjobs' || ui.tab==='jobs')                          await tabMyJobs(c);
     else if(ui.tab==='dailytasks' || ui.tab==='mytasks' || ui.tab==='tasks') await tabDailyTasks(c);
     else if(ui.tab==='proposals' || ui.tab==='proposal')                   await tabProposals(c);
-    else if(ui.tab==='tickets' || ui.tab==='ticket')                       await tabTickets(c);
     else if(ui.tab==='targets' || ui.tab==='target')                       await tabTargets(c);
     else {
       ui.tab = 'dashboard';
@@ -121,11 +117,10 @@ function bindPeriodPicker(){
 
 /* ════════════════════════════ EMPLOYEE DASHBOARD OVERVIEW ═══════════════════ */
 async function tabEmployeeDashboard(c){
-  const [dash, allMyJobs, allTasks, allTickets] = await Promise.all([
+  const [dash, allMyJobs, allTasks] = await Promise.all([
     apiGet('/dashboard/employee?period=' + ui.period).catch(() => ({ stats: {}, person: {}, recentJobs: [], accounts: [] })),
     apiGet('/jobs?mine=true').catch(() => []),
-    apiGet('/tasks').catch(() => []),
-    apiGet('/tickets').catch(() => [])
+    apiGet('/tasks').catch(() => [])
   ]);
 
   const person = dash.person || {};
@@ -151,11 +146,6 @@ async function tabEmployeeDashboard(c){
   const todayDone = todayTasks.filter(t => t.status === 'Completed');
   const todayPending = todayTasks.filter(t => t.status !== 'Completed');
   const taskProgressPct = todayTasks.length > 0 ? Math.round((todayDone.length / todayTasks.length) * 100) : 100;
-
-  // Active support tickets assigned
-  const myTickets = (allTickets || []).filter(tk => {
-    return tk.status !== 'resolved' && tk.status !== 'closed';
-  });
 
   // Client accounts assigned
   const accounts = dash.accounts || [];
@@ -208,7 +198,7 @@ async function tabEmployeeDashboard(c){
       </div>
 
       <!-- Action Banner: Urgent / Revision Alerts -->
-      ${(urgentJobs.length > 0 || revisionJobs.length > 0 || myTickets.length > 0) ? `
+      ${(urgentJobs.length > 0 || revisionJobs.length > 0) ? `
         <div class="card" style="background:linear-gradient(135deg, rgba(239,68,68,0.08) 0%, rgba(245,158,11,0.06) 100%);border:1px solid rgba(239,68,68,0.3);border-radius:var(--r-lg);padding:16px 22px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px">
           <div style="display:flex;align-items:center;gap:14px">
             <span style="font-size:24px">⚡</span>
@@ -219,7 +209,6 @@ async function tabEmployeeDashboard(c){
               <div style="font-size:13px;color:var(--text-2);display:flex;gap:12px;flex-wrap:wrap">
                 ${urgentJobs.length > 0 ? `<span style="color:var(--red);font-weight:700">🔴 ${urgentJobs.length} Urgent Job(s)</span>` : ''}
                 ${revisionJobs.length > 0 ? `<span style="color:var(--amber-500);font-weight:700">↺ ${revisionJobs.length} Revision Request(s)</span>` : ''}
-                ${myTickets.length > 0 ? `<span style="color:var(--brand-500);font-weight:700">🎫 ${myTickets.length} Open Ticket(s)</span>` : ''}
               </div>
             </div>
           </div>
@@ -612,8 +601,6 @@ async function tabMyJobs(c){
               </button>
               ${compVal ? `<span class="badge green" style="margin-left:auto">Committed Delivery: ${compVal}</span>` : `<span class="badge gray" style="margin-left:auto">No Date Set</span>`}
             </div>
-
-            ${renderSupportTicketSection(j._id, isLeadManager())}
           </div>`;
         }).join('')}
       </div>
@@ -675,9 +662,6 @@ async function tabMyJobs(c){
       }
     };
   });
-
-  // Bind ticket interactions for each job
-  jobs.forEach(j => bindSupportTicketSection(j._id, isLeadManager()));
 
   // Auto-scroll and highlight target job if opened from notification
   if(ui.highlightId){
@@ -1142,424 +1126,6 @@ window.clearCompletedDailyTasks = async function() {
     renderTab();
   } catch(err) { flashToast(err.message, true); }
 };
-
-/* ════════════════════════════ SUPPORT TICKETS ══════════════════ */
-
-/* ════════════════════════════ SUPPORT TICKETS ══════════════════ */
-let empTicketSearch = '';
-let empTicketPriFilter = 'all';
-
-async function tabTickets(c){
-  let allTickets = await apiGet('/tickets');
-  allTickets.sort((a,b)=> new Date(b.createdAt)-new Date(a.createdAt));
-
-  const isLead = isLeadManager();
-  const totalCount    = allTickets.length;
-  const openCount     = allTickets.filter(t => t.status === 'Open').length;
-  const reviewCount   = allTickets.filter(t => t.status === 'In Review').length;
-  const resolvedCount = allTickets.filter(t => t.status === 'Resolved' || t.status === 'Closed').length;
-  const resRate       = totalCount > 0 ? Math.round((resolvedCount / totalCount) * 100) : 100;
-
-  const filter = ui.ticketsFilter || 'all';
-  let filtered = allTickets;
-  if(filter === 'open') filtered = filtered.filter(t => t.status === 'Open');
-  else if(filter === 'in-review') filtered = filtered.filter(t => t.status === 'In Review');
-  else if(filter === 'resolved') filtered = filtered.filter(t => t.status === 'Resolved');
-  else if(filter === 'closed') filtered = filtered.filter(t => t.status === 'Closed');
-
-  if(empTicketPriFilter !== 'all') {
-    filtered = filtered.filter(t => t.priority === empTicketPriFilter);
-  }
-
-  if(empTicketSearch) {
-    const q = empTicketSearch.toLowerCase();
-    filtered = filtered.filter(t => {
-      const jobTitle = t.jobId ? (t.jobId.title || '') : '';
-      return (t.subject||'').toLowerCase().includes(q) ||
-             (t.message||'').toLowerCase().includes(q) ||
-             (t.userName||'').toLowerCase().includes(q) ||
-             jobTitle.toLowerCase().includes(q);
-    });
-  }
-
-  const statusBadges = { 'Open':'red', 'In Review':'amber', 'Resolved':'green', 'Closed':'gray' };
-  const priBadges    = { 'Low':'green', 'Medium':'gray', 'High':'amber', 'Urgent':'red' };
-
-  function getInitials(name) {
-    if (!name) return 'U';
-    const parts = name.trim().split(/\s+/);
-    if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
-    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-  }
-
-  function timeAgo(date) {
-    if (!date) return '';
-    const now = new Date();
-    const past = new Date(date);
-    const diffSec = Math.floor((now - past) / 1000);
-    if (diffSec < 60) return 'Just now';
-    const diffMin = Math.floor(diffSec / 60);
-    if (diffMin < 60) return `${diffMin}m ago`;
-    const diffHr = Math.floor(diffMin / 60);
-    if (diffHr < 24) return `${diffHr}h ago`;
-    const diffDay = Math.floor(diffHr / 24);
-    if (diffDay < 7) return `${diffDay}d ago`;
-    return fmtDate(date);
-  }
-
-  c.innerHTML = `
-    <section class="block">
-      <!-- Top KPIs -->
-      <div class="ticket-hub-kpis">
-        <div class="ticket-kpi-card">
-          <div class="ticket-kpi-icon blue">🎫</div>
-          <div>
-            <div class="ticket-kpi-val">${totalCount}</div>
-            <div class="ticket-kpi-lbl">Total Tickets</div>
-          </div>
-        </div>
-        <div class="ticket-kpi-card">
-          <div class="ticket-kpi-icon red">🔴</div>
-          <div>
-            <div class="ticket-kpi-val">${openCount}</div>
-            <div class="ticket-kpi-lbl">Open Action Req.</div>
-          </div>
-        </div>
-        <div class="ticket-kpi-card">
-          <div class="ticket-kpi-icon amber">🟡</div>
-          <div>
-            <div class="ticket-kpi-val">${reviewCount}</div>
-            <div class="ticket-kpi-lbl">In Review</div>
-          </div>
-        </div>
-        <div class="ticket-kpi-card">
-          <div class="ticket-kpi-icon green">⚡</div>
-          <div>
-            <div class="ticket-kpi-val">${resRate}%</div>
-            <div class="ticket-kpi-lbl">Resolution Rate</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Controls -->
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px">
-        <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
-          <button class="pchip ${filter==='all'?'active':''}" data-tf="all">All (${totalCount})</button>
-          <button class="pchip ${filter==='open'?'active':''}" data-tf="open">🔴 Open (${openCount})</button>
-          <button class="pchip ${filter==='in-review'?'active':''}" data-tf="in-review">🟡 In Review (${reviewCount})</button>
-          <button class="pchip ${filter==='resolved'?'active':''}" data-tf="resolved">🟢 Resolved (${resolvedCount})</button>
-          <button class="pchip ${filter==='closed'?'active':''}" data-tf="closed">⚪ Closed</button>
-        </div>
-
-        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-          <select id="empTkPriFilter" style="font-size:12.5px;padding:8px 12px;border:1px solid var(--border-sm);border-radius:var(--r-md);background:var(--bg-card);color:var(--text-1);outline:none">
-            <option value="all" ${empTicketPriFilter==='all'?'selected':''}>All Priorities</option>
-            <option value="Urgent" ${empTicketPriFilter==='Urgent'?'selected':''}>🔴 Urgent</option>
-            <option value="High" ${empTicketPriFilter==='High'?'selected':''}>🟠 High</option>
-            <option value="Medium" ${empTicketPriFilter==='Medium'?'selected':''}>🟡 Medium</option>
-            <option value="Low" ${empTicketPriFilter==='Low'?'selected':''}>🟢 Low</option>
-          </select>
-
-          <div class="ticket-search-box">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--text-4)" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input type="text" id="empTkSearch" placeholder="Search by subject, client, job…" value="${escapeHtml(empTicketSearch)}">
-            ${empTicketSearch ? `<button type="button" id="empClearSearch" style="background:none;border:none;color:var(--text-4);cursor:pointer;font-size:12px">✕</button>` : ''}
-          </div>
-
-          <button class="btn gold" id="empRaiseTicketGlobalBtn" type="button" style="display:flex;align-items:center;gap:6px;padding:8px 16px;font-size:13px;font-weight:700">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            + Raise Ticket
-          </button>
-        </div>
-      </div>
-
-      <!-- Ticket Cards -->
-      ${filtered.length === 0 ? renderEmptyState('No support tickets found', 'No tickets match the selected criteria.', '🎫') : `
-      <div style="display:flex;flex-direction:column;gap:14px">
-        ${filtered.map(t => {
-          const jobTitle = t.jobId ? (t.jobId.title || 'Untitled Job') : 'General Workspace Support';
-          const statusSlug = (t.status||'Open').toLowerCase().replace(' ','-');
-          const isOpen = t.status === 'Open';
-          const shortId = (t._id || '').slice(-4).toUpperCase();
-          const initials = getInitials(t.userName);
-
-          return `
-          <div class="ticket-card status-${statusSlug}" id="emp-tk-${t._id}">
-            <div class="ticket-card-header">
-              <div>
-                <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;flex-wrap:wrap">
-                  <span class="ticket-id-tag">#TK-${shortId}</span>
-                  <span class="ticket-subject">${escapeHtml(t.subject)}</span>
-                </div>
-                <div style="font-size:12px;color:var(--text-4);margin-top:2px">
-                  📁 Job: <strong style="color:var(--text-2)">${escapeHtml(jobTitle)}</strong>
-                </div>
-              </div>
-              <div class="ticket-meta-badges">
-                <span class="badge ${statusBadges[t.status]||'gray'}">
-                  ${isOpen ? '<span class="pulse-dot"></span>' : ''} ${escapeHtml(t.status)}
-                </span>
-                <span class="badge ${priBadges[t.priority]||'gray'}">${escapeHtml(t.priority)}</span>
-              </div>
-            </div>
-
-            <div class="ticket-author-row">
-              <div class="ticket-avatar">${initials}</div>
-              <div class="ticket-author-meta">
-                <div class="ticket-author-name">
-                  ${escapeHtml(t.userName)}
-                  <span class="ticket-role-pill">${escapeHtml(t.userRole)}</span>
-                </div>
-                <span class="ticket-time-ago">${timeAgo(t.createdAt)} · ${fmtDate(t.createdAt)}</span>
-              </div>
-            </div>
-
-            <div class="ticket-message-box">
-              ${escapeHtml(t.message)}
-            </div>
-
-            ${t.adminReply ? `
-              <div class="ticket-thread-wrap">
-                <div class="ticket-admin-reply-card">
-                  <div class="ticket-admin-reply-header">
-                    <span class="ticket-shield-badge">
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                      Staff Response
-                    </span>
-                    ${t.repliedAt ? `<span style="font-size:11px;color:var(--text-4)">${timeAgo(t.repliedAt)}</span>` : ''}
-                  </div>
-                  <div class="ticket-admin-reply-text">${escapeHtml(t.adminReply)}</div>
-                </div>
-              </div>` : ''}
-
-            ${isLead ? `
-            <div class="ticket-toolbar">
-              <label style="font-size:11px;font-weight:700;color:var(--text-4);text-transform:uppercase">Status:</label>
-              <select class="emp-tk-status-sel" data-tkid="${t._id}" style="font-size:12px;padding:5px 8px;border:1px solid var(--border-sm);border-radius:var(--r-sm);background:var(--bg-surface);color:var(--text-1)">
-                <option value="Open" ${t.status==='Open'?'selected':''}>🔴 Open</option>
-                <option value="In Review" ${t.status==='In Review'?'selected':''}>🟡 In Review</option>
-                <option value="Resolved" ${t.status==='Resolved'?'selected':''}>🟢 Resolved</option>
-                <option value="Closed" ${t.status==='Closed'?'selected':''}>⚪ Closed</option>
-              </select>
-
-              <button class="btn ghost small emp-tk-reply-toggle" data-tkid="${t._id}" type="button">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                ${t.adminReply ? 'Edit Reply' : '💬 Reply'}
-              </button>
-
-              ${t.status !== 'Resolved' ? `
-                <button class="btn ghost small emp-tk-quick-resolve" data-tkid="${t._id}" type="button" style="color:var(--green-600);border-color:var(--green-400)">
-                  ✓ Quick Resolve
-                </button>` : ''}
-
-              <button class="btn danger small emp-tk-del-btn" data-tkid="${t._id}" type="button" style="margin-left:auto;padding:3px 8px;font-size:11px">Delete</button>
-
-              <div class="ticket-reply-form" id="emp-tk-replyform-${t._id}">
-                <div class="ticket-templates-bar">
-                  <span style="font-size:10px;font-weight:700;color:var(--text-4);text-transform:uppercase;align-self:center">Quick:</span>
-                  <button type="button" class="ticket-template-btn" data-tkid="${t._id}" data-tpl="Mansi & Urna team is on it! Updates will be shared shortly.">🚀 On It</button>
-                  <button type="button" class="ticket-template-btn" data-tkid="${t._id}" data-tpl="This issue has been resolved and the updates have been saved.">✅ Resolved</button>
-                  <button type="button" class="ticket-template-btn" data-tkid="${t._id}" data-tpl="Could you please provide more details so we can assist further?">ℹ️ Need Info</button>
-                </div>
-                <textarea id="emp-tk-replytxt-${t._id}" rows="2" placeholder="Write response to ticket..." style="font-size:13px;padding:8px 10px;border:1px solid var(--border-sm);border-radius:var(--r-sm);background:var(--bg-surface);color:var(--text-1);resize:vertical;width:100%;box-sizing:border-box">${escapeHtml(t.adminReply||'')}</textarea>
-                <div style="display:flex;justify-content:flex-end;gap:6px;margin-top:6px">
-                  <button class="btn ghost small emp-tk-reply-cancel" data-tkid="${t._id}" type="button">Cancel</button>
-                  <button class="btn gold small emp-tk-reply-save" data-tkid="${t._id}" type="button">Save Response</button>
-                </div>
-              </div>
-            </div>` : (user && String(t.userId?._id || t.userId) === String(user._id) ? `
-            <div class="ticket-toolbar" style="display:flex;align-items:center;gap:8px">
-              <span style="font-size:11.5px;color:var(--text-3);font-weight:700">My Ticket</span>
-              ${t.status !== 'Resolved' && t.status !== 'Closed' ? `
-                <button class="btn ghost small emp-tk-quick-resolve" data-tkid="${t._id}" type="button" style="color:var(--green-600);border-color:var(--green-400)">
-                  ✓ Mark Resolved
-                </button>` : ''}
-              <button class="btn danger small emp-tk-del-btn" data-tkid="${t._id}" type="button" style="margin-left:auto;padding:3px 8px;font-size:11px">Delete</button>
-            </div>
-            ` : '')}
-          </div>`;
-        }).join('')}
-      </div>`}
-    </section>
-  `;
-
-  // Bind controls
-  document.querySelectorAll('[data-tf]').forEach(b => {
-    b.onclick = () => { ui.ticketsFilter = b.dataset.tf; renderTab(); };
-  });
-
-  const searchInput = document.getElementById('empTkSearch');
-  if (searchInput) {
-    searchInput.oninput = (e) => {
-      empTicketSearch = e.target.value;
-      tabTickets(c);
-    };
-  }
-
-  const clearSearchBtn = document.getElementById('empClearSearch');
-  if (clearSearchBtn) {
-    clearSearchBtn.onclick = () => {
-      empTicketSearch = '';
-      tabTickets(c);
-    };
-  }
-
-  const priFilterSel = document.getElementById('empTkPriFilter');
-  if (priFilterSel) {
-    priFilterSel.onchange = (e) => {
-      empTicketPriFilter = e.target.value;
-      tabTickets(c);
-    };
-  }
-
-  // Raise Ticket Modal
-  const empRaiseBtn = document.getElementById('empRaiseTicketGlobalBtn');
-  if (empRaiseBtn) {
-    empRaiseBtn.onclick = async () => {
-      let jobs = [];
-      try {
-        jobs = await apiGet('/jobs?mine=true');
-        if (!jobs || !jobs.length) {
-          jobs = await apiGet('/jobs').catch(() => []);
-        }
-      } catch(e) { jobs = []; }
-
-      const bg = openModal(`
-        <div style="margin-bottom:14px">
-          <h3 style="margin-bottom:4px">🎫 Raise Support Ticket</h3>
-          <div style="font-size:12.5px;color:var(--text-3)">Create a new support request, note, or blocker report.</div>
-        </div>
-
-        <div class="field" style="margin-bottom:12px">
-          <label style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--text-3);margin-bottom:6px;display:block">Target / Job (Optional)</label>
-          <select id="empModalTkJob" style="width:100%;font-size:13.5px;padding:10px 12px;border:1px solid var(--border-sm);border-radius:var(--r-md);background:var(--bg-surface);color:var(--text-1)">
-            <option value="">📁 General Workspace Support (No specific job)</option>
-            ${jobs.map(j => `<option value="${j._id}">${escapeHtml(j.title || 'Untitled Job')}</option>`).join('')}
-          </select>
-        </div>
-
-        <div class="field" style="margin-bottom:12px">
-          <label style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--text-3);margin-bottom:6px;display:block">Subject / Issue Title *</label>
-          <input type="text" id="empModalTkSub" placeholder="Brief summary of the issue…" maxlength="120" style="width:100%;font-size:13.5px;padding:10px 12px;border:1px solid var(--border-sm);border-radius:var(--r-md);background:var(--bg-surface);color:var(--text-1);box-sizing:border-box">
-        </div>
-
-        <div class="field" style="margin-bottom:12px">
-          <label style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--text-3);margin-bottom:6px;display:block">Priority Level</label>
-          <select id="empModalTkPri" style="width:100%;font-size:13.5px;padding:10px 12px;border:1px solid var(--border-sm);border-radius:var(--r-md);background:var(--bg-surface);color:var(--text-1)">
-            <option value="Low">🟢 Low Priority</option>
-            <option value="Medium" selected>🟡 Medium Priority</option>
-            <option value="High">🟠 High Priority</option>
-            <option value="Urgent">🔴 Urgent / Blocker</option>
-          </select>
-        </div>
-
-        <div class="field" style="margin-bottom:16px">
-          <label style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--text-3);margin-bottom:6px;display:block">Detailed Description *</label>
-          <textarea id="empModalTkMsg" rows="4" placeholder="Provide full details, feedback, or blockers…" style="width:100%;font-size:13.5px;padding:10px 12px;border:1px solid var(--border-sm);border-radius:var(--r-md);background:var(--bg-surface);color:var(--text-1);box-sizing:border-box;resize:vertical"></textarea>
-        </div>
-
-        <div class="modal-actions">
-          <button class="btn ghost" id="mEmpCancelTicket">Cancel</button>
-          <button class="btn gold" id="mEmpSubmitTicket">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 2L11 13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-            Submit Ticket
-          </button>
-        </div>
-      `);
-
-      bg.querySelector('#mEmpCancelTicket').onclick = () => bg.remove();
-      bg.querySelector('#mEmpSubmitTicket').onclick = async () => {
-        const jobId    = bg.querySelector('#empModalTkJob').value || null;
-        const subject  = bg.querySelector('#empModalTkSub').value.trim();
-        const priority = bg.querySelector('#empModalTkPri').value;
-        const message  = bg.querySelector('#empModalTkMsg').value.trim();
-
-        if (!subject) { flashToast('Please enter an issue subject', true); return; }
-        if (!message) { flashToast('Please enter description', true); return; }
-
-        try {
-          await apiPost('/tickets', { jobId, subject, message, priority });
-          flashToast('Support Ticket Raised! 🎫');
-          bg.remove();
-          tabTickets(c);
-        } catch (err) {
-          flashToast(err.message, true);
-        }
-      };
-    };
-  }
-
-  // Quick Resolve (all authorized users: leads and ticket owners)
-  document.querySelectorAll('.emp-tk-quick-resolve').forEach(btn => {
-    btn.onclick = async () => {
-      try {
-        await apiPut('/tickets/' + btn.dataset.tkid, { status: 'Resolved' });
-        flashToast('Ticket marked as Resolved! 🎉');
-        renderTab();
-      } catch (err) { flashToast(err.message, true); }
-    };
-  });
-
-  // Delete ticket (leads and ticket owners)
-  document.querySelectorAll('.emp-tk-del-btn').forEach(btn => {
-    btn.onclick = async () => {
-      if (!confirm('Permanently delete this ticket?')) return;
-      try {
-        await apiDelete('/tickets/' + btn.dataset.tkid);
-        flashToast('Ticket deleted');
-        renderTab();
-      } catch (err) { flashToast(err.message, true); }
-    };
-  });
-
-  if (isLead) {
-    document.querySelectorAll('.ticket-template-btn').forEach(btn => {
-      btn.onclick = () => {
-        const txt = document.getElementById('emp-tk-replytxt-' + btn.dataset.tkid);
-        if (txt) {
-          txt.value = btn.dataset.tpl;
-          txt.focus();
-        }
-      };
-    });
-
-    document.querySelectorAll('.emp-tk-status-sel').forEach(sel => {
-      sel.onchange = async () => {
-        try {
-          await apiPut('/tickets/' + sel.dataset.tkid, { status: sel.value });
-          flashToast('Status updated');
-          renderTab();
-        } catch (err) { flashToast(err.message, true); }
-      };
-    });
-
-    document.querySelectorAll('.emp-tk-reply-toggle').forEach(btn => {
-      btn.onclick = () => {
-        const form = document.getElementById('emp-tk-replyform-' + btn.dataset.tkid);
-        if (form) form.classList.toggle('show');
-      };
-    });
-
-    document.querySelectorAll('.emp-tk-reply-cancel').forEach(btn => {
-      btn.onclick = () => {
-        const form = document.getElementById('emp-tk-replyform-' + btn.dataset.tkid);
-        if (form) form.classList.remove('show');
-      };
-    });
-
-    document.querySelectorAll('.emp-tk-reply-save').forEach(btn => {
-      btn.onclick = async () => {
-        const txt = document.getElementById('emp-tk-replytxt-' + btn.dataset.tkid);
-        if (!txt) return;
-        try {
-          await apiPut('/tickets/' + btn.dataset.tkid, { adminReply: txt.value.trim() });
-          flashToast('Response saved! 🛡️');
-          renderTab();
-        } catch (err) { flashToast(err.message, true); }
-      };
-    });
-  }
-}
 
 /* ════════════════════════════ WINDOW ACTIONS ════════════════════ */
 

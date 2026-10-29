@@ -1,4 +1,4 @@
-import"./api-CXl-yKAI.js";import{exportPdfDoc as S,exportWordDocx as R,printProposalDocument as B,docModel as L,paperHTML as M}from"./proposals-CHkpPG_4.js";const e=document.getElementById("proposal-client-root"),C=new URLSearchParams(window.location.search),u=C.get("p");u?T(u):e.innerHTML=`
+import"./api-DGR5VCGO.js";import{exportPdfDoc as S,exportWordDocx as R,printProposalDocument as B,docModel as L,paperHTML as M}from"./proposals-Dx79T4Ej.js";const e=document.getElementById("proposal-client-root"),C=new URLSearchParams(window.location.search),u=C.get("p");u?T(u):e.innerHTML=`
     <div class="card" style="padding:48px;text-align:center;">
       <h3>Invalid Proposal Link</h3>
       <p class="muted">No proposal identifier provided. Please use the exact link sent to you by your CI360 contact.</p>

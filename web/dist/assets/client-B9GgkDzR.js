@@ -1,5 +1,5 @@
-const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/proposals-CHkpPG_4.js","assets/api-CXl-yKAI.js","assets/api-DUY0rKwj.css"])))=>i.map(i=>d[i]);
-import"./api-CXl-yKAI.js";const oe="modulepreload",ne=function(e){return"/"+e},Y={},Q=function(i,n,d){let t=Promise.resolve();if(n&&n.length>0){document.getElementsByTagName("link");const s=document.querySelector("meta[property=csp-nonce]"),r=(s==null?void 0:s.nonce)||(s==null?void 0:s.getAttribute("nonce"));t=Promise.allSettled(n.map(p=>{if(p=ne(p),p in Y)return;Y[p]=!0;const l=p.endsWith(".css"),g=l?'[rel="stylesheet"]':"";if(document.querySelector(`link[href="${p}"]${g}`))return;const c=document.createElement("link");if(c.rel=l?"stylesheet":oe,l||(c.as="script"),c.crossOrigin="",c.href=p,r&&c.setAttribute("nonce",r),document.head.appendChild(c),l)return new Promise((x,h)=>{c.addEventListener("load",x),c.addEventListener("error",()=>h(new Error(`Unable to preload CSS for ${p}`)))})}))}function o(s){const r=new Event("vite:preloadError",{cancelable:!0});if(r.payload=s,window.dispatchEvent(r),!r.defaultPrevented)throw s}return t.then(s=>{for(const r of s||[])r.status==="rejected"&&o(r.reason);return i().catch(o)})};let y=null,H=[],A=[],v={tab:"dashboard",period:"month"},f={title:"",serviceId:"",date:new Date().toISOString().slice(0,10),completionDate:"",desc:"",priority:"Medium",preferredPersonId:""};const K=[["strategy","Strategy"],["cs","CS"],["website","Website"],["design","Design"],["copy","Copy"],["edit","Edit"],["shoot","Shoot"],["seo","SEO"],["smo","SMO"],["qc","Quality Check"]];async function re(){if(initTheme(),y=requireAuth("client"),!!y){try{const[e,i]=await Promise.all([apiGet("/services"),apiGet("/personnel")]);H=e,A=i.filter(n=>n.status==="active")}catch{H=[],A=[]}u()}}const J=[{key:"dashboard",label:"Overview Dashboard",icon:"📊"},{key:"jobs",label:"All Jobs Logged",icon:"📋"},{key:"logjob",label:"Log a Job",icon:"➕"},{key:"delivered",label:"Work Delivered",icon:"📦"},{key:"proposals",label:"Proposals & Scope",icon:"📜"},{key:"billing",label:"Billing & Invoices",icon:"💳"},{key:"team",label:"Our Team",icon:"👥"}];function u(){const e=document.getElementById("app"),i=J.find(n=>n.key===v.tab)||J[0];e.innerHTML=renderAppShell({user:y,currentRole:"client",activeTab:v.tab,tabs:J,title:i.label,subtitle:"Client Portal & Service Requests"}),bindAppShellEvents(n=>{v.tab=n,u()}),k()}window.ci360NavTab=e=>{v.tab=e,u()};async function k(){const e=document.getElementById("content");if(e){if(v.tab==="logjob"){X(e);return}e.innerHTML=renderSkeletonCards(3);try{const i=await apiGet("/dashboard/client?period="+v.period);v.tab==="dashboard"?await le(e,i):v.tab==="jobs"?de(e,i):v.tab==="delivered"?pe(e,i):v.tab==="proposals"?await ge(e,i):v.tab==="billing"?await be(e):v.tab==="team"&&me(e,i)}catch(i){e.innerHTML=renderEmptyState("Something went wrong",i.message,"⚠️")}}}async function le(e,i){var O,_,W,V,G;const n=((O=i.client)==null?void 0:O.name)||(y==null?void 0:y.name)||"Valued Client",d=((_=i.client)==null?void 0:_.code)||"CI360-ACC",t=((W=i.client)==null?void 0:W.nature)||((V=i.client)==null?void 0:V.difficulty)||"Retainer Account",o=i.jobs||[];let s=[];try{s=((await apiGet("/accounts/client-portal")).invoices||[]).filter(b=>b.status==="overdue"||b.pendingAmount>0&&new Date(b.dueDate)<new Date),s.length>0&&typeof window.showClientOverdueInvoiceModal=="function"&&window.showClientOverdueInvoiceModal(s)}catch{}let r=[];try{r=(await apiGet("/proposals")||[]).filter(m=>["approved","with_client","won","changes"].includes(m.status))}catch{}const p=v.period==="all"?o:o.filter(a=>{if(!a.date)return!0;const m=a.date.slice(0,10);return(!i.from||m>=i.from)&&(!i.to||m<=i.to)}),l=p.length,c=p.filter(a=>a.status==="Completed"||a.clientApproval&&a.clientApproval.status==="Approved"||a.completionDate).length,h=p.filter(a=>!a.completionDate&&a.status!=="Completed"&&(!a.clientApproval||a.clientApproval.status!=="Approved")).length,E=p.filter(a=>a.clientApproval&&a.clientApproval.status==="Revision Requested").length,ee=((G=i.stats)==null?void 0:G.hours)!=null?Number(i.stats.hours):p.reduce((a,m)=>{let b=0;return(m.assignments||[]).forEach(R=>b+=Number(R.hours)||0),a+b},0),C=l>0?Math.round(c/l*100):o.length>0?Math.round(o.filter(a=>a.completionDate).length/o.length*100):100,T=o.filter(a=>a.deliverables&&a.deliverables.length&&(!a.clientApproval||a.clientApproval.status==="Pending")),P={};p.forEach(a=>{(a.serviceNames&&a.serviceNames.length?a.serviceNames:["General Deliverable"]).forEach(b=>{P[b]=(P[b]||0)+1})});const I=Object.entries(P).sort((a,m)=>m[1]-a[1]),te=p.filter(a=>a.priority==="Urgent").length,ie=p.filter(a=>a.priority==="High").length,ae=i.roster||[],z=[];ae.forEach(a=>{K.forEach(([m,b])=>{var D;String(((D=a.roles)==null?void 0:D[m])||"").split(",").map(S=>S.trim()).filter(Boolean).forEach(S=>{z.some(se=>se.name===S)||z.push({name:S,role:b})})})});const B=o.slice(0,5);e.innerHTML=`
+const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/proposals-Dx79T4Ej.js","assets/api-DGR5VCGO.js","assets/api-DUY0rKwj.css"])))=>i.map(i=>d[i]);
+import"./api-DGR5VCGO.js";const oe="modulepreload",ne=function(e){return"/"+e},Y={},Q=function(a,n,d){let t=Promise.resolve();if(n&&n.length>0){document.getElementsByTagName("link");const s=document.querySelector("meta[property=csp-nonce]"),r=(s==null?void 0:s.nonce)||(s==null?void 0:s.getAttribute("nonce"));t=Promise.allSettled(n.map(p=>{if(p=ne(p),p in Y)return;Y[p]=!0;const l=p.endsWith(".css"),g=l?'[rel="stylesheet"]':"";if(document.querySelector(`link[href="${p}"]${g}`))return;const c=document.createElement("link");if(c.rel=l?"stylesheet":oe,l||(c.as="script"),c.crossOrigin="",c.href=p,r&&c.setAttribute("nonce",r),document.head.appendChild(c),l)return new Promise((x,h)=>{c.addEventListener("load",x),c.addEventListener("error",()=>h(new Error(`Unable to preload CSS for ${p}`)))})}))}function o(s){const r=new Event("vite:preloadError",{cancelable:!0});if(r.payload=s,window.dispatchEvent(r),!r.defaultPrevented)throw s}return t.then(s=>{for(const r of s||[])r.status==="rejected"&&o(r.reason);return a().catch(o)})};let y=null,H=[],A=[],v={tab:"dashboard",period:"month"},f={title:"",serviceId:"",date:new Date().toISOString().slice(0,10),completionDate:"",desc:"",priority:"Medium",preferredPersonId:""};const K=[["strategy","Strategy"],["cs","CS"],["website","Website"],["design","Design"],["copy","Copy"],["edit","Edit"],["shoot","Shoot"],["seo","SEO"],["smo","SMO"],["qc","Quality Check"]];async function re(){if(initTheme(),y=requireAuth("client"),!!y){try{const[e,a]=await Promise.all([apiGet("/services"),apiGet("/personnel")]);H=e,A=a.filter(n=>n.status==="active")}catch{H=[],A=[]}u()}}const J=[{key:"dashboard",label:"Overview Dashboard",icon:"📊"},{key:"jobs",label:"All Jobs Logged",icon:"📋"},{key:"logjob",label:"Log a Job",icon:"➕"},{key:"delivered",label:"Work Delivered",icon:"📦"},{key:"proposals",label:"Proposals & Scope",icon:"📜"},{key:"billing",label:"Billing & Invoices",icon:"💳"},{key:"team",label:"Our Team",icon:"👥"}];function u(){const e=document.getElementById("app"),a=J.find(n=>n.key===v.tab)||J[0];e.innerHTML=renderAppShell({user:y,currentRole:"client",activeTab:v.tab,tabs:J,title:a.label,subtitle:"Client Portal & Service Requests"}),bindAppShellEvents(n=>{v.tab=n,u()}),k()}window.ci360NavTab=e=>{v.tab=e,u()};async function k(){const e=document.getElementById("content");if(e){if(v.tab==="logjob"){X(e);return}e.innerHTML=renderSkeletonCards(3);try{const a=await apiGet("/dashboard/client?period="+v.period);v.tab==="dashboard"?await le(e,a):v.tab==="jobs"?de(e,a):v.tab==="delivered"?pe(e,a):v.tab==="proposals"?await ge(e,a):v.tab==="billing"?await be(e):v.tab==="team"&&me(e,a)}catch(a){e.innerHTML=renderEmptyState("Something went wrong",a.message,"⚠️")}}}async function le(e,a){var O,_,W,V,G;const n=((O=a.client)==null?void 0:O.name)||(y==null?void 0:y.name)||"Valued Client",d=((_=a.client)==null?void 0:_.code)||"CI360-ACC",t=((W=a.client)==null?void 0:W.nature)||((V=a.client)==null?void 0:V.difficulty)||"Retainer Account",o=a.jobs||[];let s=[];try{s=((await apiGet("/accounts/client-portal")).invoices||[]).filter(b=>b.status==="overdue"||b.pendingAmount>0&&new Date(b.dueDate)<new Date),s.length>0&&typeof window.showClientOverdueInvoiceModal=="function"&&window.showClientOverdueInvoiceModal(s)}catch{}let r=[];try{r=(await apiGet("/proposals")||[]).filter(m=>["approved","with_client","won","changes"].includes(m.status))}catch{}const p=v.period==="all"?o:o.filter(i=>{if(!i.date)return!0;const m=i.date.slice(0,10);return(!a.from||m>=a.from)&&(!a.to||m<=a.to)}),l=p.length,c=p.filter(i=>i.status==="Completed"||i.clientApproval&&i.clientApproval.status==="Approved"||i.completionDate).length,h=p.filter(i=>!i.completionDate&&i.status!=="Completed"&&(!i.clientApproval||i.clientApproval.status!=="Approved")).length,E=p.filter(i=>i.clientApproval&&i.clientApproval.status==="Revision Requested").length,ee=((G=a.stats)==null?void 0:G.hours)!=null?Number(a.stats.hours):p.reduce((i,m)=>{let b=0;return(m.assignments||[]).forEach(R=>b+=Number(R.hours)||0),i+b},0),C=l>0?Math.round(c/l*100):o.length>0?Math.round(o.filter(i=>i.completionDate).length/o.length*100):100,T=o.filter(i=>i.deliverables&&i.deliverables.length&&(!i.clientApproval||i.clientApproval.status==="Pending")),P={};p.forEach(i=>{(i.serviceNames&&i.serviceNames.length?i.serviceNames:["General Deliverable"]).forEach(b=>{P[b]=(P[b]||0)+1})});const I=Object.entries(P).sort((i,m)=>m[1]-i[1]),te=p.filter(i=>i.priority==="Urgent").length,ie=p.filter(i=>i.priority==="High").length,ae=a.roster||[],z=[];ae.forEach(i=>{K.forEach(([m,b])=>{var D;String(((D=i.roles)==null?void 0:D[m])||"").split(",").map(S=>S.trim()).filter(Boolean).forEach(S=>{z.some(se=>se.name===S)||z.push({name:S,role:b})})})});const B=o.slice(0,5);e.innerHTML=`
     <div class="block client-overview-container" style="max-width:1280px;margin:0 auto">
       
       <!-- Overdue Invoice Urgent Alert (if any) -->
@@ -10,7 +10,7 @@ import"./api-CXl-yKAI.js";const oe="modulepreload",ne=function(e){return"/"+e},Y
             <div>
               <strong style="color:var(--red-600);font-size:14px">Immediate Action Required: ${s.length} Overdue Invoice${s.length>1?"s":""}</strong>
               <div style="font-size:12.5px;color:var(--text-3);margin-top:2px">
-                Total outstanding overdue balance: <strong style="color:var(--red-600);font-weight:800">${fmtINR(s.reduce((a,m)=>a+(Number(m.pendingAmount||m.totalAmount)||0),0))}</strong>. Please settle to keep active deliverable pipelines moving smoothly.
+                Total outstanding overdue balance: <strong style="color:var(--red-600);font-weight:800">${fmtINR(s.reduce((i,m)=>i+(Number(m.pendingAmount||m.totalAmount)||0),0))}</strong>. Please settle to keep active deliverable pipelines moving smoothly.
               </div>
             </div>
           </div>
@@ -64,7 +64,7 @@ import"./api-CXl-yKAI.js";const oe="modulepreload",ne=function(e){return"/"+e},Y
       </div>
 
       <!-- Action Required: Proposal Released Alert (if any pending) -->
-      ${r.some(a=>a.status==="with_client"||a.status==="approved")?`
+      ${r.some(i=>i.status==="with_client"||i.status==="approved")?`
         <div class="card" style="background:linear-gradient(135deg, rgba(79,70,229,0.08) 0%, rgba(14,165,233,0.06) 100%);border:1px solid var(--brand-500);border-radius:var(--r-lg);padding:16px 22px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;">
           <div style="display:flex;align-items:center;gap:14px;">
             <div style="width:40px;height:40px;border-radius:50%;background:rgba(79,70,229,0.18);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">📜</div>
@@ -193,10 +193,10 @@ import"./api-CXl-yKAI.js";const oe="modulepreload",ne=function(e){return"/"+e},Y
 
           ${I.length>0?`
             <div style="display:flex;flex-direction:column;gap:12px">
-              ${I.slice(0,5).map(([a,m])=>{const b=Math.round(m/(l||1)*100);return`
+              ${I.slice(0,5).map(([i,m])=>{const b=Math.round(m/(l||1)*100);return`
                   <div>
                     <div style="display:flex;justify-content:space-between;font-size:12.5px;font-weight:700;color:var(--text-2);margin-bottom:4px">
-                      <span>${escapeHtml(a)}</span>
+                      <span>${escapeHtml(i)}</span>
                       <span style="color:var(--text-4)">${m} job(s) (${b}%)</span>
                     </div>
                     <div style="width:100%;height:7px;background:var(--border-sm);border-radius:6px;overflow:hidden">
@@ -226,14 +226,14 @@ import"./api-CXl-yKAI.js";const oe="modulepreload",ne=function(e){return"/"+e},Y
 
         ${z.length>0?`
           <div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(220px, 1fr));gap:14px">
-            ${z.slice(0,6).map(a=>`
+            ${z.slice(0,6).map(i=>`
               <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--bg-surface);border:1px solid var(--border-xs);border-radius:var(--r-md)">
                 <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#4F46E5 0%,#7C3AED 100%);color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;flex-shrink:0">
-                  ${a.name.slice(0,2).toUpperCase()}
+                  ${i.name.slice(0,2).toUpperCase()}
                 </div>
                 <div style="min-width:0;flex:1">
-                  <div style="font-size:13.5px;font-weight:800;color:var(--text-1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(a.name)}</div>
-                  <div style="font-size:11px;font-weight:600;color:var(--brand-500);text-transform:uppercase">${escapeHtml(a.role)}</div>
+                  <div style="font-size:13.5px;font-weight:800;color:var(--text-1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(i.name)}</div>
+                  <div style="font-size:11px;font-weight:600;color:var(--brand-500);text-transform:uppercase">${escapeHtml(i.role)}</div>
                 </div>
               </div>
             `).join("")}
@@ -274,19 +274,19 @@ import"./api-CXl-yKAI.js";const oe="modulepreload",ne=function(e){return"/"+e},Y
                 </tr>
               </thead>
               <tbody>
-                ${B.map(a=>{const m=a.status==="Completed"||a.clientApproval&&a.clientApproval.status==="Approved"||a.completionDate,b=a.clientApproval&&a.clientApproval.status==="Revision Requested",R=a.priority==="Urgent"?"red":a.priority==="High"?"amber":"blue";return`
+                ${B.map(i=>{const m=i.status==="Completed"||i.clientApproval&&i.clientApproval.status==="Approved"||i.completionDate,b=i.clientApproval&&i.clientApproval.status==="Revision Requested",R=i.priority==="Urgent"?"red":i.priority==="High"?"amber":"blue";return`
                     <tr style="cursor:pointer" onclick="ci360NavTab('jobs')">
                       <td style="padding-left:24px;font-weight:800;color:var(--text-1)">
-                        ${escapeHtml(a.title||"Untitled Request")}
+                        ${escapeHtml(i.title||"Untitled Request")}
                       </td>
                       <td>
-                        ${(a.serviceNames||[]).map(D=>`<span class="badge gray" style="font-size:11px">${escapeHtml(D)}</span>`).join(" ")||'<span style="color:var(--text-4)">—</span>'}
+                        ${(i.serviceNames||[]).map(D=>`<span class="badge gray" style="font-size:11px">${escapeHtml(D)}</span>`).join(" ")||'<span style="color:var(--text-4)">—</span>'}
                       </td>
                       <td>
-                        <span class="badge ${R}" style="font-size:11px;font-weight:700">${escapeHtml(a.priority||"Medium")}</span>
+                        <span class="badge ${R}" style="font-size:11px;font-weight:700">${escapeHtml(i.priority||"Medium")}</span>
                       </td>
-                      <td style="font-size:12.5px;color:var(--text-3)">${fmtDate(a.date)}</td>
-                      <td style="font-size:12.5px;color:var(--text-2);font-weight:600">${a.completionDate?fmtDate(a.completionDate):"—"}</td>
+                      <td style="font-size:12.5px;color:var(--text-3)">${fmtDate(i.date)}</td>
+                      <td style="font-size:12.5px;color:var(--text-2);font-weight:600">${i.completionDate?fmtDate(i.completionDate):"—"}</td>
                       <td>
                         <span class="badge ${m?"green":b?"amber":"gold"}" style="font-weight:700">
                           ${m?"✓ Completed":b?"↺ Revision":"⏳ In Progress"}
@@ -308,7 +308,7 @@ import"./api-CXl-yKAI.js";const oe="modulepreload",ne=function(e){return"/"+e},Y
       </div>
 
     </div>
-  `;const N=document.getElementById("btnHeroLogJob");N&&(N.onclick=()=>{v.tab="logjob",u()});const L=document.getElementById("btnHeroProposals");L&&(L.onclick=()=>{v.tab="proposals",u()});const q=document.getElementById("btnHeroInvoices");q&&(q.onclick=()=>{v.tab="billing",u()});const F=document.getElementById("btnReviewNow");F&&(F.onclick=()=>{v.tab="delivered",u()});const M=document.getElementById("btnMeetTeam");M&&(M.onclick=()=>{v.tab="team",u()});const U=document.getElementById("btnViewAllJobs");U&&(U.onclick=()=>{v.tab="jobs",u()}),document.querySelectorAll("#overviewPeriodWrapper [data-period]").forEach(a=>{a.onclick=()=>{v.period=a.dataset.period,k()}})}function X(e){e.innerHTML=`
+  `;const N=document.getElementById("btnHeroLogJob");N&&(N.onclick=()=>{v.tab="logjob",u()});const L=document.getElementById("btnHeroProposals");L&&(L.onclick=()=>{v.tab="proposals",u()});const q=document.getElementById("btnHeroInvoices");q&&(q.onclick=()=>{v.tab="billing",u()});const F=document.getElementById("btnReviewNow");F&&(F.onclick=()=>{v.tab="delivered",u()});const M=document.getElementById("btnMeetTeam");M&&(M.onclick=()=>{v.tab="team",u()});const U=document.getElementById("btnViewAllJobs");U&&(U.onclick=()=>{v.tab="jobs",u()}),document.querySelectorAll("#overviewPeriodWrapper [data-period]").forEach(i=>{i.onclick=()=>{v.period=i.dataset.period,k()}})}function X(e){e.innerHTML=`
     <div class="block">
       <h2>Log a New Job <span class="eyebrow">Request or record work for your account</span></h2>
       <div class="card form-card">
@@ -327,7 +327,7 @@ import"./api-CXl-yKAI.js";const oe="modulepreload",ne=function(e){return"/"+e},Y
               <label for="clientJobService">Select Service *</label>
               <select id="clientJobService" required>
                 <option value="">Select a service…</option>
-                ${H.map(i=>`<option value="${i._id}" ${f.serviceId===i._id?"selected":""}>${escapeHtml(i.name)}</option>`).join("")}
+                ${H.map(a=>`<option value="${a._id}" ${f.serviceId===a._id?"selected":""}>${escapeHtml(a.name)}</option>`).join("")}
               </select>
             </div>
           </div>
@@ -350,7 +350,7 @@ import"./api-CXl-yKAI.js";const oe="modulepreload",ne=function(e){return"/"+e},Y
                 <label for="clientJobPrefPerson">Preferred Team Member</label>
                 <select id="clientJobPrefPerson">
                   <option value="">No Preference (Auto-Assign)</option>
-                  ${A.map(i=>`<option value="${i._id}" ${f.preferredPersonId===i._id?"selected":""}>👤 ${escapeHtml(i.name)}${i.duties?` (${escapeHtml(i.duties)})`:""}</option>`).join("")}
+                  ${A.map(a=>`<option value="${a._id}" ${f.preferredPersonId===a._id?"selected":""}>👤 ${escapeHtml(a.name)}${a.duties?` (${escapeHtml(a.duties)})`:""}</option>`).join("")}
                 </select>
               </div>
             </div>
@@ -401,7 +401,7 @@ import"./api-CXl-yKAI.js";const oe="modulepreload",ne=function(e){return"/"+e},Y
           </div>
         </form>
       </div>
-    </div>`,bindAttachmentUploader("clientJobAttachments",{existing:f.attachments||[]}),document.getElementById("resetClientJobBtn").onclick=()=>{f={title:"",serviceId:"",date:new Date().toISOString().slice(0,10),completionDate:"",desc:"",priority:"Medium",preferredPersonId:"",attachments:[]},setUploaderAttachments("clientJobAttachments",[]),X(e)},document.getElementById("clientLogJobForm").onsubmit=async i=>{i.preventDefault();const n=document.getElementById("submitClientJobBtn"),d=document.getElementById("clientJobTitle").value.trim(),t=document.getElementById("clientJobService").value;if(!t){flashToast("Please select a service",!0);return}const o=document.getElementById("clientJobDate").value,s=document.getElementById("clientJobCompDate").value,r=document.getElementById("clientJobDesc").value.trim(),p=document.getElementById("clientJobPriority").value,l=document.getElementById("clientJobPrefPerson").value,g=getUploaderAttachments("clientJobAttachments");n.disabled=!0,n.textContent="Submitting…";try{if(typeof Notification<"u"&&Notification.permission==="default")try{await Notification.requestPermission()}catch{}await apiPost("/jobs",{title:d,serviceIds:[t],date:o,completionDate:s,value:0,description:r,priority:p,preferredPersonId:l||null,assignments:[],attachments:g}),flashToast("Job logged successfully with attachments! 🎉"),typeof window.ci360FetchNotifications=="function"&&window.ci360FetchNotifications(),f={title:"",serviceId:"",date:new Date().toISOString().slice(0,10),completionDate:"",desc:"",priority:"Medium",preferredPersonId:"",attachments:[]},v.tab="jobs",u()}catch(c){flashToast(c.message,!0)}finally{n.disabled=!1,n.textContent="Submit Job"}}}let w="all",$="";function Z(e,i){var s;const n=e.status==="Completed"||e.clientApproval&&e.clientApproval.status==="Approved",d=e.clientApproval&&e.clientApproval.status==="Revision Requested",t=i[e.priority||"Medium"]||"gray",o=y&&e.createdBy&&(typeof e.createdBy=="object"&&String(e.createdBy._id)===String(y._id||y.id)||String(e.createdBy)===String(y._id||y.id));return`
+    </div>`,bindAttachmentUploader("clientJobAttachments",{existing:f.attachments||[]}),document.getElementById("resetClientJobBtn").onclick=()=>{f={title:"",serviceId:"",date:new Date().toISOString().slice(0,10),completionDate:"",desc:"",priority:"Medium",preferredPersonId:"",attachments:[]},setUploaderAttachments("clientJobAttachments",[]),X(e)},document.getElementById("clientLogJobForm").onsubmit=async a=>{a.preventDefault();const n=document.getElementById("submitClientJobBtn"),d=document.getElementById("clientJobTitle").value.trim(),t=document.getElementById("clientJobService").value;if(!t){flashToast("Please select a service",!0);return}const o=document.getElementById("clientJobDate").value,s=document.getElementById("clientJobCompDate").value,r=document.getElementById("clientJobDesc").value.trim(),p=document.getElementById("clientJobPriority").value,l=document.getElementById("clientJobPrefPerson").value,g=getUploaderAttachments("clientJobAttachments");n.disabled=!0,n.textContent="Submitting…";try{if(typeof Notification<"u"&&Notification.permission==="default")try{await Notification.requestPermission()}catch{}await apiPost("/jobs",{title:d,serviceIds:[t],date:o,completionDate:s,value:0,description:r,priority:p,preferredPersonId:l||null,assignments:[],attachments:g}),flashToast("Job logged successfully with attachments! 🎉"),typeof window.ci360FetchNotifications=="function"&&window.ci360FetchNotifications(),f={title:"",serviceId:"",date:new Date().toISOString().slice(0,10),completionDate:"",desc:"",priority:"Medium",preferredPersonId:"",attachments:[]},v.tab="jobs",u()}catch(c){flashToast(c.message,!0)}finally{n.disabled=!1,n.textContent="Submit Job"}}}let w="all",$="";function Z(e,a){var s;const n=e.status==="Completed"||e.clientApproval&&e.clientApproval.status==="Approved",d=e.clientApproval&&e.clientApproval.status==="Revision Requested",t=a[e.priority||"Medium"]||"gray",o=y&&e.createdBy&&(typeof e.createdBy=="object"&&String(e.createdBy._id)===String(y._id||y.id)||String(e.createdBy)===String(y._id||y.id));return`
     <div class="card client-job-card" data-id="${e._id}" style="border-left:4px solid ${n?"var(--green-500)":d?"var(--amber-500)":"var(--brand-500)"};padding:18px 22px">
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:10px">
         <div>
@@ -482,9 +482,7 @@ import"./api-CXl-yKAI.js";const oe="modulepreload",ne=function(e){return"/"+e},Y
           </div>
         `}
       `:""}
-
-      ${renderSupportTicketSection(e._id,!1)}
-    </div>`}function j(e){document.querySelectorAll(".client-app-btn").forEach(i=>{i.onclick=()=>ce(i.dataset.id,i.dataset.title,()=>k())}),document.querySelectorAll(".client-rev-btn").forEach(i=>{i.onclick=()=>ve(i.dataset.id,i.dataset.title,()=>k())}),e.forEach(i=>bindSupportTicketSection(i._id,!1))}function de(e,i){const n=i.jobs||[],d={Medium:"gray",High:"amber",Urgent:"red"};if(n.length===0){e.innerHTML=`
+    </div>`}function j(e){document.querySelectorAll(".client-app-btn").forEach(a=>{a.onclick=()=>ce(a.dataset.id,a.dataset.title,()=>k())}),document.querySelectorAll(".client-rev-btn").forEach(a=>{a.onclick=()=>ve(a.dataset.id,a.dataset.title,()=>k())})}function de(e,a){const n=a.jobs||[],d={Medium:"gray",High:"amber",Urgent:"red"};if(n.length===0){e.innerHTML=`
       <div class="block">
         <h2>All Jobs Logged <span class="eyebrow">No jobs logged yet</span></h2>
         ${renderEmptyState("No jobs logged yet","Log your first job to request projects, design, campaigns, or services from our team.","📋",`<button class="btn gold" onclick="ui.tab='logjob';render()">➕ Log Your First Job</button>`)}
@@ -542,7 +540,7 @@ import"./api-CXl-yKAI.js";const oe="modulepreload",ne=function(e){return"/"+e},Y
             </div>
           `:l.map(x=>Z(x,d)).join("")}
         </div>
-      </div>`;const g=document.getElementById("tabJobsLogNewBtn");g&&(g.onclick=()=>{v.tab="logjob",u()}),e.querySelectorAll(".filter-tab-btn").forEach(x=>{x.onclick=()=>{w=x.dataset.f,p()}});const c=document.getElementById("clientJobSearchInput");c&&(c.oninput=x=>{$=x.target.value.trim(),p();const h=document.getElementById("clientJobSearchInput");h&&(h.focus(),h.selectionStart=h.selectionEnd=h.value.length)}),j(l)}p()}function pe(e,i){const d=(i.jobs||[]).filter(s=>s.deliverables&&s.deliverables.length>0||s.status==="Completed"||s.clientApproval&&s.clientApproval.status==="Approved"),t={Medium:"gray",High:"amber",Urgent:"red"};if(d.length===0){e.innerHTML=`
+      </div>`;const g=document.getElementById("tabJobsLogNewBtn");g&&(g.onclick=()=>{v.tab="logjob",u()}),e.querySelectorAll(".filter-tab-btn").forEach(x=>{x.onclick=()=>{w=x.dataset.f,p()}});const c=document.getElementById("clientJobSearchInput");c&&(c.oninput=x=>{$=x.target.value.trim(),p();const h=document.getElementById("clientJobSearchInput");h&&(h.focus(),h.selectionStart=h.selectionEnd=h.value.length)}),j()}p()}function pe(e,a){const d=(a.jobs||[]).filter(s=>s.deliverables&&s.deliverables.length>0||s.status==="Completed"||s.clientApproval&&s.clientApproval.status==="Approved"),t={Medium:"gray",High:"amber",Urgent:"red"};if(d.length===0){e.innerHTML=`
       <div class="block">
         <h2>Work Delivered <span class="eyebrow">No delivered work yet</span></h2>
         ${renderEmptyState("No completed deliverables yet","When the team uploads final deliverables and marks work complete, you can review and sign off on them here.","📦",`<button class="btn ghost" onclick="ui.tab='jobs';render()">View All Jobs Logged</button>`)}
@@ -565,10 +563,10 @@ import"./api-CXl-yKAI.js";const oe="modulepreload",ne=function(e){return"/"+e},Y
       <div style="display:flex;flex-direction:column;gap:14px">
         ${d.map(s=>Z(s,t)).join("")}
       </div>
-    </div>`,j(d)}function ce(e,i,n){let d=5;const t=openModal(`
+    </div>`,j()}function ce(e,a,n){let d=5;const t=openModal(`
     <div style="margin-bottom:14px">
       <div style="font-size:18px;font-weight:800;color:var(--text-1);margin-bottom:4px">Approve Deliverables &amp; Sign Off</div>
-      <div style="font-size:12.5px;color:var(--text-3)">${escapeHtml(i)}</div>
+      <div style="font-size:12.5px;color:var(--text-3)">${escapeHtml(a)}</div>
     </div>
 
     <div style="margin-bottom:16px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:var(--r-sm);padding:12px 14px">
@@ -596,10 +594,10 @@ import"./api-CXl-yKAI.js";const oe="modulepreload",ne=function(e){return"/"+e},Y
       <button class="btn ghost" id="mAppCancel">Cancel</button>
       <button class="btn gold" id="mAppConfirm">✓ Confirm Approval</button>
     </div>
-  `),o=t.querySelectorAll(".star-item");function s(r){d=r,o.forEach(p=>{p.style.color=Number(p.dataset.val)<=r?"#F59E0B":"var(--text-4)"})}o.forEach(r=>{r.onclick=()=>s(Number(r.dataset.val))}),t.querySelector("#mAppCancel").onclick=()=>t.remove(),t.querySelector("#mAppConfirm").onclick=async()=>{const r=t.querySelector("#mAppFeedback").value.trim(),p=t.querySelector("#mAppConfirm");p.disabled=!0,p.textContent="Approving…";try{await apiPost(`/jobs/${e}/approve`,{rating:d,feedback:r}),flashToast("Deliverables approved & signed off! 🎉"),t.remove(),n&&n()}catch(l){flashToast(l.message,!0)}finally{p.disabled=!1,p.textContent="✓ Confirm Approval"}}}function ve(e,i,n){const d=openModal(`
+  `),o=t.querySelectorAll(".star-item");function s(r){d=r,o.forEach(p=>{p.style.color=Number(p.dataset.val)<=r?"#F59E0B":"var(--text-4)"})}o.forEach(r=>{r.onclick=()=>s(Number(r.dataset.val))}),t.querySelector("#mAppCancel").onclick=()=>t.remove(),t.querySelector("#mAppConfirm").onclick=async()=>{const r=t.querySelector("#mAppFeedback").value.trim(),p=t.querySelector("#mAppConfirm");p.disabled=!0,p.textContent="Approving…";try{await apiPost(`/jobs/${e}/approve`,{rating:d,feedback:r}),flashToast("Deliverables approved & signed off! 🎉"),t.remove(),n&&n()}catch(l){flashToast(l.message,!0)}finally{p.disabled=!1,p.textContent="✓ Confirm Approval"}}}function ve(e,a,n){const d=openModal(`
     <div style="margin-bottom:14px">
       <div style="font-size:18px;font-weight:800;color:var(--text-1);margin-bottom:4px">Request Deliverable Revision</div>
-      <div style="font-size:12.5px;color:var(--text-3)">${escapeHtml(i)}</div>
+      <div style="font-size:12.5px;color:var(--text-3)">${escapeHtml(a)}</div>
     </div>
 
     <div class="field" style="margin-bottom:16px">
@@ -615,7 +613,7 @@ import"./api-CXl-yKAI.js";const oe="modulepreload",ne=function(e){return"/"+e},Y
       <button class="btn ghost" id="mRevCancel">Cancel</button>
       <button class="btn gold" id="mRevConfirm" style="background:linear-gradient(135deg,var(--amber-500) 0%,#D97706 100%)">↺ Send Revision Request</button>
     </div>
-  `);bindAttachmentUploader("mRevAttachments"),d.querySelector("#mRevCancel").onclick=()=>d.remove(),d.querySelector("#mRevConfirm").onclick=async()=>{const t=d.querySelector("#mRevNotes").value.trim();if(!t){flashToast("Please enter revision details",!0);return}const o=getUploaderAttachments("mRevAttachments"),s=d.querySelector("#mRevConfirm");s.disabled=!0,s.textContent="Sending…";try{await apiPost(`/jobs/${e}/revision`,{feedback:t,attachments:o}),flashToast("Revision request sent to the team! ↺"),d.remove(),n&&n()}catch(r){flashToast(r.message,!0)}finally{s.disabled=!1,s.textContent="↺ Send Revision Request"}}}async function ge(e,i){let n=[];try{n=await apiGet("/proposals")||[]}catch{n=[]}const d=n.filter(t=>["approved","with_client","won","changes"].includes(t.status));e.innerHTML=`
+  `);bindAttachmentUploader("mRevAttachments"),d.querySelector("#mRevCancel").onclick=()=>d.remove(),d.querySelector("#mRevConfirm").onclick=async()=>{const t=d.querySelector("#mRevNotes").value.trim();if(!t){flashToast("Please enter revision details",!0);return}const o=getUploaderAttachments("mRevAttachments"),s=d.querySelector("#mRevConfirm");s.disabled=!0,s.textContent="Sending…";try{await apiPost(`/jobs/${e}/revision`,{feedback:t,attachments:o}),flashToast("Revision request sent to the team! ↺"),d.remove(),n&&n()}catch(r){flashToast(r.message,!0)}finally{s.disabled=!1,s.textContent="↺ Send Revision Request"}}}async function ge(e,a){let n=[];try{n=await apiGet("/proposals")||[]}catch{n=[]}const d=n.filter(t=>["approved","with_client","won","changes"].includes(t.status));e.innerHTML=`
     <div class="block">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
         <div>
@@ -725,7 +723,7 @@ import"./api-CXl-yKAI.js";const oe="modulepreload",ne=function(e){return"/"+e},Y
         </div>
       `}
     </div>
-  `,e.querySelectorAll("[data-client-pdf]").forEach(t=>{t.onclick=async()=>{const o=t.dataset.clientPdf,s=d.find(r=>r._id===o);if(s){t.disabled=!0,t.textContent="Generating PDF…";try{const{exportPdfDoc:r}=await Q(async()=>{const{exportPdfDoc:l}=await import("./proposals-CHkpPG_4.js");return{exportPdfDoc:l}},__vite__mapDeps([0,1,2])),p=await apiGet("/proposals/ratecard").catch(()=>({}));await r(s,p.settings||{},t)}catch(r){flashToast("Failed to download PDF: "+r.message,!0),t.disabled=!1,t.textContent="📄 Download PDF"}}}}),e.querySelectorAll("[data-client-word]").forEach(t=>{t.onclick=async()=>{const o=t.dataset.clientWord,s=d.find(r=>r._id===o);if(s){t.disabled=!0,t.textContent="Generating Word…";try{const{exportWordDocx:r}=await Q(async()=>{const{exportWordDocx:l}=await import("./proposals-CHkpPG_4.js");return{exportWordDocx:l}},__vite__mapDeps([0,1,2])),p=await apiGet("/proposals/ratecard").catch(()=>({}));await r(s,p.settings||{},t)}catch(r){flashToast("Failed to download Word document: "+r.message,!0),t.disabled=!1,t.textContent="📝 Download Word (.docx)"}}}})}function me(e,i){const n=i.roster||[],d=A&&A.length?A:[];e.innerHTML=`
+  `,e.querySelectorAll("[data-client-pdf]").forEach(t=>{t.onclick=async()=>{const o=t.dataset.clientPdf,s=d.find(r=>r._id===o);if(s){t.disabled=!0,t.textContent="Generating PDF…";try{const{exportPdfDoc:r}=await Q(async()=>{const{exportPdfDoc:l}=await import("./proposals-Dx79T4Ej.js");return{exportPdfDoc:l}},__vite__mapDeps([0,1,2])),p=await apiGet("/proposals/ratecard").catch(()=>({}));await r(s,p.settings||{},t)}catch(r){flashToast("Failed to download PDF: "+r.message,!0),t.disabled=!1,t.textContent="📄 Download PDF"}}}}),e.querySelectorAll("[data-client-word]").forEach(t=>{t.onclick=async()=>{const o=t.dataset.clientWord,s=d.find(r=>r._id===o);if(s){t.disabled=!0,t.textContent="Generating Word…";try{const{exportWordDocx:r}=await Q(async()=>{const{exportWordDocx:l}=await import("./proposals-Dx79T4Ej.js");return{exportWordDocx:l}},__vite__mapDeps([0,1,2])),p=await apiGet("/proposals/ratecard").catch(()=>({}));await r(s,p.settings||{},t)}catch(r){flashToast("Failed to download Word document: "+r.message,!0),t.disabled=!1,t.textContent="📝 Download Word (.docx)"}}}})}function me(e,a){const n=a.roster||[],d=A&&A.length?A:[];e.innerHTML=`
     <div class="block">
       <h2>Our Team <span class="eyebrow">${d.length} members</span></h2>
 
@@ -763,7 +761,7 @@ import"./api-CXl-yKAI.js";const oe="modulepreload",ne=function(e){return"/"+e},Y
             </div>
           </div>`).join("")}
       </div>
-    </div>`}async function be(e){const i=await apiGet("/accounts/client-portal"),n=i.summary||{},d=i.invoices||[],t=i.payments||[];e.innerHTML=`
+    </div>`}async function be(e){const a=await apiGet("/accounts/client-portal"),n=a.summary||{},d=a.invoices||[],t=a.payments||[];e.innerHTML=`
     <div class="block">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px">
         <div>
@@ -874,4 +872,4 @@ import"./api-CXl-yKAI.js";const oe="modulepreload",ne=function(e){return"/"+e},Y
             </table>
           </div>
         </div>`:""}
-    </div>`}window.addEventListener("ci360:dataUpdated",e=>{const i=document.activeElement;!(i&&(i.tagName==="INPUT"||i.tagName==="TEXTAREA"||i.isContentEditable))&&v.tab!=="logjob"&&k()});re();
+    </div>`}window.addEventListener("ci360:dataUpdated",e=>{const a=document.activeElement;!(a&&(a.tagName==="INPUT"||a.tagName==="TEXTAREA"||a.isContentEditable))&&v.tab!=="logjob"&&k()});re();
