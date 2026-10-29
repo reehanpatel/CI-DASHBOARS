@@ -270,7 +270,7 @@
 
     .field-label {
       display: block;
-      font-size: 12px;
+      font-size: 12.5px;
       font-weight: 600;
       color: #94A3B8;
       margin-bottom: 8px;
@@ -281,49 +281,95 @@
       position: relative;
       display: flex;
       align-items: center;
+      width: 100%;
     }
 
     .field-icon {
       position: absolute;
       left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
       color: #64748B;
       pointer-events: none;
       display: flex;
       align-items: center;
+      justify-content: center;
       transition: color 0.2s ease;
+      z-index: 2;
     }
 
-    .text-input {
-      width: 100%;
-      height: 48px;
-      background: rgba(15, 23, 42, 0.75);
-      border: 1px solid rgba(148, 163, 184, 0.2);
-      border-radius: 12px;
-      padding: 0 16px;
-      font-size: 14px;
-      font-family: inherit;
-      color: #F8FAFC;
-      outline: none;
-      transition: all 0.2s ease;
+    .input-wrapper:focus-within .field-icon {
+      color: #818CF8;
     }
 
-    .text-input::placeholder {
-      color: #475569;
-      font-size: 13.5px;
+    /* Target inputs with extreme specificity so NO global styles can turn them white */
+    .login-box input.text-input,
+    .login-box input[type="text"],
+    .login-box input[type="password"],
+    .login-box input[type="email"],
+    input.text-input {
+      width: 100% !important;
+      height: 48px !important;
+      background: rgba(15, 23, 42, 0.8) !important;
+      border: 1px solid rgba(148, 163, 184, 0.22) !important;
+      border-radius: 12px !important;
+      padding: 0 16px 0 42px !important;
+      font-size: 14px !important;
+      font-family: inherit !important;
+      color: #F8FAFC !important;
+      outline: none !important;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) inset !important;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease !important;
+      color-scheme: dark !important;
     }
 
-    .text-input:focus {
-      background: rgba(22, 32, 56, 0.9);
-      border-color: #818CF8;
+    .login-box input.text-input.with-toggle,
+    .login-box input[type="password"] {
+      padding-right: 46px !important;
+    }
+
+    .login-box input.text-input::placeholder,
+    .login-box input[type="text"]::placeholder,
+    .login-box input[type="password"]::placeholder {
+      color: #475569 !important;
+      font-size: 13.5px !important;
+    }
+
+    .login-box input.text-input:hover,
+    .login-box input[type="text"]:hover,
+    .login-box input[type="password"]:hover {
+      border-color: rgba(165, 180, 252, 0.35) !important;
+      background: rgba(20, 30, 54, 0.88) !important;
+    }
+
+    .login-box input.text-input:focus,
+    .login-box input[type="text"]:focus,
+    .login-box input[type="password"]:focus,
+    .login-box input[type="email"]:focus {
+      background: rgba(22, 32, 58, 0.96) !important;
+      border-color: #818CF8 !important;
       box-shadow:
-        0 0 0 3px rgba(99, 102, 241, 0.22),
-        0 0 20px rgba(99, 102, 241, 0.15);
+        0 0 0 3px rgba(99, 102, 241, 0.25),
+        0 0 20px rgba(99, 102, 241, 0.16) !important;
+    }
+
+    /* WebKit / Chromium autofill fix to preserve dark theme */
+    .login-box input:-webkit-autofill,
+    .login-box input:-webkit-autofill:hover,
+    .login-box input:-webkit-autofill:focus,
+    .login-box input:-webkit-autofill:active {
+      -webkit-box-shadow: 0 0 0 1000px #0F172A inset !important;
+      -webkit-text-fill-color: #F8FAFC !important;
+      caret-color: #F8FAFC !important;
+      transition: background-color 5000s ease-in-out 0s !important;
     }
 
     /* Password Reveal Toggle */
     .password-toggle-btn {
       position: absolute;
-      right: 12px;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
       background: transparent;
       border: none;
       padding: 6px;
@@ -334,11 +380,94 @@
       justify-content: center;
       border-radius: 8px;
       transition: all 0.2s ease;
+      z-index: 2;
     }
 
     .password-toggle-btn:hover {
-      color: #CBD5E1;
-      background: rgba(255, 255, 255, 0.06);
+      color: #C7D2FE;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    /* Form Options Row (Remember me + Forgot Password) */
+    .form-options-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 6px 0 20px;
+    }
+
+    .remember-me-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      user-select: none;
+      font-size: 12.5px;
+      color: #94A3B8;
+      font-weight: 500;
+      transition: color 0.2s ease;
+    }
+
+    .remember-me-label:hover {
+      color: #E2E8F0;
+    }
+
+    .remember-checkbox {
+      width: 16px;
+      height: 16px;
+      accent-color: #6366F1;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .link-forgot-pw {
+      background: none;
+      border: none;
+      color: #818CF8;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 0;
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
+
+    .link-forgot-pw:hover {
+      color: #C7D2FE;
+      text-decoration: underline;
+    }
+
+    .link-back-btn {
+      background: transparent;
+      border: none;
+      color: #94A3B8;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: color 0.2s;
+    }
+
+    .link-back-btn:hover {
+      color: #F8FAFC;
+    }
+
+    .security-badge-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      margin-top: 22px;
+      font-size: 11.5px;
+      font-weight: 500;
+      color: #64748B;
+      letter-spacing: 0.02em;
+    }
+
+    .security-badge-row svg {
+      color: #10B981;
     }
 
     /* Submit Action Button */
@@ -458,11 +587,11 @@
       }
     }
   </style>
-  <script type="module" crossorigin src="/assets/login-DDmc4zFi.js"></script>
-  <link rel="modulepreload" crossorigin href="/assets/api-DGR5VCGO.js">
+  <script type="module" crossorigin src="/assets/login-DX_3RGIT.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/api-Bz9aAFqL.js">
   <link rel="stylesheet" crossorigin href="/assets/api-DUY0rKwj.css">
 </head>
-<body>
+<body class="login-page">
 
 <!-- Ambient Backdrops -->
 <div class="ambient-canvas" aria-hidden="true">
@@ -512,10 +641,16 @@
 
     <!-- SIGN IN VIEW -->
     <div id="signInView">
-      <form id="loginForm" novalidate>
+      <form id="loginForm" novalidate autocomplete="on">
         <div class="input-group">
           <label for="email" class="field-label">Email or Username</label>
           <div class="input-wrapper">
+            <span class="field-icon" aria-hidden="true">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+            </span>
             <input
               type="text"
               id="email"
@@ -529,19 +664,21 @@
         </div>
 
         <div class="input-group">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-            <label for="password" class="field-label" style="margin-bottom:0">Password</label>
-            <button type="button" id="forgotPwLink" style="background:none;border:none;color:#818CF8;font-size:12px;font-weight:600;cursor:pointer;padding:0;transition:color 0.2s">Forgot Password?</button>
-          </div>
+          <label for="password" class="field-label">Password</label>
           <div class="input-wrapper">
+            <span class="field-icon" aria-hidden="true">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
+            </span>
             <input
               type="password"
               id="password"
-              class="text-input"
+              class="text-input with-toggle"
               required
               autocomplete="current-password"
               placeholder="Enter your account password"
-              style="padding-right: 46px;"
             >
             <button
               type="button"
@@ -556,6 +693,14 @@
               </svg>
             </button>
           </div>
+        </div>
+
+        <div class="form-options-row">
+          <label class="remember-me-label" for="rememberMe">
+            <input type="checkbox" id="rememberMe" class="remember-checkbox">
+            <span>Remember me</span>
+          </label>
+          <button type="button" id="forgotPwLink" class="link-forgot-pw">Forgot password?</button>
         </div>
 
         <button class="btn-submit" type="submit" id="loginBtn">
@@ -575,26 +720,33 @@
           <span id="errorMsgText">Invalid credentials. Please try again.</span>
         </div>
 
-        <div style="margin-top:18px;text-align:center">
-          <button type="button" id="switchToResetBtn" style="background:transparent;border:none;color:#94A3B8;font-size:12.5px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:color 0.2s">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2l-2 2m-1.5 6.1L19 12l-7 7-4-4 7-7 1.9 1.5z"/><path d="M15 5l4 4"/></svg>
-            Need to reset your password? <span style="color:#A5B4FC;font-weight:600">Reset Password</span>
-          </button>
+        <div class="security-badge-row">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+          <span>End-to-end encrypted • Enterprise multi-tenant suite</span>
         </div>
       </form>
     </div>
 
     <!-- RESET PASSWORD VIEW -->
     <div id="resetPasswordView" style="display:none;">
-      <form id="resetPasswordForm" novalidate>
-        <div style="margin-bottom:18px">
-          <div style="font-size:13.5px;font-weight:700;color:#F8FAFC;margin-bottom:4px">Account Password Recovery</div>
-          <div style="font-size:12px;color:#94A3B8;line-height:1.4">Enter your username or email address and choose a new password.</div>
+      <form id="resetPasswordForm" novalidate autocomplete="off">
+        <div style="margin-bottom:20px;text-align:center">
+          <div style="font-size:15px;font-weight:700;color:#F8FAFC;margin-bottom:4px">Account Password Recovery</div>
+          <div style="font-size:12.5px;color:#94A3B8;line-height:1.45">Enter your verified username or email and choose a strong new password.</div>
         </div>
 
         <div class="input-group">
-          <label for="resetEmail" class="field-label">Email or Username *</label>
+          <label for="resetEmail" class="field-label">Email or Username</label>
           <div class="input-wrapper">
+            <span class="field-icon" aria-hidden="true">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+            </span>
             <input
               type="text"
               id="resetEmail"
@@ -607,15 +759,20 @@
         </div>
 
         <div class="input-group">
-          <label for="resetNewPassword" class="field-label">New Password (min 6 chars) *</label>
+          <label for="resetNewPassword" class="field-label">New Password (min 6 characters)</label>
           <div class="input-wrapper">
+            <span class="field-icon" aria-hidden="true">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
+            </span>
             <input
               type="password"
               id="resetNewPassword"
-              class="text-input"
+              class="text-input with-toggle"
               required
               placeholder="Enter new password"
-              style="padding-right: 46px;"
             >
             <button
               type="button"
@@ -630,15 +787,20 @@
         </div>
 
         <div class="input-group">
-          <label for="resetConfirmPassword" class="field-label">Confirm New Password *</label>
+          <label for="resetConfirmPassword" class="field-label">Confirm New Password</label>
           <div class="input-wrapper">
+            <span class="field-icon" aria-hidden="true">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
+            </span>
             <input
               type="password"
               id="resetConfirmPassword"
-              class="text-input"
+              class="text-input with-toggle"
               required
               placeholder="Re-enter new password"
-              style="padding-right: 46px;"
             >
             <button
               type="button"
@@ -674,7 +836,7 @@
         </div>
 
         <div style="margin-top:20px;text-align:center">
-          <button type="button" id="backToSignInBtn" style="background:transparent;border:none;color:#94A3B8;font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:color 0.2s">
+          <button type="button" id="backToSignInBtn" class="link-back-btn">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
             Back to Sign In
           </button>

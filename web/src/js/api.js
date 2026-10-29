@@ -130,6 +130,11 @@ export function setTheme(t){
   }
 }
 export function initTheme(){
+  // Never flip login page to light theme — login has dedicated dark cybersecurity styling
+  if (typeof document !== 'undefined' && (document.body?.classList.contains('login-page') || window.location.pathname.includes('login') || document.querySelector('.login-box'))) {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    return;
+  }
   const saved = getTheme();
   document.documentElement.setAttribute('data-theme', saved);
   // sync any buttons that exist in DOM
