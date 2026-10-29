@@ -348,7 +348,7 @@ export function paperHTML(model, print = false) {
       <div class="cv-rule"></div>
       <dl class="cv-meta">${cv.meta.filter(m => m[1]).map(([k, v]) => `<dt>${escapeHtml(k)}</dt><dd>${escapeHtml(v).replace(/\n/g, '<br>')}</dd>`).join('')}</dl>
     </section>
-    <div class="pb"></div>
+    <div class="html2pdf__page-break pb"></div>
     <div class="body">${body}</div>
   </article>`;
 }
@@ -396,40 +396,40 @@ export async function exportWordDocx(p, co, btn, opts = {}) {
       children: kids,
       width: { size: w, type: D.WidthType.DXA },
       borders: o.borders || thinB,
-      columnSpan: o.span,
+      columnSpan: o.span && o.span > 1 ? o.span : undefined,
       shading: o.fill ? { type: D.ShadingType.CLEAR, color: 'auto', fill: o.fill } : undefined,
-      margins: { top: 80, bottom: 80, left: 110, right: 110 },
+      margins: { top: 90, bottom: 90, left: 120, right: 120 },
       verticalAlign: o.v || D.VerticalAlign.TOP
     });
 
     const h1 = (n, t) => P([tr(n + '.  ', { font: 'Georgia', size: 28, bold: true, color: GOLD }), tr(t, { font: 'Georgia', size: 28, bold: true, color: NAVY })], {
       heading: D.HeadingLevel.HEADING_1,
       keepNext: true,
-      before: 320,
+      before: 340,
       after: 140,
-      border: { bottom: { style: D.BorderStyle.SINGLE, size: 8, color: GOLD, space: 5 } }
+      border: { bottom: { style: D.BorderStyle.SINGLE, size: 8, color: GOLD, space: 6 } }
     });
 
     const kids = [];
     const cv = model.cover;
-    const meta = cv.meta.filter(m => m[1]).map(([k, v]) => P([tr(k + '   ', { color: 'C9A35E', size: 19 }), ...String(v).split('\n').flatMap((ln, i) => i ? [new D.TextRun({ break: 1, text: ln, font: 'Arial', size: 21, color: 'FFFFFF' })] : [tr(ln, { color: 'FFFFFF', size: 21 })])], { after: 70 }));
+    const meta = cv.meta.filter(m => m[1]).map(([k, v]) => P([tr(k + ':   ', { color: 'C9A35E', size: 19, bold: true }), ...String(v).split('\n').flatMap((ln, i) => i ? [new D.TextRun({ break: 1, text: ln, font: 'Arial', size: 21, color: 'FFFFFF' })] : [tr(ln, { color: 'FFFFFF', size: 21 })])], { after: 70 }));
 
     kids.push(new D.Table({
       width: { size: W, type: D.WidthType.DXA },
       columnWidths: [W],
       rows: [new D.TableRow({
-        height: { value: 12800, rule: D.HeightRule.ATLEAST },
+        height: { value: 11000, rule: D.HeightRule.ATLEAST },
         children: [new D.TableCell({
           width: { size: W, type: D.WidthType.DXA },
           borders: noB,
           shading: { type: D.ShadingType.CLEAR, color: 'auto', fill: NAVY },
           margins: { top: 900, bottom: 900, left: 700, right: 700 },
           children: [
-            P([tr(cv.brand, { font: 'Georgia', size: 24, bold: true, color: 'C9A35E' })], { after: 2200 }),
-            P([tr(cv.kicker, { size: 20, color: 'AEBBCD' })], { after: 120 }),
-            P([tr(cv.title, { font: 'Georgia', size: 56, bold: true, color: 'FFFFFF' })], { after: 200, line: 260 }),
-            P(cv.subtitle ? [tr(cv.subtitle, { font: 'Georgia', size: 26, italics: true, color: 'D9E1EC' })] : [], { after: 1500 }),
-            new D.Paragraph({ border: { top: { style: D.BorderStyle.SINGLE, size: 12, color: GOLD, space: 12 } }, spacing: { after: 160 }, children: [] }),
+            P([tr(cv.brand, { font: 'Georgia', size: 24, bold: true, color: 'D4A657' })], { after: 2000 }),
+            P([tr(cv.kicker, { size: 19, color: 'AEBBCD', bold: true })], { after: 120 }),
+            P([tr(cv.title, { font: 'Georgia', size: 52, bold: true, color: 'FFFFFF' })], { after: 200, line: 260 }),
+            P(cv.subtitle ? [tr(cv.subtitle, { font: 'Georgia', size: 24, italics: true, color: 'D9E1EC' })] : [], { after: 1400 }),
+            new D.Paragraph({ border: { top: { style: D.BorderStyle.SINGLE, size: 12, color: GOLD, space: 12 } }, spacing: { after: 180 }, children: [] }),
             ...meta
           ]
         })]
@@ -441,7 +441,30 @@ export async function exportWordDocx(p, co, btn, opts = {}) {
       if (b.t === 'h') kids.push(h1(b.n, b.text));
       else if (b.t === 'md') kids.push(...mdParas(b.text));
       else if (b.t === 'note') kids.push(P([tr(b.text, { italics: true, size: 18, color: MUTED })], { before: 80 }));
-      else if (b.t === 'stamp') kids.push(P([tr(b.text, { bold: true, size: 19, color: b.type === 'admin' ? '0F2A4A' : '2F6B45' })], { after: 160 }));
+      else if (b.t === 'stamp') {
+        kids.push(new D.Table({
+          width: { size: W, type: D.WidthType.DXA },
+          columnWidths: [W],
+          rows: [new D.TableRow({
+            cantSplit: true,
+            children: [new D.TableCell({
+              width: { size: W, type: D.WidthType.DXA },
+              borders: {
+                top: thin,
+                bottom: thin,
+                left: { style: D.BorderStyle.SINGLE, size: 18, color: b.type === 'admin' ? NAVY : '2F6B45' },
+                right: thin
+              },
+              shading: { type: D.ShadingType.CLEAR, color: 'auto', fill: b.type === 'admin' ? 'F1F4F8' : 'ECFDF5' },
+              margins: { top: 120, bottom: 120, left: 160, right: 160 },
+              children: [
+                P([tr(b.text, { bold: true, size: 19, color: b.type === 'admin' ? NAVY : '2F6B45' })], { after: 0 })
+              ]
+            })]
+          })]
+        }));
+        kids.push(P([], { after: 120 }));
+      }
       else if (b.t === 'kv') {
         const w = [2500, W - 2500];
         kids.push(new D.Table({ width: { size: W, type: D.WidthType.DXA }, columnWidths: w, rows: b.rows.map(([k, v], i) => new D.TableRow({ cantSplit: true, children: [cell(cellKids({ b: k }, { size: 19 }), w[0], { fill: MIST }), cell(cellKids(v, { size: 19 }), w[1], { fill: i % 2 ? MIST : undefined })] })) }));
@@ -458,7 +481,16 @@ export async function exportWordDocx(p, co, btn, opts = {}) {
               cell(cellKids(r.cells[0], { size: r.style === 'grand' ? 20 : 18, color: col, sub, bold: r.style === 'grand', align: r.style === 'group' || r.style === 'sub' ? undefined : D.AlignmentType.RIGHT }), spanW, { span: ws.length - 1, fill }),
               cell(cellKids(last, { size: r.style === 'grand' ? 20 : 18, color: col, sub, bold: r.style !== 'sub', align: D.AlignmentType.RIGHT }), ws[ws.length - 1], { fill })
             ] }));
-          } else rows.push(new D.TableRow({ cantSplit: true, children: r.cells.map((c, i) => cell(cellKids(c, { size: 18, color: col, sub, align: b.cols[i].align === 'r' ? D.AlignmentType.RIGHT : undefined }), ws[i], { fill })) }));
+          } else {
+            rows.push(new D.TableRow({
+              cantSplit: true,
+              children: r.cells.map((c, i) => cell(
+                cellKids(c, { size: 18, color: col, sub, align: (b.cols[i] && b.cols[i].align === 'r') ? D.AlignmentType.RIGHT : undefined }),
+                ws[i] || Math.round(W / Math.max(1, r.cells.length)),
+                { fill }
+              ))
+            }));
+          }
         });
         kids.push(new D.Table({ width: { size: W, type: D.WidthType.DXA }, columnWidths: ws, rows }));
         kids.push(P([], { after: 60 }));
@@ -515,115 +547,166 @@ export async function exportPdfDoc(p, co, btn, opts = {}) {
   const oldText = btn.textContent;
   btn.disabled = true;
   btn.textContent = 'Generating PDF…';
+
+  // Create an active, fully visible staging overlay in front of everything
+  const overlay = document.createElement('div');
+  overlay.id = 'ci360-pdf-export-overlay';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,0.92);backdrop-filter:blur(6px);z-index:9999999;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;overflow-y:auto;padding:24px 12px;';
+  
+  overlay.innerHTML = `
+    <div style="background:#0F2A4A;border:1px solid #B8893A;border-radius:8px;padding:14px 28px;color:#fff;margin-bottom:16px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,0.5);max-width:600px;">
+      <div style="font-size:24px;margin-bottom:4px;">📄</div>
+      <div style="font-size:15px;font-weight:700;color:#D4A657;">Rendering High-Resolution Proposal PDF…</div>
+      <div style="font-size:12px;color:#AEBBCD;margin-top:2px;">Formatting cover page, pricing tables, terms, and signatures into PDF document.</div>
+    </div>
+    <div id="ci360-pdf-stage-inner" style="width:794px;background:#ffffff;box-shadow:0 12px 40px rgba(0,0,0,0.6);border-radius:4px;overflow:hidden;">
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
   try {
     const h2p = await loadScript(CDN.pdf, 'html2pdf');
     const model = docModel(p, co, opts);
     const htmlString = paperHTML(model, true);
 
-    const pdfContainer = document.createElement('div');
-    pdfContainer.setAttribute('data-theme', 'light');
-    pdfContainer.style.position = 'absolute';
-    pdfContainer.style.left = '0';
-    pdfContainer.style.top = '0';
-    pdfContainer.style.width = '794px';
-    pdfContainer.style.zIndex = '-9999';
-    pdfContainer.style.opacity = '1';
-    pdfContainer.style.pointerEvents = 'none';
-    pdfContainer.style.background = '#FFFFFF';
-    pdfContainer.style.color = '#1C2430';
-    pdfContainer.innerHTML = `
+    const stageInner = overlay.querySelector('#ci360-pdf-stage-inner');
+    stageInner.setAttribute('data-theme', 'light');
+    stageInner.innerHTML = `
       <style>
         * { box-sizing: border-box; }
         .paper, .paper.print { background: #FFFFFF !important; color: #1C2430 !important; font-family: Arial, Helvetica, sans-serif !important; width: 794px !important; margin: 0 !important; box-shadow: none !important; }
-        .paper .cover { background: #0F2A4A !important; color: #FFFFFF !important; box-sizing: border-box !important; min-height: 940px !important; max-height: 1040px !important; padding: 48px 40px !important; page-break-after: always !important; break-after: page !important; }
-        .paper .cv-brand { color: #D4A657 !important; font-family: Georgia, serif !important; font-weight: 700 !important; font-size: 19px !important; }
-        .paper .cv-kicker { color: #AEBBCD !important; font-size: 13px !important; }
-        .paper .cover h1 { color: #FFFFFF !important; font-family: Georgia, serif !important; font-size: 34px !important; margin: 8px 0 12px !important; }
-        .paper .cv-sub { color: #D9E1EC !important; font-family: Georgia, serif !important; font-style: italic !important; font-size: 16px !important; }
-        .paper .cv-rule { background: #B8893A !important; height: 2px !important; margin-bottom: 18px !important; }
-        .paper .cv-meta dt { color: #C9A35E !important; font-weight: 700 !important; }
-        .paper .cv-meta dd { color: #FFFFFF !important; }
-        .paper .pb { break-after: page !important; page-break-after: always !important; height: 0 !important; line-height: 0 !important; }
-        .paper .body { background: #FFFFFF !important; color: #1C2430 !important; padding: 36px 44px 44px !important; }
-        .paper h2 { color: #0F2A4A !important; font-family: Georgia, serif !important; font-size: 19px !important; border-bottom: 1.5px solid #B8893A !important; margin: 26px 0 12px !important; }
-        .paper h2 .n { color: #B8893A !important; }
+        .paper .cover { background: #0F2A4A !important; color: #FFFFFF !important; box-sizing: border-box !important; width: 794px !important; height: 1122px !important; min-height: 1122px !important; max-height: 1122px !important; padding: 56px 44px !important; page-break-after: always !important; break-after: page !important; position: relative !important; display: flex !important; flex-direction: column !important; justify-content: flex-start !important; }
+        .paper .cv-brand { color: #D4A657 !important; font-family: Georgia, serif !important; font-weight: 700 !important; font-size: 20px !important; }
+        .paper .cv-kicker { color: #AEBBCD !important; font-size: 13px !important; margin-top: 4px !important; text-transform: uppercase !important; letter-spacing: 0.5px !important; }
+        .paper .cover h1 { color: #FFFFFF !important; font-family: Georgia, serif !important; font-size: 34px !important; margin: 16px 0 12px !important; line-height: 1.25 !important; }
+        .paper .cv-sub { color: #D9E1EC !important; font-family: Georgia, serif !important; font-style: italic !important; font-size: 16px !important; margin: 0 0 20px !important; }
+        .paper .cv-rule { background: #B8893A !important; height: 2px !important; margin-bottom: 24px !important; }
+        .paper .cv-meta dt { color: #C9A35E !important; font-weight: 700 !important; font-size: 13.5px !important; }
+        .paper .cv-meta dd { color: #FFFFFF !important; font-size: 13.5px !important; }
+        .paper .html2pdf__page-break, .paper .pb { break-before: page !important; page-break-before: always !important; height: 1px !important; line-height: 1px !important; display: block !important; margin: 0 !important; padding: 0 !important; }
+        .paper .body { background: #FFFFFF !important; color: #1C2430 !important; padding: 40px 48px 48px !important; }
+        .paper h2 { color: #0F2A4A !important; font-family: Georgia, serif !important; font-size: 19px !important; border-bottom: 1.5px solid #B8893A !important; margin: 26px 0 12px !important; padding-bottom: 4px !important; }
+        .paper h2 .n { color: #B8893A !important; margin-right: 6px !important; }
         .paper h3 { color: #0F2A4A !important; font-family: Georgia, serif !important; font-size: 14.5px !important; margin: 14px 0 6px !important; font-weight: 700 !important; }
-        .paper p { color: #1E293B !important; font-size: 13.5px !important; line-height: 1.6 !important; margin: 0 0 9px !important; }
+        .paper p { color: #1E293B !important; font-size: 13px !important; line-height: 1.6 !important; margin: 0 0 9px !important; }
         .paper ul, .paper ol { color: #1E293B !important; margin: 0 0 10px !important; padding-left: 20px !important; }
-        .paper li { color: #1E293B !important; font-size: 13.5px !important; line-height: 1.5 !important; margin-bottom: 4px !important; }
+        .paper li { color: #1E293B !important; font-size: 13px !important; line-height: 1.5 !important; margin-bottom: 4px !important; }
         .paper li::marker { color: #B8893A !important; }
-        .paper strong { color: #0F172A !important; }
-        .paper table { width: 100% !important; border-collapse: collapse !important; font-size: 12.5px !important; margin: 6px 0 12px !important; background: #FFFFFF !important; color: #1C2430 !important; }
+        .paper strong, .paper b { color: #0F172A !important; font-weight: 700 !important; }
+        .paper table { width: 100% !important; border-collapse: collapse !important; font-size: 12px !important; margin: 8px 0 14px !important; background: #FFFFFF !important; color: #1C2430 !important; }
         .paper thead, .paper tbody { background: #FFFFFF !important; }
         .paper tbody tr { background: #FFFFFF !important; }
-        .paper th, .paper td { border: 1px solid #D5DCE5 !important; padding: 7px 9px !important; color: #1C2430 !important; background: #FFFFFF !important; vertical-align: top !important; text-align: left !important; }
+        .paper th, .paper td { border: 1px solid #D5DCE5 !important; padding: 7px 10px !important; color: #1C2430 !important; background: #FFFFFF !important; vertical-align: top !important; text-align: left !important; }
         .paper .r { text-align: right !important; white-space: nowrap !important; }
         .paper table.pt thead th { background: #0F2A4A !important; color: #FFFFFF !important; border: 1px solid #0F2A4A !important; font-weight: 700 !important; }
         .paper table.pt thead th * { color: #FFFFFF !important; }
-        .paper table.kv th { background: #F1F4F8 !important; color: #0F2A4A !important; font-weight: 700 !important; border: 1px solid #D5DCE5 !important; }
+        .paper table.kv th { background: #F1F4F8 !important; color: #0F2A4A !important; font-weight: 700 !important; border: 1px solid #D5DCE5 !important; width: 26% !important; }
         .paper table.kv td { background: #FFFFFF !important; color: #1C2430 !important; border: 1px solid #D5DCE5 !important; }
         .paper tr.alt td { background: #F8FAFC !important; color: #1C2430 !important; }
         .paper tr.sum td { background: #F8FAFC !important; color: #0F2A4A !important; font-weight: 700 !important; border-top: 1.5px solid #0F2A4A !important; }
         .paper tr.sum td * { color: #0F2A4A !important; font-weight: 700 !important; }
-        .paper tr.hl td { background: #FDF6E2 !important; color: #0F2A4A !important; font-size: 13.5px !important; }
+        .paper tr.hl td { background: #FDF6E2 !important; color: #0F2A4A !important; font-size: 13px !important; }
         .paper tr.hl td * { color: #0F2A4A !important; }
         .paper tr.group td { background: #E2E8F0 !important; color: #0F2A4A !important; font-weight: 700 !important; }
         .paper tr.group td * { color: #0F2A4A !important; font-weight: 700 !important; }
         .paper tr.sub td { background: #FFFFFF !important; color: #64748B !important; font-style: italic !important; border-top: 0 !important; }
         .paper tr.sub td * { color: #64748B !important; }
-        .paper tr.grand td { background: #0F2A4A !important; color: #FFFFFF !important; font-weight: 700 !important; font-size: 13.5px !important; border: 1px solid #0F2A4A !important; }
+        .paper tr.grand td { background: #0F2A4A !important; color: #FFFFFF !important; font-weight: 700 !important; font-size: 13px !important; border: 1px solid #0F2A4A !important; }
         .paper tr.grand td * { color: #FFFFFF !important; }
         .paper td p, .paper td ul, .paper td ol, .paper td li, .paper td div, .paper td span { background: transparent !important; }
-        .paper td p { color: #1E293B !important; margin: 0 0 4px !important; }
-        .paper td ul, .paper td ol { color: #1E293B !important; margin: 0 0 6px !important; padding-left: 18px !important; }
-        .paper td li { color: #1E293B !important; margin-bottom: 3px !important; }
+        .paper td p { color: #1E293B !important; margin: 0 0 3px !important; }
+        .paper td ul, .paper td ol { color: #1E293B !important; margin: 0 0 4px !important; padding-left: 16px !important; }
+        .paper td li { color: #1E293B !important; margin-bottom: 2px !important; }
         .paper td li::marker { color: #B8893A !important; }
-        .paper td strong, .paper td b { color: #0F172A !important; font-weight: 700 !important; }
         .paper tr.grand .desc { color: #D9E1EC !important; }
-        .paper .desc { color: #475569 !important; font-size: 11.5px !important; margin-top: 2px !important; }
+        .paper .desc { color: #475569 !important; font-size: 11px !important; margin-top: 2px !important; }
         .paper .pnote { color: #475569 !important; font-style: italic !important; font-size: 12px !important; }
-        .paper .approved-stamp { border: 1.5px solid #2F6B45 !important; background: #ECFDF5 !important; color: #2F6B45 !important; font-weight: 700 !important; }
+        .paper .approved-stamp { border: 1.5px solid #2F6B45 !important; background: #ECFDF5 !important; color: #2F6B45 !important; font-weight: 700 !important; padding: 8px 14px !important; border-radius: 6px !important; display: inline-flex !important; margin: 10px 0 !important; font-size: 13px !important; }
         .paper .approved-stamp.admin-stamp { border-color: #0F2A4A !important; background: #F1F4F8 !important; color: #0F2A4A !important; }
-        .paper .sig .who { color: #0F2A4A !important; font-family: Georgia, serif !important; font-weight: 700 !important; }
-        .paper .sig .ln { border-bottom: 1px solid #CBD5E1 !important; color: #1E293B !important; }
+        .paper .sig { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 32px !important; margin-top: 22px !important; }
+        .paper .sig .who { color: #0F2A4A !important; font-family: Georgia, serif !important; font-weight: 700 !important; margin-bottom: 12px !important; font-size: 14px !important; }
+        .paper .sig .ln { border-bottom: 1px solid #CBD5E1 !important; color: #1E293B !important; padding: 8px 0 4px !important; font-size: 12px !important; }
         .paper .sig .ln span { color: #64748B !important; }
-        .paper .foot { color: #64748B !important; }
+        .paper .foot { color: #64748B !important; font-size: 11px !important; margin-top: 24px !important; padding-top: 10px !important; border-top: 1px solid #D5DCE5 !important; text-align: center !important; }
       </style>
       ${htmlString}
     `;
-    document.body.appendChild(pdfContainer);
 
-    // Give browser layout engine time to compute dimensions and styles
-    await new Promise(r => setTimeout(r, 250));
+    // Wait for DOM layout and web fonts to settle
+    await new Promise(r => setTimeout(r, 350));
 
+    const paperEl = stageInner.querySelector('.paper');
     const opt = {
-      margin: [10, 10, 12, 10],
+      margin: 0,
       filename: `${p.clientShort || p.client || 'Client'} - ${p.title || 'Proposal'}.pdf`.replace(/[\\/:*?"<>|]+/g, '_'),
       image: { type: 'jpeg', quality: 0.98 },
       html2canvas: { 
         scale: 2, 
         backgroundColor: '#ffffff', 
-        scrollX: 0, 
-        scrollY: 0, 
-        windowWidth: 794,
         useCORS: true,
-        logging: false
+        logging: false,
+        windowWidth: 794
       },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-      pagebreak: { mode: ['css', 'legacy'], avoid: ['tr', 'h2', 'h3', 'li', 'p', '.sig', '.kv', '.approved-stamp'] }
+      pagebreak: {
+        mode: ['css', 'legacy'],
+        before: ['.html2pdf__page-break', '.pb'],
+        avoid: ['tr', '.sig', '.approved-stamp', '.kv']
+      }
     };
 
-    try {
-      await h2p().set(opt).from(pdfContainer).save();
-    } finally {
-      pdfContainer.remove();
-    }
+    await h2p().set(opt).from(paperEl || stageInner).save();
+    flashToast('PDF downloaded successfully! 📄');
   } catch (err) {
     alert('PDF export error: ' + err.message);
   } finally {
+    overlay.remove();
     btn.disabled = false;
     btn.textContent = oldText;
   }
+}
+
+/* ---------- BROWSER PRINT / VECTOR PDF EXPORTER ---------- */
+export function printProposalDocument(p, co, opts = {}) {
+  const model = docModel(p, co, opts);
+  const html = paperHTML(model, true);
+  const printWin = window.open('', '_blank', 'width=950,height=1050');
+  if (!printWin) {
+    alert('Please allow popups to open the print dialog.');
+    return;
+  }
+  printWin.document.write(`
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <title>${escapeHtml(p.client || 'Client')} - ${escapeHtml(p.title || 'Proposal')}</title>
+      <link rel="stylesheet" href="/src/css/style.css">
+      <style>
+        @page { size: A4 portrait; margin: 0; }
+        body { margin: 0; padding: 0; background: #FFFFFF; font-family: Arial, Helvetica, sans-serif; }
+        .paper { width: 100% !important; max-width: none !important; margin: 0 !important; box-shadow: none !important; }
+        .paper .cover { height: 100vh !important; min-height: 100vh !important; page-break-after: always !important; break-after: page !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+        .paper .html2pdf__page-break, .paper .pb { page-break-before: always !important; break-before: page !important; height: 1px !important; }
+        @media print {
+          * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+        }
+      </style>
+    </head>
+    <body>
+      ${html}
+      <script>
+        window.onload = function() {
+          setTimeout(function() {
+            window.focus();
+            window.print();
+          }, 350);
+        };
+      <\/script>
+    </body>
+    </html>
+  `);
+  printWin.document.close();
 }
 
 /* ==========================================================================
@@ -1458,6 +1541,9 @@ export class ProposalStudioController {
           <button class="btn small gold" id="ps-modal-export-pdf" ${isPinApproved ? '' : 'disabled title="Requires Admin PIN Approval"'} style="font-weight:700;">
             📄 Download PDF
           </button>
+          <button class="btn small" id="ps-modal-print-btn" ${isPinApproved ? '' : 'disabled title="Requires Admin PIN Approval"'} style="background:rgba(255,255,255,0.18);color:#fff;border-color:rgba(255,255,255,0.3);font-weight:600;">
+            🖨️ Print / Vector PDF
+          </button>
           <button class="btn small" id="ps-close-preview-modal" style="background:rgba(255,255,255,0.2);color:#fff;border-color:transparent;font-weight:700;margin-left:6px;">
             ✕ Close Preview
           </button>
@@ -1481,6 +1567,9 @@ export class ProposalStudioController {
 
     const pdfBtn = modal.querySelector('#ps-modal-export-pdf');
     if (pdfBtn) pdfBtn.onclick = () => exportPdfDoc(p, co, pdfBtn);
+
+    const printBtn = modal.querySelector('#ps-modal-print-btn');
+    if (printBtn) printBtn.onclick = () => printProposalDocument(p, co);
 
     const handleEsc = (e) => {
       if (e.key === 'Escape') {

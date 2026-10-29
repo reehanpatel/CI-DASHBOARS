@@ -63,7 +63,7 @@ body {
 </main>
 
 <script type="module">
-import { paperHTML, docModel, exportPdfDoc, exportWordDocx } from '/src/js/proposals.js';
+import { paperHTML, docModel, exportPdfDoc, exportWordDocx, printProposalDocument } from '/src/js/proposals.js';
 
 const root = document.getElementById('proposal-client-root');
 const params = new URLSearchParams(window.location.search);
@@ -125,6 +125,7 @@ function renderClientView() {
           <div style="display:flex;gap:6px;flex-direction:column;">
             <button class="btn small" id="client-download-pdf-btn" style="width:100%;font-weight:700;">📄 Download PDF Document</button>
             <button class="btn small" id="client-download-word-btn" style="width:100%;">📝 Download Word (.docx)</button>
+            <button class="btn small ghost" id="client-print-btn" style="width:100%;font-weight:600;">🖨️ Print / Vector PDF</button>
           </div>
         </div>
 
@@ -183,6 +184,12 @@ function renderClientView() {
   const wordBtn = root.querySelector('#client-download-word-btn');
   if (wordBtn) {
     wordBtn.onclick = () => exportWordDocx(proposal, company, wordBtn);
+  }
+
+  // Print / Vector PDF
+  const printBtn = root.querySelector('#client-print-btn');
+  if (printBtn) {
+    printBtn.onclick = () => printProposalDocument(proposal, company);
   }
 
   // Handle direct download params (?dl=pdf or ?dl=word)
