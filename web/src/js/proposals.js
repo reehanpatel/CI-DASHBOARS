@@ -561,11 +561,11 @@ export async function exportPdfDoc(p, co, btn, opts = {}) {
   `;
   document.body.appendChild(overlay);
 
-  // 2. Direct rendering container mounted at (0, 0) to guarantee 100% page fit without offsets
+  // 2. Off-screen staging container for pixel-perfect standard A4 layout
   const stage = document.createElement('div');
   stage.id = 'ci360-pdf-render-stage';
   stage.setAttribute('data-theme', 'light');
-  stage.style.cssText = 'position:fixed;left:0;top:0;width:794px;min-width:794px;max-width:794px;margin:0;padding:0;z-index:9999998;background:#ffffff;box-sizing:border-box;pointer-events:none;';
+  stage.style.cssText = 'position:absolute;left:-99999px;top:0;width:794px;margin:0;padding:0;background:#ffffff;box-sizing:border-box;';
 
   try {
     const h2p = await loadScript(CDN.pdf, 'html2pdf');
@@ -593,12 +593,9 @@ export async function exportPdfDoc(p, co, btn, opts = {}) {
           width: 794px !important;
           min-width: 794px !important;
           max-width: 794px !important;
-          height: 1122px !important;
-          min-height: 1122px !important;
-          max-height: 1122px !important;
+          height: 1120px !important;
+          max-height: 1120px !important;
           padding: 56px 44px !important;
-          page-break-after: always !important;
-          break-after: page !important;
           position: relative !important;
           display: flex !important;
           flex-direction: column !important;
@@ -689,7 +686,7 @@ export async function exportPdfDoc(p, co, btn, opts = {}) {
     document.body.appendChild(stage);
 
     // Wait for styles and layout to compute
-    await new Promise(r => setTimeout(r, 350));
+    await new Promise(r => setTimeout(r, 400));
 
     const opt = {
       margin: 0,
@@ -699,12 +696,7 @@ export async function exportPdfDoc(p, co, btn, opts = {}) {
         scale: 2, 
         backgroundColor: '#ffffff', 
         useCORS: true,
-        logging: false,
-        scrollX: 0,
-        scrollY: 0,
-        x: 0,
-        y: 0,
-        width: 794
+        logging: false
       },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
       pagebreak: {
@@ -714,7 +706,8 @@ export async function exportPdfDoc(p, co, btn, opts = {}) {
       }
     };
 
-    await h2p().set(opt).from(stage).save();
+    const paperEl = stage.querySelector('.paper');
+    await h2p().set(opt).from(paperEl || stage).save();
     flashToast('PDF downloaded successfully! 📄');
   } catch (err) {
     alert('PDF export error: ' + err.message);
