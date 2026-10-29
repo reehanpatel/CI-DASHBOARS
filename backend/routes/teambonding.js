@@ -57,15 +57,15 @@ async function ensureDefaultChannels(user) {
       {
         name: '🎉 Team Lounge',
         type: 'group',
-        description: 'Watercooler chats, fun discussions, and team bonding for everyone!',
+        description: 'Watercooler chats, updates, and team discussions for everyone!',
         avatar: '🎉',
         isDefault: true
       },
       {
-        name: '⚡ Game & Challenge Arena',
+        name: '💬 General Discussion',
         type: 'group',
-        description: 'Post and join group quizzes, word duels, speed typing, and friendly showdowns!',
-        avatar: '🎮',
+        description: 'Open conversation, brainstorming, and cross-team collaboration.',
+        avatar: '💬',
         isDefault: true
       }
     ];
@@ -372,6 +372,23 @@ router.put('/channels/:id/members', async (req, res) => {
     }
 
     res.status(400).json({ error: 'Invalid action. Supported: add, remove' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// DELETE /api/bonding/channels/:id - Delete a group channel
+router.delete('/channels/:id', async (req, res) => {
+  try {
+    const channel = await BondingChannel.findById(req.params.id);
+    if (!channel) return res.status(404).json({ error: 'Channel not found' });
+
+    // Allow deleting groups
+    channel.isArchived = true;
+    await channel.save();
+    await BondingMessage.deleteMany({ channelId: channel._id });
+
+    res.json({ message: 'Group deleted successfully', channelId: channel._id });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

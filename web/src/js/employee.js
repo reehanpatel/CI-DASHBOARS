@@ -28,7 +28,7 @@ function getEmployeeTabs() {
     { key: 'myjobs',     label: 'My Jobs',            icon: '📋' },
     { key: 'dailytasks', label: 'Daily Planner',      icon: '📅' },
     { key: 'proposals',  label: 'Proposal Studio',    icon: '📜' },
-    { key: 'teambonding',label: 'Team Bonding 🎮',    icon: '🤝' },
+    { key: 'teambonding',label: 'Team Chat & Lounge', icon: '💬' },
     { key: 'targets',    label: 'My Targets',         icon: '🎯' },
     { key: 'settings',   label: 'Settings',           icon: '⚙️' }
   ];

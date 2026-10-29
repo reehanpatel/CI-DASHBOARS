@@ -42,7 +42,7 @@ const ADMIN_TABS = [
   { key: 'dashboard', label: 'Dashboard', icon: '📊' },
   { key: 'dailytasks', label: 'Daily Planner', icon: '📅' },
   { key: 'proposals', label: 'Proposal Studio', icon: '📜' },
-  { key: 'teambonding', label: 'Team Bonding 🎮', icon: '🤝' },
+  { key: 'teambonding', label: 'Team Chat & Lounge', icon: '💬' },
   { key: 'logjob', label: 'Log a Job', icon: '➕' },
   { key: 'jobs', label: 'All Jobs', icon: '📁' },
   { key: 'byclient', label: 'By Client', icon: '💼' },
