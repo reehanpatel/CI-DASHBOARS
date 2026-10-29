@@ -1369,6 +1369,9 @@ export async function initTeamBonding(container, options = {}) {
       modalRoot.innerHTML = `
         <div class="bonding-modal-backdrop">
           <div class="bonding-modal-card game-arena-modal">
+            <!-- Dedicated Top-Right Close Button -->
+            <button class="arena-close-btn" id="btn-close-arena" title="Exit Match">&times;</button>
+
             <!-- Arena Header Bar -->
             <div class="arena-header">
               <div class="arena-title-wrap">
@@ -1376,9 +1379,9 @@ export async function initTeamBonding(container, options = {}) {
                 <div>
                   <h3 class="arena-title">${escapeHtml(match.gameTitle)}</h3>
                   <div class="arena-players-vs">
-                    <span>${escapeHtml(me.name)} (You · ${me.assignedRole})</span>
+                    <span class="player-tag self">${escapeHtml(me.name)} (You · <strong>${match.gameType === 'connectfour' ? (me.assignedRole === 'red' ? '🔴 Red' : '🟡 Yellow') : (match.gameType === 'tictactoe' ? (me.assignedRole === 'X' ? '✕' : '◯') : me.assignedRole)}</strong>)</span>
                     <span class="vs-pill">VS</span>
-                    <span>${escapeHtml(opp.name)} (${opp.assignedRole})</span>
+                    <span class="player-tag opp">${escapeHtml(opp.name)} (<strong>${match.gameType === 'connectfour' ? (opp.assignedRole === 'red' ? '🔴 Red' : '🟡 Yellow') : (match.gameType === 'tictactoe' ? (opp.assignedRole === 'X' ? '✕' : '◯') : opp.assignedRole)}</strong>)</span>
                   </div>
                 </div>
               </div>
@@ -1386,21 +1389,32 @@ export async function initTeamBonding(container, options = {}) {
               <!-- Live Turn Indicator -->
               <div class="arena-turn-banner ${isEnded ? 'ended' : (isMyTurn ? 'my-turn' : 'opp-turn')}">
                 ${isEnded
-                  ? `<span>Match Finished (${escapeHtml(match.winningReason || match.status)})</span>`
+                  ? `<span>🏁 Finished (${escapeHtml(match.winningReason || match.status)})</span>`
                   : (isMyTurn
-                    ? `<span>⚡ YOUR TURN (${me.assignedRole.toUpperCase()})</span>`
+                    ? `<span>⚡ YOUR TURN</span>`
                     : `<span>⏳ Waiting for ${escapeHtml(opp.name)}...</span>`
                   )
                 }
               </div>
+            </div>
 
-              <div class="arena-top-actions">
-                ${!isEnded ? `
-                  <button class="btn-arena-action" id="btn-arena-draw" title="Offer a Draw">🤝 Draw</button>
-                  <button class="btn-arena-action danger" id="btn-arena-resign" title="Resign Match">🏳️ Resign</button>
-                ` : ''}
-                <button class="bonding-modal-close" id="btn-close-arena">&times;</button>
+            <!-- Sub-Toolbar with Quick Instructions & Draw/Resign Actions -->
+            <div class="arena-toolbar">
+              <div class="arena-tip-text">
+                ${match.gameType === 'connectfour' 
+                  ? (isMyTurn ? '👉 Click any column arrow to drop your disc!' : '⏳ Opponent is deciding their move...')
+                  : (match.gameType === 'tictactoe'
+                    ? (isMyTurn ? '👉 Tap any open cell to place your symbol!' : '⏳ Opponent is deciding their move...')
+                    : (isMyTurn ? '👉 Click your piece, then click a green target dot to move!' : '⏳ Opponent is thinking...')
+                  )
+                }
               </div>
+              ${!isEnded ? `
+                <div class="arena-action-btns">
+                  <button class="btn-arena-action" id="btn-arena-draw" title="Offer a Draw">🤝 Offer Draw</button>
+                  <button class="btn-arena-action danger" id="btn-arena-resign" title="Resign Match">🏳️ Resign</button>
+                </div>
+              ` : ''}
             </div>
 
             <!-- Draw Offer Notification -->
@@ -1496,15 +1510,17 @@ export async function initTeamBonding(container, options = {}) {
       const winningCells = match.winningCells || [];
 
       return `
-        <div class="ttt-board-grid">
-          ${board.map((cell, idx) => {
-            const isWinCell = winningCells.includes(idx);
-            return `
-              <div class="ttt-cell ${cell ? 'filled' : 'empty'} ${isWinCell ? 'win-cell' : ''}" data-cell-idx="${idx}">
-                ${cell === 'X' ? '<span class="ttt-x">✕</span>' : (cell === 'O' ? '<span class="ttt-o">◯</span>' : '')}
-              </div>
-            `;
-          }).join('')}
+        <div class="ttt-court">
+          <div class="ttt-board-grid">
+            ${board.map((cell, idx) => {
+              const isWinCell = winningCells.includes(idx);
+              return `
+                <div class="ttt-cell ${cell ? 'filled' : 'empty'} ${isWinCell ? 'win-cell' : ''}" data-cell-idx="${idx}">
+                  ${cell === 'X' ? '<span class="ttt-x">✕</span>' : (cell === 'O' ? '<span class="ttt-o">◯</span>' : '')}
+                </div>
+              `;
+            }).join('')}
+          </div>
         </div>
       `;
     }
@@ -1535,7 +1551,9 @@ export async function initTeamBonding(container, options = {}) {
           `;
         }
       }
-      html += `</div></div>`;
+      html += `</div>`;
+      html += `<div class="c4-rack-stand"><div class="c4-stand-leg left"></div><div class="c4-stand-leg right"></div></div>`;
+      html += `</div>`;
       return html;
     }
 
@@ -3588,40 +3606,100 @@ function injectBondingStyles() {
     /* =========================================================================
        LIVE GAME ARENA MODAL & BOARDS (CHESS, TIC-TAC-TOE, CONNECT FOUR)
        ========================================================================= */
+    /* =========================================================================
+       LIVE GAME ARENA MODAL & BOARDS (CHESS, TIC-TAC-TOE, CONNECT FOUR)
+       ========================================================================= */
     .game-arena-modal {
-      width: 640px;
+      width: 660px;
       max-width: 95vw;
-      padding: 20px;
+      padding: 24px;
+      position: relative;
+      background: var(--bg-card, #ffffff);
+      border: 1px solid var(--border-sm, #e2e8f0);
+      border-radius: 20px;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.22);
     }
 
+    [data-theme="dark"] .game-arena-modal {
+      background: #0f172a;
+      border-color: #1e293b;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.7);
+    }
+
+    /* Dedicated Top-Right Close Button */
+    .arena-close-btn {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: rgba(0,0,0,0.06);
+      border: none;
+      color: var(--text-3, #94a3b8);
+      font-size: 22px;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      z-index: 10;
+    }
+
+    .arena-close-btn:hover {
+      background: rgba(239, 68, 68, 0.15);
+      color: #ef4444;
+      transform: scale(1.08);
+    }
+
+    [data-theme="dark"] .arena-close-btn {
+      background: rgba(255,255,255,0.08);
+      color: #94a3b8;
+    }
+
+    /* Arena Header */
     .arena-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
+      gap: 16px;
       padding-bottom: 14px;
+      padding-right: 36px;
       border-bottom: 1px solid var(--border-sm, #e2e8f0);
-      flex-wrap: wrap;
     }
 
     [data-theme="dark"] .arena-header {
-      border-color: #1f2937;
+      border-color: #1e293b;
     }
 
     .arena-title-wrap {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
     }
 
     .arena-icon {
       font-size: 32px;
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: rgba(99, 102, 241, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
     }
 
     .arena-title {
       font-size: 18px;
       font-weight: 800;
-      margin: 0;
+      margin: 0 0 4px 0;
+      color: var(--text-1, #0f172a);
+    }
+
+    [data-theme="dark"] .arena-title {
+      color: #f8fafc;
     }
 
     .arena-players-vs {
@@ -3630,63 +3708,139 @@ function injectBondingStyles() {
       display: flex;
       align-items: center;
       gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .player-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .player-tag strong {
+      color: var(--text-1, #0f172a);
+    }
+
+    [data-theme="dark"] .player-tag strong {
+      color: #f1f5f9;
     }
 
     .vs-pill {
       font-weight: 800;
+      font-size: 10px;
+      padding: 1px 5px;
+      border-radius: 4px;
+      background: rgba(99, 102, 241, 0.12);
       color: #6366f1;
     }
 
+    /* Turn Banner */
     .arena-turn-banner {
-      padding: 6px 12px;
-      border-radius: 8px;
+      padding: 7px 14px;
+      border-radius: 10px;
       font-size: 12px;
       font-weight: 800;
+      letter-spacing: 0.3px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+      flex-shrink: 0;
     }
 
     .arena-turn-banner.my-turn {
-      background: #10b981;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
       color: #ffffff;
-      box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
-      animation: pulseGlow 1.5s infinite;
-    }
-
-    @keyframes pulseGlow {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.02); }
+      box-shadow: 0 0 16px rgba(16, 185, 129, 0.5);
+      animation: pulseGlow 1.8s infinite;
     }
 
     .arena-turn-banner.opp-turn {
       background: var(--bg-muted, #f1f5f9);
       color: var(--text-2, #64748b);
+      border: 1px solid var(--border-sm, #cbd5e1);
     }
 
     [data-theme="dark"] .arena-turn-banner.opp-turn {
       background: #1e293b;
       color: #94a3b8;
+      border-color: #334155;
     }
 
-    .arena-top-actions {
+    .arena-turn-banner.ended {
+      background: rgba(99, 102, 241, 0.12);
+      color: #6366f1;
+      border: 1px solid #818cf8;
+    }
+
+    /* Sub Toolbar */
+    .arena-toolbar {
       display: flex;
       align-items: center;
-      gap: 6px;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border-sm, #f1f5f9);
+    }
+
+    [data-theme="dark"] .arena-toolbar {
+      border-color: #1e293b;
+    }
+
+    .arena-tip-text {
+      font-size: 12px;
+      color: var(--text-3, #64748b);
+      font-weight: 500;
+    }
+
+    .arena-action-btns {
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
     .btn-arena-action {
-      padding: 6px 10px;
+      padding: 5px 12px;
       border-radius: 8px;
-      border: 1px solid #cbd5e1;
-      background: transparent;
+      border: 1px solid var(--border-sm, #cbd5e1);
+      background: var(--bg-card, #ffffff);
+      color: var(--text-2, #475569);
       font-size: 12px;
       font-weight: 600;
       cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.15s ease;
+    }
+
+    .btn-arena-action:hover {
+      background: var(--bg-muted, #f8fafc);
+      border-color: #94a3b8;
+    }
+
+    [data-theme="dark"] .btn-arena-action {
+      background: #1e293b;
+      border-color: #334155;
+      color: #cbd5e1;
+    }
+
+    [data-theme="dark"] .btn-arena-action:hover {
+      background: #25334c;
+      border-color: #475569;
     }
 
     .btn-arena-action.danger {
       color: #ef4444;
+      border-color: rgba(239, 68, 68, 0.4);
+    }
+
+    .btn-arena-action.danger:hover {
+      background: rgba(239, 68, 68, 0.1);
       border-color: #ef4444;
     }
 
+    /* Draw Offer Notification */
     .arena-draw-offer-banner {
       background: rgba(245, 158, 11, 0.15);
       border: 1px solid #f59e0b;
@@ -3718,46 +3872,393 @@ function injectBondingStyles() {
       cursor: pointer;
     }
 
+    /* Main Playing Board Arena Wrapper */
     .arena-board-wrap {
       display: flex;
       justify-content: center;
       align-items: center;
-      padding: 20px 0;
+      padding: 16px 0;
+      width: 100%;
+      min-height: 380px;
+      box-sizing: border-box;
     }
 
-    /* ── CHESS DUEL BOARD ── */
+    /* =========================================================================
+       TIC-TAC-TOE BOARD (AUTHENTIC SQUARE 3x3 COURT)
+       ========================================================================= */
+    .ttt-court {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 6px;
+      user-select: none;
+    }
+
+    .ttt-board-grid {
+      display: grid !important;
+      grid-template-columns: repeat(3, 98px) !important;
+      grid-template-rows: repeat(3, 98px) !important;
+      gap: 10px !important;
+      width: 324px !important;
+      height: 324px !important;
+      min-width: 324px !important;
+      min-height: 324px !important;
+      max-width: 324px !important;
+      max-height: 324px !important;
+      place-items: center !important;
+      align-content: center !important;
+      justify-content: center !important;
+      background: var(--bg-muted, #f1f5f9);
+      padding: 10px;
+      border-radius: 24px;
+      border: 1px solid var(--border-sm, #cbd5e1);
+      box-shadow: inset 0 2px 8px rgba(0,0,0,0.04);
+      box-sizing: border-box !important;
+    }
+
+    [data-theme="dark"] .ttt-board-grid {
+      background: #090e1a;
+      border-color: #1e293b;
+      box-shadow: inset 0 2px 14px rgba(0,0,0,0.6);
+    }
+
+    .ttt-cell {
+      width: 94px !important;
+      height: 94px !important;
+      min-width: 94px !important;
+      min-height: 94px !important;
+      max-width: 94px !important;
+      max-height: 94px !important;
+      aspect-ratio: 1 / 1 !important;
+      box-sizing: border-box !important;
+      flex-shrink: 0 !important;
+      border-radius: 16px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      font-size: 52px;
+      font-weight: 900;
+      line-height: 1;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      background: var(--bg-card, #ffffff);
+      border: 2px solid var(--border-sm, #e2e8f0);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+    }
+
+    [data-theme="dark"] .ttt-cell {
+      background: #151d2e;
+      border-color: #243247;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+
+    .ttt-cell.empty:hover {
+      background: #e0e7ff;
+      border-color: #6366f1;
+      transform: scale(1.04);
+      box-shadow: 0 6px 18px rgba(99, 102, 241, 0.25);
+    }
+
+    [data-theme="dark"] .ttt-cell.empty:hover {
+      background: #1e2a42;
+      border-color: #818cf8;
+      box-shadow: 0 0 16px rgba(129, 140, 248, 0.35);
+    }
+
+    .ttt-cell.win-cell {
+      background: #d1fae5 !important;
+      border-color: #10b981 !important;
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.5) !important;
+      animation: tttWinGlow 1s infinite alternate;
+    }
+
+    [data-theme="dark"] .ttt-cell.win-cell {
+      background: rgba(16, 185, 129, 0.25) !important;
+      border-color: #34d399 !important;
+      box-shadow: 0 0 25px rgba(52, 211, 153, 0.6) !important;
+    }
+
+    @keyframes tttWinGlow {
+      from { transform: scale(1); }
+      to { transform: scale(1.05); }
+    }
+
+    .ttt-x {
+      color: #4f46e5;
+      filter: drop-shadow(0 2px 4px rgba(79, 70, 229, 0.3));
+    }
+
+    [data-theme="dark"] .ttt-x {
+      color: #818cf8;
+      text-shadow: 0 0 16px rgba(129, 140, 248, 0.85);
+    }
+
+    .ttt-o {
+      color: #ea580c;
+      filter: drop-shadow(0 2px 4px rgba(234, 88, 12, 0.3));
+    }
+
+    [data-theme="dark"] .ttt-o {
+      color: #fbbf24;
+      text-shadow: 0 0 16px rgba(251, 191, 36, 0.85);
+    }
+
+    /* =========================================================================
+       CONNECT FOUR BOARD (AUTHENTIC TABLETOP DISK RACK)
+       ========================================================================= */
+    .c4-board-rack {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: fit-content;
+      margin: 0 auto;
+      user-select: none;
+    }
+
+    /* Top Drop Arrow Column Buttons */
+    .c4-drop-arrows-row {
+      display: grid !important;
+      grid-template-columns: repeat(7, 48px) !important;
+      gap: 8px !important;
+      width: fit-content !important;
+      margin-bottom: 8px !important;
+      justify-content: center !important;
+      align-items: center !important;
+    }
+
+    .c4-drop-col-btn {
+      width: 48px !important;
+      height: 36px !important;
+      min-width: 48px !important;
+      min-height: 36px !important;
+      border-radius: 10px;
+      border: 1px solid #c7d2fe;
+      background: #e0e7ff;
+      color: #4338ca;
+      font-size: 18px;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.06);
+    }
+
+    .c4-drop-col-btn:hover {
+      background: #4f46e5;
+      color: #ffffff;
+      transform: translateY(3px);
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
+    }
+
+    [data-theme="dark"] .c4-drop-col-btn {
+      background: #1e293b;
+      border-color: #3b82f6;
+      color: #60a5fa;
+    }
+
+    [data-theme="dark"] .c4-drop-col-btn:hover {
+      background: #2563eb;
+      color: #ffffff;
+      box-shadow: 0 0 15px rgba(59, 130, 246, 0.6);
+    }
+
+    /* The Main Blue Game Rack */
+    .c4-grid-slots {
+      display: grid !important;
+      grid-template-columns: repeat(7, 48px) !important;
+      grid-template-rows: repeat(6, 48px) !important;
+      gap: 8px !important;
+      width: fit-content !important;
+      height: fit-content !important;
+      min-width: 400px !important;
+      min-height: 344px !important;
+      max-width: 400px !important;
+      max-height: 344px !important;
+      place-items: center !important;
+      align-content: center !important;
+      justify-content: center !important;
+      padding: 14px !important;
+      border-radius: 22px !important;
+      box-sizing: border-box !important;
+      background: linear-gradient(180deg, #2563eb 0%, #1d4ed8 60%, #1e40af 100%) !important;
+      border: 3px solid #1e40af !important;
+      box-shadow: 0 16px 36px rgba(37, 99, 235, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.3) !important;
+      position: relative;
+      z-index: 2;
+    }
+
+    [data-theme="dark"] .c4-grid-slots {
+      background: linear-gradient(180deg, #1d4ed8 0%, #1e3a8a 60%, #172554 100%) !important;
+      border: 3px solid #3b82f6 !important;
+      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.7), 0 0 25px rgba(37, 99, 235, 0.3), inset 0 2px 4px rgba(255, 255, 255, 0.2) !important;
+    }
+
+    /* Tabletop Stand Feet */
+    .c4-rack-stand {
+      display: flex;
+      justify-content: space-between;
+      width: 410px;
+      height: 14px;
+      margin-top: -2px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .c4-stand-leg {
+      width: 46px;
+      height: 14px;
+      background: #1e3a8a;
+      border-radius: 0 0 8px 8px;
+    }
+
+    [data-theme="dark"] .c4-stand-leg {
+      background: #0f172a;
+      border: 1px solid #1e3a8a;
+    }
+
+    /* Slot Circular Container */
+    .c4-slot {
+      width: 48px !important;
+      height: 48px !important;
+      min-width: 48px !important;
+      min-height: 48px !important;
+      max-width: 48px !important;
+      max-height: 48px !important;
+      aspect-ratio: 1 / 1 !important;
+      box-sizing: border-box !important;
+      flex-shrink: 0 !important;
+      border-radius: 50% !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      cursor: pointer;
+      position: relative;
+      background: #090e1a !important;
+      box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.8) !important;
+      transition: transform 0.15s ease;
+    }
+
+    .c4-slot:hover {
+      transform: scale(1.04);
+    }
+
+    /* Empty Hole Inset */
+    .c4-hole {
+      width: 42px !important;
+      height: 42px !important;
+      min-width: 42px !important;
+      min-height: 42px !important;
+      max-width: 42px !important;
+      max-height: 42px !important;
+      aspect-ratio: 1 / 1 !important;
+      border-radius: 50% !important;
+      flex-shrink: 0 !important;
+      background: #0b1329 !important;
+      box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.9) !important;
+      border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    }
+
+    /* Checkers Discs */
+    .c4-disc {
+      width: 44px !important;
+      height: 44px !important;
+      min-width: 44px !important;
+      min-height: 44px !important;
+      max-width: 44px !important;
+      max-height: 44px !important;
+      aspect-ratio: 1 / 1 !important;
+      border-radius: 50% !important;
+      flex-shrink: 0 !important;
+      box-sizing: border-box !important;
+      animation: dropDiscAnim 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+      position: relative;
+    }
+
+    @keyframes dropDiscAnim {
+      0% { transform: translateY(-160px); opacity: 0; }
+      80% { transform: translateY(6px); opacity: 1; }
+      100% { transform: translateY(0); opacity: 1; }
+    }
+
+    /* Red Disc */
+    .c4-disc.red {
+      background: radial-gradient(circle at 35% 35%, #f87171 0%, #ef4444 35%, #dc2626 70%, #991b1b 100%) !important;
+      box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), inset 0 -3px 5px rgba(0,0,0,0.6), 0 3px 6px rgba(0,0,0,0.4) !important;
+      border: 3px double rgba(255,255,255,0.3) !important;
+    }
+
+    /* Yellow Disc */
+    .c4-disc.yellow {
+      background: radial-gradient(circle at 35% 35%, #fef08a 0%, #facc15 35%, #eab308 70%, #a16207 100%) !important;
+      box-shadow: inset 0 2px 4px rgba(255,255,255,0.8), inset 0 -3px 5px rgba(0,0,0,0.5), 0 3px 6px rgba(0,0,0,0.3) !important;
+      border: 3px double rgba(0,0,0,0.2) !important;
+    }
+
+    /* Winning Disc Aura */
+    .c4-slot.win-disc .c4-disc {
+      box-shadow: 0 0 16px #ffffff, 0 0 28px #fbbf24 !important;
+      animation: c4WinDiscPulse 0.9s infinite alternate !important;
+    }
+
+    @keyframes c4WinDiscPulse {
+      from { transform: scale(1); filter: brightness(1); }
+      to { transform: scale(1.1); filter: brightness(1.2); }
+    }
+
+    /* =========================================================================
+       CHESS DUEL BOARD (AUTHENTIC TOURNAMENT 8x8)
+       ========================================================================= */
     .chess-arena-layout {
       display: flex;
-      gap: 16px;
+      gap: 18px;
       align-items: flex-start;
       flex-wrap: wrap;
       justify-content: center;
     }
 
     .chess-board-grid {
-      display: grid;
-      grid-template-columns: repeat(8, 44px);
-      grid-template-rows: repeat(8, 44px);
-      border: 3px solid #334155;
-      border-radius: 8px;
+      display: grid !important;
+      grid-template-columns: repeat(8, 48px) !important;
+      grid-template-rows: repeat(8, 48px) !important;
+      width: 384px !important;
+      height: 384px !important;
+      min-width: 384px !important;
+      min-height: 384px !important;
+      border: 4px solid #334155;
+      border-radius: 12px;
       overflow: hidden;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+      box-sizing: border-box !important;
     }
 
-    @media (max-width: 480px) {
+    @media (max-width: 520px) {
       .chess-board-grid {
-        grid-template-columns: repeat(8, 36px);
-        grid-template-rows: repeat(8, 36px);
+        grid-template-columns: repeat(8, 40px) !important;
+        grid-template-rows: repeat(8, 40px) !important;
+        width: 320px !important;
+        height: 320px !important;
+        min-width: 320px !important;
+        min-height: 320px !important;
       }
     }
 
     .chess-sq {
+      width: 100% !important;
+      height: 100% !important;
+      aspect-ratio: 1 / 1 !important;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
       user-select: none;
       position: relative;
+      box-sizing: border-box !important;
     }
 
     .chess-sq.light {
@@ -3768,32 +4269,48 @@ function injectBondingStyles() {
       background: #b58863;
     }
 
+    [data-theme="dark"] .chess-sq.light {
+      background: #cbd5e1;
+    }
+
+    [data-theme="dark"] .chess-sq.dark {
+      background: #475569;
+    }
+
     .chess-sq.selected {
-      background: #7dd3fc !important;
+      background: #38bdf8 !important;
+      box-shadow: inset 0 0 10px rgba(0,0,0,0.3);
     }
 
     .chess-sq.legal-dot::after {
       content: '';
-      width: 12px;
-      height: 12px;
+      width: 14px;
+      height: 14px;
       border-radius: 50%;
-      background: rgba(16, 185, 129, 0.7);
+      background: rgba(16, 185, 129, 0.75);
+      box-shadow: 0 0 6px rgba(16, 185, 129, 0.6);
       position: absolute;
     }
 
     .chess-piece {
-      font-size: 32px;
+      font-size: 34px;
       line-height: 1;
-      text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+      user-select: none;
+      transition: transform 0.1s ease;
+    }
+
+    .chess-piece:hover {
+      transform: scale(1.12);
     }
 
     .chess-piece.white-piece {
       color: #ffffff;
-      filter: drop-shadow(0 1px 2px #000000);
+      filter: drop-shadow(0 2px 3px rgba(0,0,0,0.8));
     }
 
     .chess-piece.black-piece {
-      color: #1e293b;
+      color: #0f172a;
+      filter: drop-shadow(0 1px 2px rgba(255,255,255,0.4));
     }
 
     .chess-sidebar-notation {
@@ -3802,7 +4319,7 @@ function injectBondingStyles() {
       border: 1px solid var(--border-sm, #e2e8f0);
       border-radius: 10px;
       padding: 10px;
-      height: 350px;
+      height: 384px;
       display: flex;
       flex-direction: column;
     }
@@ -3835,154 +4352,6 @@ function injectBondingStyles() {
       padding: 2px 6px;
       border-radius: 4px;
       font-family: monospace;
-    }
-
-    /* ── TIC-TAC-TOE BOARD ── */
-    .ttt-board-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 90px);
-      grid-template-rows: repeat(3, 90px);
-      gap: 8px;
-    }
-
-    .ttt-cell {
-      background: var(--bg-muted, #f8fafc);
-      border: 2px solid var(--border-sm, #cbd5e1);
-      border-radius: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 44px;
-      font-weight: 900;
-      cursor: pointer;
-      user-select: none;
-      transition: all 0.15s ease;
-    }
-
-    [data-theme="dark"] .ttt-cell {
-      background: #1e293b;
-      border-color: #334155;
-    }
-
-    .ttt-cell.empty:hover {
-      background: rgba(99, 102, 241, 0.15);
-      border-color: #818cf8;
-      transform: scale(1.03);
-    }
-
-    .ttt-cell.win-cell {
-      background: rgba(16, 185, 129, 0.25) !important;
-      border-color: #10b981 !important;
-      box-shadow: 0 0 16px rgba(16, 185, 129, 0.4);
-    }
-
-    .ttt-x {
-      color: #6366f1;
-      text-shadow: 0 0 8px rgba(99, 102, 241, 0.4);
-    }
-
-    .ttt-o {
-      color: #f59e0b;
-      text-shadow: 0 0 8px rgba(245, 158, 11, 0.4);
-    }
-
-    /* ── CONNECT FOUR BOARD ── */
-    .c4-board-rack {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .c4-drop-arrows-row {
-      display: grid;
-      grid-template-columns: repeat(7, 44px);
-      gap: 6px;
-    }
-
-    .c4-drop-col-btn {
-      width: 44px;
-      height: 32px;
-      border-radius: 8px;
-      border: 1px solid #cbd5e1;
-      background: rgba(99, 102, 241, 0.12);
-      color: #4f46e5;
-      font-size: 16px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.15s ease;
-    }
-
-    .c4-drop-col-btn:hover {
-      background: #6366f1;
-      color: #ffffff;
-      transform: translateY(-2px);
-    }
-
-    .c4-grid-slots {
-      display: grid;
-      grid-template-columns: repeat(7, 44px);
-      grid-template-rows: repeat(6, 44px);
-      gap: 6px;
-      background: #2563eb;
-      padding: 12px;
-      border-radius: 18px;
-      box-shadow: 0 10px 25px rgba(37, 99, 235, 0.35);
-    }
-
-    .c4-slot {
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      background: rgba(0, 0, 0, 0.2);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-    }
-
-    .c4-disc {
-      width: 38px;
-      height: 38px;
-      border-radius: 50%;
-      box-shadow: inset 0 -3px 4px rgba(0,0,0,0.3);
-      animation: dropDisc 0.25s ease-out;
-    }
-
-    @keyframes dropDisc {
-      0% { transform: translateY(-50px); opacity: 0; }
-      100% { transform: translateY(0); opacity: 1; }
-    }
-
-    .c4-disc.red {
-      background: radial-gradient(circle at 35% 35%, #ef4444 0%, #b91c1c 100%);
-    }
-
-    .c4-disc.yellow {
-      background: radial-gradient(circle at 35% 35%, #facc15 0%, #ca8a04 100%);
-    }
-
-    .c4-slot.win-disc .c4-disc {
-      box-shadow: 0 0 18px #ffffff, 0 0 25px #10b981;
-      animation: winGlow 1s infinite alternate;
-    }
-
-    @keyframes winGlow {
-      from { transform: scale(1); }
-      to { transform: scale(1.08); }
-    }
-
-    .c4-hole {
-      width: 38px;
-      height: 38px;
-      border-radius: 50%;
-      background: var(--bg-card, #ffffff);
-    }
-
-    [data-theme="dark"] .c4-hole {
-      background: #111827;
     }
 
     /* Game Over Banner in Modal */

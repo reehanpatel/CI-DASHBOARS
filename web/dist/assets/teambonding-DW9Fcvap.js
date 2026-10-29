@@ -1,4 +1,4 @@
-var ba=Object.defineProperty;var ma=(n,t,e)=>t in n?ba(n,t,{enumerable:!0,configurable:!0,writable:!0,value:e}):n[t]=e;var ge=(n,t,e)=>ma(n,typeof t!="symbol"?t+"":t,e);import{c as De,h as q,e as C,n as ha,j as Yt,o as mt,k as yt,g as ye}from"./api-Chk_3u1-.js";const Ht={displayName:"Daily Planner",weekStartsOn:1,timezone:"Asia/Kolkata",defaultPriority:"Medium",density:"comfortable",soundEnabled:!0};function va(){try{const n=localStorage.getItem("ci360_planner_settings");if(n)return Object.assign({},Ht,JSON.parse(n))}catch{}return Object.assign({},Ht)}function xa(n){try{localStorage.setItem("ci360_planner_settings",JSON.stringify(n))}catch{}}function qe(){const n=new Date,t=n.getFullYear(),e=String(n.getMonth()+1).padStart(2,"0"),r=String(n.getDate()).padStart(2,"0");return`${t}-${e}-${r}`}function ht(n,t){const e=new Date(n+"T00:00:00");e.setDate(e.getDate()+t);const r=e.getFullYear(),s=String(e.getMonth()+1).padStart(2,"0"),i=String(e.getDate()).padStart(2,"0");return`${r}-${s}-${i}`}function ot(n){return n?new Date(n+"T00:00:00").toLocaleDateString("en-US",{weekday:"long",year:"numeric",month:"long",day:"numeric"}):"—"}function He(n){return n?new Date(n+"T00:00:00").toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"}):"—"}function Gt(n){return n?new Date(n+"T00:00:00").toLocaleDateString("en-US",{weekday:"short"}):""}function _t(n,t=1){const e=new Date(n+"T00:00:00"),r=e.getDay(),s=(r<t?7:0)+r-t,i=new Date(e);i.setDate(e.getDate()-s);const p=[];for(let a=0;a<7;a++){const h=new Date(i);h.setDate(i.getDate()+a);const $=h.getFullYear(),E=String(h.getMonth()+1).padStart(2,"0"),F=String(h.getDate()).padStart(2,"0");p.push(`${$}-${E}-${F}`)}return p}function ya(){try{const n=window.AudioContext||window.webkitAudioContext;if(!n)return;const t=new n,e=t.currentTime,r=t.createOscillator(),s=t.createGain();r.type="sine",r.frequency.setValueAtTime(523.25,e),r.frequency.exponentialRampToValueAtTime(783.99,e+.15),s.gain.setValueAtTime(.2,e),s.gain.exponentialRampToValueAtTime(.001,e+.35),r.connect(s),s.connect(t.destination),r.start(e),r.stop(e+.35)}catch{}}function Qa(n,t={}){const{userRole:e="employee",currentUser:r=null,onNavigate:s=null}=t,i=e==="superadmin"||e==="admin";let p=va(),a={selectedDate:qe(),viewMode:"daily",filterStatus:"all",searchQuery:"",selectedCategory:"all",selectedPersonnelId:"all",tasks:[],personnelList:[],loading:!1};ka(),h();async function h(){a.loading=!0,$();try{const o=[De("/tasks")];i&&o.push(De("/personnel").catch(()=>[]));const[x,w]=await Promise.all(o);a.tasks=Array.isArray(x)?x:[],w&&(a.personnelList=Array.isArray(w)?w:[])}catch(o){q("Failed to load planner tasks: "+o.message,!0)}finally{a.loading=!1,K()}}function $(){n.innerHTML=`
+var fa=Object.defineProperty;var ma=(n,t,e)=>t in n?fa(n,t,{enumerable:!0,configurable:!0,writable:!0,value:e}):n[t]=e;var ue=(n,t,e)=>ma(n,typeof t!="symbol"?t+"":t,e);import{c as De,h as z,e as C,n as ha,j as Yt,o as mt,k as yt,g as ye}from"./api-Chk_3u1-.js";const Ht={displayName:"Daily Planner",weekStartsOn:1,timezone:"Asia/Kolkata",defaultPriority:"Medium",density:"comfortable",soundEnabled:!0};function va(){try{const n=localStorage.getItem("ci360_planner_settings");if(n)return Object.assign({},Ht,JSON.parse(n))}catch{}return Object.assign({},Ht)}function xa(n){try{localStorage.setItem("ci360_planner_settings",JSON.stringify(n))}catch{}}function ze(){const n=new Date,t=n.getFullYear(),e=String(n.getMonth()+1).padStart(2,"0"),i=String(n.getDate()).padStart(2,"0");return`${t}-${e}-${i}`}function ht(n,t){const e=new Date(n+"T00:00:00");e.setDate(e.getDate()+t);const i=e.getFullYear(),s=String(e.getMonth()+1).padStart(2,"0"),r=String(e.getDate()).padStart(2,"0");return`${i}-${s}-${r}`}function ot(n){return n?new Date(n+"T00:00:00").toLocaleDateString("en-US",{weekday:"long",year:"numeric",month:"long",day:"numeric"}):"—"}function He(n){return n?new Date(n+"T00:00:00").toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"}):"—"}function Gt(n){return n?new Date(n+"T00:00:00").toLocaleDateString("en-US",{weekday:"short"}):""}function _t(n,t=1){const e=new Date(n+"T00:00:00"),i=e.getDay(),s=(i<t?7:0)+i-t,r=new Date(e);r.setDate(e.getDate()-s);const p=[];for(let a=0;a<7;a++){const h=new Date(r);h.setDate(r.getDate()+a);const $=h.getFullYear(),E=String(h.getMonth()+1).padStart(2,"0"),F=String(h.getDate()).padStart(2,"0");p.push(`${$}-${E}-${F}`)}return p}function ya(){try{const n=window.AudioContext||window.webkitAudioContext;if(!n)return;const t=new n,e=t.currentTime,i=t.createOscillator(),s=t.createGain();i.type="sine",i.frequency.setValueAtTime(523.25,e),i.frequency.exponentialRampToValueAtTime(783.99,e+.15),s.gain.setValueAtTime(.2,e),s.gain.exponentialRampToValueAtTime(.001,e+.35),i.connect(s),s.connect(t.destination),i.start(e),i.stop(e+.35)}catch{}}function Qa(n,t={}){const{userRole:e="employee",currentUser:i=null,onNavigate:s=null}=t,r=e==="superadmin"||e==="admin";let p=va(),a={selectedDate:ze(),viewMode:"daily",filterStatus:"all",searchQuery:"",selectedCategory:"all",selectedPersonnelId:"all",tasks:[],personnelList:[],loading:!1};wa(),h();async function h(){a.loading=!0,$();try{const o=[De("/tasks")];r&&o.push(De("/personnel").catch(()=>[]));const[x,k]=await Promise.all(o);a.tasks=Array.isArray(x)?x:[],k&&(a.personnelList=Array.isArray(k)?k:[])}catch(o){z("Failed to load planner tasks: "+o.message,!0)}finally{a.loading=!1,W()}}function $(){n.innerHTML=`
       <div class="ci360-planner-wrap">
         <div class="ci360-planner-skeleton" style="padding:24px;background:var(--bg-card);border-radius:var(--r-lg);border:1px solid var(--border-sm)">
           <div style="height:32px;width:240px;background:var(--border-xs);border-radius:6px;margin-bottom:12px;animation:pulse 1.5s infinite"></div>
@@ -12,7 +12,7 @@ var ba=Object.defineProperty;var ma=(n,t,e)=>t in n?ba(n,t,{enumerable:!0,config
           <div style="height:200px;background:var(--border-xs);border-radius:12px"></div>
         </div>
       </div>
-    `}function E(o){return a.tasks.filter(x=>{var y;if(x.isDeleted===!0)return!1;if(i&&a.selectedPersonnelId!=="all"){const k=((y=x.personnelId)==null?void 0:y._id)||x.personnelId;if(String(k)!==String(a.selectedPersonnelId))return!1}const w=x.dateStr||(x.dueDate?new Date(x.dueDate).toISOString().slice(0,10):"");return w?w===o:o===qe()})}function F(o,x){if(o.status==="Completed")return!1;const w=o.dateStr||(o.dueDate?new Date(o.dueDate).toISOString().slice(0,10):"");return w?w<x:!1}function _(o,x){const w=o.length,y=o.filter(Q=>Q.status==="Completed").length,k=o.filter(Q=>Q.status==="In Progress").length,D=o.filter(Q=>Q.status==="Pending"||Q.status==="Todo").length,W=o.filter(Q=>F(Q,x)).length,X=w>0?Math.round(y/w*100):0;return{total:w,completed:y,inProgress:k,pending:D,overdue:W,percent:X}}function K(){const o=qe(),x=a.selectedDate===o,w=E(a.selectedDate),y=_(w,o);n.innerHTML=`
+    `}function E(o){return a.tasks.filter(x=>{var y;if(x.isDeleted===!0)return!1;if(r&&a.selectedPersonnelId!=="all"){const w=((y=x.personnelId)==null?void 0:y._id)||x.personnelId;if(String(w)!==String(a.selectedPersonnelId))return!1}const k=x.dateStr||(x.dueDate?new Date(x.dueDate).toISOString().slice(0,10):"");return k?k===o:o===ze()})}function F(o,x){if(o.status==="Completed")return!1;const k=o.dateStr||(o.dueDate?new Date(o.dueDate).toISOString().slice(0,10):"");return k?k<x:!1}function _(o,x){const k=o.length,y=o.filter(Y=>Y.status==="Completed").length,w=o.filter(Y=>Y.status==="In Progress").length,D=o.filter(Y=>Y.status==="Pending"||Y.status==="Todo").length,K=o.filter(Y=>F(Y,x)).length,ee=k>0?Math.round(y/k*100):0;return{total:k,completed:y,inProgress:w,pending:D,overdue:K,percent:ee}}function W(){const o=ze(),x=a.selectedDate===o,k=E(a.selectedDate),y=_(k,o);n.innerHTML=`
       <div class="ci360-planner-wrap ${p.density==="compact"?"is-compact":""}">
         
         <!-- Planner Main Header -->
@@ -118,14 +118,14 @@ var ba=Object.defineProperty;var ma=(n,t,e)=>t in n?ba(n,t,{enumerable:!0,config
           </div>
 
           <!-- Superadmin Team Filter -->
-          ${i?`
+          ${r?`
             <div class="ci360-team-filter-wrap">
               <label for="admTeamSelect" class="ci360-label-inline">Team:</label>
               <select id="admTeamSelect" class="ci360-select-inline">
                 <option value="all" ${a.selectedPersonnelId==="all"?"selected":""}>All Team Members</option>
-                ${a.personnelList.map(k=>`
-                  <option value="${k._id}" ${a.selectedPersonnelId===String(k._id)?"selected":""}>
-                    ${C(k.name)} (${C(k.department||k.role||"Team")})
+                ${a.personnelList.map(w=>`
+                  <option value="${w._id}" ${a.selectedPersonnelId===String(w._id)?"selected":""}>
+                    ${C(w.name)} (${C(w.department||w.role||"Team")})
                   </option>
                 `).join("")}
               </select>
@@ -183,11 +183,11 @@ var ba=Object.defineProperty;var ma=(n,t,e)=>t in n?ba(n,t,{enumerable:!0,config
 
         <!-- View Content Area (Daily, Weekly, or Report) -->
         <main class="ci360-planner-content" id="plannerContentArea">
-          ${O(w,y)}
+          ${O(k,y)}
         </main>
 
       </div>
-    `,$e(),it()}function O(o,x){return a.viewMode==="weekly"?nt():a.viewMode==="report"?Ue():ue(o,x)}function ue(o,x){const w=qe();let y=o;if(a.filterStatus==="pending"?y=y.filter(k=>k.status==="Pending"||k.status==="Todo"):a.filterStatus==="in_progress"?y=y.filter(k=>k.status==="In Progress"):a.filterStatus==="completed"?y=y.filter(k=>k.status==="Completed"):a.filterStatus==="overdue"&&(y=y.filter(k=>F(k,w))),a.searchQuery){const k=a.searchQuery.toLowerCase();y=y.filter(D=>(D.title||"").toLowerCase().includes(k)||(D.description||"").toLowerCase().includes(k)||(D.category||"").toLowerCase().includes(k))}return y.sort((k,D)=>{if(k.status==="Completed"&&D.status!=="Completed")return 1;if(k.status!=="Completed"&&D.status==="Completed")return-1;const W={Urgent:0,High:1,Medium:2,Low:3};return(W[k.priority]||2)-(W[D.priority]||2)}),`
+    `,$e(),rt()}function O(o,x){return a.viewMode==="weekly"?nt():a.viewMode==="report"?Ue():ge(o,x)}function ge(o,x){const k=ze();let y=o;if(a.filterStatus==="pending"?y=y.filter(w=>w.status==="Pending"||w.status==="Todo"):a.filterStatus==="in_progress"?y=y.filter(w=>w.status==="In Progress"):a.filterStatus==="completed"?y=y.filter(w=>w.status==="Completed"):a.filterStatus==="overdue"&&(y=y.filter(w=>F(w,k))),a.searchQuery){const w=a.searchQuery.toLowerCase();y=y.filter(D=>(D.title||"").toLowerCase().includes(w)||(D.description||"").toLowerCase().includes(w)||(D.category||"").toLowerCase().includes(w))}return y.sort((w,D)=>{if(w.status==="Completed"&&D.status!=="Completed")return 1;if(w.status!=="Completed"&&D.status==="Completed")return-1;const K={Urgent:0,High:1,Medium:2,Low:3};return(K[w.priority]||2)-(K[D.priority]||2)}),`
       <div class="ci360-today-focus-section">
         
         <!-- Section Header with Search & Filter Chips -->
@@ -254,7 +254,7 @@ var ba=Object.defineProperty;var ma=(n,t,e)=>t in n?ba(n,t,{enumerable:!0,config
         <div class="ci360-tasks-container">
           ${y.length===0?le():`
             <div class="ci360-task-list">
-              ${y.map(k=>Te(k,w)).join("")}
+              ${y.map(w=>Te(w,k)).join("")}
             </div>
           `}
         </div>
@@ -274,11 +274,11 @@ var ba=Object.defineProperty;var ma=(n,t,e)=>t in n?ba(n,t,{enumerable:!0,config
           </button>
         </div>
       </div>
-    `}function Te(o,x){var W,X,Q,I;const w=o.status==="Completed",y=F(o,x),k=`pri-${(o.priority||"medium").toLowerCase()}`,D=`status-${(o.status||"pending").toLowerCase().replace(/\s+/g,"-")}`;return`
-      <div class="ci360-task-card ${w?"is-completed":""} ${y?"is-overdue":""}" data-id="${o._id}">
+    `}function Te(o,x){var K,ee,Y,I;const k=o.status==="Completed",y=F(o,x),w=`pri-${(o.priority||"medium").toLowerCase()}`,D=`status-${(o.status||"pending").toLowerCase().replace(/\s+/g,"-")}`;return`
+      <div class="ci360-task-card ${k?"is-completed":""} ${y?"is-overdue":""}" data-id="${o._id}">
         
         <!-- Completion Checkbox -->
-        <button type="button" class="ci360-task-check ${w?"checked":""}" data-action="toggle" data-id="${o._id}" title="${w?"Reopen task":"Mark as done"}">
+        <button type="button" class="ci360-task-check ${k?"checked":""}" data-action="toggle" data-id="${o._id}" title="${k?"Reopen task":"Mark as done"}">
           <svg class="check-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
             <polyline points="20 6 9 17 4 12"/>
           </svg>
@@ -297,7 +297,7 @@ var ba=Object.defineProperty;var ma=(n,t,e)=>t in n?ba(n,t,{enumerable:!0,config
           <!-- Metadata Badges -->
           <div class="ci360-task-badges">
             <!-- Priority Badge -->
-            <span class="ci360-badge ${k}">
+            <span class="ci360-badge ${w}">
               <span class="badge-dot"></span>
               ${C(o.priority||"Medium")}
             </span>
@@ -331,9 +331,9 @@ var ba=Object.defineProperty;var ma=(n,t,e)=>t in n?ba(n,t,{enumerable:!0,config
             `:""}
 
             <!-- Superadmin assigned employee name -->
-            ${i&&((W=o.personnelId)!=null&&W.name||(X=o.userId)!=null&&X.name)?`
+            ${r&&((K=o.personnelId)!=null&&K.name||(ee=o.userId)!=null&&ee.name)?`
               <span class="ci360-badge personnel-badge">
-                👤 ${C(((Q=o.personnelId)==null?void 0:Q.name)||((I=o.userId)==null?void 0:I.name))}
+                👤 ${C(((Y=o.personnelId)==null?void 0:Y.name)||((I=o.userId)==null?void 0:I.name))}
               </span>
             `:""}
           </div>
@@ -350,14 +350,14 @@ var ba=Object.defineProperty;var ma=(n,t,e)=>t in n?ba(n,t,{enumerable:!0,config
         </div>
 
       </div>
-    `}function nt(){const o=_t(a.selectedDate,p.weekStartsOn),x=He(o[0]),w=He(o[6]),y=qe();return`
+    `}function nt(){const o=_t(a.selectedDate,p.weekStartsOn),x=He(o[0]),k=He(o[6]),y=ze();return`
       <div class="ci360-weekly-planner-section">
         
         <!-- Week Navigator Banner -->
         <div class="ci360-week-banner">
           <div class="week-title-wrap">
             <h2 class="week-title">Weekly Schedule</h2>
-            <span class="week-range-text">${x} – ${w}</span>
+            <span class="week-range-text">${x} – ${k}</span>
           </div>
 
           <div class="week-controls">
@@ -369,29 +369,29 @@ var ba=Object.defineProperty;var ma=(n,t,e)=>t in n?ba(n,t,{enumerable:!0,config
 
         <!-- 7-Day Grid -->
         <div class="ci360-week-grid">
-          ${o.map(k=>{const D=k===y,W=k===a.selectedDate,X=E(k),Q=_(X,y);return`
-              <div class="ci360-day-column ${D?"is-today":""} ${W?"is-selected":""}" data-date="${k}">
+          ${o.map(w=>{const D=w===y,K=w===a.selectedDate,ee=E(w),Y=_(ee,y);return`
+              <div class="ci360-day-column ${D?"is-today":""} ${K?"is-selected":""}" data-date="${w}">
                 
                 <!-- Column Header -->
-                <div class="day-col-header" data-date="${k}">
-                  <div class="day-name">${Gt(k)}</div>
-                  <div class="day-number">${new Date(k+"T00:00:00").getDate()}</div>
+                <div class="day-col-header" data-date="${w}">
+                  <div class="day-name">${Gt(w)}</div>
+                  <div class="day-number">${new Date(w+"T00:00:00").getDate()}</div>
                   ${D?'<span class="today-pill">Today</span>':""}
                 </div>
 
                 <!-- Daily Progress Bar -->
                 <div class="day-col-stats">
-                  <span class="stat-text">${Q.completed}/${Q.total} done</span>
+                  <span class="stat-text">${Y.completed}/${Y.total} done</span>
                   <div class="mini-bar-wrap">
-                    <div class="mini-bar" style="width: ${Q.percent}%"></div>
+                    <div class="mini-bar" style="width: ${Y.percent}%"></div>
                   </div>
                 </div>
 
                 <!-- Tasks Column Body -->
                 <div class="day-col-tasks">
-                  ${X.length===0?`
+                  ${ee.length===0?`
                     <div class="day-empty">No tasks</div>
-                  `:X.map(I=>`
+                  `:ee.map(I=>`
                     <div class="ci360-mini-task-card ${I.status==="Completed"?"done":""}" data-id="${I._id}">
                       <button type="button" class="mini-check ${I.status==="Completed"?"checked":""}" data-action="toggle" data-id="${I._id}">
                         ✓
@@ -408,7 +408,7 @@ var ba=Object.defineProperty;var ma=(n,t,e)=>t in n?ba(n,t,{enumerable:!0,config
                 </div>
 
                 <!-- Quick Add for Day Button -->
-                <button type="button" class="day-col-add-btn" data-action="add-day" data-date="${k}">
+                <button type="button" class="day-col-add-btn" data-action="add-day" data-date="${w}">
                   + Add Task
                 </button>
 
@@ -417,13 +417,13 @@ var ba=Object.defineProperty;var ma=(n,t,e)=>t in n?ba(n,t,{enumerable:!0,config
         </div>
 
       </div>
-    `}function Ue(){const o=_t(a.selectedDate,p.weekStartsOn),x=ot(o[0]),w=ot(o[6]),y=qe(),k=a.tasks.filter(N=>{if(N.isDeleted===!0)return!1;const L=N.dateStr||(N.dueDate?new Date(N.dueDate).toISOString().slice(0,10):"");return o.includes(L)}),D=k.length,W=k.filter(N=>N.status==="Completed").length,X=k.filter(N=>N.status==="In Progress").length,Q=D>0?Math.round(W/D*100):0,I={Urgent:0,High:0,Medium:0,Low:0};return k.forEach(N=>{const L=N.priority||"Medium";I[L]!==void 0&&I[L]++}),`
+    `}function Ue(){const o=_t(a.selectedDate,p.weekStartsOn),x=ot(o[0]),k=ot(o[6]),y=ze(),w=a.tasks.filter(N=>{if(N.isDeleted===!0)return!1;const L=N.dateStr||(N.dueDate?new Date(N.dueDate).toISOString().slice(0,10):"");return o.includes(L)}),D=w.length,K=w.filter(N=>N.status==="Completed").length,ee=w.filter(N=>N.status==="In Progress").length,Y=D>0?Math.round(K/D*100):0,I={Urgent:0,High:0,Medium:0,Low:0};return w.forEach(N=>{const L=N.priority||"Medium";I[L]!==void 0&&I[L]++}),`
       <div class="ci360-report-section">
         
         <div class="ci360-report-banner">
           <div>
             <h2 style="font-size:22px;margin:0 0 4px">Weekly Productivity Report</h2>
-            <div style="font-size:13px;color:var(--text-3)">Week Period: ${x} – ${w}</div>
+            <div style="font-size:13px;color:var(--text-3)">Week Period: ${x} – ${k}</div>
           </div>
 
           <div style="display:flex;gap:10px">
@@ -441,15 +441,15 @@ var ba=Object.defineProperty;var ma=(n,t,e)=>t in n?ba(n,t,{enumerable:!0,config
           </div>
           <div class="card kpi">
             <span class="label">Completed Tasks</span>
-            <span class="value" style="font-size:28px;color:var(--green-500)">${W}</span>
+            <span class="value" style="font-size:28px;color:var(--green-500)">${K}</span>
           </div>
           <div class="card kpi">
             <span class="label">In Progress</span>
-            <span class="value" style="font-size:28px;color:var(--amber-500)">${X}</span>
+            <span class="value" style="font-size:28px;color:var(--amber-500)">${ee}</span>
           </div>
           <div class="card kpi">
             <span class="label">Weekly Completion</span>
-            <span class="value" style="font-size:28px;color:var(--brand-600)">${Q}%</span>
+            <span class="value" style="font-size:28px;color:var(--brand-600)">${Y}%</span>
           </div>
         </div>
 
@@ -515,11 +515,11 @@ var ba=Object.defineProperty;var ma=(n,t,e)=>t in n?ba(n,t,{enumerable:!0,config
         </div>
 
       </div>
-    `}function $e(){const o=document.getElementById("btnViewDaily"),x=document.getElementById("btnViewWeekly"),w=document.getElementById("btnViewReport");o&&(o.onclick=()=>{a.viewMode="daily",K()}),x&&(x.onclick=()=>{a.viewMode="weekly",K()}),w&&(w.onclick=()=>{a.viewMode="report",K()});const y=document.getElementById("btnPrevDay"),k=document.getElementById("btnNextDay"),D=document.getElementById("btnJumpToday"),W=document.getElementById("hiddenDateInput"),X=document.getElementById("datePickerBadge");y&&(y.onclick=()=>{a.selectedDate=ht(a.selectedDate,-1),K()}),k&&(k.onclick=()=>{a.selectedDate=ht(a.selectedDate,1),K()}),D&&(D.onclick=()=>{a.selectedDate=qe(),K()}),X&&W&&(X.onclick=()=>{try{typeof W.showPicker=="function"?W.showPicker():W.focus()}catch{W.focus()}},W.onchange=oe=>{oe.target.value&&(a.selectedDate=oe.target.value,K())});const Q=document.getElementById("admTeamSelect");Q&&(Q.onchange=oe=>{a.selectedPersonnelId=oe.target.value,K()});const I=document.getElementById("btnOpenAddTaskModal");I&&(I.onclick=()=>_e());const N=document.getElementById("btnPlannerActionsMenu"),L=document.getElementById("plannerActionsDropdown");N&&L&&(N.onclick=oe=>{oe.stopPropagation(),L.classList.toggle("hidden")},document.addEventListener("click",oe=>{!L.contains(oe.target)&&oe.target!==N&&L.classList.add("hidden")}));const v=document.getElementById("btnActionImport");v&&(v.onclick=()=>{L==null||L.classList.add("hidden"),Fe()});const ne=document.getElementById("btnActionExportPng");ne&&(ne.onclick=()=>{L==null||L.classList.add("hidden"),Oe()});const re=document.getElementById("btnActionExportPdf");re&&(re.onclick=()=>{L==null||L.classList.add("hidden"),Qe()});const pe=document.getElementById("btnActionBackup");pe&&(pe.onclick=()=>{L==null||L.classList.add("hidden"),Ve()});const ie=document.getElementById("btnActionSettings");ie&&(ie.onclick=()=>{L==null||L.classList.add("hidden"),Ye()})}function it(o){if(a.viewMode==="daily"){document.querySelectorAll(".filter-pill").forEach(I=>{I.onclick=()=>{a.filterStatus=I.dataset.f,K()}});const x=document.getElementById("plannerTaskSearchInp");x&&(x.oninput=I=>{a.searchQuery=I.target.value,K()});const w=document.getElementById("btnClearSearch");w&&(w.onclick=()=>{a.searchQuery="",K()});const y=document.getElementById("quickAddTitleInp"),k=document.getElementById("quickAddPriority"),D=document.getElementById("quickAddCategory"),W=document.getElementById("btnQuickAddSubmit"),X=async()=>{const I=((y==null?void 0:y.value)||"").trim();if(!I){q("Please enter a task title",!0),y==null||y.focus();return}try{const N={title:I,dateStr:a.selectedDate,priority:(k==null?void 0:k.value)||p.defaultPriority,category:(D==null?void 0:D.value)||"General",status:"Pending"};i&&a.selectedPersonnelId!=="all"&&(N.personnelId=a.selectedPersonnelId);const L=await ye("/tasks",N);a.tasks.unshift(L),q("Task added to today's focus! ✨"),y&&(y.value="",y.focus()),K()}catch(N){q(N.message,!0)}};W&&(W.onclick=X),y&&(y.onkeydown=I=>{I.key==="Enter"&&X()});const Q=document.getElementById("btnEmptyStateImport");Q&&(Q.onclick=()=>Fe())}if(a.viewMode==="weekly"){const x=document.getElementById("btnPrevWeek"),w=document.getElementById("btnNextWeek"),y=document.getElementById("btnThisWeek");x&&(x.onclick=()=>{a.selectedDate=ht(a.selectedDate,-7),K()}),w&&(w.onclick=()=>{a.selectedDate=ht(a.selectedDate,7),K()}),y&&(y.onclick=()=>{a.selectedDate=qe(),K()}),document.querySelectorAll(".day-col-header").forEach(k=>{k.onclick=()=>{a.selectedDate=k.dataset.date,a.viewMode="daily",K()}}),document.querySelectorAll('[data-action="add-day"]').forEach(k=>{k.onclick=()=>{_e(null,k.dataset.date)}})}if(a.viewMode==="report"){const x=document.getElementById("btnDownloadWeeklyPdf");x&&(x.onclick=Qe)}n.querySelectorAll('[data-action="toggle"]').forEach(x=>{x.onclick=async w=>{w.stopPropagation();const y=x.dataset.id;await Ne(y)}}),n.querySelectorAll('[data-action="edit"]').forEach(x=>{x.onclick=w=>{w.stopPropagation();const y=x.dataset.id,k=a.tasks.find(D=>D._id===y);k&&_e(k)}}),n.querySelectorAll('[data-action="delete"]').forEach(x=>{x.onclick=async w=>{w.stopPropagation();const y=x.dataset.id;await lt(y)}})}async function Ne(o){const x=a.tasks.find(y=>y._id===o);if(!x)return;const w=x.status!=="Completed";try{const y=await ha(`/tasks/${o}/toggle`,{}),k=a.tasks.findIndex(D=>D._id===o);k!==-1&&(a.tasks[k]=y),w?(p.soundEnabled&&ya(),q("Task marked as completed! 🎉")):q("Task reopened as pending."),K()}catch(y){q(y.message,!0)}}async function lt(o){const x=a.tasks.find(w=>w._id===o);if(x&&confirm(`Are you sure you want to remove "${x.title}" from your planner?
-(It will be safely retained in the database archive.)`))try{await Yt(`/tasks/${o}`),a.tasks=a.tasks.filter(w=>w._id!==o),q("Task removed from planner (safely stored in database archive)"),K()}catch(w){q(w.message,!0)}}function _e(o=null,x=null){const w=!!o,y=o?o.dateStr||(o.dueDate?new Date(o.dueDate).toISOString().slice(0,10):a.selectedDate):x||a.selectedDate,k=`
+    `}function $e(){const o=document.getElementById("btnViewDaily"),x=document.getElementById("btnViewWeekly"),k=document.getElementById("btnViewReport");o&&(o.onclick=()=>{a.viewMode="daily",W()}),x&&(x.onclick=()=>{a.viewMode="weekly",W()}),k&&(k.onclick=()=>{a.viewMode="report",W()});const y=document.getElementById("btnPrevDay"),w=document.getElementById("btnNextDay"),D=document.getElementById("btnJumpToday"),K=document.getElementById("hiddenDateInput"),ee=document.getElementById("datePickerBadge");y&&(y.onclick=()=>{a.selectedDate=ht(a.selectedDate,-1),W()}),w&&(w.onclick=()=>{a.selectedDate=ht(a.selectedDate,1),W()}),D&&(D.onclick=()=>{a.selectedDate=ze(),W()}),ee&&K&&(ee.onclick=()=>{try{typeof K.showPicker=="function"?K.showPicker():K.focus()}catch{K.focus()}},K.onchange=oe=>{oe.target.value&&(a.selectedDate=oe.target.value,W())});const Y=document.getElementById("admTeamSelect");Y&&(Y.onchange=oe=>{a.selectedPersonnelId=oe.target.value,W()});const I=document.getElementById("btnOpenAddTaskModal");I&&(I.onclick=()=>_e());const N=document.getElementById("btnPlannerActionsMenu"),L=document.getElementById("plannerActionsDropdown");N&&L&&(N.onclick=oe=>{oe.stopPropagation(),L.classList.toggle("hidden")},document.addEventListener("click",oe=>{!L.contains(oe.target)&&oe.target!==N&&L.classList.add("hidden")}));const v=document.getElementById("btnActionImport");v&&(v.onclick=()=>{L==null||L.classList.add("hidden"),Fe()});const ne=document.getElementById("btnActionExportPng");ne&&(ne.onclick=()=>{L==null||L.classList.add("hidden"),Oe()});const ie=document.getElementById("btnActionExportPdf");ie&&(ie.onclick=()=>{L==null||L.classList.add("hidden"),Qe()});const pe=document.getElementById("btnActionBackup");pe&&(pe.onclick=()=>{L==null||L.classList.add("hidden"),Ve()});const re=document.getElementById("btnActionSettings");re&&(re.onclick=()=>{L==null||L.classList.add("hidden"),Ye()})}function rt(o){if(a.viewMode==="daily"){document.querySelectorAll(".filter-pill").forEach(I=>{I.onclick=()=>{a.filterStatus=I.dataset.f,W()}});const x=document.getElementById("plannerTaskSearchInp");x&&(x.oninput=I=>{a.searchQuery=I.target.value,W()});const k=document.getElementById("btnClearSearch");k&&(k.onclick=()=>{a.searchQuery="",W()});const y=document.getElementById("quickAddTitleInp"),w=document.getElementById("quickAddPriority"),D=document.getElementById("quickAddCategory"),K=document.getElementById("btnQuickAddSubmit"),ee=async()=>{const I=((y==null?void 0:y.value)||"").trim();if(!I){z("Please enter a task title",!0),y==null||y.focus();return}try{const N={title:I,dateStr:a.selectedDate,priority:(w==null?void 0:w.value)||p.defaultPriority,category:(D==null?void 0:D.value)||"General",status:"Pending"};r&&a.selectedPersonnelId!=="all"&&(N.personnelId=a.selectedPersonnelId);const L=await ye("/tasks",N);a.tasks.unshift(L),z("Task added to today's focus! ✨"),y&&(y.value="",y.focus()),W()}catch(N){z(N.message,!0)}};K&&(K.onclick=ee),y&&(y.onkeydown=I=>{I.key==="Enter"&&ee()});const Y=document.getElementById("btnEmptyStateImport");Y&&(Y.onclick=()=>Fe())}if(a.viewMode==="weekly"){const x=document.getElementById("btnPrevWeek"),k=document.getElementById("btnNextWeek"),y=document.getElementById("btnThisWeek");x&&(x.onclick=()=>{a.selectedDate=ht(a.selectedDate,-7),W()}),k&&(k.onclick=()=>{a.selectedDate=ht(a.selectedDate,7),W()}),y&&(y.onclick=()=>{a.selectedDate=ze(),W()}),document.querySelectorAll(".day-col-header").forEach(w=>{w.onclick=()=>{a.selectedDate=w.dataset.date,a.viewMode="daily",W()}}),document.querySelectorAll('[data-action="add-day"]').forEach(w=>{w.onclick=()=>{_e(null,w.dataset.date)}})}if(a.viewMode==="report"){const x=document.getElementById("btnDownloadWeeklyPdf");x&&(x.onclick=Qe)}n.querySelectorAll('[data-action="toggle"]').forEach(x=>{x.onclick=async k=>{k.stopPropagation();const y=x.dataset.id;await Ne(y)}}),n.querySelectorAll('[data-action="edit"]').forEach(x=>{x.onclick=k=>{k.stopPropagation();const y=x.dataset.id,w=a.tasks.find(D=>D._id===y);w&&_e(w)}}),n.querySelectorAll('[data-action="delete"]').forEach(x=>{x.onclick=async k=>{k.stopPropagation();const y=x.dataset.id;await lt(y)}})}async function Ne(o){const x=a.tasks.find(y=>y._id===o);if(!x)return;const k=x.status!=="Completed";try{const y=await ha(`/tasks/${o}/toggle`,{}),w=a.tasks.findIndex(D=>D._id===o);w!==-1&&(a.tasks[w]=y),k?(p.soundEnabled&&ya(),z("Task marked as completed! 🎉")):z("Task reopened as pending."),W()}catch(y){z(y.message,!0)}}async function lt(o){const x=a.tasks.find(k=>k._id===o);if(x&&confirm(`Are you sure you want to remove "${x.title}" from your planner?
+(It will be safely retained in the database archive.)`))try{await Yt(`/tasks/${o}`),a.tasks=a.tasks.filter(k=>k._id!==o),z("Task removed from planner (safely stored in database archive)"),W()}catch(k){z(k.message,!0)}}function _e(o=null,x=null){const k=!!o,y=o?o.dateStr||(o.dueDate?new Date(o.dueDate).toISOString().slice(0,10):a.selectedDate):x||a.selectedDate,w=`
       <div class="ci360-planner-modal">
         <div class="ci360-modal-header">
-          <h3>${w?"Edit Task":"Add New Task"}</h3>
+          <h3>${k?"Edit Task":"Add New Task"}</h3>
           <button type="button" class="ci360-modal-close" id="btnModalClose">×</button>
         </div>
 
@@ -589,7 +589,7 @@ var ba=Object.defineProperty;var ma=(n,t,e)=>t in n?ba(n,t,{enumerable:!0,config
           </div>
 
           <!-- Superadmin Assign To -->
-          ${i?`
+          ${r?`
             <div class="form-group">
               <label for="taskAssignee">Assign To</label>
               <select id="taskAssignee" class="input">
@@ -602,12 +602,12 @@ var ba=Object.defineProperty;var ma=(n,t,e)=>t in n?ba(n,t,{enumerable:!0,config
           <div class="ci360-modal-footer">
             <button type="button" class="ci360-btn-secondary" id="btnCancelModal">Cancel</button>
             <button type="submit" class="ci360-btn-primary" id="btnSaveTask">
-              ${w?"Save Changes":"Create Task"}
+              ${k?"Save Changes":"Create Task"}
             </button>
           </div>
         </form>
       </div>
-    `,D=mt(k),W=D.querySelector("#taskForm"),X=D.querySelector("#btnModalClose"),Q=D.querySelector("#btnCancelModal"),I=()=>D.remove();X&&(X.onclick=I),Q&&(Q.onclick=I),W.onsubmit=async N=>{var P;N.preventDefault();const L=D.querySelector("#taskTitle").value.trim(),v=D.querySelector("#taskDesc").value.trim(),ne=D.querySelector("#taskDate").value,re=D.querySelector("#taskStartTime").value.trim(),pe=D.querySelector("#taskDueTime").value.trim(),ie=D.querySelector("#taskPriority").value,oe=D.querySelector("#taskStatus").value,c=D.querySelector("#taskCategory").value.trim()||"General";if(!L){q("Task title is required",!0);return}const b={title:L,description:v,dateStr:ne,startTime:re,dueTime:pe,priority:ie,status:oe,category:c};if(i){const m=(P=D.querySelector("#taskAssignee"))==null?void 0:P.value;m==="all"?(b.assignAll=!0,b.personnelId="all"):m&&(b.personnelId=m)}const l=D.querySelector("#btnSaveTask");l.disabled=!0,l.textContent="Saving...";try{if(w){const m=await yt(`/tasks/${o._id}`,b),z=a.tasks.findIndex(A=>A._id===o._id);z!==-1&&(a.tasks[z]=m),q("Task updated successfully! ✍️")}else{const m=await ye("/tasks",b);Array.isArray(m.tasks)?m.tasks.forEach(z=>a.tasks.unshift(z)):a.tasks.unshift(m),q("Task created successfully! ✨")}I(),K()}catch(m){q(m.message,!0),l.disabled=!1,l.textContent=w?"Save Changes":"Create Task"}}}function Fe(){let o=[];const x=`
+    `,D=mt(w),K=D.querySelector("#taskForm"),ee=D.querySelector("#btnModalClose"),Y=D.querySelector("#btnCancelModal"),I=()=>D.remove();ee&&(ee.onclick=I),Y&&(Y.onclick=I),K.onsubmit=async N=>{var P;N.preventDefault();const L=D.querySelector("#taskTitle").value.trim(),v=D.querySelector("#taskDesc").value.trim(),ne=D.querySelector("#taskDate").value,ie=D.querySelector("#taskStartTime").value.trim(),pe=D.querySelector("#taskDueTime").value.trim(),re=D.querySelector("#taskPriority").value,oe=D.querySelector("#taskStatus").value,c=D.querySelector("#taskCategory").value.trim()||"General";if(!L){z("Task title is required",!0);return}const f={title:L,description:v,dateStr:ne,startTime:ie,dueTime:pe,priority:re,status:oe,category:c};if(r){const m=(P=D.querySelector("#taskAssignee"))==null?void 0:P.value;m==="all"?(f.assignAll=!0,f.personnelId="all"):m&&(f.personnelId=m)}const l=D.querySelector("#btnSaveTask");l.disabled=!0,l.textContent="Saving...";try{if(k){const m=await yt(`/tasks/${o._id}`,f),q=a.tasks.findIndex(A=>A._id===o._id);q!==-1&&(a.tasks[q]=m),z("Task updated successfully! ✍️")}else{const m=await ye("/tasks",f);Array.isArray(m.tasks)?m.tasks.forEach(q=>a.tasks.unshift(q)):a.tasks.unshift(m),z("Task created successfully! ✨")}I(),W()}catch(m){z(m.message,!0),l.disabled=!1,l.textContent=k?"Save Changes":"Create Task"}}}function Fe(){let o=[];const x=`
       <div class="ci360-planner-modal import-modal" style="max-width:680px">
         <div class="ci360-modal-header">
           <div>
@@ -679,13 +679,13 @@ var ba=Object.defineProperty;var ma=(n,t,e)=>t in n?ba(n,t,{enumerable:!0,config
 
         </div>
       </div>
-    `,w=mt(x),y=()=>w.remove();w.querySelector("#btnImportClose").onclick=y,w.querySelector("#btnCancelImport").onclick=y;const k=w.querySelector("#importTextarea"),D=w.querySelector("#importFileInput"),W=w.querySelector("#importDropzone"),X=w.querySelector("#previewListArea"),Q=w.querySelector("#previewCountLabel"),I=w.querySelector("#btnConfirmImport"),N=w.querySelector("#importFileInfo");function L(ne){if(!ne)return[];const re=ne.split(/\r?\n/),pe=[];for(let ie of re)ie=ie.trim(),ie&&(ie=ie.replace(/^-\s*\[\s*[xX ]?\s*\]\s*/,""),ie=ie.replace(/^[-*•]\s+/,""),ie=ie.replace(/^\d+[\.\)]\s+/,""),ie=ie.trim(),ie&&pe.push(ie));return pe}function v(){const ne=k.value,re=L(ne),pe=w.querySelector("#importTargetDate").value,ie=E(pe),oe=new Set(ie.map(c=>(c.title||"").trim().toLowerCase()));o=[];for(const c of re){const b=oe.has(c.toLowerCase());o.push({title:c,isDuplicate:b})}if(Q.textContent=`Preview (${o.length} ${o.length===1?"task":"tasks"} found)`,I.disabled=o.length===0,I.textContent=`Import ${o.length} ${o.length===1?"Task":"Tasks"}`,o.length===0){X.innerHTML='<div style="padding:16px;text-align:center;color:var(--text-4);font-size:12px">No tasks found. Paste text above to preview.</div>';return}X.innerHTML=o.map((c,b)=>`
+    `,k=mt(x),y=()=>k.remove();k.querySelector("#btnImportClose").onclick=y,k.querySelector("#btnCancelImport").onclick=y;const w=k.querySelector("#importTextarea"),D=k.querySelector("#importFileInput"),K=k.querySelector("#importDropzone"),ee=k.querySelector("#previewListArea"),Y=k.querySelector("#previewCountLabel"),I=k.querySelector("#btnConfirmImport"),N=k.querySelector("#importFileInfo");function L(ne){if(!ne)return[];const ie=ne.split(/\r?\n/),pe=[];for(let re of ie)re=re.trim(),re&&(re=re.replace(/^-\s*\[\s*[xX ]?\s*\]\s*/,""),re=re.replace(/^[-*•]\s+/,""),re=re.replace(/^\d+[\.\)]\s+/,""),re=re.trim(),re&&pe.push(re));return pe}function v(){const ne=w.value,ie=L(ne),pe=k.querySelector("#importTargetDate").value,re=E(pe),oe=new Set(re.map(c=>(c.title||"").trim().toLowerCase()));o=[];for(const c of ie){const f=oe.has(c.toLowerCase());o.push({title:c,isDuplicate:f})}if(Y.textContent=`Preview (${o.length} ${o.length===1?"task":"tasks"} found)`,I.disabled=o.length===0,I.textContent=`Import ${o.length} ${o.length===1?"Task":"Tasks"}`,o.length===0){ee.innerHTML='<div style="padding:16px;text-align:center;color:var(--text-4);font-size:12px">No tasks found. Paste text above to preview.</div>';return}ee.innerHTML=o.map((c,f)=>`
         <div class="preview-item ${c.isDuplicate?"is-duplicate":""}">
-          <span class="preview-index">${b+1}.</span>
+          <span class="preview-index">${f+1}.</span>
           <span class="preview-title">${C(c.title)}</span>
           ${c.isDuplicate?'<span class="badge overdue-badge" style="font-size:10px">Already on this date</span>':""}
         </div>
-      `).join("")}k.oninput=v,W.onclick=()=>D.click(),D.onchange=ne=>{const re=ne.target.files[0];if(!re)return;N.textContent=`File selected: ${re.name} (${Math.round(re.size/1024)} KB)`;const pe=new FileReader;pe.onload=ie=>{k.value=ie.target.result,v()},pe.readAsText(re)},W.ondragover=ne=>{ne.preventDefault(),W.classList.add("dragover")},W.ondragleave=()=>W.classList.remove("dragover"),W.ondrop=ne=>{ne.preventDefault(),W.classList.remove("dragover");const re=ne.dataTransfer.files[0];if(re&&(re.type==="text/plain"||re.name.endsWith(".txt"))){N.textContent=`File dropped: ${re.name}`;const pe=new FileReader;pe.onload=ie=>{k.value=ie.target.result,v()},pe.readAsText(re)}else q("Please drop a valid .txt plain-text file",!0)},I.onclick=async()=>{if(o.length===0)return;I.disabled=!0,I.textContent="Importing...";const ne=w.querySelector("#importTargetDate").value,re=w.querySelector("#importPriority").value,pe=w.querySelector("#importCategory").value.trim()||"General",ie={date:ne,tasks:o.map(oe=>({title:oe.title,priority:re,category:pe,status:"Pending"}))};i&&a.selectedPersonnelId!=="all"&&(ie.personnelId=a.selectedPersonnelId);try{const oe=await ye("/tasks/bulk-import",ie);Array.isArray(oe.tasks)&&oe.tasks.forEach(c=>a.tasks.unshift(c)),q(`Imported ${oe.importedCount} tasks successfully! (${oe.skippedCount} skipped duplicates)`),y(),a.selectedDate=ne,K()}catch(oe){q(oe.message,!0),I.disabled=!1,I.textContent="Retry Import"}}}async function Oe(){const o=E(a.selectedDate),x=_(o,qe()),w=ot(a.selectedDate),y=2,k=800,D=160,W=90,X=65,Q=70,I=Math.max(120,o.length*X),N=D+W+I+Q,L=document.createElement("canvas");L.width=k*y,L.height=N*y;const v=L.getContext("2d");v.scale(y,y);const ne=document.documentElement.getAttribute("data-theme")==="dark",re=ne?"#0F172A":"#F8FAFC",pe=ne?"#1E293B":"#FFFFFF",ie=ne?"#334155":"#E2E8F0",oe=ne?"#F8FAFC":"#0F172A",c=ne?"#94A3B8":"#475569",b="#4F46E5",l="#10B981",P="#F59E0B";v.fillStyle=re,v.fillRect(0,0,k,N),v.fillStyle=pe,Be(v,24,20,k-48,D-30,16),v.fill(),v.strokeStyle=ie,v.lineWidth=1,v.stroke(),v.fillStyle=b,v.font="bold 12px Inter, sans-serif",v.fillText("CI360 INTELLIGENCE SUITE · DAILY PLANNER",44,52),v.fillStyle=oe,v.font='bold 22px "Plus Jakarta Sans", Inter, sans-serif',v.fillText(w,44,86),v.fillStyle=c,v.font="13px Inter, sans-serif",v.fillText(`Planned focus list · ${x.completed} of ${x.total} tasks completed (${x.percent}%)`,44,114);const m=D+6;v.fillStyle=pe,Be(v,24,m,k-48,W-16,12),v.fill(),v.stroke();const z=[{label:"TOTAL TASKS",val:String(x.total),color:oe},{label:"COMPLETED",val:String(x.completed),color:l},{label:"IN PROGRESS",val:String(x.inProgress),color:P},{label:"PENDING",val:String(x.pending),color:c},{label:"PROGRESS",val:`${x.percent}%`,color:b}],A=(k-48)/z.length;z.forEach((Z,te)=>{const S=24+te*A+20;v.fillStyle=Z.color,v.font="bold 20px Inter, sans-serif",v.fillText(Z.val,S,m+36),v.fillStyle=c,v.font="10px Inter, sans-serif",v.fillText(Z.label,S,m+54)});const B=m+W;v.fillStyle=pe,Be(v,24,B,k-48,I+10,16),v.fill(),v.stroke(),o.length===0?(v.fillStyle=c,v.font="14px Inter, sans-serif",v.textAlign="center",v.fillText("No scheduled tasks recorded for this date.",k/2,B+60),v.textAlign="left"):o.forEach((Z,te)=>{const S=B+16+te*X,M=Z.status==="Completed";v.beginPath(),v.arc(48,S+14,10,0,Math.PI*2),M?(v.fillStyle=l,v.fill(),v.strokeStyle="#FFFFFF",v.lineWidth=2,v.beginPath(),v.moveTo(44,S+14),v.lineTo(47,S+17),v.lineTo(52,S+11),v.stroke()):(v.strokeStyle=ie,v.lineWidth=2,v.stroke()),v.fillStyle=M?c:oe,v.font=`${M?"normal":"500"} 14px Inter, sans-serif`;const ee=Z.title.length>55?Z.title.slice(0,52)+"...":Z.title;if(v.fillText(ee,70,S+18),M){const ve=v.measureText(ee);v.strokeStyle=c,v.lineWidth=1.2,v.beginPath(),v.moveTo(70,S+14),v.lineTo(70+ve.width,S+14),v.stroke()}const V=Z.priority||"Medium";let Y="#E2E8F0",ae="#334155";V==="Urgent"?(Y="#FEE2E2",ae="#DC2626"):V==="High"?(Y="#FEF3C7",ae="#D97706"):V==="Low"&&(Y="#ECFDF5",ae="#059669"),v.fillStyle=Y,Be(v,k-150,S+4,60,20,10),v.fill(),v.fillStyle=ae,v.font="bold 10px Inter, sans-serif",v.fillText(V,k-138,S+18);const de=Z.dueTime?`🕒 ${Z.dueTime}`:Z.category||"General";v.fillStyle=c,v.font="11px Inter, sans-serif",v.fillText(de,70,S+34),te<o.length-1&&(v.strokeStyle=ie,v.lineWidth=.6,v.beginPath(),v.moveTo(40,S+48),v.lineTo(k-40,S+48),v.stroke())});const R=N-35;v.fillStyle=c,v.font="11px Inter, sans-serif",v.fillText(`Generated by CI360 Productivity Suite · Dayfolio Native Module · ${new Date().toLocaleDateString()}`,44,R);try{const Z=L.toDataURL("image/png"),te=document.createElement("a");te.href=Z,te.download=`ci360-daily-planner-${a.selectedDate}.png`,document.body.appendChild(te),te.click(),te.remove(),q("Daily Planner image exported! 🖼️")}catch(Z){q("Failed to export image: "+Z.message,!0)}}function Be(o,x,w,y,k,D){o.beginPath(),o.moveTo(x+D,w),o.lineTo(x+y-D,w),o.quadraticCurveTo(x+y,w,x+y,w+D),o.lineTo(x+y,w+k-D),o.quadraticCurveTo(x+y,w+k,x+y-D,w+k),o.lineTo(x+D,w+k),o.quadraticCurveTo(x,w+k,x,w+k-D),o.lineTo(x,w+D),o.quadraticCurveTo(x,w,x+D,w),o.closePath()}function Qe(){const o=_t(a.selectedDate,p.weekStartsOn),x=ot(o[0]),w=ot(o[6]);qe();const y=a.tasks.filter(I=>{if(I.isDeleted===!0)return!1;const N=I.dateStr||(I.dueDate?new Date(I.dueDate).toISOString().slice(0,10):"");return o.includes(N)}),k=y.length,D=y.filter(I=>I.status==="Completed").length,W=k>0?Math.round(D/k*100):0,X=window.open("","_blank");if(!X){q("Pop-up blocked. Please allow pop-ups to print the PDF report.",!0);return}const Q=`
+      `).join("")}w.oninput=v,K.onclick=()=>D.click(),D.onchange=ne=>{const ie=ne.target.files[0];if(!ie)return;N.textContent=`File selected: ${ie.name} (${Math.round(ie.size/1024)} KB)`;const pe=new FileReader;pe.onload=re=>{w.value=re.target.result,v()},pe.readAsText(ie)},K.ondragover=ne=>{ne.preventDefault(),K.classList.add("dragover")},K.ondragleave=()=>K.classList.remove("dragover"),K.ondrop=ne=>{ne.preventDefault(),K.classList.remove("dragover");const ie=ne.dataTransfer.files[0];if(ie&&(ie.type==="text/plain"||ie.name.endsWith(".txt"))){N.textContent=`File dropped: ${ie.name}`;const pe=new FileReader;pe.onload=re=>{w.value=re.target.result,v()},pe.readAsText(ie)}else z("Please drop a valid .txt plain-text file",!0)},I.onclick=async()=>{if(o.length===0)return;I.disabled=!0,I.textContent="Importing...";const ne=k.querySelector("#importTargetDate").value,ie=k.querySelector("#importPriority").value,pe=k.querySelector("#importCategory").value.trim()||"General",re={date:ne,tasks:o.map(oe=>({title:oe.title,priority:ie,category:pe,status:"Pending"}))};r&&a.selectedPersonnelId!=="all"&&(re.personnelId=a.selectedPersonnelId);try{const oe=await ye("/tasks/bulk-import",re);Array.isArray(oe.tasks)&&oe.tasks.forEach(c=>a.tasks.unshift(c)),z(`Imported ${oe.importedCount} tasks successfully! (${oe.skippedCount} skipped duplicates)`),y(),a.selectedDate=ne,W()}catch(oe){z(oe.message,!0),I.disabled=!1,I.textContent="Retry Import"}}}async function Oe(){const o=E(a.selectedDate),x=_(o,ze()),k=ot(a.selectedDate),y=2,w=800,D=160,K=90,ee=65,Y=70,I=Math.max(120,o.length*ee),N=D+K+I+Y,L=document.createElement("canvas");L.width=w*y,L.height=N*y;const v=L.getContext("2d");v.scale(y,y);const ne=document.documentElement.getAttribute("data-theme")==="dark",ie=ne?"#0F172A":"#F8FAFC",pe=ne?"#1E293B":"#FFFFFF",re=ne?"#334155":"#E2E8F0",oe=ne?"#F8FAFC":"#0F172A",c=ne?"#94A3B8":"#475569",f="#4F46E5",l="#10B981",P="#F59E0B";v.fillStyle=ie,v.fillRect(0,0,w,N),v.fillStyle=pe,Be(v,24,20,w-48,D-30,16),v.fill(),v.strokeStyle=re,v.lineWidth=1,v.stroke(),v.fillStyle=f,v.font="bold 12px Inter, sans-serif",v.fillText("CI360 INTELLIGENCE SUITE · DAILY PLANNER",44,52),v.fillStyle=oe,v.font='bold 22px "Plus Jakarta Sans", Inter, sans-serif',v.fillText(k,44,86),v.fillStyle=c,v.font="13px Inter, sans-serif",v.fillText(`Planned focus list · ${x.completed} of ${x.total} tasks completed (${x.percent}%)`,44,114);const m=D+6;v.fillStyle=pe,Be(v,24,m,w-48,K-16,12),v.fill(),v.stroke();const q=[{label:"TOTAL TASKS",val:String(x.total),color:oe},{label:"COMPLETED",val:String(x.completed),color:l},{label:"IN PROGRESS",val:String(x.inProgress),color:P},{label:"PENDING",val:String(x.pending),color:c},{label:"PROGRESS",val:`${x.percent}%`,color:f}],A=(w-48)/q.length;q.forEach((X,ae)=>{const S=24+ae*A+20;v.fillStyle=X.color,v.font="bold 20px Inter, sans-serif",v.fillText(X.val,S,m+36),v.fillStyle=c,v.font="10px Inter, sans-serif",v.fillText(X.label,S,m+54)});const B=m+K;v.fillStyle=pe,Be(v,24,B,w-48,I+10,16),v.fill(),v.stroke(),o.length===0?(v.fillStyle=c,v.font="14px Inter, sans-serif",v.textAlign="center",v.fillText("No scheduled tasks recorded for this date.",w/2,B+60),v.textAlign="left"):o.forEach((X,ae)=>{const S=B+16+ae*ee,M=X.status==="Completed";v.beginPath(),v.arc(48,S+14,10,0,Math.PI*2),M?(v.fillStyle=l,v.fill(),v.strokeStyle="#FFFFFF",v.lineWidth=2,v.beginPath(),v.moveTo(44,S+14),v.lineTo(47,S+17),v.lineTo(52,S+11),v.stroke()):(v.strokeStyle=re,v.lineWidth=2,v.stroke()),v.fillStyle=M?c:oe,v.font=`${M?"normal":"500"} 14px Inter, sans-serif`;const te=X.title.length>55?X.title.slice(0,52)+"...":X.title;if(v.fillText(te,70,S+18),M){const ve=v.measureText(te);v.strokeStyle=c,v.lineWidth=1.2,v.beginPath(),v.moveTo(70,S+14),v.lineTo(70+ve.width,S+14),v.stroke()}const U=X.priority||"Medium";let Q="#E2E8F0",Z="#334155";U==="Urgent"?(Q="#FEE2E2",Z="#DC2626"):U==="High"?(Q="#FEF3C7",Z="#D97706"):U==="Low"&&(Q="#ECFDF5",Z="#059669"),v.fillStyle=Q,Be(v,w-150,S+4,60,20,10),v.fill(),v.fillStyle=Z,v.font="bold 10px Inter, sans-serif",v.fillText(U,w-138,S+18);const de=X.dueTime?`🕒 ${X.dueTime}`:X.category||"General";v.fillStyle=c,v.font="11px Inter, sans-serif",v.fillText(de,70,S+34),ae<o.length-1&&(v.strokeStyle=re,v.lineWidth=.6,v.beginPath(),v.moveTo(40,S+48),v.lineTo(w-40,S+48),v.stroke())});const R=N-35;v.fillStyle=c,v.font="11px Inter, sans-serif",v.fillText(`Generated by CI360 Productivity Suite · Dayfolio Native Module · ${new Date().toLocaleDateString()}`,44,R);try{const X=L.toDataURL("image/png"),ae=document.createElement("a");ae.href=X,ae.download=`ci360-daily-planner-${a.selectedDate}.png`,document.body.appendChild(ae),ae.click(),ae.remove(),z("Daily Planner image exported! 🖼️")}catch(X){z("Failed to export image: "+X.message,!0)}}function Be(o,x,k,y,w,D){o.beginPath(),o.moveTo(x+D,k),o.lineTo(x+y-D,k),o.quadraticCurveTo(x+y,k,x+y,k+D),o.lineTo(x+y,k+w-D),o.quadraticCurveTo(x+y,k+w,x+y-D,k+w),o.lineTo(x+D,k+w),o.quadraticCurveTo(x,k+w,x,k+w-D),o.lineTo(x,k+D),o.quadraticCurveTo(x,k,x+D,k),o.closePath()}function Qe(){const o=_t(a.selectedDate,p.weekStartsOn),x=ot(o[0]),k=ot(o[6]);ze();const y=a.tasks.filter(I=>{if(I.isDeleted===!0)return!1;const N=I.dateStr||(I.dueDate?new Date(I.dueDate).toISOString().slice(0,10):"");return o.includes(N)}),w=y.length,D=y.filter(I=>I.status==="Completed").length,K=w>0?Math.round(D/w*100):0,ee=window.open("","_blank");if(!ee){z("Pop-up blocked. Please allow pop-ups to print the PDF report.",!0);return}const Y=`
       <!DOCTYPE html>
       <html>
       <head>
@@ -723,7 +723,7 @@ var ba=Object.defineProperty;var ma=(n,t,e)=>t in n?ba(n,t,{enumerable:!0,config
           <div>
             <div class="brand">CI360 Intelligence Suite · Productivity Report</div>
             <h1>Weekly Planner Report</h1>
-            <div class="period">${x} – ${w}</div>
+            <div class="period">${x} – ${k}</div>
           </div>
           <div style="text-align:right">
             <button class="no-print" onclick="window.print()" style="padding:8px 16px;background:#4f46e5;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:600">Print / Save as PDF</button>
@@ -733,7 +733,7 @@ var ba=Object.defineProperty;var ma=(n,t,e)=>t in n?ba(n,t,{enumerable:!0,config
         <div class="kpis">
           <div class="kpi">
             <div class="kpi-label">Total Tasks</div>
-            <div class="kpi-num">${k}</div>
+            <div class="kpi-num">${w}</div>
           </div>
           <div class="kpi">
             <div class="kpi-label">Completed</div>
@@ -741,11 +741,11 @@ var ba=Object.defineProperty;var ma=(n,t,e)=>t in n?ba(n,t,{enumerable:!0,config
           </div>
           <div class="kpi">
             <div class="kpi-label">Pending / Active</div>
-            <div class="kpi-num">${k-D}</div>
+            <div class="kpi-num">${w-D}</div>
           </div>
           <div class="kpi">
             <div class="kpi-label">Completion Rate</div>
-            <div class="kpi-num" style="color:#4f46e5">${W}%</div>
+            <div class="kpi-num" style="color:#4f46e5">${K}%</div>
           </div>
         </div>
 
@@ -786,7 +786,7 @@ var ba=Object.defineProperty;var ma=(n,t,e)=>t in n?ba(n,t,{enumerable:!0,config
         <\/script>
       </body>
       </html>
-    `;X.document.write(Q),X.document.close(),q("Weekly PDF report generated for printing! 📄")}function Ve(){const x=mt(`
+    `;ee.document.write(Y),ee.document.close(),z("Weekly PDF report generated for printing! 📄")}function Ve(){const x=mt(`
       <div class="ci360-planner-modal" style="max-width:560px">
         <div class="ci360-modal-header">
           <h3>Backup & Restore Planner</h3>
@@ -838,7 +838,7 @@ var ba=Object.defineProperty;var ma=(n,t,e)=>t in n?ba(n,t,{enumerable:!0,config
 
         </div>
       </div>
-    `),w=()=>x.remove();x.querySelector("#btnBackupClose").onclick=w;const y=x.querySelector("#btnDownloadBackupJson");y.onclick=async()=>{y.disabled=!0,y.textContent="Generating backup...";try{const I=await De("/tasks/backup"),N=new Blob([JSON.stringify(I,null,2)],{type:"application/json"}),L=URL.createObjectURL(N),v=document.createElement("a");v.href=L,v.download=`ci360-planner-backup-${qe()}.json`,document.body.appendChild(v),v.click(),v.remove(),q("Planner backup downloaded successfully! 💾")}catch(I){q("Backup export failed: "+I.message,!0)}finally{y.disabled=!1,y.textContent="Download JSON Backup"}};const k=x.querySelector("#restoreFileInput"),D=x.querySelector("#restorePreviewArea"),W=x.querySelector("#restoreCountText"),X=x.querySelector("#btnExecuteRestore");let Q=null;k.onchange=I=>{const N=I.target.files[0];if(!N)return;const L=new FileReader;L.onload=v=>{try{const ne=JSON.parse(v.target.result),re=Array.isArray(ne.tasks)?ne.tasks:Array.isArray(ne)?ne:null;if(!re||re.length===0){q("Invalid backup file: No tasks found",!0);return}Q=re,D.style.display="block",W.textContent=`Valid backup: ${re.length} tasks ready to restore.`,X.disabled=!1}catch(ne){q("Error parsing JSON backup file: "+ne.message,!0),D.style.display="none",X.disabled=!0}},L.readAsText(N)},X.onclick=async()=>{var N;if(!Q||Q.length===0)return;X.disabled=!0,X.textContent="Restoring...";const I=((N=x.querySelector('input[name="restoreMode"]:checked'))==null?void 0:N.value)||"merge";try{const L=await ye("/tasks/restore",{tasks:Q,mode:I});q(`Restored ${L.restoredCount} tasks! (${L.skippedCount} skipped) ✨`),w(),await h()}catch(L){q("Restore failed: "+L.message,!0),X.disabled=!1,X.textContent="Retry Restore"}}}function Ye(){const o=`
+    `),k=()=>x.remove();x.querySelector("#btnBackupClose").onclick=k;const y=x.querySelector("#btnDownloadBackupJson");y.onclick=async()=>{y.disabled=!0,y.textContent="Generating backup...";try{const I=await De("/tasks/backup"),N=new Blob([JSON.stringify(I,null,2)],{type:"application/json"}),L=URL.createObjectURL(N),v=document.createElement("a");v.href=L,v.download=`ci360-planner-backup-${ze()}.json`,document.body.appendChild(v),v.click(),v.remove(),z("Planner backup downloaded successfully! 💾")}catch(I){z("Backup export failed: "+I.message,!0)}finally{y.disabled=!1,y.textContent="Download JSON Backup"}};const w=x.querySelector("#restoreFileInput"),D=x.querySelector("#restorePreviewArea"),K=x.querySelector("#restoreCountText"),ee=x.querySelector("#btnExecuteRestore");let Y=null;w.onchange=I=>{const N=I.target.files[0];if(!N)return;const L=new FileReader;L.onload=v=>{try{const ne=JSON.parse(v.target.result),ie=Array.isArray(ne.tasks)?ne.tasks:Array.isArray(ne)?ne:null;if(!ie||ie.length===0){z("Invalid backup file: No tasks found",!0);return}Y=ie,D.style.display="block",K.textContent=`Valid backup: ${ie.length} tasks ready to restore.`,ee.disabled=!1}catch(ne){z("Error parsing JSON backup file: "+ne.message,!0),D.style.display="none",ee.disabled=!0}},L.readAsText(N)},ee.onclick=async()=>{var N;if(!Y||Y.length===0)return;ee.disabled=!0,ee.textContent="Restoring...";const I=((N=x.querySelector('input[name="restoreMode"]:checked'))==null?void 0:N.value)||"merge";try{const L=await ye("/tasks/restore",{tasks:Y,mode:I});z(`Restored ${L.restoredCount} tasks! (${L.skippedCount} skipped) ✨`),k(),await h()}catch(L){z("Restore failed: "+L.message,!0),ee.disabled=!1,ee.textContent="Retry Restore"}}}function Ye(){const o=`
       <div class="ci360-planner-modal" style="max-width:520px">
         <div class="ci360-modal-header">
           <h3>Planner Preferences</h3>
@@ -899,7 +899,7 @@ var ba=Object.defineProperty;var ma=(n,t,e)=>t in n?ba(n,t,{enumerable:!0,config
           </div>
         </form>
       </div>
-    `,x=mt(o),w=()=>x.remove();x.querySelector("#btnSettingsClose").onclick=w,x.querySelector("#btnCancelSettings").onclick=w,x.querySelector("#settingsForm").onsubmit=y=>{y.preventDefault(),p.displayName=x.querySelector("#setDisplayName").value.trim()||"Daily Planner",p.weekStartsOn=Number(x.querySelector("#setWeekStart").value),p.defaultPriority=x.querySelector("#setDefaultPriority").value,p.density=x.querySelector("#setDensity").value,p.soundEnabled=x.querySelector("#setSound").checked,xa(p),q("Planner preferences saved! ⚙️"),w(),K()}}}function ka(){if(document.getElementById("ci360-planner-styles"))return;const n=document.createElement("style");n.id="ci360-planner-styles",n.textContent=`
+    `,x=mt(o),k=()=>x.remove();x.querySelector("#btnSettingsClose").onclick=k,x.querySelector("#btnCancelSettings").onclick=k,x.querySelector("#settingsForm").onsubmit=y=>{y.preventDefault(),p.displayName=x.querySelector("#setDisplayName").value.trim()||"Daily Planner",p.weekStartsOn=Number(x.querySelector("#setWeekStart").value),p.defaultPriority=x.querySelector("#setDefaultPriority").value,p.density=x.querySelector("#setDensity").value,p.soundEnabled=x.querySelector("#setSound").checked,xa(p),z("Planner preferences saved! ⚙️"),k(),W()}}}function wa(){if(document.getElementById("ci360-planner-styles"))return;const n=document.createElement("style");n.id="ci360-planner-styles",n.textContent=`
     /* CI360 Dayfolio Planner Module Styles */
     .ci360-planner-wrap {
       max-width: 1040px;
@@ -2070,14 +2070,14 @@ var ba=Object.defineProperty;var ma=(n,t,e)=>t in n?ba(n,t,{enumerable:!0,config
       padding: 6px 12px;
       min-width: 80px;
     }
-  `,document.head.appendChild(n)}function wa(n){return n!==null?{comment:n,variations:[]}:{variations:[]}}function Sa(n,t,e,r,s){const i={move:n,variations:s};return t&&(i.suffix=t),e&&(i.nag=e),r!==null&&(i.comment=r),i}function $a(...n){const[t,...e]=n;let r=t;for(const s of e)s!==null&&(r.variations=[s,...s.variations],s.variations=[],r=s);return t}function _a(n,t){if(t.marker&&t.marker.comment){let e=t.root;for(;;){const r=e.variations[0];if(!r){e.comment=t.marker.comment;break}e=r}}return{headers:n,root:t.root,result:(t.marker&&t.marker.result)??void 0}}function Ca(n,t){function e(){this.constructor=n}e.prototype=t.prototype,n.prototype=new e}function st(n,t,e,r){var s=Error.call(this,n);return Object.setPrototypeOf&&Object.setPrototypeOf(s,st.prototype),s.expected=t,s.found=e,s.location=r,s.name="SyntaxError",s}Ca(st,Error);function Ct(n,t,e){return e=e||" ",n.length>t?n:(t-=n.length,e+=e.repeat(t),n+e.slice(0,t))}st.prototype.format=function(n){var t="Error: "+this.message;if(this.location){var e=null,r;for(r=0;r<n.length;r++)if(n[r].source===this.location.source){e=n[r].text.split(/\r\n|\n|\r/g);break}var s=this.location.start,i=this.location.source&&typeof this.location.source.offset=="function"?this.location.source.offset(s):s,p=this.location.source+":"+i.line+":"+i.column;if(e){var a=this.location.end,h=Ct("",i.line.toString().length," "),$=e[s.line-1],E=s.line===a.line?a.column:$.length+1,F=E-s.column||1;t+=`
+  `,document.head.appendChild(n)}function ka(n){return n!==null?{comment:n,variations:[]}:{variations:[]}}function Sa(n,t,e,i,s){const r={move:n,variations:s};return t&&(r.suffix=t),e&&(r.nag=e),i!==null&&(r.comment=i),r}function $a(...n){const[t,...e]=n;let i=t;for(const s of e)s!==null&&(i.variations=[s,...s.variations],s.variations=[],i=s);return t}function _a(n,t){if(t.marker&&t.marker.comment){let e=t.root;for(;;){const i=e.variations[0];if(!i){e.comment=t.marker.comment;break}e=i}}return{headers:n,root:t.root,result:(t.marker&&t.marker.result)??void 0}}function Ca(n,t){function e(){this.constructor=n}e.prototype=t.prototype,n.prototype=new e}function st(n,t,e,i){var s=Error.call(this,n);return Object.setPrototypeOf&&Object.setPrototypeOf(s,st.prototype),s.expected=t,s.found=e,s.location=i,s.name="SyntaxError",s}Ca(st,Error);function Ct(n,t,e){return e=e||" ",n.length>t?n:(t-=n.length,e+=e.repeat(t),n+e.slice(0,t))}st.prototype.format=function(n){var t="Error: "+this.message;if(this.location){var e=null,i;for(i=0;i<n.length;i++)if(n[i].source===this.location.source){e=n[i].text.split(/\r\n|\n|\r/g);break}var s=this.location.start,r=this.location.source&&typeof this.location.source.offset=="function"?this.location.source.offset(s):s,p=this.location.source+":"+r.line+":"+r.column;if(e){var a=this.location.end,h=Ct("",r.line.toString().length," "),$=e[s.line-1],E=s.line===a.line?a.column:$.length+1,F=E-s.column||1;t+=`
  --> `+p+`
 `+h+` |
-`+i.line+" | "+$+`
+`+r.line+" | "+$+`
 `+h+" | "+Ct("",s.column-1," ")+Ct("",F,"^")}else t+=`
- at `+p}return t};st.buildMessage=function(n,t){var e={literal:function($){return'"'+s($.text)+'"'},class:function($){var E=$.parts.map(function(F){return Array.isArray(F)?i(F[0])+"-"+i(F[1]):i(F)});return"["+($.inverted?"^":"")+E.join("")+"]"},any:function(){return"any character"},end:function(){return"end of input"},other:function($){return $.description}};function r($){return $.charCodeAt(0).toString(16).toUpperCase()}function s($){return $.replace(/\\/g,"\\\\").replace(/"/g,'\\"').replace(/\0/g,"\\0").replace(/\t/g,"\\t").replace(/\n/g,"\\n").replace(/\r/g,"\\r").replace(/[\x00-\x0F]/g,function(E){return"\\x0"+r(E)}).replace(/[\x10-\x1F\x7F-\x9F]/g,function(E){return"\\x"+r(E)})}function i($){return $.replace(/\\/g,"\\\\").replace(/\]/g,"\\]").replace(/\^/g,"\\^").replace(/-/g,"\\-").replace(/\0/g,"\\0").replace(/\t/g,"\\t").replace(/\n/g,"\\n").replace(/\r/g,"\\r").replace(/[\x00-\x0F]/g,function(E){return"\\x0"+r(E)}).replace(/[\x10-\x1F\x7F-\x9F]/g,function(E){return"\\x"+r(E)})}function p($){return e[$.type]($)}function a($){var E=$.map(p),F,_;if(E.sort(),E.length>0){for(F=1,_=1;F<E.length;F++)E[F-1]!==E[F]&&(E[_]=E[F],_++);E.length=_}switch(E.length){case 1:return E[0];case 2:return E[0]+" or "+E[1];default:return E.slice(0,-1).join(", ")+", or "+E[E.length-1]}}function h($){return $?'"'+s($)+'"':"end of input"}return"Expected "+a(n)+" but "+h(t)+" found."};function Ea(n,t){t=t!==void 0?t:{};var e={},r=t.grammarSource,s={pgn:Rt},i=Rt,p="[",a='"',h="]",$=".",E="O-O-O",F="O-O",_="0-0-0",K="0-0",O="$",ue="{",le="}",Te=";",nt="(",Ue=")",$e="1-0",it="0-1",Ne="1/2-1/2",lt="*",_e=/^[a-zA-Z]/,Fe=/^[^"]/,Oe=/^[0-9]/,Be=/^[.]/,Qe=/^[a-zA-Z1-8\-=]/,Ve=/^[+#]/,Ye=/^[!?]/,o=/^[^}]/,x=/^[^\r\n]/,w=/^[ \t\r\n]/,y=Ie("tag pair"),k=xe("[",!1),D=xe('"',!1),W=xe("]",!1),X=Ie("tag name"),Q=Re([["a","z"],["A","Z"]],!1,!1),I=Ie("tag value"),N=Re(['"'],!0,!1),L=Ie("move number"),v=Re([["0","9"]],!1,!1),ne=xe(".",!1),re=Re(["."],!1,!1),pe=Ie("standard algebraic notation"),ie=xe("O-O-O",!1),oe=xe("O-O",!1),c=xe("0-0-0",!1),b=xe("0-0",!1),l=Re([["a","z"],["A","Z"],["1","8"],"-","="],!1,!1),P=Re(["+","#"],!1,!1),m=Ie("suffix annotation"),z=Re(["!","?"],!1,!1),A=Ie("NAG"),B=xe("$",!1),R=Ie("brace comment"),Z=xe("{",!1),te=Re(["}"],!0,!1),S=xe("}",!1),M=Ie("rest of line comment"),ee=xe(";",!1),V=Re(["\r",`
-`],!0,!1),Y=Ie("variation"),ae=xe("(",!1),de=xe(")",!1),ve=Ie("game termination marker"),fe=xe("1-0",!1),Je=xe("0-1",!1),ce=xe("1/2-1/2",!1),be=xe("*",!1),we=Ie("whitespace"),Me=Re([" ","	","\r",`
-`],!1,!1),Ee=function(d,g){return _a(d,g)},ze=function(d){return Object.fromEntries(d)},Ze=function(d,g){return[d,g]},je=function(d,g){return{root:d,marker:g}},Xe=function(d,g){return $a(wa(d),...g.flat())},dt=function(d,g,f,H,G){return Sa(d,g,f,H,G)},Zt=function(d){return d},Xt=function(d){return d.replace(/[\r\n]+/g," ")},ea=function(d){return d.trim()},ta=function(d){return d},aa=function(d,g){return{result:d,comment:g}},u=t.peg$currPos|0,rt=[{line:1,column:1}],Le=u,ft=t.peg$maxFailExpected||[],T=t.peg$silentFails|0,ct;if(t.startRule){if(!(t.startRule in s))throw new Error(`Can't start parsing from rule "`+t.startRule+'".');i=s[t.startRule]}function xe(d,g){return{type:"literal",text:d,ignoreCase:g}}function Re(d,g,f){return{type:"class",parts:d,inverted:g,ignoreCase:f}}function na(){return{type:"end"}}function Ie(d){return{type:"other",description:d}}function qt(d){var g=rt[d],f;if(g)return g;if(d>=rt.length)f=rt.length-1;else for(f=d;!rt[--f];);for(g=rt[f],g={line:g.line,column:g.column};f<d;)n.charCodeAt(f)===10?(g.line++,g.column=1):g.column++,f++;return rt[d]=g,g}function zt(d,g,f){var H=qt(d),G=qt(g),se={source:r,start:{offset:d,line:H.line,column:H.column},end:{offset:g,line:G.line,column:G.column}};return se}function j(d){u<Le||(u>Le&&(Le=u,ft=[]),ft.push(d))}function ia(d,g,f){return new st(st.buildMessage(d,g),d,g,f)}function Rt(){var d,g,f;return d=u,g=ra(),f=la(),d=Ee(g,f),d}function ra(){var d,g,f;for(d=u,g=[],f=Nt();f!==e;)g.push(f),f=Nt();return f=Ae(),d=ze(g),d}function Nt(){var d,g,f,H,G,se,et;return T++,d=u,Ae(),n.charCodeAt(u)===91?(g=p,u++):(g=e,T===0&&j(k)),g!==e?(Ae(),f=oa(),f!==e?(Ae(),n.charCodeAt(u)===34?(H=a,u++):(H=e,T===0&&j(D)),H!==e?(G=sa(),n.charCodeAt(u)===34?(se=a,u++):(se=e,T===0&&j(D)),se!==e?(Ae(),n.charCodeAt(u)===93?(et=h,u++):(et=e,T===0&&j(W)),et!==e?d=Ze(f,G):(u=d,d=e)):(u=d,d=e)):(u=d,d=e)):(u=d,d=e)):(u=d,d=e),T--,d===e&&T===0&&j(y),d}function oa(){var d,g,f;if(T++,d=u,g=[],f=n.charAt(u),_e.test(f)?u++:(f=e,T===0&&j(Q)),f!==e)for(;f!==e;)g.push(f),f=n.charAt(u),_e.test(f)?u++:(f=e,T===0&&j(Q));else g=e;return g!==e?d=n.substring(d,u):d=g,T--,d===e&&(g=e,T===0&&j(X)),d}function sa(){var d,g,f;for(T++,d=u,g=[],f=n.charAt(u),Fe.test(f)?u++:(f=e,T===0&&j(N));f!==e;)g.push(f),f=n.charAt(u),Fe.test(f)?u++:(f=e,T===0&&j(N));return d=n.substring(d,u),T--,g=e,T===0&&j(I),d}function la(){var d,g,f;return d=u,g=Ft(),Ae(),f=fa(),f===e&&(f=null),Ae(),d=je(g,f),d}function Ft(){var d,g,f,H;for(d=u,g=$t(),g===e&&(g=null),f=[],H=Ot();H!==e;)f.push(H),H=Ot();return d=Xe(g,f),d}function Ot(){var d,g,f,H,G,se,et,bt;if(d=u,Ae(),da(),Ae(),g=ca(),g!==e){for(f=pa(),f===e&&(f=null),H=[],G=Bt();G!==e;)H.push(G),G=Bt();for(G=Ae(),se=$t(),se===e&&(se=null),et=[],bt=jt();bt!==e;)et.push(bt),bt=jt();d=dt(g,f,H,se,et)}else u=d,d=e;return d}function da(){var d,g,f,H,G,se;for(T++,d=u,g=[],f=n.charAt(u),Oe.test(f)?u++:(f=e,T===0&&j(v));f!==e;)g.push(f),f=n.charAt(u),Oe.test(f)?u++:(f=e,T===0&&j(v));if(n.charCodeAt(u)===46?(f=$,u++):(f=e,T===0&&j(ne)),f!==e){for(H=Ae(),G=[],se=n.charAt(u),Be.test(se)?u++:(se=e,T===0&&j(re));se!==e;)G.push(se),se=n.charAt(u),Be.test(se)?u++:(se=e,T===0&&j(re));g=[g,f,H,G],d=g}else u=d,d=e;return T--,d===e&&(g=e,T===0&&j(L)),d}function ca(){var d,g,f,H,G,se;if(T++,d=u,g=u,n.substr(u,5)===E?(f=E,u+=5):(f=e,T===0&&j(ie)),f===e&&(n.substr(u,3)===F?(f=F,u+=3):(f=e,T===0&&j(oe)),f===e&&(n.substr(u,5)===_?(f=_,u+=5):(f=e,T===0&&j(c)),f===e&&(n.substr(u,3)===K?(f=K,u+=3):(f=e,T===0&&j(b)),f===e))))if(f=u,H=n.charAt(u),_e.test(H)?u++:(H=e,T===0&&j(Q)),H!==e){if(G=[],se=n.charAt(u),Qe.test(se)?u++:(se=e,T===0&&j(l)),se!==e)for(;se!==e;)G.push(se),se=n.charAt(u),Qe.test(se)?u++:(se=e,T===0&&j(l));else G=e;G!==e?(H=[H,G],f=H):(u=f,f=e)}else u=f,f=e;return f!==e?(H=n.charAt(u),Ve.test(H)?u++:(H=e,T===0&&j(P)),H===e&&(H=null),f=[f,H],g=f):(u=g,g=e),g!==e?d=n.substring(d,u):d=g,T--,d===e&&(g=e,T===0&&j(pe)),d}function pa(){var d,g,f;for(T++,d=u,g=[],f=n.charAt(u),Ye.test(f)?u++:(f=e,T===0&&j(z));f!==e;)g.push(f),g.length>=2?f=e:(f=n.charAt(u),Ye.test(f)?u++:(f=e,T===0&&j(z)));return g.length<1?(u=d,d=e):d=g,T--,d===e&&(g=e,T===0&&j(m)),d}function Bt(){var d,g,f,H,G;if(T++,d=u,Ae(),n.charCodeAt(u)===36?(g=O,u++):(g=e,T===0&&j(B)),g!==e){if(f=u,H=[],G=n.charAt(u),Oe.test(G)?u++:(G=e,T===0&&j(v)),G!==e)for(;G!==e;)H.push(G),G=n.charAt(u),Oe.test(G)?u++:(G=e,T===0&&j(v));else H=e;H!==e?f=n.substring(f,u):f=H,f!==e?d=Zt(f):(u=d,d=e)}else u=d,d=e;return T--,d===e&&T===0&&j(A),d}function $t(){var d;return d=ua(),d===e&&(d=ga()),d}function ua(){var d,g,f,H,G;if(T++,d=u,n.charCodeAt(u)===123?(g=ue,u++):(g=e,T===0&&j(Z)),g!==e){for(f=u,H=[],G=n.charAt(u),o.test(G)?u++:(G=e,T===0&&j(te));G!==e;)H.push(G),G=n.charAt(u),o.test(G)?u++:(G=e,T===0&&j(te));f=n.substring(f,u),n.charCodeAt(u)===125?(H=le,u++):(H=e,T===0&&j(S)),H!==e?d=Xt(f):(u=d,d=e)}else u=d,d=e;return T--,d===e&&(g=e,T===0&&j(R)),d}function ga(){var d,g,f,H,G;if(T++,d=u,n.charCodeAt(u)===59?(g=Te,u++):(g=e,T===0&&j(ee)),g!==e){for(f=u,H=[],G=n.charAt(u),x.test(G)?u++:(G=e,T===0&&j(V));G!==e;)H.push(G),G=n.charAt(u),x.test(G)?u++:(G=e,T===0&&j(V));f=n.substring(f,u),d=ea(f)}else u=d,d=e;return T--,d===e&&(g=e,T===0&&j(M)),d}function jt(){var d,g,f,H;return T++,d=u,Ae(),n.charCodeAt(u)===40?(g=nt,u++):(g=e,T===0&&j(ae)),g!==e?(f=Ft(),f!==e?(Ae(),n.charCodeAt(u)===41?(H=Ue,u++):(H=e,T===0&&j(de)),H!==e?d=ta(f):(u=d,d=e)):(u=d,d=e)):(u=d,d=e),T--,d===e&&T===0&&j(Y),d}function fa(){var d,g,f;return T++,d=u,n.substr(u,3)===$e?(g=$e,u+=3):(g=e,T===0&&j(fe)),g===e&&(n.substr(u,3)===it?(g=it,u+=3):(g=e,T===0&&j(Je)),g===e&&(n.substr(u,7)===Ne?(g=Ne,u+=7):(g=e,T===0&&j(ce)),g===e&&(n.charCodeAt(u)===42?(g=lt,u++):(g=e,T===0&&j(be))))),g!==e?(Ae(),f=$t(),f===e&&(f=null),d=aa(g,f)):(u=d,d=e),T--,d===e&&(g=e,T===0&&j(ve)),d}function Ae(){var d,g;for(T++,d=[],g=n.charAt(u),w.test(g)?u++:(g=e,T===0&&j(Me));g!==e;)d.push(g),g=n.charAt(u),w.test(g)?u++:(g=e,T===0&&j(Me));return T--,g=e,T===0&&j(we),d}if(ct=i(),t.peg$library)return{peg$result:ct,peg$currPos:u,peg$FAILED:e,peg$maxFailExpected:ft,peg$maxFailPos:Le};if(ct!==e&&u===n.length)return ct;throw ct!==e&&u<n.length&&j(na()),ia(ft,Le<n.length?n.charAt(Le):null,Le<n.length?zt(Le,Le+1):zt(Le,Le))}/**
+ at `+p}return t};st.buildMessage=function(n,t){var e={literal:function($){return'"'+s($.text)+'"'},class:function($){var E=$.parts.map(function(F){return Array.isArray(F)?r(F[0])+"-"+r(F[1]):r(F)});return"["+($.inverted?"^":"")+E.join("")+"]"},any:function(){return"any character"},end:function(){return"end of input"},other:function($){return $.description}};function i($){return $.charCodeAt(0).toString(16).toUpperCase()}function s($){return $.replace(/\\/g,"\\\\").replace(/"/g,'\\"').replace(/\0/g,"\\0").replace(/\t/g,"\\t").replace(/\n/g,"\\n").replace(/\r/g,"\\r").replace(/[\x00-\x0F]/g,function(E){return"\\x0"+i(E)}).replace(/[\x10-\x1F\x7F-\x9F]/g,function(E){return"\\x"+i(E)})}function r($){return $.replace(/\\/g,"\\\\").replace(/\]/g,"\\]").replace(/\^/g,"\\^").replace(/-/g,"\\-").replace(/\0/g,"\\0").replace(/\t/g,"\\t").replace(/\n/g,"\\n").replace(/\r/g,"\\r").replace(/[\x00-\x0F]/g,function(E){return"\\x0"+i(E)}).replace(/[\x10-\x1F\x7F-\x9F]/g,function(E){return"\\x"+i(E)})}function p($){return e[$.type]($)}function a($){var E=$.map(p),F,_;if(E.sort(),E.length>0){for(F=1,_=1;F<E.length;F++)E[F-1]!==E[F]&&(E[_]=E[F],_++);E.length=_}switch(E.length){case 1:return E[0];case 2:return E[0]+" or "+E[1];default:return E.slice(0,-1).join(", ")+", or "+E[E.length-1]}}function h($){return $?'"'+s($)+'"':"end of input"}return"Expected "+a(n)+" but "+h(t)+" found."};function Ea(n,t){t=t!==void 0?t:{};var e={},i=t.grammarSource,s={pgn:Rt},r=Rt,p="[",a='"',h="]",$=".",E="O-O-O",F="O-O",_="0-0-0",W="0-0",O="$",ge="{",le="}",Te=";",nt="(",Ue=")",$e="1-0",rt="0-1",Ne="1/2-1/2",lt="*",_e=/^[a-zA-Z]/,Fe=/^[^"]/,Oe=/^[0-9]/,Be=/^[.]/,Qe=/^[a-zA-Z1-8\-=]/,Ve=/^[+#]/,Ye=/^[!?]/,o=/^[^}]/,x=/^[^\r\n]/,k=/^[ \t\r\n]/,y=Ie("tag pair"),w=xe("[",!1),D=xe('"',!1),K=xe("]",!1),ee=Ie("tag name"),Y=Re([["a","z"],["A","Z"]],!1,!1),I=Ie("tag value"),N=Re(['"'],!0,!1),L=Ie("move number"),v=Re([["0","9"]],!1,!1),ne=xe(".",!1),ie=Re(["."],!1,!1),pe=Ie("standard algebraic notation"),re=xe("O-O-O",!1),oe=xe("O-O",!1),c=xe("0-0-0",!1),f=xe("0-0",!1),l=Re([["a","z"],["A","Z"],["1","8"],"-","="],!1,!1),P=Re(["+","#"],!1,!1),m=Ie("suffix annotation"),q=Re(["!","?"],!1,!1),A=Ie("NAG"),B=xe("$",!1),R=Ie("brace comment"),X=xe("{",!1),ae=Re(["}"],!0,!1),S=xe("}",!1),M=Ie("rest of line comment"),te=xe(";",!1),U=Re(["\r",`
+`],!0,!1),Q=Ie("variation"),Z=xe("(",!1),de=xe(")",!1),ve=Ie("game termination marker"),be=xe("1-0",!1),Je=xe("0-1",!1),ce=xe("1/2-1/2",!1),fe=xe("*",!1),ke=Ie("whitespace"),Me=Re([" ","	","\r",`
+`],!1,!1),Ee=function(d,u){return _a(d,u)},qe=function(d){return Object.fromEntries(d)},Xe=function(d,u){return[d,u]},je=function(d,u){return{root:d,marker:u}},Ze=function(d,u){return $a(ka(d),...u.flat())},dt=function(d,u,b,H,G){return Sa(d,u,b,H,G)},Xt=function(d){return d},Zt=function(d){return d.replace(/[\r\n]+/g," ")},ea=function(d){return d.trim()},ta=function(d){return d},aa=function(d,u){return{result:d,comment:u}},g=t.peg$currPos|0,it=[{line:1,column:1}],Le=g,bt=t.peg$maxFailExpected||[],T=t.peg$silentFails|0,ct;if(t.startRule){if(!(t.startRule in s))throw new Error(`Can't start parsing from rule "`+t.startRule+'".');r=s[t.startRule]}function xe(d,u){return{type:"literal",text:d,ignoreCase:u}}function Re(d,u,b){return{type:"class",parts:d,inverted:u,ignoreCase:b}}function na(){return{type:"end"}}function Ie(d){return{type:"other",description:d}}function zt(d){var u=it[d],b;if(u)return u;if(d>=it.length)b=it.length-1;else for(b=d;!it[--b];);for(u=it[b],u={line:u.line,column:u.column};b<d;)n.charCodeAt(b)===10?(u.line++,u.column=1):u.column++,b++;return it[d]=u,u}function qt(d,u,b){var H=zt(d),G=zt(u),se={source:i,start:{offset:d,line:H.line,column:H.column},end:{offset:u,line:G.line,column:G.column}};return se}function j(d){g<Le||(g>Le&&(Le=g,bt=[]),bt.push(d))}function ra(d,u,b){return new st(st.buildMessage(d,u),d,u,b)}function Rt(){var d,u,b;return d=g,u=ia(),b=la(),d=Ee(u,b),d}function ia(){var d,u,b;for(d=g,u=[],b=Nt();b!==e;)u.push(b),b=Nt();return b=Ae(),d=qe(u),d}function Nt(){var d,u,b,H,G,se,et;return T++,d=g,Ae(),n.charCodeAt(g)===91?(u=p,g++):(u=e,T===0&&j(w)),u!==e?(Ae(),b=oa(),b!==e?(Ae(),n.charCodeAt(g)===34?(H=a,g++):(H=e,T===0&&j(D)),H!==e?(G=sa(),n.charCodeAt(g)===34?(se=a,g++):(se=e,T===0&&j(D)),se!==e?(Ae(),n.charCodeAt(g)===93?(et=h,g++):(et=e,T===0&&j(K)),et!==e?d=Xe(b,G):(g=d,d=e)):(g=d,d=e)):(g=d,d=e)):(g=d,d=e)):(g=d,d=e),T--,d===e&&T===0&&j(y),d}function oa(){var d,u,b;if(T++,d=g,u=[],b=n.charAt(g),_e.test(b)?g++:(b=e,T===0&&j(Y)),b!==e)for(;b!==e;)u.push(b),b=n.charAt(g),_e.test(b)?g++:(b=e,T===0&&j(Y));else u=e;return u!==e?d=n.substring(d,g):d=u,T--,d===e&&(u=e,T===0&&j(ee)),d}function sa(){var d,u,b;for(T++,d=g,u=[],b=n.charAt(g),Fe.test(b)?g++:(b=e,T===0&&j(N));b!==e;)u.push(b),b=n.charAt(g),Fe.test(b)?g++:(b=e,T===0&&j(N));return d=n.substring(d,g),T--,u=e,T===0&&j(I),d}function la(){var d,u,b;return d=g,u=Ft(),Ae(),b=ba(),b===e&&(b=null),Ae(),d=je(u,b),d}function Ft(){var d,u,b,H;for(d=g,u=$t(),u===e&&(u=null),b=[],H=Ot();H!==e;)b.push(H),H=Ot();return d=Ze(u,b),d}function Ot(){var d,u,b,H,G,se,et,ft;if(d=g,Ae(),da(),Ae(),u=ca(),u!==e){for(b=pa(),b===e&&(b=null),H=[],G=Bt();G!==e;)H.push(G),G=Bt();for(G=Ae(),se=$t(),se===e&&(se=null),et=[],ft=jt();ft!==e;)et.push(ft),ft=jt();d=dt(u,b,H,se,et)}else g=d,d=e;return d}function da(){var d,u,b,H,G,se;for(T++,d=g,u=[],b=n.charAt(g),Oe.test(b)?g++:(b=e,T===0&&j(v));b!==e;)u.push(b),b=n.charAt(g),Oe.test(b)?g++:(b=e,T===0&&j(v));if(n.charCodeAt(g)===46?(b=$,g++):(b=e,T===0&&j(ne)),b!==e){for(H=Ae(),G=[],se=n.charAt(g),Be.test(se)?g++:(se=e,T===0&&j(ie));se!==e;)G.push(se),se=n.charAt(g),Be.test(se)?g++:(se=e,T===0&&j(ie));u=[u,b,H,G],d=u}else g=d,d=e;return T--,d===e&&(u=e,T===0&&j(L)),d}function ca(){var d,u,b,H,G,se;if(T++,d=g,u=g,n.substr(g,5)===E?(b=E,g+=5):(b=e,T===0&&j(re)),b===e&&(n.substr(g,3)===F?(b=F,g+=3):(b=e,T===0&&j(oe)),b===e&&(n.substr(g,5)===_?(b=_,g+=5):(b=e,T===0&&j(c)),b===e&&(n.substr(g,3)===W?(b=W,g+=3):(b=e,T===0&&j(f)),b===e))))if(b=g,H=n.charAt(g),_e.test(H)?g++:(H=e,T===0&&j(Y)),H!==e){if(G=[],se=n.charAt(g),Qe.test(se)?g++:(se=e,T===0&&j(l)),se!==e)for(;se!==e;)G.push(se),se=n.charAt(g),Qe.test(se)?g++:(se=e,T===0&&j(l));else G=e;G!==e?(H=[H,G],b=H):(g=b,b=e)}else g=b,b=e;return b!==e?(H=n.charAt(g),Ve.test(H)?g++:(H=e,T===0&&j(P)),H===e&&(H=null),b=[b,H],u=b):(g=u,u=e),u!==e?d=n.substring(d,g):d=u,T--,d===e&&(u=e,T===0&&j(pe)),d}function pa(){var d,u,b;for(T++,d=g,u=[],b=n.charAt(g),Ye.test(b)?g++:(b=e,T===0&&j(q));b!==e;)u.push(b),u.length>=2?b=e:(b=n.charAt(g),Ye.test(b)?g++:(b=e,T===0&&j(q)));return u.length<1?(g=d,d=e):d=u,T--,d===e&&(u=e,T===0&&j(m)),d}function Bt(){var d,u,b,H,G;if(T++,d=g,Ae(),n.charCodeAt(g)===36?(u=O,g++):(u=e,T===0&&j(B)),u!==e){if(b=g,H=[],G=n.charAt(g),Oe.test(G)?g++:(G=e,T===0&&j(v)),G!==e)for(;G!==e;)H.push(G),G=n.charAt(g),Oe.test(G)?g++:(G=e,T===0&&j(v));else H=e;H!==e?b=n.substring(b,g):b=H,b!==e?d=Xt(b):(g=d,d=e)}else g=d,d=e;return T--,d===e&&T===0&&j(A),d}function $t(){var d;return d=ga(),d===e&&(d=ua()),d}function ga(){var d,u,b,H,G;if(T++,d=g,n.charCodeAt(g)===123?(u=ge,g++):(u=e,T===0&&j(X)),u!==e){for(b=g,H=[],G=n.charAt(g),o.test(G)?g++:(G=e,T===0&&j(ae));G!==e;)H.push(G),G=n.charAt(g),o.test(G)?g++:(G=e,T===0&&j(ae));b=n.substring(b,g),n.charCodeAt(g)===125?(H=le,g++):(H=e,T===0&&j(S)),H!==e?d=Zt(b):(g=d,d=e)}else g=d,d=e;return T--,d===e&&(u=e,T===0&&j(R)),d}function ua(){var d,u,b,H,G;if(T++,d=g,n.charCodeAt(g)===59?(u=Te,g++):(u=e,T===0&&j(te)),u!==e){for(b=g,H=[],G=n.charAt(g),x.test(G)?g++:(G=e,T===0&&j(U));G!==e;)H.push(G),G=n.charAt(g),x.test(G)?g++:(G=e,T===0&&j(U));b=n.substring(b,g),d=ea(b)}else g=d,d=e;return T--,d===e&&(u=e,T===0&&j(M)),d}function jt(){var d,u,b,H;return T++,d=g,Ae(),n.charCodeAt(g)===40?(u=nt,g++):(u=e,T===0&&j(Z)),u!==e?(b=Ft(),b!==e?(Ae(),n.charCodeAt(g)===41?(H=Ue,g++):(H=e,T===0&&j(de)),H!==e?d=ta(b):(g=d,d=e)):(g=d,d=e)):(g=d,d=e),T--,d===e&&T===0&&j(Q),d}function ba(){var d,u,b;return T++,d=g,n.substr(g,3)===$e?(u=$e,g+=3):(u=e,T===0&&j(be)),u===e&&(n.substr(g,3)===rt?(u=rt,g+=3):(u=e,T===0&&j(Je)),u===e&&(n.substr(g,7)===Ne?(u=Ne,g+=7):(u=e,T===0&&j(ce)),u===e&&(n.charCodeAt(g)===42?(u=lt,g++):(u=e,T===0&&j(fe))))),u!==e?(Ae(),b=$t(),b===e&&(b=null),d=aa(u,b)):(g=d,d=e),T--,d===e&&(u=e,T===0&&j(ve)),d}function Ae(){var d,u;for(T++,d=[],u=n.charAt(g),k.test(u)?g++:(u=e,T===0&&j(Me));u!==e;)d.push(u),u=n.charAt(g),k.test(u)?g++:(u=e,T===0&&j(Me));return T--,u=e,T===0&&j(ke),d}if(ct=r(),t.peg$library)return{peg$result:ct,peg$currPos:g,peg$FAILED:e,peg$maxFailExpected:bt,peg$maxFailPos:Le};if(ct!==e&&g===n.length)return ct;throw ct!==e&&g<n.length&&j(na()),ra(bt,Le<n.length?n.charAt(Le):null,Le<n.length?qt(Le,Le+1):qt(Le,Le))}/**
  * @license
  * Copyright (c) 2025, Jeff Hlywa (jhlywa@gmail.com)
  * All rights reserved.
@@ -2102,14 +2102,14 @@ var ba=Object.defineProperty;var ma=(n,t,e)=>t in n?ba(n,t,{enumerable:!0,config
  * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
- */const kt=0xffffffffffffffffn;function Et(n,t){return(n<<t|n>>64n-t)&0xffffffffffffffffn}function Kt(n,t){return n*t&kt}function Aa(n){return function(){let t=BigInt(n&kt),e=BigInt(n>>64n&kt);const r=Kt(Et(Kt(t,5n),7n),9n);return e^=t,t=(Et(t,24n)^e^e<<16n)&kt,e=Et(e,37n),n=e<<64n|t,r}}const St=Aa(0xa187eb39cdcaed8f31c4b365b102e01en),Ta=Array.from({length:2},()=>Array.from({length:6},()=>Array.from({length:128},()=>St()))),Pa=Array.from({length:8},()=>St()),Da=Array.from({length:16},()=>St()),At=St(),Ce="w",Pe="b",me="p",Mt="n",wt="b",ut="r",We="q",he="k",Tt="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";class vt{constructor(t,e){ge(this,"color");ge(this,"from");ge(this,"to");ge(this,"piece");ge(this,"captured");ge(this,"promotion");ge(this,"flags");ge(this,"san");ge(this,"lan");ge(this,"before");ge(this,"after");const{color:r,piece:s,from:i,to:p,flags:a,captured:h,promotion:$}=e,E=ke(i),F=ke(p);this.color=r,this.piece=s,this.from=E,this.to=F,this.san=t._moveToSan(e,t._moves({legal:!0})),this.lan=E+F,this.before=t.fen(),t._makeMove(e),this.after=t.fen(),t._undoMove(),this.flags="";for(const _ in J)J[_]&a&&(this.flags+=tt[_]);h&&(this.captured=h),$&&(this.promotion=$,this.lan+=$)}isCapture(){return this.flags.indexOf(tt.CAPTURE)>-1}isPromotion(){return this.flags.indexOf(tt.PROMOTION)>-1}isEnPassant(){return this.flags.indexOf(tt.EP_CAPTURE)>-1}isKingsideCastle(){return this.flags.indexOf(tt.KSIDE_CASTLE)>-1}isQueensideCastle(){return this.flags.indexOf(tt.QSIDE_CASTLE)>-1}isBigPawn(){return this.flags.indexOf(tt.BIG_PAWN)>-1}}const Se=-1,tt={NORMAL:"n",CAPTURE:"c",BIG_PAWN:"b",EP_CAPTURE:"e",PROMOTION:"p",KSIDE_CASTLE:"k",QSIDE_CASTLE:"q",NULL_MOVE:"-"},J={NORMAL:1,CAPTURE:2,BIG_PAWN:4,EP_CAPTURE:8,PROMOTION:16,KSIDE_CASTLE:32,QSIDE_CASTLE:64,NULL_MOVE:128},Lt={Event:"?",Site:"?",Date:"????.??.??",Round:"?",White:"?",Black:"?",Result:"*"},Ia={WhiteTitle:null,BlackTitle:null,WhiteElo:null,BlackElo:null,WhiteUSCF:null,BlackUSCF:null,WhiteNA:null,BlackNA:null,WhiteType:null,BlackType:null,EventDate:null,EventSponsor:null,Section:null,Stage:null,Board:null,Opening:null,Variation:null,SubVariation:null,ECO:null,NIC:null,Time:null,UTCTime:null,UTCDate:null,TimeControl:null,SetUp:null,FEN:null,Termination:null,Annotator:null,Mode:null,PlyCount:null},Ma={...Lt,...Ia},U={a8:0,b8:1,c8:2,d8:3,e8:4,f8:5,g8:6,h8:7,a7:16,b7:17,c7:18,d7:19,e7:20,f7:21,g7:22,h7:23,a6:32,b6:33,c6:34,d6:35,e6:36,f6:37,g6:38,h6:39,a5:48,b5:49,c5:50,d5:51,e5:52,f5:53,g5:54,h5:55,a4:64,b4:65,c4:66,d4:67,e4:68,f4:69,g4:70,h4:71,a3:80,b3:81,c3:82,d3:83,e3:84,f3:85,g3:86,h3:87,a2:96,b2:97,c2:98,d2:99,e2:100,f2:101,g2:102,h2:103,a1:112,b1:113,c1:114,d1:115,e1:116,f1:117,g1:118,h1:119},Pt={b:[16,32,17,15],w:[-16,-32,-17,-15]},Wt={n:[-18,-33,-31,-14,18,33,31,14],b:[-17,-15,17,15],r:[-16,1,16,-1],q:[-17,-16,-15,1,17,16,15,-1],k:[-17,-16,-15,1,17,16,15,-1]},La=[20,0,0,0,0,0,0,24,0,0,0,0,0,0,20,0,0,20,0,0,0,0,0,24,0,0,0,0,0,20,0,0,0,0,20,0,0,0,0,24,0,0,0,0,20,0,0,0,0,0,0,20,0,0,0,24,0,0,0,20,0,0,0,0,0,0,0,0,20,0,0,24,0,0,20,0,0,0,0,0,0,0,0,0,0,20,2,24,2,20,0,0,0,0,0,0,0,0,0,0,0,2,53,56,53,2,0,0,0,0,0,0,24,24,24,24,24,24,56,0,56,24,24,24,24,24,24,0,0,0,0,0,0,2,53,56,53,2,0,0,0,0,0,0,0,0,0,0,0,20,2,24,2,20,0,0,0,0,0,0,0,0,0,0,20,0,0,24,0,0,20,0,0,0,0,0,0,0,0,20,0,0,0,24,0,0,0,20,0,0,0,0,0,0,20,0,0,0,0,24,0,0,0,0,20,0,0,0,0,20,0,0,0,0,0,24,0,0,0,0,0,20,0,0,20,0,0,0,0,0,0,24,0,0,0,0,0,0,20],qa=[17,0,0,0,0,0,0,16,0,0,0,0,0,0,15,0,0,17,0,0,0,0,0,16,0,0,0,0,0,15,0,0,0,0,17,0,0,0,0,16,0,0,0,0,15,0,0,0,0,0,0,17,0,0,0,16,0,0,0,15,0,0,0,0,0,0,0,0,17,0,0,16,0,0,15,0,0,0,0,0,0,0,0,0,0,17,0,16,0,15,0,0,0,0,0,0,0,0,0,0,0,0,17,16,15,0,0,0,0,0,0,0,1,1,1,1,1,1,1,0,-1,-1,-1,-1,-1,-1,-1,0,0,0,0,0,0,0,-15,-16,-17,0,0,0,0,0,0,0,0,0,0,0,0,-15,0,-16,0,-17,0,0,0,0,0,0,0,0,0,0,-15,0,0,-16,0,0,-17,0,0,0,0,0,0,0,0,-15,0,0,0,-16,0,0,0,-17,0,0,0,0,0,0,-15,0,0,0,0,-16,0,0,0,0,-17,0,0,0,0,-15,0,0,0,0,0,-16,0,0,0,0,0,-17,0,0,-15,0,0,0,0,0,0,-16,0,0,0,0,0,0,-17],za={p:1,n:2,b:4,r:8,q:16,k:32},Ra="pnbrqkPNBRQK",Ut=[Mt,wt,ut,We],Na=7,Fa=6,Oa=1,Ba=0,xt={[he]:J.KSIDE_CASTLE,[We]:J.QSIDE_CASTLE},Ge={w:[{square:U.a1,flag:J.QSIDE_CASTLE},{square:U.h1,flag:J.KSIDE_CASTLE}],b:[{square:U.a8,flag:J.QSIDE_CASTLE},{square:U.h8,flag:J.KSIDE_CASTLE}]},ja={b:Oa,w:Fa},Dt="--";function at(n){return n>>4}function gt(n){return n&15}function Jt(n){return"0123456789".indexOf(n)!==-1}function ke(n){const t=gt(n),e=at(n);return"abcdefgh".substring(t,t+1)+"87654321".substring(e,e+1)}function pt(n){return n===Ce?Pe:Ce}function Ha(n){const t=n.split(/\s+/);if(t.length!==6)return{ok:!1,error:"Invalid FEN: must contain six space-delimited fields"};const e=parseInt(t[5],10);if(isNaN(e)||e<=0)return{ok:!1,error:"Invalid FEN: move number must be a positive integer"};const r=parseInt(t[4],10);if(isNaN(r)||r<0)return{ok:!1,error:"Invalid FEN: half move counter number must be a non-negative integer"};if(!/^(-|[abcdefgh][36])$/.test(t[3]))return{ok:!1,error:"Invalid FEN: en-passant square is invalid"};if(/[^kKqQ-]/.test(t[2]))return{ok:!1,error:"Invalid FEN: castling availability is invalid"};if(!/^(w|b)$/.test(t[1]))return{ok:!1,error:"Invalid FEN: side-to-move is invalid"};const s=t[0].split("/");if(s.length!==8)return{ok:!1,error:"Invalid FEN: piece data does not contain 8 '/'-delimited rows"};for(let p=0;p<s.length;p++){let a=0,h=!1;for(let $=0;$<s[p].length;$++)if(Jt(s[p][$])){if(h)return{ok:!1,error:"Invalid FEN: piece data is invalid (consecutive number)"};a+=parseInt(s[p][$],10),h=!0}else{if(!/^[prnbqkPRNBQK]$/.test(s[p][$]))return{ok:!1,error:"Invalid FEN: piece data is invalid (invalid piece)"};a+=1,h=!1}if(a!==8)return{ok:!1,error:"Invalid FEN: piece data is invalid (too many squares in rank)"}}if(t[3][1]=="3"&&t[1]=="w"||t[3][1]=="6"&&t[1]=="b")return{ok:!1,error:"Invalid FEN: illegal en-passant square"};const i=[{color:"white",regex:/K/g},{color:"black",regex:/k/g}];for(const{color:p,regex:a}of i){if(!a.test(t[0]))return{ok:!1,error:`Invalid FEN: missing ${p} king`};if((t[0].match(a)||[]).length>1)return{ok:!1,error:`Invalid FEN: too many ${p} kings`}}return Array.from(s[0]+s[7]).some(p=>p.toUpperCase()==="P")?{ok:!1,error:"Invalid FEN: some pawns are on the edge rows"}:{ok:!0}}function Ga(n,t){const e=n.from,r=n.to,s=n.piece;let i=0,p=0,a=0;for(let h=0,$=t.length;h<$;h++){const E=t[h].from,F=t[h].to,_=t[h].piece;s===_&&e!==E&&r===F&&(i++,at(e)===at(E)&&p++,gt(e)===gt(E)&&a++)}return i>0?p>0&&a>0?ke(e):a>0?ke(e).charAt(1):ke(e).charAt(0):""}function Ke(n,t,e,r,s,i=void 0,p=J.NORMAL){const a=at(r);if(s===me&&(a===Na||a===Ba))for(let h=0;h<Ut.length;h++){const $=Ut[h];n.push({color:t,from:e,to:r,piece:s,captured:i,promotion:$,flags:p|J.PROMOTION})}else n.push({color:t,from:e,to:r,piece:s,captured:i,flags:p})}function Qt(n){let t=n.charAt(0);return t>="a"&&t<="h"?n.match(/[a-h]\d.*[a-h]\d/)?void 0:me:(t=t.toLowerCase(),t==="o"?he:t)}function It(n){return n.replace(/=/,"").replace(/[+#]?[?!]*$/,"")}class Vt{constructor(t=Tt,{skipValidation:e=!1}={}){ge(this,"_board",new Array(128));ge(this,"_turn",Ce);ge(this,"_header",{});ge(this,"_kings",{w:Se,b:Se});ge(this,"_epSquare",-1);ge(this,"_halfMoves",0);ge(this,"_moveNumber",0);ge(this,"_history",[]);ge(this,"_comments",{});ge(this,"_castling",{w:0,b:0});ge(this,"_hash",0n);ge(this,"_positionCount",new Map);this.load(t,{skipValidation:e})}clear({preserveHeaders:t=!1}={}){this._board=new Array(128),this._kings={w:Se,b:Se},this._turn=Ce,this._castling={w:0,b:0},this._epSquare=Se,this._halfMoves=0,this._moveNumber=1,this._history=[],this._comments={},this._header=t?this._header:{...Ma},this._hash=this._computeHash(),this._positionCount=new Map,this._header.SetUp=null,this._header.FEN=null}load(t,{skipValidation:e=!1,preserveHeaders:r=!1}={}){let s=t.split(/\s+/);if(s.length>=2&&s.length<6){const a=["-","-","0","1"];t=s.concat(a.slice(-(6-s.length))).join(" ")}if(s=t.split(/\s+/),!e){const{ok:a,error:h}=Ha(t);if(!a)throw new Error(h)}const i=s[0];let p=0;this.clear({preserveHeaders:r});for(let a=0;a<i.length;a++){const h=i.charAt(a);if(h==="/")p+=8;else if(Jt(h))p+=parseInt(h,10);else{const $=h<"a"?Ce:Pe;this._put({type:h.toLowerCase(),color:$},ke(p)),p++}}this._turn=s[1],s[2].indexOf("K")>-1&&(this._castling.w|=J.KSIDE_CASTLE),s[2].indexOf("Q")>-1&&(this._castling.w|=J.QSIDE_CASTLE),s[2].indexOf("k")>-1&&(this._castling.b|=J.KSIDE_CASTLE),s[2].indexOf("q")>-1&&(this._castling.b|=J.QSIDE_CASTLE),this._epSquare=s[3]==="-"?Se:U[s[3]],this._halfMoves=parseInt(s[4],10),this._moveNumber=parseInt(s[5],10),this._hash=this._computeHash(),this._updateSetup(t),this._incPositionCount()}fen({forceEnpassantSquare:t=!1}={}){var p,a;let e=0,r="";for(let h=U.a8;h<=U.h1;h++){if(this._board[h]){e>0&&(r+=e,e=0);const{color:$,type:E}=this._board[h];r+=$===Ce?E.toUpperCase():E.toLowerCase()}else e++;h+1&136&&(e>0&&(r+=e),h!==U.h1&&(r+="/"),e=0,h+=8)}let s="";this._castling[Ce]&J.KSIDE_CASTLE&&(s+="K"),this._castling[Ce]&J.QSIDE_CASTLE&&(s+="Q"),this._castling[Pe]&J.KSIDE_CASTLE&&(s+="k"),this._castling[Pe]&J.QSIDE_CASTLE&&(s+="q"),s=s||"-";let i="-";if(this._epSquare!==Se)if(t)i=ke(this._epSquare);else{const h=this._epSquare+(this._turn===Ce?16:-16),$=[h+1,h-1];for(const E of $){if(E&136)continue;const F=this._turn;if(((p=this._board[E])==null?void 0:p.color)===F&&((a=this._board[E])==null?void 0:a.type)===me){this._makeMove({color:F,from:E,to:this._epSquare,piece:me,captured:me,flags:J.EP_CAPTURE});const _=!this._isKingAttacked(F);if(this._undoMove(),_){i=ke(this._epSquare);break}}}}return[r,this._turn,s,i,this._halfMoves,this._moveNumber].join(" ")}_pieceKey(t){if(!this._board[t])return 0n;const{color:e,type:r}=this._board[t],s={w:0,b:1}[e],i={p:0,n:1,b:2,r:3,q:4,k:5}[r];return Ta[s][i][t]}_epKey(){return this._epSquare===Se?0n:Pa[this._epSquare&7]}_castlingKey(){const t=this._castling.w>>5|this._castling.b>>3;return Da[t]}_computeHash(){let t=0n;for(let e=U.a8;e<=U.h1;e++){if(e&136){e+=7;continue}this._board[e]&&(t^=this._pieceKey(e))}return t^=this._epKey(),t^=this._castlingKey(),this._turn==="b"&&(t^=At),t}_updateSetup(t){this._history.length>0||(t!==Tt?(this._header.SetUp="1",this._header.FEN=t):(this._header.SetUp=null,this._header.FEN=null))}reset(){this.load(Tt)}get(t){return this._board[U[t]]}findPiece(t){var r;const e=[];for(let s=U.a8;s<=U.h1;s++){if(s&136){s+=7;continue}!this._board[s]||((r=this._board[s])==null?void 0:r.color)!==t.color||this._board[s].color===t.color&&this._board[s].type===t.type&&e.push(ke(s))}return e}put({type:t,color:e},r){return this._put({type:t,color:e},r)?(this._updateCastlingRights(),this._updateEnPassantSquare(),this._updateSetup(this.fen()),!0):!1}_set(t,e){this._hash^=this._pieceKey(t),this._board[t]=e,this._hash^=this._pieceKey(t)}_put({type:t,color:e},r){if(Ra.indexOf(t.toLowerCase())===-1||!(r in U))return!1;const s=U[r];if(t==he&&!(this._kings[e]==Se||this._kings[e]==s))return!1;const i=this._board[s];return i&&i.type===he&&(this._kings[i.color]=Se),this._set(s,{type:t,color:e}),t===he&&(this._kings[e]=s),!0}_clear(t){this._hash^=this._pieceKey(t),delete this._board[t]}remove(t){const e=this.get(t);return this._clear(U[t]),e&&e.type===he&&(this._kings[e.color]=Se),this._updateCastlingRights(),this._updateEnPassantSquare(),this._updateSetup(this.fen()),e}_updateCastlingRights(){var r,s,i,p,a,h,$,E,F,_,K,O;this._hash^=this._castlingKey();const t=((r=this._board[U.e1])==null?void 0:r.type)===he&&((s=this._board[U.e1])==null?void 0:s.color)===Ce,e=((i=this._board[U.e8])==null?void 0:i.type)===he&&((p=this._board[U.e8])==null?void 0:p.color)===Pe;(!t||((a=this._board[U.a1])==null?void 0:a.type)!==ut||((h=this._board[U.a1])==null?void 0:h.color)!==Ce)&&(this._castling.w&=-65),(!t||(($=this._board[U.h1])==null?void 0:$.type)!==ut||((E=this._board[U.h1])==null?void 0:E.color)!==Ce)&&(this._castling.w&=-33),(!e||((F=this._board[U.a8])==null?void 0:F.type)!==ut||((_=this._board[U.a8])==null?void 0:_.color)!==Pe)&&(this._castling.b&=-65),(!e||((K=this._board[U.h8])==null?void 0:K.type)!==ut||((O=this._board[U.h8])==null?void 0:O.color)!==Pe)&&(this._castling.b&=-33),this._hash^=this._castlingKey()}_updateEnPassantSquare(){var i,p;if(this._epSquare===Se)return;const t=this._epSquare+(this._turn===Ce?-16:16),e=this._epSquare+(this._turn===Ce?16:-16),r=[e+1,e-1];if(this._board[t]!==null||this._board[this._epSquare]!==null||((i=this._board[e])==null?void 0:i.color)!==pt(this._turn)||((p=this._board[e])==null?void 0:p.type)!==me){this._hash^=this._epKey(),this._epSquare=Se;return}const s=a=>{var h,$;return!(a&136)&&((h=this._board[a])==null?void 0:h.color)===this._turn&&(($=this._board[a])==null?void 0:$.type)===me};r.some(s)||(this._hash^=this._epKey(),this._epSquare=Se)}_attacked(t,e,r){const s=[];for(let i=U.a8;i<=U.h1;i++){if(i&136){i+=7;continue}if(this._board[i]===void 0||this._board[i].color!==t)continue;const p=this._board[i],a=i-e;if(a===0)continue;const h=a+119;if(La[h]&za[p.type]){if(p.type===me){if(a>0&&p.color===Ce||a<=0&&p.color===Pe)if(r)s.push(ke(i));else return!0;continue}if(p.type==="n"||p.type==="k")if(r){s.push(ke(i));continue}else return!0;const $=qa[h];let E=i+$,F=!1;for(;E!==e;){if(this._board[E]!=null){F=!0;break}E+=$}if(!F)if(r){s.push(ke(i));continue}else return!0}}return r?s:!1}attackers(t,e){return e?this._attacked(e,U[t],!0):this._attacked(this._turn,U[t],!0)}_isKingAttacked(t){const e=this._kings[t];return e===-1?!1:this._attacked(pt(t),e)}hash(){return this._hash.toString(16)}isAttacked(t,e){return this._attacked(e,U[t])}isCheck(){return this._isKingAttacked(this._turn)}inCheck(){return this.isCheck()}isCheckmate(){return this.isCheck()&&this._moves().length===0}isStalemate(){return!this.isCheck()&&this._moves().length===0}isInsufficientMaterial(){const t={b:0,n:0,r:0,q:0,k:0,p:0},e=[];let r=0,s=0;for(let i=U.a8;i<=U.h1;i++){if(s=(s+1)%2,i&136){i+=7;continue}const p=this._board[i];p&&(t[p.type]=p.type in t?t[p.type]+1:1,p.type===wt&&e.push(s),r++)}if(r===2)return!0;if(r===3&&(t[wt]===1||t[Mt]===1))return!0;if(r===t[wt]+2){let i=0;const p=e.length;for(let a=0;a<p;a++)i+=e[a];if(i===0||i===p)return!0}return!1}isThreefoldRepetition(){return this._getPositionCount(this._hash)>=3}isDrawByFiftyMoves(){return this._halfMoves>=100}isDraw(){return this.isDrawByFiftyMoves()||this.isStalemate()||this.isInsufficientMaterial()||this.isThreefoldRepetition()}isGameOver(){return this.isCheckmate()||this.isDraw()}moves({verbose:t=!1,square:e=void 0,piece:r=void 0}={}){const s=this._moves({square:e,piece:r});return t?s.map(i=>new vt(this,i)):s.map(i=>this._moveToSan(i,s))}_moves({legal:t=!0,piece:e=void 0,square:r=void 0}={}){var K;const s=r?r.toLowerCase():void 0,i=e==null?void 0:e.toLowerCase(),p=[],a=this._turn,h=pt(a);let $=U.a8,E=U.h1,F=!1;if(s)if(s in U)$=E=U[s],F=!0;else return[];for(let O=$;O<=E;O++){if(O&136){O+=7;continue}if(!this._board[O]||this._board[O].color===h)continue;const{type:ue}=this._board[O];let le;if(ue===me){if(i&&i!==ue)continue;le=O+Pt[a][0],this._board[le]||(Ke(p,a,O,le,me),le=O+Pt[a][1],ja[a]===at(O)&&!this._board[le]&&Ke(p,a,O,le,me,void 0,J.BIG_PAWN));for(let Te=2;Te<4;Te++)le=O+Pt[a][Te],!(le&136)&&(((K=this._board[le])==null?void 0:K.color)===h?Ke(p,a,O,le,me,this._board[le].type,J.CAPTURE):le===this._epSquare&&Ke(p,a,O,le,me,me,J.EP_CAPTURE))}else{if(i&&i!==ue)continue;for(let Te=0,nt=Wt[ue].length;Te<nt;Te++){const Ue=Wt[ue][Te];for(le=O;le+=Ue,!(le&136);){if(!this._board[le])Ke(p,a,O,le,ue);else{if(this._board[le].color===a)break;Ke(p,a,O,le,ue,this._board[le].type,J.CAPTURE);break}if(ue===Mt||ue===he)break}}}}if((i===void 0||i===he)&&(!F||E===this._kings[a])){if(this._castling[a]&J.KSIDE_CASTLE){const O=this._kings[a],ue=O+2;!this._board[O+1]&&!this._board[ue]&&!this._attacked(h,this._kings[a])&&!this._attacked(h,O+1)&&!this._attacked(h,ue)&&Ke(p,a,this._kings[a],ue,he,void 0,J.KSIDE_CASTLE)}if(this._castling[a]&J.QSIDE_CASTLE){const O=this._kings[a],ue=O-2;!this._board[O-1]&&!this._board[O-2]&&!this._board[O-3]&&!this._attacked(h,this._kings[a])&&!this._attacked(h,O-1)&&!this._attacked(h,ue)&&Ke(p,a,this._kings[a],ue,he,void 0,J.QSIDE_CASTLE)}}if(!t||this._kings[a]===-1)return p;const _=[];for(let O=0,ue=p.length;O<ue;O++)this._makeMove(p[O]),this._isKingAttacked(a)||_.push(p[O]),this._undoMove();return _}move(t,{strict:e=!1}={}){let r=null;if(typeof t=="string")r=this._moveFromSan(t,e);else if(t===null)r=this._moveFromSan(Dt,e);else if(typeof t=="object"){const i=this._moves();for(let p=0,a=i.length;p<a;p++)if(t.from===ke(i[p].from)&&t.to===ke(i[p].to)&&(!("promotion"in i[p])||t.promotion===i[p].promotion)){r=i[p];break}}if(!r)throw typeof t=="string"?new Error(`Invalid move: ${t}`):new Error(`Invalid move: ${JSON.stringify(t)}`);if(this.isCheck()&&r.flags&J.NULL_MOVE)throw new Error("Null move not allowed when in check");const s=new vt(this,r);return this._makeMove(r),this._incPositionCount(),s}_push(t){this._history.push({move:t,kings:{b:this._kings.b,w:this._kings.w},turn:this._turn,castling:{b:this._castling.b,w:this._castling.w},epSquare:this._epSquare,halfMoves:this._halfMoves,moveNumber:this._moveNumber})}_movePiece(t,e){this._hash^=this._pieceKey(t),this._board[e]=this._board[t],delete this._board[t],this._hash^=this._pieceKey(e)}_makeMove(t){var s,i,p,a;const e=this._turn,r=pt(e);if(this._push(t),t.flags&J.NULL_MOVE){e===Pe&&this._moveNumber++,this._halfMoves++,this._turn=r,this._epSquare=Se;return}if(this._hash^=this._epKey(),this._hash^=this._castlingKey(),t.captured&&(this._hash^=this._pieceKey(t.to)),this._movePiece(t.from,t.to),t.flags&J.EP_CAPTURE&&(this._turn===Pe?this._clear(t.to-16):this._clear(t.to+16)),t.promotion&&(this._clear(t.to),this._set(t.to,{type:t.promotion,color:e})),this._board[t.to].type===he){if(this._kings[e]=t.to,t.flags&J.KSIDE_CASTLE){const h=t.to-1,$=t.to+1;this._movePiece($,h)}else if(t.flags&J.QSIDE_CASTLE){const h=t.to+1,$=t.to-2;this._movePiece($,h)}this._castling[e]=0}if(this._castling[e]){for(let h=0,$=Ge[e].length;h<$;h++)if(t.from===Ge[e][h].square&&this._castling[e]&Ge[e][h].flag){this._castling[e]^=Ge[e][h].flag;break}}if(this._castling[r]){for(let h=0,$=Ge[r].length;h<$;h++)if(t.to===Ge[r][h].square&&this._castling[r]&Ge[r][h].flag){this._castling[r]^=Ge[r][h].flag;break}}if(this._hash^=this._castlingKey(),t.flags&J.BIG_PAWN){let h;e===Pe?h=t.to-16:h=t.to+16,!(t.to-1&136)&&((s=this._board[t.to-1])==null?void 0:s.type)===me&&((i=this._board[t.to-1])==null?void 0:i.color)===r||!(t.to+1&136)&&((p=this._board[t.to+1])==null?void 0:p.type)===me&&((a=this._board[t.to+1])==null?void 0:a.color)===r?(this._epSquare=h,this._hash^=this._epKey()):this._epSquare=Se}else this._epSquare=Se;t.piece===me?this._halfMoves=0:t.flags&(J.CAPTURE|J.EP_CAPTURE)?this._halfMoves=0:this._halfMoves++,e===Pe&&this._moveNumber++,this._turn=r,this._hash^=At}undo(){const t=this._hash,e=this._undoMove();if(e){const r=new vt(this,e);return this._decPositionCount(t),r}return null}_undoMove(){const t=this._history.pop();if(t===void 0)return null;this._hash^=this._epKey(),this._hash^=this._castlingKey();const e=t.move;this._kings=t.kings,this._turn=t.turn,this._castling=t.castling,this._epSquare=t.epSquare,this._halfMoves=t.halfMoves,this._moveNumber=t.moveNumber,this._hash^=this._epKey(),this._hash^=this._castlingKey(),this._hash^=At;const r=this._turn,s=pt(r);if(e.flags&J.NULL_MOVE)return e;if(this._movePiece(e.to,e.from),e.piece&&(this._clear(e.from),this._set(e.from,{type:e.piece,color:r})),e.captured)if(e.flags&J.EP_CAPTURE){let i;r===Pe?i=e.to-16:i=e.to+16,this._set(i,{type:me,color:s})}else this._set(e.to,{type:e.captured,color:s});if(e.flags&(J.KSIDE_CASTLE|J.QSIDE_CASTLE)){let i,p;e.flags&J.KSIDE_CASTLE?(i=e.to+1,p=e.to-1):(i=e.to-2,p=e.to+1),this._movePiece(p,i)}return e}pgn({newline:t=`
-`,maxWidth:e=0}={}){const r=[];let s=!1;for(const _ in this._header)this._header[_]&&r.push(`[${_} "${this._header[_]}"]`+t),s=!0;s&&this._history.length&&r.push(t);const i=_=>{const K=this._comments[this.fen()];if(typeof K<"u"){const O=_.length>0?" ":"";_=`${_}${O}{${K}}`}return _},p=[];for(;this._history.length>0;)p.push(this._undoMove());const a=[];let h="";for(p.length===0&&a.push(i(""));p.length>0;){h=i(h);const _=p.pop();if(!_)break;if(!this._history.length&&_.color==="b"){const K=`${this._moveNumber}. ...`;h=h?`${h} ${K}`:K}else _.color==="w"&&(h.length&&a.push(h),h=this._moveNumber+".");h=h+" "+this._moveToSan(_,this._moves({legal:!0})),this._makeMove(_)}if(h.length&&a.push(i(h)),a.push(this._header.Result||"*"),e===0)return r.join("")+a.join(" ");const $=function(){return r.length>0&&r[r.length-1]===" "?(r.pop(),!0):!1},E=function(_,K){for(const O of K.split(" "))if(O){if(_+O.length>e){for(;$();)_--;r.push(t),_=0}r.push(O),_+=O.length,r.push(" "),_++}return $()&&_--,_};let F=0;for(let _=0;_<a.length;_++){if(F+a[_].length>e&&a[_].includes("{")){F=E(F,a[_]);continue}F+a[_].length>e&&_!==0?(r[r.length-1]===" "&&r.pop(),r.push(t),F=0):_!==0&&(r.push(" "),F++),r.push(a[_]),F+=a[_].length}return r.join("")}header(...t){for(let e=0;e<t.length;e+=2)typeof t[e]=="string"&&typeof t[e+1]=="string"&&(this._header[t[e]]=t[e+1]);return this._header}setHeader(t,e){return this._header[t]=e??Lt[t]??null,this.getHeaders()}removeHeader(t){return t in this._header?(this._header[t]=Lt[t]||null,!0):!1}getHeaders(){const t={};for(const[e,r]of Object.entries(this._header))r!==null&&(t[e]=r);return t}loadPgn(t,{strict:e=!1,newlineChar:r=`\r?
-`}={}){r!==`\r?
-`&&(t=t.replace(new RegExp(r,"g"),`
-`));const s=Ea(t);this.reset();const i=s.headers;let p="";for(const $ in i)$.toLowerCase()==="fen"&&(p=i[$]),this.header($,i[$]);if(!e)p&&this.load(p,{preserveHeaders:!0});else if(i.SetUp==="1"){if(!("FEN"in i))throw new Error("Invalid PGN: FEN tag must be supplied with SetUp tag");this.load(i.FEN,{preserveHeaders:!0})}let a=s.root;for(;a;){if(a.move){const $=this._moveFromSan(a.move,e);if($==null)throw new Error(`Invalid move in PGN: ${a.move}`);this._makeMove($),this._incPositionCount()}a.comment!==void 0&&(this._comments[this.fen()]=a.comment),a=a.variations[0]}const h=s.result;h&&Object.keys(this._header).length&&this._header.Result!==h&&this.setHeader("Result",h)}_moveToSan(t,e){let r="";if(t.flags&J.KSIDE_CASTLE)r="O-O";else if(t.flags&J.QSIDE_CASTLE)r="O-O-O";else{if(t.flags&J.NULL_MOVE)return Dt;if(t.piece!==me){const s=Ga(t,e);r+=t.piece.toUpperCase()+s}t.flags&(J.CAPTURE|J.EP_CAPTURE)&&(t.piece===me&&(r+=ke(t.from)[0]),r+="x"),r+=ke(t.to),t.promotion&&(r+="="+t.promotion.toUpperCase())}return this._makeMove(t),this.isCheck()&&(this.isCheckmate()?r+="#":r+="+"),this._undoMove(),r}_moveFromSan(t,e=!1){let r=It(t);if(e||(r==="0-0"?r="O-O":r==="0-0-0"&&(r="O-O-O")),r==Dt)return{color:this._turn,from:0,to:0,piece:"k",flags:J.NULL_MOVE};let s=Qt(r),i=this._moves({legal:!0,piece:s});for(let _=0,K=i.length;_<K;_++)if(r===It(this._moveToSan(i[_],i)))return i[_];if(e)return null;let p,a,h,$,E,F=!1;if(a=r.match(/([pnbrqkPNBRQK])?([a-h][1-8])x?-?([a-h][1-8])([qrbnQRBN])?/),a?(p=a[1],h=a[2],$=a[3],E=a[4],h.length==1&&(F=!0)):(a=r.match(/([pnbrqkPNBRQK])?([a-h]?[1-8]?)x?-?([a-h][1-8])([qrbnQRBN])?/),a&&(p=a[1],h=a[2],$=a[3],E=a[4],h.length==1&&(F=!0))),s=Qt(r),i=this._moves({legal:!0,piece:p||s}),!$)return null;for(let _=0,K=i.length;_<K;_++)if(h){if((!p||p.toLowerCase()==i[_].piece)&&U[h]==i[_].from&&U[$]==i[_].to&&(!E||E.toLowerCase()==i[_].promotion))return i[_];if(F){const O=ke(i[_].from);if((!p||p.toLowerCase()==i[_].piece)&&U[$]==i[_].to&&(h==O[0]||h==O[1])&&(!E||E.toLowerCase()==i[_].promotion))return i[_]}}else if(r===It(this._moveToSan(i[_],i)).replace("x",""))return i[_];return null}ascii(){let t=`   +------------------------+
-`;for(let e=U.a8;e<=U.h1;e++){if(gt(e)===0&&(t+=" "+"87654321"[at(e)]+" |"),this._board[e]){const r=this._board[e].type,i=this._board[e].color===Ce?r.toUpperCase():r.toLowerCase();t+=" "+i+" "}else t+=" . ";e+1&136&&(t+=`|
+ */const wt=0xffffffffffffffffn;function Et(n,t){return(n<<t|n>>64n-t)&0xffffffffffffffffn}function Wt(n,t){return n*t&wt}function Aa(n){return function(){let t=BigInt(n&wt),e=BigInt(n>>64n&wt);const i=Wt(Et(Wt(t,5n),7n),9n);return e^=t,t=(Et(t,24n)^e^e<<16n)&wt,e=Et(e,37n),n=e<<64n|t,i}}const St=Aa(0xa187eb39cdcaed8f31c4b365b102e01en),Ta=Array.from({length:2},()=>Array.from({length:6},()=>Array.from({length:128},()=>St()))),Pa=Array.from({length:8},()=>St()),Da=Array.from({length:16},()=>St()),At=St(),Ce="w",Pe="b",me="p",Mt="n",kt="b",gt="r",Ke="q",he="k",Tt="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";class vt{constructor(t,e){ue(this,"color");ue(this,"from");ue(this,"to");ue(this,"piece");ue(this,"captured");ue(this,"promotion");ue(this,"flags");ue(this,"san");ue(this,"lan");ue(this,"before");ue(this,"after");const{color:i,piece:s,from:r,to:p,flags:a,captured:h,promotion:$}=e,E=we(r),F=we(p);this.color=i,this.piece=s,this.from=E,this.to=F,this.san=t._moveToSan(e,t._moves({legal:!0})),this.lan=E+F,this.before=t.fen(),t._makeMove(e),this.after=t.fen(),t._undoMove(),this.flags="";for(const _ in J)J[_]&a&&(this.flags+=tt[_]);h&&(this.captured=h),$&&(this.promotion=$,this.lan+=$)}isCapture(){return this.flags.indexOf(tt.CAPTURE)>-1}isPromotion(){return this.flags.indexOf(tt.PROMOTION)>-1}isEnPassant(){return this.flags.indexOf(tt.EP_CAPTURE)>-1}isKingsideCastle(){return this.flags.indexOf(tt.KSIDE_CASTLE)>-1}isQueensideCastle(){return this.flags.indexOf(tt.QSIDE_CASTLE)>-1}isBigPawn(){return this.flags.indexOf(tt.BIG_PAWN)>-1}}const Se=-1,tt={NORMAL:"n",CAPTURE:"c",BIG_PAWN:"b",EP_CAPTURE:"e",PROMOTION:"p",KSIDE_CASTLE:"k",QSIDE_CASTLE:"q",NULL_MOVE:"-"},J={NORMAL:1,CAPTURE:2,BIG_PAWN:4,EP_CAPTURE:8,PROMOTION:16,KSIDE_CASTLE:32,QSIDE_CASTLE:64,NULL_MOVE:128},Lt={Event:"?",Site:"?",Date:"????.??.??",Round:"?",White:"?",Black:"?",Result:"*"},Ia={WhiteTitle:null,BlackTitle:null,WhiteElo:null,BlackElo:null,WhiteUSCF:null,BlackUSCF:null,WhiteNA:null,BlackNA:null,WhiteType:null,BlackType:null,EventDate:null,EventSponsor:null,Section:null,Stage:null,Board:null,Opening:null,Variation:null,SubVariation:null,ECO:null,NIC:null,Time:null,UTCTime:null,UTCDate:null,TimeControl:null,SetUp:null,FEN:null,Termination:null,Annotator:null,Mode:null,PlyCount:null},Ma={...Lt,...Ia},V={a8:0,b8:1,c8:2,d8:3,e8:4,f8:5,g8:6,h8:7,a7:16,b7:17,c7:18,d7:19,e7:20,f7:21,g7:22,h7:23,a6:32,b6:33,c6:34,d6:35,e6:36,f6:37,g6:38,h6:39,a5:48,b5:49,c5:50,d5:51,e5:52,f5:53,g5:54,h5:55,a4:64,b4:65,c4:66,d4:67,e4:68,f4:69,g4:70,h4:71,a3:80,b3:81,c3:82,d3:83,e3:84,f3:85,g3:86,h3:87,a2:96,b2:97,c2:98,d2:99,e2:100,f2:101,g2:102,h2:103,a1:112,b1:113,c1:114,d1:115,e1:116,f1:117,g1:118,h1:119},Pt={b:[16,32,17,15],w:[-16,-32,-17,-15]},Kt={n:[-18,-33,-31,-14,18,33,31,14],b:[-17,-15,17,15],r:[-16,1,16,-1],q:[-17,-16,-15,1,17,16,15,-1],k:[-17,-16,-15,1,17,16,15,-1]},La=[20,0,0,0,0,0,0,24,0,0,0,0,0,0,20,0,0,20,0,0,0,0,0,24,0,0,0,0,0,20,0,0,0,0,20,0,0,0,0,24,0,0,0,0,20,0,0,0,0,0,0,20,0,0,0,24,0,0,0,20,0,0,0,0,0,0,0,0,20,0,0,24,0,0,20,0,0,0,0,0,0,0,0,0,0,20,2,24,2,20,0,0,0,0,0,0,0,0,0,0,0,2,53,56,53,2,0,0,0,0,0,0,24,24,24,24,24,24,56,0,56,24,24,24,24,24,24,0,0,0,0,0,0,2,53,56,53,2,0,0,0,0,0,0,0,0,0,0,0,20,2,24,2,20,0,0,0,0,0,0,0,0,0,0,20,0,0,24,0,0,20,0,0,0,0,0,0,0,0,20,0,0,0,24,0,0,0,20,0,0,0,0,0,0,20,0,0,0,0,24,0,0,0,0,20,0,0,0,0,20,0,0,0,0,0,24,0,0,0,0,0,20,0,0,20,0,0,0,0,0,0,24,0,0,0,0,0,0,20],za=[17,0,0,0,0,0,0,16,0,0,0,0,0,0,15,0,0,17,0,0,0,0,0,16,0,0,0,0,0,15,0,0,0,0,17,0,0,0,0,16,0,0,0,0,15,0,0,0,0,0,0,17,0,0,0,16,0,0,0,15,0,0,0,0,0,0,0,0,17,0,0,16,0,0,15,0,0,0,0,0,0,0,0,0,0,17,0,16,0,15,0,0,0,0,0,0,0,0,0,0,0,0,17,16,15,0,0,0,0,0,0,0,1,1,1,1,1,1,1,0,-1,-1,-1,-1,-1,-1,-1,0,0,0,0,0,0,0,-15,-16,-17,0,0,0,0,0,0,0,0,0,0,0,0,-15,0,-16,0,-17,0,0,0,0,0,0,0,0,0,0,-15,0,0,-16,0,0,-17,0,0,0,0,0,0,0,0,-15,0,0,0,-16,0,0,0,-17,0,0,0,0,0,0,-15,0,0,0,0,-16,0,0,0,0,-17,0,0,0,0,-15,0,0,0,0,0,-16,0,0,0,0,0,-17,0,0,-15,0,0,0,0,0,0,-16,0,0,0,0,0,0,-17],qa={p:1,n:2,b:4,r:8,q:16,k:32},Ra="pnbrqkPNBRQK",Ut=[Mt,kt,gt,Ke],Na=7,Fa=6,Oa=1,Ba=0,xt={[he]:J.KSIDE_CASTLE,[Ke]:J.QSIDE_CASTLE},Ge={w:[{square:V.a1,flag:J.QSIDE_CASTLE},{square:V.h1,flag:J.KSIDE_CASTLE}],b:[{square:V.a8,flag:J.QSIDE_CASTLE},{square:V.h8,flag:J.KSIDE_CASTLE}]},ja={b:Oa,w:Fa},Dt="--";function at(n){return n>>4}function ut(n){return n&15}function Jt(n){return"0123456789".indexOf(n)!==-1}function we(n){const t=ut(n),e=at(n);return"abcdefgh".substring(t,t+1)+"87654321".substring(e,e+1)}function pt(n){return n===Ce?Pe:Ce}function Ha(n){const t=n.split(/\s+/);if(t.length!==6)return{ok:!1,error:"Invalid FEN: must contain six space-delimited fields"};const e=parseInt(t[5],10);if(isNaN(e)||e<=0)return{ok:!1,error:"Invalid FEN: move number must be a positive integer"};const i=parseInt(t[4],10);if(isNaN(i)||i<0)return{ok:!1,error:"Invalid FEN: half move counter number must be a non-negative integer"};if(!/^(-|[abcdefgh][36])$/.test(t[3]))return{ok:!1,error:"Invalid FEN: en-passant square is invalid"};if(/[^kKqQ-]/.test(t[2]))return{ok:!1,error:"Invalid FEN: castling availability is invalid"};if(!/^(w|b)$/.test(t[1]))return{ok:!1,error:"Invalid FEN: side-to-move is invalid"};const s=t[0].split("/");if(s.length!==8)return{ok:!1,error:"Invalid FEN: piece data does not contain 8 '/'-delimited rows"};for(let p=0;p<s.length;p++){let a=0,h=!1;for(let $=0;$<s[p].length;$++)if(Jt(s[p][$])){if(h)return{ok:!1,error:"Invalid FEN: piece data is invalid (consecutive number)"};a+=parseInt(s[p][$],10),h=!0}else{if(!/^[prnbqkPRNBQK]$/.test(s[p][$]))return{ok:!1,error:"Invalid FEN: piece data is invalid (invalid piece)"};a+=1,h=!1}if(a!==8)return{ok:!1,error:"Invalid FEN: piece data is invalid (too many squares in rank)"}}if(t[3][1]=="3"&&t[1]=="w"||t[3][1]=="6"&&t[1]=="b")return{ok:!1,error:"Invalid FEN: illegal en-passant square"};const r=[{color:"white",regex:/K/g},{color:"black",regex:/k/g}];for(const{color:p,regex:a}of r){if(!a.test(t[0]))return{ok:!1,error:`Invalid FEN: missing ${p} king`};if((t[0].match(a)||[]).length>1)return{ok:!1,error:`Invalid FEN: too many ${p} kings`}}return Array.from(s[0]+s[7]).some(p=>p.toUpperCase()==="P")?{ok:!1,error:"Invalid FEN: some pawns are on the edge rows"}:{ok:!0}}function Ga(n,t){const e=n.from,i=n.to,s=n.piece;let r=0,p=0,a=0;for(let h=0,$=t.length;h<$;h++){const E=t[h].from,F=t[h].to,_=t[h].piece;s===_&&e!==E&&i===F&&(r++,at(e)===at(E)&&p++,ut(e)===ut(E)&&a++)}return r>0?p>0&&a>0?we(e):a>0?we(e).charAt(1):we(e).charAt(0):""}function We(n,t,e,i,s,r=void 0,p=J.NORMAL){const a=at(i);if(s===me&&(a===Na||a===Ba))for(let h=0;h<Ut.length;h++){const $=Ut[h];n.push({color:t,from:e,to:i,piece:s,captured:r,promotion:$,flags:p|J.PROMOTION})}else n.push({color:t,from:e,to:i,piece:s,captured:r,flags:p})}function Qt(n){let t=n.charAt(0);return t>="a"&&t<="h"?n.match(/[a-h]\d.*[a-h]\d/)?void 0:me:(t=t.toLowerCase(),t==="o"?he:t)}function It(n){return n.replace(/=/,"").replace(/[+#]?[?!]*$/,"")}class Vt{constructor(t=Tt,{skipValidation:e=!1}={}){ue(this,"_board",new Array(128));ue(this,"_turn",Ce);ue(this,"_header",{});ue(this,"_kings",{w:Se,b:Se});ue(this,"_epSquare",-1);ue(this,"_halfMoves",0);ue(this,"_moveNumber",0);ue(this,"_history",[]);ue(this,"_comments",{});ue(this,"_castling",{w:0,b:0});ue(this,"_hash",0n);ue(this,"_positionCount",new Map);this.load(t,{skipValidation:e})}clear({preserveHeaders:t=!1}={}){this._board=new Array(128),this._kings={w:Se,b:Se},this._turn=Ce,this._castling={w:0,b:0},this._epSquare=Se,this._halfMoves=0,this._moveNumber=1,this._history=[],this._comments={},this._header=t?this._header:{...Ma},this._hash=this._computeHash(),this._positionCount=new Map,this._header.SetUp=null,this._header.FEN=null}load(t,{skipValidation:e=!1,preserveHeaders:i=!1}={}){let s=t.split(/\s+/);if(s.length>=2&&s.length<6){const a=["-","-","0","1"];t=s.concat(a.slice(-(6-s.length))).join(" ")}if(s=t.split(/\s+/),!e){const{ok:a,error:h}=Ha(t);if(!a)throw new Error(h)}const r=s[0];let p=0;this.clear({preserveHeaders:i});for(let a=0;a<r.length;a++){const h=r.charAt(a);if(h==="/")p+=8;else if(Jt(h))p+=parseInt(h,10);else{const $=h<"a"?Ce:Pe;this._put({type:h.toLowerCase(),color:$},we(p)),p++}}this._turn=s[1],s[2].indexOf("K")>-1&&(this._castling.w|=J.KSIDE_CASTLE),s[2].indexOf("Q")>-1&&(this._castling.w|=J.QSIDE_CASTLE),s[2].indexOf("k")>-1&&(this._castling.b|=J.KSIDE_CASTLE),s[2].indexOf("q")>-1&&(this._castling.b|=J.QSIDE_CASTLE),this._epSquare=s[3]==="-"?Se:V[s[3]],this._halfMoves=parseInt(s[4],10),this._moveNumber=parseInt(s[5],10),this._hash=this._computeHash(),this._updateSetup(t),this._incPositionCount()}fen({forceEnpassantSquare:t=!1}={}){var p,a;let e=0,i="";for(let h=V.a8;h<=V.h1;h++){if(this._board[h]){e>0&&(i+=e,e=0);const{color:$,type:E}=this._board[h];i+=$===Ce?E.toUpperCase():E.toLowerCase()}else e++;h+1&136&&(e>0&&(i+=e),h!==V.h1&&(i+="/"),e=0,h+=8)}let s="";this._castling[Ce]&J.KSIDE_CASTLE&&(s+="K"),this._castling[Ce]&J.QSIDE_CASTLE&&(s+="Q"),this._castling[Pe]&J.KSIDE_CASTLE&&(s+="k"),this._castling[Pe]&J.QSIDE_CASTLE&&(s+="q"),s=s||"-";let r="-";if(this._epSquare!==Se)if(t)r=we(this._epSquare);else{const h=this._epSquare+(this._turn===Ce?16:-16),$=[h+1,h-1];for(const E of $){if(E&136)continue;const F=this._turn;if(((p=this._board[E])==null?void 0:p.color)===F&&((a=this._board[E])==null?void 0:a.type)===me){this._makeMove({color:F,from:E,to:this._epSquare,piece:me,captured:me,flags:J.EP_CAPTURE});const _=!this._isKingAttacked(F);if(this._undoMove(),_){r=we(this._epSquare);break}}}}return[i,this._turn,s,r,this._halfMoves,this._moveNumber].join(" ")}_pieceKey(t){if(!this._board[t])return 0n;const{color:e,type:i}=this._board[t],s={w:0,b:1}[e],r={p:0,n:1,b:2,r:3,q:4,k:5}[i];return Ta[s][r][t]}_epKey(){return this._epSquare===Se?0n:Pa[this._epSquare&7]}_castlingKey(){const t=this._castling.w>>5|this._castling.b>>3;return Da[t]}_computeHash(){let t=0n;for(let e=V.a8;e<=V.h1;e++){if(e&136){e+=7;continue}this._board[e]&&(t^=this._pieceKey(e))}return t^=this._epKey(),t^=this._castlingKey(),this._turn==="b"&&(t^=At),t}_updateSetup(t){this._history.length>0||(t!==Tt?(this._header.SetUp="1",this._header.FEN=t):(this._header.SetUp=null,this._header.FEN=null))}reset(){this.load(Tt)}get(t){return this._board[V[t]]}findPiece(t){var i;const e=[];for(let s=V.a8;s<=V.h1;s++){if(s&136){s+=7;continue}!this._board[s]||((i=this._board[s])==null?void 0:i.color)!==t.color||this._board[s].color===t.color&&this._board[s].type===t.type&&e.push(we(s))}return e}put({type:t,color:e},i){return this._put({type:t,color:e},i)?(this._updateCastlingRights(),this._updateEnPassantSquare(),this._updateSetup(this.fen()),!0):!1}_set(t,e){this._hash^=this._pieceKey(t),this._board[t]=e,this._hash^=this._pieceKey(t)}_put({type:t,color:e},i){if(Ra.indexOf(t.toLowerCase())===-1||!(i in V))return!1;const s=V[i];if(t==he&&!(this._kings[e]==Se||this._kings[e]==s))return!1;const r=this._board[s];return r&&r.type===he&&(this._kings[r.color]=Se),this._set(s,{type:t,color:e}),t===he&&(this._kings[e]=s),!0}_clear(t){this._hash^=this._pieceKey(t),delete this._board[t]}remove(t){const e=this.get(t);return this._clear(V[t]),e&&e.type===he&&(this._kings[e.color]=Se),this._updateCastlingRights(),this._updateEnPassantSquare(),this._updateSetup(this.fen()),e}_updateCastlingRights(){var i,s,r,p,a,h,$,E,F,_,W,O;this._hash^=this._castlingKey();const t=((i=this._board[V.e1])==null?void 0:i.type)===he&&((s=this._board[V.e1])==null?void 0:s.color)===Ce,e=((r=this._board[V.e8])==null?void 0:r.type)===he&&((p=this._board[V.e8])==null?void 0:p.color)===Pe;(!t||((a=this._board[V.a1])==null?void 0:a.type)!==gt||((h=this._board[V.a1])==null?void 0:h.color)!==Ce)&&(this._castling.w&=-65),(!t||(($=this._board[V.h1])==null?void 0:$.type)!==gt||((E=this._board[V.h1])==null?void 0:E.color)!==Ce)&&(this._castling.w&=-33),(!e||((F=this._board[V.a8])==null?void 0:F.type)!==gt||((_=this._board[V.a8])==null?void 0:_.color)!==Pe)&&(this._castling.b&=-65),(!e||((W=this._board[V.h8])==null?void 0:W.type)!==gt||((O=this._board[V.h8])==null?void 0:O.color)!==Pe)&&(this._castling.b&=-33),this._hash^=this._castlingKey()}_updateEnPassantSquare(){var r,p;if(this._epSquare===Se)return;const t=this._epSquare+(this._turn===Ce?-16:16),e=this._epSquare+(this._turn===Ce?16:-16),i=[e+1,e-1];if(this._board[t]!==null||this._board[this._epSquare]!==null||((r=this._board[e])==null?void 0:r.color)!==pt(this._turn)||((p=this._board[e])==null?void 0:p.type)!==me){this._hash^=this._epKey(),this._epSquare=Se;return}const s=a=>{var h,$;return!(a&136)&&((h=this._board[a])==null?void 0:h.color)===this._turn&&(($=this._board[a])==null?void 0:$.type)===me};i.some(s)||(this._hash^=this._epKey(),this._epSquare=Se)}_attacked(t,e,i){const s=[];for(let r=V.a8;r<=V.h1;r++){if(r&136){r+=7;continue}if(this._board[r]===void 0||this._board[r].color!==t)continue;const p=this._board[r],a=r-e;if(a===0)continue;const h=a+119;if(La[h]&qa[p.type]){if(p.type===me){if(a>0&&p.color===Ce||a<=0&&p.color===Pe)if(i)s.push(we(r));else return!0;continue}if(p.type==="n"||p.type==="k")if(i){s.push(we(r));continue}else return!0;const $=za[h];let E=r+$,F=!1;for(;E!==e;){if(this._board[E]!=null){F=!0;break}E+=$}if(!F)if(i){s.push(we(r));continue}else return!0}}return i?s:!1}attackers(t,e){return e?this._attacked(e,V[t],!0):this._attacked(this._turn,V[t],!0)}_isKingAttacked(t){const e=this._kings[t];return e===-1?!1:this._attacked(pt(t),e)}hash(){return this._hash.toString(16)}isAttacked(t,e){return this._attacked(e,V[t])}isCheck(){return this._isKingAttacked(this._turn)}inCheck(){return this.isCheck()}isCheckmate(){return this.isCheck()&&this._moves().length===0}isStalemate(){return!this.isCheck()&&this._moves().length===0}isInsufficientMaterial(){const t={b:0,n:0,r:0,q:0,k:0,p:0},e=[];let i=0,s=0;for(let r=V.a8;r<=V.h1;r++){if(s=(s+1)%2,r&136){r+=7;continue}const p=this._board[r];p&&(t[p.type]=p.type in t?t[p.type]+1:1,p.type===kt&&e.push(s),i++)}if(i===2)return!0;if(i===3&&(t[kt]===1||t[Mt]===1))return!0;if(i===t[kt]+2){let r=0;const p=e.length;for(let a=0;a<p;a++)r+=e[a];if(r===0||r===p)return!0}return!1}isThreefoldRepetition(){return this._getPositionCount(this._hash)>=3}isDrawByFiftyMoves(){return this._halfMoves>=100}isDraw(){return this.isDrawByFiftyMoves()||this.isStalemate()||this.isInsufficientMaterial()||this.isThreefoldRepetition()}isGameOver(){return this.isCheckmate()||this.isDraw()}moves({verbose:t=!1,square:e=void 0,piece:i=void 0}={}){const s=this._moves({square:e,piece:i});return t?s.map(r=>new vt(this,r)):s.map(r=>this._moveToSan(r,s))}_moves({legal:t=!0,piece:e=void 0,square:i=void 0}={}){var W;const s=i?i.toLowerCase():void 0,r=e==null?void 0:e.toLowerCase(),p=[],a=this._turn,h=pt(a);let $=V.a8,E=V.h1,F=!1;if(s)if(s in V)$=E=V[s],F=!0;else return[];for(let O=$;O<=E;O++){if(O&136){O+=7;continue}if(!this._board[O]||this._board[O].color===h)continue;const{type:ge}=this._board[O];let le;if(ge===me){if(r&&r!==ge)continue;le=O+Pt[a][0],this._board[le]||(We(p,a,O,le,me),le=O+Pt[a][1],ja[a]===at(O)&&!this._board[le]&&We(p,a,O,le,me,void 0,J.BIG_PAWN));for(let Te=2;Te<4;Te++)le=O+Pt[a][Te],!(le&136)&&(((W=this._board[le])==null?void 0:W.color)===h?We(p,a,O,le,me,this._board[le].type,J.CAPTURE):le===this._epSquare&&We(p,a,O,le,me,me,J.EP_CAPTURE))}else{if(r&&r!==ge)continue;for(let Te=0,nt=Kt[ge].length;Te<nt;Te++){const Ue=Kt[ge][Te];for(le=O;le+=Ue,!(le&136);){if(!this._board[le])We(p,a,O,le,ge);else{if(this._board[le].color===a)break;We(p,a,O,le,ge,this._board[le].type,J.CAPTURE);break}if(ge===Mt||ge===he)break}}}}if((r===void 0||r===he)&&(!F||E===this._kings[a])){if(this._castling[a]&J.KSIDE_CASTLE){const O=this._kings[a],ge=O+2;!this._board[O+1]&&!this._board[ge]&&!this._attacked(h,this._kings[a])&&!this._attacked(h,O+1)&&!this._attacked(h,ge)&&We(p,a,this._kings[a],ge,he,void 0,J.KSIDE_CASTLE)}if(this._castling[a]&J.QSIDE_CASTLE){const O=this._kings[a],ge=O-2;!this._board[O-1]&&!this._board[O-2]&&!this._board[O-3]&&!this._attacked(h,this._kings[a])&&!this._attacked(h,O-1)&&!this._attacked(h,ge)&&We(p,a,this._kings[a],ge,he,void 0,J.QSIDE_CASTLE)}}if(!t||this._kings[a]===-1)return p;const _=[];for(let O=0,ge=p.length;O<ge;O++)this._makeMove(p[O]),this._isKingAttacked(a)||_.push(p[O]),this._undoMove();return _}move(t,{strict:e=!1}={}){let i=null;if(typeof t=="string")i=this._moveFromSan(t,e);else if(t===null)i=this._moveFromSan(Dt,e);else if(typeof t=="object"){const r=this._moves();for(let p=0,a=r.length;p<a;p++)if(t.from===we(r[p].from)&&t.to===we(r[p].to)&&(!("promotion"in r[p])||t.promotion===r[p].promotion)){i=r[p];break}}if(!i)throw typeof t=="string"?new Error(`Invalid move: ${t}`):new Error(`Invalid move: ${JSON.stringify(t)}`);if(this.isCheck()&&i.flags&J.NULL_MOVE)throw new Error("Null move not allowed when in check");const s=new vt(this,i);return this._makeMove(i),this._incPositionCount(),s}_push(t){this._history.push({move:t,kings:{b:this._kings.b,w:this._kings.w},turn:this._turn,castling:{b:this._castling.b,w:this._castling.w},epSquare:this._epSquare,halfMoves:this._halfMoves,moveNumber:this._moveNumber})}_movePiece(t,e){this._hash^=this._pieceKey(t),this._board[e]=this._board[t],delete this._board[t],this._hash^=this._pieceKey(e)}_makeMove(t){var s,r,p,a;const e=this._turn,i=pt(e);if(this._push(t),t.flags&J.NULL_MOVE){e===Pe&&this._moveNumber++,this._halfMoves++,this._turn=i,this._epSquare=Se;return}if(this._hash^=this._epKey(),this._hash^=this._castlingKey(),t.captured&&(this._hash^=this._pieceKey(t.to)),this._movePiece(t.from,t.to),t.flags&J.EP_CAPTURE&&(this._turn===Pe?this._clear(t.to-16):this._clear(t.to+16)),t.promotion&&(this._clear(t.to),this._set(t.to,{type:t.promotion,color:e})),this._board[t.to].type===he){if(this._kings[e]=t.to,t.flags&J.KSIDE_CASTLE){const h=t.to-1,$=t.to+1;this._movePiece($,h)}else if(t.flags&J.QSIDE_CASTLE){const h=t.to+1,$=t.to-2;this._movePiece($,h)}this._castling[e]=0}if(this._castling[e]){for(let h=0,$=Ge[e].length;h<$;h++)if(t.from===Ge[e][h].square&&this._castling[e]&Ge[e][h].flag){this._castling[e]^=Ge[e][h].flag;break}}if(this._castling[i]){for(let h=0,$=Ge[i].length;h<$;h++)if(t.to===Ge[i][h].square&&this._castling[i]&Ge[i][h].flag){this._castling[i]^=Ge[i][h].flag;break}}if(this._hash^=this._castlingKey(),t.flags&J.BIG_PAWN){let h;e===Pe?h=t.to-16:h=t.to+16,!(t.to-1&136)&&((s=this._board[t.to-1])==null?void 0:s.type)===me&&((r=this._board[t.to-1])==null?void 0:r.color)===i||!(t.to+1&136)&&((p=this._board[t.to+1])==null?void 0:p.type)===me&&((a=this._board[t.to+1])==null?void 0:a.color)===i?(this._epSquare=h,this._hash^=this._epKey()):this._epSquare=Se}else this._epSquare=Se;t.piece===me?this._halfMoves=0:t.flags&(J.CAPTURE|J.EP_CAPTURE)?this._halfMoves=0:this._halfMoves++,e===Pe&&this._moveNumber++,this._turn=i,this._hash^=At}undo(){const t=this._hash,e=this._undoMove();if(e){const i=new vt(this,e);return this._decPositionCount(t),i}return null}_undoMove(){const t=this._history.pop();if(t===void 0)return null;this._hash^=this._epKey(),this._hash^=this._castlingKey();const e=t.move;this._kings=t.kings,this._turn=t.turn,this._castling=t.castling,this._epSquare=t.epSquare,this._halfMoves=t.halfMoves,this._moveNumber=t.moveNumber,this._hash^=this._epKey(),this._hash^=this._castlingKey(),this._hash^=At;const i=this._turn,s=pt(i);if(e.flags&J.NULL_MOVE)return e;if(this._movePiece(e.to,e.from),e.piece&&(this._clear(e.from),this._set(e.from,{type:e.piece,color:i})),e.captured)if(e.flags&J.EP_CAPTURE){let r;i===Pe?r=e.to-16:r=e.to+16,this._set(r,{type:me,color:s})}else this._set(e.to,{type:e.captured,color:s});if(e.flags&(J.KSIDE_CASTLE|J.QSIDE_CASTLE)){let r,p;e.flags&J.KSIDE_CASTLE?(r=e.to+1,p=e.to-1):(r=e.to-2,p=e.to+1),this._movePiece(p,r)}return e}pgn({newline:t=`
+`,maxWidth:e=0}={}){const i=[];let s=!1;for(const _ in this._header)this._header[_]&&i.push(`[${_} "${this._header[_]}"]`+t),s=!0;s&&this._history.length&&i.push(t);const r=_=>{const W=this._comments[this.fen()];if(typeof W<"u"){const O=_.length>0?" ":"";_=`${_}${O}{${W}}`}return _},p=[];for(;this._history.length>0;)p.push(this._undoMove());const a=[];let h="";for(p.length===0&&a.push(r(""));p.length>0;){h=r(h);const _=p.pop();if(!_)break;if(!this._history.length&&_.color==="b"){const W=`${this._moveNumber}. ...`;h=h?`${h} ${W}`:W}else _.color==="w"&&(h.length&&a.push(h),h=this._moveNumber+".");h=h+" "+this._moveToSan(_,this._moves({legal:!0})),this._makeMove(_)}if(h.length&&a.push(r(h)),a.push(this._header.Result||"*"),e===0)return i.join("")+a.join(" ");const $=function(){return i.length>0&&i[i.length-1]===" "?(i.pop(),!0):!1},E=function(_,W){for(const O of W.split(" "))if(O){if(_+O.length>e){for(;$();)_--;i.push(t),_=0}i.push(O),_+=O.length,i.push(" "),_++}return $()&&_--,_};let F=0;for(let _=0;_<a.length;_++){if(F+a[_].length>e&&a[_].includes("{")){F=E(F,a[_]);continue}F+a[_].length>e&&_!==0?(i[i.length-1]===" "&&i.pop(),i.push(t),F=0):_!==0&&(i.push(" "),F++),i.push(a[_]),F+=a[_].length}return i.join("")}header(...t){for(let e=0;e<t.length;e+=2)typeof t[e]=="string"&&typeof t[e+1]=="string"&&(this._header[t[e]]=t[e+1]);return this._header}setHeader(t,e){return this._header[t]=e??Lt[t]??null,this.getHeaders()}removeHeader(t){return t in this._header?(this._header[t]=Lt[t]||null,!0):!1}getHeaders(){const t={};for(const[e,i]of Object.entries(this._header))i!==null&&(t[e]=i);return t}loadPgn(t,{strict:e=!1,newlineChar:i=`\r?
+`}={}){i!==`\r?
+`&&(t=t.replace(new RegExp(i,"g"),`
+`));const s=Ea(t);this.reset();const r=s.headers;let p="";for(const $ in r)$.toLowerCase()==="fen"&&(p=r[$]),this.header($,r[$]);if(!e)p&&this.load(p,{preserveHeaders:!0});else if(r.SetUp==="1"){if(!("FEN"in r))throw new Error("Invalid PGN: FEN tag must be supplied with SetUp tag");this.load(r.FEN,{preserveHeaders:!0})}let a=s.root;for(;a;){if(a.move){const $=this._moveFromSan(a.move,e);if($==null)throw new Error(`Invalid move in PGN: ${a.move}`);this._makeMove($),this._incPositionCount()}a.comment!==void 0&&(this._comments[this.fen()]=a.comment),a=a.variations[0]}const h=s.result;h&&Object.keys(this._header).length&&this._header.Result!==h&&this.setHeader("Result",h)}_moveToSan(t,e){let i="";if(t.flags&J.KSIDE_CASTLE)i="O-O";else if(t.flags&J.QSIDE_CASTLE)i="O-O-O";else{if(t.flags&J.NULL_MOVE)return Dt;if(t.piece!==me){const s=Ga(t,e);i+=t.piece.toUpperCase()+s}t.flags&(J.CAPTURE|J.EP_CAPTURE)&&(t.piece===me&&(i+=we(t.from)[0]),i+="x"),i+=we(t.to),t.promotion&&(i+="="+t.promotion.toUpperCase())}return this._makeMove(t),this.isCheck()&&(this.isCheckmate()?i+="#":i+="+"),this._undoMove(),i}_moveFromSan(t,e=!1){let i=It(t);if(e||(i==="0-0"?i="O-O":i==="0-0-0"&&(i="O-O-O")),i==Dt)return{color:this._turn,from:0,to:0,piece:"k",flags:J.NULL_MOVE};let s=Qt(i),r=this._moves({legal:!0,piece:s});for(let _=0,W=r.length;_<W;_++)if(i===It(this._moveToSan(r[_],r)))return r[_];if(e)return null;let p,a,h,$,E,F=!1;if(a=i.match(/([pnbrqkPNBRQK])?([a-h][1-8])x?-?([a-h][1-8])([qrbnQRBN])?/),a?(p=a[1],h=a[2],$=a[3],E=a[4],h.length==1&&(F=!0)):(a=i.match(/([pnbrqkPNBRQK])?([a-h]?[1-8]?)x?-?([a-h][1-8])([qrbnQRBN])?/),a&&(p=a[1],h=a[2],$=a[3],E=a[4],h.length==1&&(F=!0))),s=Qt(i),r=this._moves({legal:!0,piece:p||s}),!$)return null;for(let _=0,W=r.length;_<W;_++)if(h){if((!p||p.toLowerCase()==r[_].piece)&&V[h]==r[_].from&&V[$]==r[_].to&&(!E||E.toLowerCase()==r[_].promotion))return r[_];if(F){const O=we(r[_].from);if((!p||p.toLowerCase()==r[_].piece)&&V[$]==r[_].to&&(h==O[0]||h==O[1])&&(!E||E.toLowerCase()==r[_].promotion))return r[_]}}else if(i===It(this._moveToSan(r[_],r)).replace("x",""))return r[_];return null}ascii(){let t=`   +------------------------+
+`;for(let e=V.a8;e<=V.h1;e++){if(ut(e)===0&&(t+=" "+"87654321"[at(e)]+" |"),this._board[e]){const i=this._board[e].type,r=this._board[e].color===Ce?i.toUpperCase():i.toLowerCase();t+=" "+r+" "}else t+=" . ";e+1&136&&(t+=`|
 `,e+=8)}return t+=`   +------------------------+
-`,t+="     a  b  c  d  e  f  g  h",t}perft(t){const e=this._moves({legal:!1});let r=0;const s=this._turn;for(let i=0,p=e.length;i<p;i++)this._makeMove(e[i]),this._isKingAttacked(s)||(t-1>0?r+=this.perft(t-1):r++),this._undoMove();return r}setTurn(t){return this._turn==t?!1:(this.move("--"),!0)}turn(){return this._turn}board(){const t=[];let e=[];for(let r=U.a8;r<=U.h1;r++)this._board[r]==null?e.push(null):e.push({square:ke(r),type:this._board[r].type,color:this._board[r].color}),r+1&136&&(t.push(e),e=[],r+=8);return t}squareColor(t){if(t in U){const e=U[t];return(at(e)+gt(e))%2===0?"light":"dark"}return null}history({verbose:t=!1}={}){const e=[],r=[];for(;this._history.length>0;)e.push(this._undoMove());for(;;){const s=e.pop();if(!s)break;t?r.push(new vt(this,s)):r.push(this._moveToSan(s,this._moves())),this._makeMove(s)}return r}_getPositionCount(t){return this._positionCount.get(t)??0}_incPositionCount(){this._positionCount.set(this._hash,(this._positionCount.get(this._hash)??0)+1)}_decPositionCount(t){const e=this._positionCount.get(t)??0;e===1?this._positionCount.delete(t):this._positionCount.set(t,e-1)}_pruneComments(){const t=[],e={},r=s=>{s in this._comments&&(e[s]=this._comments[s])};for(;this._history.length>0;)t.push(this._undoMove());for(r(this.fen());;){const s=t.pop();if(!s)break;this._makeMove(s),r(this.fen())}this._comments=e}getComment(){return this._comments[this.fen()]}setComment(t){this._comments[this.fen()]=t.replace("{","[").replace("}","]")}deleteComment(){return this.removeComment()}removeComment(){const t=this._comments[this.fen()];return delete this._comments[this.fen()],t}getComments(){return this._pruneComments(),Object.keys(this._comments).map(t=>({fen:t,comment:this._comments[t]}))}deleteComments(){return this.removeComments()}removeComments(){return this._pruneComments(),Object.keys(this._comments).map(t=>{const e=this._comments[t];return delete this._comments[t],{fen:t,comment:e}})}setCastlingRights(t,e){for(const s of[he,We])e[s]!==void 0&&(e[s]?this._castling[t]|=xt[s]:this._castling[t]&=~xt[s]);this._updateCastlingRights();const r=this.getCastlingRights(t);return(e[he]===void 0||e[he]===r[he])&&(e[We]===void 0||e[We]===r[We])}getCastlingRights(t){return{[he]:(this._castling[t]&xt[he])!==0,[We]:(this._castling[t]&xt[We])!==0}}moveNumber(){return this._moveNumber}}async function Va(n,t={}){var pe,ie,oe;const e=t.currentUser||{};let r="chat",s=[],i=null,p=[],a=[],h=null,$=null,E=!1,F=null,_=null;n.innerHTML=`
+`,t+="     a  b  c  d  e  f  g  h",t}perft(t){const e=this._moves({legal:!1});let i=0;const s=this._turn;for(let r=0,p=e.length;r<p;r++)this._makeMove(e[r]),this._isKingAttacked(s)||(t-1>0?i+=this.perft(t-1):i++),this._undoMove();return i}setTurn(t){return this._turn==t?!1:(this.move("--"),!0)}turn(){return this._turn}board(){const t=[];let e=[];for(let i=V.a8;i<=V.h1;i++)this._board[i]==null?e.push(null):e.push({square:we(i),type:this._board[i].type,color:this._board[i].color}),i+1&136&&(t.push(e),e=[],i+=8);return t}squareColor(t){if(t in V){const e=V[t];return(at(e)+ut(e))%2===0?"light":"dark"}return null}history({verbose:t=!1}={}){const e=[],i=[];for(;this._history.length>0;)e.push(this._undoMove());for(;;){const s=e.pop();if(!s)break;t?i.push(new vt(this,s)):i.push(this._moveToSan(s,this._moves())),this._makeMove(s)}return i}_getPositionCount(t){return this._positionCount.get(t)??0}_incPositionCount(){this._positionCount.set(this._hash,(this._positionCount.get(this._hash)??0)+1)}_decPositionCount(t){const e=this._positionCount.get(t)??0;e===1?this._positionCount.delete(t):this._positionCount.set(t,e-1)}_pruneComments(){const t=[],e={},i=s=>{s in this._comments&&(e[s]=this._comments[s])};for(;this._history.length>0;)t.push(this._undoMove());for(i(this.fen());;){const s=t.pop();if(!s)break;this._makeMove(s),i(this.fen())}this._comments=e}getComment(){return this._comments[this.fen()]}setComment(t){this._comments[this.fen()]=t.replace("{","[").replace("}","]")}deleteComment(){return this.removeComment()}removeComment(){const t=this._comments[this.fen()];return delete this._comments[this.fen()],t}getComments(){return this._pruneComments(),Object.keys(this._comments).map(t=>({fen:t,comment:this._comments[t]}))}deleteComments(){return this.removeComments()}removeComments(){return this._pruneComments(),Object.keys(this._comments).map(t=>{const e=this._comments[t];return delete this._comments[t],{fen:t,comment:e}})}setCastlingRights(t,e){for(const s of[he,Ke])e[s]!==void 0&&(e[s]?this._castling[t]|=xt[s]:this._castling[t]&=~xt[s]);this._updateCastlingRights();const i=this.getCastlingRights(t);return(e[he]===void 0||e[he]===i[he])&&(e[Ke]===void 0||e[Ke]===i[Ke])}getCastlingRights(t){return{[he]:(this._castling[t]&xt[he])!==0,[Ke]:(this._castling[t]&xt[Ke])!==0}}moveNumber(){return this._moveNumber}}async function Va(n,t={}){var pe,re,oe;const e=t.currentUser||{};let i="chat",s=[],r=null,p=[],a=[],h=null,$=null,E=!1,F=null,_=null;n.innerHTML=`
     <div class="bonding-wrap" id="bonding-app-root">
       <!-- Top Navigation & Header Bar -->
       <div class="bonding-nav-bar">
@@ -2189,8 +2189,8 @@ var ba=Object.defineProperty;var ma=(n,t,e)=>t in n?ba(n,t,{enumerable:!0,config
 
     <!-- Modals container -->
     <div id="bonding-modals-root"></div>
-  `,Ka(),await Ue(),_e();const K=n.querySelector("#tab-nav-chat"),O=n.querySelector("#tab-nav-lounge"),ue=n.querySelector("#bonding-chat-main-wrap"),le=n.querySelector("#bonding-lounge-main-wrap");K==null||K.addEventListener("click",()=>{r="chat",K.classList.add("active"),O.classList.remove("active"),ue.style.display="grid",le.style.display="none",_e()}),O==null||O.addEventListener("click",async()=>{r="lounge_games",O.classList.add("active"),K.classList.remove("active"),ue.style.display="none",le.style.display="block",await k()}),(pe=n.querySelector("#btn-top-new-chat"))==null||pe.addEventListener("click",L),(ie=n.querySelector("#btn-top-new-group"))==null||ie.addEventListener("click",v),(oe=n.querySelector("#btn-top-challenge"))==null||oe.addEventListener("click",()=>W());const Te=n.querySelector("#bonding-search-input");Te&&Te.addEventListener("input",c=>{const b=c.target.value.toLowerCase().trim();n.querySelectorAll(".bonding-channel-item").forEach(P=>{const m=P.textContent.toLowerCase();P.style.display=m.includes(b)?"flex":"none"})}),it(),new MutationObserver((c,b)=>{document.body.contains(n)||($&&clearInterval($),_&&clearInterval(_),b.disconnect())}).observe(document.body,{childList:!0,subtree:!0});async function Ue(){try{const[c,b]=await Promise.all([De("/bonding/channels").catch(()=>[]),De("/bonding/colleagues").catch(()=>[])]);s=c,p=b,!i&&s.length>0&&(i=s.find(l=>l.name.includes("Lounge"))||s[0]),Ne(),i&&await $e(i._id)}catch(c){console.error("Failed to load bonding data",c)}}async function $e(c,b=!1){if(c)try{a=await De(`/bonding/channels/${c}/messages`),b?w():y()}catch(l){console.error("Failed to load messages",l)}}function it(){$&&clearInterval($),$=setInterval(async()=>{try{if(!document.body.contains(n)){clearInterval($);return}r==="chat"&&i?await $e(i._id,!0):r==="lounge_games"&&await k(!0)}catch{}},3e3)}function Ne(){const c=n.querySelector("#bonding-group-list"),b=n.querySelector("#bonding-direct-list");if(!c||!b)return;const l=s.filter(m=>m.type==="group"),P=s.filter(m=>m.type==="direct");l.length===0?c.innerHTML='<div class="bonding-empty-text">No group lounges yet. Click + New Group to start one!</div>':c.innerHTML=l.map(m=>{var A;return`
-          <div class="bonding-channel-item ${i&&i._id===m._id?"active":""}" data-channel-id="${m._id}">
+  `,Wa(),await Ue(),_e();const W=n.querySelector("#tab-nav-chat"),O=n.querySelector("#tab-nav-lounge"),ge=n.querySelector("#bonding-chat-main-wrap"),le=n.querySelector("#bonding-lounge-main-wrap");W==null||W.addEventListener("click",()=>{i="chat",W.classList.add("active"),O.classList.remove("active"),ge.style.display="grid",le.style.display="none",_e()}),O==null||O.addEventListener("click",async()=>{i="lounge_games",O.classList.add("active"),W.classList.remove("active"),ge.style.display="none",le.style.display="block",await w()}),(pe=n.querySelector("#btn-top-new-chat"))==null||pe.addEventListener("click",L),(re=n.querySelector("#btn-top-new-group"))==null||re.addEventListener("click",v),(oe=n.querySelector("#btn-top-challenge"))==null||oe.addEventListener("click",()=>K());const Te=n.querySelector("#bonding-search-input");Te&&Te.addEventListener("input",c=>{const f=c.target.value.toLowerCase().trim();n.querySelectorAll(".bonding-channel-item").forEach(P=>{const m=P.textContent.toLowerCase();P.style.display=m.includes(f)?"flex":"none"})}),rt(),new MutationObserver((c,f)=>{document.body.contains(n)||($&&clearInterval($),_&&clearInterval(_),f.disconnect())}).observe(document.body,{childList:!0,subtree:!0});async function Ue(){try{const[c,f]=await Promise.all([De("/bonding/channels").catch(()=>[]),De("/bonding/colleagues").catch(()=>[])]);s=c,p=f,!r&&s.length>0&&(r=s.find(l=>l.name.includes("Lounge"))||s[0]),Ne(),r&&await $e(r._id)}catch(c){console.error("Failed to load bonding data",c)}}async function $e(c,f=!1){if(c)try{a=await De(`/bonding/channels/${c}/messages`),f?k():y()}catch(l){console.error("Failed to load messages",l)}}function rt(){$&&clearInterval($),$=setInterval(async()=>{try{if(!document.body.contains(n)){clearInterval($);return}i==="chat"&&r?await $e(r._id,!0):i==="lounge_games"&&await w(!0)}catch{}},3e3)}function Ne(){const c=n.querySelector("#bonding-group-list"),f=n.querySelector("#bonding-direct-list");if(!c||!f)return;const l=s.filter(m=>m.type==="group"),P=s.filter(m=>m.type==="direct");l.length===0?c.innerHTML='<div class="bonding-empty-text">No group lounges yet. Click + New Group to start one!</div>':c.innerHTML=l.map(m=>{var A;return`
+          <div class="bonding-channel-item ${r&&r._id===m._id?"active":""}" data-channel-id="${m._id}">
             <div class="bonding-channel-icon">${m.avatar||"👥"}</div>
             <div class="bonding-channel-info">
               <div class="bonding-channel-name">${C(m.name)}</div>
@@ -2198,28 +2198,28 @@ var ba=Object.defineProperty;var ma=(n,t,e)=>t in n?ba(n,t,{enumerable:!0,config
             </div>
             
           </div>
-        `}).join(""),P.length===0?b.innerHTML='<div class="bonding-empty-text">No direct messages yet. Click + New Chat to connect!</div>':b.innerHTML=P.map(m=>{var R;const z=i&&i._id===m._id,A=m.displayName||m.name||"Colleague",B=A.slice(0,1).toUpperCase();return`
-          <div class="bonding-channel-item ${z?"active":""}" data-channel-id="${m._id}">
+        `}).join(""),P.length===0?f.innerHTML='<div class="bonding-empty-text">No direct messages yet. Click + New Chat to connect!</div>':f.innerHTML=P.map(m=>{var R;const q=r&&r._id===m._id,A=m.displayName||m.name||"Colleague",B=A.slice(0,1).toUpperCase();return`
+          <div class="bonding-channel-item ${q?"active":""}" data-channel-id="${m._id}">
             <div class="bonding-channel-avatar">${B}</div>
             <div class="bonding-channel-info">
               <div class="bonding-channel-name">${C(A)}</div>
               <div class="bonding-channel-preview">${C(((R=m.lastMessage)==null?void 0:R.content)||"Say hello...")}</div>
             </div>
           </div>
-        `}).join(""),lt()}function lt(){var b,l;const c=n.querySelectorAll(".bonding-channel-item");c.forEach(P=>{P.onclick=async()=>{const m=P.dataset.channelId,z=s.find(A=>A._id===m);z&&(i=z,c.forEach(A=>A.classList.remove("active")),P.classList.add("active"),_e(),await $e(z._id))}}),(b=n.querySelector("#btn-create-group"))==null||b.addEventListener("click",v),(l=n.querySelector("#btn-new-direct-chat"))==null||l.addEventListener("click",L)}function _e(){const c=n.querySelector("#bonding-chat-panel");if(!c)return;if(!i){c.innerHTML=`
+        `}).join(""),lt()}function lt(){var f,l;const c=n.querySelectorAll(".bonding-channel-item");c.forEach(P=>{P.onclick=async()=>{const m=P.dataset.channelId,q=s.find(A=>A._id===m);q&&(r=q,c.forEach(A=>A.classList.remove("active")),P.classList.add("active"),_e(),await $e(q._id))}}),(f=n.querySelector("#btn-create-group"))==null||f.addEventListener("click",v),(l=n.querySelector("#btn-new-direct-chat"))==null||l.addEventListener("click",L)}function _e(){const c=n.querySelector("#bonding-chat-panel");if(!c)return;if(!r){c.innerHTML=`
         <div class="bonding-empty-feed">
           <div class="bonding-empty-icon">💬</div>
           <h4>Select a Conversation</h4>
           <p>Choose a group lounge or direct message on the left to start chatting with your colleagues.</p>
         </div>
-      `;return}const b=C(i.displayName||i.name),l=(i.members||[]).length,P=i.type==="group",m=(e==null?void 0:e._id)||(e==null?void 0:e.id),z=P?null:(i.members||[]).find(A=>{var B;return((B=A.userId)==null?void 0:B.toString())!==(m==null?void 0:m.toString())});c.innerHTML=`
+      `;return}const f=C(r.displayName||r.name),l=(r.members||[]).length,P=r.type==="group",m=(e==null?void 0:e._id)||(e==null?void 0:e.id),q=P?null:(r.members||[]).find(A=>{var B;return((B=A.userId)==null?void 0:B.toString())!==(m==null?void 0:m.toString())});c.innerHTML=`
       <div class="bonding-chat-header">
         <div class="bonding-chat-header-info">
-          <div class="bonding-chat-header-avatar">${P?i.avatar||"👥":"👤"}</div>
+          <div class="bonding-chat-header-avatar">${P?r.avatar||"👥":"👤"}</div>
           <div>
-            <div class="bonding-chat-title">${b}</div>
+            <div class="bonding-chat-title">${f}</div>
             <div class="bonding-chat-sub">
-              ${P?`<span>${l} members</span> · <span>${C(i.description||"Public Lounge")}</span>`:'<span>Direct 1-on-1 Personal Chat</span> · <span class="status-online">🟢 Active</span>'}
+              ${P?`<span>${l} members</span> · <span>${C(r.description||"Public Lounge")}</span>`:'<span>Direct 1-on-1 Personal Chat</span> · <span class="status-online">🟢 Active</span>'}
             </div>
           </div>
         </div>
@@ -2266,25 +2266,25 @@ var ba=Object.defineProperty;var ma=(n,t,e)=>t in n?ba(n,t,{enumerable:!0,config
           </svg>
         </button>
       </div>
-    `,Be(z),Qe(z),Ve(),x()}function Fe(){if(!a||a.length===0)return`
+    `,Be(q),Qe(q),Ve(),x()}function Fe(){if(!a||a.length===0)return`
         <div class="bonding-empty-feed">
           <div class="bonding-empty-icon">👋</div>
           <h4>No messages yet</h4>
           <p>Be the first to say hello or challenge a colleague to a multiplayer game!</p>
         </div>
-      `;const c=(e==null?void 0:e._id)||(e==null?void 0:e.id);return a.map(b=>{var A,B,R,Z,te,S,M,ee,V;const l=b.sender&&b.sender.userId&&c&&b.sender.userId.toString()===c.toString();if(b.type==="system")return`
+      `;const c=(e==null?void 0:e._id)||(e==null?void 0:e.id);return a.map(f=>{var A,B,R,X,ae,S,M,te,U;const l=f.sender&&f.sender.userId&&c&&f.sender.userId.toString()===c.toString();if(f.type==="system")return`
           <div class="bonding-msg-system">
-            <span>ℹ️</span> <span>${C(b.content)}</span>
+            <span>ℹ️</span> <span>${C(f.content)}</span>
           </div>
-        `;if(b.type==="challenge"&&b.challengeData){const Y=b.challengeData,ae=Y.gameTitle||"Game Challenge",de=Y.gameType||"chess",ve=de==="chess"?"♟️":de==="connectfour"?"🔴":"❌",fe=(A=Y.gameState)==null?void 0:A.invitationId,Je=(B=Y.targetUserId)==null?void 0:B.toString(),ce=(Z=(R=b.sender)==null?void 0:R.userId)==null?void 0:Z.toString(),be=c&&Je===c.toString(),we=c&&ce===c.toString();return`
-          <div class="bonding-msg-row ${l?"self":"other"}" data-msg-id="${b._id}">
-            <div class="bonding-msg-avatar" title="${C(((te=b.sender)==null?void 0:te.name)||"Teammate")}">
-              ${(((S=b.sender)==null?void 0:S.name)||"U").slice(0,1).toUpperCase()}
+        `;if(f.type==="challenge"&&f.challengeData){const Q=f.challengeData,Z=Q.gameTitle||"Game Challenge",de=Q.gameType||"chess",ve=de==="chess"?"♟️":de==="connectfour"?"🔴":"❌",be=(A=Q.gameState)==null?void 0:A.invitationId,Je=(B=Q.targetUserId)==null?void 0:B.toString(),ce=(X=(R=f.sender)==null?void 0:R.userId)==null?void 0:X.toString(),fe=c&&Je===c.toString(),ke=c&&ce===c.toString();return`
+          <div class="bonding-msg-row ${l?"self":"other"}" data-msg-id="${f._id}">
+            <div class="bonding-msg-avatar" title="${C(((ae=f.sender)==null?void 0:ae.name)||"Teammate")}">
+              ${(((S=f.sender)==null?void 0:S.name)||"U").slice(0,1).toUpperCase()}
             </div>
             <div class="bonding-msg-bubble-wrap">
               <div class="bonding-msg-meta">
-                <span class="bonding-msg-sender">${C(((M=b.sender)==null?void 0:M.name)||"Teammate")}</span>
-                <span class="bonding-msg-time">${re(b.createdAt)}</span>
+                <span class="bonding-msg-sender">${C(((M=f.sender)==null?void 0:M.name)||"Teammate")}</span>
+                <span class="bonding-msg-time">${ie(f.createdAt)}</span>
               </div>
 
               <!-- Interactive Game Card -->
@@ -2292,41 +2292,41 @@ var ba=Object.defineProperty;var ma=(n,t,e)=>t in n?ba(n,t,{enumerable:!0,config
                 <div class="game-bubble-top">
                   <div class="game-bubble-icon">${ve}</div>
                   <div class="game-bubble-details">
-                    <h4 class="game-bubble-title">${C(ae)}</h4>
-                    <p class="game-bubble-desc">${C(b.content)}</p>
+                    <h4 class="game-bubble-title">${C(Z)}</h4>
+                    <p class="game-bubble-desc">${C(f.content)}</p>
                   </div>
                 </div>
 
                 <div class="game-bubble-status">
-                  ${Y.status==="pending"?'<span class="badge amber">⏳ Awaiting Response</span>':Y.status==="active"||Y.status==="accepted"?'<span class="badge green">🟢 Match Active</span>':`<span class="badge gray">${C(((ee=Y.status)==null?void 0:ee.toUpperCase())||"COMPLETED")}</span>`}
+                  ${Q.status==="pending"?'<span class="badge amber">⏳ Awaiting Response</span>':Q.status==="active"||Q.status==="accepted"?'<span class="badge green">🟢 Match Active</span>':`<span class="badge gray">${C(((te=Q.status)==null?void 0:te.toUpperCase())||"COMPLETED")}</span>`}
                 </div>
 
                 <div class="game-bubble-actions">
-                  ${Y.status==="pending"&&be?`
-                      <button class="game-btn-accept btn-respond-invite" data-invite-id="${fe}" data-action="accept">
+                  ${Q.status==="pending"&&fe?`
+                      <button class="game-btn-accept btn-respond-invite" data-invite-id="${be}" data-action="accept">
                         ⚔️ Accept Challenge
                       </button>
-                      <button class="game-btn-decline btn-respond-invite" data-invite-id="${fe}" data-action="decline">
+                      <button class="game-btn-decline btn-respond-invite" data-invite-id="${be}" data-action="decline">
                         Decline
                       </button>
-                    `:Y.status==="pending"&&we?`
+                    `:Q.status==="pending"&&ke?`
                         <div class="game-pending-text">Waiting for opponent to accept...</div>
-                        <button class="game-btn-cancel btn-respond-invite" data-invite-id="${fe}" data-action="cancel">
+                        <button class="game-btn-cancel btn-respond-invite" data-invite-id="${be}" data-action="cancel">
                           Cancel
                         </button>
                       `:`
-                        <button class="game-btn-play btn-launch-match-from-card" data-invite-id="${fe}">
+                        <button class="game-btn-play btn-launch-match-from-card" data-invite-id="${be}">
                           🎮 Enter Match Arena
                         </button>
                       `}
                 </div>
               </div>
 
-              ${Oe(b)}
+              ${Oe(f)}
             </div>
           </div>
-        `}const P=C(((V=b.sender)==null?void 0:V.name)||"Teammate"),m=re(b.createdAt),z=Oe(b);return`
-        <div class="bonding-msg-row ${l?"self":"other"}" data-msg-id="${b._id}">
+        `}const P=C(((U=f.sender)==null?void 0:U.name)||"Teammate"),m=ie(f.createdAt),q=Oe(f);return`
+        <div class="bonding-msg-row ${l?"self":"other"}" data-msg-id="${f._id}">
           <div class="bonding-msg-avatar" title="${P}">${P.slice(0,1).toUpperCase()}</div>
           <div class="bonding-msg-bubble-wrap">
             <div class="bonding-msg-meta">
@@ -2334,9 +2334,9 @@ var ba=Object.defineProperty;var ma=(n,t,e)=>t in n?ba(n,t,{enumerable:!0,config
               <span class="bonding-msg-time">${m}</span>
             </div>
             <div class="bonding-msg-bubble">
-              ${C(b.content).replace(/\n/g,"<br/>")}
+              ${C(f.content).replace(/\n/g,"<br/>")}
             </div>
-            ${z}
+            ${q}
           </div>
         </div>
       `}).join("")}function Oe(c){return`
@@ -2350,7 +2350,7 @@ var ba=Object.defineProperty;var ma=(n,t,e)=>t in n?ba(n,t,{enumerable:!0,config
           <span>+😀</span>
         </button>
       </div>
-    `}function Be(c){const b=n.querySelector("#btn-chat-challenge");b&&(b.onclick=()=>{c?W(null,c.userId||c._id):W()});const l=n.querySelector("#btn-manage-members");l&&(l.onclick=I);const P=n.querySelector("#btn-delete-group");P&&(P.onclick=N)}function Qe(c){const b=n.querySelector("#bonding-message-input"),l=n.querySelector("#btn-send-message"),P=n.querySelector("#btn-quick-emoji"),m=n.querySelector("#btn-input-challenge");b&&b.addEventListener("keydown",z=>{z.key==="Enter"&&!z.shiftKey&&(z.preventDefault(),Ye())}),l&&(l.onclick=Ye),m&&(m.onclick=()=>{c?W(null,c.userId||c._id):W()}),P&&(P.onclick=()=>{if(!b)return;const z=["👍","🎉","🔥","💪","🚀","❤️","😂","👏","✨"],A=z[Math.floor(Math.random()*z.length)];b.value+=(b.value?" ":"")+A,b.focus()})}function Ve(){n.querySelectorAll(".btn-respond-invite").forEach(l=>{l.onclick=async()=>{const P=l.dataset.inviteId,m=l.dataset.action;await X(P,m)}}),n.querySelectorAll(".btn-launch-match-from-card").forEach(l=>{l.onclick=async()=>{const P=l.dataset.inviteId;try{l.disabled=!0;const m=await De("/bonding/invitations"),z=(m.incoming||[]).concat(m.sent||[]).find(A=>A._id===P);z&&z.matchId?Q(z.matchId):q("Match has not started yet or has expired","warning")}catch(m){q(m.message||"Could not load match","error")}finally{l.disabled=!1}}}),n.querySelectorAll(".bonding-rxn-tag").forEach(l=>{l.onclick=async()=>{const P=l.dataset.msgId,m=l.dataset.emoji;await o(P,m)}}),n.querySelectorAll(".bonding-add-rxn-btn").forEach(l=>{l.onclick=P=>{const m=l.dataset.msgId;ne(P.currentTarget,async z=>{await o(m,z)})}})}async function Ye(){const c=n.querySelector("#bonding-message-input");if(!c||!i||E)return;const b=c.value.trim();if(b)try{E=!0,c.value="";const l=await ye(`/bonding/channels/${i._id}/messages`,{content:b,type:"text"});a.push(l),y(),x()}catch(l){q(l.message||"Failed to send message","error")}finally{E=!1,c.focus()}}async function o(c,b){try{const l=await ye(`/bonding/messages/${c}/react`,{emoji:b}),P=a.find(m=>m._id===c);P&&(P.reactions=l,w())}catch(l){q(l.message||"Failed to react","error")}}function x(){const c=n.querySelector("#bonding-messages-feed");c&&(c.scrollTop=c.scrollHeight)}function w(){const c=n.querySelector("#bonding-messages-feed");if(!c)return;const b=c.scrollHeight-c.scrollTop<=c.clientHeight+80;c.innerHTML=Fe(),Ve(),b&&x()}function y(){const c=n.querySelector("#bonding-messages-feed");c&&(c.innerHTML=Fe(),Ve())}async function k(c=!1){const b=n.querySelector("#bonding-lounge-main-wrap");if(b){c||(b.innerHTML='<div class="bonding-loading-text" style="padding:40px;text-align:center">Loading Games Arena & Live Matches...</div>');try{const[l,P]=await Promise.all([De("/bonding/games/overview"),De("/bonding/leaderboard")]);h=l;const m=l.myStats||{},z=l.availableGames||[],A=l.incomingChallenges||[],B=l.sentChallenges||[],R=l.activeMatches||[],Z=l.recentMatches||[],te=(e==null?void 0:e._id)||(e==null?void 0:e.id);b.innerHTML=`
+    `}function Be(c){const f=n.querySelector("#btn-chat-challenge");f&&(f.onclick=()=>{c?K(null,c.userId||c._id):K()});const l=n.querySelector("#btn-manage-members");l&&(l.onclick=I);const P=n.querySelector("#btn-delete-group");P&&(P.onclick=N)}function Qe(c){const f=n.querySelector("#bonding-message-input"),l=n.querySelector("#btn-send-message"),P=n.querySelector("#btn-quick-emoji"),m=n.querySelector("#btn-input-challenge");f&&f.addEventListener("keydown",q=>{q.key==="Enter"&&!q.shiftKey&&(q.preventDefault(),Ye())}),l&&(l.onclick=Ye),m&&(m.onclick=()=>{c?K(null,c.userId||c._id):K()}),P&&(P.onclick=()=>{if(!f)return;const q=["👍","🎉","🔥","💪","🚀","❤️","😂","👏","✨"],A=q[Math.floor(Math.random()*q.length)];f.value+=(f.value?" ":"")+A,f.focus()})}function Ve(){n.querySelectorAll(".btn-respond-invite").forEach(l=>{l.onclick=async()=>{const P=l.dataset.inviteId,m=l.dataset.action;await ee(P,m)}}),n.querySelectorAll(".btn-launch-match-from-card").forEach(l=>{l.onclick=async()=>{const P=l.dataset.inviteId;try{l.disabled=!0;const m=await De("/bonding/invitations"),q=(m.incoming||[]).concat(m.sent||[]).find(A=>A._id===P);q&&q.matchId?Y(q.matchId):z("Match has not started yet or has expired","warning")}catch(m){z(m.message||"Could not load match","error")}finally{l.disabled=!1}}}),n.querySelectorAll(".bonding-rxn-tag").forEach(l=>{l.onclick=async()=>{const P=l.dataset.msgId,m=l.dataset.emoji;await o(P,m)}}),n.querySelectorAll(".bonding-add-rxn-btn").forEach(l=>{l.onclick=P=>{const m=l.dataset.msgId;ne(P.currentTarget,async q=>{await o(m,q)})}})}async function Ye(){const c=n.querySelector("#bonding-message-input");if(!c||!r||E)return;const f=c.value.trim();if(f)try{E=!0,c.value="";const l=await ye(`/bonding/channels/${r._id}/messages`,{content:f,type:"text"});a.push(l),y(),x()}catch(l){z(l.message||"Failed to send message","error")}finally{E=!1,c.focus()}}async function o(c,f){try{const l=await ye(`/bonding/messages/${c}/react`,{emoji:f}),P=a.find(m=>m._id===c);P&&(P.reactions=l,k())}catch(l){z(l.message||"Failed to react","error")}}function x(){const c=n.querySelector("#bonding-messages-feed");c&&(c.scrollTop=c.scrollHeight)}function k(){const c=n.querySelector("#bonding-messages-feed");if(!c)return;const f=c.scrollHeight-c.scrollTop<=c.clientHeight+80;c.innerHTML=Fe(),Ve(),f&&x()}function y(){const c=n.querySelector("#bonding-messages-feed");c&&(c.innerHTML=Fe(),Ve())}async function w(c=!1){const f=n.querySelector("#bonding-lounge-main-wrap");if(f){c||(f.innerHTML='<div class="bonding-loading-text" style="padding:40px;text-align:center">Loading Games Arena & Live Matches...</div>');try{const[l,P]=await Promise.all([De("/bonding/games/overview"),De("/bonding/leaderboard")]);h=l;const m=l.myStats||{},q=l.availableGames||[],A=l.incomingChallenges||[],B=l.sentChallenges||[],R=l.activeMatches||[],X=l.recentMatches||[],ae=(e==null?void 0:e._id)||(e==null?void 0:e.id);f.innerHTML=`
         <div class="lounge-container">
           <!-- Top Stats Ribbon -->
           <div class="lounge-stats-ribbon">
@@ -2388,7 +2388,7 @@ var ba=Object.defineProperty;var ma=(n,t,e)=>t in n?ba(n,t,{enumerable:!0,config
             </div>
 
             <div class="lounge-games-grid">
-              ${z.map(S=>`
+              ${q.map(S=>`
                 <div class="lounge-game-card" data-game-id="${S.id}">
                   <div class="game-card-icon">${S.icon}</div>
                   <div class="game-card-content">
@@ -2476,19 +2476,19 @@ var ba=Object.defineProperty;var ma=(n,t,e)=>t in n?ba(n,t,{enumerable:!0,config
 
               ${R.length===0?'<div class="box-empty-text" style="padding: 24px 0">No active matches in progress right now. Accept an invitation or challenge a teammate to begin!</div>':`
                   <div class="lounge-active-matches-list">
-                    ${R.map(S=>{const ee=te&&S.player1.userId.toString()===te.toString()?S.player2:S.player1,V=te&&S.currentTurnUserId&&S.currentTurnUserId.toString()===te.toString();return`
-                        <div class="lounge-active-match-card ${V?"turn-active":""}">
+                    ${R.map(S=>{const te=ae&&S.player1.userId.toString()===ae.toString()?S.player2:S.player1,U=ae&&S.currentTurnUserId&&S.currentTurnUserId.toString()===ae.toString();return`
+                        <div class="lounge-active-match-card ${U?"turn-active":""}">
                           <div class="active-match-left">
                             <span class="match-game-icon">${S.gameType==="chess"?"♟️":S.gameType==="connectfour"?"🔴":"❌"}</span>
                             <div>
                               <div class="match-game-title">${C(S.gameTitle)}</div>
-                              <div class="match-opp-text">Opponent: <strong>${C(ee.name)}</strong> (${C(ee.role)})</div>
+                              <div class="match-opp-text">Opponent: <strong>${C(te.name)}</strong> (${C(te.role)})</div>
                             </div>
                           </div>
 
                           <div class="active-match-right">
-                            <span class="match-turn-tag ${V?"my-turn":"wait"}">
-                              ${V?"⚡ Your Turn!":"⏳ Opponent Turn"}
+                            <span class="match-turn-tag ${U?"my-turn":"wait"}">
+                              ${U?"⚡ Your Turn!":"⏳ Opponent Turn"}
                             </span>
                             <button class="btn-resume-match" data-match-id="${S._id}">
                               Resume Match 🎮
@@ -2508,18 +2508,18 @@ var ba=Object.defineProperty;var ma=(n,t,e)=>t in n?ba(n,t,{enumerable:!0,config
               <p>Audit results, rematch recent opponents, or review match outcomes.</p>
             </div>
 
-            ${Z.length===0?'<div class="box-empty-text">No recently completed matches found.</div>':`
+            ${X.length===0?'<div class="box-empty-text">No recently completed matches found.</div>':`
                 <div class="lounge-recent-matches-grid">
-                  ${Z.map(S=>{const ee=te&&S.player1.userId.toString()===te.toString()?S.player2:S.player1,V=te&&S.winnerId&&S.winnerId.toString()===te.toString(),Y=S.status==="draw";return`
+                  ${X.map(S=>{const te=ae&&S.player1.userId.toString()===ae.toString()?S.player2:S.player1,U=ae&&S.winnerId&&S.winnerId.toString()===ae.toString(),Q=S.status==="draw";return`
                       <div class="recent-match-card">
                         <div class="recent-card-head">
                           <span class="recent-game-title">${C(S.gameTitle)}</span>
-                          <span class="recent-date">${re(S.completedAt||S.updatedAt)}</span>
+                          <span class="recent-date">${ie(S.completedAt||S.updatedAt)}</span>
                         </div>
                         <div class="recent-card-body">
-                          <div>Opponent: <strong>${C(ee.name)}</strong></div>
-                          <div class="recent-outcome ${V?"win":Y?"draw":"loss"}">
-                            ${V?"🏆 VICTORY":Y?"🤝 DRAW":"DEFEAT"}
+                          <div>Opponent: <strong>${C(te.name)}</strong></div>
+                          <div class="recent-outcome ${U?"win":Q?"draw":"loss"}">
+                            ${U?"🏆 VICTORY":Q?"🤝 DRAW":"DEFEAT"}
                             <span style="font-size:11px;font-weight:normal;color:var(--text-3)">(${C(S.winningReason||S.status)})</span>
                           </div>
                         </div>
@@ -2582,13 +2582,13 @@ var ba=Object.defineProperty;var ma=(n,t,e)=>t in n?ba(n,t,{enumerable:!0,config
             </div>
           </div>
         </div>
-      `,D()}catch(l){b.innerHTML=`
+      `,D()}catch(l){f.innerHTML=`
         <div class="bonding-empty-feed">
           <div class="bonding-empty-icon">⚠️</div>
           <h4>Failed to load Games Arena</h4>
           <p>${C(l.message)}</p>
         </div>
-      `}}}function D(){n.querySelectorAll(".btn-challenge-game").forEach(c=>{c.onclick=()=>{const b=c.dataset.gameId;W(b)}}),n.querySelectorAll(".btn-respond-invite").forEach(c=>{c.onclick=async()=>{const b=c.dataset.inviteId,l=c.dataset.action;await X(b,l),await k()}}),n.querySelectorAll(".btn-resume-match").forEach(c=>{c.onclick=()=>{const b=c.dataset.matchId;Q(b)}}),n.querySelectorAll(".btn-recent-rematch").forEach(c=>{c.onclick=async()=>{const b=c.dataset.matchId;try{c.disabled=!0;const l=await ye(`/bonding/matches/${b}/action`,{action:"rematch"});l.match&&(q("Rematch created! Opening arena ⚔️","success"),Q(l.match._id))}catch(l){q(l.message||"Could not start rematch","error")}finally{c.disabled=!1}}})}function W(c=null,b=null){const l=n.querySelector("#bonding-modals-root"),P=(e==null?void 0:e._id)||(e==null?void 0:e.id),m=new Set(["employee","admin","superadmin"]),z=p.filter(S=>!S.isSelf&&S._id.toString()!==(P==null?void 0:P.toString())&&m.has(S.role));let A=c||"chess",B=b?b.toString():null,R="none";function Z(){const S=z.find(M=>M._id.toString()===B);l.innerHTML=`
+      `}}}function D(){n.querySelectorAll(".btn-challenge-game").forEach(c=>{c.onclick=()=>{const f=c.dataset.gameId;K(f)}}),n.querySelectorAll(".btn-respond-invite").forEach(c=>{c.onclick=async()=>{const f=c.dataset.inviteId,l=c.dataset.action;await ee(f,l),await w()}}),n.querySelectorAll(".btn-resume-match").forEach(c=>{c.onclick=()=>{const f=c.dataset.matchId;Y(f)}}),n.querySelectorAll(".btn-recent-rematch").forEach(c=>{c.onclick=async()=>{const f=c.dataset.matchId;try{c.disabled=!0;const l=await ye(`/bonding/matches/${f}/action`,{action:"rematch"});l.match&&(z("Rematch created! Opening arena ⚔️","success"),Y(l.match._id))}catch(l){z(l.message||"Could not start rematch","error")}finally{c.disabled=!1}}})}function K(c=null,f=null){const l=n.querySelector("#bonding-modals-root"),P=(e==null?void 0:e._id)||(e==null?void 0:e.id),m=new Set(["employee","admin","superadmin"]),q=p.filter(S=>!S.isSelf&&S._id.toString()!==(P==null?void 0:P.toString())&&m.has(S.role));let A=c||"chess",B=f?f.toString():null,R="none";function X(){const S=q.find(M=>M._id.toString()===B);l.innerHTML=`
         <div class="bonding-modal-backdrop">
           <div class="bonding-modal-card challenge-flow-modal">
             <div class="bonding-modal-header">
@@ -2621,15 +2621,15 @@ var ba=Object.defineProperty;var ma=(n,t,e)=>t in n?ba(n,t,{enumerable:!0,config
                 </div>
 
                 <div class="eligible-emp-list" id="eligible-emp-list-wrap">
-                  ${z.map(M=>{const ee=B===M._id.toString();return`
-                      <div class="eligible-emp-item ${ee?"selected":""}" data-user-id="${M._id}">
+                  ${q.map(M=>{const te=B===M._id.toString();return`
+                      <div class="eligible-emp-item ${te?"selected":""}" data-user-id="${M._id}">
                         <div class="emp-item-avatar">${M.name.slice(0,1).toUpperCase()}</div>
                         <div class="emp-item-info">
                           <span class="emp-item-name">${C(M.name)}</span>
                           <span class="emp-item-role">${C(M.role==="superadmin"?"Superadmin":M.role==="admin"?"Admin":"Employee")} · ${C(M.email||"")}</span>
                         </div>
-                        <button class="btn-select-opponent ${ee?"active":""}">
-                          ${ee?"Selected ✓":"Select"}
+                        <button class="btn-select-opponent ${te?"active":""}">
+                          ${te?"Selected ✓":"Select"}
                         </button>
                       </div>
                     `}).join("")}
@@ -2676,9 +2676,12 @@ var ba=Object.defineProperty;var ma=(n,t,e)=>t in n?ba(n,t,{enumerable:!0,config
             </div>
           </div>
         </div>
-      `,te()}function te(){l.querySelector(".bonding-modal-close").onclick=()=>{l.innerHTML=""},l.querySelector("#btn-cancel-challenge-flow").onclick=()=>{l.innerHTML=""},l.querySelectorAll(".game-pill-btn").forEach(ee=>{ee.onclick=()=>{A=ee.dataset.game,Z()}});const S=l.querySelector("#flow-emp-search");S&&(S.oninput=ee=>{const V=ee.target.value.toLowerCase().trim();l.querySelectorAll(".eligible-emp-item").forEach(Y=>{const ae=Y.textContent.toLowerCase();Y.style.display=ae.includes(V)?"flex":"none"})}),l.querySelectorAll(".eligible-emp-item").forEach(ee=>{ee.onclick=()=>{B=ee.dataset.userId,Z()}}),l.querySelectorAll('input[name="timerMode"]').forEach(ee=>{ee.onchange=V=>{R=V.target.value,Z()}});const M=l.querySelector("#btn-submit-challenge-flow");M&&(M.onclick=async()=>{if(!B){q("Please select an employee to challenge","warning");return}try{M.disabled=!0,M.textContent="Sending Challenge...",await ye("/bonding/invitations",{gameType:A,targetUserId:B,matchSettings:{timerMode:R},channelId:(i==null?void 0:i._id)||null}),q("Game challenge delivered! Awaiting acceptance ⚔️","success"),l.innerHTML="",i&&await $e(i._id),r==="lounge_games"&&await k()}catch(ee){q(ee.message||"Failed to send challenge","error"),M.disabled=!1,M.textContent="Send Challenge 🚀"}})}Z()}async function X(c,b){if(!(!c||!b))try{const l=await yt(`/bonding/invitations/${c}/respond`,{action:b});b==="accept"?(q("Challenge accepted! Entering match arena ⚔️","success"),l.match&&Q(l.match._id)):b==="decline"?q("Challenge declined","info"):b==="cancel"&&q("Challenge cancelled","info"),i&&await $e(i._id),r==="lounge_games"&&await k()}catch(l){q(l.message||"Action failed","error")}}async function Q(c){if(!c)return;F=c,_&&clearInterval(_);const b=n.querySelector("#bonding-modals-root");let l=null,P=null,m=[];async function z(){try{return l=await De(`/bonding/matches/${c}`),l}catch(M){return q(M.message||"Could not load match","error"),A(),null}}if(l=await z(),!l)return;function A(){_&&clearInterval(_),F=null,b.innerHTML="",r==="lounge_games"&&k(!0),i&&$e(i._id,!0)}_=setInterval(async()=>{var Y,ae,de,ve;if(!F||F!==c){clearInterval(_);return}const M=(Y=l==null?void 0:l.currentTurnUserId)==null?void 0:Y.toString(),ee=l==null?void 0:l.status,V=await z();V&&(((ae=V.currentTurnUserId)==null?void 0:ae.toString())!==M||V.status!==ee||((de=V.moves)==null?void 0:de.length)!==((ve=l.moves)==null?void 0:ve.length))&&B()},1500);function B(){if(!l)return;const M=(e==null?void 0:e._id)||(e==null?void 0:e.id),ee=M&&l.player1.userId.toString()===M.toString(),V=ee?l.player1:l.player2,Y=ee?l.player2:l.player1,ae=M&&l.currentTurnUserId&&l.currentTurnUserId.toString()===M.toString(),de=l.status!=="active";b.innerHTML=`
+      `,ae()}function ae(){l.querySelector(".bonding-modal-close").onclick=()=>{l.innerHTML=""},l.querySelector("#btn-cancel-challenge-flow").onclick=()=>{l.innerHTML=""},l.querySelectorAll(".game-pill-btn").forEach(te=>{te.onclick=()=>{A=te.dataset.game,X()}});const S=l.querySelector("#flow-emp-search");S&&(S.oninput=te=>{const U=te.target.value.toLowerCase().trim();l.querySelectorAll(".eligible-emp-item").forEach(Q=>{const Z=Q.textContent.toLowerCase();Q.style.display=Z.includes(U)?"flex":"none"})}),l.querySelectorAll(".eligible-emp-item").forEach(te=>{te.onclick=()=>{B=te.dataset.userId,X()}}),l.querySelectorAll('input[name="timerMode"]').forEach(te=>{te.onchange=U=>{R=U.target.value,X()}});const M=l.querySelector("#btn-submit-challenge-flow");M&&(M.onclick=async()=>{if(!B){z("Please select an employee to challenge","warning");return}try{M.disabled=!0,M.textContent="Sending Challenge...",await ye("/bonding/invitations",{gameType:A,targetUserId:B,matchSettings:{timerMode:R},channelId:(r==null?void 0:r._id)||null}),z("Game challenge delivered! Awaiting acceptance ⚔️","success"),l.innerHTML="",r&&await $e(r._id),i==="lounge_games"&&await w()}catch(te){z(te.message||"Failed to send challenge","error"),M.disabled=!1,M.textContent="Send Challenge 🚀"}})}X()}async function ee(c,f){if(!(!c||!f))try{const l=await yt(`/bonding/invitations/${c}/respond`,{action:f});f==="accept"?(z("Challenge accepted! Entering match arena ⚔️","success"),l.match&&Y(l.match._id)):f==="decline"?z("Challenge declined","info"):f==="cancel"&&z("Challenge cancelled","info"),r&&await $e(r._id),i==="lounge_games"&&await w()}catch(l){z(l.message||"Action failed","error")}}async function Y(c){if(!c)return;F=c,_&&clearInterval(_);const f=n.querySelector("#bonding-modals-root");let l=null,P=null,m=[];async function q(){try{return l=await De(`/bonding/matches/${c}`),l}catch(M){return z(M.message||"Could not load match","error"),A(),null}}if(l=await q(),!l)return;function A(){_&&clearInterval(_),F=null,f.innerHTML="",i==="lounge_games"&&w(!0),r&&$e(r._id,!0)}_=setInterval(async()=>{var Q,Z,de,ve;if(!F||F!==c){clearInterval(_);return}const M=(Q=l==null?void 0:l.currentTurnUserId)==null?void 0:Q.toString(),te=l==null?void 0:l.status,U=await q();U&&(((Z=U.currentTurnUserId)==null?void 0:Z.toString())!==M||U.status!==te||((de=U.moves)==null?void 0:de.length)!==((ve=l.moves)==null?void 0:ve.length))&&B()},1500);function B(){if(!l)return;const M=(e==null?void 0:e._id)||(e==null?void 0:e.id),te=M&&l.player1.userId.toString()===M.toString(),U=te?l.player1:l.player2,Q=te?l.player2:l.player1,Z=M&&l.currentTurnUserId&&l.currentTurnUserId.toString()===M.toString(),de=l.status!=="active";f.innerHTML=`
         <div class="bonding-modal-backdrop">
           <div class="bonding-modal-card game-arena-modal">
+            <!-- Dedicated Top-Right Close Button -->
+            <button class="arena-close-btn" id="btn-close-arena" title="Exit Match">&times;</button>
+
             <!-- Arena Header Bar -->
             <div class="arena-header">
               <div class="arena-title-wrap">
@@ -2686,31 +2689,36 @@ var ba=Object.defineProperty;var ma=(n,t,e)=>t in n?ba(n,t,{enumerable:!0,config
                 <div>
                   <h3 class="arena-title">${C(l.gameTitle)}</h3>
                   <div class="arena-players-vs">
-                    <span>${C(V.name)} (You · ${V.assignedRole})</span>
+                    <span class="player-tag self">${C(U.name)} (You · <strong>${l.gameType==="connectfour"?U.assignedRole==="red"?"🔴 Red":"🟡 Yellow":l.gameType==="tictactoe"?U.assignedRole==="X"?"✕":"◯":U.assignedRole}</strong>)</span>
                     <span class="vs-pill">VS</span>
-                    <span>${C(Y.name)} (${Y.assignedRole})</span>
+                    <span class="player-tag opp">${C(Q.name)} (<strong>${l.gameType==="connectfour"?Q.assignedRole==="red"?"🔴 Red":"🟡 Yellow":l.gameType==="tictactoe"?Q.assignedRole==="X"?"✕":"◯":Q.assignedRole}</strong>)</span>
                   </div>
                 </div>
               </div>
 
               <!-- Live Turn Indicator -->
-              <div class="arena-turn-banner ${de?"ended":ae?"my-turn":"opp-turn"}">
-                ${de?`<span>Match Finished (${C(l.winningReason||l.status)})</span>`:ae?`<span>⚡ YOUR TURN (${V.assignedRole.toUpperCase()})</span>`:`<span>⏳ Waiting for ${C(Y.name)}...</span>`}
+              <div class="arena-turn-banner ${de?"ended":Z?"my-turn":"opp-turn"}">
+                ${de?`<span>🏁 Finished (${C(l.winningReason||l.status)})</span>`:Z?"<span>⚡ YOUR TURN</span>":`<span>⏳ Waiting for ${C(Q.name)}...</span>`}
               </div>
+            </div>
 
-              <div class="arena-top-actions">
-                ${de?"":`
-                  <button class="btn-arena-action" id="btn-arena-draw" title="Offer a Draw">🤝 Draw</button>
-                  <button class="btn-arena-action danger" id="btn-arena-resign" title="Resign Match">🏳️ Resign</button>
-                `}
-                <button class="bonding-modal-close" id="btn-close-arena">&times;</button>
+            <!-- Sub-Toolbar with Quick Instructions & Draw/Resign Actions -->
+            <div class="arena-toolbar">
+              <div class="arena-tip-text">
+                ${l.gameType==="connectfour"?Z?"👉 Click any column arrow to drop your disc!":"⏳ Opponent is deciding their move...":l.gameType==="tictactoe"?Z?"👉 Tap any open cell to place your symbol!":"⏳ Opponent is deciding their move...":Z?"👉 Click your piece, then click a green target dot to move!":"⏳ Opponent is thinking..."}
               </div>
+              ${de?"":`
+                <div class="arena-action-btns">
+                  <button class="btn-arena-action" id="btn-arena-draw" title="Offer a Draw">🤝 Offer Draw</button>
+                  <button class="btn-arena-action danger" id="btn-arena-resign" title="Resign Match">🏳️ Resign</button>
+                </div>
+              `}
             </div>
 
             <!-- Draw Offer Notification -->
             ${l.drawOfferedBy&&l.drawOfferedBy.toString()!==(M==null?void 0:M.toString())&&!de?`
               <div class="arena-draw-offer-banner">
-                <span>🤝 ${C(Y.name)} has offered a draw. Accept?</span>
+                <span>🤝 ${C(Q.name)} has offered a draw. Accept?</span>
                 <button class="btn-accept-draw" id="btn-confirm-accept-draw">Accept Draw</button>
                 <button class="btn-decline-draw" id="btn-confirm-decline-draw">Decline</button>
               </div>
@@ -2718,9 +2726,9 @@ var ba=Object.defineProperty;var ma=(n,t,e)=>t in n?ba(n,t,{enumerable:!0,config
 
             <!-- Arena Main Playing Board -->
             <div class="arena-board-wrap">
-              ${l.gameType==="chess"?R(ee):""}
-              ${l.gameType==="tictactoe"?Z():""}
-              ${l.gameType==="connectfour"?te():""}
+              ${l.gameType==="chess"?R(te):""}
+              ${l.gameType==="tictactoe"?X():""}
+              ${l.gameType==="connectfour"?ae():""}
             </div>
 
             <!-- Match Result Banner (When finished) -->
@@ -2738,37 +2746,39 @@ var ba=Object.defineProperty;var ma=(n,t,e)=>t in n?ba(n,t,{enumerable:!0,config
             `:""}
           </div>
         </div>
-      `,S(ae,ee,V)}function R(M){var be;const ee=((be=l.gameState)==null?void 0:be.fen)||"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",V=new Vt(ee),Y=M?l.player1.assignedRole==="white":l.player2.assignedRole==="white",ae={p:"♟",r:"♜",n:"♞",b:"♝",q:"♛",k:"♚",P:"♙",R:"♖",N:"♘",B:"♗",Q:"♕",K:"♔"},de=Y?["a","b","c","d","e","f","g","h"]:["h","g","f","e","d","c","b","a"],ve=Y?[8,7,6,5,4,3,2,1]:[1,2,3,4,5,6,7,8];let fe='<div class="chess-board-grid">';for(const we of ve)for(const Me of de){const Ee=`${Me}${we}`,ze=V.get(Ee),Ze=(Me.charCodeAt(0)-97+we)%2!==0,je=P===Ee,Xe=m.includes(Ee),dt=ze?ze.color==="w"?ae[ze.type.toUpperCase()]:ae[ze.type]:"";fe+=`
-            <div class="chess-sq ${Ze?"light":"dark"} ${je?"selected":""} ${Xe?"legal-dot":""}" data-square="${Ee}">
-              ${dt?`<span class="chess-piece ${ze.color==="w"?"white-piece":"black-piece"}">${dt}</span>`:""}
+      `,S(Z,te,U)}function R(M){var fe;const te=((fe=l.gameState)==null?void 0:fe.fen)||"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",U=new Vt(te),Q=M?l.player1.assignedRole==="white":l.player2.assignedRole==="white",Z={p:"♟",r:"♜",n:"♞",b:"♝",q:"♛",k:"♚",P:"♙",R:"♖",N:"♘",B:"♗",Q:"♕",K:"♔"},de=Q?["a","b","c","d","e","f","g","h"]:["h","g","f","e","d","c","b","a"],ve=Q?[8,7,6,5,4,3,2,1]:[1,2,3,4,5,6,7,8];let be='<div class="chess-board-grid">';for(const ke of ve)for(const Me of de){const Ee=`${Me}${ke}`,qe=U.get(Ee),Xe=(Me.charCodeAt(0)-97+ke)%2!==0,je=P===Ee,Ze=m.includes(Ee),dt=qe?qe.color==="w"?Z[qe.type.toUpperCase()]:Z[qe.type]:"";be+=`
+            <div class="chess-sq ${Xe?"light":"dark"} ${je?"selected":""} ${Ze?"legal-dot":""}" data-square="${Ee}">
+              ${dt?`<span class="chess-piece ${qe.color==="w"?"white-piece":"black-piece"}">${dt}</span>`:""}
             </div>
-          `}fe+="</div>";const ce=(l.moves||[]).map(we=>{var Me;return`
-        <span class="chess-move-token">${we.moveNum}. ${((Me=we.moveData)==null?void 0:Me.san)||""}</span>
+          `}be+="</div>";const ce=(l.moves||[]).map(ke=>{var Me;return`
+        <span class="chess-move-token">${ke.moveNum}. ${((Me=ke.moveData)==null?void 0:Me.san)||""}</span>
       `}).join(" ");return`
         <div class="chess-arena-layout">
-          ${fe}
+          ${be}
           <div class="chess-sidebar-notation">
             <div class="notation-head">Move Notation</div>
             <div class="notation-feed">${ce||'<span class="muted">No moves yet</span>'}</div>
           </div>
         </div>
-      `}function Z(){var V;const M=((V=l.gameState)==null?void 0:V.board)||Array(9).fill(null),ee=l.winningCells||[];return`
-        <div class="ttt-board-grid">
-          ${M.map((Y,ae)=>{const de=ee.includes(ae);return`
-              <div class="ttt-cell ${Y?"filled":"empty"} ${de?"win-cell":""}" data-cell-idx="${ae}">
-                ${Y==="X"?'<span class="ttt-x">✕</span>':Y==="O"?'<span class="ttt-o">◯</span>':""}
-              </div>
-            `}).join("")}
+      `}function X(){var U;const M=((U=l.gameState)==null?void 0:U.board)||Array(9).fill(null),te=l.winningCells||[];return`
+        <div class="ttt-court">
+          <div class="ttt-board-grid">
+            ${M.map((Q,Z)=>{const de=te.includes(Z);return`
+                <div class="ttt-cell ${Q?"filled":"empty"} ${de?"win-cell":""}" data-cell-idx="${Z}">
+                  ${Q==="X"?'<span class="ttt-x">✕</span>':Q==="O"?'<span class="ttt-o">◯</span>':""}
+                </div>
+              `}).join("")}
+          </div>
         </div>
-      `}function te(){var Y;const M=((Y=l.gameState)==null?void 0:Y.grid)||Array(6).fill(null).map(()=>Array(7).fill(null)),ee=(l.winningCells||[]).map(ae=>Array.isArray(ae)?`${ae[0]},${ae[1]}`:"");let V='<div class="c4-board-rack">';V+='<div class="c4-drop-arrows-row">';for(let ae=0;ae<7;ae++)V+=`<button class="c4-drop-col-btn" data-col="${ae}" title="Drop Disc in Column ${ae+1}">⬇</button>`;V+="</div>",V+='<div class="c4-grid-slots">';for(let ae=0;ae<6;ae++)for(let de=0;de<7;de++){const ve=M[ae][de],fe=ee.includes(`${ae},${de}`);V+=`
-            <div class="c4-slot ${ve?`disc-${ve}`:"empty"} ${fe?"win-disc":""}" data-col="${de}" data-row="${ae}">
+      `}function ae(){var Q;const M=((Q=l.gameState)==null?void 0:Q.grid)||Array(6).fill(null).map(()=>Array(7).fill(null)),te=(l.winningCells||[]).map(Z=>Array.isArray(Z)?`${Z[0]},${Z[1]}`:"");let U='<div class="c4-board-rack">';U+='<div class="c4-drop-arrows-row">';for(let Z=0;Z<7;Z++)U+=`<button class="c4-drop-col-btn" data-col="${Z}" title="Drop Disc in Column ${Z+1}">⬇</button>`;U+="</div>",U+='<div class="c4-grid-slots">';for(let Z=0;Z<6;Z++)for(let de=0;de<7;de++){const ve=M[Z][de],be=te.includes(`${Z},${de}`);U+=`
+            <div class="c4-slot ${ve?`disc-${ve}`:"empty"} ${be?"win-disc":""}" data-col="${de}" data-row="${Z}">
               ${ve?`<div class="c4-disc ${ve}"></div>`:'<div class="c4-hole"></div>'}
             </div>
-          `}return V+="</div></div>",V}function S(M,ee,V){var Je;b.querySelector("#btn-close-arena").onclick=A;const Y=b.querySelector("#btn-arena-resign");Y&&(Y.onclick=async()=>{if(confirm("Are you sure you want to resign this match?"))try{Y.disabled=!0,await ye(`/bonding/matches/${c}/action`,{action:"resign"}),await z(),B()}catch(ce){q(ce.message||"Resign failed","error"),Y.disabled=!1}});const ae=b.querySelector("#btn-arena-draw");ae&&(ae.onclick=async()=>{try{await ye(`/bonding/matches/${c}/action`,{action:"offer_draw"}),q("Draw offer sent to opponent","info"),await z(),B()}catch(ce){q(ce.message||"Draw offer failed","error")}});const de=b.querySelector("#btn-confirm-accept-draw");de&&(de.onclick=async()=>{try{await ye(`/bonding/matches/${c}/action`,{action:"accept_draw"}),q("Draw agreed!","info"),await z(),B()}catch(ce){q(ce.message,"error")}});const ve=b.querySelector("#btn-confirm-decline-draw");ve&&(ve.onclick=async()=>{try{await ye(`/bonding/matches/${c}/action`,{action:"decline_draw"}),await z(),B()}catch(ce){q(ce.message,"error")}});const fe=b.querySelector("#btn-arena-rematch-action");if(fe&&(fe.onclick=async()=>{try{fe.disabled=!0,fe.textContent="Creating Rematch...";const ce=await ye(`/bonding/matches/${c}/action`,{action:"rematch"});ce.match&&(q("Rematch created! New match live ⚔️","success"),_&&clearInterval(_),Q(ce.match._id))}catch(ce){q(ce.message||"Rematch failed","error"),fe.disabled=!1,fe.textContent="🔄 Request Rematch"}}),l.gameType==="chess"&&M&&l.status==="active"){const ce=((Je=l.gameState)==null?void 0:Je.fen)||"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",be=new Vt(ce),we=V.assignedRole==="white"?"w":"b";b.querySelectorAll(".chess-sq").forEach(Me=>{Me.onclick=async()=>{const Ee=Me.dataset.square;if(P){if(P===Ee){P=null,m=[],B();return}if(m.includes(Ee)){const Ze=be.get(P);let je;Ze&&Ze.type==="p"&&(Ee.endsWith("8")||Ee.endsWith("1"))&&(je=prompt("Pawn Promotion! Choose: q (Queen), r (Rook), b (Bishop), n (Knight)","q")||"q");try{const Xe={from:P,to:Ee,promotion:je?je.toLowerCase():void 0};P=null,m=[],l=await ye(`/bonding/matches/${c}/move`,{move:Xe}),B()}catch(Xe){q(Xe.message||"Illegal chess move","error"),P=null,m=[],B()}return}}const ze=be.get(Ee);ze&&ze.color===we?(P=Ee,m=be.moves({square:Ee,verbose:!0}).map(je=>je.to),B()):(P=null,m=[],B())}})}if(l.gameType==="tictactoe"&&M&&l.status==="active"&&b.querySelectorAll(".ttt-cell.empty").forEach(ce=>{ce.onclick=async()=>{const be=ce.dataset.cellIdx;try{ce.style.opacity="0.5",l=await ye(`/bonding/matches/${c}/move`,{cellIndex:Number(be)}),B()}catch(we){q(we.message||"Invalid move","error")}}}),l.gameType==="connectfour"&&M&&l.status==="active"){const ce=async be=>{try{l=await ye(`/bonding/matches/${c}/move`,{col:Number(be)}),B()}catch(we){q(we.message||"Column full or invalid","error")}};b.querySelectorAll(".c4-drop-col-btn").forEach(be=>{be.onclick=()=>ce(be.dataset.col)}),b.querySelectorAll(".c4-slot").forEach(be=>{be.onclick=()=>ce(be.dataset.col)})}}B()}function I(){if(!i||i.type==="direct")return;const c=n.querySelector("#bonding-modals-root"),b=R=>R==="employee"||R==="admin"||R==="superadmin",l=i.members||[],P=new Set(l.map(R=>{var Z;return(Z=R.userId)==null?void 0:Z.toString()})),m=p.filter(R=>b(R.role)&&!P.has(R._id.toString()));c.innerHTML=`
+          `}return U+="</div>",U+='<div class="c4-rack-stand"><div class="c4-stand-leg left"></div><div class="c4-stand-leg right"></div></div>',U+="</div>",U}function S(M,te,U){var Je;f.querySelector("#btn-close-arena").onclick=A;const Q=f.querySelector("#btn-arena-resign");Q&&(Q.onclick=async()=>{if(confirm("Are you sure you want to resign this match?"))try{Q.disabled=!0,await ye(`/bonding/matches/${c}/action`,{action:"resign"}),await q(),B()}catch(ce){z(ce.message||"Resign failed","error"),Q.disabled=!1}});const Z=f.querySelector("#btn-arena-draw");Z&&(Z.onclick=async()=>{try{await ye(`/bonding/matches/${c}/action`,{action:"offer_draw"}),z("Draw offer sent to opponent","info"),await q(),B()}catch(ce){z(ce.message||"Draw offer failed","error")}});const de=f.querySelector("#btn-confirm-accept-draw");de&&(de.onclick=async()=>{try{await ye(`/bonding/matches/${c}/action`,{action:"accept_draw"}),z("Draw agreed!","info"),await q(),B()}catch(ce){z(ce.message,"error")}});const ve=f.querySelector("#btn-confirm-decline-draw");ve&&(ve.onclick=async()=>{try{await ye(`/bonding/matches/${c}/action`,{action:"decline_draw"}),await q(),B()}catch(ce){z(ce.message,"error")}});const be=f.querySelector("#btn-arena-rematch-action");if(be&&(be.onclick=async()=>{try{be.disabled=!0,be.textContent="Creating Rematch...";const ce=await ye(`/bonding/matches/${c}/action`,{action:"rematch"});ce.match&&(z("Rematch created! New match live ⚔️","success"),_&&clearInterval(_),Y(ce.match._id))}catch(ce){z(ce.message||"Rematch failed","error"),be.disabled=!1,be.textContent="🔄 Request Rematch"}}),l.gameType==="chess"&&M&&l.status==="active"){const ce=((Je=l.gameState)==null?void 0:Je.fen)||"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",fe=new Vt(ce),ke=U.assignedRole==="white"?"w":"b";f.querySelectorAll(".chess-sq").forEach(Me=>{Me.onclick=async()=>{const Ee=Me.dataset.square;if(P){if(P===Ee){P=null,m=[],B();return}if(m.includes(Ee)){const Xe=fe.get(P);let je;Xe&&Xe.type==="p"&&(Ee.endsWith("8")||Ee.endsWith("1"))&&(je=prompt("Pawn Promotion! Choose: q (Queen), r (Rook), b (Bishop), n (Knight)","q")||"q");try{const Ze={from:P,to:Ee,promotion:je?je.toLowerCase():void 0};P=null,m=[],l=await ye(`/bonding/matches/${c}/move`,{move:Ze}),B()}catch(Ze){z(Ze.message||"Illegal chess move","error"),P=null,m=[],B()}return}}const qe=fe.get(Ee);qe&&qe.color===ke?(P=Ee,m=fe.moves({square:Ee,verbose:!0}).map(je=>je.to),B()):(P=null,m=[],B())}})}if(l.gameType==="tictactoe"&&M&&l.status==="active"&&f.querySelectorAll(".ttt-cell.empty").forEach(ce=>{ce.onclick=async()=>{const fe=ce.dataset.cellIdx;try{ce.style.opacity="0.5",l=await ye(`/bonding/matches/${c}/move`,{cellIndex:Number(fe)}),B()}catch(ke){z(ke.message||"Invalid move","error")}}}),l.gameType==="connectfour"&&M&&l.status==="active"){const ce=async fe=>{try{l=await ye(`/bonding/matches/${c}/move`,{col:Number(fe)}),B()}catch(ke){z(ke.message||"Column full or invalid","error")}};f.querySelectorAll(".c4-drop-col-btn").forEach(fe=>{fe.onclick=()=>ce(fe.dataset.col)}),f.querySelectorAll(".c4-slot").forEach(fe=>{fe.onclick=()=>ce(fe.dataset.col)})}}B()}function I(){if(!r||r.type==="direct")return;const c=n.querySelector("#bonding-modals-root"),f=R=>R==="employee"||R==="admin"||R==="superadmin",l=r.members||[],P=new Set(l.map(R=>{var X;return(X=R.userId)==null?void 0:X.toString()})),m=p.filter(R=>f(R.role)&&!P.has(R._id.toString()));c.innerHTML=`
       <div class="bonding-modal-backdrop">
         <div class="bonding-modal-card">
           <div class="bonding-modal-header">
-            <h3>👥 Group Members · ${C(i.name)}</h3>
+            <h3>👥 Group Members · ${C(r.name)}</h3>
             <button class="bonding-modal-close">&times;</button>
           </div>
 
@@ -2794,18 +2804,18 @@ var ba=Object.defineProperty;var ma=(n,t,e)=>t in n?ba(n,t,{enumerable:!0,config
             <div class="bonding-form-section" style="margin-top: 20px;">
               <label class="bonding-form-label">Current Members (${l.length}):</label>
               <div class="bonding-members-list">
-                ${l.map(R=>{const Z=(e==null?void 0:e._id)||(e==null?void 0:e.id),te=Z&&R.userId&&R.userId.toString()===Z.toString();return`
+                ${l.map(R=>{const X=(e==null?void 0:e._id)||(e==null?void 0:e.id),ae=X&&R.userId&&R.userId.toString()===X.toString();return`
                     <div class="bonding-member-item">
                       <div class="bonding-member-left">
                         <div class="bonding-member-avatar">${(R.name||"U").slice(0,1).toUpperCase()}</div>
                         <div class="bonding-member-info">
-                          <span class="bonding-member-name">${C(R.name)} ${te?'<span class="you-badge">(You)</span>':""}</span>
+                          <span class="bonding-member-name">${C(R.name)} ${ae?'<span class="you-badge">(You)</span>':""}</span>
                           <span class="bonding-member-role">${C(R.role||"Member")}</span>
                         </div>
                       </div>
                       <div class="bonding-member-actions">
                         <button class="bonding-btn-danger btn-remove-member" data-user-id="${R.userId}" data-name="${C(R.name)}">
-                          ${te?"Leave Group":"Remove"}
+                          ${ae?"Leave Group":"Remove"}
                         </button>
                       </div>
                     </div>
@@ -2826,9 +2836,9 @@ var ba=Object.defineProperty;var ma=(n,t,e)=>t in n?ba(n,t,{enumerable:!0,config
           </div>
         </div>
       </div>
-    `,c.querySelector(".bonding-modal-close").onclick=()=>{c.innerHTML=""};const z=c.querySelector("#btn-modal-delete-group");z&&(z.onclick=()=>{c.innerHTML="",N()});const A=c.querySelector("#btn-submit-add-member");A&&(A.onclick=async()=>{const Z=c.querySelector("#sel-add-colleague").value;if(!Z){q("Please select a colleague to add","warning");return}try{A.disabled=!0,A.textContent="Adding...";const te=await yt(`/bonding/channels/${i._id}/members`,{action:"add",userIds:[Z]});q("Colleague added to group! 🎉","success"),i=te.channel,c.innerHTML="",await $e(i._id),_e()}catch(te){q(te.message||"Failed to add member","error"),A.disabled=!1,A.textContent="Add to Group"}}),c.querySelectorAll(".btn-remove-member").forEach(R=>{R.onclick=async()=>{const Z=R.dataset.userId,te=R.dataset.name;if(confirm(`Are you sure you want to remove ${te} from this group?`))try{R.disabled=!0;const S=await yt(`/bonding/channels/${i._id}/members`,{action:"remove",userId:Z});q(`${te} removed from group`,"info"),i=S.channel,c.innerHTML="",await $e(i._id),_e()}catch(S){q(S.message||"Failed to remove member","error"),R.disabled=!1}}})}async function N(){if(!i||i.type==="direct")return;const c=i.name;if(confirm(`Are you sure you want to delete the group "${c}"?
+    `,c.querySelector(".bonding-modal-close").onclick=()=>{c.innerHTML=""};const q=c.querySelector("#btn-modal-delete-group");q&&(q.onclick=()=>{c.innerHTML="",N()});const A=c.querySelector("#btn-submit-add-member");A&&(A.onclick=async()=>{const X=c.querySelector("#sel-add-colleague").value;if(!X){z("Please select a colleague to add","warning");return}try{A.disabled=!0,A.textContent="Adding...";const ae=await yt(`/bonding/channels/${r._id}/members`,{action:"add",userIds:[X]});z("Colleague added to group! 🎉","success"),r=ae.channel,c.innerHTML="",await $e(r._id),_e()}catch(ae){z(ae.message||"Failed to add member","error"),A.disabled=!1,A.textContent="Add to Group"}}),c.querySelectorAll(".btn-remove-member").forEach(R=>{R.onclick=async()=>{const X=R.dataset.userId,ae=R.dataset.name;if(confirm(`Are you sure you want to remove ${ae} from this group?`))try{R.disabled=!0;const S=await yt(`/bonding/channels/${r._id}/members`,{action:"remove",userId:X});z(`${ae} removed from group`,"info"),r=S.channel,c.innerHTML="",await $e(r._id),_e()}catch(S){z(S.message||"Failed to remove member","error"),R.disabled=!1}}})}async function N(){if(!r||r.type==="direct")return;const c=r.name;if(confirm(`Are you sure you want to delete the group "${c}"?
 
-All messages in this lounge will be deleted.`))try{await Yt(`/bonding/channels/${i._id}`),q(`Group "${c}" deleted successfully`,"success"),s=await De("/bonding/channels").catch(()=>[]),i=s.find(l=>l.type==="group")||s[0]||null,Ne(),_e(),i&&await $e(i._id)}catch(l){q(l.message||"Failed to delete group","error")}}function L(){const c=n.querySelector("#bonding-modals-root"),b=m=>m==="employee"||m==="admin"||m==="superadmin",l=p.filter(m=>!m.isSelf&&b(m.role));c.innerHTML=`
+All messages in this lounge will be deleted.`))try{await Yt(`/bonding/channels/${r._id}`),z(`Group "${c}" deleted successfully`,"success"),s=await De("/bonding/channels").catch(()=>[]),r=s.find(l=>l.type==="group")||s[0]||null,Ne(),_e(),r&&await $e(r._id)}catch(l){z(l.message||"Failed to delete group","error")}}function L(){const c=n.querySelector("#bonding-modals-root"),f=m=>m==="employee"||m==="admin"||m==="superadmin",l=p.filter(m=>!m.isSelf&&f(m.role));c.innerHTML=`
       <div class="bonding-modal-backdrop">
         <div class="bonding-modal-card">
           <div class="bonding-modal-header">
@@ -2852,7 +2862,7 @@ All messages in this lounge will be deleted.`))try{await Yt(`/bonding/channels/$
           </div>
         </div>
       </div>
-    `,c.querySelector(".bonding-modal-close").onclick=()=>{c.innerHTML=""},c.querySelectorAll(".bonding-user-pick-item").forEach(m=>{m.onclick=async()=>{const z=m.dataset.userId;try{const A=await ye("/bonding/channels",{type:"direct",targetUserId:z});c.innerHTML="",s=await De("/bonding/channels"),i=s.find(B=>B._id===A._id)||A,Ne(),_e(),await $e(i._id)}catch(A){q(A.message||"Failed to open personal chat","error")}}})}function v(){const c=n.querySelector("#bonding-modals-root"),b=A=>A==="employee"||A==="admin"||A==="superadmin",l=p.filter(A=>!A.isSelf&&b(A.role));c.innerHTML=`
+    `,c.querySelector(".bonding-modal-close").onclick=()=>{c.innerHTML=""},c.querySelectorAll(".bonding-user-pick-item").forEach(m=>{m.onclick=async()=>{const q=m.dataset.userId;try{const A=await ye("/bonding/channels",{type:"direct",targetUserId:q});c.innerHTML="",s=await De("/bonding/channels"),r=s.find(B=>B._id===A._id)||A,Ne(),_e(),await $e(r._id)}catch(A){z(A.message||"Failed to open personal chat","error")}}})}function v(){const c=n.querySelector("#bonding-modals-root"),f=A=>A==="employee"||A==="admin"||A==="superadmin",l=p.filter(A=>!A.isSelf&&f(A.role));c.innerHTML=`
       <div class="bonding-modal-backdrop">
         <div class="bonding-modal-card">
           <div class="bonding-modal-header">
@@ -2903,7 +2913,7 @@ All messages in this lounge will be deleted.`))try{await Yt(`/bonding/channels/$
           </div>
         </div>
       </div>
-    `,c.querySelector(".bonding-modal-close").onclick=()=>{c.innerHTML=""},c.querySelector("#btn-cancel-create-grp").onclick=()=>{c.innerHTML=""};let P="👥";const m=c.querySelectorAll(".avatar-opt");m.forEach(A=>{A.onclick=()=>{m.forEach(B=>B.classList.remove("active")),A.classList.add("active"),P=A.textContent.trim()}});const z=c.querySelector("#btn-confirm-create-grp");z.onclick=async()=>{const A=c.querySelector("#new-group-name"),B=c.querySelector("#new-group-desc"),R=A.value.trim();if(!R){q("Please enter a group name","warning"),A.focus();return}const Z=c.querySelectorAll(".new-group-member-chk:checked"),te=Array.from(Z).map(S=>S.value);try{z.disabled=!0,z.textContent="Creating...";const S=await ye("/bonding/channels",{type:"group",name:R,description:B.value.trim(),avatar:P,memberIds:te});q(`Group "${R}" created! 🎉`,"success"),c.innerHTML="",s=await De("/bonding/channels"),i=s.find(M=>M._id===S._id)||S,Ne(),_e(),await $e(i._id)}catch(S){q(S.message||"Failed to create group","error"),z.disabled=!1,z.textContent="Create Group 🎉"}}}function ne(c,b){const l=document.querySelector(".bonding-emoji-popup");l&&l.remove();const P=["👍","❤️","🔥","😂","🎉","👏","🎯","✨","🙌","💯","🚀","💡"],m=document.createElement("div");m.className="bonding-emoji-popup",m.innerHTML=P.map(B=>`<button class="emoji-opt-btn" data-e="${B}">${B}</button>`).join("");const z=c.getBoundingClientRect();m.style.top=`${z.bottom+window.scrollY+6}px`,m.style.left=`${z.left+window.scrollX}px`,document.body.appendChild(m),m.querySelectorAll(".emoji-opt-btn").forEach(B=>{B.onclick=R=>{R.stopPropagation(),b(B.dataset.e),m.remove()}});const A=B=>{m.contains(B.target)||(m.remove(),document.removeEventListener("click",A))};setTimeout(()=>document.addEventListener("click",A),10)}function re(c){if(!c)return"";try{return new Date(c).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})}catch{return""}}}function Ka(){const n=document.getElementById("ci360-bonding-styles");n&&n.remove();const t=document.createElement("style");t.id="ci360-bonding-styles",t.textContent=`
+    `,c.querySelector(".bonding-modal-close").onclick=()=>{c.innerHTML=""},c.querySelector("#btn-cancel-create-grp").onclick=()=>{c.innerHTML=""};let P="👥";const m=c.querySelectorAll(".avatar-opt");m.forEach(A=>{A.onclick=()=>{m.forEach(B=>B.classList.remove("active")),A.classList.add("active"),P=A.textContent.trim()}});const q=c.querySelector("#btn-confirm-create-grp");q.onclick=async()=>{const A=c.querySelector("#new-group-name"),B=c.querySelector("#new-group-desc"),R=A.value.trim();if(!R){z("Please enter a group name","warning"),A.focus();return}const X=c.querySelectorAll(".new-group-member-chk:checked"),ae=Array.from(X).map(S=>S.value);try{q.disabled=!0,q.textContent="Creating...";const S=await ye("/bonding/channels",{type:"group",name:R,description:B.value.trim(),avatar:P,memberIds:ae});z(`Group "${R}" created! 🎉`,"success"),c.innerHTML="",s=await De("/bonding/channels"),r=s.find(M=>M._id===S._id)||S,Ne(),_e(),await $e(r._id)}catch(S){z(S.message||"Failed to create group","error"),q.disabled=!1,q.textContent="Create Group 🎉"}}}function ne(c,f){const l=document.querySelector(".bonding-emoji-popup");l&&l.remove();const P=["👍","❤️","🔥","😂","🎉","👏","🎯","✨","🙌","💯","🚀","💡"],m=document.createElement("div");m.className="bonding-emoji-popup",m.innerHTML=P.map(B=>`<button class="emoji-opt-btn" data-e="${B}">${B}</button>`).join("");const q=c.getBoundingClientRect();m.style.top=`${q.bottom+window.scrollY+6}px`,m.style.left=`${q.left+window.scrollX}px`,document.body.appendChild(m),m.querySelectorAll(".emoji-opt-btn").forEach(B=>{B.onclick=R=>{R.stopPropagation(),f(B.dataset.e),m.remove()}});const A=B=>{m.contains(B.target)||(m.remove(),document.removeEventListener("click",A))};setTimeout(()=>document.addEventListener("click",A),10)}function ie(c){if(!c)return"";try{return new Date(c).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})}catch{return""}}}function Wa(){const n=document.getElementById("ci360-bonding-styles");n&&n.remove();const t=document.createElement("style");t.id="ci360-bonding-styles",t.textContent=`
     /* Root Wrap */
     .bonding-wrap {
       display: flex;
@@ -4370,40 +4380,100 @@ All messages in this lounge will be deleted.`))try{await Yt(`/bonding/channels/$
     /* =========================================================================
        LIVE GAME ARENA MODAL & BOARDS (CHESS, TIC-TAC-TOE, CONNECT FOUR)
        ========================================================================= */
+    /* =========================================================================
+       LIVE GAME ARENA MODAL & BOARDS (CHESS, TIC-TAC-TOE, CONNECT FOUR)
+       ========================================================================= */
     .game-arena-modal {
-      width: 640px;
+      width: 660px;
       max-width: 95vw;
-      padding: 20px;
+      padding: 24px;
+      position: relative;
+      background: var(--bg-card, #ffffff);
+      border: 1px solid var(--border-sm, #e2e8f0);
+      border-radius: 20px;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.22);
     }
 
+    [data-theme="dark"] .game-arena-modal {
+      background: #0f172a;
+      border-color: #1e293b;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.7);
+    }
+
+    /* Dedicated Top-Right Close Button */
+    .arena-close-btn {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: rgba(0,0,0,0.06);
+      border: none;
+      color: var(--text-3, #94a3b8);
+      font-size: 22px;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      z-index: 10;
+    }
+
+    .arena-close-btn:hover {
+      background: rgba(239, 68, 68, 0.15);
+      color: #ef4444;
+      transform: scale(1.08);
+    }
+
+    [data-theme="dark"] .arena-close-btn {
+      background: rgba(255,255,255,0.08);
+      color: #94a3b8;
+    }
+
+    /* Arena Header */
     .arena-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
+      gap: 16px;
       padding-bottom: 14px;
+      padding-right: 36px;
       border-bottom: 1px solid var(--border-sm, #e2e8f0);
-      flex-wrap: wrap;
     }
 
     [data-theme="dark"] .arena-header {
-      border-color: #1f2937;
+      border-color: #1e293b;
     }
 
     .arena-title-wrap {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
     }
 
     .arena-icon {
       font-size: 32px;
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: rgba(99, 102, 241, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
     }
 
     .arena-title {
       font-size: 18px;
       font-weight: 800;
-      margin: 0;
+      margin: 0 0 4px 0;
+      color: var(--text-1, #0f172a);
+    }
+
+    [data-theme="dark"] .arena-title {
+      color: #f8fafc;
     }
 
     .arena-players-vs {
@@ -4412,63 +4482,139 @@ All messages in this lounge will be deleted.`))try{await Yt(`/bonding/channels/$
       display: flex;
       align-items: center;
       gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .player-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .player-tag strong {
+      color: var(--text-1, #0f172a);
+    }
+
+    [data-theme="dark"] .player-tag strong {
+      color: #f1f5f9;
     }
 
     .vs-pill {
       font-weight: 800;
+      font-size: 10px;
+      padding: 1px 5px;
+      border-radius: 4px;
+      background: rgba(99, 102, 241, 0.12);
       color: #6366f1;
     }
 
+    /* Turn Banner */
     .arena-turn-banner {
-      padding: 6px 12px;
-      border-radius: 8px;
+      padding: 7px 14px;
+      border-radius: 10px;
       font-size: 12px;
       font-weight: 800;
+      letter-spacing: 0.3px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+      flex-shrink: 0;
     }
 
     .arena-turn-banner.my-turn {
-      background: #10b981;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
       color: #ffffff;
-      box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
-      animation: pulseGlow 1.5s infinite;
-    }
-
-    @keyframes pulseGlow {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.02); }
+      box-shadow: 0 0 16px rgba(16, 185, 129, 0.5);
+      animation: pulseGlow 1.8s infinite;
     }
 
     .arena-turn-banner.opp-turn {
       background: var(--bg-muted, #f1f5f9);
       color: var(--text-2, #64748b);
+      border: 1px solid var(--border-sm, #cbd5e1);
     }
 
     [data-theme="dark"] .arena-turn-banner.opp-turn {
       background: #1e293b;
       color: #94a3b8;
+      border-color: #334155;
     }
 
-    .arena-top-actions {
+    .arena-turn-banner.ended {
+      background: rgba(99, 102, 241, 0.12);
+      color: #6366f1;
+      border: 1px solid #818cf8;
+    }
+
+    /* Sub Toolbar */
+    .arena-toolbar {
       display: flex;
       align-items: center;
-      gap: 6px;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border-sm, #f1f5f9);
+    }
+
+    [data-theme="dark"] .arena-toolbar {
+      border-color: #1e293b;
+    }
+
+    .arena-tip-text {
+      font-size: 12px;
+      color: var(--text-3, #64748b);
+      font-weight: 500;
+    }
+
+    .arena-action-btns {
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
     .btn-arena-action {
-      padding: 6px 10px;
+      padding: 5px 12px;
       border-radius: 8px;
-      border: 1px solid #cbd5e1;
-      background: transparent;
+      border: 1px solid var(--border-sm, #cbd5e1);
+      background: var(--bg-card, #ffffff);
+      color: var(--text-2, #475569);
       font-size: 12px;
       font-weight: 600;
       cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.15s ease;
+    }
+
+    .btn-arena-action:hover {
+      background: var(--bg-muted, #f8fafc);
+      border-color: #94a3b8;
+    }
+
+    [data-theme="dark"] .btn-arena-action {
+      background: #1e293b;
+      border-color: #334155;
+      color: #cbd5e1;
+    }
+
+    [data-theme="dark"] .btn-arena-action:hover {
+      background: #25334c;
+      border-color: #475569;
     }
 
     .btn-arena-action.danger {
       color: #ef4444;
+      border-color: rgba(239, 68, 68, 0.4);
+    }
+
+    .btn-arena-action.danger:hover {
+      background: rgba(239, 68, 68, 0.1);
       border-color: #ef4444;
     }
 
+    /* Draw Offer Notification */
     .arena-draw-offer-banner {
       background: rgba(245, 158, 11, 0.15);
       border: 1px solid #f59e0b;
@@ -4500,46 +4646,393 @@ All messages in this lounge will be deleted.`))try{await Yt(`/bonding/channels/$
       cursor: pointer;
     }
 
+    /* Main Playing Board Arena Wrapper */
     .arena-board-wrap {
       display: flex;
       justify-content: center;
       align-items: center;
-      padding: 20px 0;
+      padding: 16px 0;
+      width: 100%;
+      min-height: 380px;
+      box-sizing: border-box;
     }
 
-    /* ── CHESS DUEL BOARD ── */
+    /* =========================================================================
+       TIC-TAC-TOE BOARD (AUTHENTIC SQUARE 3x3 COURT)
+       ========================================================================= */
+    .ttt-court {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 6px;
+      user-select: none;
+    }
+
+    .ttt-board-grid {
+      display: grid !important;
+      grid-template-columns: repeat(3, 98px) !important;
+      grid-template-rows: repeat(3, 98px) !important;
+      gap: 10px !important;
+      width: 324px !important;
+      height: 324px !important;
+      min-width: 324px !important;
+      min-height: 324px !important;
+      max-width: 324px !important;
+      max-height: 324px !important;
+      place-items: center !important;
+      align-content: center !important;
+      justify-content: center !important;
+      background: var(--bg-muted, #f1f5f9);
+      padding: 10px;
+      border-radius: 24px;
+      border: 1px solid var(--border-sm, #cbd5e1);
+      box-shadow: inset 0 2px 8px rgba(0,0,0,0.04);
+      box-sizing: border-box !important;
+    }
+
+    [data-theme="dark"] .ttt-board-grid {
+      background: #090e1a;
+      border-color: #1e293b;
+      box-shadow: inset 0 2px 14px rgba(0,0,0,0.6);
+    }
+
+    .ttt-cell {
+      width: 94px !important;
+      height: 94px !important;
+      min-width: 94px !important;
+      min-height: 94px !important;
+      max-width: 94px !important;
+      max-height: 94px !important;
+      aspect-ratio: 1 / 1 !important;
+      box-sizing: border-box !important;
+      flex-shrink: 0 !important;
+      border-radius: 16px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      font-size: 52px;
+      font-weight: 900;
+      line-height: 1;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      background: var(--bg-card, #ffffff);
+      border: 2px solid var(--border-sm, #e2e8f0);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+    }
+
+    [data-theme="dark"] .ttt-cell {
+      background: #151d2e;
+      border-color: #243247;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+
+    .ttt-cell.empty:hover {
+      background: #e0e7ff;
+      border-color: #6366f1;
+      transform: scale(1.04);
+      box-shadow: 0 6px 18px rgba(99, 102, 241, 0.25);
+    }
+
+    [data-theme="dark"] .ttt-cell.empty:hover {
+      background: #1e2a42;
+      border-color: #818cf8;
+      box-shadow: 0 0 16px rgba(129, 140, 248, 0.35);
+    }
+
+    .ttt-cell.win-cell {
+      background: #d1fae5 !important;
+      border-color: #10b981 !important;
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.5) !important;
+      animation: tttWinGlow 1s infinite alternate;
+    }
+
+    [data-theme="dark"] .ttt-cell.win-cell {
+      background: rgba(16, 185, 129, 0.25) !important;
+      border-color: #34d399 !important;
+      box-shadow: 0 0 25px rgba(52, 211, 153, 0.6) !important;
+    }
+
+    @keyframes tttWinGlow {
+      from { transform: scale(1); }
+      to { transform: scale(1.05); }
+    }
+
+    .ttt-x {
+      color: #4f46e5;
+      filter: drop-shadow(0 2px 4px rgba(79, 70, 229, 0.3));
+    }
+
+    [data-theme="dark"] .ttt-x {
+      color: #818cf8;
+      text-shadow: 0 0 16px rgba(129, 140, 248, 0.85);
+    }
+
+    .ttt-o {
+      color: #ea580c;
+      filter: drop-shadow(0 2px 4px rgba(234, 88, 12, 0.3));
+    }
+
+    [data-theme="dark"] .ttt-o {
+      color: #fbbf24;
+      text-shadow: 0 0 16px rgba(251, 191, 36, 0.85);
+    }
+
+    /* =========================================================================
+       CONNECT FOUR BOARD (AUTHENTIC TABLETOP DISK RACK)
+       ========================================================================= */
+    .c4-board-rack {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: fit-content;
+      margin: 0 auto;
+      user-select: none;
+    }
+
+    /* Top Drop Arrow Column Buttons */
+    .c4-drop-arrows-row {
+      display: grid !important;
+      grid-template-columns: repeat(7, 48px) !important;
+      gap: 8px !important;
+      width: fit-content !important;
+      margin-bottom: 8px !important;
+      justify-content: center !important;
+      align-items: center !important;
+    }
+
+    .c4-drop-col-btn {
+      width: 48px !important;
+      height: 36px !important;
+      min-width: 48px !important;
+      min-height: 36px !important;
+      border-radius: 10px;
+      border: 1px solid #c7d2fe;
+      background: #e0e7ff;
+      color: #4338ca;
+      font-size: 18px;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.06);
+    }
+
+    .c4-drop-col-btn:hover {
+      background: #4f46e5;
+      color: #ffffff;
+      transform: translateY(3px);
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
+    }
+
+    [data-theme="dark"] .c4-drop-col-btn {
+      background: #1e293b;
+      border-color: #3b82f6;
+      color: #60a5fa;
+    }
+
+    [data-theme="dark"] .c4-drop-col-btn:hover {
+      background: #2563eb;
+      color: #ffffff;
+      box-shadow: 0 0 15px rgba(59, 130, 246, 0.6);
+    }
+
+    /* The Main Blue Game Rack */
+    .c4-grid-slots {
+      display: grid !important;
+      grid-template-columns: repeat(7, 48px) !important;
+      grid-template-rows: repeat(6, 48px) !important;
+      gap: 8px !important;
+      width: fit-content !important;
+      height: fit-content !important;
+      min-width: 400px !important;
+      min-height: 344px !important;
+      max-width: 400px !important;
+      max-height: 344px !important;
+      place-items: center !important;
+      align-content: center !important;
+      justify-content: center !important;
+      padding: 14px !important;
+      border-radius: 22px !important;
+      box-sizing: border-box !important;
+      background: linear-gradient(180deg, #2563eb 0%, #1d4ed8 60%, #1e40af 100%) !important;
+      border: 3px solid #1e40af !important;
+      box-shadow: 0 16px 36px rgba(37, 99, 235, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.3) !important;
+      position: relative;
+      z-index: 2;
+    }
+
+    [data-theme="dark"] .c4-grid-slots {
+      background: linear-gradient(180deg, #1d4ed8 0%, #1e3a8a 60%, #172554 100%) !important;
+      border: 3px solid #3b82f6 !important;
+      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.7), 0 0 25px rgba(37, 99, 235, 0.3), inset 0 2px 4px rgba(255, 255, 255, 0.2) !important;
+    }
+
+    /* Tabletop Stand Feet */
+    .c4-rack-stand {
+      display: flex;
+      justify-content: space-between;
+      width: 410px;
+      height: 14px;
+      margin-top: -2px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .c4-stand-leg {
+      width: 46px;
+      height: 14px;
+      background: #1e3a8a;
+      border-radius: 0 0 8px 8px;
+    }
+
+    [data-theme="dark"] .c4-stand-leg {
+      background: #0f172a;
+      border: 1px solid #1e3a8a;
+    }
+
+    /* Slot Circular Container */
+    .c4-slot {
+      width: 48px !important;
+      height: 48px !important;
+      min-width: 48px !important;
+      min-height: 48px !important;
+      max-width: 48px !important;
+      max-height: 48px !important;
+      aspect-ratio: 1 / 1 !important;
+      box-sizing: border-box !important;
+      flex-shrink: 0 !important;
+      border-radius: 50% !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      cursor: pointer;
+      position: relative;
+      background: #090e1a !important;
+      box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.8) !important;
+      transition: transform 0.15s ease;
+    }
+
+    .c4-slot:hover {
+      transform: scale(1.04);
+    }
+
+    /* Empty Hole Inset */
+    .c4-hole {
+      width: 42px !important;
+      height: 42px !important;
+      min-width: 42px !important;
+      min-height: 42px !important;
+      max-width: 42px !important;
+      max-height: 42px !important;
+      aspect-ratio: 1 / 1 !important;
+      border-radius: 50% !important;
+      flex-shrink: 0 !important;
+      background: #0b1329 !important;
+      box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.9) !important;
+      border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    }
+
+    /* Checkers Discs */
+    .c4-disc {
+      width: 44px !important;
+      height: 44px !important;
+      min-width: 44px !important;
+      min-height: 44px !important;
+      max-width: 44px !important;
+      max-height: 44px !important;
+      aspect-ratio: 1 / 1 !important;
+      border-radius: 50% !important;
+      flex-shrink: 0 !important;
+      box-sizing: border-box !important;
+      animation: dropDiscAnim 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+      position: relative;
+    }
+
+    @keyframes dropDiscAnim {
+      0% { transform: translateY(-160px); opacity: 0; }
+      80% { transform: translateY(6px); opacity: 1; }
+      100% { transform: translateY(0); opacity: 1; }
+    }
+
+    /* Red Disc */
+    .c4-disc.red {
+      background: radial-gradient(circle at 35% 35%, #f87171 0%, #ef4444 35%, #dc2626 70%, #991b1b 100%) !important;
+      box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), inset 0 -3px 5px rgba(0,0,0,0.6), 0 3px 6px rgba(0,0,0,0.4) !important;
+      border: 3px double rgba(255,255,255,0.3) !important;
+    }
+
+    /* Yellow Disc */
+    .c4-disc.yellow {
+      background: radial-gradient(circle at 35% 35%, #fef08a 0%, #facc15 35%, #eab308 70%, #a16207 100%) !important;
+      box-shadow: inset 0 2px 4px rgba(255,255,255,0.8), inset 0 -3px 5px rgba(0,0,0,0.5), 0 3px 6px rgba(0,0,0,0.3) !important;
+      border: 3px double rgba(0,0,0,0.2) !important;
+    }
+
+    /* Winning Disc Aura */
+    .c4-slot.win-disc .c4-disc {
+      box-shadow: 0 0 16px #ffffff, 0 0 28px #fbbf24 !important;
+      animation: c4WinDiscPulse 0.9s infinite alternate !important;
+    }
+
+    @keyframes c4WinDiscPulse {
+      from { transform: scale(1); filter: brightness(1); }
+      to { transform: scale(1.1); filter: brightness(1.2); }
+    }
+
+    /* =========================================================================
+       CHESS DUEL BOARD (AUTHENTIC TOURNAMENT 8x8)
+       ========================================================================= */
     .chess-arena-layout {
       display: flex;
-      gap: 16px;
+      gap: 18px;
       align-items: flex-start;
       flex-wrap: wrap;
       justify-content: center;
     }
 
     .chess-board-grid {
-      display: grid;
-      grid-template-columns: repeat(8, 44px);
-      grid-template-rows: repeat(8, 44px);
-      border: 3px solid #334155;
-      border-radius: 8px;
+      display: grid !important;
+      grid-template-columns: repeat(8, 48px) !important;
+      grid-template-rows: repeat(8, 48px) !important;
+      width: 384px !important;
+      height: 384px !important;
+      min-width: 384px !important;
+      min-height: 384px !important;
+      border: 4px solid #334155;
+      border-radius: 12px;
       overflow: hidden;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+      box-sizing: border-box !important;
     }
 
-    @media (max-width: 480px) {
+    @media (max-width: 520px) {
       .chess-board-grid {
-        grid-template-columns: repeat(8, 36px);
-        grid-template-rows: repeat(8, 36px);
+        grid-template-columns: repeat(8, 40px) !important;
+        grid-template-rows: repeat(8, 40px) !important;
+        width: 320px !important;
+        height: 320px !important;
+        min-width: 320px !important;
+        min-height: 320px !important;
       }
     }
 
     .chess-sq {
+      width: 100% !important;
+      height: 100% !important;
+      aspect-ratio: 1 / 1 !important;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
       user-select: none;
       position: relative;
+      box-sizing: border-box !important;
     }
 
     .chess-sq.light {
@@ -4550,32 +5043,48 @@ All messages in this lounge will be deleted.`))try{await Yt(`/bonding/channels/$
       background: #b58863;
     }
 
+    [data-theme="dark"] .chess-sq.light {
+      background: #cbd5e1;
+    }
+
+    [data-theme="dark"] .chess-sq.dark {
+      background: #475569;
+    }
+
     .chess-sq.selected {
-      background: #7dd3fc !important;
+      background: #38bdf8 !important;
+      box-shadow: inset 0 0 10px rgba(0,0,0,0.3);
     }
 
     .chess-sq.legal-dot::after {
       content: '';
-      width: 12px;
-      height: 12px;
+      width: 14px;
+      height: 14px;
       border-radius: 50%;
-      background: rgba(16, 185, 129, 0.7);
+      background: rgba(16, 185, 129, 0.75);
+      box-shadow: 0 0 6px rgba(16, 185, 129, 0.6);
       position: absolute;
     }
 
     .chess-piece {
-      font-size: 32px;
+      font-size: 34px;
       line-height: 1;
-      text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+      user-select: none;
+      transition: transform 0.1s ease;
+    }
+
+    .chess-piece:hover {
+      transform: scale(1.12);
     }
 
     .chess-piece.white-piece {
       color: #ffffff;
-      filter: drop-shadow(0 1px 2px #000000);
+      filter: drop-shadow(0 2px 3px rgba(0,0,0,0.8));
     }
 
     .chess-piece.black-piece {
-      color: #1e293b;
+      color: #0f172a;
+      filter: drop-shadow(0 1px 2px rgba(255,255,255,0.4));
     }
 
     .chess-sidebar-notation {
@@ -4584,7 +5093,7 @@ All messages in this lounge will be deleted.`))try{await Yt(`/bonding/channels/$
       border: 1px solid var(--border-sm, #e2e8f0);
       border-radius: 10px;
       padding: 10px;
-      height: 350px;
+      height: 384px;
       display: flex;
       flex-direction: column;
     }
@@ -4617,154 +5126,6 @@ All messages in this lounge will be deleted.`))try{await Yt(`/bonding/channels/$
       padding: 2px 6px;
       border-radius: 4px;
       font-family: monospace;
-    }
-
-    /* ── TIC-TAC-TOE BOARD ── */
-    .ttt-board-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 90px);
-      grid-template-rows: repeat(3, 90px);
-      gap: 8px;
-    }
-
-    .ttt-cell {
-      background: var(--bg-muted, #f8fafc);
-      border: 2px solid var(--border-sm, #cbd5e1);
-      border-radius: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 44px;
-      font-weight: 900;
-      cursor: pointer;
-      user-select: none;
-      transition: all 0.15s ease;
-    }
-
-    [data-theme="dark"] .ttt-cell {
-      background: #1e293b;
-      border-color: #334155;
-    }
-
-    .ttt-cell.empty:hover {
-      background: rgba(99, 102, 241, 0.15);
-      border-color: #818cf8;
-      transform: scale(1.03);
-    }
-
-    .ttt-cell.win-cell {
-      background: rgba(16, 185, 129, 0.25) !important;
-      border-color: #10b981 !important;
-      box-shadow: 0 0 16px rgba(16, 185, 129, 0.4);
-    }
-
-    .ttt-x {
-      color: #6366f1;
-      text-shadow: 0 0 8px rgba(99, 102, 241, 0.4);
-    }
-
-    .ttt-o {
-      color: #f59e0b;
-      text-shadow: 0 0 8px rgba(245, 158, 11, 0.4);
-    }
-
-    /* ── CONNECT FOUR BOARD ── */
-    .c4-board-rack {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .c4-drop-arrows-row {
-      display: grid;
-      grid-template-columns: repeat(7, 44px);
-      gap: 6px;
-    }
-
-    .c4-drop-col-btn {
-      width: 44px;
-      height: 32px;
-      border-radius: 8px;
-      border: 1px solid #cbd5e1;
-      background: rgba(99, 102, 241, 0.12);
-      color: #4f46e5;
-      font-size: 16px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.15s ease;
-    }
-
-    .c4-drop-col-btn:hover {
-      background: #6366f1;
-      color: #ffffff;
-      transform: translateY(-2px);
-    }
-
-    .c4-grid-slots {
-      display: grid;
-      grid-template-columns: repeat(7, 44px);
-      grid-template-rows: repeat(6, 44px);
-      gap: 6px;
-      background: #2563eb;
-      padding: 12px;
-      border-radius: 18px;
-      box-shadow: 0 10px 25px rgba(37, 99, 235, 0.35);
-    }
-
-    .c4-slot {
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      background: rgba(0, 0, 0, 0.2);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-    }
-
-    .c4-disc {
-      width: 38px;
-      height: 38px;
-      border-radius: 50%;
-      box-shadow: inset 0 -3px 4px rgba(0,0,0,0.3);
-      animation: dropDisc 0.25s ease-out;
-    }
-
-    @keyframes dropDisc {
-      0% { transform: translateY(-50px); opacity: 0; }
-      100% { transform: translateY(0); opacity: 1; }
-    }
-
-    .c4-disc.red {
-      background: radial-gradient(circle at 35% 35%, #ef4444 0%, #b91c1c 100%);
-    }
-
-    .c4-disc.yellow {
-      background: radial-gradient(circle at 35% 35%, #facc15 0%, #ca8a04 100%);
-    }
-
-    .c4-slot.win-disc .c4-disc {
-      box-shadow: 0 0 18px #ffffff, 0 0 25px #10b981;
-      animation: winGlow 1s infinite alternate;
-    }
-
-    @keyframes winGlow {
-      from { transform: scale(1); }
-      to { transform: scale(1.08); }
-    }
-
-    .c4-hole {
-      width: 38px;
-      height: 38px;
-      border-radius: 50%;
-      background: var(--bg-card, #ffffff);
-    }
-
-    [data-theme="dark"] .c4-hole {
-      background: #111827;
     }
 
     /* Game Over Banner in Modal */
