@@ -30,7 +30,7 @@ import{l as q,m as U}from"./api-DyayiLLk.js";import{initProposalStudio as O}from
               <span>📋</span> My Jobs (${c.length})
             </button>
             <button class="btn secondary" id="btnEmpQuickTasks" style="display:inline-flex;align-items:center;gap:8px;font-weight:600;padding:9px 16px;border-radius:var(--r-md)">
-              <span>✅</span> Daily Tasks
+              <span>📅</span> Daily Planner
             </button>
             <button class="btn gold" id="btnEmpQuickProposals" style="display:inline-flex;align-items:center;gap:8px;font-weight:700;padding:9px 16px;border-radius:var(--r-md)">
               <span>📜</span> Proposal Studio

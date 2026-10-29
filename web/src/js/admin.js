@@ -200,21 +200,6 @@ async function tabDashboard(c){
       </a>
     </div>
 
-    <!-- Proposal Studio & Rate Card Quick Link -->
-    <div class="card" style="background:linear-gradient(135deg, rgba(15, 42, 74, 0.08) 0%, rgba(184, 137, 58, 0.12) 100%);border:1px solid rgba(184, 137, 58, 0.35);margin-bottom:28px;padding:20px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px">
-      <div style="display:flex;align-items:center;gap:14px">
-        <div style="width:44px;height:44px;background:#0F2A4A;color:#D4A657;border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">
-          📜
-        </div>
-        <div>
-          <h3 style="font-size:16px;font-weight:800;color:var(--text-1);margin:0 0 3px 0">CI360 Proposal Studio & Rate Card</h3>
-          <p style="font-size:12.5px;color:var(--text-3);margin:0">Build branded client proposals with automatic volume discount rate card pricing, and authorize sign-offs with secure Admin PIN approval.</p>
-        </div>
-      </div>
-      <button onclick="window.ci360NavTab('proposals')" class="btn gold" style="display:inline-flex;align-items:center;gap:8px;font-weight:700;">
-        <span>Open Proposal Studio →</span>
-      </button>
-    </div>
 
     <section class="block">
       <h2>Roadmap Signals <span class="eyebrow">Auto-generated</span></h2>
