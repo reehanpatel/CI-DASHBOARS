@@ -6502,5 +6502,27 @@ html:not([data-theme="dark"]) textarea {
 }
 .paper.print .cover { min-height: 960px; }
 .paper.print .pb { break-after: page; page-break-after: always; height: 0; }
+.paper .pdf-section {
+  break-inside: avoid !important;
+  page-break-inside: avoid !important;
+  margin-bottom: 22px !important;
+  display: block !important;
+}
+.paper .pdf-table-wrap {
+  break-inside: avoid !important;
+  page-break-inside: avoid !important;
+  margin: 8px 0 14px !important;
+  display: block !important;
+}
+.paper h2, .paper h3 {
+  break-after: avoid !important;
+  page-break-after: avoid !important;
+  break-inside: avoid !important;
+  page-break-inside: avoid !important;
+}
+.paper table, .paper tr {
+  break-inside: avoid !important;
+  page-break-inside: avoid !important;
+}
 
 
