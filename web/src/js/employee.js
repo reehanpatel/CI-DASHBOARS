@@ -1,5 +1,6 @@
 import { initProposalStudio } from './proposals.js';
 import { initDailyPlanner } from './planner.js';
+import { initTeamBonding } from './teambonding.js';
 import { renderAccountSettingsCard, bindAccountSettingsCard } from './api.js';
 
 let user = null;
@@ -27,6 +28,7 @@ function getEmployeeTabs() {
     { key: 'myjobs',     label: 'My Jobs',            icon: '📋' },
     { key: 'dailytasks', label: 'Daily Planner',      icon: '📅' },
     { key: 'proposals',  label: 'Proposal Studio',    icon: '📜' },
+    { key: 'teambonding',label: 'Team Bonding 🎮',    icon: '🤝' },
     { key: 'targets',    label: 'My Targets',         icon: '🎯' },
     { key: 'settings',   label: 'Settings',           icon: '⚙️' }
   ];
@@ -72,6 +74,8 @@ window.ci360NavTab = (tabName, highlightId = null) => {
     tabName = 'targets';
   } else if (tabName === 'proposal' || tabName === 'proposals') {
     tabName = 'proposals';
+  } else if (tabName === 'teambonding' || tabName === 'bonding' || tabName === 'arcade' || tabName === 'chat') {
+    tabName = 'teambonding';
   } else if (tabName === 'dashboard' || tabName === 'overview') {
     tabName = 'dashboard';
   }
@@ -92,6 +96,7 @@ async function renderTab(){
     else if(ui.tab==='myjobs' || ui.tab==='jobs')                          await tabMyJobs(c);
     else if(ui.tab==='dailytasks' || ui.tab==='mytasks' || ui.tab==='tasks') await tabDailyTasks(c);
     else if(ui.tab==='proposals' || ui.tab==='proposal')                   await tabProposals(c);
+    else if(ui.tab==='teambonding' || ui.tab==='bonding')                  await tabTeamBonding(c);
     else if(ui.tab==='targets' || ui.tab==='target')                       await tabTargets(c);
     else if(ui.tab==='settings')                                            await tabSettings(c);
     else {
@@ -107,6 +112,12 @@ async function tabProposals(c) {
   c.innerHTML = '<div id="proposals-module-root"></div>';
   const root = c.querySelector('#proposals-module-root');
   initProposalStudio(root, { userRole: 'employee', currentUser: user });
+}
+
+async function tabTeamBonding(c) {
+  c.innerHTML = '<div id="teambonding-module-root"></div>';
+  const root = c.querySelector('#teambonding-module-root');
+  initTeamBonding(root, { userRole: 'employee', currentUser: user });
 }
 
 async function tabSettings(c) {

@@ -1,5 +1,6 @@
 import { initProposalStudio } from './proposals.js';
 import { initDailyPlanner } from './planner.js';
+import { initTeamBonding } from './teambonding.js';
 import { renderAccountSettingsCard, bindAccountSettingsCard } from './api.js';
 
 let user = null;
@@ -41,6 +42,7 @@ const ADMIN_TABS = [
   { key: 'dashboard', label: 'Dashboard', icon: '📊' },
   { key: 'dailytasks', label: 'Daily Planner', icon: '📅' },
   { key: 'proposals', label: 'Proposal Studio', icon: '📜' },
+  { key: 'teambonding', label: 'Team Bonding 🎮', icon: '🤝' },
   { key: 'logjob', label: 'Log a Job', icon: '➕' },
   { key: 'jobs', label: 'All Jobs', icon: '📁' },
   { key: 'byclient', label: 'By Client', icon: '💼' },
@@ -83,6 +85,7 @@ async function renderTab(){
     if(ui.tab==='dashboard') await tabDashboard(c);
     else if(ui.tab==='dailytasks') await tabDailyTasks(c);
     else if(ui.tab==='proposals') await tabProposals(c);
+    else if(ui.tab==='teambonding' || ui.tab==='bonding') await tabTeamBonding(c);
     else if(ui.tab==='logjob') tabLogJob(c);
     else if(ui.tab==='jobs') await tabJobs(c);
     else if(ui.tab==='byclient') await tabByClient(c);
@@ -102,6 +105,12 @@ async function tabProposals(c) {
   c.innerHTML = '<div id="proposals-module-root"></div>';
   const root = c.querySelector('#proposals-module-root');
   initProposalStudio(root);
+}
+
+async function tabTeamBonding(c) {
+  c.innerHTML = '<div id="teambonding-module-root"></div>';
+  const root = c.querySelector('#teambonding-module-root');
+  initTeamBonding(root, { userRole: 'superadmin', currentUser: user });
 }
 
 function periodPicker(){
