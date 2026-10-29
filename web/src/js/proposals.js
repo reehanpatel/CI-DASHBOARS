@@ -548,59 +548,114 @@ export async function exportPdfDoc(p, co, btn, opts = {}) {
   btn.disabled = true;
   btn.textContent = 'Generating PDF…';
 
-  // Create an active, fully visible staging overlay in front of everything
+  // 1. Sleek user-facing progress overlay
   const overlay = document.createElement('div');
   overlay.id = 'ci360-pdf-export-overlay';
-  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,0.92);backdrop-filter:blur(6px);z-index:9999999;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;overflow-y:auto;padding:24px 12px;';
-  
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,0.92);backdrop-filter:blur(6px);z-index:9999999;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;';
   overlay.innerHTML = `
-    <div style="background:#0F2A4A;border:1px solid #B8893A;border-radius:8px;padding:14px 28px;color:#fff;margin-bottom:16px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,0.5);max-width:600px;">
-      <div style="font-size:24px;margin-bottom:4px;">📄</div>
-      <div style="font-size:15px;font-weight:700;color:#D4A657;">Rendering High-Resolution Proposal PDF…</div>
-      <div style="font-size:12px;color:#AEBBCD;margin-top:2px;">Formatting cover page, pricing tables, terms, and signatures into PDF document.</div>
-    </div>
-    <div id="ci360-pdf-stage-inner" style="width:794px;background:#ffffff;box-shadow:0 12px 40px rgba(0,0,0,0.6);border-radius:4px;overflow:hidden;">
+    <div style="background:#0F2A4A;border:1px solid #B8893A;border-radius:12px;padding:24px 36px;color:#fff;text-align:center;box-shadow:0 12px 48px rgba(0,0,0,0.6);max-width:480px;">
+      <div style="font-size:32px;margin-bottom:8px;">📄</div>
+      <div style="font-size:17px;font-weight:700;color:#D4A657;">Rendering High-Resolution Proposal PDF…</div>
+      <div style="font-size:13px;color:#AEBBCD;margin-top:6px;line-height:1.5;">Formatting pages to standard A4 dimensions with exact table widths and styling.</div>
     </div>
   `;
   document.body.appendChild(overlay);
 
+  // 2. Direct rendering container mounted at (0, 0) to guarantee 100% page fit without offsets
+  const stage = document.createElement('div');
+  stage.id = 'ci360-pdf-render-stage';
+  stage.setAttribute('data-theme', 'light');
+  stage.style.cssText = 'position:fixed;left:0;top:0;width:794px;min-width:794px;max-width:794px;margin:0;padding:0;z-index:9999998;background:#ffffff;box-sizing:border-box;pointer-events:none;';
+
   try {
     const h2p = await loadScript(CDN.pdf, 'html2pdf');
     const model = docModel(p, co, opts);
-    const htmlString = paperHTML(model, true);
+    const paperMarkup = paperHTML(model, true);
 
-    const stageInner = overlay.querySelector('#ci360-pdf-stage-inner');
-    stageInner.setAttribute('data-theme', 'light');
-    stageInner.innerHTML = `
+    stage.innerHTML = `
       <style>
-        * { box-sizing: border-box; }
-        .paper, .paper.print { background: #FFFFFF !important; color: #1C2430 !important; font-family: Arial, Helvetica, sans-serif !important; width: 794px !important; margin: 0 !important; box-shadow: none !important; }
-        .paper .cover { background: #0F2A4A !important; color: #FFFFFF !important; box-sizing: border-box !important; width: 794px !important; height: 1122px !important; min-height: 1122px !important; max-height: 1122px !important; padding: 56px 44px !important; page-break-after: always !important; break-after: page !important; position: relative !important; display: flex !important; flex-direction: column !important; justify-content: flex-start !important; }
+        * { box-sizing: border-box !important; }
+        #ci360-pdf-render-stage, .paper, .paper.print {
+          background: #FFFFFF !important;
+          color: #1C2430 !important;
+          font-family: Arial, Helvetica, sans-serif !important;
+          width: 794px !important;
+          min-width: 794px !important;
+          max-width: 794px !important;
+          margin: 0 !important;
+          padding: 0 !important;
+          box-shadow: none !important;
+        }
+        .paper .cover {
+          background: #0F2A4A !important;
+          color: #FFFFFF !important;
+          box-sizing: border-box !important;
+          width: 794px !important;
+          min-width: 794px !important;
+          max-width: 794px !important;
+          height: 1122px !important;
+          min-height: 1122px !important;
+          max-height: 1122px !important;
+          padding: 56px 44px !important;
+          page-break-after: always !important;
+          break-after: page !important;
+          position: relative !important;
+          display: flex !important;
+          flex-direction: column !important;
+          justify-content: flex-start !important;
+        }
         .paper .cv-brand { color: #D4A657 !important; font-family: Georgia, serif !important; font-weight: 700 !important; font-size: 20px !important; }
         .paper .cv-kicker { color: #AEBBCD !important; font-size: 13px !important; margin-top: 4px !important; text-transform: uppercase !important; letter-spacing: 0.5px !important; }
-        .paper .cover h1 { color: #FFFFFF !important; font-family: Georgia, serif !important; font-size: 34px !important; margin: 16px 0 12px !important; line-height: 1.25 !important; }
-        .paper .cv-sub { color: #D9E1EC !important; font-family: Georgia, serif !important; font-style: italic !important; font-size: 16px !important; margin: 0 0 20px !important; }
+        .paper .cover h1 { color: #FFFFFF !important; font-family: Georgia, serif !important; font-size: 34px !important; margin: 16px 0 12px !important; line-height: 1.25 !important; max-width: 100% !important; }
+        .paper .cv-sub { color: #D9E1EC !important; font-family: Georgia, serif !important; font-style: italic !important; font-size: 16px !important; margin: 0 0 20px !important; max-width: 100% !important; }
         .paper .cv-rule { background: #B8893A !important; height: 2px !important; margin-bottom: 24px !important; }
         .paper .cv-meta dt { color: #C9A35E !important; font-weight: 700 !important; font-size: 13.5px !important; }
         .paper .cv-meta dd { color: #FFFFFF !important; font-size: 13.5px !important; }
         .paper .html2pdf__page-break, .paper .pb { break-before: page !important; page-break-before: always !important; height: 1px !important; line-height: 1px !important; display: block !important; margin: 0 !important; padding: 0 !important; }
-        .paper .body { background: #FFFFFF !important; color: #1C2430 !important; padding: 40px 48px 48px !important; }
+        .paper .body {
+          background: #FFFFFF !important;
+          color: #1C2430 !important;
+          width: 794px !important;
+          min-width: 794px !important;
+          max-width: 794px !important;
+          box-sizing: border-box !important;
+          padding: 40px 44px 44px !important;
+        }
         .paper h2 { color: #0F2A4A !important; font-family: Georgia, serif !important; font-size: 19px !important; border-bottom: 1.5px solid #B8893A !important; margin: 26px 0 12px !important; padding-bottom: 4px !important; }
         .paper h2 .n { color: #B8893A !important; margin-right: 6px !important; }
         .paper h3 { color: #0F2A4A !important; font-family: Georgia, serif !important; font-size: 14.5px !important; margin: 14px 0 6px !important; font-weight: 700 !important; }
-        .paper p { color: #1E293B !important; font-size: 13px !important; line-height: 1.6 !important; margin: 0 0 9px !important; }
+        .paper p { color: #1E293B !important; font-size: 13px !important; line-height: 1.6 !important; margin: 0 0 9px !important; max-width: 100% !important; }
         .paper ul, .paper ol { color: #1E293B !important; margin: 0 0 10px !important; padding-left: 20px !important; }
         .paper li { color: #1E293B !important; font-size: 13px !important; line-height: 1.5 !important; margin-bottom: 4px !important; }
         .paper li::marker { color: #B8893A !important; }
         .paper strong, .paper b { color: #0F172A !important; font-weight: 700 !important; }
-        .paper table { width: 100% !important; border-collapse: collapse !important; font-size: 12px !important; margin: 8px 0 14px !important; background: #FFFFFF !important; color: #1C2430 !important; }
-        .paper thead, .paper tbody { background: #FFFFFF !important; }
-        .paper tbody tr { background: #FFFFFF !important; }
-        .paper th, .paper td { border: 1px solid #D5DCE5 !important; padding: 7px 10px !important; color: #1C2430 !important; background: #FFFFFF !important; vertical-align: top !important; text-align: left !important; }
+        .paper table {
+          width: 100% !important;
+          min-width: 100% !important;
+          max-width: 100% !important;
+          table-layout: fixed !important;
+          border-collapse: collapse !important;
+          font-size: 12px !important;
+          margin: 8px 0 14px !important;
+          background: #FFFFFF !important;
+          color: #1C2430 !important;
+        }
+        .paper thead, .paper tbody { background: #FFFFFF !important; width: 100% !important; }
+        .paper tbody tr { background: #FFFFFF !important; width: 100% !important; }
+        .paper th, .paper td {
+          border: 1px solid #D5DCE5 !important;
+          padding: 8px 10px !important;
+          color: #1C2430 !important;
+          background: #FFFFFF !important;
+          vertical-align: top !important;
+          text-align: left !important;
+          box-sizing: border-box !important;
+          word-break: break-word !important;
+        }
         .paper .r { text-align: right !important; white-space: nowrap !important; }
         .paper table.pt thead th { background: #0F2A4A !important; color: #FFFFFF !important; border: 1px solid #0F2A4A !important; font-weight: 700 !important; }
         .paper table.pt thead th * { color: #FFFFFF !important; }
-        .paper table.kv th { background: #F1F4F8 !important; color: #0F2A4A !important; font-weight: 700 !important; border: 1px solid #D5DCE5 !important; width: 26% !important; }
+        .paper table.kv th { background: #F1F4F8 !important; color: #0F2A4A !important; font-weight: 700 !important; border: 1px solid #D5DCE5 !important; width: 28% !important; }
         .paper table.kv td { background: #FFFFFF !important; color: #1C2430 !important; border: 1px solid #D5DCE5 !important; }
         .paper tr.alt td { background: #F8FAFC !important; color: #1C2430 !important; }
         .paper tr.sum td { background: #F8FAFC !important; color: #0F2A4A !important; font-weight: 700 !important; border-top: 1.5px solid #0F2A4A !important; }
@@ -623,19 +678,19 @@ export async function exportPdfDoc(p, co, btn, opts = {}) {
         .paper .pnote { color: #475569 !important; font-style: italic !important; font-size: 12px !important; }
         .paper .approved-stamp { border: 1.5px solid #2F6B45 !important; background: #ECFDF5 !important; color: #2F6B45 !important; font-weight: 700 !important; padding: 8px 14px !important; border-radius: 6px !important; display: inline-flex !important; margin: 10px 0 !important; font-size: 13px !important; }
         .paper .approved-stamp.admin-stamp { border-color: #0F2A4A !important; background: #F1F4F8 !important; color: #0F2A4A !important; }
-        .paper .sig { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 32px !important; margin-top: 22px !important; }
+        .paper .sig { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 32px !important; margin-top: 22px !important; width: 100% !important; }
         .paper .sig .who { color: #0F2A4A !important; font-family: Georgia, serif !important; font-weight: 700 !important; margin-bottom: 12px !important; font-size: 14px !important; }
         .paper .sig .ln { border-bottom: 1px solid #CBD5E1 !important; color: #1E293B !important; padding: 8px 0 4px !important; font-size: 12px !important; }
         .paper .sig .ln span { color: #64748B !important; }
         .paper .foot { color: #64748B !important; font-size: 11px !important; margin-top: 24px !important; padding-top: 10px !important; border-top: 1px solid #D5DCE5 !important; text-align: center !important; }
       </style>
-      ${htmlString}
+      ${paperMarkup}
     `;
+    document.body.appendChild(stage);
 
-    // Wait for DOM layout and web fonts to settle
+    // Wait for styles and layout to compute
     await new Promise(r => setTimeout(r, 350));
 
-    const paperEl = stageInner.querySelector('.paper');
     const opt = {
       margin: 0,
       filename: `${p.clientShort || p.client || 'Client'} - ${p.title || 'Proposal'}.pdf`.replace(/[\\/:*?"<>|]+/g, '_'),
@@ -645,7 +700,11 @@ export async function exportPdfDoc(p, co, btn, opts = {}) {
         backgroundColor: '#ffffff', 
         useCORS: true,
         logging: false,
-        windowWidth: 794
+        scrollX: 0,
+        scrollY: 0,
+        x: 0,
+        y: 0,
+        width: 794
       },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
       pagebreak: {
@@ -655,11 +714,12 @@ export async function exportPdfDoc(p, co, btn, opts = {}) {
       }
     };
 
-    await h2p().set(opt).from(paperEl || stageInner).save();
+    await h2p().set(opt).from(stage).save();
     flashToast('PDF downloaded successfully! 📄');
   } catch (err) {
     alert('PDF export error: ' + err.message);
   } finally {
+    stage.remove();
     overlay.remove();
     btn.disabled = false;
     btn.textContent = oldText;
