@@ -4,14 +4,13 @@
  * Features:
  * - Direct (personal) messaging with any colleague
  * - Group lounges creation & management
- * - Three fully functional multiplayer games:
+ * - Two fully functional multiplayer games:
  *   1. Chess Duel (full legal rules, checkmate, stalemate, castling, promotion, clocks)
  *   2. Tic-Tac-Toe Challenge (3x3 board, alternating turns, win/draw detection, rematch)
- *   3. Connect Four (7x6 gravity board, 4-in-a-row detection, rematch)
  * - Mandatory employee selection flow before challenge can be created or match can begin
  * - Real-time synchronization between players
  * - Lounge & Chat seamless integration with shared match and invitation system
- * - Company Leaderboard & Match History
+ * - Match History & Live Matches Management
  * - Flawless light & dark mode theme support
  */
 
@@ -270,6 +269,12 @@ export async function initTeamBonding(container, options = {}) {
               <div class="bonding-channel-preview">${escapeHtml(g.lastMessage?.content || 'No messages yet')}</div>
             </div>
             ${unreadCount > 0 ? `<div class="bonding-unread-badge">${unreadCount}</div>` : ''}
+            <button class="bonding-channel-del-btn" data-channel-id="${g._id}" title="Delete Group">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+              </svg>
+            </button>
           </div>
         `;
       }).join('');
@@ -277,7 +282,7 @@ export async function initTeamBonding(container, options = {}) {
 
     // Render Direct Chats
     if (directs.length === 0) {
-      directList.innerHTML = `<div class="bonding-empty-text">No direct messages yet. Click + New Chat to connect!</div>`;
+      directList.innerHTML = `<div class="bonding-empty-text">No direct messages yet. Click + New Chat to start a conversation!</div>`;
     } else {
       directList.innerHTML = directs.map(d => {
         const isActive = activeChannel && activeChannel._id === d._id;
@@ -290,6 +295,12 @@ export async function initTeamBonding(container, options = {}) {
               <div class="bonding-channel-name">${escapeHtml(name)}</div>
               <div class="bonding-channel-preview">${escapeHtml(d.lastMessage?.content || 'Say hello...')}</div>
             </div>
+            <button class="bonding-channel-del-btn" data-channel-id="${d._id}" title="Delete 1-on-1 Chat">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+              </svg>
+            </button>
           </div>
         `;
       }).join('');
@@ -301,7 +312,8 @@ export async function initTeamBonding(container, options = {}) {
   function bindSidebarEvents() {
     const items = container.querySelectorAll('.bonding-channel-item');
     items.forEach(item => {
-      item.onclick = async () => {
+      item.onclick = async (e) => {
+        if (e.target.closest('.bonding-channel-del-btn')) return;
         const id = item.dataset.channelId;
         const target = channels.find(c => c._id === id);
         if (target) {
@@ -310,6 +322,34 @@ export async function initTeamBonding(container, options = {}) {
           item.classList.add('active');
           renderChatPanel();
           await loadMessages(target._id);
+        }
+      };
+    });
+
+    // Delete conversation from sidebar
+    container.querySelectorAll('.bonding-channel-del-btn').forEach(btn => {
+      btn.onclick = async (e) => {
+        e.stopPropagation();
+        const chanId = btn.dataset.channelId;
+        const target = channels.find(c => c._id === chanId);
+        const isDirect = target && target.type === 'direct';
+        const label = isDirect ? 'this 1-on-1 chat' : `the group "${target?.name || ''}"`;
+        if (!confirm(`Are you sure you want to delete ${label}? All messages will be permanently removed.`)) return;
+
+        try {
+          btn.disabled = true;
+          await apiDelete(`/bonding/channels/${chanId}`);
+          flashToast(isDirect ? '1-on-1 chat deleted' : 'Group deleted', 'success');
+          channels = channels.filter(c => c._id !== chanId);
+          if (activeChannel && activeChannel._id === chanId) {
+            activeChannel = channels[0] || null;
+            renderChatPanel();
+            if (activeChannel) await loadMessages(activeChannel._id);
+          }
+          renderSidebarChannels();
+        } catch (err) {
+          flashToast(err.message || 'Failed to delete conversation', 'error');
+          btn.disabled = false;
         }
       };
     });
@@ -367,6 +407,11 @@ export async function initTeamBonding(container, options = {}) {
             <span>⚔️</span> <span>Challenge Game</span>
           </button>
 
+          <!-- Clear messages button -->
+          <button class="bonding-header-btn" id="btn-clear-chat" title="Clear All Messages in this Chat">
+            <span>🧹</span> <span>Clear Chat</span>
+          </button>
+
           ${isGroup ? `
             <button class="bonding-header-btn" id="btn-manage-members">
               <span>👥</span> <span>Members (${memberCount})</span>
@@ -374,7 +419,11 @@ export async function initTeamBonding(container, options = {}) {
             <button class="bonding-header-btn danger" id="btn-delete-group" title="Delete this group">
               <span>🗑️</span> <span>Delete Group</span>
             </button>
-          ` : ''}
+          ` : `
+            <button class="bonding-header-btn danger" id="btn-delete-direct" title="Delete 1-on-1 Chat">
+              <span>🗑️</span> <span>Delete Chat</span>
+            </button>
+          `}
         </div>
       </div>
 
@@ -429,8 +478,9 @@ export async function initTeamBonding(container, options = {}) {
 
       if (msg.type === 'system') {
         return `
-          <div class="bonding-msg-system">
+          <div class="bonding-msg-system" data-msg-id="${msg._id}">
             <span>ℹ️</span> <span>${escapeHtml(msg.content)}</span>
+            <button class="bonding-msg-del-btn mini" data-msg-id="${msg._id}" title="Delete Message">&times;</button>
           </div>
         `;
       }
@@ -440,7 +490,7 @@ export async function initTeamBonding(container, options = {}) {
         const cd = msg.challengeData;
         const gTitle = cd.gameTitle || 'Game Challenge';
         const gType = cd.gameType || 'chess';
-        const gIcon = gType === 'chess' ? '♟️' : (gType === 'connectfour' ? '🔴' : '❌');
+        const gIcon = gType === 'chess' ? '♟️' : '❌';
         const inviteId = cd.gameState?.invitationId;
         const targetId = cd.targetUserId?.toString();
         const senderId = msg.sender?.userId?.toString();
@@ -456,6 +506,12 @@ export async function initTeamBonding(container, options = {}) {
               <div class="bonding-msg-meta">
                 <span class="bonding-msg-sender">${escapeHtml(msg.sender?.name || 'Teammate')}</span>
                 <span class="bonding-msg-time">${formatTime(msg.createdAt)}</span>
+                <button class="bonding-msg-del-btn" data-msg-id="${msg._id}" title="Delete Challenge Message">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                  </svg>
+                </button>
               </div>
 
               <!-- Interactive Game Card -->
@@ -520,6 +576,12 @@ export async function initTeamBonding(container, options = {}) {
             <div class="bonding-msg-meta">
               <span class="bonding-msg-sender">${senderName}</span>
               <span class="bonding-msg-time">${timeStr}</span>
+              <button class="bonding-msg-del-btn" data-msg-id="${msg._id}" title="Delete Message">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="3 6 5 6 21 6"></polyline>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                </svg>
+              </button>
             </div>
             <div class="bonding-msg-bubble">
               ${escapeHtml(msg.content).replace(/\n/g, '<br/>')}
@@ -574,6 +636,49 @@ export async function initTeamBonding(container, options = {}) {
     // Delete Group
     const btnDelete = container.querySelector('#btn-delete-group');
     if (btnDelete) btnDelete.onclick = confirmDeleteGroup;
+
+    // Delete 1-on-1 Direct Chat
+    const btnDeleteDirect = container.querySelector('#btn-delete-direct');
+    if (btnDeleteDirect) {
+      btnDeleteDirect.onclick = async () => {
+        if (!activeChannel) return;
+        if (!confirm('Are you sure you want to delete this 1-on-1 chat? All messages will be permanently removed.')) return;
+        try {
+          btnDeleteDirect.disabled = true;
+          await apiDelete(`/bonding/channels/${activeChannel._id}`);
+          flashToast('1-on-1 chat deleted successfully', 'success');
+          const delId = activeChannel._id;
+          channels = channels.filter(c => c._id !== delId);
+          activeChannel = channels[0] || null;
+          renderSidebarChannels();
+          renderChatPanel();
+          if (activeChannel) await loadMessages(activeChannel._id);
+        } catch (err) {
+          flashToast(err.message || 'Could not delete 1-on-1 chat', 'error');
+          btnDeleteDirect.disabled = false;
+        }
+      };
+    }
+
+    // Clear Chat Messages
+    const btnClearChat = container.querySelector('#btn-clear-chat');
+    if (btnClearChat) {
+      btnClearChat.onclick = async () => {
+        if (!activeChannel) return;
+        if (!confirm('Are you sure you want to clear all messages in this conversation?')) return;
+        try {
+          btnClearChat.disabled = true;
+          await apiDelete(`/bonding/channels/${activeChannel._id}/messages`);
+          flashToast('Chat messages cleared', 'success');
+          messages = [];
+          renderMessageFeed();
+        } catch (err) {
+          flashToast(err.message || 'Could not clear chat messages', 'error');
+        } finally {
+          btnClearChat.disabled = false;
+        }
+      };
+    }
   }
 
   function bindInputBarEvents(otherMember) {
@@ -640,6 +745,26 @@ export async function initTeamBonding(container, options = {}) {
         } catch (e) {
           flashToast(e.message || 'Could not load match', 'error');
         } finally {
+          btn.disabled = false;
+        }
+      };
+    });
+
+    // Delete Message button
+    const msgDelBtns = container.querySelectorAll('.bonding-msg-del-btn');
+    msgDelBtns.forEach(btn => {
+      btn.onclick = async (e) => {
+        e.stopPropagation();
+        const msgId = btn.dataset.msgId;
+        if (!confirm('Are you sure you want to delete this message?')) return;
+        try {
+          btn.disabled = true;
+          await apiDelete(`/bonding/messages/${msgId}`);
+          messages = messages.filter(m => m._id !== msgId);
+          updateMessageFeedIncrementally();
+          flashToast('Message deleted', 'success');
+        } catch (err) {
+          flashToast(err.message || 'Failed to delete message', 'error');
           btn.disabled = false;
         }
       };
@@ -739,10 +864,7 @@ export async function initTeamBonding(container, options = {}) {
     }
 
     try {
-      const [overview, leaderboard] = await Promise.all([
-        apiGet('/bonding/games/overview'),
-        apiGet('/bonding/leaderboard')
-      ]);
+      const overview = await apiGet('/bonding/games/overview');
       gameOverview = overview;
 
       const myStats = overview.myStats || {};
@@ -896,7 +1018,7 @@ export async function initTeamBonding(container, options = {}) {
                       return `
                         <div class="lounge-active-match-card ${myTurn ? 'turn-active' : ''}">
                           <div class="active-match-left">
-                            <span class="match-game-icon">${m.gameType === 'chess' ? '♟️' : (m.gameType === 'connectfour' ? '🔴' : '❌')}</span>
+                            <span class="match-game-icon">${m.gameType === 'chess' ? '♟️' : '❌'}</span>
                             <div>
                               <div class="match-game-title">${escapeHtml(m.gameTitle)}</div>
                               <div class="match-opp-text">Opponent: <strong>${escapeHtml(opp.name)}</strong> (${escapeHtml(opp.role)})</div>
@@ -910,6 +1032,12 @@ export async function initTeamBonding(container, options = {}) {
                             <button class="btn-resume-match" data-match-id="${m._id}">
                               Resume Match 🎮
                             </button>
+                            <button class="btn-delete-match" data-match-id="${m._id}" title="Delete Match">
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                              </svg>
+                            </button>
                           </div>
                         </div>
                       `;
@@ -922,9 +1050,20 @@ export async function initTeamBonding(container, options = {}) {
 
           <!-- Section 3: Recent Completed Matches -->
           <div class="lounge-section" style="margin-top: 24px;">
-            <div class="lounge-section-head">
-              <h3>📜 Recent Completed Matches</h3>
-              <p>Audit results, rematch recent opponents, or review match outcomes.</p>
+            <div class="lounge-section-head" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+              <div>
+                <h3>📜 Recent Completed Matches</h3>
+                <p>Audit results, rematch recent opponents, or review match outcomes.</p>
+              </div>
+              ${recentMatches.length > 0 ? `
+                <button class="btn-clear-matches" id="btn-clear-matches" title="Clear all completed matches">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                  </svg>
+                  <span>Clear History</span>
+                </button>
+              ` : ''}
             </div>
 
             ${recentMatches.length === 0
@@ -942,6 +1081,12 @@ export async function initTeamBonding(container, options = {}) {
                         <div class="recent-card-head">
                           <span class="recent-game-title">${escapeHtml(m.gameTitle)}</span>
                           <span class="recent-date">${formatTime(m.completedAt || m.updatedAt)}</span>
+                          <button class="btn-delete-match mini" data-match-id="${m._id}" title="Delete Match Record">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                              <polyline points="3 6 5 6 21 6"></polyline>
+                              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            </svg>
+                          </button>
                         </div>
                         <div class="recent-card-body">
                           <div>Opponent: <strong>${escapeHtml(opp.name)}</strong></div>
@@ -950,68 +1095,20 @@ export async function initTeamBonding(container, options = {}) {
                             <span style="font-size:11px;font-weight:normal;color:var(--text-3)">(${escapeHtml(m.winningReason || m.status)})</span>
                           </div>
                         </div>
-                        <button class="btn-recent-rematch" data-match-id="${m._id}">
-                          🔄 Request Rematch
-                        </button>
+                        <div style="display:flex;gap:8px;margin-top:4px;">
+                          <button class="btn-recent-rematch" data-match-id="${m._id}" style="flex:1;">
+                            🔄 Rematch
+                          </button>
+                          <button class="btn-delete-match text-btn" data-match-id="${m._id}" title="Delete Match Record">
+                            Delete
+                          </button>
+                        </div>
                       </div>
                     `;
                   }).join('')}
                 </div>
               `
             }
-          </div>
-
-          <!-- Section 4: Company Leaderboard -->
-          <div class="lounge-section" style="margin-top: 24px;">
-            <div class="lounge-section-head">
-              <h3>🏆 Team Bonding & Games Leaderboard</h3>
-              <p>Genuine completed match records. Friendly competition across CI360 team members.</p>
-            </div>
-
-            <div class="lounge-leaderboard-card">
-              <div class="table-responsive">
-                <table class="lounge-lb-table">
-                  <thead>
-                    <tr>
-                      <th style="width: 50px;">Rank</th>
-                      <th>Player</th>
-                      <th>Role</th>
-                      <th>Played</th>
-                      <th>Wins</th>
-                      <th>Losses</th>
-                      <th>Draws</th>
-                      <th>Win Rate</th>
-                      <th>Chess Elo</th>
-                      <th>Points</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    ${leaderboard.length === 0
-                      ? `<tr><td colspan="10" style="text-align:center;padding:24px">No match records yet. Be the first to play!</td></tr>`
-                      : leaderboard.map((lb, idx) => `
-                        <tr class="${idx === 0 ? 'rank-1' : (idx === 1 ? 'rank-2' : (idx === 2 ? 'rank-3' : ''))}">
-                          <td class="lb-rank">${idx === 0 ? '🥇' : (idx === 1 ? '🥈' : (idx === 2 ? '🥉' : `#${idx + 1}`))}</td>
-                          <td>
-                            <div class="lb-player-cell">
-                              <div class="lb-avatar">${escapeHtml(lb.userName.slice(0, 1).toUpperCase())}</div>
-                              <span class="lb-name">${escapeHtml(lb.userName)}</span>
-                            </div>
-                          </td>
-                          <td><span class="badge gray">${escapeHtml(lb.userRole || 'employee')}</span></td>
-                          <td><strong>${lb.gamesPlayed || 0}</strong></td>
-                          <td style="color:#10b981;font-weight:700">${lb.wins || 0}</td>
-                          <td style="color:#ef4444">${lb.losses || 0}</td>
-                          <td style="color:#f59e0b">${lb.draws || 0}</td>
-                          <td><strong>${lb.winRate || 0}%</strong></td>
-                          <td><span class="badge blue">♟️ ${lb.chessRating || 1200}</span></td>
-                          <td><span class="badge gold">⭐ ${lb.points || 0} pts</span></td>
-                        </tr>
-                      `).join('')
-                    }
-                  </tbody>
-                </table>
-              </div>
-            </div>
           </div>
         </div>
       `;
@@ -1073,6 +1170,43 @@ export async function initTeamBonding(container, options = {}) {
         }
       };
     });
+
+    // Delete single match (active or recent)
+    container.querySelectorAll('.btn-delete-match').forEach(b => {
+      b.onclick = async (e) => {
+        e.stopPropagation();
+        const mId = b.dataset.matchId;
+        if (!confirm('Are you sure you want to delete this match record?')) return;
+        try {
+          b.disabled = true;
+          await apiDelete(`/bonding/matches/${mId}`);
+          flashToast('Match deleted successfully', 'success');
+          await renderLoungeGamesView();
+        } catch (err) {
+          flashToast(err.message || 'Failed to delete match', 'error');
+        } finally {
+          b.disabled = false;
+        }
+      };
+    });
+
+    // Clear all completed matches
+    const btnClearMatches = container.querySelector('#btn-clear-matches');
+    if (btnClearMatches) {
+      btnClearMatches.onclick = async () => {
+        if (!confirm('Are you sure you want to delete all completed matches in history?')) return;
+        try {
+          btnClearMatches.disabled = true;
+          await apiDelete('/bonding/matches?filter=completed');
+          flashToast('Completed matches history cleared', 'success');
+          await renderLoungeGamesView();
+        } catch (err) {
+          flashToast(err.message || 'Failed to clear matches', 'error');
+        } finally {
+          btnClearMatches.disabled = false;
+        }
+      };
+    }
   }
 
   /* =========================================================================
@@ -1115,9 +1249,6 @@ export async function initTeamBonding(container, options = {}) {
                   </button>
                   <button class="game-pill-btn ${selectedGame === 'tictactoe' ? 'active' : ''}" data-game="tictactoe">
                     <span>❌</span> <span>Tic-Tac-Toe</span>
-                  </button>
-                  <button class="game-pill-btn ${selectedGame === 'connectfour' ? 'active' : ''}" data-game="connectfour">
-                    <span>🔴</span> <span>Connect Four</span>
                   </button>
                 </div>
               </div>
@@ -1173,7 +1304,7 @@ export async function initTeamBonding(container, options = {}) {
               <div class="flow-confirmation-card">
                 <div class="confirm-head">Challenge Summary:</div>
                 <div class="confirm-body">
-                  <div><strong>Game:</strong> ${selectedGame === 'chess' ? '♟️ Chess Duel' : (selectedGame === 'connectfour' ? '🔴 Connect Four' : '❌ Tic-Tac-Toe Challenge')}</div>
+                  <div><strong>Game:</strong> ${selectedGame === 'chess' ? '♟️ Chess Duel' : '❌ Tic-Tac-Toe Challenge'}</div>
                   <div><strong>Opponent:</strong> ${targetUserObj ? `<strong>${escapeHtml(targetUserObj.name)}</strong> (${escapeHtml(targetUserObj.role)})` : '<span style="color:#ef4444">⚠️ No employee selected yet</span>'}</div>
                   ${selectedGame === 'chess' ? `<div><strong>Time Control:</strong> ${selectedTimerMode === 'none' ? 'Untimed' : selectedTimerMode}</div>` : ''}
                 </div>
@@ -1375,13 +1506,13 @@ export async function initTeamBonding(container, options = {}) {
             <!-- Arena Header Bar -->
             <div class="arena-header">
               <div class="arena-title-wrap">
-                <span class="arena-icon">${match.gameType === 'chess' ? '♟️' : (match.gameType === 'connectfour' ? '🔴' : '❌')}</span>
+                <span class="arena-icon">${match.gameType === 'chess' ? '♟️' : '❌'}</span>
                 <div>
                   <h3 class="arena-title">${escapeHtml(match.gameTitle)}</h3>
                   <div class="arena-players-vs">
-                    <span class="player-tag self">${escapeHtml(me.name)} (You · <strong>${match.gameType === 'connectfour' ? (me.assignedRole === 'red' ? '🔴 Red' : '🟡 Yellow') : (match.gameType === 'tictactoe' ? (me.assignedRole === 'X' ? '✕' : '◯') : me.assignedRole)}</strong>)</span>
+                    <span class="player-tag self">${escapeHtml(me.name)} (You · <strong>${match.gameType === 'tictactoe' ? (me.assignedRole === 'X' ? '✕' : '◯') : me.assignedRole}</strong>)</span>
                     <span class="vs-pill">VS</span>
-                    <span class="player-tag opp">${escapeHtml(opp.name)} (<strong>${match.gameType === 'connectfour' ? (opp.assignedRole === 'red' ? '🔴 Red' : '🟡 Yellow') : (match.gameType === 'tictactoe' ? (opp.assignedRole === 'X' ? '✕' : '◯') : opp.assignedRole)}</strong>)</span>
+                    <span class="player-tag opp">${escapeHtml(opp.name)} (<strong>${match.gameType === 'tictactoe' ? (opp.assignedRole === 'X' ? '✕' : '◯') : opp.assignedRole}</strong>)</span>
                   </div>
                 </div>
               </div>
@@ -1401,20 +1532,18 @@ export async function initTeamBonding(container, options = {}) {
             <!-- Sub-Toolbar with Quick Instructions & Draw/Resign Actions -->
             <div class="arena-toolbar">
               <div class="arena-tip-text">
-                ${match.gameType === 'connectfour' 
-                  ? (isMyTurn ? '👉 Click any column arrow to drop your disc!' : '⏳ Opponent is deciding their move...')
-                  : (match.gameType === 'tictactoe'
-                    ? (isMyTurn ? '👉 Tap any open cell to place your symbol!' : '⏳ Opponent is deciding their move...')
-                    : (isMyTurn ? '👉 Click your piece, then click a green target dot to move!' : '⏳ Opponent is thinking...')
-                  )
+                ${match.gameType === 'tictactoe'
+                  ? (isMyTurn ? '👉 Tap any open cell to place your symbol!' : '⏳ Opponent is deciding their move...')
+                  : (isMyTurn ? '👉 Click your piece, then click a green target dot to move!' : '⏳ Opponent is thinking...')
                 }
               </div>
-              ${!isEnded ? `
-                <div class="arena-action-btns">
+              <div class="arena-action-btns">
+                ${!isEnded ? `
                   <button class="btn-arena-action" id="btn-arena-draw" title="Offer a Draw">🤝 Offer Draw</button>
                   <button class="btn-arena-action danger" id="btn-arena-resign" title="Resign Match">🏳️ Resign</button>
-                </div>
-              ` : ''}
+                ` : ''}
+                <button class="btn-arena-action danger" id="btn-arena-delete-match" title="Delete Match">🗑️ Delete</button>
+              </div>
             </div>
 
             <!-- Draw Offer Notification -->
@@ -1430,7 +1559,6 @@ export async function initTeamBonding(container, options = {}) {
             <div class="arena-board-wrap">
               ${match.gameType === 'chess' ? renderChessBoardHtml(isP1) : ''}
               ${match.gameType === 'tictactoe' ? renderTicTacToeBoardHtml() : ''}
-              ${match.gameType === 'connectfour' ? renderConnectFourBoardHtml() : ''}
             </div>
 
             <!-- Match Result Banner (When finished) -->
@@ -1441,9 +1569,14 @@ export async function initTeamBonding(container, options = {}) {
                   <h4>${match.winnerId && match.winnerId.toString() === myId?.toString() ? 'VICTORY!' : (match.status === 'draw' ? 'STALEMATE / DRAW' : `${escapeHtml(match.winnerName)} Wins!`)}</h4>
                   <p>Reason: ${escapeHtml(match.winningReason || 'Match concluded')}</p>
                 </div>
-                <button class="btn-arena-rematch" id="btn-arena-rematch-action">
-                  🔄 Request Rematch
-                </button>
+                <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                  <button class="btn-arena-rematch" id="btn-arena-rematch-action">
+                    🔄 Request Rematch
+                  </button>
+                  <button class="btn-arena-action danger" id="btn-arena-delete-match-ended">
+                    🗑️ Delete Match
+                  </button>
+                </div>
               </div>
             ` : ''}
           </div>
@@ -1525,38 +1658,6 @@ export async function initTeamBonding(container, options = {}) {
       `;
     }
 
-    /* ── CONNECT FOUR BOARD HTML BUILDER ── */
-    function renderConnectFourBoardHtml() {
-      const grid = match.gameState?.grid || Array(6).fill(null).map(() => Array(7).fill(null));
-      const winningCells = (match.winningCells || []).map(wc => Array.isArray(wc) ? `${wc[0]},${wc[1]}` : '');
-
-      let html = `<div class="c4-board-rack">`;
-      // Column drop guide arrows on top
-      html += `<div class="c4-drop-arrows-row">`;
-      for (let c = 0; c < 7; c++) {
-        html += `<button class="c4-drop-col-btn" data-col="${c}" title="Drop Disc in Column ${c + 1}">⬇</button>`;
-      }
-      html += `</div>`;
-
-      // 6 Rows x 7 Cols grid
-      html += `<div class="c4-grid-slots">`;
-      for (let r = 0; r < 6; r++) {
-        for (let c = 0; c < 7; c++) {
-          const val = grid[r][c];
-          const isWin = winningCells.includes(`${r},${c}`);
-          html += `
-            <div class="c4-slot ${val ? `disc-${val}` : 'empty'} ${isWin ? 'win-disc' : ''}" data-col="${c}" data-row="${r}">
-              ${val ? `<div class="c4-disc ${val}"></div>` : '<div class="c4-hole"></div>'}
-            </div>
-          `;
-        }
-      }
-      html += `</div>`;
-      html += `<div class="c4-rack-stand"><div class="c4-stand-leg left"></div><div class="c4-stand-leg right"></div></div>`;
-      html += `</div>`;
-      return html;
-    }
-
     function bindArenaEvents(isMyTurn, isP1, me) {
       modalRoot.querySelector('#btn-close-arena').onclick = closeMatchModal;
 
@@ -1619,6 +1720,28 @@ export async function initTeamBonding(container, options = {}) {
           }
         };
       }
+
+      // Delete Match from arena
+      const arenaDelBtns = [
+        modalRoot.querySelector('#btn-arena-delete-match'),
+        modalRoot.querySelector('#btn-arena-delete-match-ended')
+      ].filter(Boolean);
+
+      arenaDelBtns.forEach(btn => {
+        btn.onclick = async () => {
+          if (!confirm('Are you sure you want to permanently delete this match?')) return;
+          try {
+            btn.disabled = true;
+            await apiDelete(`/bonding/matches/${matchId}`);
+            flashToast('Match deleted', 'success');
+            closeMatchModal();
+            if (currentView === 'lounge_games') await renderLoungeGamesView();
+          } catch (e) {
+            flashToast(e.message || 'Failed to delete match', 'error');
+            btn.disabled = false;
+          }
+        };
+      });
 
       // Rematch button on game over
       const btnRematch = modalRoot.querySelector('#btn-arena-rematch-action');
@@ -1723,27 +1846,6 @@ export async function initTeamBonding(container, options = {}) {
               flashToast(err.message || 'Invalid move', 'error');
             }
           };
-        });
-      }
-
-      // C. CONNECT FOUR COLUMN INTERACTION
-      if (match.gameType === 'connectfour' && isMyTurn && match.status === 'active') {
-        const handleColDrop = async (colIdx) => {
-          try {
-            const updatedMatch = await apiPost(`/bonding/matches/${matchId}/move`, { col: Number(colIdx) });
-            match = updatedMatch;
-            renderArena();
-          } catch (err) {
-            flashToast(err.message || 'Column full or invalid', 'error');
-          }
-        };
-
-        modalRoot.querySelectorAll('.c4-drop-col-btn').forEach(btn => {
-          btn.onclick = () => handleColDrop(btn.dataset.col);
-        });
-
-        modalRoot.querySelectorAll('.c4-slot').forEach(slot => {
-          slot.onclick = () => handleColDrop(slot.dataset.col);
         });
       }
     }
@@ -2468,6 +2570,32 @@ function injectBondingStyles() {
       text-overflow: ellipsis;
     }
 
+    .bonding-channel-del-btn {
+      opacity: 0;
+      background: transparent;
+      border: none;
+      color: var(--text-3, #94a3b8);
+      cursor: pointer;
+      padding: 5px;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+      flex-shrink: 0;
+      margin-left: auto;
+    }
+
+    .bonding-channel-item:hover .bonding-channel-del-btn {
+      opacity: 0.75;
+    }
+
+    .bonding-channel-del-btn:hover {
+      opacity: 1 !important;
+      color: #ef4444;
+      background: rgba(239, 68, 68, 0.12);
+    }
+
     /* Main Chat Panel */
     .bonding-chat-main {
       background: var(--bg-card, #ffffff);
@@ -2664,6 +2792,38 @@ function injectBondingStyles() {
       display: flex;
       align-items: center;
       gap: 6px;
+    }
+
+    .bonding-msg-del-btn {
+      opacity: 0;
+      background: transparent;
+      border: none;
+      color: var(--text-3, #94a3b8);
+      cursor: pointer;
+      padding: 2px 4px;
+      border-radius: 4px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+      font-size: 11px;
+    }
+
+    .bonding-msg-row:hover .bonding-msg-del-btn,
+    .bonding-msg-system:hover .bonding-msg-del-btn {
+      opacity: 0.75;
+    }
+
+    .bonding-msg-del-btn:hover {
+      opacity: 1 !important;
+      color: #ef4444;
+      background: rgba(239, 68, 68, 0.12);
+    }
+
+    .bonding-msg-del-btn.mini {
+      margin-left: 8px;
+      font-size: 14px;
+      line-height: 1;
     }
 
     .bonding-msg-sender {
@@ -3368,6 +3528,70 @@ function injectBondingStyles() {
       font-weight: 700;
       cursor: pointer;
       margin-top: 4px;
+    }
+
+    .btn-delete-match {
+      padding: 6px 10px;
+      background: transparent;
+      border: 1px solid var(--border-sm, #e2e8f0);
+      color: var(--text-3, #94a3b8);
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      transition: all 0.15s ease;
+    }
+
+    .btn-delete-match:hover {
+      color: #ef4444;
+      border-color: #ef4444;
+      background: rgba(239, 68, 68, 0.08);
+    }
+
+    .btn-delete-match.mini {
+      padding: 3px 6px;
+      border: none;
+    }
+
+    .btn-delete-match.text-btn {
+      border: 1px solid rgba(239, 68, 68, 0.35);
+      color: #ef4444;
+      background: rgba(239, 68, 68, 0.04);
+      margin-top: 4px;
+    }
+
+    .btn-delete-match.text-btn:hover {
+      background: rgba(239, 68, 68, 0.12);
+    }
+
+    .btn-clear-matches {
+      padding: 6px 12px;
+      background: transparent;
+      border: 1px solid var(--border-sm, #e2e8f0);
+      color: var(--text-2, #64748b);
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+
+    [data-theme="dark"] .btn-clear-matches {
+      border-color: #334155;
+      color: #94a3b8;
+    }
+
+    .btn-clear-matches:hover {
+      color: #ef4444;
+      border-color: #ef4444;
+      background: rgba(239, 68, 68, 0.08);
     }
 
     /* Leaderboard Table */

@@ -399,18 +399,27 @@ router.put('/channels/:id/members', async (req, res) => {
   }
 });
 
-// DELETE /api/bonding/channels/:id - Delete a group channel
+// DELETE /api/bonding/channels/:id - Delete a group channel or 1-on-1 direct chat
 router.delete('/channels/:id', async (req, res) => {
   try {
     const channel = await BondingChannel.findById(req.params.id);
-    if (!channel) return res.status(404).json({ error: 'Channel not found' });
+    if (!channel) return res.status(404).json({ error: 'Conversation not found' });
 
-    // Allow deleting groups
-    channel.isArchived = true;
-    await channel.save();
+    const myId = req.user._id.toString();
+    const isMember = channel.members && channel.members.some(m => m.userId && m.userId.toString() === myId);
+    const isAdmin = ['admin', 'superadmin'].includes(req.user.role);
+
+    if (!isMember && !isAdmin) {
+      return res.status(403).json({ error: 'Not authorized to delete this conversation' });
+    }
+
+    // Permanently remove channel, its messages, and any invitations / matches tied to it
+    await BondingChannel.findByIdAndDelete(channel._id);
     await BondingMessage.deleteMany({ channelId: channel._id });
+    await GameInvitation.deleteMany({ channelId: channel._id });
+    await GameMatch.deleteMany({ channelId: channel._id });
 
-    res.json({ message: 'Group deleted successfully', channelId: channel._id });
+    res.json({ message: 'Conversation deleted successfully', channelId: channel._id, type: channel.type });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -692,6 +701,86 @@ router.post('/messages/:id/react', async (req, res) => {
   }
 });
 
+// DELETE /api/bonding/messages/:id - Delete a message
+router.delete('/messages/:id', async (req, res) => {
+  try {
+    const msg = await BondingMessage.findById(req.params.id);
+    if (!msg) return res.status(404).json({ error: 'Message not found' });
+
+    const myId = req.user._id.toString();
+    const isSender = msg.sender && msg.sender.userId && msg.sender.userId.toString() === myId;
+    const isAdmin = ['admin', 'superadmin'].includes(req.user.role);
+
+    // Verify channel membership
+    const channel = await BondingChannel.findById(msg.channelId);
+    const isMember = channel && channel.members && channel.members.some(m => m.userId && m.userId.toString() === myId);
+
+    if (!isSender && !isAdmin && !isMember) {
+      return res.status(403).json({ error: 'Not authorized to delete this message' });
+    }
+
+    await BondingMessage.findByIdAndDelete(msg._id);
+
+    // Update channel's lastMessage if needed
+    if (channel) {
+      const latestMsg = await BondingMessage.findOne({ channelId: channel._id }).sort({ createdAt: -1 });
+      if (latestMsg) {
+        channel.lastMessage = {
+          content: latestMsg.content || (latestMsg.type === 'challenge' ? `Game Challenge: ${latestMsg.challengeData?.gameTitle}` : ''),
+          senderName: latestMsg.sender?.name || '',
+          senderId: latestMsg.sender?.userId || null,
+          sentAt: latestMsg.createdAt,
+          type: latestMsg.type
+        };
+      } else {
+        channel.lastMessage = {
+          content: '',
+          senderName: '',
+          senderId: null,
+          sentAt: channel.createdAt,
+          type: 'text'
+        };
+      }
+      await channel.save();
+    }
+
+    res.json({ message: 'Message deleted successfully', messageId: msg._id });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// DELETE /api/bonding/channels/:id/messages - Clear all messages in a conversation
+router.delete('/channels/:id/messages', async (req, res) => {
+  try {
+    const channel = await BondingChannel.findById(req.params.id);
+    if (!channel) return res.status(404).json({ error: 'Conversation not found' });
+
+    const myId = req.user._id.toString();
+    const isMember = channel.members && channel.members.some(m => m.userId && m.userId.toString() === myId);
+    const isAdmin = ['admin', 'superadmin'].includes(req.user.role);
+
+    if (!isMember && !isAdmin) {
+      return res.status(403).json({ error: 'Not authorized to clear messages in this conversation' });
+    }
+
+    await BondingMessage.deleteMany({ channelId: channel._id });
+
+    channel.lastMessage = {
+      content: '',
+      senderName: '',
+      senderId: null,
+      sentAt: new Date(),
+      type: 'text'
+    };
+    await channel.save();
+
+    res.json({ message: 'All messages cleared successfully', channelId: channel._id });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 /* =========================================================================
    MULTIPLAYER GAMES ENGINE (CHESS DUEL, TIC-TAC-TOE, CONNECT FOUR)
    ========================================================================= */
@@ -871,14 +960,6 @@ router.get('/games/overview', async (req, res) => {
         desc: 'Fast-paced 3×3 strategic duel. Match three in a row to win before your opponent blocks you.',
         duration: '1–3 mins',
         modes: ['Classic Turn-Based']
-      },
-      {
-        id: 'connectfour',
-        name: 'Connect Four',
-        icon: '🔴',
-        desc: 'Vertical checkers duel! Drop discs into 7 columns and connect 4 horizontally, vertically, or diagonally.',
-        duration: '3–6 mins',
-        modes: ['Classic Turn-Based']
       }
     ];
 
@@ -930,8 +1011,8 @@ router.post('/invitations', async (req, res) => {
   try {
     const { gameType, targetUserId, matchSettings, channelId } = req.body;
 
-    if (!['chess', 'tictactoe', 'connectfour'].includes(gameType)) {
-      return res.status(400).json({ error: 'Invalid game type. Choose chess, tictactoe, or connectfour.' });
+    if (!['chess', 'tictactoe'].includes(gameType)) {
+      return res.status(400).json({ error: 'Invalid game type. Choose chess or tictactoe.' });
     }
 
     if (!targetUserId) {
@@ -968,8 +1049,7 @@ router.post('/invitations', async (req, res) => {
 
     const titleMap = {
       chess: 'Chess Duel',
-      tictactoe: 'Tic-Tac-Toe Challenge',
-      connectfour: 'Connect Four'
+      tictactoe: 'Tic-Tac-Toe Challenge'
     };
     const gameTitle = titleMap[gameType] || 'Game Challenge';
 
@@ -1610,6 +1690,64 @@ router.post('/matches/:id/action', async (req, res) => {
     }
 
     res.status(400).json({ error: 'Unknown match action' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// DELETE /api/bonding/matches/:id - Delete a single game match
+router.delete('/matches/:id', async (req, res) => {
+  try {
+    const match = await GameMatch.findById(req.params.id);
+    if (!match) return res.status(404).json({ error: 'Match not found' });
+
+    const myId = req.user._id.toString();
+    const isP1 = match.player1 && match.player1.userId && match.player1.userId.toString() === myId;
+    const isP2 = match.player2 && match.player2.userId && match.player2.userId.toString() === myId;
+    const isAdmin = ['admin', 'superadmin'].includes(req.user.role);
+
+    if (!isP1 && !isP2 && !isAdmin) {
+      return res.status(403).json({ error: 'Not authorized to delete this match' });
+    }
+
+    await GameMatch.findByIdAndDelete(match._id);
+
+    if (match.invitationId) {
+      await GameInvitation.findByIdAndDelete(match.invitationId);
+    }
+
+    // Clean up related challenge message if any
+    await BondingMessage.deleteMany({ 'challengeData.gameState.matchId': match._id.toString() });
+
+    res.json({ message: 'Match deleted successfully', matchId: match._id });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// DELETE /api/bonding/matches - Clear / bulk delete matches
+router.delete('/matches', async (req, res) => {
+  try {
+    const { filter } = req.query; // 'completed' or 'all'
+    const myId = req.user._id;
+
+    let query = {
+      $or: [{ 'player1.userId': myId }, { 'player2.userId': myId }]
+    };
+
+    if (filter === 'completed') {
+      query.status = { $in: ['completed', 'draw', 'resigned', 'abandoned'] };
+    }
+
+    const matchesToDelete = await GameMatch.find(query);
+    const matchIds = matchesToDelete.map(m => m._id);
+
+    if (matchIds.length > 0) {
+      await GameMatch.deleteMany({ _id: { $in: matchIds } });
+      await GameInvitation.deleteMany({ matchId: { $in: matchIds } });
+    }
+
+    res.json({ message: 'Matches deleted successfully', deletedCount: matchIds.length });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
