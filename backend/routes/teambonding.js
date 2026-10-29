@@ -111,7 +111,11 @@ async function ensureDefaultChannels(user) {
 // GET /api/bonding/colleagues - Get all colleagues for personal chat / game challenges / adding to groups
 router.get('/colleagues', async (req, res) => {
   try {
-    const users = await User.find({ active: true }, 'name email role _id').sort({ name: 1 });
+    // Only employees and administrators can participate in team bonding & groups
+    const users = await User.find(
+      { active: true, role: { $in: ['employee', 'admin', 'superadmin'] } },
+      'name email role _id'
+    ).sort({ name: 1 });
     const formatted = users.map(u => ({
       _id: u._id,
       name: u.name,
@@ -190,6 +194,9 @@ router.post('/channels', async (req, res) => {
 
       const targetUser = await User.findById(targetUserId);
       if (!targetUser) return res.status(404).json({ error: 'Colleague not found' });
+      if (!['employee', 'admin', 'superadmin'].includes(targetUser.role)) {
+        return res.status(400).json({ error: 'Personal chats are only available with employees and administrators' });
+      }
 
       const newChan = new BondingChannel({
         name: `${req.user.name} & ${targetUser.name}`,
@@ -226,7 +233,11 @@ router.post('/channels', async (req, res) => {
     ];
 
     if (Array.isArray(memberIds) && memberIds.length > 0) {
-      const otherUsers = await User.find({ _id: { $in: memberIds, $ne: req.user._id } });
+      // Only employee and admin accounts can be added to groups
+      const otherUsers = await User.find({
+        _id: { $in: memberIds, $ne: req.user._id },
+        role: { $in: ['employee', 'admin', 'superadmin'] }
+      });
       for (const u of otherUsers) {
         membersList.push({ userId: u._id, name: u.name, role: u.role, email: u.email });
       }
@@ -291,7 +302,15 @@ router.put('/channels/:id/members', async (req, res) => {
         return res.json({ message: 'Users already in group', channel });
       }
 
-      const users = await User.find({ _id: { $in: toFetch } });
+      // Only employee and admin accounts can be added to groups
+      const users = await User.find({
+        _id: { $in: toFetch },
+        role: { $in: ['employee', 'admin', 'superadmin'] }
+      });
+      if (users.length === 0) {
+        return res.status(400).json({ error: 'Only employees and administrators can be added to groups' });
+      }
+
       const addedNames = [];
       for (const u of users) {
         channel.members.push({

@@ -552,9 +552,10 @@ export async function initTeamBonding(container, options = {}) {
     if (!activeChannel || activeChannel.type === 'direct') return;
 
     const modalRoot = container.querySelector('#bonding-modals-root');
+    const isAllowedRole = (r) => r === 'employee' || r === 'admin' || r === 'superadmin';
     const currentMembers = activeChannel.members || [];
     const memberUserIds = new Set(currentMembers.map(m => m.userId?.toString()));
-    const availableColleagues = colleagues.filter(c => !memberUserIds.has(c._id.toString()));
+    const availableColleagues = colleagues.filter(c => isAllowedRole(c.role) && !memberUserIds.has(c._id.toString()));
 
     modalRoot.innerHTML = `
       <div class="bonding-modal-backdrop">
@@ -567,19 +568,19 @@ export async function initTeamBonding(container, options = {}) {
           <div class="bonding-modal-body">
             <!-- Add New Member Section -->
             <div class="bonding-form-section">
-              <label class="bonding-form-label">Add Colleague to this Group:</label>
+              <label class="bonding-form-label">Add Colleague to this Group (Employees & Admins only):</label>
               <div class="bonding-add-member-row">
                 <select id="sel-add-colleague" class="bonding-select">
-                  <option value="">Select a teammate to add...</option>
+                  <option value="">Select an employee or admin to add...</option>
                   ${availableColleagues.map(c => `
-                    <option value="${c._id}">${escapeHtml(c.name)} (${escapeHtml(c.role)})</option>
+                    <option value="${c._id}">${escapeHtml(c.name)} (${escapeHtml(c.role === 'superadmin' ? 'Superadmin' : (c.role === 'admin' ? 'Admin' : 'Employee'))})</option>
                   `).join('')}
                 </select>
                 <button class="bonding-btn-primary" id="btn-submit-add-member" ${availableColleagues.length === 0 ? 'disabled' : ''}>
                   Add to Group
                 </button>
               </div>
-              ${availableColleagues.length === 0 ? `<div class="bonding-hint-text">All active colleagues are already members of this group!</div>` : ''}
+              ${availableColleagues.length === 0 ? `<div class="bonding-hint-text">All active employees and administrators are already members of this group!</div>` : ''}
             </div>
 
             <!-- Current Members List -->
@@ -698,7 +699,8 @@ export async function initTeamBonding(container, options = {}) {
      ========================================================================= */
   function openNewDirectChatModal() {
     const modalRoot = container.querySelector('#bonding-modals-root');
-    const others = colleagues.filter(c => !c.isSelf);
+    const isAllowedRole = (r) => r === 'employee' || r === 'admin' || r === 'superadmin';
+    const others = colleagues.filter(c => !c.isSelf && isAllowedRole(c.role));
 
     modalRoot.innerHTML = `
       <div class="bonding-modal-backdrop">
@@ -708,14 +710,14 @@ export async function initTeamBonding(container, options = {}) {
             <button class="bonding-modal-close">&times;</button>
           </div>
           <div class="bonding-modal-body">
-            <p class="bonding-hint-text">Choose any team member to start a 1-on-1 private conversation.</p>
+            <p class="bonding-hint-text">Choose any employee or administrator to start a 1-on-1 private conversation.</p>
             <div class="bonding-user-pick-list">
               ${others.map(u => `
                 <div class="bonding-user-pick-item" data-user-id="${u._id}" data-name="${escapeHtml(u.name)}">
                   <div class="bonding-member-avatar">${u.name.slice(0, 1).toUpperCase()}</div>
                   <div class="bonding-user-pick-info">
                     <span class="user-pick-name">${escapeHtml(u.name)}</span>
-                    <span class="user-pick-role">${escapeHtml(u.role)} · ${escapeHtml(u.email || '')}</span>
+                    <span class="user-pick-role">${escapeHtml(u.role === 'superadmin' ? 'Superadmin' : (u.role === 'admin' ? 'Admin' : 'Employee'))} · ${escapeHtml(u.email || '')}</span>
                   </div>
                   <button class="bonding-btn-primary">Chat Now</button>
                 </div>
@@ -752,7 +754,8 @@ export async function initTeamBonding(container, options = {}) {
 
   function openCreateGroupModal() {
     const modalRoot = container.querySelector('#bonding-modals-root');
-    const others = colleagues.filter(c => !c.isSelf);
+    const isAllowedRole = (r) => r === 'employee' || r === 'admin' || r === 'superadmin';
+    const others = colleagues.filter(c => !c.isSelf && isAllowedRole(c.role));
 
     modalRoot.innerHTML = `
       <div class="bonding-modal-backdrop">
@@ -787,12 +790,12 @@ export async function initTeamBonding(container, options = {}) {
             </div>
 
             <div class="bonding-form-section">
-              <label class="bonding-form-label">Add Initial Members</label>
+              <label class="bonding-form-label">Add Initial Members (Employees & Admins only)</label>
               <div class="bonding-member-checkboxes">
                 ${others.map(u => `
                   <label class="bonding-check-label">
                     <input type="checkbox" class="new-group-member-chk" value="${u._id}" />
-                    <span>${escapeHtml(u.name)} (${escapeHtml(u.role)})</span>
+                    <span>${escapeHtml(u.name)} (${escapeHtml(u.role === 'superadmin' ? 'Superadmin' : (u.role === 'admin' ? 'Admin' : 'Employee'))})</span>
                   </label>
                 `).join('')}
               </div>
