@@ -27,7 +27,11 @@ const TaskSchema = new mongoose.Schema({
   checklists: [ChecklistItemSchema],
   timeSpent: { type: Number, default: 0 },
   tags: [{ type: String, trim: true }],
-  completedAt: { type: Date, default: null }
+  completedAt: { type: Date, default: null },
+  isDeleted: { type: Boolean, default: false, index: true },
+  deletedAt: { type: Date, default: null },
+  deletedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+  deletedByName: { type: String, default: '' }
 }, { timestamps: true });
 
 module.exports = mongoose.models.Task || mongoose.model('Task', TaskSchema);

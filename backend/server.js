@@ -64,7 +64,11 @@ var require_User = __commonJS({
       personnelId: { type: mongoose.Schema.Types.ObjectId, ref: "Personnel", default: null },
       // Link a client login to their Client record
       clientId: { type: mongoose.Schema.Types.ObjectId, ref: "Client", default: null },
-      active: { type: Boolean, default: true }
+      active: { type: Boolean, default: true },
+      isDeleted: { type: Boolean, default: false },
+      deletedAt: { type: Date, default: null },
+      deletedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
+      deletedByName: { type: String, default: "" }
     }, { timestamps: true });
     module2.exports = mongoose.model("User", UserSchema);
   }
@@ -300,7 +304,7 @@ var require_users = __commonJS({
     var router = express2.Router();
     router.use(verifyToken, requireRole("superadmin"));
     router.get("/", async (req, res) => {
-      const users = await User.find().select("-passwordHash").populate("personnelId", "name").populate("clientId", "name").sort("name");
+      const users = await User.find({ isDeleted: { $ne: true } }).select("-passwordHash").populate("personnelId", "name").populate("clientId", "name").sort("name");
       res.json(users);
     });
     router.post("/", async (req, res) => {
@@ -347,8 +351,15 @@ var require_users = __commonJS({
       }
     });
     router.delete("/:id", async (req, res) => {
-      await User.findByIdAndDelete(req.params.id);
-      res.json({ ok: true });
+      const user = await User.findById(req.params.id);
+      if (!user) return res.status(404).json({ error: "User not found" });
+      user.isDeleted = true;
+      user.active = false;
+      user.deletedAt = new Date();
+      user.deletedBy = req.user ? req.user._id : null;
+      user.deletedByName = req.user ? req.user.name : "";
+      await user.save();
+      res.json({ ok: true, message: "User soft deleted and preserved in database" });
     });
     module2.exports = router;
   }
@@ -368,7 +379,11 @@ var require_Personnel = __commonJS({
         type: { type: String, default: "" },
         category: { type: String, default: "Document" },
         uploadedAt: { type: Date, default: Date.now }
-      }]
+      }],
+      isDeleted: { type: Boolean, default: false },
+      deletedAt: { type: Date, default: null },
+      deletedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
+      deletedByName: { type: String, default: "" }
     }, { timestamps: true });
     module2.exports = mongoose.model("Personnel", PersonnelSchema);
   }
@@ -381,7 +396,7 @@ var require_personnel = __commonJS({
     var router = express2.Router();
     router.use(verifyToken);
     router.get("/", async (req, res) => {
-      const list = await Personnel.find().sort("name");
+      const list = await Personnel.find({ isDeleted: { $ne: true } }).sort("name");
       res.json(list);
     });
     router.post("/", requireRole("superadmin"), async (req, res) => {
@@ -440,8 +455,14 @@ var require_personnel = __commonJS({
       }
     });
     router.delete("/:id", requireRole("superadmin"), async (req, res) => {
-      await Personnel.findByIdAndDelete(req.params.id);
-      res.json({ ok: true });
+      const p = await Personnel.findById(req.params.id);
+      if (!p) return res.status(404).json({ error: "Personnel not found" });
+      p.isDeleted = true;
+      p.deletedAt = new Date();
+      p.deletedBy = req.user ? req.user._id : null;
+      p.deletedByName = req.user ? req.user.name : "";
+      await p.save();
+      res.json({ ok: true, message: "Personnel soft deleted from dashboard and preserved in database" });
     });
     module2.exports = router;
   }
@@ -459,7 +480,11 @@ var require_Client = __commonJS({
         type: { type: String, default: "" },
         category: { type: String, default: "General" },
         uploadedAt: { type: Date, default: Date.now }
-      }]
+      }],
+      isDeleted: { type: Boolean, default: false },
+      deletedAt: { type: Date, default: null },
+      deletedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
+      deletedByName: { type: String, default: "" }
     }, { timestamps: true });
     module2.exports = mongoose.model("Client", ClientSchema);
   }
@@ -474,10 +499,10 @@ var require_clients = __commonJS({
     router.get("/", async (req, res) => {
       if (req.user.role === "client") {
         if (!req.user.clientId) return res.json([]);
-        const c = await Client.findById(req.user.clientId);
+        const c = await Client.findOne({ _id: req.user.clientId, isDeleted: { $ne: true } });
         return res.json(c ? [c] : []);
       }
-      const list = await Client.find().sort("name");
+      const list = await Client.find({ isDeleted: { $ne: true } }).sort("name");
       res.json(list);
     });
     router.post("/", requireRole("superadmin", "employee"), async (req, res) => {
@@ -526,8 +551,14 @@ var require_clients = __commonJS({
       }
     });
     router.delete("/:id", requireRole("superadmin"), async (req, res) => {
-      await Client.findByIdAndDelete(req.params.id);
-      res.json({ ok: true });
+      const c = await Client.findById(req.params.id);
+      if (!c) return res.status(404).json({ error: "Client not found" });
+      c.isDeleted = true;
+      c.deletedAt = new Date();
+      c.deletedBy = req.user ? req.user._id : null;
+      c.deletedByName = req.user ? req.user.name : "";
+      await c.save();
+      res.json({ ok: true, message: "Client soft deleted from dashboard and preserved in database" });
     });
     module2.exports = router;
   }
@@ -537,7 +568,11 @@ var require_Service = __commonJS({
     var mongoose = require("mongoose");
     var ServiceSchema = new mongoose.Schema({
       name: { type: String, required: true, trim: true },
-      hours: { type: Number, default: 0 }
+      hours: { type: Number, default: 0 },
+      isDeleted: { type: Boolean, default: false },
+      deletedAt: { type: Date, default: null },
+      deletedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
+      deletedByName: { type: String, default: "" }
       // reference / informational effort estimate
     }, { timestamps: true });
     module2.exports = mongoose.model("Service", ServiceSchema);
@@ -551,7 +586,7 @@ var require_services = __commonJS({
     var router = express2.Router();
     router.use(verifyToken);
     router.get("/", async (req, res) => {
-      const list = await Service.find().sort("name");
+      const list = await Service.find({ isDeleted: { $ne: true } }).sort("name");
       res.json(list);
     });
     router.post("/", requireRole("superadmin", "employee"), async (req, res) => {
@@ -567,8 +602,14 @@ var require_services = __commonJS({
       res.json(s);
     });
     router.delete("/:id", requireRole("superadmin"), async (req, res) => {
-      await Service.findByIdAndDelete(req.params.id);
-      res.json({ ok: true });
+      const s = await Service.findById(req.params.id);
+      if (!s) return res.status(404).json({ error: "Service not found" });
+      s.isDeleted = true;
+      s.deletedAt = new Date();
+      s.deletedBy = req.user ? req.user._id : null;
+      s.deletedByName = req.user ? req.user.name : "";
+      await s.save();
+      res.json({ ok: true, message: "Service soft deleted from dashboard and preserved in database" });
     });
     module2.exports = router;
   }
@@ -612,7 +653,11 @@ var require_Job = __commonJS({
         notes: { type: String, default: "" },
         uploadedBy: { type: String, default: "" },
         uploadedAt: { type: Date, default: Date.now }
-      }]
+      }],
+      isDeleted: { type: Boolean, default: false },
+      deletedAt: { type: Date, default: null },
+      deletedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
+      deletedByName: { type: String, default: "" }
     }, { timestamps: true });
     module2.exports = mongoose.models.Job || mongoose.model("Job", JobSchema);
   }
@@ -698,7 +743,7 @@ var require_jobs = __commonJS({
     var router = express2.Router();
     router.use(verifyToken);
     router.get("/", async (req, res) => {
-      const filter = {};
+      const filter = { isDeleted: { $ne: true } };
       if (req.user.role === "client") {
         if (req.user.clientId) {
           filter.$or = [{ clientId: req.user.clientId }, { createdBy: req.user._id }];
@@ -1075,8 +1120,12 @@ var require_jobs = __commonJS({
       if (req.user.role === "employee" && String(job.createdBy) !== String(req.user._id)) {
         return res.status(403).json({ error: "You can only delete jobs you logged yourself" });
       }
-      await Job.findByIdAndDelete(req.params.id);
-      res.json({ ok: true });
+      job.isDeleted = true;
+      job.deletedAt = new Date();
+      job.deletedBy = req.user ? req.user._id : null;
+      job.deletedByName = req.user ? req.user.name : "";
+      await job.save();
+      res.json({ ok: true, message: "Job soft deleted from dashboard and preserved in database" });
     });
     module2.exports = router;
   }
@@ -1585,9 +1634,9 @@ var require_dashboard = __commonJS({
       const period = req.query.period || "month";
       const { from, to } = periodRange(period);
       const [allJobs, personnel, clients, roster] = await Promise.all([
-        Job.find().lean(),
-        Personnel.find().lean(),
-        Client.find().lean(),
+        Job.find({ isDeleted: { $ne: true } }).lean(),
+        Personnel.find({ isDeleted: { $ne: true } }).lean(),
+        Client.find({ isDeleted: { $ne: true } }).lean(),
         Roster.find().lean()
       ]);
       const jobs = filterJobsInRange(allJobs, from, to);
@@ -1681,7 +1730,7 @@ var require_dashboard = __commonJS({
       }
 
       const [allJobs, person, roster] = await Promise.all([
-        Job.find({ "assignments.personId": personId }).populate("clientId", "name").lean(),
+        Job.find({ "assignments.personId": personId, isDeleted: { $ne: true } }).populate("clientId", "name").lean(),
         Personnel.findById(personId).lean(),
         Roster.find().lean()
       ]);
@@ -1725,8 +1774,8 @@ var require_dashboard = __commonJS({
       const period = req.query.period || "month";
       const { from, to } = periodRange(period);
       const jobFilter = req.user.clientId
-        ? { $or: [{ clientId: req.user.clientId }, { createdBy: req.user._id }] }
-        : { createdBy: req.user._id };
+        ? { isDeleted: { $ne: true }, $or: [{ clientId: req.user.clientId }, { createdBy: req.user._id }] }
+        : { isDeleted: { $ne: true }, createdBy: req.user._id };
       const [allJobs, client, rosterEntries] = await Promise.all([
         Job.find(jobFilter).lean(),
         req.user.clientId ? Client.findById(req.user.clientId).lean() : null,
@@ -2122,6 +2171,7 @@ app.use("/api/upload", require_upload());
 app.use("/api/tasks", require("./routes/tasks"));
 app.use("/api/accounts", require("./routes/accounts"));
 app.use("/api/proposals", require("./routes/proposals"));
+app.use("/api/archive", require("./routes/archive"));
 
 var webDistPath = path.join(__dirname, "../web/dist");
 var webSrcPath = path.join(__dirname, "../web");

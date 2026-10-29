@@ -9,7 +9,7 @@ const router = express.Router();
 router.use(verifyToken);
 
 router.get('/', async (req, res) => {
-  const filter = {};
+  const filter = { isDeleted: { $ne: true } };
   if (req.user.role === 'client') {
     if (req.user.clientId) {
       filter.$or = [{ clientId: req.user.clientId }, { createdBy: req.user._id }];
@@ -406,13 +406,21 @@ router.post('/:id/revision', requireRole('superadmin', 'client'), async (req, re
 });
 
 router.delete('/:id', requireRole('superadmin', 'employee'), async (req, res) => {
-  const job = await Job.findById(req.params.id);
-  if (!job) return res.status(404).json({ error: 'Not found' });
-  if (req.user.role === 'employee' && String(job.createdBy) !== String(req.user._id)) {
-    return res.status(403).json({ error: 'You can only delete jobs you logged yourself' });
+  try {
+    const job = await Job.findById(req.params.id);
+    if (!job) return res.status(404).json({ error: 'Not found' });
+    if (req.user.role === 'employee' && String(job.createdBy) !== String(req.user._id)) {
+      return res.status(403).json({ error: 'You can only delete jobs you logged yourself' });
+    }
+    job.isDeleted = true;
+    job.deletedAt = new Date();
+    job.deletedBy = req.user ? req.user._id : null;
+    job.deletedByName = req.user ? req.user.name : 'User';
+    await job.save();
+    res.json({ ok: true, message: 'Job removed from dashboard (preserved in database)' });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to remove job: ' + err.message });
   }
-  await Job.findByIdAndDelete(req.params.id);
-  res.json({ ok: true });
 });
 
 module.exports = router;

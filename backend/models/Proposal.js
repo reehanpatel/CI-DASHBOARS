@@ -175,7 +175,11 @@ const ProposalSchema = new mongoose.Schema({
     version: { type: Number, default: 0 }
   },
 
-  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  isDeleted: { type: Boolean, default: false, index: true },
+  deletedAt: { type: Date, default: null },
+  deletedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+  deletedByName: { type: String, default: '' }
 }, { timestamps: true });
 
 module.exports = mongoose.models.Proposal || mongoose.model('Proposal', ProposalSchema);

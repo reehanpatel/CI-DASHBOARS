@@ -23,6 +23,10 @@ const PaymentSchema = new mongoose.Schema({
   notes: { type: String, default: '' },
   recordedById: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
   recordedByName: { type: String, default: '' },
+  isDeleted: { type: Boolean, default: false, index: true },
+  deletedAt: { type: Date, default: null },
+  deletedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+  deletedByName: { type: String, default: '' }
 }, { timestamps: true });
 
 module.exports = mongoose.models.Payment || mongoose.model('Payment', PaymentSchema);

@@ -6,7 +6,7 @@ const router = express.Router();
 router.use(verifyToken);
 
 router.get('/', async (req, res) => {
-  const list = await Service.find().sort('name');
+  const list = await Service.find({ isDeleted: { $ne: true } }).sort('name');
   res.json(list);
 });
 
@@ -25,8 +25,14 @@ router.put('/:id', requireRole('superadmin'), async (req, res) => {
 });
 
 router.delete('/:id', requireRole('superadmin'), async (req, res) => {
-  await Service.findByIdAndDelete(req.params.id);
-  res.json({ ok: true });
+  const s = await Service.findById(req.params.id);
+  if (!s) return res.status(404).json({ error: 'Service not found' });
+  s.isDeleted = true;
+  s.deletedAt = new Date();
+  s.deletedBy = req.user ? req.user._id : null;
+  s.deletedByName = req.user ? req.user.name : '';
+  await s.save();
+  res.json({ ok: true, message: 'Service soft deleted from dashboard and preserved in database' });
 });
 
 module.exports = router;

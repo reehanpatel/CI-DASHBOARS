@@ -74,8 +74,8 @@ router.get('/client-portal', verifyToken, async (req, res) => {
     await syncAllInvoiceStatuses();
 
     const [invoices, payments, profile, client] = await Promise.all([
-      Invoice.find({ clientId, status: { $ne: 'cancelled' } }).sort({ issueDate: -1 }),
-      Payment.find({ clientId, status: 'completed' }).sort({ paymentDate: -1 }),
+      Invoice.find({ clientId, status: { $ne: 'cancelled' }, isDeleted: { $ne: true } }).sort({ issueDate: -1 }),
+      Payment.find({ clientId, status: 'completed', isDeleted: { $ne: true } }).sort({ paymentDate: -1 }),
       BillingProfile.findOne({ clientId }),
       Client.findById(clientId).select('name')
     ]);
@@ -117,9 +117,9 @@ router.get('/dashboard', async (req, res) => {
     await syncAllInvoiceStatuses();
 
     const [invoices, payments, clients, profiles] = await Promise.all([
-      Invoice.find({ status: { $ne: 'cancelled' } }).sort({ issueDate: -1 }),
-      Payment.find({ status: 'completed' }).sort({ paymentDate: -1 }),
-      Client.find().select('name'),
+      Invoice.find({ status: { $ne: 'cancelled' }, isDeleted: { $ne: true } }).sort({ issueDate: -1 }),
+      Payment.find({ status: 'completed', isDeleted: { $ne: true } }).sort({ paymentDate: -1 }),
+      Client.find({ isDeleted: { $ne: true } }).select('name'),
       BillingProfile.find()
     ]);
 
@@ -281,7 +281,7 @@ router.get('/invoices', async (req, res) => {
   try {
     await syncAllInvoiceStatuses();
     const { status, clientId, search, fromDate, toDate } = req.query;
-    const filter = {};
+    const filter = { isDeleted: { $ne: true } };
 
     if (status && status !== 'all') {
       filter.status = status;
@@ -568,8 +568,12 @@ router.delete('/invoices/:id', async (req, res) => {
       await Payment.updateMany({ invoiceId: invoice._id }, { $set: { invoiceId: null, invoiceNumber: '' } });
     }
 
-    await Invoice.findByIdAndDelete(req.params.id);
-    res.json({ ok: true, message: `Invoice ${invoice.invoiceNumber} deleted successfully` });
+    invoice.isDeleted = true;
+    invoice.deletedAt = new Date();
+    invoice.deletedBy = req.user ? req.user._id : null;
+    invoice.deletedByName = req.user ? req.user.name : 'Accounts';
+    await invoice.save();
+    res.json({ ok: true, message: `Invoice ${invoice.invoiceNumber} removed from dashboard (preserved in database)` });
   } catch (err) {
     res.status(500).json({ error: 'Failed to delete invoice', detail: err.message });
   }
@@ -578,11 +582,11 @@ router.delete('/invoices/:id', async (req, res) => {
 router.post('/invoices/bulk-delete', async (req, res) => {
   try {
     const { ids, deleteAll } = req.body;
-    let query = {};
+    let query = { isDeleted: { $ne: true } };
     if (deleteAll) {
-      query = {};
+      query = { isDeleted: { $ne: true } };
     } else if (Array.isArray(ids) && ids.length) {
-      query = { _id: { $in: ids } };
+      query = { _id: { $in: ids }, isDeleted: { $ne: true } };
     } else {
       return res.status(400).json({ error: 'No invoice IDs provided for deletion' });
     }
@@ -600,12 +604,19 @@ router.post('/invoices/bulk-delete', async (req, res) => {
       { $set: { invoiceId: null, invoiceNumber: '' } }
     );
 
-    const result = await Invoice.deleteMany({ _id: { $in: invoiceIds } });
+    const result = await Invoice.updateMany({ _id: { $in: invoiceIds } }, {
+      $set: {
+        isDeleted: true,
+        deletedAt: new Date(),
+        deletedBy: req.user ? req.user._id : null,
+        deletedByName: req.user ? req.user.name : 'Accounts'
+      }
+    });
 
     res.json({
       ok: true,
-      deletedCount: result.deletedCount,
-      message: `Successfully deleted ${result.deletedCount} invoice(s)`
+      deletedCount: result.modifiedCount,
+      message: `Successfully removed ${result.modifiedCount} invoice(s) from dashboard (preserved in database)`
     });
   } catch (err) {
     res.status(500).json({ error: 'Failed to bulk delete invoices', detail: err.message });
@@ -616,7 +627,7 @@ router.post('/invoices/bulk-delete', async (req, res) => {
 router.get('/payments', async (req, res) => {
   try {
     const { clientId, invoiceId, paymentMethod, search } = req.query;
-    const filter = {};
+    const filter = { isDeleted: { $ne: true } };
 
     if (clientId) filter.clientId = clientId;
     if (invoiceId) filter.invoiceId = invoiceId;
@@ -729,8 +740,12 @@ router.delete('/payments/:id', async (req, res) => {
       }
     }
 
-    await Payment.findByIdAndDelete(req.params.id);
-    res.json({ ok: true, message: `Payment ${payment.paymentNumber} removed and balances restored` });
+    payment.isDeleted = true;
+    payment.deletedAt = new Date();
+    payment.deletedBy = req.user ? req.user._id : null;
+    payment.deletedByName = req.user ? req.user.name : 'Accounts';
+    await payment.save();
+    res.json({ ok: true, message: `Payment ${payment.paymentNumber} removed from dashboard (preserved in database)` });
   } catch (err) {
     res.status(500).json({ error: 'Failed to delete payment', detail: err.message });
   }
@@ -739,11 +754,11 @@ router.delete('/payments/:id', async (req, res) => {
 router.post('/payments/bulk-delete', async (req, res) => {
   try {
     const { ids, deleteAll } = req.body;
-    let query = {};
+    let query = { isDeleted: { $ne: true } };
     if (deleteAll) {
-      query = {};
+      query = { isDeleted: { $ne: true } };
     } else if (Array.isArray(ids) && ids.length) {
-      query = { _id: { $in: ids } };
+      query = { _id: { $in: ids }, isDeleted: { $ne: true } };
     } else {
       return res.status(400).json({ error: 'No payment IDs provided for deletion' });
     }
@@ -772,11 +787,18 @@ router.post('/payments/bulk-delete', async (req, res) => {
       }
     }
 
-    const result = await Payment.deleteMany(query);
+    const result = await Payment.updateMany(query, {
+      $set: {
+        isDeleted: true,
+        deletedAt: new Date(),
+        deletedBy: req.user ? req.user._id : null,
+        deletedByName: req.user ? req.user.name : 'Accounts'
+      }
+    });
     res.json({
       ok: true,
-      deletedCount: result.deletedCount,
-      message: `Successfully deleted ${result.deletedCount} payment(s) and restored invoice balances`
+      deletedCount: result.modifiedCount,
+      message: `Successfully removed ${result.modifiedCount} payment(s) from dashboard (preserved in database)`
     });
   } catch (err) {
     res.status(500).json({ error: 'Failed to bulk delete payments', detail: err.message });
@@ -786,8 +808,8 @@ router.post('/payments/bulk-delete', async (req, res) => {
 router.post('/clear-all', async (req, res) => {
   try {
     const [invResult, payResult] = await Promise.all([
-      Invoice.deleteMany({}),
-      Payment.deleteMany({})
+      Invoice.updateMany({ isDeleted: { $ne: true } }, { $set: { isDeleted: true, deletedAt: new Date(), deletedByName: 'Accounts Reset' } }),
+      Payment.updateMany({ isDeleted: { $ne: true } }, { $set: { isDeleted: true, deletedAt: new Date(), deletedByName: 'Accounts Reset' } })
     ]);
 
     res.json({

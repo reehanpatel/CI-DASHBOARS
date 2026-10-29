@@ -272,7 +272,7 @@ router.post('/pin/update', async (req, res) => {
 router.get('/', async (req, res) => {
   try {
     const { status, search, client } = req.query;
-    const filter = {};
+    const filter = { isDeleted: { $ne: true } };
 
     // Role-specific scoping: Clients can only see approved/released proposals for their organisation
     if (req.user && req.user.role === 'client') {
@@ -501,9 +501,14 @@ router.delete('/:id', async (req, res) => {
     if (req.user && req.user.role === 'client') {
       return res.status(403).json({ error: 'Clients cannot delete proposals' });
     }
-    const proposal = await Proposal.findByIdAndDelete(req.params.id);
+    const proposal = await Proposal.findById(req.params.id);
     if (!proposal) return res.status(404).json({ error: 'Proposal not found' });
-    res.json({ success: true, message: 'Proposal deleted' });
+    proposal.isDeleted = true;
+    proposal.deletedAt = new Date();
+    proposal.deletedBy = req.user ? req.user._id : null;
+    proposal.deletedByName = req.user ? req.user.name : '';
+    await proposal.save();
+    res.json({ success: true, message: 'Proposal soft deleted from dashboard and preserved in database' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

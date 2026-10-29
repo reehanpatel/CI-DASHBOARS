@@ -49,6 +49,7 @@ const ADMIN_TABS = [
   { key: 'targets', label: 'Targets', icon: '🎯' },
   { key: 'salaries', label: 'Salaries', icon: '💰' },
   { key: 'users', label: 'Users', icon: '👤' },
+  { key: 'archive', label: 'DB Archive', icon: '🗄️' },
   { key: 'manage', label: 'Settings & Manage', icon: '⚙️' }
 ];
 
@@ -90,6 +91,7 @@ async function renderTab(){
     else if(ui.tab==='billing_dashboard') { window.location.href = '/accounts'; return; }
     else if(ui.tab==='targets') await tabTargets(c);
     else if(ui.tab==='salaries') await tabSalaries(c);
+    else if(ui.tab==='archive') await tabArchive(c);
     else if(ui.tab==='settings' || ui.tab==='manage') tabSettings(c);
     else if(ui.tab==='users') await tabUsers(c);
   }catch(err){
@@ -1530,6 +1532,24 @@ function tabManage(c){
         })}
       </div>
 
+      <!-- Database Archive Card in Settings -->
+      <div class="card" style="margin-bottom:24px;border:1px solid rgba(239,68,68,0.25);background:linear-gradient(180deg, rgba(239,68,68,0.03) 0%, rgba(0,0,0,0) 100%)">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+          <div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <span style="font-size:22px">🗄️</span>
+              <h3 style="font-size:16px;font-weight:800;color:var(--text-1);margin:0">Database Archive & Preserved Records</h3>
+            </div>
+            <div style="font-size:12px;color:var(--text-3);margin-top:4px">
+              Items removed from dashboards are <strong>compulsorily preserved in MongoDB</strong>. They will never leave the database until you explicitly purge them from the archive.
+            </div>
+          </div>
+          <button class="btn gold small" id="openArchiveTabBtn" type="button" style="border-color:rgba(239,68,68,0.3)">
+            🗄️ Open Database Archive →
+          </button>
+        </div>
+      </div>
+
       <!-- Personnel Section -->
       <div class="card" style="margin-bottom:24px">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:12px">
@@ -1656,6 +1676,9 @@ function tabManage(c){
 
   // Bind Admin Account Settings
   bindAccountSettingsCard(c);
+
+  const openArcBtn = document.getElementById('openArchiveTabBtn');
+  if (openArcBtn) openArcBtn.onclick = () => { ui.tab = 'archive'; render(); };
 }
 
 const tabSettings = tabManage;
@@ -1957,6 +1980,251 @@ async function tabUsers(c){
   const addBtn = c.querySelector('#addUserBtn');
   if (addBtn) addBtn.onclick = () => openUserModal(null);
 }
+
+/* ---------------- DATABASE ARCHIVE & PRESERVED STORAGE ---------------- */
+async function tabArchive(c){
+  c.innerHTML = `<div style="padding:40px;text-align:center;"><div class="loading">Loading database archive from MongoDB...</div></div>`;
+  
+  let currentType = 'all';
+  let searchQuery = '';
+  let archiveData = null;
+
+  async function fetchAndRenderArchive(){
+    try {
+      archiveData = await apiGet('/archive' + (currentType !== 'all' ? `?type=${encodeURIComponent(currentType)}` : ''));
+      renderArchiveView();
+    } catch(err){
+      c.innerHTML = `<div class="empty"><h3>Failed to load database archive</h3><p>${escapeHtml(err.message)}</p><button class="btn gold small" id="retryArchiveBtn">Retry</button></div>`;
+      const retryBtn = c.querySelector('#retryArchiveBtn');
+      if (retryBtn) retryBtn.onclick = () => fetchAndRenderArchive();
+    }
+  }
+
+  function renderArchiveView(){
+    if (!archiveData) return;
+    const { summary, items } = archiveData;
+    const totalCount = summary.total || 0;
+
+    let filteredItems = [...(items || [])];
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      filteredItems = filteredItems.filter(it => 
+        (it.title && it.title.toLowerCase().includes(q)) || 
+        (it.detail && it.detail.toLowerCase().includes(q)) ||
+        (it.deletedByName && it.deletedByName.toLowerCase().includes(q)) ||
+        (it.type && it.type.toLowerCase().includes(q))
+      );
+    }
+
+    const typeIcons = {
+      job: '📁',
+      task: '✅',
+      invoice: '💳',
+      payment: '💰',
+      client: '💼',
+      personnel: '👥',
+      service: '⚙️',
+      proposal: '📜'
+    };
+
+    const typeBadges = {
+      job: 'blue',
+      task: 'green',
+      invoice: 'amber',
+      payment: 'cyan',
+      client: 'purple',
+      personnel: 'gold',
+      service: 'gray',
+      proposal: 'red'
+    };
+
+    c.innerHTML = `
+      <section class="block">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:12px">
+          <div>
+            <div style="display:flex;align-items:center;gap:10px">
+              <h2 style="font-size:22px;font-weight:800;color:var(--text-1);margin:0">🗄️ Database Archive & Preserved Storage</h2>
+              <span class="badge red" style="font-weight:700">${totalCount} Preserved in DB</span>
+            </div>
+            <p style="font-size:13px;color:var(--text-3);margin:4px 0 0 0">
+              Records deleted from dashboards are <strong>compulsorily preserved in MongoDB</strong>. They will never leave the database until you explicitly purge them from here.
+            </p>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <button class="btn ghost small" id="refreshArchiveBtn" type="button">🔄 Refresh</button>
+            ${currentType !== 'all' && (summary[currentType] || 0) > 0 ? `
+              <button class="btn danger small" id="purgeTypeBtn" type="button">⚠️ Purge All ${currentType.toUpperCase()} from DB</button>
+            ` : ''}
+          </div>
+        </div>
+
+        <!-- Filter Pills with counts -->
+        <div style="display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap;align-items:center">
+          <button class="pchip archive-type-pill ${currentType==='all'?'active':''}" data-type="all">All (${summary.total || 0})</button>
+          <button class="pchip archive-type-pill ${currentType==='jobs'?'active':''}" data-type="jobs">📁 Jobs (${summary.jobs || 0})</button>
+          <button class="pchip archive-type-pill ${currentType==='tasks'?'active':''}" data-type="tasks">✅ Tasks (${summary.tasks || 0})</button>
+          <button class="pchip archive-type-pill ${currentType==='invoices'?'active':''}" data-type="invoices">💳 Invoices (${summary.invoices || 0})</button>
+          <button class="pchip archive-type-pill ${currentType==='payments'?'active':''}" data-type="payments">💰 Payments (${summary.payments || 0})</button>
+          <button class="pchip archive-type-pill ${currentType==='clients'?'active':''}" data-type="clients">💼 Clients (${summary.clients || 0})</button>
+          <button class="pchip archive-type-pill ${currentType==='personnel'?'active':''}" data-type="personnel">👥 Personnel (${summary.personnel || 0})</button>
+          <button class="pchip archive-type-pill ${currentType==='services'?'active':''}" data-type="services">⚙️ Services (${summary.services || 0})</button>
+          <button class="pchip archive-type-pill ${currentType==='proposals'?'active':''}" data-type="proposals">📜 Proposals (${summary.proposals || 0})</button>
+        </div>
+
+        <!-- Search Bar -->
+        <div style="margin-bottom:16px;">
+          <input type="text" id="archiveSearchInp" placeholder="🔍 Search preserved records by title, client, or details..." value="${escapeHtml(searchQuery)}" style="max-width:460px;font-size:13px;padding:8px 14px;border-radius:8px">
+        </div>
+
+        <!-- Main Archive Table Card -->
+        <div class="card" style="border:1px solid rgba(239,68,68,0.2)">
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width:110px">Record Type</th>
+                  <th>Item Title / Subject</th>
+                  <th>Preserved Information</th>
+                  <th>Deleted At (Preserved In DB)</th>
+                  <th>Deleted By</th>
+                  <th class="num" style="min-width:210px">Database Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${filteredItems.length === 0 ? `
+                  <tr>
+                    <td colspan="6">
+                      <div class="empty" style="padding:48px 16px;text-align:center">
+                        <div style="font-size:36px;margin-bottom:8px">🗄️</div>
+                        <h4 style="margin:0 0 4px 0;font-size:15px">No Deleted Records in This View</h4>
+                        <p style="font-size:12px;color:var(--text-3);max-width:440px;margin:0 auto">
+                          ${searchQuery ? 'No archive records matched your search query.' : 'No records of this type have been deleted from dashboards. They remain active on the system.'}
+                        </p>
+                      </div>
+                    </td>
+                  </tr>
+                ` : filteredItems.map(it => {
+                  const delDate = it.deletedAt ? new Date(it.deletedAt) : null;
+                  const dateStr = delDate ? `${delDate.toLocaleDateString('en-IN', {day:'2-digit',month:'short',year:'numeric'})} ${delDate.toLocaleTimeString('en-IN', {hour:'2-digit',minute:'2-digit'})}` : '—';
+                  const icon = typeIcons[it.type] || '📄';
+                  const badgeColor = typeBadges[it.type] || 'gray';
+                  return `
+                    <tr>
+                      <td><span class="badge ${badgeColor}">${icon} ${escapeHtml((it.type || '').toUpperCase())}</span></td>
+                      <td><strong style="color:var(--text-1);font-size:13px">${escapeHtml(it.title || 'Untitled')}</strong></td>
+                      <td><span style="font-size:12px;color:var(--text-2)">${escapeHtml(it.detail || '—')}</span></td>
+                      <td><span style="font-size:12px;color:var(--text-3)">${dateStr}</span></td>
+                      <td><span style="font-size:12px;color:var(--text-2);font-weight:600">${escapeHtml(it.deletedByName || 'Admin')}</span></td>
+                      <td class="num" style="white-space:nowrap">
+                        <button class="btn gold small restore-btn" data-type="${it.type}" data-id="${it.id}" title="Restore this record back to active dashboard view" style="margin-right:6px">
+                          🔄 Restore to Dashboard
+                        </button>
+                        <button class="btn danger small purge-btn" data-type="${it.type}" data-id="${it.id}" title="Permanently delete from MongoDB database">
+                          🗑️ Delete from DB
+                        </button>
+                      </td>
+                    </tr>
+                  `;
+                }).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    `;
+
+    // Wire refresh button
+    const refBtn = c.querySelector('#refreshArchiveBtn');
+    if (refBtn) refBtn.onclick = () => fetchAndRenderArchive();
+
+    // Wire type filter pills
+    c.querySelectorAll('.archive-type-pill').forEach(pill => {
+      pill.onclick = () => {
+        currentType = pill.dataset.type;
+        fetchAndRenderArchive();
+      };
+    });
+
+    // Wire search input
+    const sInp = c.querySelector('#archiveSearchInp');
+    if (sInp) {
+      sInp.oninput = () => {
+        searchQuery = sInp.value.trim();
+        renderArchiveView();
+        const newInp = c.querySelector('#archiveSearchInp');
+        if (newInp) {
+          newInp.focus();
+          newInp.setSelectionRange(newInp.value.length, newInp.value.length);
+        }
+      };
+    }
+
+    // Wire restore buttons
+    c.querySelectorAll('.restore-btn').forEach(btn => {
+      btn.onclick = async () => {
+        const type = btn.dataset.type;
+        const id = btn.dataset.id;
+        btn.disabled = true;
+        btn.textContent = 'Restoring...';
+        try {
+          await apiPost(`/archive/restore/${type}/${id}`, {});
+          flashToast(`✓ ${type.toUpperCase()} restored to dashboard!`);
+          if (['client', 'personnel', 'service'].includes(type)) {
+            await refreshCache();
+          }
+          await fetchAndRenderArchive();
+        } catch(err){
+          flashToast(err.message, true);
+          btn.disabled = false;
+          btn.textContent = '🔄 Restore to Dashboard';
+        }
+      };
+    });
+
+    // Wire permanent purge buttons
+    c.querySelectorAll('.purge-btn').forEach(btn => {
+      btn.onclick = async () => {
+        const type = btn.dataset.type;
+        const id = btn.dataset.id;
+        const confirmed = confirm(`⚠️ PERMANENT DATABASE DELETION\n\nThis will permanently delete this ${type} from MongoDB.\n\nIt cannot be recovered. Are you sure you want to permanently delete it from the database?`);
+        if (!confirmed) return;
+        btn.disabled = true;
+        btn.textContent = 'Purging...';
+        try {
+          await apiDelete(`/archive/purge/${type}/${id}`);
+          flashToast(`✓ Record permanently removed from database.`);
+          await fetchAndRenderArchive();
+        } catch(err){
+          flashToast(err.message, true);
+          btn.disabled = false;
+          btn.textContent = '🗑️ Delete from DB';
+        }
+      };
+    });
+
+    // Wire purge type button
+    const pTypeBtn = c.querySelector('#purgeTypeBtn');
+    if (pTypeBtn) {
+      pTypeBtn.onclick = async () => {
+        const confirmed = confirm(`⚠️ PURGE ALL ${currentType.toUpperCase()} RECORDS FROM DATABASE?\n\nThis will permanently delete all ${currentType} records currently in the archive from MongoDB.\n\nThis cannot be undone. Continue?`);
+        if (!confirmed) return;
+        pTypeBtn.disabled = true;
+        pTypeBtn.textContent = 'Purging...';
+        try {
+          await apiDelete(`/archive/purge-all/${currentType}`);
+          flashToast(`✓ All ${currentType} records permanently purged from database.`);
+          await fetchAndRenderArchive();
+        } catch(err){
+          flashToast(err.message, true);
+          pTypeBtn.disabled = false;
+        }
+      };
+    }
+  }
+
+  await fetchAndRenderArchive();
+}
+
 function openUserModal(u){
   const isNew = !u; u = u || {name:'',email:'',role:'employee',personnelId:'',clientId:'',active:true};
   const role0 = u.role;

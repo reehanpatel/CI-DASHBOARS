@@ -52,6 +52,10 @@ const InvoiceSchema = new mongoose.Schema({
   gstin: { type: String, default: '' },
   createdById: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
   createdByName: { type: String, default: '' },
+  isDeleted: { type: Boolean, default: false, index: true },
+  deletedAt: { type: Date, default: null },
+  deletedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+  deletedByName: { type: String, default: '' }
 }, { timestamps: true });
 
 InvoiceSchema.methods.syncStatus = function() {

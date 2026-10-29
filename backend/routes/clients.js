@@ -8,10 +8,10 @@ router.use(verifyToken);
 router.get('/', async (req, res) => {
   if (req.user.role === 'client') {
     if (!req.user.clientId) return res.json([]);
-    const c = await Client.findById(req.user.clientId);
+    const c = await Client.findOne({ _id: req.user.clientId, isDeleted: { $ne: true } });
     return res.json(c ? [c] : []);
   }
-  const list = await Client.find().sort('name');
+  const list = await Client.find({ isDeleted: { $ne: true } }).sort('name');
   res.json(list);
 });
 
@@ -66,8 +66,14 @@ router.post('/:id/attachments', requireRole('superadmin', 'employee'), async (re
 });
 
 router.delete('/:id', requireRole('superadmin'), async (req, res) => {
-  await Client.findByIdAndDelete(req.params.id);
-  res.json({ ok: true });
+  const client = await Client.findById(req.params.id);
+  if (!client) return res.status(404).json({ error: 'Client not found' });
+  client.isDeleted = true;
+  client.deletedAt = new Date();
+  client.deletedBy = req.user ? req.user._id : null;
+  client.deletedByName = req.user ? req.user.name : 'Admin';
+  await client.save();
+  res.json({ ok: true, message: 'Client removed from dashboard (preserved in database)' });
 });
 
 module.exports = router;

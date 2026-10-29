@@ -7,7 +7,7 @@ router.use(verifyToken);
 
 // All logged-in roles can read the personnel list (needed to display names, assign jobs, etc.)
 router.get('/', async (req, res) => {
-  const list = await Personnel.find().sort('name');
+  const list = await Personnel.find({ isDeleted: { $ne: true } }).sort('name');
   res.json(list);
 });
 
@@ -72,8 +72,14 @@ router.post('/:id/attachments', requireRole('superadmin'), async (req, res) => {
 });
 
 router.delete('/:id', requireRole('superadmin'), async (req, res) => {
-  await Personnel.findByIdAndDelete(req.params.id);
-  res.json({ ok: true });
+  const p = await Personnel.findById(req.params.id);
+  if (!p) return res.status(404).json({ error: 'Personnel not found' });
+  p.isDeleted = true;
+  p.deletedAt = new Date();
+  p.deletedBy = req.user ? req.user._id : null;
+  p.deletedByName = req.user ? req.user.name : '';
+  await p.save();
+  res.json({ ok: true, message: 'Personnel soft deleted from dashboard and preserved in database' });
 });
 
 module.exports = router;

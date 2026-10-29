@@ -94,6 +94,12 @@ export const apiPut    = (path, body) => api(path, {method:'PUT',    body: JSON.
 export const apiPatch  = (path, body) => api(path, {method:'PATCH',  body: JSON.stringify(body)});
 export const apiDelete = (path)       => api(path, {method:'DELETE'});
 
+// Database Archive APIs (Compulsory preserved deleted records)
+export const getArchive = (type) => apiGet('/archive' + (type ? `?type=${encodeURIComponent(type)}` : ''));
+export const restoreArchiveItem = (type, id) => apiPost(`/archive/restore/${type}/${id}`, {});
+export const purgeArchiveItem = (type, id) => apiDelete(`/archive/purge/${type}/${id}`);
+export const purgeAllArchive = (type) => apiDelete(`/archive/purge-all/${type}`);
+
 export function fmtINR(n){ n = Number(n)||0; return '₹' + n.toLocaleString('en-IN', {maximumFractionDigits:0}); }
 export function fmtHours(n){ return (Number(n)||0).toLocaleString('en-IN', {maximumFractionDigits:1}) + ' hrs'; }
 export function escapeHtml(str){ if(str==null) return ''; return String(str).replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
@@ -3274,7 +3280,8 @@ Object.assign(window, {
   renderAppShell, bindAppShellEvents, renderSkeletonCards, renderEmptyState,
   renderKpiCard, renderBadge, renderProgressBar, renderPeriodPicker,
   renderSupportTicketSection, bindSupportTicketSection,
-  renderAccountSettingsCard, bindAccountSettingsCard, openAccountSettingsModal
+  renderAccountSettingsCard, bindAccountSettingsCard, openAccountSettingsModal,
+  getArchive, restoreArchiveItem, purgeArchiveItem, purgeAllArchive
 });
 
 

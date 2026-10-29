@@ -11,7 +11,7 @@ router.use(verifyToken);
 // GET /api/tasks
 router.get('/', async (req, res) => {
   try {
-    const filter = {};
+    const filter = { isDeleted: { $ne: true } };
 
     if (req.user.role !== 'superadmin' || req.query.mine === 'true') {
       const userConditions = [{ userId: req.user._id }];
@@ -350,11 +350,16 @@ router.delete('/:id', async (req, res) => {
       taskQuery.$or = userConditions;
     }
 
-    const task = await Task.findOneAndDelete(taskQuery);
+    const task = await Task.findOne(taskQuery);
     if (!task) {
       return res.status(404).json({ error: 'Task not found' });
     }
-    res.json({ success: true, message: 'Task deleted' });
+    task.isDeleted = true;
+    task.deletedAt = new Date();
+    task.deletedBy = req.user ? req.user._id : null;
+    task.deletedByName = req.user ? req.user.name : 'User';
+    await task.save();
+    res.json({ success: true, message: 'Task removed from dashboard (preserved in database)' });
   } catch (err) {
     console.error('Error deleting task:', err);
     res.status(500).json({ error: 'Failed to delete task: ' + err.message });
@@ -364,7 +369,7 @@ router.delete('/:id', async (req, res) => {
 // POST /api/tasks/clear-completed
 router.post('/clear-completed', async (req, res) => {
   try {
-    const filter = { status: 'Completed' };
+    const filter = { status: 'Completed', isDeleted: { $ne: true } };
     if (req.user.role !== 'superadmin' || req.body.mine === true) {
       const userConditions = [{ userId: req.user._id }];
       if (req.user.personnelId) userConditions.push({ personnelId: req.user.personnelId });
@@ -379,8 +384,15 @@ router.post('/clear-completed', async (req, res) => {
       filter.dueDate = { $gte: start, $lte: end };
     }
 
-    const result = await Task.deleteMany(filter);
-    res.json({ success: true, deletedCount: result.deletedCount });
+    const result = await Task.updateMany(filter, {
+      $set: {
+        isDeleted: true,
+        deletedAt: new Date(),
+        deletedBy: req.user ? req.user._id : null,
+        deletedByName: req.user ? req.user.name : 'User'
+      }
+    });
+    res.json({ success: true, deletedCount: result.modifiedCount });
   } catch (err) {
     console.error('Error clearing completed tasks:', err);
     res.status(500).json({ error: 'Failed to clear completed tasks: ' + err.message });

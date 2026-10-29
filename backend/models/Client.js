@@ -11,6 +11,10 @@ const ClientSchema = new mongoose.Schema({
     category: { type: String, default: 'General' },
     uploadedAt: { type: Date, default: Date.now }
   }],
+  isDeleted: { type: Boolean, default: false, index: true },
+  deletedAt: { type: Date, default: null },
+  deletedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+  deletedByName: { type: String, default: '' }
 }, { timestamps: true });
 
 module.exports = mongoose.models.Client || mongoose.model('Client', ClientSchema);

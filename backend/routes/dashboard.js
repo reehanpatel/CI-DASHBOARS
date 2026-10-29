@@ -38,7 +38,10 @@ router.get('/admin', requireRole('superadmin'), async (req, res) => {
   const { from, to } = periodRange(period);
 
   const [allJobs, personnel, clients, roster] = await Promise.all([
-    Job.find().lean(), Personnel.find().lean(), Client.find().lean(), Roster.find().lean(),
+    Job.find({ isDeleted: { $ne: true } }).lean(),
+    Personnel.find({ isDeleted: { $ne: true } }).lean(),
+    Client.find({ isDeleted: { $ne: true } }).lean(),
+    Roster.find().lean(),
   ]);
   const jobs = filterJobsInRange(allJobs, from, to);
 
@@ -119,7 +122,7 @@ router.get('/employee', requireRole('employee', 'superadmin', 'accounts'), async
   }
 
   const [allJobs, person, roster] = await Promise.all([
-    Job.find({ 'assignments.personId': personId }).populate('clientId', 'name').lean(),
+    Job.find({ 'assignments.personId': personId, isDeleted: { $ne: true } }).populate('clientId', 'name').lean(),
     Personnel.findById(personId).lean(),
     Roster.find().lean(),
   ]);
@@ -167,8 +170,8 @@ router.get('/client', requireRole('client'), async (req, res) => {
   const { from, to } = periodRange(period);
 
   const jobFilter = req.user.clientId
-    ? { $or: [{ clientId: req.user.clientId }, { createdBy: req.user._id }] }
-    : { createdBy: req.user._id };
+    ? { isDeleted: { $ne: true }, $or: [{ clientId: req.user.clientId }, { createdBy: req.user._id }] }
+    : { isDeleted: { $ne: true }, createdBy: req.user._id };
 
   const [allJobs, client, rosterEntries] = await Promise.all([
     Job.find(jobFilter).lean(),
