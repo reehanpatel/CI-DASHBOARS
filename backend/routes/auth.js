@@ -139,4 +139,84 @@ router.get('/me', verifyToken, async (req, res) => {
   res.json({ user: publicUser(req.user) });
 });
 
+router.put('/profile', verifyToken, async (req, res) => {
+  try {
+    const { name, email, currentPassword, newPassword } = req.body;
+    const user = await User.findById(req.user._id);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    // Update username / name
+    if (name && typeof name === 'string') {
+      const trimmedName = name.trim();
+      if (!trimmedName) {
+        return res.status(400).json({ error: 'Username/name cannot be empty' });
+      }
+      user.name = trimmedName;
+
+      // Sync linked Personnel or Client record if present
+      try {
+        if (user.personnelId) {
+          const Personnel = mongoose.model('Personnel');
+          await Personnel.findByIdAndUpdate(user.personnelId, { name: trimmedName });
+        }
+        if (user.clientId) {
+          const Client = mongoose.model('Client');
+          await Client.findByIdAndUpdate(user.clientId, { name: trimmedName });
+        }
+      } catch (syncErr) {
+        console.warn('Linked record sync notice:', syncErr.message);
+      }
+    }
+
+    // Update email
+    if (email && typeof email === 'string') {
+      const trimmedEmail = email.toLowerCase().trim();
+      if (!trimmedEmail || !trimmedEmail.includes('@')) {
+        return res.status(400).json({ error: 'Please enter a valid email address' });
+      }
+      const existing = await User.findOne({ email: trimmedEmail, _id: { $ne: user._id } });
+      if (existing) {
+        return res.status(400).json({ error: 'A user with this email address already exists' });
+      }
+      user.email = trimmedEmail;
+    }
+
+    // Update password if requested
+    if (newPassword) {
+      if (typeof newPassword !== 'string' || newPassword.length < 6) {
+        return res.status(400).json({ error: 'New password must be at least 6 characters long' });
+      }
+      if (user.passwordHash) {
+        if (!currentPassword) {
+          return res.status(400).json({ error: 'Current password is required to change password' });
+        }
+        const match = await bcrypt.compare(currentPassword, user.passwordHash);
+        if (!match) {
+          return res.status(400).json({ error: 'Current password does not match' });
+        }
+      }
+      const salt = await bcrypt.genSalt(10);
+      user.passwordHash = await bcrypt.hash(newPassword, salt);
+    }
+
+    await user.save();
+    const newToken = signToken(user);
+    res.json({
+      ok: true,
+      message: 'Profile updated successfully!',
+      token: newToken,
+      user: publicUser(user)
+    });
+  } catch (err) {
+    console.error('Profile update error:', err);
+    res.status(500).json({ error: 'Failed to update profile', detail: err.message });
+  }
+});
+
+router.put('/me', verifyToken, async (req, res) => {
+  req.url = '/profile';
+  router.handle(req, res);
+});
+
 module.exports = router;
+

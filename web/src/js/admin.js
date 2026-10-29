@@ -1,4 +1,5 @@
 import { initProposalStudio } from './proposals.js';
+import { renderAccountSettingsCard, bindAccountSettingsCard } from './api.js';
 
 let user = null;
 let cache = { personnel: [], clients: [], services: [], salaryGrades: [], salaryAssignments: [] };
@@ -48,7 +49,7 @@ const ADMIN_TABS = [
   { key: 'targets', label: 'Targets', icon: '🎯' },
   { key: 'salaries', label: 'Salaries', icon: '💰' },
   { key: 'users', label: 'Users', icon: '👤' },
-  { key: 'manage', label: 'Manage', icon: '⚙️' }
+  { key: 'manage', label: 'Settings & Manage', icon: '⚙️' }
 ];
 
 function render(){
@@ -1521,6 +1522,14 @@ function tabManage(c){
 
   c.innerHTML = `
     <section class="block">
+      <!-- Admin Account Settings Card -->
+      <div style="margin-bottom:24px;">
+        ${renderAccountSettingsCard({
+          title: 'My Administrator Credentials',
+          subtitle: 'Manage your personal login email, display name, and password'
+        })}
+      </div>
+
       <!-- Personnel Section -->
       <div class="card" style="margin-bottom:24px">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:12px">
@@ -1644,6 +1653,9 @@ function tabManage(c){
   if (addSBtn) addSBtn.onclick = () => openServiceModal(null);
   document.querySelectorAll('.edit-service').forEach(b => b.onclick = () => openServiceModal(cache.services.find(s => s._id === b.dataset.id)));
   document.querySelectorAll('.del-service').forEach(b => b.onclick = async () => { if (!confirm('Remove this service?')) return; await apiDelete('/services/' + b.dataset.id); await refreshCache(); renderTab(); });
+
+  // Bind Admin Account Settings
+  bindAccountSettingsCard(c);
 }
 
 const tabSettings = tabManage;

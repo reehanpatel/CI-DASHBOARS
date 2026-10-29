@@ -12,7 +12,9 @@ import {
   flashToast,
   renderAppShell,
   bindAppShellEvents,
-  initTheme
+  initTheme,
+  renderAccountSettingsCard,
+  bindAccountSettingsCard
 } from './api.js';
 
 let user = null;
@@ -25,8 +27,9 @@ const ACCOUNTS_TABS = [
   { key: 'invoices', label: 'Invoices', icon: '📄' },
   { key: 'payments', label: 'Payments', icon: '💵' },
   { key: 'receivables', label: 'Pending & Receivables', icon: '⏳' },
-  { key: 'billing', label: 'Billing Profiles', icon: '⚙️' },
-  { key: 'tally', label: 'TallyPrime Silver', icon: '🏛️' }
+  { key: 'billing', label: 'Billing Profiles', icon: '📑' },
+  { key: 'tally', label: 'TallyPrime Silver', icon: '🏛️' },
+  { key: 'settings', label: 'Settings', icon: '⚙️' }
 ];
 
 // Initialize
@@ -91,6 +94,7 @@ async function renderContent() {
     else if (currentTab === 'receivables') await renderReceivablesTab(container);
     else if (currentTab === 'billing') await renderBillingProfilesTab(container);
     else if (currentTab === 'tally') await renderTallyTab(container);
+    else if (currentTab === 'settings') renderSettingsTab(container);
   } catch (err) {
     container.innerHTML = `
       <div class="empty" style="padding:48px 24px">
@@ -101,6 +105,18 @@ async function renderContent() {
     const retryBtn = document.getElementById('retryAccountsBtn');
     if (retryBtn) retryBtn.onclick = () => renderContent();
   }
+}
+
+function renderSettingsTab(container) {
+  container.innerHTML = `
+    <div style="padding:8px 0 24px 0;">
+      ${renderAccountSettingsCard({
+        title: 'Accounts User Profile & Credentials',
+        subtitle: 'Manage your authorized financial management username, login email, and security password'
+      })}
+    </div>
+  `;
+  bindAccountSettingsCard(container);
 }
 
 /* ─────────────────────────────────────────────────────────────

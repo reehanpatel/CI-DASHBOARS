@@ -1,3 +1,5 @@
+import { renderAccountSettingsCard, bindAccountSettingsCard } from './api.js';
+
 let user = null;
 let servicesCache = [];
 let personnelCache = [];
@@ -24,7 +26,8 @@ const CLIENT_TABS = [
   { key:'delivered', label:'Work Delivered',     icon:'📦' },
   { key:'proposals', label:'Proposals & Scope', icon:'📜' },
   { key:'billing',   label:'Billing & Invoices', icon:'💳' },
-  { key:'team',      label:'Our Team',           icon:'👥' }
+  { key:'team',      label:'Our Team',           icon:'👥' },
+  { key:'settings',  label:'Settings',           icon:'⚙️' }
 ];
 
 function render(){
@@ -56,7 +59,20 @@ async function renderTab(){
     else if(ui.tab==='proposals') await tabProposals(c, d);
     else if(ui.tab==='billing')   await tabBilling(c);
     else if(ui.tab==='team')      tabTeam(c, d);
+    else if(ui.tab==='settings')  tabSettings(c);
   }catch(err){ c.innerHTML = renderEmptyState('Something went wrong', err.message, '⚠️'); }
+}
+
+function tabSettings(c){
+  c.innerHTML = `
+    <div style="padding:8px 0 24px 0;">
+      ${renderAccountSettingsCard({
+        title: 'Client Account Credentials',
+        subtitle: 'Manage your authorized client portal username, login email, and security password'
+      })}
+    </div>
+  `;
+  bindAccountSettingsCard(c);
 }
 
 /* ════════════════════════════ CLIENT DASHBOARD OVERVIEW ═══════════════════ */

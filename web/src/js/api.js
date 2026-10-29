@@ -1704,6 +1704,10 @@ export function renderAppShell({ user, currentRole, activeTab, tabs, title, subt
                   </div>
                   <div class="tud-divider"></div>
                   <div class="tud-items">
+                    <button type="button" class="tud-item" id="tudProfileSettingsBtn" role="menuitem">
+                      <span class="tud-icon">⚙️</span>
+                      <span class="tud-label">Account Settings</span>
+                    </button>
                     <button type="button" class="tud-item" id="tudCmdBtn" role="menuitem">
                       <span class="tud-icon">⚡</span>
                       <span class="tud-label">Command Palette</span>
@@ -1971,11 +1975,26 @@ export function bindAppShellEvents(onTabChange){
       e.stopPropagation();
       const userDropdown = document.getElementById('topbarUserDropdown');
       if(userDropdown) userDropdown.style.display = 'none';
-      const manageTab = document.querySelector('[data-tab="manage"]');
-      if(manageTab && onTabChange) {
-        onTabChange('manage');
+      const settingsTab = document.querySelector('[data-tab="settings"], [data-tab="manage"]');
+      if(settingsTab && onTabChange) {
+        onTabChange(settingsTab.dataset.tab);
       } else {
-        openMoreSheet();
+        openAccountSettingsModal();
+      }
+    };
+  }
+
+  const tudProfileSettingsBtn = document.getElementById('tudProfileSettingsBtn');
+  if(tudProfileSettingsBtn){
+    tudProfileSettingsBtn.onclick = (e) => {
+      e.stopPropagation();
+      const userDropdown = document.getElementById('topbarUserDropdown');
+      if(userDropdown) userDropdown.style.display = 'none';
+      const settingsTab = document.querySelector('[data-tab="settings"], [data-tab="manage"]');
+      if(settingsTab && onTabChange) {
+        onTabChange(settingsTab.dataset.tab);
+      } else {
+        openAccountSettingsModal();
       }
     };
   }
@@ -2119,6 +2138,17 @@ function initCommandPalette(onTabChange){
     action: () => {
       const bell = document.getElementById('notifBellBtn');
       if(bell) bell.click();
+    }
+  });
+
+  commands.push({
+    type: 'action',
+    id: 'account-settings',
+    label: 'Account Settings & Credentials',
+    icon: '⚙️',
+    sub: 'Update username, email, and password',
+    action: () => {
+      openAccountSettingsModal();
     }
   });
 
@@ -2977,6 +3007,255 @@ export function bindSupportTicketSection(jobId, isAdmin = false) {
 export function renderRoleSwitcher(){ return ''; }
 export function bindRoleSwitcher(){}
 
+/* ── ACCOUNT SETTINGS & CREDENTIALS COMPONENT ────────────────── */
+export function renderAccountSettingsCard(options = {}) {
+  const {
+    title = 'Account Settings & Credentials',
+    subtitle = 'Update your personal name, login email, and security password',
+    showCardWrapper = true,
+    formId = 'accSettingsForm'
+  } = options;
+  const user = getUser() || {};
+  const initial = user.name ? user.name.charAt(0).toUpperCase() : 'U';
+  const roleBadge = (user.role || 'user').toUpperCase();
+
+  return `
+    <div class="${showCardWrapper ? 'card' : ''}" style="max-width:760px;margin:0 auto;width:100%;" id="${formId}-wrap">
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border);">
+        <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,var(--gold-500,#d4af37),#b8860b);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:20px;box-shadow:0 4px 12px rgba(212,175,55,0.25);flex-shrink:0;">
+          ${escapeHtml(initial)}
+        </div>
+        <div style="min-width:0;flex:1;">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            <h3 style="font-size:18px;font-weight:700;color:var(--text-1);margin:0;">${escapeHtml(title)}</h3>
+            <span class="badge gold" style="font-size:11px;padding:2px 8px;">${escapeHtml(roleBadge)}</span>
+          </div>
+          <div style="font-size:13px;color:var(--text-3);margin-top:2px;">${escapeHtml(subtitle)}</div>
+        </div>
+      </div>
+
+      <form id="${formId}" onsubmit="return false;" style="display:flex;flex-direction:column;gap:20px;">
+        <!-- Personal Identity -->
+        <div>
+          <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--gold-500,#d4af37);margin-bottom:12px;display:flex;align-items:center;gap:6px;">
+            <span>👤</span> Profile Identity
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));gap:16px;">
+            <div class="field" style="margin-bottom:0;">
+              <label for="${formId}-name" style="font-size:12px;font-weight:600;color:var(--text-2);margin-bottom:6px;display:block;">Username / Full Name *</label>
+              <input type="text" id="${formId}-name" class="input" value="${escapeHtml(user.name || '')}" placeholder="Your display name" required autocomplete="name">
+            </div>
+            <div class="field" style="margin-bottom:0;">
+              <label for="${formId}-email" style="font-size:12px;font-weight:600;color:var(--text-2);margin-bottom:6px;display:block;">Email Address *</label>
+              <input type="email" id="${formId}-email" class="input" value="${escapeHtml(user.email || '')}" placeholder="name@company.com" required autocomplete="email">
+            </div>
+          </div>
+        </div>
+
+        <!-- Security & Password -->
+        <div style="padding-top:16px;border-top:1px dashed var(--border);">
+          <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--gold-500,#d4af37);margin-bottom:6px;display:flex;align-items:center;gap:6px;">
+            <span>🔐</span> Change Password
+          </div>
+          <div style="font-size:12px;color:var(--text-3);margin-bottom:14px;">
+            Leave password fields blank if you only want to update your name or email.
+          </div>
+
+          <div class="field" style="margin-bottom:14px;">
+            <label for="${formId}-currentPass" style="font-size:12px;font-weight:600;color:var(--text-2);margin-bottom:6px;display:block;">Current Password</label>
+            <div style="position:relative;">
+              <input type="password" id="${formId}-currentPass" class="input" placeholder="Enter current password" autocomplete="current-password" style="padding-right:42px;">
+              <button type="button" class="pass-toggle-btn" data-target="${formId}-currentPass" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);padding:4px 6px;border:none;background:transparent;color:var(--text-3);cursor:pointer;font-size:15px;line-height:1;" title="Toggle visibility" aria-label="Toggle password visibility">👁️</button>
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));gap:16px;">
+            <div class="field" style="margin-bottom:0;">
+              <label for="${formId}-newPass" style="font-size:12px;font-weight:600;color:var(--text-2);margin-bottom:6px;display:block;">New Password</label>
+              <div style="position:relative;">
+                <input type="password" id="${formId}-newPass" class="input" placeholder="Min. 6 characters" autocomplete="new-password" style="padding-right:42px;">
+                <button type="button" class="pass-toggle-btn" data-target="${formId}-newPass" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);padding:4px 6px;border:none;background:transparent;color:var(--text-3);cursor:pointer;font-size:15px;line-height:1;" title="Toggle visibility" aria-label="Toggle password visibility">👁️</button>
+              </div>
+            </div>
+            <div class="field" style="margin-bottom:0;">
+              <label for="${formId}-confirmPass" style="font-size:12px;font-weight:600;color:var(--text-2);margin-bottom:6px;display:block;">Confirm New Password</label>
+              <div style="position:relative;">
+                <input type="password" id="${formId}-confirmPass" class="input" placeholder="Re-enter new password" autocomplete="new-password" style="padding-right:42px;">
+                <button type="button" class="pass-toggle-btn" data-target="${formId}-confirmPass" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);padding:4px 6px;border:none;background:transparent;color:var(--text-3);cursor:pointer;font-size:15px;line-height:1;" title="Toggle visibility" aria-label="Toggle password visibility">👁️</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Alert Notice Box -->
+        <div id="${formId}-alert" style="display:none;padding:12px 14px;border-radius:8px;font-size:13px;line-height:1.4;"></div>
+
+        <!-- Footer Actions -->
+        <div style="display:flex;align-items:center;justify-content:flex-end;gap:12px;padding-top:8px;">
+          <button type="button" class="btn gold" id="${formId}-saveBtn" style="min-width:150px;display:flex;align-items:center;justify-content:center;gap:8px;">
+            <span>Save Changes</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  `;
+}
+
+export function bindAccountSettingsCard(container, options = {}) {
+  const { formId = 'accSettingsForm', onSaved = null, modalBg = null } = options;
+  const root = container || document;
+
+  // Password visibility toggle buttons
+  root.querySelectorAll('.pass-toggle-btn').forEach(btn => {
+    btn.onclick = () => {
+      const targetId = btn.dataset.target;
+      const inp = root.querySelector('#' + targetId) || document.getElementById(targetId);
+      if (inp) {
+        const isPass = inp.type === 'password';
+        inp.type = isPass ? 'text' : 'password';
+        btn.textContent = isPass ? '🙈' : '👁️';
+        btn.style.opacity = isPass ? '1' : '0.65';
+      }
+    };
+  });
+
+  const saveBtn = root.querySelector('#' + formId + '-saveBtn') || document.getElementById(formId + '-saveBtn');
+  const alertBox = root.querySelector('#' + formId + '-alert') || document.getElementById(formId + '-alert');
+
+  function showAlert(msg, isError = true) {
+    if (!alertBox) return;
+    alertBox.style.display = 'block';
+    alertBox.style.background = isError ? 'rgba(239,68,68,0.12)' : 'rgba(34,197,94,0.12)';
+    alertBox.style.border = isError ? '1px solid rgba(239,68,68,0.3)' : '1px solid rgba(34,197,94,0.3)';
+    alertBox.style.color = isError ? '#ef4444' : '#22c55e';
+    alertBox.innerHTML = (isError ? '⚠️ ' : '✓ ') + escapeHtml(msg);
+  }
+
+  function hideAlert() {
+    if (alertBox) alertBox.style.display = 'none';
+  }
+
+  if (saveBtn) {
+    saveBtn.onclick = async () => {
+      hideAlert();
+      const nameInp = root.querySelector('#' + formId + '-name') || document.getElementById(formId + '-name');
+      const emailInp = root.querySelector('#' + formId + '-email') || document.getElementById(formId + '-email');
+      const curPassInp = root.querySelector('#' + formId + '-currentPass') || document.getElementById(formId + '-currentPass');
+      const newPassInp = root.querySelector('#' + formId + '-newPass') || document.getElementById(formId + '-newPass');
+      const confPassInp = root.querySelector('#' + formId + '-confirmPass') || document.getElementById(formId + '-confirmPass');
+
+      const name = (nameInp?.value || '').trim();
+      const email = (emailInp?.value || '').trim();
+      const currentPassword = curPassInp?.value || '';
+      const newPassword = newPassInp?.value || '';
+      const confirmPassword = confPassInp?.value || '';
+
+      if (!name) {
+        showAlert('Please enter your full name or username.', true);
+        nameInp?.focus();
+        return;
+      }
+      if (!email || !email.includes('@')) {
+        showAlert('Please enter a valid email address.', true);
+        emailInp?.focus();
+        return;
+      }
+
+      if (newPassword || confirmPassword) {
+        if (!currentPassword) {
+          showAlert('Please enter your current password to set a new password.', true);
+          curPassInp?.focus();
+          return;
+        }
+        if (newPassword.length < 6) {
+          showAlert('New password must be at least 6 characters long.', true);
+          newPassInp?.focus();
+          return;
+        }
+        if (newPassword !== confirmPassword) {
+          showAlert('New passwords do not match. Please re-check.', true);
+          confPassInp?.focus();
+          return;
+        }
+      }
+
+      const payload = { name, email };
+      if (newPassword) {
+        payload.currentPassword = currentPassword;
+        payload.newPassword = newPassword;
+      }
+
+      const originalHtml = saveBtn.innerHTML;
+      saveBtn.disabled = true;
+      saveBtn.innerHTML = '<span>Saving Changes…</span>';
+
+      try {
+        const res = await apiPut('/auth/profile', payload);
+        if (res && res.token && res.user) {
+          setSession(res.token, res.user);
+        }
+
+        // Update topbar & shell elements in DOM
+        document.querySelectorAll('.topbar-user-name, .sidebar-user .name, .tud-name').forEach(el => {
+          el.textContent = res.user.name;
+        });
+        document.querySelectorAll('.tud-email').forEach(el => {
+          el.textContent = res.user.email;
+        });
+        const initial = res.user.name ? res.user.name.charAt(0).toUpperCase() : 'U';
+        document.querySelectorAll('.topbar-user-avatar span, .user-avatar, .tud-avatar').forEach(el => {
+          if (!el.classList.contains('topbar-online-dot')) {
+            el.textContent = initial;
+          }
+        });
+
+        // Clear password fields
+        if (curPassInp) curPassInp.value = '';
+        if (newPassInp) newPassInp.value = '';
+        if (confPassInp) confPassInp.value = '';
+
+        showAlert('Account credentials updated successfully!', false);
+        flashToast('Account settings saved! ✓');
+
+        if (typeof onSaved === 'function') {
+          onSaved(res.user);
+        }
+
+        if (modalBg) {
+          setTimeout(() => {
+            try { modalBg.remove(); } catch(e){}
+          }, 900);
+        }
+      } catch (err) {
+        showAlert(err.message || 'Failed to update credentials. Please try again.', true);
+        flashToast(err.message || 'Update failed', true);
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = originalHtml;
+      }
+    };
+  }
+}
+
+export function openAccountSettingsModal() {
+  const modalHtml = `
+    <div style="position:relative;padding:12px 6px;">
+      <button type="button" id="closeAccSettingsModalBtn" style="position:absolute;top:-4px;right:0;border:none;background:transparent;color:var(--text-3);font-size:20px;cursor:pointer;padding:6px 10px;" aria-label="Close modal">✕</button>
+      ${renderAccountSettingsCard({
+        title: 'Account Settings',
+        subtitle: 'Manage your personal email, username, and password',
+        showCardWrapper: false,
+        formId: 'modalAccSettingsForm'
+      })}
+    </div>
+  `;
+  const bg = openModal(modalHtml);
+  const closeBtn = bg.querySelector('#closeAccSettingsModalBtn');
+  if (closeBtn) closeBtn.onclick = () => bg.remove();
+  bindAccountSettingsCard(bg, { formId: 'modalAccSettingsForm', modalBg: bg });
+  return bg;
+}
+
 /* ── WINDOW GLOBALS ──────────────────────────────────────────── */
 window.__setTheme = function(t){ setTheme(t); };
 
@@ -2994,6 +3273,8 @@ Object.assign(window, {
   openNotificationModal, getNotifIcon,
   renderAppShell, bindAppShellEvents, renderSkeletonCards, renderEmptyState,
   renderKpiCard, renderBadge, renderProgressBar, renderPeriodPicker,
-  renderSupportTicketSection, bindSupportTicketSection
+  renderSupportTicketSection, bindSupportTicketSection,
+  renderAccountSettingsCard, bindAccountSettingsCard, openAccountSettingsModal
 });
+
 

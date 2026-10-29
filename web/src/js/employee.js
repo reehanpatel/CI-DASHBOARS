@@ -1,4 +1,5 @@
 import { initProposalStudio } from './proposals.js';
+import { renderAccountSettingsCard, bindAccountSettingsCard } from './api.js';
 
 let user = null;
 let cache = { personnel: [], clients: [], services: [] };
@@ -25,7 +26,8 @@ function getEmployeeTabs() {
     { key: 'myjobs',     label: 'My Jobs',            icon: '📋' },
     { key: 'dailytasks', label: 'Daily Tasks',        icon: '✅' },
     { key: 'proposals',  label: 'Proposal Studio',    icon: '📜' },
-    { key: 'targets',    label: 'My Targets',         icon: '🎯' }
+    { key: 'targets',    label: 'My Targets',         icon: '🎯' },
+    { key: 'settings',   label: 'Settings',           icon: '⚙️' }
   ];
   if (isAccountsAccess) {
     tabs.push({ key: 'accounts_redirect', label: 'Accounts Dashboard 💰', icon: '💳' });
@@ -90,6 +92,7 @@ async function renderTab(){
     else if(ui.tab==='dailytasks' || ui.tab==='mytasks' || ui.tab==='tasks') await tabDailyTasks(c);
     else if(ui.tab==='proposals' || ui.tab==='proposal')                   await tabProposals(c);
     else if(ui.tab==='targets' || ui.tab==='target')                       await tabTargets(c);
+    else if(ui.tab==='settings')                                            await tabSettings(c);
     else {
       ui.tab = 'dashboard';
       await tabEmployeeDashboard(c);
@@ -103,6 +106,18 @@ async function tabProposals(c) {
   c.innerHTML = '<div id="proposals-module-root"></div>';
   const root = c.querySelector('#proposals-module-root');
   initProposalStudio(root, { userRole: 'employee', currentUser: user });
+}
+
+async function tabSettings(c) {
+  c.innerHTML = `
+    <div style="padding:8px 0 24px 0;">
+      ${renderAccountSettingsCard({
+        title: 'Employee Account & Security',
+        subtitle: 'Manage your personal login email, display name, and password'
+      })}
+    </div>
+  `;
+  bindAccountSettingsCard(c);
 }
 
 function periodPicker(){
