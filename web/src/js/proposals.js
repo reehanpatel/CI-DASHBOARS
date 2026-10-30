@@ -1186,6 +1186,7 @@ export class ProposalStudioController {
     this.rateDoc = null;
     this.pinStatus = { isConfigured: false, defaultPinHint: null };
     this.personnel = [];
+    this.clients = [];
     this.currentView = 'list'; // 'list' | 'editor' | 'ratecard' | 'settings' | 'audit'
     this.activeStep = 'brief'; // 'brief' | 'scope' | 'content' | 'team' | 'terms' | 'approve'
     this.activeProposal = null;
@@ -1196,19 +1197,30 @@ export class ProposalStudioController {
     this.saveTimeout = null;
   }
 
+  async loadClients() {
+    try {
+      this.clients = (await apiGet('/clients')) || [];
+    } catch (_) {
+      this.clients = this.clients || [];
+    }
+    return this.clients;
+  }
+
   async init() {
     this.container.innerHTML = `<div class="card" style="padding:40px;text-align:center"><div class="loading">Loading Proposal Studio…</div></div>`;
     try {
-      const [proposals, rateDoc, pinStatus, personnel] = await Promise.all([
+      const [proposals, rateDoc, pinStatus, personnel, clients] = await Promise.all([
         apiGet('/proposals'),
         apiGet('/proposals/ratecard'),
         apiGet('/proposals/pin/status'),
-        apiGet('/personnel').catch(() => [])
+        apiGet('/personnel').catch(() => []),
+        apiGet('/clients').catch(() => [])
       ]);
       this.proposals = proposals || [];
       this.rateDoc = rateDoc;
       this.pinStatus = pinStatus || { isConfigured: false, defaultPinHint: null };
       this.personnel = personnel || [];
+      this.clients = clients || [];
       this.render();
     } catch (err) {
       this.container.innerHTML = `
@@ -1580,22 +1592,11 @@ export class ProposalStudioController {
       btn.onclick = async (e) => {
         e.stopPropagation();
         const id = btn.dataset.sendClient;
-        try {
-          btn.disabled = true;
-          btn.textContent = 'Sending…';
-          const res = await apiPost(`/proposals/${id}/send-to-client`);
-          flashToast('Proposal sent to client! 📤');
-          const clientUrl = `${window.location.origin}/proposal?p=${res.shareId || res.proposal?.shareId}`;
-          navigator.clipboard.writeText(clientUrl).catch(() => {});
-          alert(`Proposal successfully sent to client!\n\nDirect review link:\n${clientUrl}\n\n(Link copied to clipboard)`);
-          const updated = await apiGet('/proposals');
-          this.proposals = updated || [];
-          this.renderProposalList(el);
-        } catch (err) {
-          alert('Failed to send to client: ' + err.message);
-          btn.disabled = false;
-          btn.textContent = '📤 Send to Client';
-        }
+        const p = this.proposals.find(x => String(x._id) === String(id));
+        if (!p) return;
+        await this.showSendToClientModal(p, () => {
+          this.init();
+        });
       };
     });
   }
@@ -1923,22 +1924,16 @@ export class ProposalStudioController {
     const editorSendClientBtn = el.querySelector('#ps-editor-send-client-btn');
     if (editorSendClientBtn) {
       editorSendClientBtn.onclick = async () => {
-        try {
-          editorSendClientBtn.disabled = true;
-          editorSendClientBtn.textContent = 'Sending…';
-          const res = await apiPost(`/proposals/${p._id}/send-to-client`);
-          flashToast('Proposal sent to client! 📤');
-          const clientUrl = `${window.location.origin}/proposal?p=${res.shareId || res.proposal?.shareId}`;
-          navigator.clipboard.writeText(clientUrl).catch(() => {});
-          alert(`Proposal successfully sent to client!\n\nDirect review link:\n${clientUrl}\n\n(Link copied to clipboard)`);
-          const updated = await apiGet(`/proposals/${p._id}`);
-          this.activeProposal = updated;
+        const prop = this.activeProposal || p;
+        if (!prop) return;
+        await this.showSendToClientModal(prop, async (updated) => {
+          if (updated) {
+            this.activeProposal = updated;
+          } else if (prop._id) {
+            this.activeProposal = await apiGet(`/proposals/${prop._id}`);
+          }
           this.renderProposalEditor(el);
-        } catch (err) {
-          alert('Failed to send to client: ' + err.message);
-          editorSendClientBtn.disabled = false;
-          editorSendClientBtn.textContent = '📤 Send to Client';
-        }
+        });
       };
     }
 
@@ -2060,6 +2055,17 @@ export class ProposalStudioController {
         <div class="grid grid-2">
           <div>
             <label class="label">Client Organisation <span style="color:var(--red-500)">*</span></label>
+            <div style="margin-bottom:6px;">
+              <select class="input" id="ps-f-client-select" style="font-weight:600;font-size:13px;background:var(--bg-elevated);cursor:pointer;border-color:var(--border-sm);">
+                <option value="">-- Choose saved client from software --</option>
+                ${(this.clients || []).map(c => {
+                  const isSel = (p.clientId && String(p.clientId) === String(c._id)) || 
+                                (!p.clientId && p.client && c.name && c.name.toLowerCase() === p.client.toLowerCase());
+                  return `<option value="${escapeHtml(c._id)}" data-name="${escapeHtml(c.name)}" ${isSel ? 'selected' : ''}>🏢 ${escapeHtml(c.name)}</option>`;
+                }).join('')}
+                <option value="__custom__" ${(!p.clientId && p.client && p.client !== 'Client' && !(this.clients || []).some(c => c.name.toLowerCase() === p.client.toLowerCase())) ? 'selected' : ''}>✏️ Custom client name...</option>
+              </select>
+            </div>
             <input type="text" class="input" id="ps-f-client" value="${escapeHtml(p.client)}" placeholder="e.g. Times of India / Hilton">
           </div>
           <div>
@@ -2073,6 +2079,10 @@ export class ProposalStudioController {
           <div>
             <label class="label">Contact Designation / Title</label>
             <input type="text" class="input" id="ps-f-contactRole" value="${escapeHtml(p.contactRole)}" placeholder="e.g. VP Marketing">
+          </div>
+          <div>
+            <label class="label">Contact Email (Portal Login & Alerts)</label>
+            <input type="email" class="input" id="ps-f-contactEmail" value="${escapeHtml(p.contactEmail || '')}" placeholder="e.g. contact@client.com">
           </div>
           <div>
             <label class="label">Industry / Sector</label>
@@ -2145,6 +2155,7 @@ export class ProposalStudioController {
     bindVal('#ps-f-clientShort', 'clientShort');
     bindVal('#ps-f-contact', 'contact');
     bindVal('#ps-f-contactRole', 'contactRole');
+    bindVal('#ps-f-contactEmail', 'contactEmail');
     bindVal('#ps-f-industry', 'industry');
     bindVal('#ps-f-location', 'location');
     bindVal('#ps-f-date', 'date');
@@ -2154,6 +2165,37 @@ export class ProposalStudioController {
     bindVal('#ps-f-title', 'title');
     bindVal('#ps-f-subtitle', 'subtitle');
     bindVal('#ps-f-oneLine', 'oneLine');
+
+    const clientSelect = el.querySelector('#ps-f-client-select');
+    const clientInput = el.querySelector('#ps-f-client');
+    const clientShortInput = el.querySelector('#ps-f-clientShort');
+    if (clientSelect) {
+      clientSelect.onchange = () => {
+        const val = clientSelect.value;
+        if (!val) return;
+        if (val === '__custom__') {
+          p.clientId = null;
+          if (clientInput) {
+            clientInput.focus();
+            clientInput.select();
+          }
+        } else {
+          const c = (this.clients || []).find(x => String(x._id) === String(val));
+          if (c) {
+            p.clientId = c._id;
+            p.client = c.name;
+            if (clientInput) clientInput.value = c.name;
+            if (!p.clientShort || p.clientShort === 'Client') {
+              const words = c.name.trim().split(/\s+/);
+              p.clientShort = words.length > 1 ? words.map(w => w[0]).join('').toUpperCase() : words[0];
+              if (clientShortInput) clientShortInput.value = p.clientShort;
+            }
+            this.scheduleAutoSave();
+            this.refreshLivePaper();
+          }
+        }
+      };
+    }
 
     const curSelect = el.querySelector('#ps-f-currency');
     if (curSelect) {
@@ -3208,22 +3250,16 @@ export class ProposalStudioController {
     const sendClientDirectBtn = el.querySelector('#ps-step6-send-client-btn');
     if (sendClientDirectBtn) {
       sendClientDirectBtn.onclick = async () => {
-        try {
-          sendClientDirectBtn.disabled = true;
-          sendClientDirectBtn.textContent = 'Sending…';
-          const res = await apiPost(`/proposals/${p._id}/send-to-client`);
-          flashToast('Proposal sent to client! 📤');
-          const clientUrl = `${window.location.origin}/proposal?p=${res.shareId || res.proposal?.shareId}`;
-          navigator.clipboard.writeText(clientUrl).catch(() => {});
-          alert(`Proposal successfully sent to client!\n\nDirect review link:\n${clientUrl}\n\n(Link copied to clipboard)`);
-          const updated = await apiGet(`/proposals/${p._id}`);
-          this.activeProposal = updated;
+        const prop = this.activeProposal || p;
+        if (!prop) return;
+        await this.showSendToClientModal(prop, async (updated) => {
+          if (updated) {
+            this.activeProposal = updated;
+          } else if (prop._id) {
+            this.activeProposal = await apiGet(`/proposals/${prop._id}`);
+          }
           this.renderProposalEditor(this.container.querySelector('#ps-view-content'));
-        } catch (err) {
-          alert('Failed to send to client: ' + err.message);
-          sendClientDirectBtn.disabled = false;
-          sendClientDirectBtn.textContent = '📤 Send to Client';
-        }
+        });
       };
     }
 
@@ -3416,6 +3452,328 @@ export class ProposalStudioController {
         pinInput.select();
         submitBtn.disabled = false;
         submitBtn.textContent = 'Authorize & Sign';
+      }
+    };
+  }
+
+  /* ─────────────────────────────────────────────────────────────
+     SEND TO CLIENT MODAL WITH SAVED CLIENT DROPDOWN
+     "send to client means send to client give dropdown menu which are saved in software"
+     ───────────────────────────────────────────────────────────── */
+  async showSendToClientModal(proposal, onComplete) {
+    if (!this.clients || !this.clients.length) {
+      await this.loadClients();
+    }
+    const clients = this.clients || [];
+
+    // Check if proposal is internally authorized with Admin PIN
+    const isPinApproved = proposal.status === 'approved' || 
+      proposal.status === 'with_client' || 
+      (proposal.approval && proposal.approval.decision === 'approved' && proposal.approval.pinVerified);
+
+    // Identify matched client from software
+    let matchedClient = null;
+    if (proposal.clientId) {
+      matchedClient = clients.find(c => String(c._id) === String(proposal.clientId));
+    }
+    if (!matchedClient && proposal.client && proposal.client !== 'Client') {
+      matchedClient = clients.find(c => c.name && c.name.trim().toLowerCase() === proposal.client.trim().toLowerCase());
+    }
+
+    const modal = document.createElement('div');
+    modal.className = 'modal-backdrop';
+    modal.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,0.65);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:99999;padding:16px;';
+
+    modal.innerHTML = `
+      <div class="card ps-send-client-modal" style="width:100%;max-width:560px;padding:26px;box-shadow:var(--shadow-xl);border:1px solid var(--border-sm);animation:modalFade 0.2s ease;max-height:92vh;overflow-y:auto;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+          <div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg, #0F2A4A, #1E4A7E);color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">
+            📤
+          </div>
+          <div>
+            <h3 style="margin:0;font-size:18px;font-weight:800;color:var(--text-1);">Send Proposal to Client</h3>
+            <p class="muted small" style="margin:2px 0 0 0;">Select a client saved in CI360 to deliver this proposal and enable portal access.</p>
+          </div>
+        </div>
+
+        <div style="background:var(--bg-elevated);border-radius:var(--r-md);padding:12px 14px;margin-bottom:16px;font-size:13px;border-left:3px solid var(--gold-500);">
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+            <span class="muted">Proposal Reference:</span>
+            <strong>${escapeHtml(proposal.ref)}</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+            <span class="muted">Proposal Title:</span>
+            <span style="font-weight:600;color:var(--text-1);">${escapeHtml(proposal.title || 'Untitled Proposal')}</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;">
+            <span class="muted">Current Status:</span>
+            <span>${this.renderStatusBadge(proposal)}</span>
+          </div>
+        </div>
+
+        <div id="ps-send-form-body">
+          <div style="margin-bottom:14px;">
+            <label class="label" style="font-weight:700;display:flex;align-items:center;justify-content:space-between;">
+              <span>Select Client from Software <span style="color:var(--red-500)">*</span></span>
+              <span class="muted small" style="font-weight:normal;">${clients.length} clients in database</span>
+            </label>
+            <select id="ps-modal-client-select" class="input" style="font-size:14px;font-weight:600;padding:10px 12px;cursor:pointer;background:var(--bg-elevated);">
+              <option value="">-- Choose a saved client --</option>
+              ${clients.map(c => {
+                const isSelected = matchedClient && String(matchedClient._id) === String(c._id);
+                return `<option value="${escapeHtml(c._id)}" data-name="${escapeHtml(c.name)}" ${isSelected ? 'selected' : ''}>🏢 ${escapeHtml(c.name)}</option>`;
+              }).join('')}
+              <option value="__custom__" ${(!matchedClient && proposal.client && proposal.client !== 'Client') ? 'selected' : ''}>✏️ Custom / Other Client Name...</option>
+            </select>
+          </div>
+
+          <div id="ps-modal-client-custom-wrap" style="margin-bottom:14px; ${(matchedClient && !(!matchedClient && proposal.client && proposal.client !== 'Client')) ? 'display:none;' : ''}">
+            <label class="label">Client Organisation Name <span style="color:var(--red-500)">*</span></label>
+            <input type="text" id="ps-modal-client-name" class="input" value="${escapeHtml(matchedClient ? matchedClient.name : (proposal.client || ''))}" placeholder="e.g. Acme Corporation">
+          </div>
+
+          <div class="grid grid-2" style="margin-bottom:14px;">
+            <div>
+              <label class="label">Client Short Name (for Proposal text)</label>
+              <input type="text" id="ps-modal-client-short" class="input" value="${escapeHtml(proposal.clientShort || '')}" placeholder="e.g. Acme">
+            </div>
+            <div>
+              <label class="label">Contact Designation / Title</label>
+              <input type="text" id="ps-modal-contact-role" class="input" value="${escapeHtml(proposal.contactRole || '')}" placeholder="e.g. VP Marketing">
+            </div>
+          </div>
+
+          <div class="grid grid-2" style="margin-bottom:14px;">
+            <div>
+              <label class="label">Primary Contact Person</label>
+              <input type="text" id="ps-modal-contact-name" class="input" value="${escapeHtml(proposal.contact || '')}" placeholder="e.g. Rajesh Sharma">
+            </div>
+            <div>
+              <label class="label">Contact Email (Portal Login & Alerts)</label>
+              <input type="email" id="ps-modal-contact-email" class="input" value="${escapeHtml(proposal.contactEmail || '')}" placeholder="contact@organisation.com">
+            </div>
+          </div>
+
+          <div style="margin-bottom:14px;">
+            <label class="label">Delivery Message / Audit Note</label>
+            <textarea id="ps-modal-send-note" class="input" rows="2" placeholder="Message accompanying the proposal delivery...">Sent to client for online review and sign-off</textarea>
+          </div>
+
+          ${!isPinApproved ? `
+            <div style="margin-bottom:16px;padding:12px;background:rgba(217,119,6,0.1);border:1px solid rgba(217,119,6,0.3);border-radius:var(--r-md);">
+              <label class="label" style="color:var(--amber-700);font-weight:700;margin-bottom:4px;">🔐 Admin PIN Authorization Required</label>
+              <p class="muted small" style="margin:0 0 8px 0;">This proposal has not been internally approved yet. Enter your secure Admin PIN to authorize and release it to the client.</p>
+              <input type="password" id="ps-modal-admin-pin" class="input" placeholder="Admin PIN" maxlength="8" style="font-family:var(--font-mono);max-width:200px;font-size:16px;letter-spacing:2px;">
+            </div>
+          ` : ''}
+
+          <div id="ps-modal-send-error" style="color:var(--red-500);font-size:13px;margin-bottom:12px;display:none;"></div>
+
+          <div style="display:flex;gap:10px;justify-content:flex-end;">
+            <button type="button" class="btn" id="ps-modal-send-cancel">Cancel</button>
+            <button type="button" class="btn primary" id="ps-modal-send-submit" style="background:#0F2A4A;color:#FFFFFF;border-color:#0F2A4A;font-weight:700;">
+              📤 Confirm & Send to Client
+            </button>
+          </div>
+        </div>
+
+        <div id="ps-modal-send-success" style="display:none;text-align:center;padding:12px 0;">
+          <div style="font-size:44px;margin-bottom:10px;">🎉</div>
+          <h3 style="margin:0 0 6px 0;font-size:19px;font-weight:800;color:var(--text-1);">Proposal Successfully Sent!</h3>
+          <p class="muted small" style="margin:0 0 16px 0;" id="ps-modal-success-desc">The proposal is now marked <strong>With Client</strong> and directly accessible in their CI360 portal.</p>
+
+          <div style="background:var(--bg-elevated);border:1px solid var(--border-sm);border-radius:var(--r-md);padding:14px;margin-bottom:18px;text-align:left;">
+            <label class="label" style="font-weight:700;">Client Online Review & Sign-off Link</label>
+            <div style="display:flex;gap:8px;margin-top:6px;">
+              <input type="text" id="ps-modal-success-link" class="input" readonly style="font-family:var(--font-mono);font-size:12px;background:var(--bg-surface);">
+              <button class="btn gold small" id="ps-modal-copy-link-btn" style="white-space:nowrap;">📋 Copy Link</button>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:10px;justify-content:center;">
+            <a href="#" target="_blank" id="ps-modal-open-link-btn" class="btn" style="text-decoration:none;">🔗 Open Review Page</a>
+            <button class="btn primary" id="ps-modal-success-done-btn" style="font-weight:700;">Done</button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    document.body.append(modal);
+
+    const clientDropdown = modal.querySelector('#ps-modal-client-select');
+    const customWrap = modal.querySelector('#ps-modal-client-custom-wrap');
+    const clientNameInput = modal.querySelector('#ps-modal-client-name');
+    const clientShortInput = modal.querySelector('#ps-modal-client-short');
+    const contactRoleInput = modal.querySelector('#ps-modal-contact-role');
+    const contactNameInput = modal.querySelector('#ps-modal-contact-name');
+    const contactEmailInput = modal.querySelector('#ps-modal-contact-email');
+    const noteInput = modal.querySelector('#ps-modal-send-note');
+    const pinInput = modal.querySelector('#ps-modal-admin-pin');
+    const errorDiv = modal.querySelector('#ps-modal-send-error');
+    const cancelBtn = modal.querySelector('#ps-modal-send-cancel');
+    const submitBtn = modal.querySelector('#ps-modal-send-submit');
+
+    // React to client dropdown changes
+    clientDropdown.onchange = () => {
+      const val = clientDropdown.value;
+      if (!val) {
+        customWrap.style.display = 'none';
+        return;
+      }
+      if (val === '__custom__') {
+        customWrap.style.display = 'block';
+        clientNameInput.focus();
+        clientNameInput.select();
+      } else {
+        const c = clients.find(x => String(x._id) === String(val));
+        if (c) {
+          customWrap.style.display = 'none';
+          clientNameInput.value = c.name;
+          if (!clientShortInput.value || clientShortInput.value === 'Client') {
+            const words = c.name.trim().split(/\s+/);
+            clientShortInput.value = words.length > 1 ? words.map(w => w[0]).join('').toUpperCase() : words[0];
+          }
+        }
+      }
+    };
+
+    cancelBtn.onclick = () => modal.remove();
+
+    submitBtn.onclick = async () => {
+      errorDiv.style.display = 'none';
+
+      // Determine selected client
+      const dropdownVal = clientDropdown.value;
+      let selectedClientId = null;
+      let finalClientName = '';
+
+      if (!dropdownVal) {
+        errorDiv.textContent = 'Please select a client from the dropdown menu.';
+        errorDiv.style.display = 'block';
+        clientDropdown.focus();
+        return;
+      }
+
+      if (dropdownVal === '__custom__') {
+        finalClientName = clientNameInput.value.trim();
+        if (!finalClientName) {
+          errorDiv.textContent = 'Please enter the client organisation name.';
+          errorDiv.style.display = 'block';
+          clientNameInput.focus();
+          return;
+        }
+      } else {
+        const c = clients.find(x => String(x._id) === String(dropdownVal));
+        selectedClientId = c ? c._id : dropdownVal;
+        finalClientName = c ? c.name : clientNameInput.value.trim();
+      }
+
+      // Check PIN if not approved
+      const enteredPin = pinInput ? pinInput.value.trim() : '';
+      if (!isPinApproved && !enteredPin) {
+        errorDiv.textContent = 'Please enter your Admin PIN to authorize and release this proposal.';
+        errorDiv.style.display = 'block';
+        if (pinInput) pinInput.focus();
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Sending to Client…';
+
+      try {
+        let targetId = proposal._id || this.activeProposal?._id;
+        if (!targetId || targetId === 'undefined') {
+          if (this.activeProposal) {
+            this.activeProposal.client = finalClientName;
+            this.activeProposal.clientId = selectedClientId;
+            this.activeProposal.clientShort = clientShortInput.value.trim() || this.activeProposal.clientShort;
+          }
+          await this.saveActiveProposal(true);
+          targetId = this.activeProposal?._id;
+          if (targetId) proposal._id = targetId;
+        }
+
+        if (!targetId || targetId === 'undefined') {
+          throw new Error('Please ensure proposal is saved before sending to client.');
+        }
+
+        // Authorize with PIN if needed
+        if (!isPinApproved && enteredPin) {
+          submitBtn.textContent = 'Authorizing with PIN…';
+          await apiPost(`/proposals/${targetId}/approve`, {
+            pin: enteredPin,
+            note: noteInput.value.trim() || 'Approved for release to client',
+            action: 'Approved & Released with Admin PIN'
+          });
+        }
+
+        // Send to client
+        submitBtn.textContent = 'Delivering…';
+        const res = await apiPost(`/proposals/${targetId}/send-to-client`, {
+          clientId: selectedClientId,
+          client: finalClientName,
+          clientShort: clientShortInput.value.trim(),
+          contact: contactNameInput.value.trim(),
+          contactRole: contactRoleInput.value.trim(),
+          contactEmail: contactEmailInput.value.trim(),
+          note: noteInput.value.trim()
+        });
+
+        // Update proposal in memory
+        if (res.proposal) {
+          Object.assign(proposal, res.proposal);
+          if (this.activeProposal && String(this.activeProposal._id) === String(res.proposal._id)) {
+            Object.assign(this.activeProposal, res.proposal);
+          }
+          const idx = this.proposals.findIndex(x => String(x._id) === String(res.proposal._id));
+          if (idx >= 0) this.proposals[idx] = res.proposal;
+          else this.proposals.unshift(res.proposal);
+        }
+
+        flashToast('Proposal sent to client! 📤');
+
+        // Show success state
+        modal.querySelector('#ps-send-form-body').style.display = 'none';
+        const successBody = modal.querySelector('#ps-modal-send-success');
+        successBody.style.display = 'block';
+
+        const clientUrl = `${window.location.origin}/proposal?p=${res.shareId || res.proposal?.shareId}`;
+        const linkInput = modal.querySelector('#ps-modal-success-link');
+        const copyBtn = modal.querySelector('#ps-modal-copy-link-btn');
+        const openLink = modal.querySelector('#ps-modal-open-link-btn');
+        const doneBtn = modal.querySelector('#ps-modal-success-done-btn');
+
+        linkInput.value = clientUrl;
+        openLink.href = clientUrl;
+
+        // Auto-copy to clipboard
+        navigator.clipboard.writeText(clientUrl).catch(() => {});
+
+        copyBtn.onclick = () => {
+          navigator.clipboard.writeText(clientUrl).then(() => {
+            copyBtn.textContent = '✅ Copied!';
+            setTimeout(() => { copyBtn.textContent = '📋 Copy Link'; }, 2000);
+          }).catch(() => {
+            linkInput.select();
+          });
+        };
+
+        const desc = modal.querySelector('#ps-modal-success-desc');
+        if (desc) {
+          desc.innerHTML = `Proposal sent to <strong>${escapeHtml(finalClientName)}</strong>! It is now marked <strong>With Client</strong> and directly accessible in their CI360 portal.`;
+        }
+
+        doneBtn.onclick = () => {
+          modal.remove();
+          if (typeof onComplete === 'function') {
+            onComplete(res.proposal || proposal);
+          }
+        };
+      } catch (err) {
+        errorDiv.textContent = err.message || 'Failed to send proposal to client';
+        errorDiv.style.display = 'block';
+        submitBtn.disabled = false;
+        submitBtn.textContent = '📤 Confirm & Send to Client';
       }
     };
   }

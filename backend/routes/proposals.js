@@ -283,6 +283,9 @@ router.get('/', async (req, res) => {
       }
 
       const clientMatch = [];
+      if (req.user.clientId) {
+        clientMatch.push({ clientId: req.user.clientId });
+      }
       if (clientName) {
         clientMatch.push({ client: new RegExp(clientName.trim(), 'i') });
         clientMatch.push({ clientShort: new RegExp(clientName.trim(), 'i') });
@@ -396,6 +399,7 @@ router.get('/:id', async (req, res) => {
         const cDoc = await Client.findById(req.user.clientId).lean();
         if (cDoc && cDoc.name) clientName = cDoc.name;
       }
+      const matchClientId = req.user.clientId && proposal.clientId && String(proposal.clientId) === String(req.user.clientId);
       const matchName = clientName && (
         (proposal.client && proposal.client.toLowerCase().includes(clientName.toLowerCase())) ||
         (proposal.clientShort && proposal.clientShort.toLowerCase().includes(clientName.toLowerCase()))
@@ -403,7 +407,7 @@ router.get('/:id', async (req, res) => {
       const matchContact = req.user.name && proposal.contact && proposal.contact.toLowerCase().includes(req.user.name.toLowerCase());
       const matchEmail = req.user.email && proposal.contactEmail && proposal.contactEmail.toLowerCase() === req.user.email.toLowerCase();
 
-      if (!matchName && !matchContact && !matchEmail) {
+      if (!matchClientId && !matchName && !matchContact && !matchEmail) {
         return res.status(403).json({ error: 'You do not have permission to view this proposal' });
       }
       if (!['approved', 'with_client', 'won', 'changes'].includes(proposal.status)) {
@@ -765,6 +769,26 @@ router.post('/:id/send-to-client', async (req, res) => {
       });
     }
 
+    const { clientId, client, clientShort, contact, contactRole, contactEmail, note } = req.body;
+    if (clientId) {
+      proposal.clientId = clientId;
+    }
+    if (client && client.trim()) {
+      proposal.client = client.trim();
+    }
+    if (clientShort !== undefined) {
+      proposal.clientShort = (clientShort || '').trim();
+    }
+    if (contact !== undefined) {
+      proposal.contact = (contact || '').trim();
+    }
+    if (contactRole !== undefined) {
+      proposal.contactRole = (contactRole || '').trim();
+    }
+    if (contactEmail !== undefined) {
+      proposal.contactEmail = (contactEmail || '').trim().toLowerCase();
+    }
+
     if (!proposal.shareId) {
       proposal.shareId = crypto.randomBytes(9).toString('hex');
     }
@@ -781,9 +805,9 @@ router.post('/:id/send-to-client', async (req, res) => {
       adminName: req.user.name || 'CI360 Staff',
       adminEmail: req.user.email,
       adminRole: req.user.role,
-      action: `Sent to Client (v${proposal.sharedVersion})`,
+      action: `Sent to Client (${proposal.client || 'Client'}) v${proposal.sharedVersion}`,
       pinVerified: true,
-      note: (req.body.note || 'Sent to client for online review and sign-off').trim(),
+      note: (note || 'Sent to client for online review and sign-off').trim(),
       hash,
       timestamp: new Date(),
       ip: req.ip || req.headers['x-forwarded-for'] || ''

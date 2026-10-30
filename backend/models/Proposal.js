@@ -45,10 +45,12 @@ const ProposalSchema = new mongoose.Schema({
   kicker: { type: String, default: 'Proposal for sign-off' },
   oneLine: { type: String, default: '' },
 
+  clientId: { type: mongoose.Schema.Types.ObjectId, ref: 'Client', default: null, index: true },
   client: { type: String, required: true, trim: true },
   clientShort: { type: String, default: '', trim: true },
   contact: { type: String, default: '' },
   contactRole: { type: String, default: '' },
+  contactEmail: { type: String, default: '', trim: true },
   industry: { type: String, default: '' },
   location: { type: String, default: '' },
 
