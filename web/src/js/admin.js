@@ -651,7 +651,8 @@ async function tabJobs(c){
                   <button class="btn ${isDone?'ghost':'gold'} small toggle-status-btn" data-id="${j._id}" data-done="${isDone}" style="padding:2px 7px;font-size:11px;cursor:pointer;">
                     <span class="badge ${isDone?'green':((j.status==='Needs Revision'||j.status==='Denied')?'red':'amber')}">${isDone?'Completed':(j.status==='Needs Revision'?'Needs Revision':(j.status==='Denied'?'Denied':'In Progress'))}</span>
                   </button>
-                  ${j.clientApproval && j.clientApproval.status === 'Approved' ? `<span style="font-size:10px;font-weight:700;color:var(--green-500)">✓ Client Approved ${j.clientApproval.rating ? `(${j.clientApproval.rating}★)` : ''}</span>` : (j.clientApproval && j.clientApproval.status === 'Revision Requested' ? `<span style="font-size:10px;font-weight:700;color:var(--amber-500)">↺ Revision Req.</span>` : (j.clientApproval && j.clientApproval.isRevised ? `<span style="font-size:10px;font-weight:700;color:var(--brand-500)">📦 Revised — Awaiting Re-approval</span>` : ((j.status === 'Denied' || j.clientApproval?.status === 'Denied') ? `<span style="font-size:10px;font-weight:700;color:var(--red-500)" title="Reason: ${escapeHtml(j.clientApproval?.deniedReason || '')}">❌ Denied</span>` : '')))}
+                  ${j.clientApproval && j.clientApproval.status === 'Approved' ? `<span style="font-size:10px;font-weight:700;color:var(--green-500)">✓ Client Approved ${j.clientApproval.rating ? `(${j.clientApproval.rating}★)` : ''}</span>` : (j.clientApproval && j.clientApproval.status === 'Revision Requested' ? `<span style="font-size:10px;font-weight:700;color:var(--amber-500)">↺ Revision Req.</span>` : (j.clientApproval && j.clientApproval.isRevised ? `<span style="font-size:10px;font-weight:700;color:var(--brand-500)">📦 Revised — Awaiting Re-approval</span>` : ((j.status === 'Denied' || j.clientApproval?.status === 'Denied') ? `<span style="font-size:10px;font-weight:700;color:var(--red-500)" title="Reason: ${escapeHtml(j.clientApproval?.deniedReason || '')}">❌ Denied</span>
+                   <button type="button" class="btn gold small admin-resubmit-btn" data-id="${j._id}" data-title="${escapeHtml(j.title || 'Job')}" data-reason="${escapeHtml(j.clientApproval?.deniedReason || '')}" style="margin-top:3px;padding:2px 7px;font-size:10px;font-weight:700">🔁 Resubmit</button>` : '')))}
                 </div>
               </td>
               <td>${escapeHtml(clientName(j.clientId))}</td>
@@ -674,6 +675,10 @@ async function tabJobs(c){
     </section>
   `;
   document.querySelectorAll('[data-jf]').forEach(b=> b.onclick = ()=>{ ui.jobsFilter = b.dataset.jf; renderTab(); });
+
+  document.querySelectorAll('.admin-resubmit-btn').forEach(btn => {
+    btn.onclick = () => openAdminResubmitModal(btn.dataset.id, btn.dataset.title, btn.dataset.reason);
+  });
 
   document.querySelectorAll('.view-job-files').forEach(btn => {
     btn.onclick = () => {
@@ -2538,3 +2543,65 @@ window.addEventListener('ci360:dataUpdated', () => {
 
 boot();
 
+
+function openAdminResubmitModal(jobId, jobTitle, previousDenialReason) {
+  const bg = openModal(`
+    <div style="margin-bottom:14px">
+      <div style="font-size:18px;font-weight:800;color:var(--text-1);margin-bottom:4px;display:flex;align-items:center;gap:8px">
+        <span>🔁</span> Resubmit Work to Client for Approval
+      </div>
+      <div style="font-size:12.5px;color:var(--text-3)">${escapeHtml(jobTitle)}</div>
+    </div>
+
+    ${previousDenialReason ? `
+      <div style="margin-bottom:14px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);border-radius:var(--r-sm);padding:10px 14px">
+        <strong style="color:var(--red-500);font-size:11.5px;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:2px">Client's Previous Denial Reason:</strong>
+        <div style="font-size:12.5px;color:var(--text-1)">"${escapeHtml(previousDenialReason)}"</div>
+      </div>
+    ` : ''}
+
+    <div class="field" style="margin-bottom:12px">
+      <label for="mAdmResubNotes" style="font-weight:700">Resubmission / Correction Notes</label>
+      <input type="text" id="mAdmResubNotes" placeholder="e.g. Corrected deliverables according to client notes, updated live website link..." style="width:100%;box-sizing:border-box;padding:8px 10px;font-size:13px" />
+    </div>
+
+    <div class="field" style="margin-bottom:12px">
+      <label for="mAdmResubUrl" style="font-weight:700;color:var(--brand-500)">🌐 Live Deliverable URL / Website Link (Optional)</label>
+      <input type="url" id="mAdmResubUrl" placeholder="https://example.com, Figma link, staging site, Google Drive..." style="width:100%;box-sizing:border-box;padding:8px 10px;font-size:13px" />
+      <span style="font-size:11px;color:var(--text-4)">For live websites, applications, Figma links or cloud files</span>
+    </div>
+
+    <div style="margin-bottom:16px">
+      ${renderAttachmentUploader({ id: 'mAdmResubUp', label: 'Upload Corrected Files (Optional if URL provided)', subtitle: 'Upload corrected exports, PDFs, images or archive files' })}
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn ghost" id="mAdmResubCancel">Cancel</button>
+      <button class="btn gold" id="mAdmResubConfirm" style="font-weight:700">🔁 Resubmit to Client for Approval</button>
+    </div>
+  `);
+
+  bindAttachmentUploader('mAdmResubUp');
+
+  bg.querySelector('#mAdmResubCancel').onclick = () => bg.remove();
+  bg.querySelector('#mAdmResubConfirm').onclick = async () => {
+    const notes = bg.querySelector('#mAdmResubNotes').value.trim();
+    const url = bg.querySelector('#mAdmResubUrl').value.trim();
+    const files = getUploaderAttachments('mAdmResubUp');
+
+    const btn = bg.querySelector('#mAdmResubConfirm');
+    btn.disabled = true;
+    btn.textContent = 'Resubmitting…';
+
+    try {
+      await apiPost(`/jobs/${jobId}/resubmit`, { notes, url, deliverables: files });
+      flashToast('Job resubmitted to client for re-approval! 🔁🎉');
+      bg.remove();
+      renderTab();
+    } catch (err) {
+      flashToast(err.message, true);
+      btn.disabled = false;
+      btn.textContent = '🔁 Resubmit to Client for Approval';
+    }
+  };
+}

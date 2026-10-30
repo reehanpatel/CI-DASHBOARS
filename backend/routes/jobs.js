@@ -529,4 +529,75 @@ router.delete('/:id', requireRole('superadmin', 'employee'), async (req, res) =>
   }
 });
 
+// Endpoint for Admin or Employee to resubmit a denied/revised job to client
+router.post('/:id/resubmit', requireRole('superadmin', 'admin', 'employee'), async (req, res) => {
+  try {
+    const job = await Job.findById(req.params.id);
+    if (!job) return res.status(404).json({ error: 'Job not found' });
+
+    const { deliverables, notes, url } = req.body;
+    job.deliverables = job.deliverables || [];
+
+    if (url && typeof url === 'string' && url.trim()) {
+      let cleanUrl = url.trim();
+      if (!/^https?:\/\//i.test(cleanUrl)) cleanUrl = 'https://' + cleanUrl;
+      job.deliverables.push({
+        name: notes ? `${notes} (Resubmitted URL)` : 'Resubmitted Live URL',
+        url: cleanUrl,
+        type: 'url',
+        size: 0,
+        notes: notes || 'Resubmitted after client feedback/denial',
+        uploadedBy: req.user.name || 'Team',
+        uploadedAt: new Date()
+      });
+    }
+
+    if (Array.isArray(deliverables) && deliverables.length > 0) {
+      deliverables.forEach(d => {
+        if (d && (d.url || d.base64 || d.data)) {
+          job.deliverables.push({
+            name: d.name || 'Resubmitted Deliverable',
+            url: d.url || d.base64 || d.data,
+            size: Number(d.size) || 0,
+            type: d.type || '',
+            notes: d.notes || notes || 'Resubmitted after client feedback/denial',
+            uploadedBy: req.user.name || 'Team',
+            uploadedAt: new Date()
+          });
+        }
+      });
+    }
+
+    job.status = 'Completed'; // Team has completed resubmitted work, awaiting client re-approval
+    if (!job.completionDate) job.completionDate = new Date();
+
+    job.clientApproval = job.clientApproval || {};
+    job.clientApproval.status = 'Pending';
+    job.clientApproval.isRevised = true;
+    job.clientApproval.revisedAt = new Date();
+    job.clientApproval.approvedAt = null;
+    job.clientApproval.approvedBy = '';
+    job.clientApproval.deniedAt = null;
+    job.clientApproval.deniedBy = '';
+    if (job.clientApproval.deniedReason) {
+      job.clientApproval.previousDenialReason = job.clientApproval.deniedReason;
+      job.clientApproval.deniedReason = '';
+    }
+
+    await job.save();
+
+    await createNotificationsForJob({
+      type: 'job_resubmitted',
+      title: '📦 Work Resubmitted to Client',
+      message: `Work for Job "${job.title || 'Untitled'}" was updated and resubmitted to client for approval.`,
+      job,
+      actorId: req.user._id
+    });
+
+    res.json(job);
+  } catch (err) {
+    res.status(500).json({ error: 'Could not resubmit job', detail: err.message });
+  }
+});
+
 module.exports = router;
