@@ -320,6 +320,199 @@ function cellHTML(c) {
   return String(c ?? '').split('\n').map((ln, i) => i ? `<div class="desc">${escapeHtml(ln)}</div>` : escapeHtml(ln)).join('');
 }
 
+/* ---------- PAGINATION HELPERS FOR PROPER PAGE-WISE LAYOUT ---------- */
+function estimateBlockHeight(b) {
+  if (b.t === 'h') return 62;
+  if (b.t === 'note') return 42;
+  if (b.t === 'stamp') return 52;
+  if (b.t === 'sig') return 210;
+  if (b.t === 'choices') return 32 + ((b.items || []).length * 36);
+  if (b.t === 'kv') return 20 + ((b.rows || []).length * 38);
+  if (b.t === 'table') {
+    let th = 44;
+    for (const r of (b.rows || [])) {
+      let maxLen = 0;
+      let lineBreaks = 0;
+      for (const cell of (r.cells || [])) {
+        let str = '';
+        if (cell && typeof cell === 'object') {
+          str = (cell.b || '') + ' ' + (cell.s || '') + ' ' + (cell.md || '');
+        } else {
+          str = String(cell || '');
+        }
+        if (str.length > maxLen) maxLen = str.length;
+        const lbs = (str.match(/\n/g) || []).length;
+        if (lbs > lineBreaks) lineBreaks = lbs;
+      }
+      let rowH = 36;
+      if (maxLen > 240 || lineBreaks >= 4) rowH = 88;
+      else if (maxLen > 140 || lineBreaks >= 2) rowH = 64;
+      else if (maxLen > 60 || lineBreaks >= 1) rowH = 48;
+      th += rowH;
+    }
+    return th;
+  }
+  if (b.t === 'md') {
+    const text = b.text || '';
+    const paras = text.split('\n\n');
+    let total = 0;
+    for (const p of paras) {
+      if (p.startsWith('- ') || p.startsWith('* ') || p.includes('\n- ')) {
+        const items = p.split('\n').filter(Boolean);
+        total += items.length * 26 + 8;
+      } else {
+        const chars = p.length;
+        const lines = Math.ceil(chars / 80) || 1;
+        total += lines * 22 + 10;
+      }
+    }
+    return Math.max(total, 34);
+  }
+  return 40;
+}
+
+function calcRowHeight(r) {
+  let maxLen = 0;
+  let lineBreaks = 0;
+  for (const cell of (r.cells || [])) {
+    let str = '';
+    if (cell && typeof cell === 'object') {
+      str = (cell.b || '') + ' ' + (cell.s || '') + ' ' + (cell.md || '');
+    } else {
+      str = String(cell || '');
+    }
+    if (str.length > maxLen) maxLen = str.length;
+    const lbs = (str.match(/\n/g) || []).length;
+    if (lbs > lineBreaks) lineBreaks = lbs;
+  }
+  if (maxLen > 240 || lineBreaks >= 4) return 88;
+  if (maxLen > 140 || lineBreaks >= 2) return 64;
+  if (maxLen > 60 || lineBreaks >= 1) return 48;
+  return 36;
+}
+
+function paginateProposalBlocks(blocks, targetHeight = 880) {
+  const pages = [];
+  let curBlocks = [];
+  let curH = 0;
+
+  function pushPage() {
+    if (curBlocks.length) {
+      pages.push(curBlocks);
+      curBlocks = [];
+      curH = 0;
+    }
+  }
+
+  for (let bi = 0; bi < blocks.length; bi++) {
+    const b = blocks[bi];
+    const bH = estimateBlockHeight(b);
+
+    // 1. Heading check: ensure heading has space for itself + subsequent content (~110px) to prevent orphan headings
+    if (b.t === 'h') {
+      if (curH + bH + 110 > targetHeight && curBlocks.length > 0) {
+        pushPage();
+      }
+      curBlocks.push(b);
+      curH += bH;
+      continue;
+    }
+
+    // 2. Signatures check: keep signatures together without splitting or cramping
+    if (b.t === 'sig') {
+      if (curH + bH > targetHeight && curBlocks.length > 0) {
+        pushPage();
+      }
+      curBlocks.push(b);
+      curH += bH;
+      continue;
+    }
+
+    // 3. Table check: if table fits, add it. If not, split rows cleanly with repeated thead
+    if (b.t === 'table' && b.rows && b.rows.length > 2) {
+      if (curH + bH <= targetHeight) {
+        curBlocks.push(b);
+        curH += bH;
+        continue;
+      }
+
+      const rem = targetHeight - curH;
+      const theadH = 44;
+      let acc = 0;
+      let splitIdx = 0;
+
+      for (let ri = 0; ri < b.rows.length; ri++) {
+        const rH = calcRowHeight(b.rows[ri]);
+        if (theadH + acc + rH <= rem) {
+          acc += rH;
+          splitIdx = ri + 1;
+        } else {
+          break;
+        }
+      }
+
+      // Ensure both split parts have at least 2 rows
+      if (b.rows.length - splitIdx < 2) {
+        splitIdx = b.rows.length - 2;
+      }
+
+      if (splitIdx >= 2 && splitIdx <= b.rows.length - 2 && curBlocks.length > 0) {
+        curBlocks.push({ ...b, rows: b.rows.slice(0, splitIdx) });
+        pushPage();
+
+        const remainingTable = { ...b, rows: b.rows.slice(splitIdx) };
+        const remH = estimateBlockHeight(remainingTable);
+        curBlocks.push(remainingTable);
+        curH += remH;
+        continue;
+      } else {
+        if (curBlocks.length > 0) pushPage();
+
+        if (bH <= targetHeight) {
+          curBlocks.push(b);
+          curH += bH;
+        } else {
+          let accFresh = 0;
+          let splitFresh = 0;
+          for (let ri = 0; ri < b.rows.length; ri++) {
+            const rH = calcRowHeight(b.rows[ri]);
+            if (theadH + accFresh + rH <= targetHeight) {
+              accFresh += rH;
+              splitFresh = ri + 1;
+            } else {
+              break;
+            }
+          }
+          if (splitFresh >= 2 && splitFresh <= b.rows.length - 2) {
+            curBlocks.push({ ...b, rows: b.rows.slice(0, splitFresh) });
+            pushPage();
+            const rest = { ...b, rows: b.rows.slice(splitFresh) };
+            curBlocks.push(rest);
+            curH += estimateBlockHeight(rest);
+          } else {
+            curBlocks.push(b);
+            curH += bH;
+          }
+        }
+        continue;
+      }
+    }
+
+    // 4. Other blocks (md, kv, note, stamp, choices)
+    if (curH + bH <= targetHeight) {
+      curBlocks.push(b);
+      curH += bH;
+    } else {
+      if (curBlocks.length > 0) pushPage();
+      curBlocks.push(b);
+      curH += bH;
+    }
+  }
+
+  pushPage();
+  return pages;
+}
+
 export function paperHTML(model, print = false) {
   const cv = model.cover;
 
@@ -341,11 +534,14 @@ export function paperHTML(model, print = false) {
     return '';
   }
 
-  // Render blocks in natural flow without artificial grouping wrappers that force large page break gaps
-  const body = model.blocks.map(renderBlock).join('');
+  // Paginate blocks into exact A4 pages so content is strictly page-wise and never cut
+  const contentPages = paginateProposalBlocks(model.blocks, 880);
+  const totalPages = 1 + contentPages.length;
 
   return `<article class="paper${print ? ' print' : ''}">
-    <section class="cover">
+    <!-- Page 1: Cover Page -->
+    <section class="proposal-page cover-page" data-page="1">
+      <div class="page-sheet-badge">Page 1 of ${totalPages} • Cover</div>
       <div class="cv-logo"><img src="${PROPOSAL_LOGO_DATA_URI}" alt="CI360 Logo"></div>
       <div class="cv-brand">${escapeHtml(cv.brand)}</div>
       <div class="cv-kicker">${escapeHtml(cv.kicker)}</div>
@@ -353,9 +549,37 @@ export function paperHTML(model, print = false) {
       <p class="cv-sub">${escapeHtml(cv.subtitle || '')}</p>
       <div class="cv-rule"></div>
       <dl class="cv-meta">${cv.meta.filter(m => m[1]).map(([k, v]) => `<dt>${escapeHtml(k)}</dt><dd>${escapeHtml(v).replace(/\n/g, '<br>')}</dd>`).join('')}</dl>
+      ${model.foot ? `<div class="cv-foot">${escapeHtml(model.foot)}</div>` : ''}
     </section>
-    <div class="html2pdf__page-break pb"></div>
-    <div class="body">${body}</div>
+
+    <!-- Pages 2..N: Content Pages with Running Header & Running Footer -->
+    ${contentPages.map((pageBlocks, idx) => {
+      const pageNum = idx + 2;
+      return `
+      <section class="proposal-page content-page" data-page="${pageNum}">
+        <div class="page-sheet-badge">Page ${pageNum} of ${totalPages}</div>
+        <header class="page-header">
+          <div class="ph-left">
+            <img src="${PROPOSAL_LOGO_DATA_URI}" alt="Logo" class="ph-logo">
+            <span class="ph-brand">${escapeHtml(model.brand || 'CI360 Degrees')}</span>
+          </div>
+          <div class="ph-right">
+            <span class="ph-title">${escapeHtml(model.title || 'Proposal')}</span>
+            ${model.ref ? `<span class="ph-ref">${escapeHtml(model.ref)}</span>` : ''}
+          </div>
+        </header>
+
+        <div class="page-content">
+          ${pageBlocks.map(renderBlock).join('')}
+        </div>
+
+        <footer class="page-footer">
+          <div class="pf-left">${escapeHtml(model.foot || '')}</div>
+          <div class="pf-right">Page ${pageNum} of ${totalPages}</div>
+        </footer>
+      </section>
+      `;
+    }).join('')}
   </article>`;
 }
 
@@ -600,7 +824,7 @@ export async function exportPdfDoc(p, co, btn, opts = {}) {
       <style>
         * { box-sizing: border-box !important; }
         #ci360-pdf-render-stage, .paper, .paper.print {
-          background: #FFFFFF !important;
+          background: transparent !important;
           color: #1C2430 !important;
           font-family: Arial, Helvetica, sans-serif !important;
           width: 794px !important;
@@ -610,20 +834,127 @@ export async function exportPdfDoc(p, co, btn, opts = {}) {
           padding: 0 !important;
           box-shadow: none !important;
         }
-        .paper .cover {
-          background: #0F2A4A !important;
-          color: #FFFFFF !important;
-          box-sizing: border-box !important;
+        .proposal-page {
           width: 794px !important;
           min-width: 794px !important;
           max-width: 794px !important;
-          height: 1120px !important;
-          max-height: 1120px !important;
-          padding: 56px 44px !important;
+          height: 1122px !important;
+          min-height: 1122px !important;
+          max-height: 1122px !important;
+          box-sizing: border-box !important;
+          margin: 0 !important;
+          padding: 30px 44px 28px !important;
+          box-shadow: none !important;
+          border-radius: 0 !important;
+          overflow: hidden !important;
+          page-break-after: always !important;
+          break-after: page !important;
           position: relative !important;
           display: flex !important;
           flex-direction: column !important;
+          justify-content: space-between !important;
+        }
+        .proposal-page:last-child {
+          page-break-after: auto !important;
+          break-after: auto !important;
+        }
+        .proposal-page.cover-page {
+          background: #0F2A4A !important;
+          color: #FFFFFF !important;
+          padding: 56px 48px !important;
           justify-content: flex-start !important;
+        }
+        .proposal-page.cover-page .cv-foot {
+          margin-top: auto !important;
+          padding-top: 18px !important;
+          border-top: 1px solid rgba(255, 255, 255, 0.15) !important;
+          font-size: 11px !important;
+          color: #AEBBCD !important;
+          text-align: center !important;
+        }
+        .proposal-page.content-page {
+          background: #FFFFFF !important;
+          color: #1C2430 !important;
+        }
+        .page-sheet-badge {
+          display: none !important;
+        }
+        .page-header {
+          display: flex !important;
+          justify-content: space-between !important;
+          align-items: center !important;
+          padding-bottom: 10px !important;
+          border-bottom: 1.5px solid #B8893A !important;
+          margin-bottom: 14px !important;
+          flex-shrink: 0 !important;
+        }
+        .page-header .ph-left {
+          display: flex !important;
+          align-items: center !important;
+          gap: 8px !important;
+        }
+        .page-header .ph-logo {
+          width: 24px !important;
+          height: 24px !important;
+          object-fit: contain !important;
+        }
+        .page-header .ph-brand {
+          font-family: Georgia, serif !important;
+          font-weight: 700 !important;
+          font-size: 14px !important;
+          color: #0F2A4A !important;
+        }
+        .page-header .ph-right {
+          display: flex !important;
+          align-items: center !important;
+          gap: 12px !important;
+          font-size: 12px !important;
+          color: #64748B !important;
+        }
+        .page-header .ph-title {
+          font-weight: 600 !important;
+          color: #0F2A4A !important;
+          max-width: 320px !important;
+          white-space: nowrap !important;
+          overflow: hidden !important;
+          text-overflow: ellipsis !important;
+        }
+        .page-header .ph-ref {
+          background: #F1F4F8 !important;
+          padding: 2px 8px !important;
+          border-radius: 4px !important;
+          font-family: monospace !important;
+          font-size: 11px !important;
+          color: #0F2A4A !important;
+          border: 1px solid #D5DCE5 !important;
+        }
+        .page-content {
+          flex: 1 !important;
+          display: flex !important;
+          flex-direction: column !important;
+          overflow: hidden !important;
+        }
+        .page-footer {
+          display: flex !important;
+          justify-content: space-between !important;
+          align-items: center !important;
+          padding-top: 10px !important;
+          border-top: 1px solid #E2E8F0 !important;
+          margin-top: 12px !important;
+          font-size: 11px !important;
+          color: #64748B !important;
+          flex-shrink: 0 !important;
+        }
+        .page-footer .pf-left {
+          max-width: 520px !important;
+          white-space: nowrap !important;
+          overflow: hidden !important;
+          text-overflow: ellipsis !important;
+        }
+        .page-footer .pf-right {
+          font-weight: 700 !important;
+          color: #0F2A4A !important;
+          white-space: nowrap !important;
         }
         .paper .cv-logo {
           margin-bottom: 16px !important;
@@ -762,8 +1093,7 @@ export async function exportPdfDoc(p, co, btn, opts = {}) {
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
       pagebreak: {
         mode: ['css', 'legacy'],
-        before: ['.html2pdf__page-break', '.pb'],
-        avoid: ['tbody tr', 'h2', 'h3', '.sig', '.approved-stamp', '.choices']
+        before: ['.proposal-page:not(:first-child)', '.html2pdf__page-break', '.pb']
       }
     };
 
@@ -799,9 +1129,9 @@ export function printProposalDocument(p, co, opts = {}) {
       <style>
         @page { size: A4 portrait; margin: 0; }
         body { margin: 0; padding: 0; background: #FFFFFF; font-family: Arial, Helvetica, sans-serif; }
-        .paper { width: 100% !important; max-width: none !important; margin: 0 !important; box-shadow: none !important; }
-        .paper .cover { height: 100vh !important; min-height: 100vh !important; page-break-after: always !important; break-after: page !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-        .paper .html2pdf__page-break, .paper .pb { page-break-before: always !important; break-before: page !important; height: 1px !important; }
+        .paper { width: 100% !important; max-width: none !important; margin: 0 !important; box-shadow: none !important; background: transparent !important; }
+        .proposal-page { width: 100% !important; min-height: 100vh !important; height: 100vh !important; page-break-after: always !important; break-after: page !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; box-shadow: none !important; margin: 0 !important; }
+        .page-sheet-badge { display: none !important; }
         @media print {
           * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
         }
@@ -1666,7 +1996,7 @@ export class ProposalStudioController {
 
       <!-- Scrollable Centered Document Container -->
       <div style="flex:1;overflow-y:auto;padding:36px 16px;background:#DCE1E8;">
-        <div style="max-width:820px;margin:0 auto;box-shadow:0 8px 30px rgba(0,0,0,0.25);border-radius:6px;overflow:hidden;" id="ps-modal-live-paper" data-theme="light">
+        <div style="max-width:820px;margin:0 auto;padding-bottom:30px;background:transparent;" id="ps-modal-live-paper" data-theme="light">
           ${paperHTML(docModel(p, co))}
         </div>
       </div>
