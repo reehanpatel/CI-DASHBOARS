@@ -6235,12 +6235,11 @@ html:not([data-theme="dark"]) textarea {
   font-family: Georgia, serif;
   color: #0F2A4A !important;
   font-size: 19px;
-  padding-bottom: 6px;
+  line-height: 1.4 !important;
+  display: block !important;
+  padding-bottom: 8px !important;
   border-bottom: 1.5px solid #B8893A !important;
-  margin: 26px 0 12px;
-  display: flex;
-  gap: 10px;
-  align-items: baseline;
+  margin: 24px 0 12px;
 }
 
 .paper .body > h2:first-child,
@@ -6250,6 +6249,8 @@ html:not([data-theme="dark"]) textarea {
 
 .paper h2 .n {
   color: #B8893A !important;
+  margin-right: 8px !important;
+  display: inline !important;
 }
 
 .paper h3 {
@@ -6469,7 +6470,7 @@ html:not([data-theme="dark"]) textarea {
 
 .paper .choices p { margin-bottom: 12px; color: #1E293B !important; }
 .paper .box { margin-right: 14px; white-space: nowrap; color: #1E293B !important; }
-.paper .blank { display: inline-block; min-width: 220px; border-bottom: 1.5px solid #1C2430 !important; color: #1C2430 !important; }
+.paper .blank { display: inline-block; min-width: 280px; border-bottom: 1.5px solid #475569 !important; color: #1C2430 !important; margin-left: 8px; vertical-align: baseline; }
 
 .paper .sig {
   display: grid;

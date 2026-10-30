@@ -280,11 +280,6 @@ export function docModel(p, co, opts = {}) {
   if (ch.length) { H('Choices to confirm on sign-off'); B.push({ t: 'choices', items: ch.map(c => ({ label: c.label, options: (c.options || []).filter(Boolean), answer: opts.answers ? opts.answers[c.id] : '' })) }); }
 
   H('Sign-off');
-  // Official Admin PIN verification stamp
-  if (p.approval && p.approval.decision === 'approved') {
-    const approverText = `🔐 Internally Approved & Verified with Admin PIN by ${p.approval.approverName || 'Admin'} on ${fmtDateTime(p.approval.at)}`;
-    B.push({ t: 'stamp', text: approverText, type: 'admin' });
-  }
   if (opts.approval && opts.approval.name) {
     B.push({ t: 'stamp', text: `Approved online by client ${opts.approval.name}${opts.approval.role ? ', ' + opts.approval.role : ''} on ${fmtDate(opts.approval.at)}`, type: 'client' });
   }
@@ -1002,8 +997,10 @@ export async function exportPdfDoc(p, co, btn, opts = {}) {
           margin: 6px 0 12px !important;
           display: block !important;
         }
-        .paper h2 { color: #0F2A4A !important; font-family: Georgia, serif !important; font-size: 19px !important; border-bottom: 1.5px solid #B8893A !important; margin: 26px 0 12px !important; padding-bottom: 4px !important; break-after: avoid !important; page-break-after: avoid !important; }
-        .paper h2 .n { color: #B8893A !important; margin-right: 6px !important; }
+        .paper h2 { color: #0F2A4A !important; font-family: Georgia, serif !important; font-size: 19px !important; line-height: 1.4 !important; display: block !important; border-bottom: 1.5px solid #B8893A !important; margin: 22px 0 12px !important; padding-bottom: 8px !important; }
+        .paper h2 .n { color: #B8893A !important; margin-right: 8px !important; display: inline !important; }
+        .paper .choices p { margin-bottom: 12px !important; color: #1E293B !important; font-size: 13px !important; line-height: 1.6 !important; }
+        .paper .blank { display: inline-block !important; min-width: 280px !important; border-bottom: 1.5px solid #475569 !important; color: #1C2430 !important; margin-left: 8px !important; vertical-align: baseline !important; height: 14px !important; }
         .paper h3 { color: #0F2A4A !important; font-family: Georgia, serif !important; font-size: 14.5px !important; margin: 14px 0 6px !important; font-weight: 700 !important; break-after: avoid !important; page-break-after: avoid !important; }
         .paper p { color: #1E293B !important; font-size: 13px !important; line-height: 1.6 !important; margin: 0 0 9px !important; max-width: 100% !important; }
         .paper ul, .paper ol { color: #1E293B !important; margin: 0 0 10px !important; padding-left: 20px !important; }
