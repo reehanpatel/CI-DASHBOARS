@@ -8,6 +8,8 @@ import { PROPOSAL_LOGO_BASE64, PROPOSAL_LOGO_DATA_URI } from './proposalLogo.js'
 
 const CDN = {
   docx: 'https://cdn.jsdelivr.net/npm/docx@9.0.2/build/index.umd.js',
+  html2canvas: 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js',
+  jspdf: 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
   pdf: 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js',
   mammoth: 'https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js',
   pdfjs: 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js',
@@ -804,19 +806,23 @@ export async function exportPdfDoc(p, co, btn, opts = {}) {
     <div style="background:#0F2A4A;border:1px solid #B8893A;border-radius:12px;padding:24px 36px;color:#fff;text-align:center;box-shadow:0 12px 48px rgba(0,0,0,0.6);max-width:480px;">
       <div style="font-size:32px;margin-bottom:8px;">📄</div>
       <div style="font-size:17px;font-weight:700;color:#D4A657;">Rendering High-Resolution Proposal PDF…</div>
-      <div style="font-size:13px;color:#AEBBCD;margin-top:6px;line-height:1.5;">Formatting pages to standard A4 dimensions with exact table widths and styling.</div>
+      <div class="pdf-progress-text" style="font-size:13px;color:#AEBBCD;margin-top:6px;line-height:1.5;">Preparing exact page-by-page layout…</div>
     </div>
   `;
   document.body.appendChild(overlay);
 
-  // 2. Off-screen staging container for pixel-perfect standard A4 layout
+  // 2. Staging container for pixel-perfect standard A4 layout (hidden under export overlay)
   const stage = document.createElement('div');
   stage.id = 'ci360-pdf-render-stage';
   stage.setAttribute('data-theme', 'light');
-  stage.style.cssText = 'position:absolute;left:-99999px;top:0;width:794px;margin:0;padding:0;background:#ffffff;box-sizing:border-box;';
+  stage.style.cssText = 'position:fixed;top:0;left:0;width:794px;margin:0;padding:0;background:#ffffff;box-sizing:border-box;z-index:-1000;pointer-events:none;';
 
   try {
-    const h2p = await loadScript(CDN.pdf, 'html2pdf');
+    const [h2c, jspdfMod] = await Promise.all([
+      loadScript(CDN.html2canvas, 'html2canvas'),
+      loadScript(CDN.jspdf, 'jspdf')
+    ]);
+    const { jsPDF } = jspdfMod || window.jspdf;
     const model = docModel(p, co, opts);
     const paperMarkup = paperHTML(model, true);
 
@@ -1075,31 +1081,47 @@ export async function exportPdfDoc(p, co, btn, opts = {}) {
     `;
     document.body.appendChild(stage);
 
-    // Wait for styles and layout to compute
+    // Wait for styles and fonts to fully compute
     await new Promise(r => setTimeout(r, 400));
 
-    const opt = {
-      margin: 0,
-      filename: `${p.clientShort || p.client || 'Client'} - ${p.title || 'Proposal'}.pdf`.replace(/[\\/:*?"<>|]+/g, '_'),
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { 
-        scale: 2, 
-        backgroundColor: '#ffffff', 
+    const pageEls = Array.from(stage.querySelectorAll('.proposal-page'));
+    const totalPdfPages = pageEls.length;
+    const filename = `${p.clientShort || p.client || 'Client'} - ${p.title || 'Proposal'}.pdf`.replace(/[\\/:*?"<>|]+/g, '_');
+
+    // Create jsPDF instance with exact A4 dimensions (210mm x 297mm)
+    const pdf = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
+
+    for (let i = 0; i < totalPdfPages; i++) {
+      if (i > 0) pdf.addPage('a4', 'portrait');
+
+      const pageEl = pageEls[i];
+      const isCover = pageEl.classList.contains('cover-page');
+
+      const progressEl = overlay.querySelector('.pdf-progress-text');
+      if (progressEl) {
+        progressEl.textContent = `Rendering page ${i + 1} of ${totalPdfPages}…`;
+      }
+
+      // Render exact page element at high 2x scale
+      const canvas = await h2c(pageEl, {
+        scale: 2,
         useCORS: true,
         logging: false,
+        backgroundColor: isCover ? '#0F2A4A' : '#FFFFFF',
         scrollY: 0,
-        scrollX: 0
-      },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-      pagebreak: {
-        mode: ['css', 'legacy'],
-        before: ['.proposal-page:not(:first-child)', '.html2pdf__page-break', '.pb']
-      }
-    };
+        scrollX: 0,
+        width: 794,
+        height: 1122,
+        windowWidth: 794
+      });
 
-    const paperEl = stage.querySelector('.paper');
-    await h2p().set(opt).from(paperEl || stage).save();
-    flashToast('PDF downloaded successfully! 📄');
+      const imgData = canvas.toDataURL('image/jpeg', 0.98);
+      // Place image directly onto A4 page (0, 0, 210mm, 297mm) with zero margin
+      pdf.addImage(imgData, 'JPEG', 0, 0, 210, 297, undefined, 'FAST');
+    }
+
+    pdf.save(filename);
+    flashToast(`PDF downloaded successfully (${totalPdfPages} pages)! 📄`);
   } catch (err) {
     alert('PDF export error: ' + err.message);
   } finally {
