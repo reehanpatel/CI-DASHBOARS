@@ -1283,6 +1283,10 @@ var require_jobs = __commonJS({
           job.clientApproval.previousDenialReason = job.clientApproval.deniedReason;
           job.clientApproval.deniedReason = "";
         }
+        if (job.clientApproval.feedback) {
+          job.clientApproval.previousFeedback = job.clientApproval.feedback;
+          job.clientApproval.feedback = "";
+        }
 
         await job.save();
 

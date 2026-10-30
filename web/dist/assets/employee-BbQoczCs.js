@@ -1,8 +1,8 @@
-import{l as q,m as J}from"./api-B6bjYwkm.js";import{initProposalStudio as M}from"./proposals-jRIgOM5M.js";import{i as O,a as L}from"./teambonding-Dg3qBDfs.js";let s=null,S={personnel:[],clients:[],services:[]},d={tab:"dashboard",period:"month"};async function B(){if(initTheme(),s=requireAuth("employee"),!s)return;const[t,i,a]=await Promise.all([apiGet("/personnel"),apiGet("/clients"),apiGet("/services")]);S.personnel=t,S.clients=i,S.services=a,z()}function H(t){const i=S.clients.find(a=>a._id===t);return i?i.name:"—"}function F(){return s&&(/mansi/i.test(s.name)||/urna/i.test(s.name))}function N(){const t=s&&(s.role==="accounts"||s.role==="superadmin"||/ekta/i.test(s.name)||/ekta/i.test(s.email)),i=[{key:"dashboard",label:"Overview Dashboard",icon:"📊"},{key:"myjobs",label:"My Jobs",icon:"📋"},{key:"dailytasks",label:"Daily Planner",icon:"📅"},{key:"proposals",label:"Proposal Studio",icon:"📜"},{key:"teambonding",label:"Team Chat & Lounge",icon:"💬"},{key:"targets",label:"My Targets",icon:"🎯"},{key:"settings",label:"Settings",icon:"⚙️"}];return t&&i.push({key:"accounts_redirect",label:"Accounts Dashboard 💰",icon:"💳"}),i}function z(){const t=document.getElementById("app"),i=N(),a=i.find(e=>e.key===d.tab)||i[0];t.innerHTML=renderAppShell({user:s,currentRole:"employee",activeTab:d.tab,tabs:i,title:a.label,subtitle:F()?"Lead Workspace · Mansi & Urna Management":"Employee Workspace & Productivity Dashboard"}),bindAppShellEvents(e=>{if(e==="accounts_redirect"){window.location.href="/accounts";return}d.tab=e,z()}),x()}window.ci360NavTab=(t,i=null)=>{if(t==="accounts_redirect"){window.location.href="/accounts";return}t==="jobs"||t==="myjobs"?t="myjobs":t==="tasks"||t==="mytasks"||t==="dailytasks"?t="dailytasks":t==="target"||t==="targets"?t="targets":t==="proposal"||t==="proposals"?t="proposals":t==="teambonding"||t==="bonding"||t==="arcade"||t==="chat"?t="teambonding":(t==="dashboard"||t==="overview")&&(t="dashboard"),d.tab=t,i&&(d.highlightId=i),z()};async function x(){const t=document.getElementById("content");if(t){t.innerHTML=renderSkeletonCards(3);try{d.tab==="dashboard"?await _(t):d.tab==="myjobs"||d.tab==="jobs"?await K(t):d.tab==="dailytasks"||d.tab==="mytasks"||d.tab==="tasks"?await ie(t):d.tab==="proposals"||d.tab==="proposal"?await W(t):d.tab==="teambonding"||d.tab==="bonding"?await G(t):d.tab==="targets"||d.tab==="target"?await ae(t):d.tab==="settings"?await Q(t):(d.tab="dashboard",await _(t))}catch(i){t.innerHTML=renderEmptyState("Something went wrong",i.message,"⚠️")}}}async function W(t){t.innerHTML='<div id="proposals-module-root"></div>';const i=t.querySelector("#proposals-module-root");M(i,{userRole:"employee",currentUser:s})}async function G(t){t.innerHTML='<div id="teambonding-module-root"></div>';const i=t.querySelector("#teambonding-module-root");L(i,{currentUser:s})}async function Q(t){t.innerHTML=`
+import{l as q,m as J}from"./api-B6bjYwkm.js";import{initProposalStudio as M}from"./proposals-jRIgOM5M.js";import{i as O,a as L}from"./teambonding-Dg3qBDfs.js";let o=null,S={personnel:[],clients:[],services:[]},p={tab:"dashboard",period:"month"};async function B(){if(initTheme(),o=requireAuth("employee"),!o)return;const[t,i,a]=await Promise.all([apiGet("/personnel"),apiGet("/clients"),apiGet("/services")]);S.personnel=t,S.clients=i,S.services=a,C()}function H(t){const i=S.clients.find(a=>a._id===t);return i?i.name:"—"}function N(){return o&&(/mansi/i.test(o.name)||/urna/i.test(o.name))}function F(){const t=o&&(o.role==="accounts"||o.role==="superadmin"||/ekta/i.test(o.name)||/ekta/i.test(o.email)),i=[{key:"dashboard",label:"Overview Dashboard",icon:"📊"},{key:"myjobs",label:"My Jobs",icon:"📋"},{key:"dailytasks",label:"Daily Planner",icon:"📅"},{key:"proposals",label:"Proposal Studio",icon:"📜"},{key:"teambonding",label:"Team Chat & Lounge",icon:"💬"},{key:"targets",label:"My Targets",icon:"🎯"},{key:"settings",label:"Settings",icon:"⚙️"}];return t&&i.push({key:"accounts_redirect",label:"Accounts Dashboard 💰",icon:"💳"}),i}function C(){const t=document.getElementById("app"),i=F(),a=i.find(e=>e.key===p.tab)||i[0];t.innerHTML=renderAppShell({user:o,currentRole:"employee",activeTab:p.tab,tabs:i,title:a.label,subtitle:N()?"Lead Workspace · Mansi & Urna Management":"Employee Workspace & Productivity Dashboard"}),bindAppShellEvents(e=>{if(e==="accounts_redirect"){window.location.href="/accounts";return}p.tab=e,C()}),x()}window.ci360NavTab=(t,i=null)=>{if(t==="accounts_redirect"){window.location.href="/accounts";return}t==="jobs"||t==="myjobs"?t="myjobs":t==="tasks"||t==="mytasks"||t==="dailytasks"?t="dailytasks":t==="target"||t==="targets"?t="targets":t==="proposal"||t==="proposals"?t="proposals":t==="teambonding"||t==="bonding"||t==="arcade"||t==="chat"?t="teambonding":(t==="dashboard"||t==="overview")&&(t="dashboard"),p.tab=t,i&&(p.highlightId=i),C()};async function x(){const t=document.getElementById("content");if(t){t.innerHTML=renderSkeletonCards(3);try{p.tab==="dashboard"?await _(t):p.tab==="myjobs"||p.tab==="jobs"?await K(t):p.tab==="dailytasks"||p.tab==="mytasks"||p.tab==="tasks"?await ie(t):p.tab==="proposals"||p.tab==="proposal"?await W(t):p.tab==="teambonding"||p.tab==="bonding"?await G(t):p.tab==="targets"||p.tab==="target"?await ae(t):p.tab==="settings"?await Q(t):(p.tab="dashboard",await _(t))}catch(i){t.innerHTML=renderEmptyState("Something went wrong",i.message,"⚠️")}}}async function W(t){t.innerHTML='<div id="proposals-module-root"></div>';const i=t.querySelector("#proposals-module-root");M(i,{userRole:"employee",currentUser:o})}async function G(t){t.innerHTML='<div id="teambonding-module-root"></div>';const i=t.querySelector("#teambonding-module-root");L(i,{currentUser:o})}async function Q(t){t.innerHTML=`
     <div style="padding:8px 0 24px 0;">
       ${q({title:"Employee Account & Security",subtitle:"Manage your personal login email, display name, and password"})}
     </div>
-  `,J(t)}function V(){return renderPeriodPicker(d.period)}function Y(){document.querySelectorAll("[data-period]").forEach(t=>{t.onclick=()=>{d.period=t.dataset.period,x()}})}async function _(t){const[i,a,e]=await Promise.all([apiGet("/dashboard/employee?period="+d.period).catch(()=>({stats:{},person:{},recentJobs:[],accounts:[]})),apiGet("/jobs?mine=true").catch(()=>[]),apiGet("/tasks").catch(()=>[])]),n=i.person||{},p=n.name||(s==null?void 0:s.name)||"Team Member",r=n.duties||"Creative Specialist",c=Number(n.capacity)||48,v=i.stats||{hours:0,revenue:0,utilization:0,label:"Optimal",badge:"green"},g=a||[],l=g.filter(o=>o.status==="Completed"||o.clientApproval&&o.clientApproval.status==="Approved"||o.completionDate),m=g.filter(o=>!o.completionDate&&o.status!=="Completed"&&(!o.clientApproval||o.clientApproval.status!=="Approved")),b=g.filter(o=>o.clientApproval&&o.clientApproval.status==="Revision Requested"),u=m.filter(o=>o.priority==="Urgent");m.filter(o=>o.priority==="High");const f=new Date().toISOString().slice(0,10),y=(e||[]).filter(o=>o.date?o.date.slice(0,10)===f:!0),w=y.filter(o=>o.status==="Completed"),$=y.filter(o=>o.status!=="Completed"),T=y.length>0?Math.round(w.length/y.length*100):100,h=i.accounts||[];t.innerHTML=`
+  `,J(t)}function V(){return renderPeriodPicker(p.period)}function Y(){document.querySelectorAll("[data-period]").forEach(t=>{t.onclick=()=>{p.period=t.dataset.period,x()}})}async function _(t){const[i,a,e]=await Promise.all([apiGet("/dashboard/employee?period="+p.period).catch(()=>({stats:{},person:{},recentJobs:[],accounts:[]})),apiGet("/jobs?mine=true").catch(()=>[]),apiGet("/tasks").catch(()=>[])]),n=i.person||{},r=n.name||(o==null?void 0:o.name)||"Team Member",d=n.duties||"Creative Specialist",g=Number(n.capacity)||48,v=i.stats||{hours:0,revenue:0,utilization:0,label:"Optimal",badge:"green"},c=a||[],l=c.filter(s=>s.status==="Completed"||s.clientApproval&&s.clientApproval.status==="Approved"||s.completionDate),m=c.filter(s=>!s.completionDate&&s.status!=="Completed"&&(!s.clientApproval||s.clientApproval.status!=="Approved")),b=c.filter(s=>s.clientApproval&&s.clientApproval.status==="Revision Requested"),u=m.filter(s=>s.priority==="Urgent");m.filter(s=>s.priority==="High");const f=new Date().toISOString().slice(0,10),y=(e||[]).filter(s=>s.date?s.date.slice(0,10)===f:!0),k=y.filter(s=>s.status==="Completed"),T=y.filter(s=>s.status!=="Completed"),A=y.length>0?Math.round(k.length/y.length*100):100,h=i.accounts||[];t.innerHTML=`
     <div class="block employee-overview-container" style="max-width:1280px;margin:0 auto">
       
       <!-- Employee Profile Hero Card -->
@@ -11,23 +11,23 @@ import{l as q,m as J}from"./api-B6bjYwkm.js";import{initProposalStudio as M}from
           
           <div style="display:flex;align-items:center;gap:18px">
             <div style="width:56px;height:56px;border-radius:var(--r-lg);background:linear-gradient(135deg,#4F46E5 0%,#7C3AED 100%);color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900;box-shadow:0 8px 16px -4px rgba(79,70,229,0.4);flex-shrink:0">
-              ${p.slice(0,2).toUpperCase()}
+              ${r.slice(0,2).toUpperCase()}
             </div>
             <div>
               <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:4px">
-                <h1 style="font-size:24px;font-weight:800;color:var(--text-1);margin:0;letter-spacing:-0.5px">${escapeHtml(p)}</h1>
-                <span class="badge blue" style="font-size:11px;font-weight:700">${escapeHtml(r)}</span>
+                <h1 style="font-size:24px;font-weight:800;color:var(--text-1);margin:0;letter-spacing:-0.5px">${escapeHtml(r)}</h1>
+                <span class="badge blue" style="font-size:11px;font-weight:700">${escapeHtml(d)}</span>
                 <span class="badge ${v.badge||"green"}" style="font-size:11px;font-weight:700">● ${escapeHtml(v.label||"Optimal Pace")}</span>
               </div>
               <p style="font-size:13.5px;color:var(--text-3);margin:0">
-                Personal Workspace &amp; Performance Radar · Standard Capacity: <strong>${c}h / week</strong>
+                Personal Workspace &amp; Performance Radar · Standard Capacity: <strong>${g}h / week</strong>
               </p>
             </div>
           </div>
 
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
             <button class="btn primary" id="btnEmpQuickJobs" style="display:inline-flex;align-items:center;gap:8px;font-weight:700;padding:9px 18px;border-radius:var(--r-md)">
-              <span>📋</span> My Jobs (${g.length})
+              <span>📋</span> My Jobs (${c.length})
             </button>
             <button class="btn secondary" id="btnEmpQuickTasks" style="display:inline-flex;align-items:center;gap:8px;font-weight:600;padding:9px 16px;border-radius:var(--r-md)">
               <span>📅</span> Daily Planner
@@ -44,7 +44,7 @@ import{l as q,m as J}from"./api-B6bjYwkm.js";import{initProposalStudio as M}from
             Period Performance Scope
           </div>
           <div id="empOverviewPeriodWrapper">
-            ${renderPeriodPicker(d.period)}
+            ${renderPeriodPicker(p.period)}
           </div>
         </div>
       </div>
@@ -97,8 +97,8 @@ import{l as q,m as J}from"./api-B6bjYwkm.js";import{initProposalStudio as M}from
               <div class="label" style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--text-3)">Today's Task Progress</div>
               <div style="font-size:20px">✅</div>
             </div>
-            <div class="value" style="font-size:32px;font-weight:900;color:var(--green-500);line-height:1">${w.length} <span style="font-size:18px;font-weight:600;color:var(--text-4)">/ ${y.length}</span></div>
-            <div class="sub" style="font-size:12px;color:var(--text-4);margin-top:6px">${T}% of today's checklist completed</div>
+            <div class="value" style="font-size:32px;font-weight:900;color:var(--green-500);line-height:1">${k.length} <span style="font-size:18px;font-weight:600;color:var(--text-4)">/ ${y.length}</span></div>
+            <div class="sub" style="font-size:12px;color:var(--text-4);margin-top:6px">${A}% of today's checklist completed</div>
           </div>
 
           <div class="card kpi" style="border-top:3px solid #8B5CF6;padding:20px">
@@ -121,7 +121,7 @@ import{l as q,m as J}from"./api-B6bjYwkm.js";import{initProposalStudio as M}from
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
             <div>
               <h3 style="font-size:16px;font-weight:800;color:var(--text-1);margin:0 0 2px 0">Today's Task Checklist</h3>
-              <p style="font-size:12px;color:var(--text-3);margin:0">${$.length} pending · ${w.length} done</p>
+              <p style="font-size:12px;color:var(--text-3);margin:0">${T.length} pending · ${k.length} done</p>
             </div>
             <button class="btn secondary small" onclick="ci360NavTab('dailytasks')" style="font-size:12px">
               Open Checklist →
@@ -131,22 +131,22 @@ import{l as q,m as J}from"./api-B6bjYwkm.js";import{initProposalStudio as M}from
           <!-- Progress Bar -->
           <div style="margin-bottom:16px">
             <div style="width:100%;height:8px;background:var(--border-sm);border-radius:8px;overflow:hidden">
-              <div style="width:${T}%;height:100%;background:linear-gradient(90deg, var(--green-500), #059669);border-radius:8px;transition:width 0.4s ease"></div>
+              <div style="width:${A}%;height:100%;background:linear-gradient(90deg, var(--green-500), #059669);border-radius:8px;transition:width 0.4s ease"></div>
             </div>
           </div>
 
           ${y.length>0?`
             <div style="display:flex;flex-direction:column;gap:10px">
-              ${y.slice(0,5).map(o=>{const A=o.status==="Completed";return`
+              ${y.slice(0,5).map(s=>{const w=s.status==="Completed";return`
                   <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;background:var(--bg-surface);border:1px solid var(--border-xs);border-radius:var(--r-md)">
                     <div style="display:flex;align-items:center;gap:10px;min-width:0">
-                      <span style="font-size:16px">${A?"✅":"⚪"}</span>
-                      <span style="font-size:13px;font-weight:600;color:${A?"var(--text-4)":"var(--text-1)"};${A?"text-decoration:line-through":""};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
-                        ${escapeHtml(o.title||"Task")}
+                      <span style="font-size:16px">${w?"✅":"⚪"}</span>
+                      <span style="font-size:13px;font-weight:600;color:${w?"var(--text-4)":"var(--text-1)"};${w?"text-decoration:line-through":""};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+                        ${escapeHtml(s.title||"Task")}
                       </span>
                     </div>
-                    <span class="badge ${o.priority==="Urgent"?"red":o.priority==="High"?"amber":"gray"}" style="font-size:10.5px">
-                      ${escapeHtml(o.priority||"Normal")}
+                    <span class="badge ${s.priority==="Urgent"?"red":s.priority==="High"?"amber":"gray"}" style="font-size:10.5px">
+                      ${escapeHtml(s.priority||"Normal")}
                     </span>
                   </div>
                 `}).join("")}
@@ -173,7 +173,7 @@ import{l as q,m as J}from"./api-B6bjYwkm.js";import{initProposalStudio as M}from
 
           ${h.length>0?`
             <div style="display:flex;flex-direction:column;gap:10px">
-              ${h.slice(0,5).map(o=>{const E=(S.clients.find(P=>String(P._id)===String(o.clientId))||{}).name||"Client Account";return`
+              ${h.slice(0,5).map(s=>{const E=(S.clients.find(P=>String(P._id)===String(s.clientId))||{}).name||"Client Account";return`
                   <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px;background:var(--bg-surface);border:1px solid var(--border-xs);border-radius:var(--r-md)">
                     <div style="display:flex;align-items:center;gap:10px;min-width:0">
                       <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--brand-500) 0%,#4338CA 100%);color:#FFF;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0">
@@ -181,7 +181,7 @@ import{l as q,m as J}from"./api-B6bjYwkm.js";import{initProposalStudio as M}from
                       </div>
                       <div style="min-width:0">
                         <div style="font-size:13.5px;font-weight:700;color:var(--text-1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(E)}</div>
-                        <div style="font-size:11px;color:var(--text-4)">${escapeHtml(o.nature||"Retainer")} · ${escapeHtml(o.difficulty||"Normal")}</div>
+                        <div style="font-size:11px;color:var(--text-4)">${escapeHtml(s.nature||"Retainer")} · ${escapeHtml(s.difficulty||"Normal")}</div>
                       </div>
                     </div>
                     <span class="badge blue" style="font-size:11px;font-weight:600">Active</span>
@@ -207,11 +207,11 @@ import{l as q,m as J}from"./api-B6bjYwkm.js";import{initProposalStudio as M}from
             <p style="font-size:12.5px;color:var(--text-3);margin:0">Recent deliverables assigned to your workflow</p>
           </div>
           <button class="btn secondary small" onclick="ci360NavTab('myjobs')" style="font-weight:700">
-            View All Jobs (${g.length}) →
+            View All Jobs (${c.length}) →
           </button>
         </div>
 
-        ${g.length>0?`
+        ${c.length>0?`
           <div class="table-wrapper">
             <table>
               <thead>
@@ -225,22 +225,22 @@ import{l as q,m as J}from"./api-B6bjYwkm.js";import{initProposalStudio as M}from
                 </tr>
               </thead>
               <tbody>
-                ${g.slice(0,6).map(o=>{var R;const A=o.status==="Completed"||o.clientApproval&&o.clientApproval.status==="Approved"||o.completionDate,E=o.clientApproval&&o.clientApproval.status==="Revision Requested",P=((R=o.clientId)==null?void 0:R.name)||H(o.clientId)||"Client",I=o.priority==="Urgent"?"red":o.priority==="High"?"amber":"gray";return`
+                ${c.slice(0,6).map(s=>{var R;const w=s.status==="Completed"||s.clientApproval&&s.clientApproval.status==="Approved"||s.completionDate,E=s.clientApproval&&s.clientApproval.status==="Revision Requested",P=((R=s.clientId)==null?void 0:R.name)||H(s.clientId)||"Client",I=s.priority==="Urgent"?"red":s.priority==="High"?"amber":"gray";return`
                     <tr style="cursor:pointer" onclick="ci360NavTab('myjobs')">
                       <td style="padding-left:24px;font-weight:800;color:var(--text-1)">
-                        ${escapeHtml(o.title||"Untitled Job")}
+                        ${escapeHtml(s.title||"Untitled Job")}
                       </td>
                       <td>
                         <span class="badge blue" style="font-size:11px">${escapeHtml(P)}</span>
                       </td>
                       <td>
-                        <span class="badge ${I}" style="font-size:11px;font-weight:700">${escapeHtml(o.priority||"Medium")}</span>
+                        <span class="badge ${I}" style="font-size:11px;font-weight:700">${escapeHtml(s.priority||"Medium")}</span>
                       </td>
-                      <td style="font-size:12.5px;color:var(--text-3)">${fmtDate(o.date)}</td>
-                      <td style="font-size:12.5px;color:var(--text-2);font-weight:600">${o.completionDate?fmtDate(o.completionDate):"—"}</td>
+                      <td style="font-size:12.5px;color:var(--text-3)">${fmtDate(s.date)}</td>
+                      <td style="font-size:12.5px;color:var(--text-2);font-weight:600">${s.completionDate?fmtDate(s.completionDate):"—"}</td>
                       <td>
-                        <span class="badge ${A?"green":E?"red":"amber"}" style="font-weight:700">
-                          ${A?"✓ Completed":E?"↺ Revision":"⏳ In Progress"}
+                        <span class="badge ${w?"green":E?"red":"amber"}" style="font-weight:700">
+                          ${w?"✓ Completed":E?"↺ Revision":"⏳ In Progress"}
                         </span>
                       </td>
                     </tr>
@@ -258,7 +258,7 @@ import{l as q,m as J}from"./api-B6bjYwkm.js";import{initProposalStudio as M}from
       </div>
 
     </div>
-  `;const k=document.getElementById("btnEmpQuickJobs");k&&(k.onclick=()=>{d.tab="myjobs",z()});const D=document.getElementById("btnEmpQuickTasks");D&&(D.onclick=()=>{d.tab="dailytasks",z()});const C=document.getElementById("btnEmpQuickProposals");C&&(C.onclick=()=>{d.tab="proposals",z()}),document.querySelectorAll("#empOverviewPeriodWrapper [data-period]").forEach(o=>{o.onclick=()=>{d.period=o.dataset.period,x()}})}async function K(t){const i=await apiGet("/jobs?mine=true"),a={Medium:"gray",High:"amber",Urgent:"red"};if(i.length===0){t.innerHTML=`
+  `;const $=document.getElementById("btnEmpQuickJobs");$&&($.onclick=()=>{p.tab="myjobs",C()});const z=document.getElementById("btnEmpQuickTasks");z&&(z.onclick=()=>{p.tab="dailytasks",C()});const D=document.getElementById("btnEmpQuickProposals");D&&(D.onclick=()=>{p.tab="proposals",C()}),document.querySelectorAll("#empOverviewPeriodWrapper [data-period]").forEach(s=>{s.onclick=()=>{p.period=s.dataset.period,x()}})}async function K(t){const i=await apiGet("/jobs?mine=true"),a={Medium:"gray",High:"amber",Urgent:"red"};if(i.length===0){t.innerHTML=`
       <div class="block">
         <h2>My Jobs <span class="eyebrow">No assigned jobs yet</span></h2>
         ${renderEmptyState("No jobs assigned yet","Jobs assigned to you by admins will appear here.","📋")}
@@ -272,54 +272,54 @@ import{l as q,m as J}from"./api-B6bjYwkm.js";import{initProposalStudio as M}from
       </div>
 
       <div style="display:flex;flex-direction:column;gap:14px">
-        ${i.map(e=>{var u,f,y,w,$,T,h,k,D;const n=(e.assignments||[]).find(C=>String(C.personId)===String(s.personnelId._id||s.personnelId)),p=String(e.createdBy)===String(s._id),r=e.status==="Denied"||e.clientApproval&&e.clientApproval.status==="Denied",c=e.status==="Completed"&&!r,v=e.clientApproval&&e.clientApproval.status==="Approved"&&!r,g=e.clientApproval&&e.clientApproval.status==="Revision Requested"&&!r,l=!v&&!r&&!g&&!!(e.clientApproval&&e.clientApproval.isRevised),m=e.completionDate?new Date(e.completionDate).toISOString().slice(0,10):"",b=a[e.priority||"Medium"]||"gray";return`
-          <div class="job-card" id="job-card-${e._id}" style="background:var(--bg-card);border:1px solid var(--border-sm);border-radius:var(--r-md);padding:20px 22px;box-shadow:var(--shadow-xs);transition:all var(--t-fast);border-left:4px solid ${r?"var(--red-500)":v?"var(--green-500)":g?"var(--amber-500)":l?"var(--brand-500)":c?"var(--green-500)":"var(--brand-500)"}">
+        ${i.map(e=>{var u,f,y,k,T,A,h,$,z,D,s;const n=(e.assignments||[]).find(w=>String(w.personId)===String(o.personnelId._id||o.personnelId)),r=String(e.createdBy)===String(o._id),d=e.status==="Denied"||e.clientApproval&&e.clientApproval.status==="Denied",g=e.status==="Completed"&&!d,v=e.clientApproval&&e.clientApproval.status==="Approved"&&!d,c=e.clientApproval&&e.clientApproval.status==="Revision Requested"&&!d,l=!v&&!d&&!c&&!!(e.clientApproval&&e.clientApproval.isRevised),m=e.completionDate?new Date(e.completionDate).toISOString().slice(0,10):"",b=a[e.priority||"Medium"]||"gray";return`
+          <div class="job-card" id="job-card-${e._id}" style="background:var(--bg-card);border:1px solid var(--border-sm);border-radius:var(--r-md);padding:20px 22px;box-shadow:var(--shadow-xs);transition:all var(--t-fast);border-left:4px solid ${d?"var(--red-500)":v?"var(--green-500)":c?"var(--amber-500)":l?"var(--brand-500)":g?"var(--green-500)":"var(--brand-500)"}">
             <!-- Header row -->
             <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px;flex-wrap:wrap">
               <div style="min-width:0">
                 <h3 style="font-size:15px;font-weight:800;color:var(--text-1);margin:0 0 6px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(e.title||"Untitled Job")}</h3>
                 <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center">
-                  <span class="badge ${r?"red":c?"green":"amber"}">${r?"❌ Denied by Client":c?"✓ Completed":"⏳ In Progress"}</span>
+                  <span class="badge ${d?"red":g?"green":"amber"}">${d?"❌ Denied by Client":g?"✓ Completed":"⏳ In Progress"}</span>
                   ${v?`<span class="badge green">✓ Client Approved ${e.clientApproval.rating?`(${e.clientApproval.rating}★)`:""}</span>`:""}
-                  ${g?'<span class="badge red">↺ Revision Requested</span>':""}
+                  ${c?'<span class="badge red">↺ Revision Requested</span>':""}
                   ${l?'<span class="badge blue">📦 Revised — Awaiting Client Re-approval</span>':""}
                   <span class="badge ${b}">${escapeHtml(e.priority||"Medium")}</span>
-                  ${(e.serviceNames||[]).map(C=>`<span class="badge gray">${escapeHtml(C)}</span>`).join("")}
+                  ${(e.serviceNames||[]).map(w=>`<span class="badge gray">${escapeHtml(w)}</span>`).join("")}
                 </div>
               </div>
               <div style="display:flex;gap:8px;flex-shrink:0;align-items:center">
-                ${r?`
-                  <button type="button" class="btn gold small emp-resubmit-btn" data-id="${e._id}" data-title="${escapeHtml(e.title||"Job")}" data-reason="${escapeHtml(((u=e.clientApproval)==null?void 0:u.deniedReason)||"")}" style="font-weight:700;font-size:12px">
+                ${d||c?`
+                  <button type="button" class="btn gold small emp-resubmit-btn" data-id="${e._id}" data-title="${escapeHtml(e.title||"Job")}" data-reason="${escapeHtml(((u=e.clientApproval)==null?void 0:u.feedback)||((f=e.clientApproval)==null?void 0:f.deniedReason)||"")}" data-type="${c?"revision":"denial"}" style="font-weight:700;font-size:12px">
                     🔁 Resubmit Job
                   </button>
                 `:`
                   <!-- Toggle Status -->
-                  <button type="button" class="btn ${c?"secondary":"primary"} small"
-                          onclick="toggleStatus('${e._id}', ${!c})"
+                  <button type="button" class="btn ${g?"secondary":"primary"} small"
+                          onclick="toggleStatus('${e._id}', ${!g})"
                           style="font-size:12px">
-                    ${c?"↩ Reopen":"✓ Mark Done"}
+                    ${g?"↩ Reopen":"✓ Mark Done"}
                   </button>
                 `}
-                ${p?`<button type="button" class="btn danger small" onclick="delJob('${e._id}')">Delete</button>`:""}
+                ${r?`<button type="button" class="btn danger small" onclick="delJob('${e._id}')">Delete</button>`:""}
               </div>
             </div>
 
             <!-- Denied Alert Box for Employee -->
-            ${r?`
+            ${d?`
               <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:var(--r-sm);padding:12px 14px;margin-bottom:14px">
                 <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px">
                   <strong style="color:var(--red-500);font-size:13px;display:flex;align-items:center;gap:6px">
-                    <span>❌</span> Job Denied by Client (${escapeHtml(((f=e.clientApproval)==null?void 0:f.deniedBy)||"Client")})
+                    <span>❌</span> Job Denied by Client (${escapeHtml(((y=e.clientApproval)==null?void 0:y.deniedBy)||"Client")})
                   </strong>
-                  <span style="font-size:11px;color:var(--text-4)">${fmtDate(((y=e.clientApproval)==null?void 0:y.deniedAt)||e.updatedAt)}</span>
+                  <span style="font-size:11px;color:var(--text-4)">${fmtDate(((k=e.clientApproval)==null?void 0:k.deniedAt)||e.updatedAt)}</span>
                 </div>
                 <div style="font-size:12.5px;color:var(--text-1);background:var(--bg-surface);padding:8px 10px;border-radius:var(--r-xs);margin-top:6px;border-left:3px solid var(--red-500);line-height:1.4">
                   <strong style="color:var(--red-500);font-size:11px;text-transform:uppercase;display:block;margin-bottom:2px;">Reason for Denial:</strong>
-                  "${escapeHtml(((w=e.clientApproval)==null?void 0:w.deniedReason)||(($=e.clientApproval)==null?void 0:$.feedback)||"Job denied")}"
+                  "${escapeHtml(((T=e.clientApproval)==null?void 0:T.deniedReason)||((A=e.clientApproval)==null?void 0:A.feedback)||"Job denied")}"
                 </div>
                 <div style="margin-top:10px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;padding-top:8px;border-top:1px dashed rgba(239,68,68,0.25)">
                   <span style="font-size:12px;color:var(--text-3)">Review client's reason above, then resubmit:</span>
-                  <button type="button" class="btn gold small emp-resubmit-btn" data-id="${e._id}" data-title="${escapeHtml(e.title||"Job")}" data-reason="${escapeHtml(((T=e.clientApproval)==null?void 0:T.deniedReason)||"")}" style="font-weight:700">
+                  <button type="button" class="btn gold small emp-resubmit-btn" data-id="${e._id}" data-title="${escapeHtml(e.title||"Job")}" data-reason="${escapeHtml(((h=e.clientApproval)==null?void 0:h.deniedReason)||"")}" style="font-weight:700">
                     🔁 Resubmit Work to Client
                   </button>
                 </div>
@@ -327,22 +327,28 @@ import{l as q,m as J}from"./api-B6bjYwkm.js";import{initProposalStudio as M}from
             `:""}
 
             <!-- Revision Requested Alert Box for Employee -->
-            ${g?`
+            ${c?`
               <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:var(--r-sm);padding:12px 14px;margin-bottom:14px">
                 <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px">
                   <strong style="color:var(--red-500);font-size:13px;display:flex;align-items:center;gap:6px">
                     <span>⚠️</span> Client Requested Changes / Revision
                   </strong>
-                  <span style="font-size:11px;color:var(--text-4)">${fmtDate(((h=(e.clientApproval.revisions||[]).slice(-1)[0])==null?void 0:h.requestedAt)||e.updatedAt)}</span>
+                  <span style="font-size:11px;color:var(--text-4)">${fmtDate((($=(e.clientApproval.revisions||[]).slice(-1)[0])==null?void 0:$.requestedAt)||e.updatedAt)}</span>
                 </div>
                 <div style="font-size:12.5px;color:var(--text-1);background:var(--bg-surface);padding:8px 10px;border-radius:var(--r-xs);margin-top:6px;line-height:1.4">
                   "${escapeHtml(e.clientApproval.feedback||"Revision requested")}"
                 </div>
-                ${(D=(k=(e.clientApproval.revisions||[]).slice(-1)[0])==null?void 0:k.attachments)!=null&&D.length?`
+                ${(D=(z=(e.clientApproval.revisions||[]).slice(-1)[0])==null?void 0:z.attachments)!=null&&D.length?`
                   <div style="margin-top:8px">
                     ${renderAttachmentChips(e.clientApproval.revisions.slice(-1)[0].attachments,{title:"Client Reference Markups"})}
                   </div>
                 `:""}
+                <div style="margin-top:10px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;padding-top:8px;border-top:1px dashed rgba(239,68,68,0.25)">
+                  <span style="font-size:12px;color:var(--text-3)">Review client's revision notes above, make corrections, then resubmit:</span>
+                  <button type="button" class="btn gold small emp-resubmit-btn" data-id="${e._id}" data-title="${escapeHtml(e.title||"Job")}" data-reason="${escapeHtml(((s=e.clientApproval)==null?void 0:s.feedback)||"")}" data-type="revision" style="font-weight:700">
+                    🔁 Resubmit Revised Work to Client
+                  </button>
+                </div>
               </div>
             `:""}
 
@@ -405,7 +411,7 @@ import{l as q,m as J}from"./api-B6bjYwkm.js";import{initProposalStudio as M}from
                 ${renderAttachmentUploader({id:"empDelUp-"+e._id,label:"Completed Files (Optional if URL provided)",subtitle:"Upload exported videos, PSDs, PDFs, spreadsheets, images or zip packages"})}
                 <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-top:10px">
                   <label style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--text-2);cursor:pointer;font-weight:600">
-                    <input type="checkbox" id="empDelMarkComplete-${e._id}" ${c?"":"checked"} style="cursor:pointer;width:14px;height:14px;accent-color:var(--brand-600)">
+                    <input type="checkbox" id="empDelMarkComplete-${e._id}" ${g?"":"checked"} style="cursor:pointer;width:14px;height:14px;accent-color:var(--brand-600)">
                     <span>Mark Work as Completed &amp; Send to Client for Approval</span>
                   </label>
                   <div style="display:flex;gap:6px">
@@ -436,11 +442,11 @@ import{l as q,m as J}from"./api-B6bjYwkm.js";import{initProposalStudio as M}from
             </div>
           </div>`}).join("")}
       </div>
-    </div>`,document.querySelectorAll(".emp-completion-date").forEach(e=>{e.addEventListener("focus",()=>{e.style.borderColor="var(--border-focus)",e.style.boxShadow="0 0 0 3px var(--accent-ring)"}),e.addEventListener("blur",()=>{e.style.borderColor="",e.style.boxShadow=""})}),i.forEach(e=>{bindAttachmentUploader("empDelUp-"+e._id)}),document.querySelectorAll(".emp-del-toggle").forEach(e=>{e.onclick=()=>{const n=document.getElementById("empDelForm-"+e.dataset.id);if(n){const p=n.style.display==="none";n.style.display=p?"block":"none",e.textContent=p?"✕ Close":"+ Add Deliverables"}}}),document.querySelectorAll(".emp-del-cancel").forEach(e=>{e.onclick=()=>{const n=document.getElementById("empDelForm-"+e.dataset.id);n&&(n.style.display="none");const p=document.querySelector(`.emp-del-toggle[data-id="${e.dataset.id}"]`);p&&(p.textContent="+ Add Deliverables")}}),document.querySelectorAll(".emp-resubmit-btn").forEach(e=>{e.onclick=()=>se(e.dataset.id,e.dataset.title,e.dataset.reason)}),document.querySelectorAll(".emp-del-submit").forEach(e=>{e.onclick=async()=>{var l,m,b;const n=e.dataset.id,p=getUploaderAttachments("empDelUp-"+n),r=((l=(document.getElementById("empDelNotes-"+n)||{}).value)==null?void 0:l.trim())||"",c=((m=(document.getElementById("empDelUrl-"+n)||{}).value)==null?void 0:m.trim())||"",v=((b=document.getElementById("empDelMarkComplete-"+n))==null?void 0:b.checked)||!1,g=p.map(u=>({...u,notes:r}));if(c){let u=c;/^https?:\/\//i.test(u)||(u="https://"+u),g.unshift({name:r?`${r} (Live URL)`:"Live Deliverable URL / Website",url:u,type:"url",size:0,notes:r||"Live URL"})}if(!g.length){flashToast("Please enter a deliverable URL or attach files",!0);return}e.disabled=!0,e.textContent="Submitting…";try{await apiPost(`/jobs/${n}/deliverables`,{deliverables:g,markComplete:v}),flashToast(v?"Deliverables submitted & sent to Client for Approval! 📦🎉":"Deliverables submitted successfully! 📦"),x()}catch(u){flashToast(u.message,!0)}finally{e.disabled=!1,e.textContent="Submit Deliverables"}}}),d.highlightId){const e=d.highlightId;delete d.highlightId,setTimeout(()=>{const n=document.getElementById("job-card-"+e);n&&(n.scrollIntoView({behavior:"smooth",block:"center"}),n.classList.add("pulse-highlight"),setTimeout(()=>n.classList.remove("pulse-highlight"),2200))},150)}}let X={date:new Date().toISOString().slice(0,10),filter:"all",search:""};async function Z(){try{const t=await apiGet("/tasks");if(Array.isArray(t))return localStorage.setItem("ci360_tasks_"+((s==null?void 0:s._id)||"user"),JSON.stringify(t)),t}catch(t){console.warn("Backend /api/tasks offline, using local fallback:",t)}try{const t=localStorage.getItem("ci360_tasks_"+((s==null?void 0:s._id)||"user"));return t?JSON.parse(t):[]}catch{return[]}}async function j(t,i=null){let a=null;try{i?a=await apiPut("/tasks/"+i,t):a=await apiPost("/tasks",t)}catch(n){console.warn("API task save failed, writing local backup:",n)}let e=[];try{const n=localStorage.getItem("ci360_tasks_"+((s==null?void 0:s._id)||"user"));e=n?JSON.parse(n):[]}catch{}if(i){const n=e.findIndex(p=>p._id===i);n>=0&&(e[n]=a||{...e[n],...t,updatedAt:new Date})}else a||(a={_id:"loc_"+Date.now(),...t,createdAt:new Date,completedAt:t.status==="Completed"?new Date:null}),e.unshift(a);return localStorage.setItem("ci360_tasks_"+((s==null?void 0:s._id)||"user"),JSON.stringify(e)),a}async function ee(t){try{await apiDelete("/tasks/"+t)}catch(i){console.warn("API task delete failed, updating storage:",i)}try{const i=localStorage.getItem("ci360_tasks_"+((s==null?void 0:s._id)||"user"));let a=i?JSON.parse(i):[];a=a.filter(e=>e._id!==t),localStorage.setItem("ci360_tasks_"+((s==null?void 0:s._id)||"user"),JSON.stringify(a))}catch{}}async function te(t){try{return await apiPatch("/tasks/"+t+"/toggle",{})}catch(i){console.warn("API toggle failed, toggling locally:",i)}try{const i=localStorage.getItem("ci360_tasks_"+((s==null?void 0:s._id)||"user"));let a=i?JSON.parse(i):[];const e=a.find(n=>n._id===t);if(e){const n=e.status!=="Completed";return e.status=n?"Completed":"Todo",e.completedAt=n?new Date:null,localStorage.setItem("ci360_tasks_"+((s==null?void 0:s._id)||"user"),JSON.stringify(a)),e}}catch{}return null}async function ie(t){O(t,{userRole:"employee",currentUser:s})}window.toggleDailyTask=async function(t){try{await te(t),x()}catch(i){flashToast(i.message,!0)}};window.deleteDailyTask=async function(t){try{await ee(t),flashToast("Task deleted"),x()}catch(i){flashToast(i.message,!0)}};window.editDailyTask=async function(t){const a=(await Z()).find(n=>n._id===t);if(!a)return;const e=prompt("Edit task:",a.title);if(e!==null&&e.trim())try{await j({title:e.trim()},t),flashToast("Task updated"),x()}catch(n){flashToast(n.message,!0)}};window.clearCompletedDailyTasks=async function(){if(confirm("Delete all completed tasks from this view?"))try{await apiPost("/tasks/clear-completed",{date:X.date});try{const t=localStorage.getItem("ci360_tasks_"+((s==null?void 0:s._id)||"user"));if(t){let i=JSON.parse(t);i=i.filter(a=>a.status!=="Completed"),localStorage.setItem("ci360_tasks_"+((s==null?void 0:s._id)||"user"),JSON.stringify(i))}}catch{}flashToast("Completed tasks deleted! 🗑️"),x()}catch(t){flashToast(t.message,!0)}};window.saveCompDate=async function(t){try{const i=document.querySelector(`.emp-completion-date[data-id="${t}"]`);if(!i)return;const a=i.value?i.value:null;await apiPut("/jobs/"+t,{completionDate:a,status:a?"Completed":"In Progress"}),flashToast("Delivery date & status saved!"),x()}catch(i){flashToast(i.message,!0)}};window.toggleStatus=async function(t,i){try{const a=document.querySelector(`.emp-completion-date[data-id="${t}"]`);let e=i?(a==null?void 0:a.value)||new Date().toISOString().slice(0,10):null;a&&(a.value=e||""),await apiPut("/jobs/"+t,{status:i?"Completed":"In Progress",completionDate:e}),flashToast(i?"Job marked as Completed! 🎉":"Job reopened as In Progress"),x()}catch(a){flashToast(a.message,!0)}};window.delJob=async function(t){if(confirm("Delete this job entry? This cannot be undone."))try{await apiDelete("/jobs/"+t),flashToast("Job deleted"),x()}catch(i){flashToast(i.message,!0)}};async function ae(t){const[i,a]=await Promise.all([apiGet("/dashboard/employee?period="+d.period),apiGet("/targets?mine=true")]),e=S.personnel.find(l=>{var m;return String(l._id)===String(((m=s.personnelId)==null?void 0:m._id)||s.personnelId)}),n=e?e.capacity:48,p=i.target?i.target.targetHours:Math.round(n*.85),r=Math.round(i.hours/(p||1)*100),c=r>=100?"green":r>=75?"amber":"red",v=Math.min(r,100);t.innerHTML=`
+    </div>`,document.querySelectorAll(".emp-completion-date").forEach(e=>{e.addEventListener("focus",()=>{e.style.borderColor="var(--border-focus)",e.style.boxShadow="0 0 0 3px var(--accent-ring)"}),e.addEventListener("blur",()=>{e.style.borderColor="",e.style.boxShadow=""})}),i.forEach(e=>{bindAttachmentUploader("empDelUp-"+e._id)}),document.querySelectorAll(".emp-del-toggle").forEach(e=>{e.onclick=()=>{const n=document.getElementById("empDelForm-"+e.dataset.id);if(n){const r=n.style.display==="none";n.style.display=r?"block":"none",e.textContent=r?"✕ Close":"+ Add Deliverables"}}}),document.querySelectorAll(".emp-del-cancel").forEach(e=>{e.onclick=()=>{const n=document.getElementById("empDelForm-"+e.dataset.id);n&&(n.style.display="none");const r=document.querySelector(`.emp-del-toggle[data-id="${e.dataset.id}"]`);r&&(r.textContent="+ Add Deliverables")}}),document.querySelectorAll(".emp-resubmit-btn").forEach(e=>{e.onclick=()=>se(e.dataset.id,e.dataset.title,e.dataset.reason,e.dataset.type)}),document.querySelectorAll(".emp-del-submit").forEach(e=>{e.onclick=async()=>{var l,m,b;const n=e.dataset.id,r=getUploaderAttachments("empDelUp-"+n),d=((l=(document.getElementById("empDelNotes-"+n)||{}).value)==null?void 0:l.trim())||"",g=((m=(document.getElementById("empDelUrl-"+n)||{}).value)==null?void 0:m.trim())||"",v=((b=document.getElementById("empDelMarkComplete-"+n))==null?void 0:b.checked)||!1,c=r.map(u=>({...u,notes:d}));if(g){let u=g;/^https?:\/\//i.test(u)||(u="https://"+u),c.unshift({name:d?`${d} (Live URL)`:"Live Deliverable URL / Website",url:u,type:"url",size:0,notes:d||"Live URL"})}if(!c.length){flashToast("Please enter a deliverable URL or attach files",!0);return}e.disabled=!0,e.textContent="Submitting…";try{await apiPost(`/jobs/${n}/deliverables`,{deliverables:c,markComplete:v}),flashToast(v?"Deliverables submitted & sent to Client for Approval! 📦🎉":"Deliverables submitted successfully! 📦"),x()}catch(u){flashToast(u.message,!0)}finally{e.disabled=!1,e.textContent="Submit Deliverables"}}}),p.highlightId){const e=p.highlightId;delete p.highlightId,setTimeout(()=>{const n=document.getElementById("job-card-"+e);n&&(n.scrollIntoView({behavior:"smooth",block:"center"}),n.classList.add("pulse-highlight"),setTimeout(()=>n.classList.remove("pulse-highlight"),2200))},150)}}let X={date:new Date().toISOString().slice(0,10),filter:"all",search:""};async function Z(){try{const t=await apiGet("/tasks");if(Array.isArray(t))return localStorage.setItem("ci360_tasks_"+((o==null?void 0:o._id)||"user"),JSON.stringify(t)),t}catch(t){console.warn("Backend /api/tasks offline, using local fallback:",t)}try{const t=localStorage.getItem("ci360_tasks_"+((o==null?void 0:o._id)||"user"));return t?JSON.parse(t):[]}catch{return[]}}async function j(t,i=null){let a=null;try{i?a=await apiPut("/tasks/"+i,t):a=await apiPost("/tasks",t)}catch(n){console.warn("API task save failed, writing local backup:",n)}let e=[];try{const n=localStorage.getItem("ci360_tasks_"+((o==null?void 0:o._id)||"user"));e=n?JSON.parse(n):[]}catch{}if(i){const n=e.findIndex(r=>r._id===i);n>=0&&(e[n]=a||{...e[n],...t,updatedAt:new Date})}else a||(a={_id:"loc_"+Date.now(),...t,createdAt:new Date,completedAt:t.status==="Completed"?new Date:null}),e.unshift(a);return localStorage.setItem("ci360_tasks_"+((o==null?void 0:o._id)||"user"),JSON.stringify(e)),a}async function ee(t){try{await apiDelete("/tasks/"+t)}catch(i){console.warn("API task delete failed, updating storage:",i)}try{const i=localStorage.getItem("ci360_tasks_"+((o==null?void 0:o._id)||"user"));let a=i?JSON.parse(i):[];a=a.filter(e=>e._id!==t),localStorage.setItem("ci360_tasks_"+((o==null?void 0:o._id)||"user"),JSON.stringify(a))}catch{}}async function te(t){try{return await apiPatch("/tasks/"+t+"/toggle",{})}catch(i){console.warn("API toggle failed, toggling locally:",i)}try{const i=localStorage.getItem("ci360_tasks_"+((o==null?void 0:o._id)||"user"));let a=i?JSON.parse(i):[];const e=a.find(n=>n._id===t);if(e){const n=e.status!=="Completed";return e.status=n?"Completed":"Todo",e.completedAt=n?new Date:null,localStorage.setItem("ci360_tasks_"+((o==null?void 0:o._id)||"user"),JSON.stringify(a)),e}}catch{}return null}async function ie(t){O(t,{userRole:"employee",currentUser:o})}window.toggleDailyTask=async function(t){try{await te(t),x()}catch(i){flashToast(i.message,!0)}};window.deleteDailyTask=async function(t){try{await ee(t),flashToast("Task deleted"),x()}catch(i){flashToast(i.message,!0)}};window.editDailyTask=async function(t){const a=(await Z()).find(n=>n._id===t);if(!a)return;const e=prompt("Edit task:",a.title);if(e!==null&&e.trim())try{await j({title:e.trim()},t),flashToast("Task updated"),x()}catch(n){flashToast(n.message,!0)}};window.clearCompletedDailyTasks=async function(){if(confirm("Delete all completed tasks from this view?"))try{await apiPost("/tasks/clear-completed",{date:X.date});try{const t=localStorage.getItem("ci360_tasks_"+((o==null?void 0:o._id)||"user"));if(t){let i=JSON.parse(t);i=i.filter(a=>a.status!=="Completed"),localStorage.setItem("ci360_tasks_"+((o==null?void 0:o._id)||"user"),JSON.stringify(i))}}catch{}flashToast("Completed tasks deleted! 🗑️"),x()}catch(t){flashToast(t.message,!0)}};window.saveCompDate=async function(t){try{const i=document.querySelector(`.emp-completion-date[data-id="${t}"]`);if(!i)return;const a=i.value?i.value:null;await apiPut("/jobs/"+t,{completionDate:a,status:a?"Completed":"In Progress"}),flashToast("Delivery date & status saved!"),x()}catch(i){flashToast(i.message,!0)}};window.toggleStatus=async function(t,i){try{const a=document.querySelector(`.emp-completion-date[data-id="${t}"]`);let e=i?(a==null?void 0:a.value)||new Date().toISOString().slice(0,10):null;a&&(a.value=e||""),await apiPut("/jobs/"+t,{status:i?"Completed":"In Progress",completionDate:e}),flashToast(i?"Job marked as Completed! 🎉":"Job reopened as In Progress"),x()}catch(a){flashToast(a.message,!0)}};window.delJob=async function(t){if(confirm("Delete this job entry? This cannot be undone."))try{await apiDelete("/jobs/"+t),flashToast("Job deleted"),x()}catch(i){flashToast(i.message,!0)}};async function ae(t){const[i,a]=await Promise.all([apiGet("/dashboard/employee?period="+p.period),apiGet("/targets?mine=true")]),e=S.personnel.find(l=>{var m;return String(l._id)===String(((m=o.personnelId)==null?void 0:m._id)||o.personnelId)}),n=e?e.capacity:48,r=i.target?i.target.targetHours:Math.round(n*.85),d=Math.round(i.hours/(r||1)*100),g=d>=100?"green":d>=75?"amber":"red",v=Math.min(d,100);t.innerHTML=`
     <div class="block">
       <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px">
         <div>
-          <h2 style="margin:0 0 2px">My Targets <span class="eyebrow">${escapeHtml(s.name)}</span></h2>
+          <h2 style="margin:0 0 2px">My Targets <span class="eyebrow">${escapeHtml(o.name)}</span></h2>
           <div style="font-size:12.5px;color:var(--text-3)">Track your productivity targets and output quotas assigned by management.</div>
         </div>
         ${V()}
@@ -455,8 +461,8 @@ import{l as q,m as J}from"./api-B6bjYwkm.js";import{initProposalStudio as M}from
         </div>
         <div class="card kpi">
           <div class="kpi-header"><span class="kpi-label">Target Hours</span><div class="kpi-icon">🎯</div></div>
-          <div class="kpi-value">${fmtHours(p)}</div>
-          <div class="kpi-sub">${r}% completed</div>
+          <div class="kpi-value">${fmtHours(r)}</div>
+          <div class="kpi-sub">${d}% completed</div>
         </div>
         <div class="card kpi">
           <div class="kpi-header"><span class="kpi-label">Weekly Capacity</span><div class="kpi-icon">⚡</div></div>
@@ -474,16 +480,16 @@ import{l as q,m as J}from"./api-B6bjYwkm.js";import{initProposalStudio as M}from
       <div class="card" style="margin-bottom:24px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
           <div>
-            <div style="font-size:13.5px;font-weight:700;color:var(--text-1)">Overall Hours Target (${d.period})</div>
-            <div style="font-size:12px;color:var(--text-3);margin-top:2px">${fmtHours(i.hours)} logged of ${fmtHours(p)} target capacity</div>
+            <div style="font-size:13.5px;font-weight:700;color:var(--text-1)">Overall Hours Target (${p.period})</div>
+            <div style="font-size:12px;color:var(--text-3);margin-top:2px">${fmtHours(i.hours)} logged of ${fmtHours(r)} target capacity</div>
           </div>
-          <span class="badge ${c}" style="font-size:12.5px;padding:4px 10px">${r}% Achieved</span>
+          <span class="badge ${g}" style="font-size:12.5px;padding:4px 10px">${d}% Achieved</span>
         </div>
         <div class="progress-bar-wrap" style="height:10px;border-radius:var(--r-full);background:var(--bg-surface);overflow:hidden">
-          <div class="progress-bar-fill ${c}" style="width:${v}%;height:100%;border-radius:var(--r-full);background:var(--${c==="green"?"green":"amber"}-500);transition:width 0.8s ease"></div>
+          <div class="progress-bar-fill ${g}" style="width:${v}%;height:100%;border-radius:var(--r-full);background:var(--${g==="green"?"green":"amber"}-500);transition:width 0.8s ease"></div>
         </div>
         <div style="display:flex;justify-content:space-between;font-size:11.5px;color:var(--text-4);margin-top:8px">
-          <span>0 hrs</span><span>Target: ${fmtHours(p)}</span>
+          <span>0 hrs</span><span>Target: ${fmtHours(r)}</span>
         </div>
       </div>
 
@@ -505,7 +511,7 @@ import{l as q,m as J}from"./api-B6bjYwkm.js";import{initProposalStudio as M}from
         </div>
       `:`
         <div class="grid grid-2" style="gap:16px">
-          ${a.map(l=>{var k;const m=((k=l.serviceId)==null?void 0:k.name)||"General Service",u={count:"Deliverables",hours:"Hours",reels:"Reels",stories:"Stories",posts:"Posts"}[l.unit]||(l.unit?l.unit.charAt(0).toUpperCase()+l.unit.slice(1):"Deliverables"),f=l.actual||0,y=l.quantity||1,w=y>0?f/y:0,$=Math.round(w*100),T=Math.min($,100),h=w>=1?{l:"🟢 On Pace",c:"green"}:w>=.6?{l:"🟡 Behind",c:"amber"}:{l:"🔴 Off Pace",c:"red"};return`
+          ${a.map(l=>{var $;const m=(($=l.serviceId)==null?void 0:$.name)||"General Service",u={count:"Deliverables",hours:"Hours",reels:"Reels",stories:"Stories",posts:"Posts"}[l.unit]||(l.unit?l.unit.charAt(0).toUpperCase()+l.unit.slice(1):"Deliverables"),f=l.actual||0,y=l.quantity||1,k=y>0?f/y:0,T=Math.round(k*100),A=Math.min(T,100),h=k>=1?{l:"🟢 On Pace",c:"green"}:k>=.6?{l:"🟡 Behind",c:"amber"}:{l:"🔴 Off Pace",c:"red"};return`
             <div class="card" style="display:flex;flex-direction:column;justify-content:space-between;gap:12px;border:1px solid var(--border-sm);position:relative">
               <div>
                 <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;gap:8px">
@@ -526,7 +532,7 @@ import{l as q,m as J}from"./api-B6bjYwkm.js";import{initProposalStudio as M}from
 
                 <!-- Progress Bar -->
                 <div class="progress-bar-wrap" style="height:8px;border-radius:var(--r-full);background:var(--bg-surface);overflow:hidden;margin:6px 0 10px">
-                  <div class="progress-bar-fill ${h.c}" style="width:${T}%;height:100%;border-radius:var(--r-full);background:var(--${h.c==="green"?"green":"amber"}-500);transition:width 0.8s ease"></div>
+                  <div class="progress-bar-fill ${h.c}" style="width:${A}%;height:100%;border-radius:var(--r-full);background:var(--${h.c==="green"?"green":"amber"}-500);transition:width 0.8s ease"></div>
                 </div>
 
                 <!-- Direct Log Completed Output -->
@@ -550,12 +556,12 @@ import{l as q,m as J}from"./api-B6bjYwkm.js";import{initProposalStudio as M}from
 
               <div style="display:flex;justify-content:space-between;align-items:center;font-size:11.5px;color:var(--text-4);border-top:1px solid var(--border-sm);padding-top:10px">
                 <span>Period: <strong style="color:var(--text-2)">${l.period==="day"?"Daily":l.period==="week"?"Weekly":"Monthly"}</strong></span>
-                <span><strong>${$}%</strong> Completed</span>
+                <span><strong>${T}%</strong> Completed</span>
               </div>
             </div>`}).join("")}
         </div>
       `}
-    </div>`;const g=document.getElementById("addEmpTargetBtn");g&&(g.onclick=()=>U(null)),document.querySelectorAll(".edit-emp-target").forEach(l=>{l.onclick=()=>U(a.find(m=>m._id===l.dataset.id))}),Y()}window.stepTargetCompleted=function(t,i){const a=document.querySelector(`.emp-target-completed-inp[data-id="${t}"]`);if(!a)return;let e=Math.max(0,(Number(a.value)||0)+i);a.value=e,saveTargetCompleted(t)};window.saveTargetCompleted=async function(t){try{const i=document.querySelector(`.emp-target-completed-inp[data-id="${t}"]`);if(!i)return;const a=Number(i.value)||0;await apiPut("/targets/"+t,{completed:a}),flashToast("Target progress updated! 🎯"),x()}catch(i){flashToast(i.message,!0)}};function U(t){var l,m;const i=!t,a=S.services||[];t=t||{serviceId:(l=a[0])==null?void 0:l._id,quantity:5,unit:"reels",period:"day",completed:0,attachments:[]};const e=((m=t.serviceId)==null?void 0:m._id)||t.serviceId||"",p=["reels","stories","posts","count","hours"].includes(t.unit),r=openModal(`
+    </div>`;const c=document.getElementById("addEmpTargetBtn");c&&(c.onclick=()=>U(null)),document.querySelectorAll(".edit-emp-target").forEach(l=>{l.onclick=()=>U(a.find(m=>m._id===l.dataset.id))}),Y()}window.stepTargetCompleted=function(t,i){const a=document.querySelector(`.emp-target-completed-inp[data-id="${t}"]`);if(!a)return;let e=Math.max(0,(Number(a.value)||0)+i);a.value=e,saveTargetCompleted(t)};window.saveTargetCompleted=async function(t){try{const i=document.querySelector(`.emp-target-completed-inp[data-id="${t}"]`);if(!i)return;const a=Number(i.value)||0;await apiPut("/targets/"+t,{completed:a}),flashToast("Target progress updated! 🎯"),x()}catch(i){flashToast(i.message,!0)}};function U(t){var l,m;const i=!t,a=S.services||[];t=t||{serviceId:(l=a[0])==null?void 0:l._id,quantity:5,unit:"reels",period:"day",completed:0,attachments:[]};const e=((m=t.serviceId)==null?void 0:m._id)||t.serviceId||"",r=["reels","stories","posts","count","hours"].includes(t.unit),d=openModal(`
     <h3>${i?"Set New":"Edit"} Target</h3>
     <p style="font-size:12.5px;color:var(--text-3);margin-bottom:16px">Customize your output target goals, choose or type your own unit, and track completed output.</p>
 
@@ -581,12 +587,12 @@ import{l as q,m as J}from"./api-B6bjYwkm.js";import{initProposalStudio as M}from
       <div class="field" style="margin-bottom:0">
         <label>Measured In *</label>
         <select id="mEmpTgtUnit">
-          <option value="reels" ${p&&t.unit==="reels"?"selected":""}>🎬 Reels</option>
-          <option value="stories" ${p&&t.unit==="stories"?"selected":""}>📱 Stories</option>
-          <option value="posts" ${p&&t.unit==="posts"?"selected":""}>🖼️ Posts</option>
-          <option value="count" ${p&&t.unit==="count"?"selected":""}>📦 Deliverables / Jobs Count</option>
-          <option value="hours" ${p&&t.unit==="hours"?"selected":""}>⏱️ Hours Spent</option>
-          <option value="custom" ${p?"":"selected"}>✏️ Custom / Add Your Own…</option>
+          <option value="reels" ${r&&t.unit==="reels"?"selected":""}>🎬 Reels</option>
+          <option value="stories" ${r&&t.unit==="stories"?"selected":""}>📱 Stories</option>
+          <option value="posts" ${r&&t.unit==="posts"?"selected":""}>🖼️ Posts</option>
+          <option value="count" ${r&&t.unit==="count"?"selected":""}>📦 Deliverables / Jobs Count</option>
+          <option value="hours" ${r&&t.unit==="hours"?"selected":""}>⏱️ Hours Spent</option>
+          <option value="custom" ${r?"":"selected"}>✏️ Custom / Add Your Own…</option>
         </select>
       </div>
 
@@ -600,9 +606,9 @@ import{l as q,m as J}from"./api-B6bjYwkm.js";import{initProposalStudio as M}from
       </div>
     </div>
 
-    <div class="field" id="mEmpTgtCustomUnitWrap" style="margin-bottom:16px;display:${p?"none":"flex"}">
+    <div class="field" id="mEmpTgtCustomUnitWrap" style="margin-bottom:16px;display:${r?"none":"flex"}">
       <label>Custom Unit Name (e.g. Shorts, Banners, Thumbnails, Articles, Calls) *</label>
-      <input type="text" id="mEmpTgtCustomUnit" placeholder="e.g. Shorts, Banners, Thumbnails, Articles…" value="${p?"":escapeHtml(t.unit||"")}">
+      <input type="text" id="mEmpTgtCustomUnit" placeholder="e.g. Shorts, Banners, Thumbnails, Articles…" value="${r?"":escapeHtml(t.unit||"")}">
     </div>
 
     <div style="margin-bottom:16px">
@@ -613,7 +619,7 @@ import{l as q,m as J}from"./api-B6bjYwkm.js";import{initProposalStudio as M}from
       <button class="btn ghost" id="mEmpTgtCancel">Cancel</button>
       <button class="btn gold" id="mEmpTgtSave">💾 Save Target</button>
     </div>
-  `);bindAttachmentUploader("mEmpTgtAttachments",{existing:t.attachments||[]});const c=r.querySelector("#mEmpTgtUnit"),v=r.querySelector("#mEmpTgtCustomUnitWrap"),g=r.querySelector("#mEmpTgtCustomUnit");c.onchange=()=>{c.value==="custom"?(v.style.display="flex",g.focus()):v.style.display="none"},r.querySelector("#mEmpTgtCancel").onclick=()=>r.remove(),r.querySelector("#mEmpTgtSave").onclick=async()=>{let b=c.value;b==="custom"&&(b=g.value.trim()||"Deliverables");const u=getUploaderAttachments("mEmpTgtAttachments"),f={serviceId:r.querySelector("#mEmpTgtService").value,quantity:Number(r.querySelector("#mEmpTgtQty").value)||1,completed:Number(r.querySelector("#mEmpTgtCompleted").value)||0,unit:b,period:r.querySelector("#mEmpTgtPeriod").value,attachments:u};if(!f.serviceId){flashToast("Service is required",!0);return}try{i?await apiPost("/targets",f):await apiPut("/targets/"+t._id,f),flashToast("Target saved! 🎯"),r.remove(),x()}catch(y){flashToast(y.message,!0)}}}window.addEventListener("ci360:dataUpdated",t=>{const i=document.activeElement,a=i&&(i.tagName==="INPUT"||i.tagName==="TEXTAREA"||i.isContentEditable),e=document.querySelector(".modal-bg, .modal-backdrop, #jobModal");!a&&!e&&d.tab!=="logjob"&&x()});B();function se(t,i,a){const e=openModal(`
+  `);bindAttachmentUploader("mEmpTgtAttachments",{existing:t.attachments||[]});const g=d.querySelector("#mEmpTgtUnit"),v=d.querySelector("#mEmpTgtCustomUnitWrap"),c=d.querySelector("#mEmpTgtCustomUnit");g.onchange=()=>{g.value==="custom"?(v.style.display="flex",c.focus()):v.style.display="none"},d.querySelector("#mEmpTgtCancel").onclick=()=>d.remove(),d.querySelector("#mEmpTgtSave").onclick=async()=>{let b=g.value;b==="custom"&&(b=c.value.trim()||"Deliverables");const u=getUploaderAttachments("mEmpTgtAttachments"),f={serviceId:d.querySelector("#mEmpTgtService").value,quantity:Number(d.querySelector("#mEmpTgtQty").value)||1,completed:Number(d.querySelector("#mEmpTgtCompleted").value)||0,unit:b,period:d.querySelector("#mEmpTgtPeriod").value,attachments:u};if(!f.serviceId){flashToast("Service is required",!0);return}try{i?await apiPost("/targets",f):await apiPut("/targets/"+t._id,f),flashToast("Target saved! 🎯"),d.remove(),x()}catch(y){flashToast(y.message,!0)}}}window.addEventListener("ci360:dataUpdated",t=>{const i=document.activeElement,a=i&&(i.tagName==="INPUT"||i.tagName==="TEXTAREA"||i.isContentEditable),e=document.querySelector(".modal-bg, .modal-backdrop, #jobModal");!a&&!e&&p.tab!=="logjob"&&x()});B();function se(t,i,a,e="denial"){const n=e==="revision",r=openModal(`
     <div style="margin-bottom:14px">
       <div style="font-size:18px;font-weight:800;color:var(--text-1);margin-bottom:4px;display:flex;align-items:center;gap:8px">
         <span>🔁</span> Resubmit Work to Client for Approval
@@ -623,7 +629,7 @@ import{l as q,m as J}from"./api-B6bjYwkm.js";import{initProposalStudio as M}from
 
     ${a?`
       <div style="margin-bottom:14px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);border-radius:var(--r-sm);padding:10px 14px">
-        <strong style="color:var(--red-500);font-size:11.5px;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:2px">Client's Previous Denial Reason:</strong>
+        <strong style="color:var(--red-500);font-size:11.5px;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:2px">${n?"Client's Revision Request / Notes:":"Client's Previous Denial Reason:"}</strong>
         <div style="font-size:12.5px;color:var(--text-1)">"${escapeHtml(a)}"</div>
       </div>
     `:""}
@@ -647,4 +653,4 @@ import{l as q,m as J}from"./api-B6bjYwkm.js";import{initProposalStudio as M}from
       <button class="btn ghost" id="mEmpResubCancel">Cancel</button>
       <button class="btn gold" id="mEmpResubConfirm" style="font-weight:700">🔁 Resubmit to Client for Approval</button>
     </div>
-  `);bindAttachmentUploader("mEmpResubUp"),e.querySelector("#mEmpResubCancel").onclick=()=>e.remove(),e.querySelector("#mEmpResubConfirm").onclick=async()=>{const n=e.querySelector("#mEmpResubNotes").value.trim(),p=e.querySelector("#mEmpResubUrl").value.trim(),r=getUploaderAttachments("mEmpResubUp"),c=e.querySelector("#mEmpResubConfirm");c.disabled=!0,c.textContent="Resubmitting…";try{await apiPost(`/jobs/${t}/resubmit`,{notes:n,url:p,deliverables:r}),flashToast("Job resubmitted to client for re-approval! 🔁🎉"),e.remove(),x()}catch(v){flashToast(v.message,!0),c.disabled=!1,c.textContent="🔁 Resubmit to Client for Approval"}}}
+  `);bindAttachmentUploader("mEmpResubUp"),r.querySelector("#mEmpResubCancel").onclick=()=>r.remove(),r.querySelector("#mEmpResubConfirm").onclick=async()=>{const d=r.querySelector("#mEmpResubNotes").value.trim(),g=r.querySelector("#mEmpResubUrl").value.trim(),v=getUploaderAttachments("mEmpResubUp"),c=r.querySelector("#mEmpResubConfirm");c.disabled=!0,c.textContent="Resubmitting…";try{await apiPost(`/jobs/${t}/resubmit`,{notes:d,url:g,deliverables:v}),flashToast("Job resubmitted to client for re-approval! 🔁🎉"),r.remove(),x()}catch(l){flashToast(l.message,!0),c.disabled=!1,c.textContent="🔁 Resubmit to Client for Approval"}}}

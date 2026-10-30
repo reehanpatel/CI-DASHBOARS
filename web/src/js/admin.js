@@ -651,8 +651,9 @@ async function tabJobs(c){
                   <button class="btn ${isDone?'ghost':'gold'} small toggle-status-btn" data-id="${j._id}" data-done="${isDone}" style="padding:2px 7px;font-size:11px;cursor:pointer;">
                     <span class="badge ${isDone?'green':((j.status==='Needs Revision'||j.status==='Denied')?'red':'amber')}">${isDone?'Completed':(j.status==='Needs Revision'?'Needs Revision':(j.status==='Denied'?'Denied':'In Progress'))}</span>
                   </button>
-                  ${j.clientApproval && j.clientApproval.status === 'Approved' ? `<span style="font-size:10px;font-weight:700;color:var(--green-500)">✓ Client Approved ${j.clientApproval.rating ? `(${j.clientApproval.rating}★)` : ''}</span>` : (j.clientApproval && j.clientApproval.status === 'Revision Requested' ? `<span style="font-size:10px;font-weight:700;color:var(--amber-500)">↺ Revision Req.</span>` : (j.clientApproval && j.clientApproval.isRevised ? `<span style="font-size:10px;font-weight:700;color:var(--brand-500)">📦 Revised — Awaiting Re-approval</span>` : ((j.status === 'Denied' || j.clientApproval?.status === 'Denied') ? `<span style="font-size:10px;font-weight:700;color:var(--red-500)" title="Reason: ${escapeHtml(j.clientApproval?.deniedReason || '')}">❌ Denied</span>
-                   <button type="button" class="btn gold small admin-resubmit-btn" data-id="${j._id}" data-title="${escapeHtml(j.title || 'Job')}" data-reason="${escapeHtml(j.clientApproval?.deniedReason || '')}" style="margin-top:3px;padding:2px 7px;font-size:10px;font-weight:700">🔁 Resubmit</button>` : '')))}
+                  ${j.clientApproval && j.clientApproval.status === 'Approved' ? `<span style="font-size:10px;font-weight:700;color:var(--green-500)">✓ Client Approved ${j.clientApproval.rating ? `(${j.clientApproval.rating}★)` : ''}</span>` : (j.clientApproval && j.clientApproval.status === 'Revision Requested' ? `<span style="font-size:10px;font-weight:700;color:var(--amber-500)">↺ Revision Req.</span>
+                   <button type="button" class="btn gold small admin-resubmit-btn" data-id="${j._id}" data-title="${escapeHtml(j.title || 'Job')}" data-reason="${escapeHtml(j.clientApproval?.feedback || '')}" data-type="revision" style="margin-top:3px;padding:2px 7px;font-size:10px;font-weight:700">🔁 Resubmit</button>` : (j.clientApproval && j.clientApproval.isRevised ? `<span style="font-size:10px;font-weight:700;color:var(--brand-500)">📦 Revised — Awaiting Re-approval</span>` : ((j.status === 'Denied' || j.clientApproval?.status === 'Denied') ? `<span style="font-size:10px;font-weight:700;color:var(--red-500)" title="Reason: ${escapeHtml(j.clientApproval?.deniedReason || '')}">❌ Denied</span>
+                   <button type="button" class="btn gold small admin-resubmit-btn" data-id="${j._id}" data-title="${escapeHtml(j.title || 'Job')}" data-reason="${escapeHtml(j.clientApproval?.deniedReason || '')}" data-type="denial" style="margin-top:3px;padding:2px 7px;font-size:10px;font-weight:700">🔁 Resubmit</button>` : '')))}
                 </div>
               </td>
               <td>${escapeHtml(clientName(j.clientId))}</td>
@@ -677,7 +678,7 @@ async function tabJobs(c){
   document.querySelectorAll('[data-jf]').forEach(b=> b.onclick = ()=>{ ui.jobsFilter = b.dataset.jf; renderTab(); });
 
   document.querySelectorAll('.admin-resubmit-btn').forEach(btn => {
-    btn.onclick = () => openAdminResubmitModal(btn.dataset.id, btn.dataset.title, btn.dataset.reason);
+    btn.onclick = () => openAdminResubmitModal(btn.dataset.id, btn.dataset.title, btn.dataset.reason, btn.dataset.type);
   });
 
   document.querySelectorAll('.view-job-files').forEach(btn => {
@@ -693,6 +694,32 @@ async function tabJobs(c){
           <h3 style="margin-bottom:4px">📁 Job Files &amp; Artifacts</h3>
           <div style="font-size:12.5px;color:var(--text-3)">${escapeHtml(jobObj.title || 'Untitled Job')}</div>
         </div>
+
+        ${(jobObj.clientApproval?.status === 'Revision Requested' || jobObj.status === 'Needs Revision') ? `
+          <div style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:var(--r-sm);padding:10px 14px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+            <div>
+              <strong style="color:var(--amber-500);font-size:12.5px;display:flex;align-items:center;gap:6px">
+                <span>⚠️</span> Client Requested Changes / Revision
+              </strong>
+              <div style="font-size:12px;color:var(--text-1);margin-top:3px">"${escapeHtml(jobObj.clientApproval?.feedback || 'Revision requested')}"</div>
+            </div>
+            <button type="button" class="btn gold small" onclick="openAdminResubmitModal('${jobObj._id}', '${escapeHtml(jobObj.title || 'Job')}', '${escapeHtml(jobObj.clientApproval?.feedback || '')}', 'revision')" style="font-weight:700">
+              🔁 Resubmit Revised Work
+            </button>
+          </div>
+        ` : ((jobObj.status === 'Denied' || jobObj.clientApproval?.status === 'Denied') ? `
+          <div style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:var(--r-sm);padding:10px 14px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+            <div>
+              <strong style="color:var(--red-500);font-size:12.5px;display:flex;align-items:center;gap:6px">
+                <span>❌</span> Job Denied by Client
+              </strong>
+              <div style="font-size:12px;color:var(--text-1);margin-top:3px">"${escapeHtml(jobObj.clientApproval?.deniedReason || 'Job denied')}"</div>
+            </div>
+            <button type="button" class="btn gold small" onclick="openAdminResubmitModal('${jobObj._id}', '${escapeHtml(jobObj.title || 'Job')}', '${escapeHtml(jobObj.clientApproval?.deniedReason || '')}', 'denial')" style="font-weight:700">
+              🔁 Resubmit Corrected Work
+            </button>
+          </div>
+        ` : '')}
 
         <div style="margin-bottom:16px">
           <h4 style="font-size:13px;font-weight:700;color:var(--text-1);margin-bottom:8px">📎 Briefs &amp; Initial Client Assets (${(jobObj.attachments||[]).length})</h4>
@@ -2544,7 +2571,8 @@ window.addEventListener('ci360:dataUpdated', () => {
 boot();
 
 
-function openAdminResubmitModal(jobId, jobTitle, previousDenialReason) {
+function openAdminResubmitModal(jobId, jobTitle, previousReason, reasonType = 'denial') {
+  const isRev = reasonType === 'revision';
   const bg = openModal(`
     <div style="margin-bottom:14px">
       <div style="font-size:18px;font-weight:800;color:var(--text-1);margin-bottom:4px;display:flex;align-items:center;gap:8px">
@@ -2553,10 +2581,10 @@ function openAdminResubmitModal(jobId, jobTitle, previousDenialReason) {
       <div style="font-size:12.5px;color:var(--text-3)">${escapeHtml(jobTitle)}</div>
     </div>
 
-    ${previousDenialReason ? `
+    ${previousReason ? `
       <div style="margin-bottom:14px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);border-radius:var(--r-sm);padding:10px 14px">
-        <strong style="color:var(--red-500);font-size:11.5px;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:2px">Client's Previous Denial Reason:</strong>
-        <div style="font-size:12.5px;color:var(--text-1)">"${escapeHtml(previousDenialReason)}"</div>
+        <strong style="color:var(--red-500);font-size:11.5px;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:2px">${isRev ? "Client's Revision Request / Notes:" : "Client's Previous Denial Reason:"}</strong>
+        <div style="font-size:12.5px;color:var(--text-1)">"${escapeHtml(previousReason)}"</div>
       </div>
     ` : ''}
 

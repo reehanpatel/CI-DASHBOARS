@@ -518,8 +518,8 @@ async function tabMyJobs(c){
                 </div>
               </div>
               <div style="display:flex;gap:8px;flex-shrink:0;align-items:center">
-                ${isDenied ? `
-                  <button type="button" class="btn gold small emp-resubmit-btn" data-id="${j._id}" data-title="${escapeHtml(j.title || 'Job')}" data-reason="${escapeHtml(j.clientApproval?.deniedReason || '')}" style="font-weight:700;font-size:12px">
+                ${(isDenied || isRevisionReq) ? `
+                  <button type="button" class="btn gold small emp-resubmit-btn" data-id="${j._id}" data-title="${escapeHtml(j.title || 'Job')}" data-reason="${escapeHtml(j.clientApproval?.feedback || j.clientApproval?.deniedReason || '')}" data-type="${isRevisionReq ? 'revision' : 'denial'}" style="font-weight:700;font-size:12px">
                     🔁 Resubmit Job
                   </button>
                 ` : `
@@ -573,6 +573,12 @@ async function tabMyJobs(c){
                     ${renderAttachmentChips(((j.clientApproval.revisions.slice(-1)[0].attachments)), { title: 'Client Reference Markups' })}
                   </div>
                 ` : ''}
+                <div style="margin-top:10px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;padding-top:8px;border-top:1px dashed rgba(239,68,68,0.25)">
+                  <span style="font-size:12px;color:var(--text-3)">Review client's revision notes above, make corrections, then resubmit:</span>
+                  <button type="button" class="btn gold small emp-resubmit-btn" data-id="${j._id}" data-title="${escapeHtml(j.title || 'Job')}" data-reason="${escapeHtml(j.clientApproval?.feedback || '')}" data-type="revision" style="font-weight:700">
+                    🔁 Resubmit Revised Work to Client
+                  </button>
+                </div>
               </div>
             ` : ''}
 
@@ -701,7 +707,7 @@ async function tabMyJobs(c){
   });
 
   document.querySelectorAll('.emp-resubmit-btn').forEach(btn => {
-    btn.onclick = () => openEmployeeResubmitModal(btn.dataset.id, btn.dataset.title, btn.dataset.reason);
+    btn.onclick = () => openEmployeeResubmitModal(btn.dataset.id, btn.dataset.title, btn.dataset.reason, btn.dataset.type);
   });
 
   document.querySelectorAll('.emp-del-submit').forEach(btn => {
@@ -1546,7 +1552,8 @@ window.addEventListener('ci360:dataUpdated', (e) => {
 
 boot();
 
-function openEmployeeResubmitModal(jobId, jobTitle, previousDenialReason) {
+function openEmployeeResubmitModal(jobId, jobTitle, previousReason, reasonType = 'denial') {
+  const isRev = reasonType === 'revision';
   const bg = openModal(`
     <div style="margin-bottom:14px">
       <div style="font-size:18px;font-weight:800;color:var(--text-1);margin-bottom:4px;display:flex;align-items:center;gap:8px">
@@ -1555,10 +1562,10 @@ function openEmployeeResubmitModal(jobId, jobTitle, previousDenialReason) {
       <div style="font-size:12.5px;color:var(--text-3)">${escapeHtml(jobTitle)}</div>
     </div>
 
-    ${previousDenialReason ? `
+    ${previousReason ? `
       <div style="margin-bottom:14px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);border-radius:var(--r-sm);padding:10px 14px">
-        <strong style="color:var(--red-500);font-size:11.5px;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:2px">Client's Previous Denial Reason:</strong>
-        <div style="font-size:12.5px;color:var(--text-1)">"${escapeHtml(previousDenialReason)}"</div>
+        <strong style="color:var(--red-500);font-size:11.5px;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:2px">${isRev ? "Client's Revision Request / Notes:" : "Client's Previous Denial Reason:"}</strong>
+        <div style="font-size:12.5px;color:var(--text-1)">"${escapeHtml(previousReason)}"</div>
       </div>
     ` : ''}
 
