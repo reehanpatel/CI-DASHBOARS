@@ -328,35 +328,21 @@ export function paperHTML(model, print = false) {
     if (b.t === 'md') return mdHTML(b.text);
     if (b.t === 'note') return `<p class="pnote">${escapeHtml(b.text)}</p>`;
     if (b.t === 'stamp') return `<div class="approved-stamp ${b.type === 'admin' ? 'admin-stamp' : ''}">${escapeHtml(b.text)}</div>`;
-    if (b.t === 'kv') return `<div class="pdf-table-wrap"><table class="kv"><tbody>${b.rows.map(([k, v]) => `<tr><th>${escapeHtml(k)}</th><td>${cellHTML(v)}</td></tr>`).join('')}</tbody></table></div>`;
+    if (b.t === 'kv') return `<table class="kv"><tbody>${b.rows.map(([k, v]) => `<tr><th>${escapeHtml(k)}</th><td>${cellHTML(v)}</td></tr>`).join('')}</tbody></table>`;
     if (b.t === 'table') {
       const n = b.cols.length;
-      return `<div class="pdf-table-wrap"><table class="pt"><thead><tr>${b.cols.map(c => `<th class="${c.align === 'r' ? 'r' : ''}" style="width:${c.w}%">${escapeHtml(c.h)}</th>`).join('')}</tr></thead><tbody>${b.rows.map(r => {
+      return `<table class="pt"><thead><tr>${b.cols.map(c => `<th class="${c.align === 'r' ? 'r' : ''}" style="width:${c.w}%">${escapeHtml(c.h)}</th>`).join('')}</tr></thead><tbody>${b.rows.map(r => {
         if (['sum', 'grand', 'sub', 'group'].includes(r.style)) return `<tr class="${r.style}"><td colspan="${n - 1}" class="${r.style === 'group' || r.style === 'sub' ? '' : 'r'}">${cellHTML(r.cells[0])}</td><td class="r">${cellHTML(r.cells[r.cells.length - 1])}</td></tr>`;
         return `<tr class="${r.style || ''}">${r.cells.map((c, i) => `<td class="${b.cols[i].align === 'r' ? 'r' : ''}">${cellHTML(c)}</td>`).join('')}</tr>`;
-      }).join('')}</tbody></table></div>`;
+      }).join('')}</tbody></table>`;
     }
     if (b.t === 'choices') return `<div class="choices">${b.items.map(c => `<p><strong>${escapeHtml(c.label)}:</strong> ${c.options.length ? c.options.map(o => `<span class="box">${c.answer === o ? '☑' : '☐'} ${escapeHtml(o)}</span>`).join(' ') : `<span class="blank">${c.answer ? escapeHtml(c.answer) : ''}</span>`}</p>`).join('')}</div>`;
     if (b.t === 'sig') return `<div class="sig">${[b.left, b.right].map(s => `<div><div class="who">${escapeHtml(s.who)}</div>${[['Name', s.name], ['Designation', s.role], ['Signature', ''], ['Date', '']].map(([k, v]) => `<div class="ln"><span>${k}:</span> ${escapeHtml(v || '')}</div>`).join('')}</div>`).join('')}</div>${model.foot ? `<div class="foot">${escapeHtml(model.foot)}</div>` : ''}`;
     return '';
   }
 
-  // Group blocks into logical sections so headings and their tables stay unified
-  const sections = [];
-  let curSec = [];
-  for (const b of model.blocks) {
-    if (b.t === 'h' && curSec.length) {
-      sections.push(curSec);
-      curSec = [b];
-    } else {
-      curSec.push(b);
-    }
-  }
-  if (curSec.length) sections.push(curSec);
-
-  const body = sections.map(sec => {
-    return `<section class="pdf-section">${sec.map(renderBlock).join('')}</section>`;
-  }).join('');
+  // Render blocks in natural flow without artificial grouping wrappers that force large page break gaps
+  const body = model.blocks.map(renderBlock).join('');
 
   return `<article class="paper${print ? ' print' : ''}">
     <section class="cover">
@@ -668,15 +654,15 @@ export async function exportPdfDoc(p, co, btn, opts = {}) {
           padding: 40px 44px 44px !important;
         }
         .paper .pdf-section {
-          break-inside: avoid !important;
-          page-break-inside: avoid !important;
-          margin-bottom: 22px !important;
+          break-inside: auto !important;
+          page-break-inside: auto !important;
+          margin-bottom: 18px !important;
           display: block !important;
         }
         .paper .pdf-table-wrap {
-          break-inside: avoid !important;
-          page-break-inside: avoid !important;
-          margin: 8px 0 14px !important;
+          break-inside: auto !important;
+          page-break-inside: auto !important;
+          margin: 6px 0 12px !important;
           display: block !important;
         }
         .paper h2 { color: #0F2A4A !important; font-family: Georgia, serif !important; font-size: 19px !important; border-bottom: 1.5px solid #B8893A !important; margin: 26px 0 12px !important; padding-bottom: 4px !important; break-after: avoid !important; page-break-after: avoid !important; }
@@ -694,13 +680,18 @@ export async function exportPdfDoc(p, co, btn, opts = {}) {
           table-layout: fixed !important;
           border-collapse: collapse !important;
           font-size: 12px !important;
-          margin: 8px 0 14px !important;
+          margin: 6px 0 12px !important;
           background: #FFFFFF !important;
           color: #1C2430 !important;
-          break-inside: avoid !important;
-          page-break-inside: avoid !important;
+          break-inside: auto !important;
+          page-break-inside: auto !important;
         }
-        .paper thead, .paper tbody { background: #FFFFFF !important; width: 100% !important; }
+        .paper thead {
+          display: table-header-group !important;
+          background: #FFFFFF !important;
+          width: 100% !important;
+        }
+        .paper tbody { background: #FFFFFF !important; width: 100% !important; }
         .paper tbody tr {
           background: #FFFFFF !important;
           width: 100% !important;
@@ -764,13 +755,15 @@ export async function exportPdfDoc(p, co, btn, opts = {}) {
         scale: 2, 
         backgroundColor: '#ffffff', 
         useCORS: true,
-        logging: false
+        logging: false,
+        scrollY: 0,
+        scrollX: 0
       },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
       pagebreak: {
-        mode: ['avoid-all', 'css', 'legacy'],
+        mode: ['css', 'legacy'],
         before: ['.html2pdf__page-break', '.pb'],
-        avoid: ['.pdf-section', '.pdf-table-wrap', '.sig', '.approved-stamp', '.choices', '.kv', 'table', 'h2', 'h3']
+        avoid: ['tbody tr', 'h2', 'h3', '.sig', '.approved-stamp', '.choices']
       }
     };
 

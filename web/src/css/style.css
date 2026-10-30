@@ -6516,15 +6516,15 @@ html:not([data-theme="dark"]) textarea {
 .paper.print .cover { min-height: 960px; }
 .paper.print .pb { break-after: page; page-break-after: always; height: 0; }
 .paper .pdf-section {
-  break-inside: avoid !important;
-  page-break-inside: avoid !important;
-  margin-bottom: 22px !important;
+  break-inside: auto !important;
+  page-break-inside: auto !important;
+  margin-bottom: 18px !important;
   display: block !important;
 }
 .paper .pdf-table-wrap {
-  break-inside: avoid !important;
-  page-break-inside: avoid !important;
-  margin: 8px 0 14px !important;
+  break-inside: auto !important;
+  page-break-inside: auto !important;
+  margin: 6px 0 12px !important;
   display: block !important;
 }
 .paper h2, .paper h3 {
@@ -6533,7 +6533,18 @@ html:not([data-theme="dark"]) textarea {
   break-inside: avoid !important;
   page-break-inside: avoid !important;
 }
-.paper table, .paper tr {
+.paper table {
+  break-inside: auto !important;
+  page-break-inside: auto !important;
+}
+.paper thead {
+  display: table-header-group !important;
+}
+.paper tbody tr {
+  break-inside: avoid !important;
+  page-break-inside: avoid !important;
+}
+.paper .sig, .paper .approved-stamp, .paper .choices {
   break-inside: avoid !important;
   page-break-inside: avoid !important;
 }
