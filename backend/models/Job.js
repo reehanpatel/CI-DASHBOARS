@@ -47,6 +47,8 @@ const JobSchema = new mongoose.Schema({
     deniedReason: { type: String, default: '' },
     feedback: { type: String, default: '' },
     rating: { type: Number, min: 1, max: 5, default: null },
+    isRevised: { type: Boolean, default: false },
+    revisedAt: { type: Date, default: null },
     revisions: [{
       requestedAt: { type: Date, default: Date.now },
       requestedBy: { type: String, default: '' },

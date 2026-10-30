@@ -651,7 +651,7 @@ async function tabJobs(c){
                   <button class="btn ${isDone?'ghost':'gold'} small toggle-status-btn" data-id="${j._id}" data-done="${isDone}" style="padding:2px 7px;font-size:11px;cursor:pointer;">
                     <span class="badge ${isDone?'green':((j.status==='Needs Revision'||j.status==='Denied')?'red':'amber')}">${isDone?'Completed':(j.status==='Needs Revision'?'Needs Revision':(j.status==='Denied'?'Denied':'In Progress'))}</span>
                   </button>
-                  ${j.clientApproval && j.clientApproval.status === 'Approved' ? `<span style="font-size:10px;font-weight:700;color:var(--green-500)">✓ Client Approved ${j.clientApproval.rating ? `(${j.clientApproval.rating}★)` : ''}</span>` : (j.clientApproval && j.clientApproval.status === 'Revision Requested' ? `<span style="font-size:10px;font-weight:700;color:var(--amber-500)">↺ Revision Req.</span>` : ((j.status === 'Denied' || j.clientApproval?.status === 'Denied') ? `<span style="font-size:10px;font-weight:700;color:var(--red-500)" title="Reason: ${escapeHtml(j.clientApproval?.deniedReason || '')}">❌ Denied</span>` : ''))}
+                  ${j.clientApproval && j.clientApproval.status === 'Approved' ? `<span style="font-size:10px;font-weight:700;color:var(--green-500)">✓ Client Approved ${j.clientApproval.rating ? `(${j.clientApproval.rating}★)` : ''}</span>` : (j.clientApproval && j.clientApproval.status === 'Revision Requested' ? `<span style="font-size:10px;font-weight:700;color:var(--amber-500)">↺ Revision Req.</span>` : (j.clientApproval && j.clientApproval.isRevised ? `<span style="font-size:10px;font-weight:700;color:var(--brand-500)">📦 Revised — Awaiting Re-approval</span>` : ((j.status === 'Denied' || j.clientApproval?.status === 'Denied') ? `<span style="font-size:10px;font-weight:700;color:var(--red-500)" title="Reason: ${escapeHtml(j.clientApproval?.deniedReason || '')}">❌ Denied</span>` : '')))}
                 </div>
               </td>
               <td>${escapeHtml(clientName(j.clientId))}</td>
@@ -712,10 +712,21 @@ async function tabJobs(c){
           <p style="font-size:11.5px;color:var(--text-3);margin-bottom:10px">Add completed artifacts, links, or finalized files for this job</p>
           <div class="field" style="margin-bottom:10px">
             <label>Deliverable Notes / Version description</label>
-            <input type="text" id="mDelNote" placeholder="e.g. Final Video Cut v2 (color graded)" />
+            <input type="text" id="mDelNote" placeholder="e.g. Final Website build, Video Cut v2 (color graded)" />
           </div>
-          ${renderAttachmentUploader({ id: 'mDelUpload', label: 'Upload Deliverable Files', subtitle: 'Upload exported videos, PSDs, PDFs, spreadsheets, or images' })}
-          <button type="button" class="btn gold small" id="mDelSaveBtn" style="margin-top:10px">Save Deliverables to Job</button>
+          <div class="field" style="margin-bottom:10px">
+            <label style="font-weight:700;color:var(--brand-500)">🌐 Live Deliverable URL / Website Link (Optional)</label>
+            <input type="url" id="mDelUrl" placeholder="https://example.com, Figma link, staging site, Google Drive..." style="width:100%;box-sizing:border-box" />
+            <span style="font-size:11px;color:var(--text-4)">For live websites, applications, Figma links or cloud files</span>
+          </div>
+          ${renderAttachmentUploader({ id: 'mDelUpload', label: 'Upload Deliverable Files (Optional if URL provided)', subtitle: 'Upload exported videos, PSDs, PDFs, spreadsheets, or images' })}
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-top:12px">
+            <label style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--text-2);cursor:pointer;font-weight:600">
+              <input type="checkbox" id="mDelMarkComplete" checked style="cursor:pointer;width:14px;height:14px;accent-color:var(--brand-600)">
+              <span>Mark Work Completed &amp; Send to Client for Approval</span>
+            </label>
+            <button type="button" class="btn gold small" id="mDelSaveBtn">Save Deliverables &amp; Send to Client</button>
+          </div>
         </div>
 
         <div class="modal-actions">
@@ -728,14 +739,28 @@ async function tabJobs(c){
       bg.querySelector('#mDelSaveBtn').onclick = async () => {
         const files = getUploaderAttachments('mDelUpload');
         const notes = bg.querySelector('#mDelNote').value.trim();
-        if (!files.length) {
-          flashToast('Please select at least one deliverable file', true);
+        const urlVal = (bg.querySelector('#mDelUrl') || {}).value?.trim() || '';
+        const markComplete = bg.querySelector('#mDelMarkComplete')?.checked ?? true;
+
+        const deliverables = files.map(f => ({ ...f, notes }));
+        if (urlVal) {
+          let cleanUrl = urlVal;
+          if (!/^https?:\/\//i.test(cleanUrl)) cleanUrl = 'https://' + cleanUrl;
+          deliverables.unshift({
+            name: notes ? `${notes} (Live URL)` : 'Live Deliverable URL / Website',
+            url: cleanUrl,
+            type: 'url',
+            size: 0,
+            notes: notes || 'Live URL'
+          });
+        }
+        if (!deliverables.length) {
+          flashToast('Please enter a deliverable URL or select files', true);
           return;
         }
         try {
-          const deliverables = files.map(f => ({ ...f, notes }));
-          await apiPost(`/jobs/${jobId}/deliverables`, { deliverables });
-          flashToast('Deliverables added! 📦');
+          await apiPost(`/jobs/${jobId}/deliverables`, { deliverables, markComplete });
+          flashToast(markComplete ? 'Deliverables added & sent to Client for Approval! 📦🎉' : 'Deliverables added! 📦');
           bg.remove();
           renderTab();
         } catch (err) {

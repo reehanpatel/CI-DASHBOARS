@@ -2459,17 +2459,28 @@ export function renderAttachmentChips(attachments = [], options = {}) {
       ${options.title ? `<div class="attachment-chips-header">📎 ${escapeHtml(options.title)} <span style="font-weight:500;color:var(--text-4)">(${attachments.length})</span></div>` : ''}
       <div class="attachment-chips-list">
         ${attachments.map((att, idx) => {
-          const cat = getFileCategory(att.name, att.type);
-          const name = escapeHtml(att.name || 'File');
-          const size = fmtFileSize(att.size);
+          const isUrl = att.type === 'url' || /^https?:\/\//i.test(att.url || '');
+          const cat = isUrl ? { cls: 'file-type-doc', icon: '🌐', label: 'Live Link' } : getFileCategory(att.name, att.type);
+          const name = escapeHtml(att.name || (isUrl ? 'Live Deliverable URL' : 'File'));
+          const size = isUrl ? 'Live Link' : fmtFileSize(att.size);
           return `
             <div class="attachment-chip" data-idx="${idx}" title="${name} (${size})">
               <span class="file-type-icon ${cat.cls}" style="width:22px;height:22px;font-size:12px">${cat.icon}</span>
-              <span class="attachment-chip-name" onclick="window.__openPreview(${idx}, this)">${name}</span>
+              ${isUrl ? `
+                <a href="${att.url}" target="_blank" rel="noopener noreferrer" class="attachment-chip-name" style="text-decoration:none;color:inherit;cursor:pointer" title="Open live URL in new tab">
+                  ${name} <span style="font-size:11px;opacity:0.75">↗</span>
+                </a>
+              ` : `
+                <span class="attachment-chip-name" onclick="window.__openPreview(${idx}, this)">${name}</span>
+              `}
               <span class="attachment-chip-size">${size}</span>
               <div class="attachment-chip-actions">
-                <button type="button" class="attachment-chip-btn" title="View Preview" onclick="window.__openPreview(${idx}, this)">👁️</button>
-                <a href="${att.url}" download="${name}" target="_blank" class="attachment-chip-btn" title="Download" onclick="event.stopPropagation()">⬇️</a>
+                ${isUrl ? `
+                  <a href="${att.url}" target="_blank" rel="noopener noreferrer" class="attachment-chip-btn" title="Open Live Link" onclick="event.stopPropagation()">🔗</a>
+                ` : `
+                  <button type="button" class="attachment-chip-btn" title="View Preview" onclick="window.__openPreview(${idx}, this)">👁️</button>
+                  <a href="${att.url}" download="${name}" target="_blank" class="attachment-chip-btn" title="Download" onclick="event.stopPropagation()">⬇️</a>
+                `}
                 ${canDelete ? `<button type="button" class="attachment-chip-btn" title="Remove" style="color:var(--red-500)" onclick="window.__removeChip(${idx}, this)">✕</button>` : ''}
               </div>
             </div>

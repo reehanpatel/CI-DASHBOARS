@@ -206,7 +206,31 @@ router.put('/:id', requireRole('superadmin', 'employee'), async (req, res) => {
   if (description !== undefined) job.description = description;
   if (priority && ['Medium', 'High', 'Urgent'].includes(priority)) job.priority = priority;
   if (attachments !== undefined) job.attachments = attachments;
-  if (deliverables !== undefined) job.deliverables = deliverables;
+  if (deliverables !== undefined) {
+    const isTeam = req.user.role !== 'client';
+    const oldLen = (job.deliverables || []).length;
+    const newLen = (deliverables || []).length;
+    if (isTeam && newLen > oldLen) {
+      const hadPreviousReview = job.clientApproval && (
+        job.clientApproval.status === 'Approved' || 
+        job.clientApproval.status === 'Revision Requested' || 
+        job.clientApproval.status === 'Denied' || 
+        (job.clientApproval.revisions && job.clientApproval.revisions.length > 0)
+      );
+      job.clientApproval = job.clientApproval || {};
+      job.clientApproval.status = 'Pending';
+      job.clientApproval.approvedAt = null;
+      job.clientApproval.approvedBy = '';
+      job.clientApproval.deniedAt = null;
+      job.clientApproval.deniedBy = '';
+      job.clientApproval.deniedReason = '';
+      if (hadPreviousReview) {
+        job.clientApproval.isRevised = true;
+        job.clientApproval.revisedAt = new Date();
+      }
+    }
+    job.deliverables = deliverables;
+  }
   if (preferredPersonId !== undefined) {
     job.preferredPersonId = preferredPersonId || null;
     if (preferredPersonId) {
@@ -271,7 +295,28 @@ router.post('/:id/deliverables', requireRole('superadmin', 'employee', 'client')
       });
     });
 
-    if (req.body.markComplete === true || req.body.status === 'Completed') {
+    const hadPreviousReview = job.clientApproval && (
+      job.clientApproval.status === 'Approved' || 
+      job.clientApproval.status === 'Revision Requested' || 
+      job.clientApproval.status === 'Denied' || 
+      (job.clientApproval.revisions && job.clientApproval.revisions.length > 0)
+    );
+
+    if (req.user.role !== 'client') {
+      job.clientApproval = job.clientApproval || {};
+      job.clientApproval.status = 'Pending';
+      job.clientApproval.approvedAt = null;
+      job.clientApproval.approvedBy = '';
+      job.clientApproval.deniedAt = null;
+      job.clientApproval.deniedBy = '';
+      job.clientApproval.deniedReason = '';
+      if (hadPreviousReview) {
+        job.clientApproval.isRevised = true;
+        job.clientApproval.revisedAt = new Date();
+      }
+    }
+
+    if (req.body.markComplete === true || req.body.status === 'Completed' || req.user.role !== 'client') {
       job.status = 'Completed';
       if (!job.completionDate) job.completionDate = new Date();
     }
@@ -331,9 +376,16 @@ router.post('/:id/approve', requireRole('superadmin', 'client'), async (req, res
   try {
     const job = await Job.findById(req.params.id);
     if (!job) return res.status(404).json({ error: 'Job not found' });
-    if (req.user.role === 'client' && String(job.clientId) !== String(req.user.clientId)) {
-      return res.status(403).json({ error: 'You can only approve jobs for your own account' });
+    if (req.user.role === 'client') {
+      const jobClientIdStr = job.clientId?._id ? String(job.clientId._id) : String(job.clientId || '');
+      const userClientIdStr = req.user.clientId?._id ? String(req.user.clientId._id) : String(req.user.clientId || '');
+      const clientMatches = Boolean(userClientIdStr && jobClientIdStr && (jobClientIdStr === userClientIdStr));
+      const creatorMatches = Boolean(job.createdBy && (String(job.createdBy._id || job.createdBy) === String(req.user._id || req.user.id)));
+      if (!clientMatches && !creatorMatches) {
+        return res.status(403).json({ error: 'You can only approve jobs for your own account' });
+      }
     }
+    
 
     const { rating, feedback } = req.body;
     job.status = 'Completed';
@@ -342,6 +394,7 @@ router.post('/:id/approve', requireRole('superadmin', 'client'), async (req, res
     job.clientApproval.status = 'Approved';
     job.clientApproval.approvedAt = new Date();
     job.clientApproval.approvedBy = req.user.name || 'Client';
+    job.clientApproval.isRevised = false;
     if (feedback) job.clientApproval.feedback = feedback;
     if (rating && Number(rating) >= 1 && Number(rating) <= 5) {
       job.clientApproval.rating = Number(rating);
@@ -368,9 +421,16 @@ router.post('/:id/revision', requireRole('superadmin', 'client'), async (req, re
   try {
     const job = await Job.findById(req.params.id);
     if (!job) return res.status(404).json({ error: 'Job not found' });
-    if (req.user.role === 'client' && String(job.clientId) !== String(req.user.clientId)) {
-      return res.status(403).json({ error: 'You can only request revisions for your own account' });
+    if (req.user.role === 'client') {
+      const jobClientIdStr = job.clientId?._id ? String(job.clientId._id) : String(job.clientId || '');
+      const userClientIdStr = req.user.clientId?._id ? String(req.user.clientId._id) : String(req.user.clientId || '');
+      const clientMatches = Boolean(userClientIdStr && jobClientIdStr && (jobClientIdStr === userClientIdStr));
+      const creatorMatches = Boolean(job.createdBy && (String(job.createdBy._id || job.createdBy) === String(req.user._id || req.user.id)));
+      if (!clientMatches && !creatorMatches) {
+        return res.status(403).json({ error: 'You can only approve jobs for your own account' });
+      }
     }
+    
 
     const { feedback, attachments } = req.body;
     if (!feedback || !feedback.trim()) {
@@ -410,9 +470,16 @@ router.post('/:id/deny', requireRole('superadmin', 'client'), async (req, res) =
   try {
     const job = await Job.findById(req.params.id);
     if (!job) return res.status(404).json({ error: 'Job not found' });
-    if (req.user.role === 'client' && String(job.clientId) !== String(req.user.clientId)) {
-      return res.status(403).json({ error: 'You can only deny jobs for your own account' });
+    if (req.user.role === 'client') {
+      const jobClientIdStr = job.clientId?._id ? String(job.clientId._id) : String(job.clientId || '');
+      const userClientIdStr = req.user.clientId?._id ? String(req.user.clientId._id) : String(req.user.clientId || '');
+      const clientMatches = Boolean(userClientIdStr && jobClientIdStr && (jobClientIdStr === userClientIdStr));
+      const creatorMatches = Boolean(job.createdBy && (String(job.createdBy._id || job.createdBy) === String(req.user._id || req.user.id)));
+      if (!clientMatches && !creatorMatches) {
+        return res.status(403).json({ error: 'You can only approve jobs for your own account' });
+      }
     }
+    
 
     const { reason, feedback } = req.body;
     const denialReason = (reason || feedback || '').trim();

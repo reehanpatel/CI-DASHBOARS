@@ -498,11 +498,12 @@ async function tabMyJobs(c){
           const isDone = j.status === 'Completed' && !isDenied;
           const isApproved = j.clientApproval && j.clientApproval.status === 'Approved' && !isDenied;
           const isRevisionReq = j.clientApproval && j.clientApproval.status === 'Revision Requested' && !isDenied;
+          const isRevised = !isApproved && !isDenied && !isRevisionReq && Boolean(j.clientApproval && j.clientApproval.isRevised);
           const compVal = j.completionDate ? new Date(j.completionDate).toISOString().slice(0,10) : '';
           const priBadge = priorityBadges[j.priority||'Medium'] || 'gray';
 
           return `
-          <div class="job-card" id="job-card-${j._id}" style="background:var(--bg-card);border:1px solid var(--border-sm);border-radius:var(--r-md);padding:20px 22px;box-shadow:var(--shadow-xs);transition:all var(--t-fast);border-left:4px solid ${isDenied ? 'var(--red-500)' : (isApproved ? 'var(--green-500)' : (isRevisionReq ? 'var(--amber-500)' : (isDone ? 'var(--green-500)' : 'var(--brand-500)')))}">
+          <div class="job-card" id="job-card-${j._id}" style="background:var(--bg-card);border:1px solid var(--border-sm);border-radius:var(--r-md);padding:20px 22px;box-shadow:var(--shadow-xs);transition:all var(--t-fast);border-left:4px solid ${isDenied ? 'var(--red-500)' : (isApproved ? 'var(--green-500)' : (isRevisionReq ? 'var(--amber-500)' : (isRevised ? 'var(--brand-500)' : (isDone ? 'var(--green-500)' : 'var(--brand-500)'))))}">
             <!-- Header row -->
             <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px;flex-wrap:wrap">
               <div style="min-width:0">
@@ -511,6 +512,7 @@ async function tabMyJobs(c){
                   <span class="badge ${isDenied?'red':(isDone?'green':'amber')}">${isDenied ? '❌ Denied by Client' : (isDone ? '✓ Completed' : '⏳ In Progress')}</span>
                   ${isApproved ? `<span class="badge green">✓ Client Approved ${j.clientApproval.rating ? `(${j.clientApproval.rating}★)` : ''}</span>` : ''}
                   ${isRevisionReq ? `<span class="badge red">↺ Revision Requested</span>` : ''}
+                  ${isRevised ? `<span class="badge blue">📦 Revised — Awaiting Client Re-approval</span>` : ''}
                   <span class="badge ${priBadge}">${escapeHtml(j.priority||'Medium')}</span>
                   ${(j.serviceNames||[]).map(s=>`<span class="badge gray">${escapeHtml(s)}</span>`).join('')}
                 </div>
@@ -610,14 +612,19 @@ async function tabMyJobs(c){
               </div>
               <div class="emp-del-form" id="empDelForm-${j._id}" style="display:none;margin-top:10px">
                 <div class="field" style="margin-bottom:8px">
-                  <label style="font-size:11.5px">Deliverable Notes / Details</label>
-                  <input type="text" id="empDelNotes-${j._id}" placeholder="e.g. Final Video Render v2, PSD Source files, Figma export link..." style="font-size:12.5px;padding:6px 10px" />
+                  <label style="font-size:11.5px">Deliverable Notes / Version Details</label>
+                  <input type="text" id="empDelNotes-${j._id}" placeholder="e.g. Final Website build, Video Render v2, Figma export link..." style="font-size:12.5px;padding:6px 10px" />
                 </div>
-                ${renderAttachmentUploader({ id: 'empDelUp-' + j._id, label: 'Completed Files', subtitle: 'Upload exported videos, PSDs, PDFs, spreadsheets, images or zip packages' })}
+                <div class="field" style="margin-bottom:10px">
+                  <label style="font-size:11.5px;font-weight:700;color:var(--brand-500)">🌐 Live Deliverable URL / Website Link (Optional)</label>
+                  <input type="url" id="empDelUrl-${j._id}" placeholder="https://example.com, Figma link, staging site, Google Drive..." style="font-size:12.5px;padding:6px 10px;width:100%;box-sizing:border-box" />
+                  <span style="font-size:10.5px;color:var(--text-4)">For website builds, web apps, Figma designs or cloud links</span>
+                </div>
+                ${renderAttachmentUploader({ id: 'empDelUp-' + j._id, label: 'Completed Files (Optional if URL provided)', subtitle: 'Upload exported videos, PSDs, PDFs, spreadsheets, images or zip packages' })}
                 <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-top:10px">
                   <label style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--text-2);cursor:pointer;font-weight:600">
                     <input type="checkbox" id="empDelMarkComplete-${j._id}" ${isDone ? '' : 'checked'} style="cursor:pointer;width:14px;height:14px;accent-color:var(--brand-600)">
-                    <span>Mark Job as Completed upon submitting</span>
+                    <span>Mark Work as Completed &amp; Send to Client for Approval</span>
                   </label>
                   <div style="display:flex;gap:6px">
                     <button type="button" class="btn ghost small emp-del-cancel" data-id="${j._id}">Cancel</button>
@@ -686,17 +693,31 @@ async function tabMyJobs(c){
       const jId = btn.dataset.id;
       const files = getUploaderAttachments('empDelUp-' + jId);
       const notes = (document.getElementById('empDelNotes-' + jId) || {}).value?.trim() || '';
+      const urlVal = (document.getElementById('empDelUrl-' + jId) || {}).value?.trim() || '';
       const markComplete = document.getElementById('empDelMarkComplete-' + jId)?.checked || false;
-      if (!files.length) {
-        flashToast('Please upload or attach at least one file', true);
+
+      const deliverables = files.map(f => ({ ...f, notes }));
+      if (urlVal) {
+        let cleanUrl = urlVal;
+        if (!/^https?:\/\//i.test(cleanUrl)) cleanUrl = 'https://' + cleanUrl;
+        deliverables.unshift({
+          name: notes ? `${notes} (Live URL)` : 'Live Deliverable URL / Website',
+          url: cleanUrl,
+          type: 'url',
+          size: 0,
+          notes: notes || 'Live URL'
+        });
+      }
+
+      if (!deliverables.length) {
+        flashToast('Please enter a deliverable URL or attach files', true);
         return;
       }
       btn.disabled = true;
       btn.textContent = 'Submitting…';
       try {
-        const deliverables = files.map(f => ({ ...f, notes }));
         await apiPost(`/jobs/${jId}/deliverables`, { deliverables, markComplete });
-        flashToast(markComplete ? 'Deliverables submitted & job marked as Completed! 📦🎉' : 'Deliverables submitted successfully! 📦');
+        flashToast(markComplete ? 'Deliverables submitted & sent to Client for Approval! 📦🎉' : 'Deliverables submitted successfully! 📦');
         renderTab();
       } catch (err) {
         flashToast(err.message, true);
