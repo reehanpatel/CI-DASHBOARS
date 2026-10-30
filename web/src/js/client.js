@@ -645,8 +645,9 @@ let jobsFilter = 'all';
 let jobsSearch = '';
 
 function renderClientJobCard(j, priorityBadges) {
-  const isDone = j.status === 'Completed' || (j.clientApproval && j.clientApproval.status === 'Approved');
-  const isRev = j.clientApproval && j.clientApproval.status === 'Revision Requested';
+  const isDenied = j.status === 'Denied' || (j.clientApproval && j.clientApproval.status === 'Denied');
+  const isDone = (j.status === 'Completed' || (j.clientApproval && j.clientApproval.status === 'Approved')) && !isDenied;
+  const isRev = j.clientApproval && j.clientApproval.status === 'Revision Requested' && !isDenied;
   const priBadge = priorityBadges[j.priority || 'Medium'] || 'gray';
   const isMine = user && j.createdBy && (
     (typeof j.createdBy === 'object' && String(j.createdBy._id) === String(user._id || user.id)) ||
@@ -654,7 +655,7 @@ function renderClientJobCard(j, priorityBadges) {
   );
 
   return `
-    <div class="card client-job-card" data-id="${j._id}" style="border-left:4px solid ${isDone ? 'var(--green-500)' : isRev ? 'var(--amber-500)' : 'var(--brand-500)'};padding:18px 22px">
+    <div class="card client-job-card" data-id="${j._id}" style="border-left:4px solid ${isDenied ? 'var(--red-500)' : (isDone ? 'var(--green-500)' : (isRev ? 'var(--amber-500)' : 'var(--brand-500)'))};padding:18px 22px">
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:10px">
         <div>
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px">
@@ -662,8 +663,8 @@ function renderClientJobCard(j, priorityBadges) {
             ${isMine ? `<span class="badge blue" style="font-size:10.5px;padding:2px 8px">👤 Logged by You</span>` : ''}
           </div>
           <div style="display:flex;flex-wrap:wrap;gap:6px">
-            <span class="badge ${isDone ? 'green' : isRev ? 'amber' : 'gold'}">
-              ${isDone ? '✓ Completed' : isRev ? '↺ Revision Requested' : '⏳ In Progress'}
+            <span class="badge ${isDenied ? 'red' : (isDone ? 'green' : (isRev ? 'amber' : 'gold'))}">
+              ${isDenied ? '❌ Denied by Client' : (isDone ? '✓ Completed' : (isRev ? '↺ Revision Requested' : '⏳ In Progress'))}
             </span>
             <span class="badge ${priBadge}">${escapeHtml(j.priority || 'Medium')}</span>
             ${(j.serviceNames || []).map(s => `<span class="badge gray">${escapeHtml(s)}</span>`).join('')}
@@ -692,42 +693,58 @@ function renderClientJobCard(j, priorityBadges) {
         </div>
       ` : ''}
 
-      <!-- Client Deliverable Approval / Revision Status Box -->
+      <!-- Client Deliverable Approval / Revision / Denial Status Box -->
       ${(j.deliverables && j.deliverables.length) ? `
-        ${j.clientApproval && j.clientApproval.status === 'Approved' ? `
+        ${isDone ? `
           <div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:var(--r-sm);padding:10px 14px;margin-top:12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
             <div style="display:flex;align-items:center;gap:8px">
               <span style="font-size:16px">✅</span>
               <div>
                 <div style="font-size:13px;font-weight:700;color:var(--green-500)">Approved &amp; Signed Off</div>
-                <div style="font-size:11.5px;color:var(--text-3)">Approved by ${escapeHtml(j.clientApproval.approvedBy || 'Client')} on ${fmtDate(j.clientApproval.approvedAt || j.completionDate)}</div>
+                <div style="font-size:11.5px;color:var(--text-3)">Approved by ${escapeHtml(j.clientApproval?.approvedBy || 'Client')} on ${fmtDate(j.clientApproval?.approvedAt || j.completionDate)}</div>
               </div>
             </div>
-            ${j.clientApproval.rating ? `<span class="badge gold" style="font-size:12px">${'★'.repeat(j.clientApproval.rating)} ${j.clientApproval.rating}/5</span>` : ''}
+            ${j.clientApproval?.rating ? `<span class="badge gold" style="font-size:12px">${'★'.repeat(j.clientApproval.rating)} ${j.clientApproval.rating}/5</span>` : ''}
           </div>
-        ` : j.clientApproval && j.clientApproval.status === 'Revision Requested' ? `
+        ` : isDenied ? `
+          <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:var(--r-sm);padding:12px 14px;margin-top:12px">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px">
+              <div style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:var(--red-500)">
+                <span>❌</span> Deliverable Denied by You
+              </div>
+              <span style="font-size:11px;color:var(--text-4)">${fmtDate(j.clientApproval?.deniedAt || j.updatedAt)}</span>
+            </div>
+            <div style="font-size:12.5px;color:var(--text-1);background:var(--bg-surface);border-radius:var(--r-xs);padding:10px 12px;margin-top:6px;border-left:3px solid var(--red-500);line-height:1.5">
+              <strong style="color:var(--red-500);font-size:11.5px;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:3px;">Reason for Denial:</strong>
+              "${escapeHtml(j.clientApproval?.deniedReason || j.clientApproval?.feedback || 'Job denied')}"
+            </div>
+          </div>
+        ` : isRev ? `
           <div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-radius:var(--r-sm);padding:10px 14px;margin-top:12px">
             <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px">
               <div style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:var(--amber-500)">
                 <span>↺</span> Revision Requested
               </div>
-              <span style="font-size:11px;color:var(--text-4)">${fmtDate((j.clientApproval.revisions || []).slice(-1)[0]?.requestedAt || j.updatedAt)}</span>
+              <span style="font-size:11px;color:var(--text-4)">${fmtDate((j.clientApproval?.revisions || []).slice(-1)[0]?.requestedAt || j.updatedAt)}</span>
             </div>
             <div style="font-size:12.5px;color:var(--text-2);background:var(--bg-surface);border-radius:var(--r-xs);padding:8px 10px;margin-top:6px;line-height:1.4">
-              "${escapeHtml(j.clientApproval.feedback || 'Revision requested')}"
+              "${escapeHtml(j.clientApproval?.feedback || 'Revision requested')}"
             </div>
           </div>
         ` : `
           <div style="background:linear-gradient(135deg,rgba(99,102,241,0.08) 0%,rgba(139,92,246,0.04) 100%);border:1px solid rgba(99,102,241,0.25);border-radius:var(--r-sm);padding:12px 14px;margin-top:12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
             <div>
               <div style="font-size:13px;font-weight:700;color:var(--brand-500)">Deliverables Ready for Review</div>
-              <div style="font-size:11.5px;color:var(--text-3)">Please inspect the attached files above and approve or request revision.</div>
+              <div style="font-size:11.5px;color:var(--text-3)">Please inspect the attached files above and choose to approve or deny this job.</div>
             </div>
-            <div style="display:flex;gap:8px">
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <button type="button" class="btn ghost small client-deny-btn" data-id="${j._id}" data-title="${escapeHtml(j.title || 'Job')}" style="border-color:rgba(239,68,68,0.4);color:var(--red-500);font-weight:700;">
+                ❌ Deny Job
+              </button>
               <button type="button" class="btn ghost small client-rev-btn" data-id="${j._id}" data-title="${escapeHtml(j.title || 'Job')}" style="border-color:rgba(245,158,11,0.4);color:var(--amber-500)">
                 ↺ Request Revision
               </button>
-              <button type="button" class="btn gold small client-app-btn" data-id="${j._id}" data-title="${escapeHtml(j.title || 'Job')}">
+              <button type="button" class="btn gold small client-app-btn" data-id="${j._id}" data-title="${escapeHtml(j.title || 'Job')}" style="font-weight:700;">
                 ✓ Approve &amp; Sign Off
               </button>
             </div>
@@ -744,6 +761,10 @@ function bindJobCardActions(jobs) {
 
   document.querySelectorAll('.client-rev-btn').forEach(btn => {
     btn.onclick = () => openClientRevisionModal(btn.dataset.id, btn.dataset.title, () => renderTab());
+  });
+
+  document.querySelectorAll('.client-deny-btn').forEach(btn => {
+    btn.onclick = () => openClientDenyModal(btn.dataset.id, btn.dataset.title, () => renderTab());
   });
 }
 
@@ -763,11 +784,13 @@ function tabJobs(c, d){
   function filterList(){
     let list = allJobs;
     if(jobsFilter === 'inprogress'){
-      list = list.filter(j => j.status !== 'Completed' && (!j.clientApproval || j.clientApproval.status !== 'Approved'));
+      list = list.filter(j => j.status !== 'Completed' && j.status !== 'Denied' && (!j.clientApproval || (j.clientApproval.status !== 'Approved' && j.clientApproval.status !== 'Denied')));
     } else if(jobsFilter === 'completed'){
-      list = list.filter(j => j.status === 'Completed' || (j.clientApproval && j.clientApproval.status === 'Approved'));
+      list = list.filter(j => (j.status === 'Completed' || (j.clientApproval && j.clientApproval.status === 'Approved')) && j.status !== 'Denied');
     } else if(jobsFilter === 'revision'){
-      list = list.filter(j => j.clientApproval && j.clientApproval.status === 'Revision Requested');
+      list = list.filter(j => j.clientApproval && j.clientApproval.status === 'Revision Requested' && j.status !== 'Denied');
+    } else if(jobsFilter === 'denied'){
+      list = list.filter(j => j.status === 'Denied' || (j.clientApproval && j.clientApproval.status === 'Denied'));
     }
     if(jobsSearch){
       const q = jobsSearch.toLowerCase();
@@ -781,9 +804,10 @@ function tabJobs(c, d){
     return list;
   }
 
-  const inProgCount = allJobs.filter(j => j.status !== 'Completed' && (!j.clientApproval || j.clientApproval.status !== 'Approved')).length;
-  const compCount = allJobs.filter(j => j.status === 'Completed' || (j.clientApproval && j.clientApproval.status === 'Approved')).length;
-  const revCount = allJobs.filter(j => j.clientApproval && j.clientApproval.status === 'Revision Requested').length;
+  const inProgCount = allJobs.filter(j => j.status !== 'Completed' && j.status !== 'Denied' && (!j.clientApproval || (j.clientApproval.status !== 'Approved' && j.clientApproval.status !== 'Denied'))).length;
+  const compCount = allJobs.filter(j => (j.status === 'Completed' || (j.clientApproval && j.clientApproval.status === 'Approved')) && j.status !== 'Denied').length;
+  const revCount = allJobs.filter(j => j.clientApproval && j.clientApproval.status === 'Revision Requested' && j.status !== 'Denied').length;
+  const deniedCount = allJobs.filter(j => j.status === 'Denied' || (j.clientApproval && j.clientApproval.status === 'Denied')).length;
 
   function renderView(){
     const filteredJobs = filterList();
@@ -816,8 +840,13 @@ function tabJobs(c, d){
           </div>
           ${revCount > 0 ? `
           <div class="card" style="padding:12px 14px;text-align:center">
-            <div style="font-size:11px;font-weight:700;color:var(--red-500);text-transform:uppercase;letter-spacing:0.5px">Revisions</div>
-            <div style="font-size:22px;font-weight:800;color:var(--red-500);margin-top:2px">${revCount}</div>
+            <div style="font-size:11px;font-weight:700;color:var(--amber-500);text-transform:uppercase;letter-spacing:0.5px">Revisions</div>
+            <div style="font-size:22px;font-weight:800;color:var(--amber-500);margin-top:2px">${revCount}</div>
+          </div>` : ''}
+          ${deniedCount > 0 ? `
+          <div class="card" style="padding:12px 14px;text-align:center;border-left:3px solid var(--red-500)">
+            <div style="font-size:11px;font-weight:700;color:var(--red-500);text-transform:uppercase;letter-spacing:0.5px">Denied</div>
+            <div style="font-size:22px;font-weight:800;color:var(--red-500);margin-top:2px">${deniedCount}</div>
           </div>` : ''}
         </div>
 
@@ -828,6 +857,7 @@ function tabJobs(c, d){
             <button type="button" class="btn ${jobsFilter==='inprogress'?'primary':'ghost'} small filter-tab-btn" data-f="inprogress">In Progress (${inProgCount})</button>
             <button type="button" class="btn ${jobsFilter==='completed'?'primary':'ghost'} small filter-tab-btn" data-f="completed">Completed (${compCount})</button>
             ${revCount > 0 ? `<button type="button" class="btn ${jobsFilter==='revision'?'primary':'ghost'} small filter-tab-btn" data-f="revision">Revisions (${revCount})</button>` : ''}
+            ${deniedCount > 0 ? `<button type="button" class="btn ${jobsFilter==='denied'?'primary':'ghost'} small filter-tab-btn" data-f="denied" style="color:var(--red-500)">Denied (${deniedCount})</button>` : ''}
           </div>
           <div style="flex:1;max-width:280px;min-width:180px">
             <input type="text" id="clientJobSearchInput" value="${escapeHtml(jobsSearch)}" placeholder="Search jobs…" style="padding:6px 12px;font-size:12.5px;width:100%;border-radius:var(--r-xs)">
@@ -876,7 +906,7 @@ function tabJobs(c, d){
 
 function tabDelivered(c, d){
   const allJobs = d.jobs || [];
-  const deliveredJobs = allJobs.filter(j => (j.deliverables && j.deliverables.length > 0) || j.status === 'Completed' || (j.clientApproval && j.clientApproval.status === 'Approved'));
+  const deliveredJobs = allJobs.filter(j => (j.deliverables && j.deliverables.length > 0) || j.status === 'Completed' || j.status === 'Denied' || (j.clientApproval && (j.clientApproval.status === 'Approved' || j.clientApproval.status === 'Denied')));
   const priorityBadges = { Medium:'gray', High:'amber', Urgent:'red' };
 
   if(deliveredJobs.length === 0){
@@ -888,7 +918,7 @@ function tabDelivered(c, d){
     return;
   }
 
-  const readyForReviewCount = deliveredJobs.filter(j => j.deliverables && j.deliverables.length && (!j.clientApproval || j.clientApproval.status === 'Pending')).length;
+  const readyForReviewCount = deliveredJobs.filter(j => j.deliverables && j.deliverables.length && (!j.clientApproval || j.clientApproval.status === 'Pending') && j.status !== 'Denied').length;
 
   c.innerHTML = `
     <div class="block">
@@ -1025,6 +1055,64 @@ function openClientRevisionModal(jobId, jobTitle, onDone) {
     } finally {
       btn.disabled = false;
       btn.textContent = '↺ Send Revision Request';
+    }
+  };
+}
+
+function openClientDenyModal(jobId, jobTitle, onDone) {
+  const bg = openModal(`
+    <div style="margin-bottom:14px">
+      <div style="font-size:18px;font-weight:800;color:var(--red-500);margin-bottom:4px;display:flex;align-items:center;gap:8px">
+        <span>❌</span> Deny Delivered Job
+      </div>
+      <div style="font-size:12.5px;color:var(--text-3)">${escapeHtml(jobTitle)}</div>
+    </div>
+
+    <div style="margin-bottom:16px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);border-radius:var(--r-sm);padding:12px 14px">
+      <div style="font-size:13px;font-weight:700;color:var(--red-500);margin-bottom:4px">Why is this job denied?</div>
+      <div style="font-size:12px;color:var(--text-3);line-height:1.4">
+        Please state the reason clearly. Your explanation will be recorded and sent to the team and management immediately.
+      </div>
+    </div>
+
+    <div class="field" style="margin-bottom:16px">
+      <label for="mDenyReason" style="font-weight:700;">Reason for Denial <span style="color:var(--red-500)">*</span></label>
+      <textarea id="mDenyReason" rows="4" placeholder="Detail exactly why this deliverable was denied, issues identified, or unmet specifications…" style="width:100%;box-sizing:border-box;"></textarea>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn ghost" id="mDenyCancel">Cancel</button>
+      <button class="btn danger" id="mDenyConfirm" style="background:#EF4444;color:#FFFFFF;border-color:#EF4444;font-weight:700;">
+        ❌ Confirm &amp; Deny Job
+      </button>
+    </div>
+  `);
+
+  const reasonInput = bg.querySelector('#mDenyReason');
+  if (reasonInput) reasonInput.focus();
+
+  bg.querySelector('#mDenyCancel').onclick = () => bg.remove();
+  bg.querySelector('#mDenyConfirm').onclick = async () => {
+    const reason = bg.querySelector('#mDenyReason').value.trim();
+    if (!reason) {
+      flashToast('Please enter the reason why this job is denied', true);
+      if (reasonInput) reasonInput.focus();
+      return;
+    }
+
+    const btn = bg.querySelector('#mDenyConfirm');
+    btn.disabled = true;
+    btn.textContent = 'Submitting Denial…';
+
+    try {
+      await apiPost(`/jobs/${jobId}/deny`, { reason });
+      flashToast('Job marked as denied. The team has been notified. ❌');
+      bg.remove();
+      if (onDone) onDone();
+    } catch (err) {
+      flashToast(err.message, true);
+      btn.disabled = false;
+      btn.textContent = '❌ Confirm & Deny Job';
     }
   };
 }

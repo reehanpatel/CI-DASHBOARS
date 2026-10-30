@@ -649,9 +649,9 @@ async function tabJobs(c){
               <td>
                 <div style="display:flex;flex-direction:column;gap:3px;align-items:flex-start">
                   <button class="btn ${isDone?'ghost':'gold'} small toggle-status-btn" data-id="${j._id}" data-done="${isDone}" style="padding:2px 7px;font-size:11px;cursor:pointer;">
-                    <span class="badge ${isDone?'green':(j.status==='Needs Revision'?'red':'amber')}">${isDone?'Completed':(j.status==='Needs Revision'?'Needs Revision':'In Progress')}</span>
+                    <span class="badge ${isDone?'green':((j.status==='Needs Revision'||j.status==='Denied')?'red':'amber')}">${isDone?'Completed':(j.status==='Needs Revision'?'Needs Revision':(j.status==='Denied'?'Denied':'In Progress'))}</span>
                   </button>
-                  ${j.clientApproval && j.clientApproval.status === 'Approved' ? `<span style="font-size:10px;font-weight:700;color:var(--green-500)">✓ Client Approved ${j.clientApproval.rating ? `(${j.clientApproval.rating}★)` : ''}</span>` : (j.clientApproval && j.clientApproval.status === 'Revision Requested' ? `<span style="font-size:10px;font-weight:700;color:var(--red-500)">↺ Revision Req.</span>` : '')}
+                  ${j.clientApproval && j.clientApproval.status === 'Approved' ? `<span style="font-size:10px;font-weight:700;color:var(--green-500)">✓ Client Approved ${j.clientApproval.rating ? `(${j.clientApproval.rating}★)` : ''}</span>` : (j.clientApproval && j.clientApproval.status === 'Revision Requested' ? `<span style="font-size:10px;font-weight:700;color:var(--amber-500)">↺ Revision Req.</span>` : ((j.status === 'Denied' || j.clientApproval?.status === 'Denied') ? `<span style="font-size:10px;font-weight:700;color:var(--red-500)" title="Reason: ${escapeHtml(j.clientApproval?.deniedReason || '')}">❌ Denied</span>` : ''))}
                 </div>
               </td>
               <td>${escapeHtml(clientName(j.clientId))}</td>

@@ -13,7 +13,7 @@ const JobSchema = new mongoose.Schema({
   serviceNames: [{ type: String }],
   date: { type: Date, required: true },
   completionDate: { type: Date, default: null }, // Expected End Date
-  status: { type: String, enum: ['In Progress', 'Completed', 'Needs Revision'], default: 'In Progress' }, // Completion status
+  status: { type: String, enum: ['In Progress', 'Completed', 'Needs Revision', 'Denied'], default: 'In Progress' }, // Completion status
   value: { type: Number, default: 0 },
   description: { type: String, default: '' },
   priority: { type: String, enum: ['Medium', 'High', 'Urgent'], default: 'Medium' },
@@ -39,9 +39,12 @@ const JobSchema = new mongoose.Schema({
     uploadedAt: { type: Date, default: Date.now }
   }],
   clientApproval: {
-    status: { type: String, enum: ['Pending', 'Approved', 'Revision Requested'], default: 'Pending' },
+    status: { type: String, enum: ['Pending', 'Approved', 'Revision Requested', 'Denied'], default: 'Pending' },
     approvedAt: { type: Date, default: null },
     approvedBy: { type: String, default: '' },
+    deniedAt: { type: Date, default: null },
+    deniedBy: { type: String, default: '' },
+    deniedReason: { type: String, default: '' },
     feedback: { type: String, default: '' },
     rating: { type: Number, min: 1, max: 5, default: null },
     revisions: [{

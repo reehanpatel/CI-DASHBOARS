@@ -494,20 +494,21 @@ async function tabMyJobs(c){
         ${jobs.map(j=>{
           const myAss = (j.assignments||[]).find(a=>String(a.personId)===String(user.personnelId._id||user.personnelId));
           const isCreator = String(j.createdBy) === String(user._id);
-          const isDone = j.status === 'Completed';
-          const isApproved = j.clientApproval && j.clientApproval.status === 'Approved';
-          const isRevisionReq = j.clientApproval && j.clientApproval.status === 'Revision Requested';
+          const isDenied = j.status === 'Denied' || (j.clientApproval && j.clientApproval.status === 'Denied');
+          const isDone = j.status === 'Completed' && !isDenied;
+          const isApproved = j.clientApproval && j.clientApproval.status === 'Approved' && !isDenied;
+          const isRevisionReq = j.clientApproval && j.clientApproval.status === 'Revision Requested' && !isDenied;
           const compVal = j.completionDate ? new Date(j.completionDate).toISOString().slice(0,10) : '';
           const priBadge = priorityBadges[j.priority||'Medium'] || 'gray';
 
           return `
-          <div class="job-card" id="job-card-${j._id}" style="background:var(--bg-card);border:1px solid var(--border-sm);border-radius:var(--r-md);padding:20px 22px;box-shadow:var(--shadow-xs);transition:all var(--t-fast);border-left:4px solid ${isApproved ? 'var(--green-500)' : (isRevisionReq ? 'var(--red-500)' : (isDone ? 'var(--green-500)' : 'var(--brand-500)'))}">
+          <div class="job-card" id="job-card-${j._id}" style="background:var(--bg-card);border:1px solid var(--border-sm);border-radius:var(--r-md);padding:20px 22px;box-shadow:var(--shadow-xs);transition:all var(--t-fast);border-left:4px solid ${isDenied ? 'var(--red-500)' : (isApproved ? 'var(--green-500)' : (isRevisionReq ? 'var(--amber-500)' : (isDone ? 'var(--green-500)' : 'var(--brand-500)')))}">
             <!-- Header row -->
             <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px;flex-wrap:wrap">
               <div style="min-width:0">
                 <h3 style="font-size:15px;font-weight:800;color:var(--text-1);margin:0 0 6px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(j.title || 'Untitled Job')}</h3>
                 <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center">
-                  <span class="badge ${isDone?'green':'amber'}">${isDone ? '✓ Completed' : '⏳ In Progress'}</span>
+                  <span class="badge ${isDenied?'red':(isDone?'green':'amber')}">${isDenied ? '❌ Denied by Client' : (isDone ? '✓ Completed' : '⏳ In Progress')}</span>
                   ${isApproved ? `<span class="badge green">✓ Client Approved ${j.clientApproval.rating ? `(${j.clientApproval.rating}★)` : ''}</span>` : ''}
                   ${isRevisionReq ? `<span class="badge red">↺ Revision Requested</span>` : ''}
                   <span class="badge ${priBadge}">${escapeHtml(j.priority||'Medium')}</span>
@@ -524,6 +525,22 @@ async function tabMyJobs(c){
                 ${isCreator ? `<button type="button" class="btn danger small" onclick="delJob('${j._id}')">Delete</button>` : ''}
               </div>
             </div>
+
+            <!-- Denied Alert Box for Employee -->
+            ${isDenied ? `
+              <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:var(--r-sm);padding:12px 14px;margin-bottom:14px">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px">
+                  <strong style="color:var(--red-500);font-size:13px;display:flex;align-items:center;gap:6px">
+                    <span>❌</span> Job Denied by Client (${escapeHtml(j.clientApproval?.deniedBy || 'Client')})
+                  </strong>
+                  <span style="font-size:11px;color:var(--text-4)">${fmtDate(j.clientApproval?.deniedAt || j.updatedAt)}</span>
+                </div>
+                <div style="font-size:12.5px;color:var(--text-1);background:var(--bg-surface);padding:8px 10px;border-radius:var(--r-xs);margin-top:6px;border-left:3px solid var(--red-500);line-height:1.4">
+                  <strong style="color:var(--red-500);font-size:11px;text-transform:uppercase;display:block;margin-bottom:2px;">Reason for Denial:</strong>
+                  "${escapeHtml(j.clientApproval?.deniedReason || j.clientApproval?.feedback || 'Job denied')}"
+                </div>
+              </div>
+            ` : ''}
 
             <!-- Revision Requested Alert Box for Employee -->
             ${isRevisionReq ? `

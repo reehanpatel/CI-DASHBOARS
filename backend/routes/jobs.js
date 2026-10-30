@@ -405,6 +405,45 @@ router.post('/:id/revision', requireRole('superadmin', 'client'), async (req, re
   }
 });
 
+// Endpoint for Client or Admin to deny a delivered job
+router.post('/:id/deny', requireRole('superadmin', 'client'), async (req, res) => {
+  try {
+    const job = await Job.findById(req.params.id);
+    if (!job) return res.status(404).json({ error: 'Job not found' });
+    if (req.user.role === 'client' && String(job.clientId) !== String(req.user.clientId)) {
+      return res.status(403).json({ error: 'You can only deny jobs for your own account' });
+    }
+
+    const { reason, feedback } = req.body;
+    const denialReason = (reason || feedback || '').trim();
+    if (!denialReason) {
+      return res.status(400).json({ error: 'Please provide a reason explaining why the job was denied' });
+    }
+
+    job.status = 'Denied';
+    job.clientApproval = job.clientApproval || {};
+    job.clientApproval.status = 'Denied';
+    job.clientApproval.deniedAt = new Date();
+    job.clientApproval.deniedBy = req.user.name || 'Client';
+    job.clientApproval.deniedReason = denialReason;
+    job.clientApproval.feedback = denialReason;
+
+    await job.save();
+
+    await createNotificationsForJob({
+      type: 'job_denied',
+      title: '❌ Deliverables Denied by Client',
+      message: `Client denied Job "${job.title || 'Untitled'}". Reason: "${denialReason.slice(0, 120)}"`,
+      job,
+      actorId: req.user._id
+    });
+
+    res.json(job);
+  } catch (err) {
+    res.status(500).json({ error: 'Could not deny job', detail: err.message });
+  }
+});
+
 router.delete('/:id', requireRole('superadmin', 'employee'), async (req, res) => {
   try {
     const job = await Job.findById(req.params.id);
