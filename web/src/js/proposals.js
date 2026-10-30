@@ -303,8 +303,15 @@ export function docModel(p, co, opts = {}) {
     blocks: B,
     foot,
     title: p.title || 'Proposal',
+    client: p.client || '',
+    clientShort: p.clientShort || p.client || '',
     ref: p.ref,
-    brand: co.name || 'CI360 Degrees'
+    brand: co.name || 'CI360 Degrees',
+    website: co.website || 'www.ci360degrees.com',
+    signatory: co.signatory,
+    signRole: co.signRole,
+    phone: co.phone,
+    email: co.email
   };
 }
 
@@ -388,10 +395,14 @@ function calcRowHeight(r) {
   return 36;
 }
 
-function paginateProposalBlocks(blocks, targetHeight = 880) {
+function paginateProposalBlocks(blocks) {
   const pages = [];
   let curBlocks = [];
   let curH = 0;
+
+  function curTargetHeight() {
+    return pages.length === 0 ? 660 : 880;
+  }
 
   function pushPage() {
     if (curBlocks.length) {
@@ -404,6 +415,7 @@ function paginateProposalBlocks(blocks, targetHeight = 880) {
   for (let bi = 0; bi < blocks.length; bi++) {
     const b = blocks[bi];
     const bH = estimateBlockHeight(b);
+    const targetHeight = curTargetHeight();
 
     // 1. Heading check: ensure heading has space for itself + subsequent content (~110px) to prevent orphan headings
     if (b.t === 'h') {
@@ -465,7 +477,8 @@ function paginateProposalBlocks(blocks, targetHeight = 880) {
       } else {
         if (curBlocks.length > 0) pushPage();
 
-        if (bH <= targetHeight) {
+        const targetHeightAfter = curTargetHeight();
+        if (bH <= targetHeightAfter) {
           curBlocks.push(b);
           curH += bH;
         } else {
@@ -473,7 +486,7 @@ function paginateProposalBlocks(blocks, targetHeight = 880) {
           let splitFresh = 0;
           for (let ri = 0; ri < b.rows.length; ri++) {
             const rH = calcRowHeight(b.rows[ri]);
-            if (theadH + accFresh + rH <= targetHeight) {
+            if (theadH + accFresh + rH <= targetHeightAfter) {
               accFresh += rH;
               splitFresh = ri + 1;
             } else {
@@ -512,12 +525,22 @@ function paginateProposalBlocks(blocks, targetHeight = 880) {
 
 export function paperHTML(model, print = false) {
   const cv = model.cover;
+  const clientNameUpper = String(model.clientShort || model.client || 'CLIENT').toUpperCase();
+  const titleUpper = String(model.title || 'PROPOSAL').toUpperCase();
+  const brandUpper = String(model.brand || 'CI360 DEGREES').toUpperCase();
+  const runningHeaderTitle = `${brandUpper} | PROPOSAL FOR ${clientNameUpper} - ${titleUpper}`;
+  const websiteUrl = model.website || 'www.ci360degrees.com';
+  const cleanWebUrl = websiteUrl.replace(/^https?:\/\//i, '');
 
   function renderBlock(b) {
     if (b.t === 'h') return `<h2><span class="n">${b.n}.</span>${escapeHtml(b.text)}</h2>`;
     if (b.t === 'md') return mdHTML(b.text);
     if (b.t === 'note') return `<p class="pnote">${escapeHtml(b.text)}</p>`;
-    if (b.t === 'stamp') return `<div class="approved-stamp ${b.type === 'admin' ? 'admin-stamp' : ''}">${escapeHtml(b.text)}</div>`;
+    // Hide internal admin verification stamp in pdf/proposal preview per request
+    if (b.t === 'stamp') {
+      if (b.type === 'admin') return '';
+      return `<div class="approved-stamp">${escapeHtml(b.text)}</div>`;
+    }
     if (b.t === 'kv') return `<table class="kv"><tbody>${b.rows.map(([k, v]) => `<tr><th>${escapeHtml(k)}</th><td>${cellHTML(v)}</td></tr>`).join('')}</tbody></table>`;
     if (b.t === 'table') {
       const n = b.cols.length;
@@ -527,52 +550,68 @@ export function paperHTML(model, print = false) {
       }).join('')}</tbody></table>`;
     }
     if (b.t === 'choices') return `<div class="choices">${b.items.map(c => `<p><strong>${escapeHtml(c.label)}:</strong> ${c.options.length ? c.options.map(o => `<span class="box">${c.answer === o ? '☑' : '☐'} ${escapeHtml(o)}</span>`).join(' ') : `<span class="blank">${c.answer ? escapeHtml(c.answer) : ''}</span>`}</p>`).join('')}</div>`;
-    if (b.t === 'sig') return `<div class="sig">${[b.left, b.right].map(s => `<div><div class="who">${escapeHtml(s.who)}</div>${[['Name', s.name], ['Designation', s.role], ['Signature', ''], ['Date', '']].map(([k, v]) => `<div class="ln"><span>${k}:</span> ${escapeHtml(v || '')}</div>`).join('')}</div>`).join('')}</div>${model.foot ? `<div class="foot">${escapeHtml(model.foot)}</div>` : ''}`;
+    if (b.t === 'sig') {
+      const contactName = b.right?.name || model.signatory || '';
+      const contactRole = b.right?.role || model.signRole || '';
+      const phone = model.phone || '';
+      const email = model.email || '';
+      return `
+        <div class="proposal-sig-wrap">
+          ${(b.left?.who || b.right?.who) ? `
+            <div class="sig">${[b.left, b.right].map(s => `<div><div class="who">${escapeHtml(s.who)}</div>${[['Name', s.name], ['Designation', s.role], ['Signature', ''], ['Date', '']].map(([k, v]) => `<div class="ln"><span>${k}:</span> ${escapeHtml(v || '')}</div>`).join('')}</div>`).join('')}</div>
+          ` : ''}
+          ${contactName ? `
+            <div class="proposal-contact-card">
+              <div class="pc-name">${escapeHtml(contactName)}</div>
+              ${contactRole ? `<div class="pc-role">${escapeHtml(contactRole)}</div>` : ''}
+              ${phone ? `<div class="pc-line">Ph. ${escapeHtml(phone)}</div>` : ''}
+              ${email ? `<div class="pc-line">Email: ${escapeHtml(email)}</div>` : ''}
+            </div>
+          ` : ''}
+          <div class="proposal-web-link">
+            <a href="https://${escapeHtml(cleanWebUrl)}" target="_blank">${escapeHtml(cleanWebUrl)}</a>
+          </div>
+        </div>
+      `;
+    }
     return '';
   }
 
-  // Paginate blocks into exact A4 pages so content is strictly page-wise and never cut
-  const contentPages = paginateProposalBlocks(model.blocks, 880);
-  const totalPages = 1 + contentPages.length;
+  // Paginate blocks into exact A4 pages (Page 1 fits banner + initial content, remaining pages 880px)
+  const pages = paginateProposalBlocks(model.blocks);
+  const totalPages = Math.max(1, pages.length);
 
   return `<article class="paper${print ? ' print' : ''}">
-    <!-- Page 1: Cover Page -->
-    <section class="proposal-page cover-page" data-page="1">
-      <div class="page-sheet-badge">Page 1 of ${totalPages} • Cover</div>
-      <div class="cv-logo"><img src="${PROPOSAL_LOGO_DATA_URI}" alt="CI360 Logo"></div>
-      <div class="cv-brand">${escapeHtml(cv.brand)}</div>
-      <div class="cv-kicker">${escapeHtml(cv.kicker)}</div>
-      <h1>${escapeHtml(cv.title)}</h1>
-      <p class="cv-sub">${escapeHtml(cv.subtitle || '')}</p>
-      <div class="cv-rule"></div>
-      <dl class="cv-meta">${cv.meta.filter(m => m[1]).map(([k, v]) => `<dt>${escapeHtml(k)}</dt><dd>${escapeHtml(v).replace(/\n/g, '<br>')}</dd>`).join('')}</dl>
-      ${model.foot ? `<div class="cv-foot">${escapeHtml(model.foot)}</div>` : ''}
-    </section>
-
-    <!-- Pages 2..N: Content Pages with Running Header & Running Footer -->
-    ${contentPages.map((pageBlocks, idx) => {
-      const pageNum = idx + 2;
+    ${pages.map((pageBlocks, idx) => {
+      const pageNum = idx + 1;
+      const isFirst = (pageNum === 1);
       return `
-      <section class="proposal-page content-page" data-page="${pageNum}">
+      <section class="proposal-page content-page${isFirst ? ' page-first' : ''}" data-page="${pageNum}">
         <div class="page-sheet-badge">Page ${pageNum} of ${totalPages}</div>
         <header class="page-header">
-          <div class="ph-left">
-            <img src="${PROPOSAL_LOGO_DATA_URI}" alt="Logo" class="ph-logo">
-            <span class="ph-brand">${escapeHtml(model.brand || 'CI360 Degrees')}</span>
-          </div>
-          <div class="ph-right">
-            <span class="ph-title">${escapeHtml(model.title || 'Proposal')}</span>
-            ${model.ref ? `<span class="ph-ref">${escapeHtml(model.ref)}</span>` : ''}
+          <div class="ph-right-only">
+            ${escapeHtml(runningHeaderTitle)}
           </div>
         </header>
+
+        ${isFirst ? `
+        <div class="proposal-doc-banner">
+          <div class="p-brand-logo"><img src="${PROPOSAL_LOGO_DATA_URI}" alt="CI360 Logo"></div>
+          <div class="p-brand-name">${escapeHtml(cv.brand || 'CI360 DEGREES')}</div>
+          <div class="p-brand-tagline">Integrated Marketing &amp; Digital Transformation Partner</div>
+          <div class="p-doc-title">${escapeHtml(cv.title || 'Proposal')}${model.client ? ` — ${escapeHtml(model.client)}` : ''}</div>
+          ${cv.subtitle ? `<div class="p-doc-subtitle">${escapeHtml(cv.subtitle)}</div>` : ''}
+          <div class="p-cyan-rule"></div>
+        </div>
+        ` : ''}
 
         <div class="page-content">
           ${pageBlocks.map(renderBlock).join('')}
         </div>
 
         <footer class="page-footer">
-          <div class="pf-left">${escapeHtml(model.foot || '')}</div>
-          <div class="pf-right">Page ${pageNum} of ${totalPages}</div>
+          <div class="pf-left">${escapeHtml(cleanWebUrl)}</div>
+          <div class="pf-right">Page ${pageNum}</div>
         </footer>
       </section>
       `;
@@ -997,15 +1036,16 @@ export async function exportPdfDoc(p, co, btn, opts = {}) {
           margin: 6px 0 12px !important;
           display: block !important;
         }
-        .paper h2 { color: #0F2A4A !important; font-family: Georgia, serif !important; font-size: 19px !important; line-height: 1.4 !important; display: block !important; border-bottom: 1.5px solid #B8893A !important; margin: 22px 0 12px !important; padding-bottom: 8px !important; }
-        .paper h2 .n { color: #B8893A !important; margin-right: 8px !important; display: inline !important; }
-        .paper .choices p { margin-bottom: 12px !important; color: #1E293B !important; font-size: 13px !important; line-height: 1.6 !important; }
-        .paper .blank { display: inline-block !important; min-width: 280px !important; border-bottom: 1.5px solid #475569 !important; color: #1C2430 !important; margin-left: 8px !important; vertical-align: baseline !important; height: 14px !important; }
-        .paper h3 { color: #0F2A4A !important; font-family: Georgia, serif !important; font-size: 14.5px !important; margin: 14px 0 6px !important; font-weight: 700 !important; break-after: avoid !important; page-break-after: avoid !important; }
-        .paper p { color: #1E293B !important; font-size: 13px !important; line-height: 1.6 !important; margin: 0 0 9px !important; max-width: 100% !important; }
-        .paper ul, .paper ol { color: #1E293B !important; margin: 0 0 10px !important; padding-left: 20px !important; }
-        .paper li { color: #1E293B !important; font-size: 13px !important; line-height: 1.5 !important; margin-bottom: 4px !important; }
-        .paper li::marker { color: #B8893A !important; }
+        .paper h2 { color: #002D72 !important; font-family: Arial, Helvetica, sans-serif !important; font-size: 16.5px !important; line-height: 1.35 !important; display: block !important; border-bottom: 2px solid #00A3E0 !important; margin: 18px 0 10px !important; padding-bottom: 4px !important; }
+        .paper h2 .n { display: none !important; }
+        .paper .choices p { margin-bottom: 12px !important; color: #1F2937 !important; font-size: 12.5px !important; line-height: 1.55 !important; }
+        .paper .blank { display: inline-block !important; min-width: 280px !important; border-bottom: 1.5px solid #64748B !important; color: #1F2937 !important; margin-left: 8px !important; vertical-align: baseline !important; height: 14px !important; }
+        .paper h3 { color: #002D72 !important; font-family: Arial, Helvetica, sans-serif !important; font-size: 13.5px !important; margin: 12px 0 6px !important; font-weight: 700 !important; break-after: avoid !important; page-break-after: avoid !important; }
+        .paper p { color: #1F2937 !important; font-size: 12.5px !important; line-height: 1.55 !important; margin: 0 0 8px !important; max-width: 100% !important; }
+        .paper ul, .paper ol { color: #1F2937 !important; margin: 0 0 10px !important; padding-left: 20px !important; }
+        .paper li { color: #1F2937 !important; font-size: 12.5px !important; line-height: 1.55 !important; margin-bottom: 4px !important; }
+        .paper li::marker { color: #00A3E0 !important; }
+        .paper ol li::marker { color: #0052CC !important; font-weight: 700 !important; }
         .paper strong, .paper b { color: #0F172A !important; font-weight: 700 !important; }
         .paper table {
           width: 100% !important;
@@ -1016,7 +1056,7 @@ export async function exportPdfDoc(p, co, btn, opts = {}) {
           font-size: 12px !important;
           margin: 6px 0 12px !important;
           background: #FFFFFF !important;
-          color: #1C2430 !important;
+          color: #1F2937 !important;
           break-inside: auto !important;
           page-break-inside: auto !important;
         }
@@ -1033,9 +1073,9 @@ export async function exportPdfDoc(p, co, btn, opts = {}) {
           page-break-inside: avoid !important;
         }
         .paper th, .paper td {
-          border: 1px solid #D5DCE5 !important;
+          border: 1px solid #E2E8F0 !important;
           padding: 8px 10px !important;
-          color: #1C2430 !important;
+          color: #1F2937 !important;
           background: #FFFFFF !important;
           vertical-align: top !important;
           text-align: left !important;
@@ -1043,36 +1083,42 @@ export async function exportPdfDoc(p, co, btn, opts = {}) {
           word-break: break-word !important;
         }
         .paper .r { text-align: right !important; white-space: nowrap !important; }
-        .paper table.pt thead th { background: #0F2A4A !important; color: #FFFFFF !important; border: 1px solid #0F2A4A !important; font-weight: 700 !important; }
+        .paper table.pt thead th { background: #001F60 !important; color: #FFFFFF !important; border: 1px solid #001F60 !important; font-weight: 700 !important; font-size: 12px !important; }
         .paper table.pt thead th * { color: #FFFFFF !important; }
-        .paper table.kv th { background: #F1F4F8 !important; color: #0F2A4A !important; font-weight: 700 !important; border: 1px solid #D5DCE5 !important; width: 28% !important; }
-        .paper table.kv td { background: #FFFFFF !important; color: #1C2430 !important; border: 1px solid #D5DCE5 !important; }
-        .paper tr.alt td { background: #F8FAFC !important; color: #1C2430 !important; }
-        .paper tr.sum td { background: #F8FAFC !important; color: #0F2A4A !important; font-weight: 700 !important; border-top: 1.5px solid #0F2A4A !important; }
-        .paper tr.sum td * { color: #0F2A4A !important; font-weight: 700 !important; }
-        .paper tr.hl td { background: #FDF6E2 !important; color: #0F2A4A !important; font-size: 13px !important; }
-        .paper tr.hl td * { color: #0F2A4A !important; }
-        .paper tr.group td { background: #E2E8F0 !important; color: #0F2A4A !important; font-weight: 700 !important; }
-        .paper tr.group td * { color: #0F2A4A !important; font-weight: 700 !important; }
+        .paper table.kv th { background: #F1F5F9 !important; color: #002D72 !important; font-weight: 700 !important; border: 1px solid #E2E8F0 !important; width: 28% !important; }
+        .paper table.kv td { background: #FFFFFF !important; color: #1F2937 !important; border: 1px solid #E2E8F0 !important; }
+        .paper tr.alt td { background: #F8FAFC !important; color: #1F2937 !important; }
+        .paper tr.sum td { background: #F8FAFC !important; color: #002D72 !important; font-weight: 700 !important; border-top: 1.5px solid #002D72 !important; }
+        .paper tr.sum td * { color: #002D72 !important; font-weight: 700 !important; }
+        .paper tr.hl td { background: #F0F9FF !important; color: #002D72 !important; font-size: 12.5px !important; }
+        .paper tr.hl td * { color: #002D72 !important; }
+        .paper tr.group td { background: #E2E8F0 !important; color: #002D72 !important; font-weight: 700 !important; }
+        .paper tr.group td * { color: #002D72 !important; font-weight: 700 !important; }
         .paper tr.sub td { background: #FFFFFF !important; color: #64748B !important; font-style: italic !important; border-top: 0 !important; }
         .paper tr.sub td * { color: #64748B !important; }
-        .paper tr.grand td { background: #0F2A4A !important; color: #FFFFFF !important; font-weight: 700 !important; font-size: 13px !important; border: 1px solid #0F2A4A !important; }
+        .paper tr.grand td { background: #001F60 !important; color: #FFFFFF !important; font-weight: 700 !important; font-size: 13px !important; border: 1px solid #001F60 !important; }
         .paper tr.grand td * { color: #FFFFFF !important; }
         .paper td p, .paper td ul, .paper td ol, .paper td li, .paper td div, .paper td span { background: transparent !important; }
-        .paper td p { color: #1E293B !important; margin: 0 0 3px !important; }
-        .paper td ul, .paper td ol { color: #1E293B !important; margin: 0 0 4px !important; padding-left: 16px !important; }
-        .paper td li { color: #1E293B !important; margin-bottom: 2px !important; }
-        .paper td li::marker { color: #B8893A !important; }
-        .paper tr.grand .desc { color: #D9E1EC !important; }
+        .paper td p { color: #1F2937 !important; margin: 0 0 3px !important; }
+        .paper td ul, .paper td ol { color: #1F2937 !important; margin: 0 0 4px !important; padding-left: 16px !important; }
+        .paper td li { color: #1F2937 !important; margin-bottom: 2px !important; }
+        .paper td li::marker { color: #00A3E0 !important; }
+        .paper tr.grand .desc { color: #E2E8F0 !important; }
         .paper .desc { color: #475569 !important; font-size: 11px !important; margin-top: 2px !important; }
         .paper .pnote { color: #475569 !important; font-style: italic !important; font-size: 12px !important; }
-        .paper .approved-stamp { border: 1.5px solid #2F6B45 !important; background: #ECFDF5 !important; color: #2F6B45 !important; font-weight: 700 !important; padding: 8px 14px !important; border-radius: 6px !important; display: inline-flex !important; margin: 10px 0 !important; font-size: 13px !important; }
-        .paper .approved-stamp.admin-stamp { border-color: #0F2A4A !important; background: #F1F4F8 !important; color: #0F2A4A !important; }
-        .paper .sig { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 32px !important; margin-top: 22px !important; width: 100% !important; }
-        .paper .sig .who { color: #0F2A4A !important; font-family: Georgia, serif !important; font-weight: 700 !important; margin-bottom: 12px !important; font-size: 14px !important; }
-        .paper .sig .ln { border-bottom: 1px solid #CBD5E1 !important; color: #1E293B !important; padding: 8px 0 4px !important; font-size: 12px !important; }
+        .paper .approved-stamp { border: 1.5px solid #10B981 !important; background: #ECFDF5 !important; color: #065F46 !important; font-weight: 700 !important; padding: 8px 14px !important; border-radius: 6px !important; display: inline-flex !important; margin: 10px 0 !important; font-size: 12.5px !important; }
+        .paper .approved-stamp.admin-stamp { display: none !important; }
+        .proposal-contact-card { background: #F0F9FF !important; border: 1px solid #BAE6FD !important; border-radius: 4px !important; padding: 12px 16px !important; margin-top: 8px !important; margin-bottom: 10px !important; box-sizing: border-box !important; }
+        .proposal-contact-card .pc-name { font-size: 14px !important; font-weight: 700 !important; color: #002D72 !important; margin-bottom: 2px !important; }
+        .proposal-contact-card .pc-role { font-size: 12px !important; color: #475569 !important; font-style: italic !important; margin-bottom: 4px !important; }
+        .proposal-contact-card .pc-line { font-size: 12px !important; color: #1F2937 !important; margin-bottom: 2px !important; }
+        .proposal-web-link { text-align: center !important; margin: 14px 0 6px !important; font-size: 12px !important; font-weight: 600 !important; }
+        .proposal-web-link a { color: #0066CC !important; text-decoration: none !important; }
+        .paper .sig { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 32px !important; margin-top: 18px !important; width: 100% !important; }
+        .paper .sig .who { color: #002D72 !important; font-family: Arial, Helvetica, sans-serif !important; font-weight: 700 !important; margin-bottom: 12px !important; font-size: 13.5px !important; }
+        .paper .sig .ln { border-bottom: 1px solid #CBD5E1 !important; color: #1F2937 !important; padding: 8px 0 4px !important; font-size: 12px !important; }
         .paper .sig .ln span { color: #64748B !important; }
-        .paper .foot { color: #64748B !important; font-size: 11px !important; margin-top: 24px !important; padding-top: 10px !important; border-top: 1px solid #D5DCE5 !important; text-align: center !important; }
+        .paper .foot { color: #64748B !important; font-size: 10px !important; margin-top: 20px !important; padding-top: 8px !important; border-top: 1px solid #E2E8F0 !important; text-align: center !important; }
       </style>
       ${paperMarkup}
     `;
@@ -1104,7 +1150,7 @@ export async function exportPdfDoc(p, co, btn, opts = {}) {
         scale: 2,
         useCORS: true,
         logging: false,
-        backgroundColor: isCover ? '#0F2A4A' : '#FFFFFF',
+        backgroundColor: '#FFFFFF',
         scrollY: 0,
         scrollX: 0,
         width: 794,
