@@ -6156,7 +6156,7 @@ html:not([data-theme="dark"]) textarea {
   margin: 0 auto 36px;
   background: #FFFFFF !important;
   color: #1F2937 !important;
-  padding: 30px 48px 24px;
+  padding: 28px 46px 22px;
   border-radius: 2px;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.14);
   overflow: hidden;
@@ -6174,15 +6174,7 @@ html:not([data-theme="dark"]) textarea {
 }
 
 .page-sheet-badge {
-  position: absolute;
-  top: -24px;
-  right: 4px;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  color: #64748B;
-  text-transform: uppercase;
-  user-select: none;
+  display: none !important;
 }
 
 /* Running Page Header (Top Right) */
@@ -6190,8 +6182,8 @@ html:not([data-theme="dark"]) textarea {
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  padding-bottom: 6px;
-  margin-bottom: 12px;
+  padding-bottom: 4px;
+  margin-bottom: 8px;
   flex-shrink: 0;
   border-bottom: none !important;
 }
@@ -6206,24 +6198,25 @@ html:not([data-theme="dark"]) textarea {
   white-space: nowrap !important;
   overflow: hidden !important;
   text-overflow: ellipsis !important;
+  line-height: 1.2 !important;
 }
 
 /* Page 1 Document Branding Header */
 .proposal-doc-banner {
   text-align: center;
-  margin-bottom: 18px;
+  margin-bottom: 14px;
   flex-shrink: 0;
 }
 
 .proposal-doc-banner .p-brand-logo {
-  margin: 0 auto 6px;
+  margin: 0 auto 4px;
   line-height: 0;
 }
 
 .proposal-doc-banner .p-brand-logo img {
-  width: 58px;
+  width: 52px;
   height: auto;
-  max-height: 58px;
+  max-height: 52px;
   object-fit: contain;
   display: block;
   margin: 0 auto;
@@ -6231,42 +6224,42 @@ html:not([data-theme="dark"]) textarea {
 
 .proposal-doc-banner .p-brand-name {
   font-family: Arial, Helvetica, sans-serif;
-  font-size: 19px;
+  font-size: 18px;
   font-weight: 800;
   color: #002D72;
   letter-spacing: 0.6px;
   text-transform: uppercase;
-  margin-bottom: 3px;
+  margin-bottom: 2px;
 }
 
 .proposal-doc-banner .p-brand-tagline {
   font-family: Arial, Helvetica, sans-serif;
-  font-size: 11.5px;
+  font-size: 11px;
   font-style: italic;
   color: #475569;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .proposal-doc-banner .p-doc-title {
   font-family: Arial, Helvetica, sans-serif;
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 700;
   color: #0052CC;
-  margin-bottom: 3px;
+  margin-bottom: 2px;
 }
 
 .proposal-doc-banner .p-doc-subtitle {
   font-family: Arial, Helvetica, sans-serif;
-  font-size: 12.5px;
+  font-size: 12px;
   color: #64748B;
-  margin-bottom: 14px;
+  margin-bottom: 8px;
 }
 
 .proposal-doc-banner .p-cyan-rule {
   height: 2px;
   background: #00A3E0;
   width: 100%;
-  margin: 0 0 16px;
+  margin: 0 0 12px;
 }
 
 /* Content Area */
@@ -6619,22 +6612,26 @@ html:not([data-theme="dark"]) textarea {
   justify-content: space-between !important;
   align-items: center !important;
   padding-top: 8px !important;
-  border-top: 1px solid #E2E8F0 !important;
+  border-top: 1px solid #CBD5E1 !important;
   margin-top: auto !important;
   font-size: 10px !important;
   color: #64748B !important;
   flex-shrink: 0 !important;
+  line-height: 1.2 !important;
 }
 
 .page-footer .pf-left {
   color: #64748B !important;
   font-size: 10px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.3px !important;
 }
 
 .page-footer .pf-right {
   color: #64748B !important;
   font-size: 10px !important;
   font-weight: 600 !important;
+  letter-spacing: 0.3px !important;
   white-space: nowrap !important;
 }
 

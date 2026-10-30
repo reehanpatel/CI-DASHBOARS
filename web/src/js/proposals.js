@@ -325,56 +325,6 @@ function cellHTML(c) {
 }
 
 /* ---------- PAGINATION HELPERS FOR PROPER PAGE-WISE LAYOUT ---------- */
-function estimateBlockHeight(b) {
-  if (b.t === 'h') return 62;
-  if (b.t === 'note') return 42;
-  if (b.t === 'stamp') return 52;
-  if (b.t === 'sig') return 210;
-  if (b.t === 'choices') return 32 + ((b.items || []).length * 36);
-  if (b.t === 'kv') return 20 + ((b.rows || []).length * 38);
-  if (b.t === 'table') {
-    let th = 44;
-    for (const r of (b.rows || [])) {
-      let maxLen = 0;
-      let lineBreaks = 0;
-      for (const cell of (r.cells || [])) {
-        let str = '';
-        if (cell && typeof cell === 'object') {
-          str = (cell.b || '') + ' ' + (cell.s || '') + ' ' + (cell.md || '');
-        } else {
-          str = String(cell || '');
-        }
-        if (str.length > maxLen) maxLen = str.length;
-        const lbs = (str.match(/\n/g) || []).length;
-        if (lbs > lineBreaks) lineBreaks = lbs;
-      }
-      let rowH = 36;
-      if (maxLen > 240 || lineBreaks >= 4) rowH = 88;
-      else if (maxLen > 140 || lineBreaks >= 2) rowH = 64;
-      else if (maxLen > 60 || lineBreaks >= 1) rowH = 48;
-      th += rowH;
-    }
-    return th;
-  }
-  if (b.t === 'md') {
-    const text = b.text || '';
-    const paras = text.split('\n\n');
-    let total = 0;
-    for (const p of paras) {
-      if (p.startsWith('- ') || p.startsWith('* ') || p.includes('\n- ')) {
-        const items = p.split('\n').filter(Boolean);
-        total += items.length * 26 + 8;
-      } else {
-        const chars = p.length;
-        const lines = Math.ceil(chars / 80) || 1;
-        total += lines * 22 + 10;
-      }
-    }
-    return Math.max(total, 34);
-  }
-  return 40;
-}
-
 function calcRowHeight(r) {
   let maxLen = 0;
   let lineBreaks = 0;
@@ -389,10 +339,99 @@ function calcRowHeight(r) {
     const lbs = (str.match(/\n/g) || []).length;
     if (lbs > lineBreaks) lineBreaks = lbs;
   }
-  if (maxLen > 240 || lineBreaks >= 4) return 88;
-  if (maxLen > 140 || lineBreaks >= 2) return 64;
-  if (maxLen > 60 || lineBreaks >= 1) return 48;
+  if (maxLen > 240 || lineBreaks >= 4) return 72;
+  if (maxLen > 140 || lineBreaks >= 2) return 56;
+  if (maxLen > 60 || lineBreaks >= 1) return 42;
+  return 32;
+}
+
+function estimateBlockHeight(b) {
+  if (b.t === 'h') return 48;
+  if (b.t === 'note') return 36;
+  if (b.t === 'stamp') return 44;
+  if (b.t === 'sig') return 180;
+  if (b.t === 'choices') return 24 + ((b.items || []).length * 28);
+  if (b.t === 'kv') return 16 + ((b.rows || []).length * 28);
+  if (b.t === 'table') {
+    let th = 40;
+    for (const r of (b.rows || [])) {
+      th += calcRowHeight(r);
+    }
+    return th;
+  }
+  if (b.t === 'md') {
+    const text = b.text || '';
+    const paras = text.split('\n\n');
+    let total = 0;
+    for (const p of paras) {
+      if (p.startsWith('- ') || p.startsWith('* ') || p.includes('\n- ') || p.includes('\n* ')) {
+        const items = p.split('\n').filter(Boolean);
+        for (const item of items) {
+          const chars = item.length;
+          total += (Math.ceil(chars / 95) || 1) * 20 + 4;
+        }
+      } else {
+        const chars = p.length;
+        total += (Math.ceil(chars / 95) || 1) * 20 + 8;
+      }
+    }
+    return Math.max(total, 28);
+  }
   return 36;
+}
+
+function splitMdBlock(b, availableHeight) {
+  const text = b.text || '';
+  // Check if bullet/numbered list
+  if (text.includes('\n- ') || text.includes('\n* ') || text.startsWith('- ') || text.startsWith('* ')) {
+    const lines = text.split('\n');
+    let acc = 0;
+    let splitIdx = 0;
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      if (!line.trim()) continue;
+      const chars = line.length;
+      const lineH = (Math.ceil(chars / 95) || 1) * 20 + 4;
+      if (acc + lineH <= availableHeight) {
+        acc += lineH;
+        splitIdx = i + 1;
+      } else {
+        break;
+      }
+    }
+    if (splitIdx >= 2 && splitIdx < lines.length) {
+      return [
+        { ...b, text: lines.slice(0, splitIdx).join('\n') },
+        { ...b, text: lines.slice(splitIdx).join('\n') }
+      ];
+    }
+  }
+
+  // Check multiple paragraphs
+  const paras = text.split('\n\n');
+  if (paras.length >= 2) {
+    let acc = 0;
+    let splitIdx = 0;
+    for (let i = 0; i < paras.length; i++) {
+      const p = paras[i];
+      const chars = p.length;
+      const paraH = (Math.ceil(chars / 95) || 1) * 20 + 8;
+      if (acc + paraH <= availableHeight) {
+        acc += paraH;
+        splitIdx = i + 1;
+      } else {
+        break;
+      }
+    }
+    if (splitIdx >= 1 && splitIdx < paras.length) {
+      return [
+        { ...b, text: paras.slice(0, splitIdx).join('\n\n') },
+        { ...b, text: paras.slice(splitIdx).join('\n\n') }
+      ];
+    }
+  }
+
+  return null;
 }
 
 function paginateProposalBlocks(blocks) {
@@ -401,7 +440,7 @@ function paginateProposalBlocks(blocks) {
   let curH = 0;
 
   function curTargetHeight() {
-    return pages.length === 0 ? 660 : 880;
+    return pages.length === 0 ? 780 : 940;
   }
 
   function pushPage() {
@@ -417,9 +456,9 @@ function paginateProposalBlocks(blocks) {
     const bH = estimateBlockHeight(b);
     const targetHeight = curTargetHeight();
 
-    // 1. Heading check: ensure heading has space for itself + subsequent content (~110px) to prevent orphan headings
+    // 1. Heading check: ensure heading has space for itself + subsequent content (~75px) to prevent orphan headings
     if (b.t === 'h') {
-      if (curH + bH + 110 > targetHeight && curBlocks.length > 0) {
+      if (curH + bH + 75 > targetHeight && curBlocks.length > 0) {
         pushPage();
       }
       curBlocks.push(b);
@@ -446,7 +485,7 @@ function paginateProposalBlocks(blocks) {
       }
 
       const rem = targetHeight - curH;
-      const theadH = 44;
+      const theadH = 40;
       let acc = 0;
       let splitIdx = 0;
 
@@ -508,7 +547,35 @@ function paginateProposalBlocks(blocks) {
       }
     }
 
-    // 4. Other blocks (md, kv, note, stamp, choices)
+    // 4. Markdown block splitting (lists / paragraphs) to prevent premature page-breaks & blank gaps
+    if (b.t === 'md') {
+      if (curH + bH <= targetHeight) {
+        curBlocks.push(b);
+        curH += bH;
+        continue;
+      }
+
+      const rem = targetHeight - curH;
+      // If we have at least 80px remaining on current page, attempt to split the markdown block
+      if (rem >= 80 && curBlocks.length > 0) {
+        const split = splitMdBlock(b, rem);
+        if (split) {
+          curBlocks.push(split[0]);
+          pushPage();
+          curBlocks.push(split[1]);
+          curH = estimateBlockHeight(split[1]);
+          continue;
+        }
+      }
+
+      // If cannot split or no room, push to next page
+      if (curBlocks.length > 0) pushPage();
+      curBlocks.push(b);
+      curH += bH;
+      continue;
+    }
+
+    // 5. Other blocks (kv, note, stamp, choices)
     if (curH + bH <= targetHeight) {
       curBlocks.push(b);
       curH += bH;
@@ -525,10 +592,16 @@ function paginateProposalBlocks(blocks) {
 
 export function paperHTML(model, print = false) {
   const cv = model.cover;
-  const clientNameUpper = String(model.clientShort || model.client || 'CLIENT').toUpperCase();
-  const titleUpper = String(model.title || 'PROPOSAL').toUpperCase();
-  const brandUpper = String(model.brand || 'CI360 DEGREES').toUpperCase();
-  const runningHeaderTitle = `${brandUpper} | PROPOSAL FOR ${clientNameUpper} - ${titleUpper}`;
+  const clientNameUpper = String(model.clientShort || model.client || '').trim().toUpperCase();
+  const rawTitleUpper = String(model.title || '').trim().toUpperCase();
+  const cleanTitle = rawTitleUpper.replace(/\s*PROPOSAL\s*/gi, ' ').trim();
+  const brandUpper = String(model.brand || 'CI360 DEGREES').trim().toUpperCase();
+  let runningHeaderTitle = '';
+  if (clientNameUpper) {
+    runningHeaderTitle = `${brandUpper}  |  PROPOSAL FOR ${clientNameUpper}${cleanTitle ? ` - ${cleanTitle}` : ''}`;
+  } else {
+    runningHeaderTitle = `${brandUpper}  |  ${cleanTitle ? `PROPOSAL - ${cleanTitle}` : 'PROPOSAL'}`;
+  }
   const websiteUrl = model.website || 'www.ci360degrees.com';
   const cleanWebUrl = websiteUrl.replace(/^https?:\/\//i, '');
 
@@ -568,9 +641,6 @@ export function paperHTML(model, print = false) {
               ${email ? `<div class="pc-line">Email: ${escapeHtml(email)}</div>` : ''}
             </div>
           ` : ''}
-          <div class="proposal-web-link">
-            <a href="https://${escapeHtml(cleanWebUrl)}" target="_blank">${escapeHtml(cleanWebUrl)}</a>
-          </div>
         </div>
       `;
     }
@@ -587,7 +657,7 @@ export function paperHTML(model, print = false) {
       const isFirst = (pageNum === 1);
       return `
       <section class="proposal-page content-page${isFirst ? ' page-first' : ''}" data-page="${pageNum}">
-        <div class="page-sheet-badge">Page ${pageNum} of ${totalPages}</div>
+        
         <header class="page-header">
           <div class="ph-right-only">
             ${escapeHtml(runningHeaderTitle)}
@@ -921,52 +991,22 @@ export async function exportPdfDoc(p, co, btn, opts = {}) {
         }
         .page-header {
           display: flex !important;
-          justify-content: space-between !important;
+          justify-content: flex-end !important;
           align-items: center !important;
-          padding-bottom: 10px !important;
-          border-bottom: 1.5px solid #B8893A !important;
-          margin-bottom: 14px !important;
+          padding-bottom: 4px !important;
+          border-bottom: none !important;
+          margin-bottom: 8px !important;
           flex-shrink: 0 !important;
         }
-        .page-header .ph-left {
-          display: flex !important;
-          align-items: center !important;
-          gap: 8px !important;
-        }
-        .page-header .ph-logo {
-          width: 24px !important;
-          height: 24px !important;
-          object-fit: contain !important;
-        }
-        .page-header .ph-brand {
-          font-family: Georgia, serif !important;
+        .page-header .ph-right-only {
+          font-family: Arial, Helvetica, sans-serif !important;
+          font-size: 10px !important;
           font-weight: 700 !important;
-          font-size: 14px !important;
-          color: #0F2A4A !important;
-        }
-        .page-header .ph-right {
-          display: flex !important;
-          align-items: center !important;
-          gap: 12px !important;
-          font-size: 12px !important;
-          color: #64748B !important;
-        }
-        .page-header .ph-title {
-          font-weight: 600 !important;
-          color: #0F2A4A !important;
-          max-width: 320px !important;
+          color: #0066CC !important;
+          text-transform: uppercase !important;
+          letter-spacing: 0.5px !important;
           white-space: nowrap !important;
-          overflow: hidden !important;
-          text-overflow: ellipsis !important;
-        }
-        .page-header .ph-ref {
-          background: #F1F4F8 !important;
-          padding: 2px 8px !important;
-          border-radius: 4px !important;
-          font-family: monospace !important;
-          font-size: 11px !important;
-          color: #0F2A4A !important;
-          border: 1px solid #D5DCE5 !important;
+          line-height: 1.2 !important;
         }
         .page-content {
           flex: 1 !important;
@@ -978,22 +1018,26 @@ export async function exportPdfDoc(p, co, btn, opts = {}) {
           display: flex !important;
           justify-content: space-between !important;
           align-items: center !important;
-          padding-top: 10px !important;
-          border-top: 1px solid #E2E8F0 !important;
-          margin-top: 12px !important;
-          font-size: 11px !important;
+          padding-top: 8px !important;
+          border-top: 1px solid #CBD5E1 !important;
+          margin-top: auto !important;
+          font-size: 10px !important;
           color: #64748B !important;
           flex-shrink: 0 !important;
+          line-height: 1.2 !important;
         }
         .page-footer .pf-left {
-          max-width: 520px !important;
+          color: #64748B !important;
+          font-size: 10px !important;
+          font-weight: 500 !important;
+          letter-spacing: 0.3px !important;
           white-space: nowrap !important;
-          overflow: hidden !important;
-          text-overflow: ellipsis !important;
         }
         .page-footer .pf-right {
-          font-weight: 700 !important;
-          color: #0F2A4A !important;
+          color: #64748B !important;
+          font-size: 10px !important;
+          font-weight: 600 !important;
+          letter-spacing: 0.3px !important;
           white-space: nowrap !important;
         }
         .paper .cv-logo {
