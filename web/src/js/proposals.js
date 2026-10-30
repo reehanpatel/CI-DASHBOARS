@@ -1,4 +1,5 @@
 import { apiGet, apiPost, apiPut, apiDelete, fmtINR, escapeHtml, getToken, getUser, flashToast } from './api.js';
+import { PROPOSAL_LOGO_BASE64, PROPOSAL_LOGO_DATA_URI } from './proposalLogo.js';
 
 /* ==========================================================================
    CI360 PROPOSAL STUDIO & RATE CARD MODULE
@@ -359,6 +360,7 @@ export function paperHTML(model, print = false) {
 
   return `<article class="paper${print ? ' print' : ''}">
     <section class="cover">
+      <div class="cv-logo"><img src="${PROPOSAL_LOGO_DATA_URI}" alt="CI360 Logo"></div>
       <div class="cv-brand">${escapeHtml(cv.brand)}</div>
       <div class="cv-kicker">${escapeHtml(cv.kicker)}</div>
       <h1>${escapeHtml(cv.title)}</h1>
@@ -443,6 +445,24 @@ export async function exportWordDocx(p, co, btn, opts = {}) {
           shading: { type: D.ShadingType.CLEAR, color: 'auto', fill: NAVY },
           margins: { top: 900, bottom: 900, left: 700, right: 700 },
           children: [
+            ...(() => {
+              try {
+                return [
+                  new D.Paragraph({
+                    children: [
+                      new D.ImageRun({
+                        data: Uint8Array.from(atob(PROPOSAL_LOGO_BASE64), c => c.charCodeAt(0)),
+                        transformation: { width: 68, height: 64 },
+                        type: 'png'
+                      })
+                    ],
+                    spacing: { after: 180 }
+                  })
+                ];
+              } catch (e) {
+                return [];
+              }
+            })(),
             P([tr(cv.brand, { font: 'Georgia', size: 24, bold: true, color: 'D4A657' })], { after: 2000 }),
             P([tr(cv.kicker, { size: 19, color: 'AEBBCD', bold: true })], { after: 120 }),
             P([tr(cv.title, { font: 'Georgia', size: 52, bold: true, color: 'FFFFFF' })], { after: 200, line: 260 }),
@@ -618,6 +638,17 @@ export async function exportPdfDoc(p, co, btn, opts = {}) {
           display: flex !important;
           flex-direction: column !important;
           justify-content: flex-start !important;
+        }
+        .paper .cv-logo {
+          margin-bottom: 16px !important;
+          line-height: 0 !important;
+        }
+        .paper .cv-logo img {
+          width: 68px !important;
+          height: auto !important;
+          max-height: 68px !important;
+          display: block !important;
+          object-fit: contain !important;
         }
         .paper .cv-brand { color: #D4A657 !important; font-family: Georgia, serif !important; font-weight: 700 !important; font-size: 20px !important; }
         .paper .cv-kicker { color: #AEBBCD !important; font-size: 13px !important; margin-top: 4px !important; text-transform: uppercase !important; letter-spacing: 0.5px !important; }

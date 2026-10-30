@@ -6155,6 +6155,19 @@ html:not([data-theme="dark"]) textarea {
   flex-direction: column;
 }
 
+.paper .cv-logo {
+  margin-bottom: 16px;
+  line-height: 0;
+}
+
+.paper .cv-logo img {
+  width: 68px;
+  height: auto;
+  max-height: 68px;
+  object-fit: contain;
+  display: block;
+}
+
 .paper .cv-brand {
   font-family: Georgia, serif;
   font-weight: 700;
