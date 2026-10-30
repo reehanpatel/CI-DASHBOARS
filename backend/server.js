@@ -641,7 +641,7 @@ var require_Job = __commonJS({
       serviceNames: [{ type: String }],
       date: { type: Date, required: true },
       completionDate: { type: Date, default: null },
-      status: { type: String, enum: ["In Progress", "Completed"], default: "In Progress" },
+      status: { type: String, enum: ["In Progress", "Completed", "Needs Revision", "Denied"], default: "In Progress" },
       value: { type: Number, default: 0 },
       description: { type: String, default: "" },
       priority: { type: String, enum: ["Medium", "High", "Urgent"], default: "Medium" },
@@ -666,6 +666,29 @@ var require_Job = __commonJS({
         uploadedBy: { type: String, default: "" },
         uploadedAt: { type: Date, default: Date.now }
       }],
+      clientApproval: {
+        status: { type: String, enum: ["Pending", "Approved", "Revision Requested", "Denied"], default: "Pending" },
+        approvedAt: { type: Date, default: null },
+        approvedBy: { type: String, default: "" },
+        deniedAt: { type: Date, default: null },
+        deniedBy: { type: String, default: "" },
+        deniedReason: { type: String, default: "" },
+        feedback: { type: String, default: "" },
+        rating: { type: Number, min: 1, max: 5, default: null },
+        isRevised: { type: Boolean, default: false },
+        revisedAt: { type: Date, default: null },
+        revisions: [{
+          requestedAt: { type: Date, default: Date.now },
+          requestedBy: { type: String, default: "" },
+          feedback: { type: String, default: "" },
+          attachments: [{
+            name: { type: String, default: "" },
+            url: { type: String, default: "" },
+            size: { type: Number, default: 0 },
+            type: { type: String, default: "" }
+          }]
+        }]
+      },
       isDeleted: { type: Boolean, default: false },
       deletedAt: { type: Date, default: null },
       deletedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
@@ -996,7 +1019,28 @@ var require_jobs = __commonJS({
           });
         });
 
-        if (req.body.markComplete === true || req.body.status === "Completed") {
+        const hadPreviousReview = job.clientApproval && (
+          job.clientApproval.status === "Approved" || 
+          job.clientApproval.status === "Revision Requested" || 
+          job.clientApproval.status === "Denied" || 
+          (job.clientApproval.revisions && job.clientApproval.revisions.length > 0)
+        );
+
+        if (req.user.role !== "client") {
+          job.clientApproval = job.clientApproval || {};
+          job.clientApproval.status = "Pending";
+          job.clientApproval.approvedAt = null;
+          job.clientApproval.approvedBy = "";
+          job.clientApproval.deniedAt = null;
+          job.clientApproval.deniedBy = "";
+          job.clientApproval.deniedReason = "";
+          if (hadPreviousReview) {
+            job.clientApproval.isRevised = true;
+            job.clientApproval.revisedAt = new Date();
+          }
+        }
+
+        if (req.body.markComplete === true || req.body.status === "Completed" || req.user.role !== "client") {
           job.status = "Completed";
           if (!job.completionDate) job.completionDate = new Date();
         }
@@ -1054,8 +1098,14 @@ var require_jobs = __commonJS({
       try {
         const job = await Job.findById(req.params.id);
         if (!job) return res.status(404).json({ error: "Job not found" });
-        if (req.user.role === "client" && String(job.clientId) !== String(req.user.clientId)) {
-          return res.status(403).json({ error: "You can only approve jobs for your own account" });
+        if (req.user.role === "client") {
+          const jobClientIdStr = job.clientId?._id ? String(job.clientId._id) : String(job.clientId || "");
+          const userClientIdStr = req.user.clientId?._id ? String(req.user.clientId._id) : String(req.user.clientId || "");
+          const clientMatches = Boolean(userClientIdStr && jobClientIdStr && (jobClientIdStr === userClientIdStr));
+          const creatorMatches = Boolean(job.createdBy && (String(job.createdBy._id || job.createdBy) === String(req.user._id || req.user.id)));
+          if (!clientMatches && !creatorMatches) {
+            return res.status(403).json({ error: "You can only approve jobs for your own account" });
+          }
         }
 
         const { rating, feedback } = req.body;
@@ -1065,6 +1115,7 @@ var require_jobs = __commonJS({
         job.clientApproval.status = "Approved";
         job.clientApproval.approvedAt = new Date();
         job.clientApproval.approvedBy = req.user.name || "Client";
+        job.clientApproval.isRevised = false;
         if (feedback) job.clientApproval.feedback = feedback;
         if (rating && Number(rating) >= 1 && Number(rating) <= 5) {
           job.clientApproval.rating = Number(rating);
@@ -1090,8 +1141,14 @@ var require_jobs = __commonJS({
       try {
         const job = await Job.findById(req.params.id);
         if (!job) return res.status(404).json({ error: "Job not found" });
-        if (req.user.role === "client" && String(job.clientId) !== String(req.user.clientId)) {
-          return res.status(403).json({ error: "You can only request revisions for your own account" });
+        if (req.user.role === "client") {
+          const jobClientIdStr = job.clientId?._id ? String(job.clientId._id) : String(job.clientId || "");
+          const userClientIdStr = req.user.clientId?._id ? String(req.user.clientId._id) : String(req.user.clientId || "");
+          const clientMatches = Boolean(userClientIdStr && jobClientIdStr && (jobClientIdStr === userClientIdStr));
+          const creatorMatches = Boolean(job.createdBy && (String(job.createdBy._id || job.createdBy) === String(req.user._id || req.user.id)));
+          if (!clientMatches && !creatorMatches) {
+            return res.status(403).json({ error: "You can only request revisions for your own account" });
+          }
         }
 
         const { feedback, attachments } = req.body;
@@ -1124,6 +1181,50 @@ var require_jobs = __commonJS({
         res.json(job);
       } catch (err) {
         res.status(500).json({ error: "Could not request revision", detail: err.message });
+      }
+    });
+
+    router.post("/:id/deny", requireRole("superadmin", "client"), async (req, res) => {
+      try {
+        const job = await Job.findById(req.params.id);
+        if (!job) return res.status(404).json({ error: "Job not found" });
+        if (req.user.role === "client") {
+          const jobClientIdStr = job.clientId?._id ? String(job.clientId._id) : String(job.clientId || "");
+          const userClientIdStr = req.user.clientId?._id ? String(req.user.clientId._id) : String(req.user.clientId || "");
+          const clientMatches = Boolean(userClientIdStr && jobClientIdStr && (jobClientIdStr === userClientIdStr));
+          const creatorMatches = Boolean(job.createdBy && (String(job.createdBy._id || job.createdBy) === String(req.user._id || req.user.id)));
+          if (!clientMatches && !creatorMatches) {
+            return res.status(403).json({ error: "You can only deny jobs for your own account" });
+          }
+        }
+
+        const { reason, feedback } = req.body;
+        const denialReason = (reason || feedback || "").trim();
+        if (!denialReason) {
+          return res.status(400).json({ error: "Please provide a reason explaining why the job was denied" });
+        }
+
+        job.status = "Denied";
+        job.clientApproval = job.clientApproval || {};
+        job.clientApproval.status = "Denied";
+        job.clientApproval.deniedAt = new Date();
+        job.clientApproval.deniedBy = req.user.name || "Client";
+        job.clientApproval.deniedReason = denialReason;
+        job.clientApproval.feedback = denialReason;
+
+        await job.save();
+
+        await createNotificationsForJob({
+          type: "job_denied",
+          title: "❌ Deliverables Denied by Client",
+          message: `Client denied Job "${job.title || "Untitled"}". Reason: "${denialReason.slice(0, 120)}"`,
+          job,
+          actorId: req.user._id
+        });
+
+        res.json(job);
+      } catch (err) {
+        res.status(500).json({ error: "Could not deny job", detail: err.message });
       }
     });
     router.delete("/:id", requireRole("superadmin", "employee"), async (req, res) => {
