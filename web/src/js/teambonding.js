@@ -919,25 +919,14 @@ export async function initTeamBonding(container, options = {}) {
                     <div class="game-card-meta">
                       <span class="meta-pill">⏱️ ${g.duration}</span>
                       ${g.id === 'ludo'
-                        ? '<span class="meta-pill">👥 1P, 2P, 3P, 4P Royale</span><span class="meta-pill">🎯 4 Pawns / Base</span>'
+                        ? '<span class="meta-pill">👥 2P, 3P, 4P Royale</span><span class="meta-pill">🎯 4 Pawns / Base</span>'
                         : '<span class="meta-pill">👥 2 Players</span>'
                       }
                     </div>
                   </div>
-                  ${g.id === 'ludo' ? `
-                    <div style="display:flex;gap:6px;width:100%;margin-top:auto;">
-                      <button class="lounge-card-challenge-btn btn-ludo-quick-solo" style="flex:1;background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;">
-                        🕹️ Solo Practice (1P)
-                      </button>
-                      <button class="lounge-card-challenge-btn btn-challenge-game" data-game-id="${g.id}" data-game-title="${escapeHtml(g.name)}" style="flex:1;">
-                        ⚔️ Play (1P-4P)
-                      </button>
-                    </div>
-                  ` : `
-                    <button class="lounge-card-challenge-btn btn-challenge-game" data-game-id="${g.id}" data-game-title="${escapeHtml(g.name)}">
-                      ⚔️ Challenge Employee
-                    </button>
-                  `}
+                  <button class="lounge-card-challenge-btn btn-challenge-game" data-game-id="${g.id}" data-game-title="${escapeHtml(g.name)}">
+                    ${g.id === 'ludo' ? '⚔️ Play Ludo (2P, 3P, 4P)' : '⚔️ Challenge Employee'}
+                  </button>
                 </div>
               `).join('')}
             </div>
@@ -1136,26 +1125,6 @@ export async function initTeamBonding(container, options = {}) {
   }
 
   function bindLoungeEvents() {
-    // Quick Solo 1P Ludo launch
-    container.querySelectorAll('.btn-ludo-quick-solo').forEach(b => {
-      b.onclick = async () => {
-        try {
-          b.disabled = true;
-          b.textContent = 'Launching...';
-          const res = await apiPost('/bonding/matches/instant-ludo', { playerCount: 1 });
-          if (res && res._id) {
-            flashToast('1P Solo Ludo match launched! 🎲', 'success');
-            openGameMatchModal(res._id);
-          }
-        } catch (err) {
-          flashToast(err.message || 'Could not launch Solo Ludo', 'error');
-        } finally {
-          b.disabled = false;
-          b.textContent = '🕹️ Solo Practice (1P)';
-        }
-      };
-    });
-
     // Challenge from game card
     container.querySelectorAll('.btn-challenge-game').forEach(b => {
       b.onclick = () => {
@@ -1255,19 +1224,21 @@ export async function initTeamBonding(container, options = {}) {
 
     let selectedGame = preselectedGame || 'chess';
     let selectedTargetUserId = preselectedUser ? preselectedUser.toString() : null;
-    let selectedLudoPlayerCount = 1;
-    let selectedLudoTargetUserIds = [];
+    let selectedLudoPlayerCount = 2; // Default to 2P Duel
+    let selectedLudoTargetUserIds = selectedTargetUserId ? [selectedTargetUserId] : [];
     let selectedTimerMode = 'none';
 
     function renderModalContent() {
       const targetUserObj = eligibleEmployees.find(e => e._id.toString() === selectedTargetUserId);
       const isLudo = selectedGame === 'ludo';
+      const neededLudoOpponents = selectedLudoPlayerCount - 1;
+      const hasEnoughLudoOpponents = selectedLudoTargetUserIds.length === neededLudoOpponents;
 
       modalRoot.innerHTML = `
         <div class="bonding-modal-backdrop">
           <div class="bonding-modal-card challenge-flow-modal">
             <div class="bonding-modal-header">
-              <h3>⚔️ ${isLudo ? 'Play Ludo (1P, 2P, 3P, 4P)' : 'Multiplayer Game Challenge'}</h3>
+              <h3>⚔️ ${isLudo ? 'Play Ludo (2P, 3P, 4P)' : 'Multiplayer Game Challenge'}</h3>
               <button class="bonding-modal-close">&times;</button>
             </div>
 
@@ -1288,71 +1259,57 @@ export async function initTeamBonding(container, options = {}) {
                 </div>
               </div>
 
-              <!-- LUDO SPECIAL: Step 2 Player Count Selector -->
+              <!-- LUDO SPECIAL: Step 2 Player Count Selector (2P, 3P, 4P) -->
               ${isLudo ? `
                 <div class="flow-step-box">
                   <div class="flow-step-lbl">Step 2 — Select Player Mode</div>
                   <div class="ludo-mode-pills">
-                    <button class="ludo-mode-btn ${selectedLudoPlayerCount === 1 ? 'active' : ''}" data-count="1">
-                      👤 1P Solo Practice
-                    </button>
                     <button class="ludo-mode-btn ${selectedLudoPlayerCount === 2 ? 'active' : ''}" data-count="2">
                       👥 2P Duel (1v1)
                     </button>
                     <button class="ludo-mode-btn ${selectedLudoPlayerCount === 3 ? 'active' : ''}" data-count="3">
-                      ⚔️ 3P Battle
+                      ⚔️ 3P Battle (3 Players)
                     </button>
                     <button class="ludo-mode-btn ${selectedLudoPlayerCount === 4 ? 'active' : ''}" data-count="4">
-                      👑 4P Royale
+                      👑 4P Royale (4 Players)
                     </button>
                   </div>
                 </div>
               ` : ''}
 
-              <!-- Step 3 / 2: Opponent Selection -->
-              ${isLudo && selectedLudoPlayerCount === 1 ? `
-                <div class="flow-step-box" style="background:rgba(16,185,129,0.08);border:1px solid #10b981;padding:14px;border-radius:10px;">
-                  <div style="font-weight:700;color:#10b981;font-size:13px;display:flex;align-items:center;gap:6px;">
-                    <span>🕹️</span> <span>Solo Practice Mode Active</span>
-                  </div>
-                  <p style="font-size:12px;color:var(--text-2);margin-top:6px;">
-                    Practice rolling and advancing all 4 pawns around the board into Home. No opponent required.
-                  </p>
+              <!-- Step: Opponent Selection -->
+              <div class="flow-step-box">
+                <div class="flow-step-lbl">
+                  ${isLudo
+                    ? `Step 3 — Select Colleagues to Play With (${selectedLudoTargetUserIds.length}/${neededLudoOpponents} Selected) *`
+                    : 'Step 2 — Select Employee to Challenge *'
+                  }
                 </div>
-              ` : `
-                <div class="flow-step-box">
-                  <div class="flow-step-lbl">
-                    ${isLudo
-                      ? `Step 3 — Select Colleagues (${selectedLudoTargetUserIds.length}/${selectedLudoPlayerCount - 1} Selected)`
-                      : 'Step 2 — Select Employee to Challenge *'
-                    }
-                  </div>
-                  <div class="emp-search-wrap">
-                    <input type="text" id="flow-emp-search" placeholder="🔍 Search employee by name or role..." class="bonding-input" />
-                  </div>
+                <div class="emp-search-wrap">
+                  <input type="text" id="flow-emp-search" placeholder="🔍 Search employee by name or role..." class="bonding-input" />
+                </div>
 
-                  <div class="eligible-emp-list" id="eligible-emp-list-wrap">
-                    ${eligibleEmployees.map(u => {
-                      const isSelected = isLudo
-                        ? selectedLudoTargetUserIds.includes(u._id.toString())
-                        : selectedTargetUserId === u._id.toString();
+                <div class="eligible-emp-list" id="eligible-emp-list-wrap">
+                  ${eligibleEmployees.map(u => {
+                    const isSelected = isLudo
+                      ? selectedLudoTargetUserIds.includes(u._id.toString())
+                      : selectedTargetUserId === u._id.toString();
 
-                      return `
-                        <div class="eligible-emp-item ${isSelected ? 'selected' : ''}" data-user-id="${u._id}">
-                          <div class="emp-item-avatar">${u.name.slice(0, 1).toUpperCase()}</div>
-                          <div class="emp-item-info">
-                            <span class="emp-item-name">${escapeHtml(u.name)}</span>
-                            <span class="emp-item-role">${escapeHtml(u.role === 'superadmin' ? 'Superadmin' : (u.role === 'admin' ? 'Admin' : 'Employee'))} · ${escapeHtml(u.email || '')}</span>
-                          </div>
-                          <button class="btn-select-opponent ${isSelected ? 'active' : ''}">
-                            ${isSelected ? 'Selected ✓' : 'Select'}
-                          </button>
+                    return `
+                      <div class="eligible-emp-item ${isSelected ? 'selected' : ''}" data-user-id="${u._id}">
+                        <div class="emp-item-avatar">${u.name.slice(0, 1).toUpperCase()}</div>
+                        <div class="emp-item-info">
+                          <span class="emp-item-name">${escapeHtml(u.name)}</span>
+                          <span class="emp-item-role">${escapeHtml(u.role === 'superadmin' ? 'Superadmin' : (u.role === 'admin' ? 'Admin' : 'Employee'))} · ${escapeHtml(u.email || '')}</span>
                         </div>
-                      `;
-                    }).join('')}
-                  </div>
+                        <button class="btn-select-opponent ${isSelected ? 'active' : ''}">
+                          ${isSelected ? 'Selected ✓' : 'Select'}
+                        </button>
+                      </div>
+                    `;
+                  }).join('')}
                 </div>
-              `}
+              </div>
 
               <!-- Step for Chess timers -->
               ${selectedGame === 'chess' ? `
@@ -1379,9 +1336,16 @@ export async function initTeamBonding(container, options = {}) {
               <div class="flow-confirmation-card">
                 <div class="confirm-head">Match Summary:</div>
                 <div class="confirm-body">
-                  <div><strong>Game:</strong> ${isLudo ? `🎲 Ludo (${selectedLudoPlayerCount}P · 4 Pawns per base)` : (selectedGame === 'chess' ? '♟️ Chess Duel' : '❌ Tic-Tac-Toe Challenge')}</div>
+                  <div><strong>Game:</strong> ${isLudo ? `🎲 Ludo (${selectedLudoPlayerCount} Players · 4 Pawns per base)` : (selectedGame === 'chess' ? '♟️ Chess Duel' : '❌ Tic-Tac-Toe Challenge')}</div>
                   ${isLudo ? `
-                    <div><strong>Mode:</strong> ${selectedLudoPlayerCount === 1 ? '1P Solo Practice' : `${selectedLudoPlayerCount} Players (${selectedLudoTargetUserIds.length + 1} Colleagues)`}</div>
+                    <div><strong>Opponents:</strong> ${
+                      selectedLudoTargetUserIds.length > 0
+                        ? selectedLudoTargetUserIds.map(id => {
+                            const found = eligibleEmployees.find(e => e._id.toString() === id);
+                            return found ? `<strong>${escapeHtml(found.name)}</strong>` : 'Colleague';
+                          }).join(', ')
+                        : '<span style="color:#ef4444">⚠️ Please select ' + neededLudoOpponents + ' colleague(s)</span>'
+                    }</div>
                   ` : `
                     <div><strong>Opponent:</strong> ${targetUserObj ? `<strong>${escapeHtml(targetUserObj.name)}</strong> (${escapeHtml(targetUserObj.role)})` : '<span style="color:#ef4444">⚠️ No employee selected yet</span>'}</div>
                   `}
@@ -1392,8 +1356,8 @@ export async function initTeamBonding(container, options = {}) {
 
             <div class="bonding-modal-footer">
               <button class="bonding-btn-secondary" id="btn-cancel-challenge-flow">Cancel</button>
-              <button class="bonding-btn-primary" id="btn-submit-challenge-flow" ${!isLudo && !selectedTargetUserId ? 'disabled' : ''}>
-                ${isLudo ? 'Launch Match Now 🎲' : 'Send Challenge 🚀'}
+              <button class="bonding-btn-primary" id="btn-submit-challenge-flow" ${(isLudo ? !hasEnoughLudoOpponents : !selectedTargetUserId) ? 'disabled' : ''}>
+                ${isLudo ? `Start ${selectedLudoPlayerCount}P Ludo Match 🎲` : 'Send Challenge 🚀'}
               </button>
             </div>
           </div>
@@ -1415,7 +1379,7 @@ export async function initTeamBonding(container, options = {}) {
         };
       });
 
-      // Ludo mode switch (1P, 2P, 3P, 4P)
+      // Ludo mode switch (2P, 3P, 4P)
       modalRoot.querySelectorAll('.ludo-mode-btn').forEach(btn => {
         btn.onclick = () => {
           selectedLudoPlayerCount = Number(btn.dataset.count);
@@ -1471,6 +1435,12 @@ export async function initTeamBonding(container, options = {}) {
       if (submitBtn) {
         submitBtn.onclick = async () => {
           if (selectedGame === 'ludo') {
+            const needed = selectedLudoPlayerCount - 1;
+            if (selectedLudoTargetUserIds.length < needed) {
+              flashToast(`Please select ${needed} colleague(s) to play with`, 'warning');
+              return;
+            }
+
             try {
               submitBtn.disabled = true;
               submitBtn.textContent = 'Launching Match...';
@@ -1480,14 +1450,14 @@ export async function initTeamBonding(container, options = {}) {
               });
 
               modalRoot.innerHTML = '';
-              flashToast(`Ludo match started (${selectedLudoPlayerCount}P)! 🎲`, 'success');
+              flashToast(`Ludo match started (${selectedLudoPlayerCount} Players)! 🎲`, 'success');
               if (res && res._id) {
                 openGameMatchModal(res._id);
               }
             } catch (err) {
               flashToast(err.message || 'Failed to start Ludo match', 'error');
               submitBtn.disabled = false;
-              submitBtn.textContent = 'Launch Match Now 🎲';
+              submitBtn.textContent = `Start ${selectedLudoPlayerCount}P Ludo Match 🎲`;
             }
             return;
           }
@@ -1529,9 +1499,6 @@ export async function initTeamBonding(container, options = {}) {
     renderModalContent();
   }
 
-  /* =========================================================================
-     RESPOND TO INVITATION (ACCEPT / DECLINE / CANCEL)
-     ========================================================================= */
   async function respondToGameInvitation(invitationId, action) {
     if (!invitationId || !action) return;
     try {

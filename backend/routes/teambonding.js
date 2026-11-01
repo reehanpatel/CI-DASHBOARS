@@ -950,9 +950,9 @@ router.get('/games/overview', async (req, res) => {
         id: 'ludo',
         name: 'Ludo Duel',
         icon: '🎲',
-        desc: 'Classic Ludo with 4 pawns per base! Play 1P vs smart AI, or 2P, 3P & 4P with colleagues and bots.',
+        desc: 'Classic Ludo with 4 pawns per base! Play 2P, 3P & 4P multiplayer matches with your colleagues.',
         duration: '3–8 mins',
-        modes: ['1P Solo Practice', '2P Duel', '3P Battle', '4P Royale']
+        modes: ['2P Duel', '3P Battle', '4P Royale']
       }
     ];
 
@@ -999,21 +999,19 @@ router.get('/games/overview', async (req, res) => {
 });
 
 
-// POST /api/bonding/matches/instant-ludo - Instant launch for 1P Solo Practice or 2P/3P/4P Colleague Ludo
+// POST /api/bonding/matches/instant-ludo - Instant launch for 2P, 3P, or 4P Colleague Ludo
 router.post('/matches/instant-ludo', async (req, res) => {
   try {
     const { playerCount = 2, targetUserIds = [] } = req.body;
-    const numPlayers = Math.min(4, Math.max(1, Number(playerCount) || 2));
+    const numPlayers = Math.min(4, Math.max(2, Number(playerCount) || 2));
     const now = new Date();
 
     const allColors = ['red', 'green', 'yellow', 'blue'];
-    const activeColors = numPlayers === 1
-      ? ['red']
-      : (numPlayers === 2
-        ? ['red', 'green']
-        : (numPlayers === 3
-          ? ['red', 'green', 'yellow']
-          : ['red', 'green', 'yellow', 'blue']));
+    const activeColors = numPlayers === 2
+      ? ['red', 'green']
+      : (numPlayers === 3
+        ? ['red', 'green', 'yellow']
+        : ['red', 'green', 'yellow', 'blue']);
 
     const playersList = [];
     // Player 1 is current user (Red)
@@ -1043,7 +1041,6 @@ router.post('/matches/instant-ludo', async (req, res) => {
           assignedRole: col
         });
       } else {
-        // Fallback colleague seat
         playersList.push({
           userId: req.user._id,
           name: `Colleague ${i + 1}`,
@@ -1071,21 +1068,12 @@ router.post('/matches/instant-ludo', async (req, res) => {
       dice: null,
       rolled: false,
       lastRoll: null,
-      lastActionText: numPlayers === 1
-        ? 'Solo Practice mode started! Roll dice to advance your Red pawns.'
-        : `Match live (${numPlayers} Players)! Red rolls first.`
-    };
-
-    const p2 = playersList[1] || {
-      userId: null,
-      name: 'Solo Practice',
-      role: 'practice',
-      assignedRole: 'green'
+      lastActionText: `Match live (${numPlayers} Players)! Red rolls first.`
     };
 
     const match = new GameMatch({
       gameType: 'ludo',
-      gameTitle: numPlayers === 1 ? 'Ludo Solo Practice (4 Pawns)' : `Ludo ${numPlayers}P Match (4 Pawns)`,
+      gameTitle: `Ludo ${numPlayers}P Match (4 Pawns)`,
       player1: {
         userId: playersList[0].userId,
         name: playersList[0].name,
@@ -1093,10 +1081,10 @@ router.post('/matches/instant-ludo', async (req, res) => {
         assignedRole: 'red'
       },
       player2: {
-        userId: p2.userId,
-        name: p2.name,
-        role: p2.role,
-        assignedRole: p2.assignedRole || 'green'
+        userId: playersList[1].userId,
+        name: playersList[1].name,
+        role: playersList[1].role,
+        assignedRole: playersList[1].assignedRole || 'green'
       },
       playerCount: numPlayers,
       status: 'active',
@@ -1690,7 +1678,7 @@ router.post('/matches/:id/move', async (req, res) => {
       }
     }
 
-    /* ── D. LUDO MOVE (1P, 2P, 3P, 4P WITH 4 PAWNS) ── */
+    /* ── D. LUDO MOVE (2P, 3P, 4P WITH 4 PAWNS) ── */
     else if (match.gameType === 'ludo') {
       const { action, tokenId } = req.body;
       const state = match.gameState || {};
