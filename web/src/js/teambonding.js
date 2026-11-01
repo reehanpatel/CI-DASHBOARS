@@ -927,7 +927,7 @@ export async function initTeamBonding(container, options = {}) {
                   ${g.id === 'ludo' ? `
                     <div style="display:flex;gap:6px;width:100%;margin-top:auto;">
                       <button class="lounge-card-challenge-btn btn-ludo-quick-solo" style="flex:1;background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;">
-                        ▶️ Solo (1P vs AI)
+                        🕹️ Solo Practice (1P)
                       </button>
                       <button class="lounge-card-challenge-btn btn-challenge-game" data-game-id="${g.id}" data-game-title="${escapeHtml(g.name)}" style="flex:1;">
                         ⚔️ Play (1P-4P)
@@ -1151,7 +1151,7 @@ export async function initTeamBonding(container, options = {}) {
           flashToast(err.message || 'Could not launch Solo Ludo', 'error');
         } finally {
           b.disabled = false;
-          b.textContent = '▶️ Solo (1P vs AI)';
+          b.textContent = '🕹️ Solo Practice (1P)';
         }
       };
     });
@@ -1294,7 +1294,7 @@ export async function initTeamBonding(container, options = {}) {
                   <div class="flow-step-lbl">Step 2 — Select Player Mode</div>
                   <div class="ludo-mode-pills">
                     <button class="ludo-mode-btn ${selectedLudoPlayerCount === 1 ? 'active' : ''}" data-count="1">
-                      👤 1P Solo (vs AI)
+                      👤 1P Solo Practice
                     </button>
                     <button class="ludo-mode-btn ${selectedLudoPlayerCount === 2 ? 'active' : ''}" data-count="2">
                       👥 2P Duel (1v1)
@@ -1313,17 +1313,17 @@ export async function initTeamBonding(container, options = {}) {
               ${isLudo && selectedLudoPlayerCount === 1 ? `
                 <div class="flow-step-box" style="background:rgba(16,185,129,0.08);border:1px solid #10b981;padding:14px;border-radius:10px;">
                   <div style="font-weight:700;color:#10b981;font-size:13px;display:flex;align-items:center;gap:6px;">
-                    <span>🤖</span> <span>Solo vs AI Bot Mode Active</span>
+                    <span>🕹️</span> <span>Solo Practice Mode Active</span>
                   </div>
                   <p style="font-size:12px;color:var(--text-2);margin-top:6px;">
-                    Play immediately with 4 pawns in base against an intelligent AI bot! No waiting or employee availability required.
+                    Practice rolling and advancing all 4 pawns around the board into Home. No opponent required.
                   </p>
                 </div>
               ` : `
                 <div class="flow-step-box">
                   <div class="flow-step-lbl">
                     ${isLudo
-                      ? `Step 3 — Select Colleagues (${selectedLudoTargetUserIds.length}/${selectedLudoPlayerCount - 1} Selected · Any unfilled seats will be played by AI bots)`
+                      ? `Step 3 — Select Colleagues (${selectedLudoTargetUserIds.length}/${selectedLudoPlayerCount - 1} Selected)`
                       : 'Step 2 — Select Employee to Challenge *'
                     }
                   </div>
@@ -1381,7 +1381,7 @@ export async function initTeamBonding(container, options = {}) {
                 <div class="confirm-body">
                   <div><strong>Game:</strong> ${isLudo ? `🎲 Ludo (${selectedLudoPlayerCount}P · 4 Pawns per base)` : (selectedGame === 'chess' ? '♟️ Chess Duel' : '❌ Tic-Tac-Toe Challenge')}</div>
                   ${isLudo ? `
-                    <div><strong>Mode:</strong> ${selectedLudoPlayerCount === 1 ? '1P Solo vs AI' : `${selectedLudoPlayerCount} Players (${selectedLudoTargetUserIds.length} Human + ${selectedLudoPlayerCount - 1 - selectedLudoTargetUserIds.length} AI Bot)`}</div>
+                    <div><strong>Mode:</strong> ${selectedLudoPlayerCount === 1 ? '1P Solo Practice' : `${selectedLudoPlayerCount} Players (${selectedLudoTargetUserIds.length + 1} Colleagues)`}</div>
                   ` : `
                     <div><strong>Opponent:</strong> ${targetUserObj ? `<strong>${escapeHtml(targetUserObj.name)}</strong> (${escapeHtml(targetUserObj.role)})` : '<span style="color:#ef4444">⚠️ No employee selected yet</span>'}</div>
                   `}
@@ -1587,7 +1587,7 @@ export async function initTeamBonding(container, options = {}) {
 
     function closeMatchModal() {
       if (matchPollInterval) clearInterval(matchPollInterval);
-      if (window._ludoBotTimer) clearTimeout(window._ludoBotTimer);
+      
       activeMatchModalId = null;
       modalRoot.innerHTML = '';
       if (currentView === 'lounge_games') renderLoungeGamesView(true);
@@ -1608,7 +1608,7 @@ export async function initTeamBonding(container, options = {}) {
         // If turn or status changed, re-render arena board
         if (newTurn !== prevTurn || updated.status !== prevStatus || updated.moves?.length !== match.moves?.length) {
           renderArena();
-          checkBotTurnTrigger();
+          
         }
       }
     }, 1500);
@@ -1642,7 +1642,7 @@ export async function initTeamBonding(container, options = {}) {
                         const isTurn = (match.gameState?.turnColor || match.turn) === p.color;
                         return `
                           <span class="player-tag ${isMe ? 'self' : 'opp'} ${isTurn ? 'turn-active' : ''}">
-                            ${colorEmoji} <strong>${escapeHtml(p.name)}</strong>${p.isBot ? ' 🤖' : ''} ${isMe ? '(You)' : ''}
+                            ${colorEmoji} <strong>${escapeHtml(p.name)}</strong> ${isMe ? '(You)' : ''}
                           </span>
                         `;
                       }).join('<span class="vs-pill">vs</span>')}
@@ -2109,7 +2109,7 @@ export async function initTeamBonding(container, options = {}) {
               const colorEmoji = { red: '🔴', green: '🟢', yellow: '🟡', blue: '🔵' }[col];
               return `
                 <div class="progress-pill ${col} ${currentTurnColor === col ? 'active-turn' : ''}">
-                  <strong>${colorEmoji} ${pl ? escapeHtml(pl.name) : col.toUpperCase()}${pl?.isBot ? ' 🤖' : ''}:</strong>
+                  <strong>${colorEmoji} ${pl ? escapeHtml(pl.name) : col.toUpperCase()}:</strong>
                   ${tokArr.map((t, i) => `P${i + 1}: ${formatStepDesc(t)}`).join(' · ')}
                 </div>
               `;
@@ -2353,28 +2353,7 @@ export async function initTeamBonding(container, options = {}) {
 
     renderArena();
 
-    // Trigger automated Bot Turn if active player is an AI Bot
-    function checkBotTurnTrigger() {
-      if (match && match.gameType === 'ludo' && match.status === 'active') {
-        const turnColor = match.gameState?.turnColor || match.turn || 'red';
-        const pl = (match.gameState?.players || []).find(p => p.color === turnColor);
-        if (pl && pl.isBot) {
-          if (window._ludoBotTimer) clearTimeout(window._ludoBotTimer);
-          window._ludoBotTimer = setTimeout(async () => {
-            if (!activeMatchModalId || activeMatchModalId !== matchId) return;
-            try {
-              const updated = await apiPost(`/bonding/matches/${matchId}/bot-move`);
-              match = updated;
-              renderArena();
-              checkBotTurnTrigger();
-            } catch (err) {
-              console.error('Bot turn failed:', err);
-            }
-          }, 850);
-        }
-      }
-    }
-    checkBotTurnTrigger();
+
   }
 
   /* =========================================================================

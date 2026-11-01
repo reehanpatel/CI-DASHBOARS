@@ -952,7 +952,7 @@ router.get('/games/overview', async (req, res) => {
         icon: '🎲',
         desc: 'Classic Ludo with 4 pawns per base! Play 1P vs smart AI, or 2P, 3P & 4P with colleagues and bots.',
         duration: '3–8 mins',
-        modes: ['1P (Solo vs AI)', '2P Duel', '3P Battle', '4P Royale']
+        modes: ['1P Solo Practice', '2P Duel', '3P Battle', '4P Royale']
       }
     ];
 
@@ -999,29 +999,33 @@ router.get('/games/overview', async (req, res) => {
 });
 
 
-// POST /api/bonding/matches/instant-ludo - Instant launch for 1P, 2P, 3P, or 4P Ludo
+// POST /api/bonding/matches/instant-ludo - Instant launch for 1P Solo Practice or 2P/3P/4P Colleague Ludo
 router.post('/matches/instant-ludo', async (req, res) => {
   try {
-    const { playerCount = 1, targetUserIds = [] } = req.body;
-    const numPlayers = Math.min(4, Math.max(1, Number(playerCount) || 1));
+    const { playerCount = 2, targetUserIds = [] } = req.body;
+    const numPlayers = Math.min(4, Math.max(1, Number(playerCount) || 2));
     const now = new Date();
 
     const allColors = ['red', 'green', 'yellow', 'blue'];
-    const activeColors = numPlayers === 1 ? ['red', 'green'] : (numPlayers === 2 ? ['red', 'green'] : (numPlayers === 3 ? ['red', 'green', 'yellow'] : ['red', 'green', 'yellow', 'blue']));
-    const botNames = ['Bot Alex', 'Bot Sam', 'Bot Taylor'];
+    const activeColors = numPlayers === 1
+      ? ['red']
+      : (numPlayers === 2
+        ? ['red', 'green']
+        : (numPlayers === 3
+          ? ['red', 'green', 'yellow']
+          : ['red', 'green', 'yellow', 'blue']));
 
     const playersList = [];
-    // Player 1 is always current user (Red)
+    // Player 1 is current user (Red)
     playersList.push({
       userId: req.user._id,
       name: req.user.name,
       role: req.user.role,
       color: 'red',
-      assignedRole: 'red',
-      isBot: false
+      assignedRole: 'red'
     });
 
-    // Populate remaining active players (from targetUserIds or Bots)
+    // Populate remaining active players strictly from selected human colleagues
     for (let i = 1; i < activeColors.length; i++) {
       const col = activeColors[i];
       const targetId = targetUserIds[i - 1];
@@ -1036,23 +1040,21 @@ router.post('/matches/instant-ludo', async (req, res) => {
           name: targetUser.name,
           role: targetUser.role,
           color: col,
-          assignedRole: col,
-          isBot: false
+          assignedRole: col
         });
       } else {
-        // AI Bot player
+        // Fallback colleague seat
         playersList.push({
-          userId: null,
-          name: botNames[i - 1] || `Bot ${col.toUpperCase()}`,
-          role: 'AI Bot',
+          userId: req.user._id,
+          name: `Colleague ${i + 1}`,
+          role: 'employee',
           color: col,
-          assignedRole: col,
-          isBot: true
+          assignedRole: col
         });
       }
     }
 
-    // Initialize 4 pawns in single base for each color!
+    // Initialize 4 pawns in single base for each color
     const tokens = {
       red: [{ id: 0, step: -1 }, { id: 1, step: -1 }, { id: 2, step: -1 }, { id: 3, step: -1 }],
       green: [{ id: 0, step: -1 }, { id: 1, step: -1 }, { id: 2, step: -1 }, { id: 3, step: -1 }],
@@ -1069,12 +1071,21 @@ router.post('/matches/instant-ludo', async (req, res) => {
       dice: null,
       rolled: false,
       lastRoll: null,
-      lastActionText: `Match live (${numPlayers === 1 ? '1P vs AI' : numPlayers + 'P'})! Red rolls first.`
+      lastActionText: numPlayers === 1
+        ? 'Solo Practice mode started! Roll dice to advance your Red pawns.'
+        : `Match live (${numPlayers} Players)! Red rolls first.`
+    };
+
+    const p2 = playersList[1] || {
+      userId: null,
+      name: 'Solo Practice',
+      role: 'practice',
+      assignedRole: 'green'
     };
 
     const match = new GameMatch({
       gameType: 'ludo',
-      gameTitle: numPlayers === 1 ? 'Ludo Solo (1P vs AI)' : `Ludo ${numPlayers}P Match`,
+      gameTitle: numPlayers === 1 ? 'Ludo Solo Practice (4 Pawns)' : `Ludo ${numPlayers}P Match (4 Pawns)`,
       player1: {
         userId: playersList[0].userId,
         name: playersList[0].name,
@@ -1082,10 +1093,10 @@ router.post('/matches/instant-ludo', async (req, res) => {
         assignedRole: 'red'
       },
       player2: {
-        userId: playersList[1].userId || null,
-        name: playersList[1].name,
-        role: playersList[1].role,
-        assignedRole: playersList[1].assignedRole
+        userId: p2.userId,
+        name: p2.name,
+        role: p2.role,
+        assignedRole: p2.assignedRole || 'green'
       },
       playerCount: numPlayers,
       status: 'active',
@@ -1100,7 +1111,7 @@ router.post('/matches/instant-ludo', async (req, res) => {
     });
 
     await match.save();
-    res.json({ success: true, match });
+    res.json({ success: true, match, _id: match._id });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -1365,12 +1376,7 @@ router.put('/invitations/:id/respond', async (req, res) => {
           { userId: invitation.recipient.userId, name: invitation.recipient.name, role: invitation.recipient.role, color: 'green', assignedRole: 'green', isBot: false }
         ];
 
-        if (pCount >= 3) {
-          playersList.push({ userId: null, name: 'Bot Yellow', role: 'AI Bot', color: 'yellow', assignedRole: 'yellow', isBot: true });
-        }
-        if (pCount >= 4) {
-          playersList.push({ userId: null, name: 'Bot Blue', role: 'AI Bot', color: 'blue', assignedRole: 'blue', isBot: true });
-        }
+
 
         initialGameState = {
           playerCount: pCount,
@@ -1748,7 +1754,7 @@ router.post('/matches/:id/move', async (req, res) => {
           match.turn = nextColor;
 
           const nextPl = (state.players || []).find(p => p.color === nextColor);
-          match.currentTurnUserId = nextPl && !nextPl.isBot ? nextPl.userId : null;
+          match.currentTurnUserId = nextPl ? nextPl.userId : req.user._id;
         } else {
           state.lastActionText = `${req.user.name} (${turnColor.toUpperCase()}) rolled a ${dice}! Select a pawn to advance.`;
         }
@@ -1858,7 +1864,7 @@ router.post('/matches/:id/move', async (req, res) => {
           match.turn = nextColor;
 
           const nextPl = (state.players || []).find(p => p.color === nextColor);
-          match.currentTurnUserId = nextPl && !nextPl.isBot ? nextPl.userId : null;
+          match.currentTurnUserId = nextPl ? nextPl.userId : req.user._id;
         }
 
         match.gameState = state;
@@ -1879,190 +1885,9 @@ router.post('/matches/:id/move', async (req, res) => {
 });
 
 
-// POST /api/bonding/matches/:id/bot-move - Authoritative AI bot move for 1P/3P/4P
+// POST /api/bonding/matches/:id/bot-move - Disabled
 router.post('/matches/:id/bot-move', async (req, res) => {
-  try {
-    const match = await GameMatch.findById(req.params.id);
-    if (!match || match.status !== 'active' || match.gameType !== 'ludo') {
-      return res.status(400).json({ error: 'Invalid match state for bot move' });
-    }
-
-    const state = match.gameState || {};
-    const activeColors = state.activeColors || ['red', 'green'];
-    const turnColor = state.turnColor || match.turn || 'red';
-    const players = state.players || [];
-    const currentPl = players.find(p => p.color === turnColor);
-
-    if (!currentPl || !currentPl.isBot) {
-      return res.status(400).json({ error: 'Current turn belongs to a human player' });
-    }
-
-    const now = new Date();
-    const safeSquares = [0, 8, 13, 21, 26, 34, 39, 47];
-    const startIndices = { red: 0, green: 13, yellow: 26, blue: 39 };
-
-    function getTrackIndex(col, step) {
-      if (step < 0 || step > 50) return -1;
-      return (startIndices[col] + step) % 52;
-    }
-
-    const myTokens = (state.tokens && state.tokens[turnColor]) || [];
-
-    // 1. Bot rolls dice
-    const dice = Math.floor(Math.random() * 6) + 1;
-    state.lastRoll = dice;
-
-    // 2. Identify movable pawns
-    const legalTokens = myTokens.filter(t => {
-      if (t.step === -1) return dice === 6;
-      return t.step >= 0 && t.step + dice <= 56;
-    });
-
-    if (legalTokens.length === 0) {
-      state.rolled = false;
-      state.dice = null;
-      state.lastActionText = `${currentPl.name} (${turnColor.toUpperCase()}) rolled a ${dice} — No legal moves. Turn passed.`;
-
-      match.moves.push({
-        moveNum: match.moves.length + 1,
-        playerRole: turnColor,
-        moveData: { action: 'bot_roll', dice, movable: false },
-        timestamp: now
-      });
-
-      const curIdx = activeColors.indexOf(turnColor);
-      const nextColor = activeColors[(curIdx + 1) % activeColors.length];
-      state.turnColor = nextColor;
-      match.turn = nextColor;
-
-      const nextPl = players.find(p => p.color === nextColor);
-      match.currentTurnUserId = nextPl && !nextPl.isBot ? nextPl.userId : null;
-
-      match.gameState = state;
-      match.markModified('gameState');
-      await match.save();
-      return res.json(match);
-    }
-
-    // 3. AI Pawn Selection Strategy:
-    let chosenTokenId = null;
-
-    // A. Priority: Capture opponent
-    for (const t of legalTokens) {
-      const nextStep = t.step === -1 ? 0 : t.step + dice;
-      if (nextStep <= 50) {
-        const targetTrackIdx = getTrackIndex(turnColor, nextStep);
-        if (!safeSquares.includes(targetTrackIdx)) {
-          for (const otherCol of activeColors) {
-            if (otherCol !== turnColor) {
-              const otherTokens = (state.tokens && state.tokens[otherCol]) || [];
-              if (otherTokens.some(oppT => oppT.step >= 0 && oppT.step <= 50 && getTrackIndex(otherCol, oppT.step) === targetTrackIdx)) {
-                chosenTokenId = t.id;
-                break;
-              }
-            }
-          }
-        }
-      }
-      if (chosenTokenId !== null) break;
-    }
-
-    // B. Priority: Finish pawn into Home (56)
-    if (chosenTokenId === null) {
-      const homeToken = legalTokens.find(t => t.step + dice === 56);
-      if (homeToken) chosenTokenId = homeToken.id;
-    }
-
-    // C. Priority: Bring pawn out of base with 6
-    if (chosenTokenId === null && dice === 6) {
-      const baseToken = legalTokens.find(t => t.step === -1);
-      if (baseToken) chosenTokenId = baseToken.id;
-    }
-
-    // D. Priority: Advance furthest pawn along track
-    if (chosenTokenId === null) {
-      legalTokens.sort((a, b) => b.step - a.step);
-      chosenTokenId = legalTokens[0].id;
-    }
-
-    // Execute Bot's move
-    const token = myTokens.find(t => t.id === chosenTokenId);
-    let oldStep = token.step;
-    if (token.step === -1) {
-      token.step = 0;
-    } else {
-      token.step += dice;
-    }
-
-    let captured = false;
-    let bonusRoll = dice === 6;
-
-    if (token.step >= 0 && token.step <= 50) {
-      const myTrackIdx = getTrackIndex(turnColor, token.step);
-      if (!safeSquares.includes(myTrackIdx)) {
-        activeColors.forEach(otherCol => {
-          if (otherCol !== turnColor) {
-            const otherTokens = (state.tokens && state.tokens[otherCol]) || [];
-            otherTokens.forEach(oppT => {
-              if (oppT.step >= 0 && oppT.step <= 50 && getTrackIndex(otherCol, oppT.step) === myTrackIdx) {
-                oppT.step = -1;
-                captured = true;
-                bonusRoll = true;
-              }
-            });
-          }
-        });
-      }
-    }
-
-    if (token.step === 56) bonusRoll = true;
-
-    match.moves.push({
-      moveNum: match.moves.length + 1,
-      playerRole: turnColor,
-      moveData: { action: 'bot_move', tokenId: chosenTokenId, fromStep: oldStep, toStep: token.step, dice, captured },
-      timestamp: now
-    });
-
-    // Check Win
-    const won = myTokens.every(t => t.step === 56);
-    if (won) {
-      match.status = 'completed';
-      match.winnerName = currentPl.name;
-      match.winnerRole = turnColor;
-      match.winningReason = 'All 4 pawns reached Home! 🏆';
-      match.completedAt = now;
-      state.lastActionText = `🏆 ${currentPl.name} (${turnColor.toUpperCase()}) won the match!`;
-      match.gameState = state;
-      match.markModified('gameState');
-      await match.save();
-      return res.json(match);
-    }
-
-    state.rolled = false;
-    state.dice = null;
-
-    if (bonusRoll) {
-      const reason = captured ? 'Cut opponent!' : (token.step === 56 ? 'Reached Home!' : 'Rolled a 6!');
-      state.lastActionText = `${currentPl.name} moved Pawn ${chosenTokenId + 1}. ${reason} Bonus roll!`;
-    } else {
-      state.lastActionText = `${currentPl.name} moved Pawn ${chosenTokenId + 1}.`;
-      const curIdx = activeColors.indexOf(turnColor);
-      const nextColor = activeColors[(curIdx + 1) % activeColors.length];
-      state.turnColor = nextColor;
-      match.turn = nextColor;
-
-      const nextPl = players.find(p => p.color === nextColor);
-      match.currentTurnUserId = nextPl && !nextPl.isBot ? nextPl.userId : null;
-    }
-
-    match.gameState = state;
-    match.markModified('gameState');
-    await match.save();
-    res.json(match);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+  return res.status(400).json({ error: 'AI bot moves are disabled' });
 });
 
 // POST /api/bonding/matches/:id/action - Resign, Draw Offer/Accept, Rematch
