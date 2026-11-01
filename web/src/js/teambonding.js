@@ -918,12 +918,26 @@ export async function initTeamBonding(container, options = {}) {
                     <p class="game-card-desc">${escapeHtml(g.desc)}</p>
                     <div class="game-card-meta">
                       <span class="meta-pill">⏱️ ${g.duration}</span>
-                      <span class="meta-pill">👥 2 Players</span>
+                      ${g.id === 'ludo'
+                        ? '<span class="meta-pill">👥 1P, 2P, 3P, 4P Royale</span><span class="meta-pill">🎯 4 Pawns / Base</span>'
+                        : '<span class="meta-pill">👥 2 Players</span>'
+                      }
                     </div>
                   </div>
-                  <button class="lounge-card-challenge-btn btn-challenge-game" data-game-id="${g.id}" data-game-title="${escapeHtml(g.name)}">
-                    ⚔️ Challenge Employee
-                  </button>
+                  ${g.id === 'ludo' ? `
+                    <div style="display:flex;gap:6px;width:100%;margin-top:auto;">
+                      <button class="lounge-card-challenge-btn btn-ludo-quick-solo" style="flex:1;background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;">
+                        ▶️ Solo (1P vs AI)
+                      </button>
+                      <button class="lounge-card-challenge-btn btn-challenge-game" data-game-id="${g.id}" data-game-title="${escapeHtml(g.name)}" style="flex:1;">
+                        ⚔️ Play (1P-4P)
+                      </button>
+                    </div>
+                  ` : `
+                    <button class="lounge-card-challenge-btn btn-challenge-game" data-game-id="${g.id}" data-game-title="${escapeHtml(g.name)}">
+                      ⚔️ Challenge Employee
+                    </button>
+                  `}
                 </div>
               `).join('')}
             </div>
@@ -1122,6 +1136,26 @@ export async function initTeamBonding(container, options = {}) {
   }
 
   function bindLoungeEvents() {
+    // Quick Solo 1P Ludo launch
+    container.querySelectorAll('.btn-ludo-quick-solo').forEach(b => {
+      b.onclick = async () => {
+        try {
+          b.disabled = true;
+          b.textContent = 'Launching...';
+          const res = await apiPost('/bonding/matches/instant-ludo', { playerCount: 1 });
+          if (res && res._id) {
+            flashToast('1P Solo Ludo match launched! 🎲', 'success');
+            openGameMatchModal(res._id);
+          }
+        } catch (err) {
+          flashToast(err.message || 'Could not launch Solo Ludo', 'error');
+        } finally {
+          b.disabled = false;
+          b.textContent = '▶️ Solo (1P vs AI)';
+        }
+      };
+    });
+
     // Challenge from game card
     container.querySelectorAll('.btn-challenge-game').forEach(b => {
       b.onclick = () => {
@@ -1212,7 +1246,6 @@ export async function initTeamBonding(container, options = {}) {
     const modalRoot = container.querySelector('#bonding-modals-root');
     const myId = currentUser?._id || currentUser?.id;
 
-    // Filter colleagues to strictly authorized employees & admins excluding current user
     const allowedRoles = new Set(['employee', 'admin', 'superadmin']);
     const eligibleEmployees = colleagues.filter(c =>
       !c.isSelf &&
@@ -1222,23 +1255,26 @@ export async function initTeamBonding(container, options = {}) {
 
     let selectedGame = preselectedGame || 'chess';
     let selectedTargetUserId = preselectedUser ? preselectedUser.toString() : null;
+    let selectedLudoPlayerCount = 1;
+    let selectedLudoTargetUserIds = [];
     let selectedTimerMode = 'none';
 
     function renderModalContent() {
       const targetUserObj = eligibleEmployees.find(e => e._id.toString() === selectedTargetUserId);
+      const isLudo = selectedGame === 'ludo';
 
       modalRoot.innerHTML = `
         <div class="bonding-modal-backdrop">
           <div class="bonding-modal-card challenge-flow-modal">
             <div class="bonding-modal-header">
-              <h3>⚔️ Send a Multiplayer Game Challenge</h3>
+              <h3>⚔️ ${isLudo ? 'Play Ludo (1P, 2P, 3P, 4P)' : 'Multiplayer Game Challenge'}</h3>
               <button class="bonding-modal-close">&times;</button>
             </div>
 
             <div class="bonding-modal-body">
               <!-- Step 1: Select Game -->
               <div class="flow-step-box">
-                <div class="flow-step-lbl">Step 1 — Choose Multiplayer Game</div>
+                <div class="flow-step-lbl">Step 1 — Choose Game</div>
                 <div class="game-select-pills">
                   <button class="game-pill-btn ${selectedGame === 'chess' ? 'active' : ''}" data-game="chess">
                     <span>♟️</span> <span>Chess Duel</span>
@@ -1247,38 +1283,78 @@ export async function initTeamBonding(container, options = {}) {
                     <span>❌</span> <span>Tic-Tac-Toe</span>
                   </button>
                   <button class="game-pill-btn ${selectedGame === 'ludo' ? 'active' : ''}" data-game="ludo">
-                    <span>🎲</span> <span>Ludo Duel</span>
+                    <span>🎲</span> <span>Ludo Royale</span>
                   </button>
                 </div>
               </div>
 
-              <!-- Step 2: Mandatory Opponent Selection -->
-              <div class="flow-step-box">
-                <div class="flow-step-lbl">Step 2 — Select Employee to Challenge *</div>
-                <div class="emp-search-wrap">
-                  <input type="text" id="flow-emp-search" placeholder="🔍 Search employee by name or role..." class="bonding-input" />
+              <!-- LUDO SPECIAL: Step 2 Player Count Selector -->
+              ${isLudo ? `
+                <div class="flow-step-box">
+                  <div class="flow-step-lbl">Step 2 — Select Player Mode</div>
+                  <div class="ludo-mode-pills">
+                    <button class="ludo-mode-btn ${selectedLudoPlayerCount === 1 ? 'active' : ''}" data-count="1">
+                      👤 1P Solo (vs AI)
+                    </button>
+                    <button class="ludo-mode-btn ${selectedLudoPlayerCount === 2 ? 'active' : ''}" data-count="2">
+                      👥 2P Duel (1v1)
+                    </button>
+                    <button class="ludo-mode-btn ${selectedLudoPlayerCount === 3 ? 'active' : ''}" data-count="3">
+                      ⚔️ 3P Battle
+                    </button>
+                    <button class="ludo-mode-btn ${selectedLudoPlayerCount === 4 ? 'active' : ''}" data-count="4">
+                      👑 4P Royale
+                    </button>
+                  </div>
                 </div>
+              ` : ''}
 
-                <div class="eligible-emp-list" id="eligible-emp-list-wrap">
-                  ${eligibleEmployees.map(u => {
-                    const isSelected = selectedTargetUserId === u._id.toString();
-                    return `
-                      <div class="eligible-emp-item ${isSelected ? 'selected' : ''}" data-user-id="${u._id}">
-                        <div class="emp-item-avatar">${u.name.slice(0, 1).toUpperCase()}</div>
-                        <div class="emp-item-info">
-                          <span class="emp-item-name">${escapeHtml(u.name)}</span>
-                          <span class="emp-item-role">${escapeHtml(u.role === 'superadmin' ? 'Superadmin' : (u.role === 'admin' ? 'Admin' : 'Employee'))} · ${escapeHtml(u.email || '')}</span>
+              <!-- Step 3 / 2: Opponent Selection -->
+              ${isLudo && selectedLudoPlayerCount === 1 ? `
+                <div class="flow-step-box" style="background:rgba(16,185,129,0.08);border:1px solid #10b981;padding:14px;border-radius:10px;">
+                  <div style="font-weight:700;color:#10b981;font-size:13px;display:flex;align-items:center;gap:6px;">
+                    <span>🤖</span> <span>Solo vs AI Bot Mode Active</span>
+                  </div>
+                  <p style="font-size:12px;color:var(--text-2);margin-top:6px;">
+                    Play immediately with 4 pawns in base against an intelligent AI bot! No waiting or employee availability required.
+                  </p>
+                </div>
+              ` : `
+                <div class="flow-step-box">
+                  <div class="flow-step-lbl">
+                    ${isLudo
+                      ? `Step 3 — Select Colleagues (${selectedLudoTargetUserIds.length}/${selectedLudoPlayerCount - 1} Selected · Any unfilled seats will be played by AI bots)`
+                      : 'Step 2 — Select Employee to Challenge *'
+                    }
+                  </div>
+                  <div class="emp-search-wrap">
+                    <input type="text" id="flow-emp-search" placeholder="🔍 Search employee by name or role..." class="bonding-input" />
+                  </div>
+
+                  <div class="eligible-emp-list" id="eligible-emp-list-wrap">
+                    ${eligibleEmployees.map(u => {
+                      const isSelected = isLudo
+                        ? selectedLudoTargetUserIds.includes(u._id.toString())
+                        : selectedTargetUserId === u._id.toString();
+
+                      return `
+                        <div class="eligible-emp-item ${isSelected ? 'selected' : ''}" data-user-id="${u._id}">
+                          <div class="emp-item-avatar">${u.name.slice(0, 1).toUpperCase()}</div>
+                          <div class="emp-item-info">
+                            <span class="emp-item-name">${escapeHtml(u.name)}</span>
+                            <span class="emp-item-role">${escapeHtml(u.role === 'superadmin' ? 'Superadmin' : (u.role === 'admin' ? 'Admin' : 'Employee'))} · ${escapeHtml(u.email || '')}</span>
+                          </div>
+                          <button class="btn-select-opponent ${isSelected ? 'active' : ''}">
+                            ${isSelected ? 'Selected ✓' : 'Select'}
+                          </button>
                         </div>
-                        <button class="btn-select-opponent ${isSelected ? 'active' : ''}">
-                          ${isSelected ? 'Selected ✓' : 'Select'}
-                        </button>
-                      </div>
-                    `;
-                  }).join('')}
+                      `;
+                    }).join('')}
+                  </div>
                 </div>
-              </div>
+              `}
 
-              <!-- Step 3: Match Settings (for Chess timers) -->
+              <!-- Step for Chess timers -->
               ${selectedGame === 'chess' ? `
                 <div class="flow-step-box">
                   <div class="flow-step-lbl">Step 3 — Time Control Options</div>
@@ -1299,12 +1375,16 @@ export async function initTeamBonding(container, options = {}) {
                 </div>
               ` : ''}
 
-              <!-- Step 4: Confirmation Preview Card -->
+              <!-- Confirmation Card -->
               <div class="flow-confirmation-card">
-                <div class="confirm-head">Challenge Summary:</div>
+                <div class="confirm-head">Match Summary:</div>
                 <div class="confirm-body">
-                  <div><strong>Game:</strong> ${selectedGame === 'ludo' ? '🎲 Ludo Duel' : (selectedGame === 'chess' ? '♟️ Chess Duel' : '❌ Tic-Tac-Toe Challenge')}</div>
-                  <div><strong>Opponent:</strong> ${targetUserObj ? `<strong>${escapeHtml(targetUserObj.name)}</strong> (${escapeHtml(targetUserObj.role)})` : '<span style="color:#ef4444">⚠️ No employee selected yet</span>'}</div>
+                  <div><strong>Game:</strong> ${isLudo ? `🎲 Ludo (${selectedLudoPlayerCount}P · 4 Pawns per base)` : (selectedGame === 'chess' ? '♟️ Chess Duel' : '❌ Tic-Tac-Toe Challenge')}</div>
+                  ${isLudo ? `
+                    <div><strong>Mode:</strong> ${selectedLudoPlayerCount === 1 ? '1P Solo vs AI' : `${selectedLudoPlayerCount} Players (${selectedLudoTargetUserIds.length} Human + ${selectedLudoPlayerCount - 1 - selectedLudoTargetUserIds.length} AI Bot)`}</div>
+                  ` : `
+                    <div><strong>Opponent:</strong> ${targetUserObj ? `<strong>${escapeHtml(targetUserObj.name)}</strong> (${escapeHtml(targetUserObj.role)})` : '<span style="color:#ef4444">⚠️ No employee selected yet</span>'}</div>
+                  `}
                   ${selectedGame === 'chess' ? `<div><strong>Time Control:</strong> ${selectedTimerMode === 'none' ? 'Untimed' : selectedTimerMode}</div>` : ''}
                 </div>
               </div>
@@ -1312,8 +1392,8 @@ export async function initTeamBonding(container, options = {}) {
 
             <div class="bonding-modal-footer">
               <button class="bonding-btn-secondary" id="btn-cancel-challenge-flow">Cancel</button>
-              <button class="bonding-btn-primary" id="btn-submit-challenge-flow" ${!selectedTargetUserId ? 'disabled' : ''}>
-                Send Challenge 🚀
+              <button class="bonding-btn-primary" id="btn-submit-challenge-flow" ${!isLudo && !selectedTargetUserId ? 'disabled' : ''}>
+                ${isLudo ? 'Launch Match Now 🎲' : 'Send Challenge 🚀'}
               </button>
             </div>
           </div>
@@ -1335,6 +1415,15 @@ export async function initTeamBonding(container, options = {}) {
         };
       });
 
+      // Ludo mode switch (1P, 2P, 3P, 4P)
+      modalRoot.querySelectorAll('.ludo-mode-btn').forEach(btn => {
+        btn.onclick = () => {
+          selectedLudoPlayerCount = Number(btn.dataset.count);
+          selectedLudoTargetUserIds = selectedLudoTargetUserIds.slice(0, selectedLudoPlayerCount - 1);
+          renderModalContent();
+        };
+      });
+
       // Search filter
       const searchInp = modalRoot.querySelector('#flow-emp-search');
       if (searchInp) {
@@ -1350,7 +1439,21 @@ export async function initTeamBonding(container, options = {}) {
       // Opponent select
       modalRoot.querySelectorAll('.eligible-emp-item').forEach(item => {
         item.onclick = () => {
-          selectedTargetUserId = item.dataset.userId;
+          const uId = item.dataset.userId;
+          if (selectedGame === 'ludo') {
+            const maxOpponents = selectedLudoPlayerCount - 1;
+            if (selectedLudoTargetUserIds.includes(uId)) {
+              selectedLudoTargetUserIds = selectedLudoTargetUserIds.filter(id => id !== uId);
+            } else {
+              if (selectedLudoTargetUserIds.length < maxOpponents) {
+                selectedLudoTargetUserIds.push(uId);
+              } else {
+                selectedLudoTargetUserIds[maxOpponents - 1] = uId;
+              }
+            }
+          } else {
+            selectedTargetUserId = uId;
+          }
           renderModalContent();
         };
       });
@@ -1363,10 +1466,32 @@ export async function initTeamBonding(container, options = {}) {
         };
       });
 
-      // Submit challenge
+      // Submit challenge / launch match
       const submitBtn = modalRoot.querySelector('#btn-submit-challenge-flow');
       if (submitBtn) {
         submitBtn.onclick = async () => {
+          if (selectedGame === 'ludo') {
+            try {
+              submitBtn.disabled = true;
+              submitBtn.textContent = 'Launching Match...';
+              const res = await apiPost('/bonding/matches/instant-ludo', {
+                playerCount: selectedLudoPlayerCount,
+                targetUserIds: selectedLudoTargetUserIds
+              });
+
+              modalRoot.innerHTML = '';
+              flashToast(`Ludo match started (${selectedLudoPlayerCount}P)! 🎲`, 'success');
+              if (res && res._id) {
+                openGameMatchModal(res._id);
+              }
+            } catch (err) {
+              flashToast(err.message || 'Failed to start Ludo match', 'error');
+              submitBtn.disabled = false;
+              submitBtn.textContent = 'Launch Match Now 🎲';
+            }
+            return;
+          }
+
           if (!selectedTargetUserId) {
             flashToast('Please select an employee to challenge', 'warning');
             return;
@@ -1386,7 +1511,6 @@ export async function initTeamBonding(container, options = {}) {
             flashToast('Game challenge delivered! Awaiting acceptance ⚔️', 'success');
             modalRoot.innerHTML = '';
 
-            // Reload feeds
             if (activeChannel) {
               await loadMessages(activeChannel._id);
             }
@@ -1394,7 +1518,7 @@ export async function initTeamBonding(container, options = {}) {
               await renderLoungeGamesView();
             }
           } catch (err) {
-            flashToast(err.message || 'Failed to send challenge', 'error');
+            flashToast(err.message || 'Could not send challenge', 'error');
             submitBtn.disabled = false;
             submitBtn.textContent = 'Send Challenge 🚀';
           }
@@ -1463,6 +1587,7 @@ export async function initTeamBonding(container, options = {}) {
 
     function closeMatchModal() {
       if (matchPollInterval) clearInterval(matchPollInterval);
+      if (window._ludoBotTimer) clearTimeout(window._ludoBotTimer);
       activeMatchModalId = null;
       modalRoot.innerHTML = '';
       if (currentView === 'lounge_games') renderLoungeGamesView(true);
@@ -1483,6 +1608,7 @@ export async function initTeamBonding(container, options = {}) {
         // If turn or status changed, re-render arena board
         if (newTurn !== prevTurn || updated.status !== prevStatus || updated.moves?.length !== match.moves?.length) {
           renderArena();
+          checkBotTurnTrigger();
         }
       }
     }, 1500);
@@ -1508,11 +1634,26 @@ export async function initTeamBonding(container, options = {}) {
                 <span class="arena-icon">${match.gameType === 'ludo' ? '🎲' : (match.gameType === 'chess' ? '♟️' : '❌')}</span>
                 <div>
                   <h3 class="arena-title">${escapeHtml(match.gameTitle)}</h3>
-                  <div class="arena-players-vs">
-                    <span class="player-tag self">${escapeHtml(me.name)} (You · <strong>${match.gameType === 'ludo' ? (me.assignedRole === 'red' ? '🔴 Red' : '🟢 Green') : (match.gameType === 'tictactoe' ? (me.assignedRole === 'X' ? '✕' : '◯') : me.assignedRole)}</strong>)</span>
-                    <span class="vs-pill">VS</span>
-                    <span class="player-tag opp">${escapeHtml(opp.name)} (<strong>${match.gameType === 'ludo' ? (opp.assignedRole === 'red' ? '🔴 Red' : '🟢 Green') : (match.gameType === 'tictactoe' ? (opp.assignedRole === 'X' ? '✕' : '◯') : opp.assignedRole)}</strong>)</span>
-                  </div>
+                  ${match.gameType === 'ludo' && match.gameState?.players ? `
+                    <div class="arena-players-vs ludo-players-wrap">
+                      ${match.gameState.players.map(p => {
+                        const isMe = p.userId && p.userId.toString() === myId?.toString();
+                        const colorEmoji = { red: '🔴', green: '🟢', yellow: '🟡', blue: '🔵' }[p.color] || '⚪';
+                        const isTurn = (match.gameState?.turnColor || match.turn) === p.color;
+                        return `
+                          <span class="player-tag ${isMe ? 'self' : 'opp'} ${isTurn ? 'turn-active' : ''}">
+                            ${colorEmoji} <strong>${escapeHtml(p.name)}</strong>${p.isBot ? ' 🤖' : ''} ${isMe ? '(You)' : ''}
+                          </span>
+                        `;
+                      }).join('<span class="vs-pill">vs</span>')}
+                    </div>
+                  ` : `
+                    <div class="arena-players-vs">
+                      <span class="player-tag self">${escapeHtml(me.name)} (You · <strong>${match.gameType === 'ludo' ? (me.assignedRole === 'red' ? '🔴 Red' : '🟢 Green') : (match.gameType === 'tictactoe' ? (me.assignedRole === 'X' ? '✕' : '◯') : me.assignedRole)}</strong>)</span>
+                      <span class="vs-pill">VS</span>
+                      <span class="player-tag opp">${escapeHtml(opp.name)} (<strong>${match.gameType === 'ludo' ? (opp.assignedRole === 'red' ? '🔴 Red' : '🟢 Green') : (match.gameType === 'tictactoe' ? (opp.assignedRole === 'X' ? '✕' : '◯') : opp.assignedRole)}</strong>)</span>
+                    </div>
+                  `}
                 </div>
               </div>
 
@@ -1667,14 +1808,34 @@ export async function initTeamBonding(container, options = {}) {
     /* ── LUDO 2-PLAYER DUEL BOARD HTML BUILDER ── */
     function renderLudoBoardHtml(isP1, me, isMyTurn) {
       const state = match.gameState || {};
-      const p1Tokens = state.p1Tokens || [{ id: 0, step: -1 }, { id: 1, step: -1 }];
-      const p2Tokens = state.p2Tokens || [{ id: 0, step: -1 }, { id: 1, step: -1 }];
-      const myRole = me.assignedRole; // 'red' or 'green'
-      const myTokens = myRole === 'red' ? p1Tokens : p2Tokens;
-      const oppTokens = myRole === 'red' ? p2Tokens : p1Tokens;
+      const activeColors = state.activeColors || ['red', 'green'];
+      const players = state.players || [
+        { ...match.player1, color: 'red', assignedRole: 'red', isBot: false },
+        { ...match.player2, color: 'green', assignedRole: 'green', isBot: false }
+      ];
+
+      // Pawns structure: guaranteed 4 pawns per color
+      const allTokens = state.tokens || {};
+      const getTokensForColor = (col) => {
+        const list = allTokens[col] || (col === 'red' ? state.p1Tokens : (col === 'green' ? state.p2Tokens : [])) || [];
+        return Array.from({ length: 4 }, (_, i) => list[i] || { id: i, step: -1 });
+      };
+
+      const tokensRed = getTokensForColor('red');
+      const tokensGreen = getTokensForColor('green');
+      const tokensYellow = getTokensForColor('yellow');
+      const tokensBlue = getTokensForColor('blue');
+
+      const myId = currentUser?._id || currentUser?.id;
+      const myPlayer = players.find(p => p.userId && p.userId.toString() === myId?.toString()) || players[0];
+      const myColor = myPlayer?.color || (isP1 ? 'red' : 'green');
+      const currentTurnColor = state.turnColor || match.turn || 'red';
+      const isMyCurrentTurn = (myColor === currentTurnColor) && match.status === 'active';
+
       const rolled = !!state.rolled;
       const dice = state.dice;
 
+      // 52-square perimeter track
       const trackCoords = [
         [6, 1], [6, 2], [6, 3], [6, 4], [6, 5],
         [5, 6], [4, 6], [3, 6], [2, 6], [1, 6], [0, 6],
@@ -1689,59 +1850,69 @@ export async function initTeamBonding(container, options = {}) {
         [8, 5], [8, 4], [8, 3], [8, 2], [8, 1], [8, 0],
         [7, 0], [6, 0]
       ];
+
+      // 5-step Home Stretches
       const redHomeStretch = [ [7, 1], [7, 2], [7, 3], [7, 4], [7, 5] ];
       const greenHomeStretch = [ [1, 7], [2, 7], [3, 7], [4, 7], [5, 7] ];
+      const yellowHomeStretch = [ [7, 13], [7, 12], [7, 11], [7, 10], [7, 9] ];
+      const blueHomeStretch = [ [13, 7], [12, 7], [11, 7], [10, 7], [9, 7] ];
+
       const safeSquares = [0, 8, 13, 21, 26, 34, 39, 47];
 
       function getTokenCoord(color, step) {
         if (step < 0) return null;
-        if (step >= 56) return color === 'red' ? [7, 6] : [6, 7];
+        if (step >= 56) {
+          if (color === 'red') return [7, 6];
+          if (color === 'green') return [6, 7];
+          if (color === 'yellow') return [7, 8];
+          return [8, 7];
+        }
+
         if (color === 'red') {
           if (step <= 50) return trackCoords[step];
           return redHomeStretch[step - 51];
-        } else {
+        } else if (color === 'green') {
           if (step <= 50) return trackCoords[(13 + step) % 52];
           return greenHomeStretch[step - 51];
+        } else if (color === 'yellow') {
+          if (step <= 50) return trackCoords[(26 + step) % 52];
+          return yellowHomeStretch[step - 51];
+        } else {
+          if (step <= 50) return trackCoords[(39 + step) % 52];
+          return blueHomeStretch[step - 51];
         }
       }
 
-      function isTokenMovable(token) {
-        if (!isMyTurn || !rolled || !dice || match.status !== 'active') return false;
+      function isTokenMovable(color, token) {
+        if (color !== myColor) return false;
+        if (!isMyCurrentTurn || !rolled || !dice || match.status !== 'active') return false;
         if (token.step === -1) return dice === 6;
         return token.step >= 0 && token.step + dice <= 56;
       }
 
       // Map tokens on the path (0..55)
       const cellTokenMap = {};
-      p1Tokens.forEach(t => {
-        if (t.step >= 0 && t.step < 56) {
-          const coord = getTokenCoord('red', t.step);
-          if (coord) {
-            const k = coord[0] + ',' + coord[1];
-            (cellTokenMap[k] = cellTokenMap[k] || []).push({
-              color: 'red',
-              id: t.id,
-              step: t.step,
-              movable: myRole === 'red' && isTokenMovable(t)
-            });
+      const registerCellTokens = (color, tokens) => {
+        tokens.forEach(t => {
+          if (t.step >= 0 && t.step < 56) {
+            const coord = getTokenCoord(color, t.step);
+            if (coord) {
+              const k = coord[0] + ',' + coord[1];
+              (cellTokenMap[k] = cellTokenMap[k] || []).push({
+                color,
+                id: t.id,
+                step: t.step,
+                movable: isTokenMovable(color, t)
+              });
+            }
           }
-        }
-      });
+        });
+      };
 
-      p2Tokens.forEach(t => {
-        if (t.step >= 0 && t.step < 56) {
-          const coord = getTokenCoord('green', t.step);
-          if (coord) {
-            const k = coord[0] + ',' + coord[1];
-            (cellTokenMap[k] = cellTokenMap[k] || []).push({
-              color: 'green',
-              id: t.id,
-              step: t.step,
-              movable: myRole === 'green' && isTokenMovable(t)
-            });
-          }
-        }
-      });
+      if (activeColors.includes('red')) registerCellTokens('red', tokensRed);
+      if (activeColors.includes('green')) registerCellTokens('green', tokensGreen);
+      if (activeColors.includes('yellow')) registerCellTokens('yellow', tokensYellow);
+      if (activeColors.includes('blue')) registerCellTokens('blue', tokensBlue);
 
       // Track cell lookup
       const trackCoordIndexMap = {};
@@ -1749,17 +1920,15 @@ export async function initTeamBonding(container, options = {}) {
         trackCoordIndexMap[r + ',' + c] = idx;
       });
 
-      // Red Home Stretch lookup
+      // Stretch lookups
       const redStretchIndexMap = {};
-      redHomeStretch.forEach(([r, c], idx) => {
-        redStretchIndexMap[r + ',' + c] = idx + 1;
-      });
-
-      // Green Home Stretch lookup
+      redHomeStretch.forEach(([r, c], idx) => { redStretchIndexMap[r + ',' + c] = idx + 1; });
       const greenStretchIndexMap = {};
-      greenHomeStretch.forEach(([r, c], idx) => {
-        greenStretchIndexMap[r + ',' + c] = idx + 1;
-      });
+      greenHomeStretch.forEach(([r, c], idx) => { greenStretchIndexMap[r + ',' + c] = idx + 1; });
+      const yellowStretchIndexMap = {};
+      yellowHomeStretch.forEach(([r, c], idx) => { yellowStretchIndexMap[r + ',' + c] = idx + 1; });
+      const blueStretchIndexMap = {};
+      blueHomeStretch.forEach(([r, c], idx) => { blueStretchIndexMap[r + ',' + c] = idx + 1; });
 
       // Generate all cells for the 4 arms
       const pathCellsHtml = [];
@@ -1774,17 +1943,27 @@ export async function initTeamBonding(container, options = {}) {
 
           const key = r + ',' + c;
           const trkIdx = trackCoordIndexMap[key];
-          const isRedStretch = redStretchIndexMap[key];
-          const isGreenStretch = greenStretchIndexMap[key];
           const isSafe = trkIdx !== undefined && safeSquares.includes(trkIdx);
+
           const isRedStart = r === 6 && c === 1;
           const isGreenStart = r === 1 && c === 8;
+          const isYellowStart = r === 8 && c === 13;
+          const isBlueStart = r === 13 && c === 6;
+
+          const isRedStretch = redStretchIndexMap[key];
+          const isGreenStretch = greenStretchIndexMap[key];
+          const isYellowStretch = yellowStretchIndexMap[key];
+          const isBlueStretch = blueStretchIndexMap[key];
 
           let cellClass = 'ludo-cell';
           if (isRedStart) cellClass += ' cell-red-start';
           else if (isGreenStart) cellClass += ' cell-green-start';
+          else if (isYellowStart) cellClass += ' cell-yellow-start';
+          else if (isBlueStart) cellClass += ' cell-blue-start';
           else if (isRedStretch) cellClass += ' cell-red-stretch';
           else if (isGreenStretch) cellClass += ' cell-green-stretch';
+          else if (isYellowStretch) cellClass += ' cell-yellow-stretch';
+          else if (isBlueStretch) cellClass += ' cell-blue-stretch';
           else if (isSafe) cellClass += ' cell-safe-star';
 
           const tokensHere = cellTokenMap[key] || [];
@@ -1792,10 +1971,9 @@ export async function initTeamBonding(container, options = {}) {
           pathCellsHtml.push(`
             <div class="${cellClass}" style="grid-row:${r + 1};grid-column:${c + 1}" data-pos="${key}">
               ${isSafe ? '<span class="cell-star-glyph">⭐</span>' : ''}
-              ${isRedStart ? '<span class="cell-arrow-glyph">➔</span>' : ''}
-              ${isGreenStart ? '<span class="cell-arrow-glyph">➔</span>' : ''}
+              ${isRedStart || isGreenStart || isYellowStart || isBlueStart ? '<span class="cell-arrow-glyph">➔</span>' : ''}
               ${tokensHere.map(t => `
-                <div class="ludo-token token-${t.color} ${t.movable ? 'movable' : ''}" data-token-id="${t.id}" data-color="${t.color}" title="${t.color === 'red' ? 'Red' : 'Green'} Token ${t.id + 1}">
+                <div class="ludo-token token-${t.color} ${t.movable ? 'movable' : ''}" data-token-id="${t.id}" data-color="${t.color}" title="${t.color.toUpperCase()} Pawn ${t.id + 1}">
                   <span>${t.id + 1}</span>
                 </div>
               `).join('')}
@@ -1807,74 +1985,66 @@ export async function initTeamBonding(container, options = {}) {
       const diceGlyphs = ['', '⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
 
       function formatStepDesc(t) {
-        if (t.step === -1) return 'In Base';
+        if (!t || t.step === -1) return 'Base';
         if (t.step === 56) return '🏁 Home!';
-        if (t.step > 50) return `Stretch ${t.step - 50}/5`;
-        return `Step ${t.step}/50`;
+        if (t.step > 50) return `H${t.step - 50}`;
+        return `S${t.step}`;
       }
+
+      function renderYardHtml(col, titleText, isActive, playerInfo, tokensList) {
+        const yardClass = `${col}-yard`;
+        if (!isActive) {
+          return `
+            <div class="ludo-yard ${yardClass}">
+              <div class="yard-box decorative">
+                <div class="yard-title">${titleText} (Inactive)</div>
+              </div>
+            </div>
+          `;
+        }
+
+        return `
+          <div class="ludo-yard ${yardClass} ${currentTurnColor === col ? 'yard-active-turn' : ''}">
+            <div class="yard-box">
+              <div class="yard-title">
+                <span>${titleText}</span>
+                ${playerInfo ? `<small class="yard-player-lbl">${escapeHtml(playerInfo.name)}${playerInfo.isBot ? ' 🤖' : ''}</small>` : ''}
+              </div>
+              <div class="yard-slots">
+                ${tokensList.map((t, idx) => `
+                  <div class="yard-token-slot">
+                    ${t.step === -1 ? `
+                      <div class="ludo-token token-${col} ${isTokenMovable(col, t) ? 'movable' : ''}" data-token-id="${t.id}" data-color="${col}" title="${col.toUpperCase()} Pawn ${t.id + 1}">
+                        <span>${t.id + 1}</span>
+                      </div>
+                    ` : `<span class="slot-empty">${idx + 1}</span>`}
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      const redPl = players.find(p => p.color === 'red');
+      const greenPl = players.find(p => p.color === 'green');
+      const yellowPl = players.find(p => p.color === 'yellow');
+      const bluePl = players.find(p => p.color === 'blue');
 
       return `
         <div class="ludo-arena-layout">
           <div class="ludo-board-grid">
             <!-- 1. Red Base Yard (Top-Left 6x6) -->
-            <div class="ludo-yard red-yard">
-              <div class="yard-box">
-                <div class="yard-title">🔴 Red Base</div>
-                <div class="yard-slots">
-                  <div class="yard-token-slot">
-                    ${p1Tokens[0].step === -1 ? `
-                      <div class="ludo-token token-red ${myRole === 'red' && isTokenMovable(p1Tokens[0]) ? 'movable' : ''}" data-token-id="0" data-color="red" title="Red Token 1">
-                        <span>1</span>
-                      </div>
-                    ` : '<span class="slot-empty">1</span>'}
-                  </div>
-                  <div class="yard-token-slot">
-                    ${p1Tokens[1].step === -1 ? `
-                      <div class="ludo-token token-red ${myRole === 'red' && isTokenMovable(p1Tokens[1]) ? 'movable' : ''}" data-token-id="1" data-color="red" title="Red Token 2">
-                        <span>2</span>
-                      </div>
-                    ` : '<span class="slot-empty">2</span>'}
-                  </div>
-                </div>
-              </div>
-            </div>
+            ${renderYardHtml('red', '🔴 Red Base', activeColors.includes('red'), redPl, tokensRed)}
 
             <!-- 2. Green Base Yard (Top-Right 6x6) -->
-            <div class="ludo-yard green-yard">
-              <div class="yard-box">
-                <div class="yard-title">🟢 Green Base</div>
-                <div class="yard-slots">
-                  <div class="yard-token-slot">
-                    ${p2Tokens[0].step === -1 ? `
-                      <div class="ludo-token token-green ${myRole === 'green' && isTokenMovable(p2Tokens[0]) ? 'movable' : ''}" data-token-id="0" data-color="green" title="Green Token 1">
-                        <span>1</span>
-                      </div>
-                    ` : '<span class="slot-empty">1</span>'}
-                  </div>
-                  <div class="yard-token-slot">
-                    ${p2Tokens[1].step === -1 ? `
-                      <div class="ludo-token token-green ${myRole === 'green' && isTokenMovable(p2Tokens[1]) ? 'movable' : ''}" data-token-id="1" data-color="green" title="Green Token 2">
-                        <span>2</span>
-                      </div>
-                    ` : '<span class="slot-empty">2</span>'}
-                  </div>
-                </div>
-              </div>
-            </div>
+            ${renderYardHtml('green', '🟢 Green Base', activeColors.includes('green'), greenPl, tokensGreen)}
 
-            <!-- 3. Blue Base Yard (Bottom-Left 6x6, Decorative) -->
-            <div class="ludo-yard blue-yard">
-              <div class="yard-box decorative">
-                <div class="yard-title">🔵 Blue (Inactive)</div>
-              </div>
-            </div>
+            <!-- 3. Blue Base Yard (Bottom-Left 6x6) -->
+            ${renderYardHtml('blue', '🔵 Blue Base', activeColors.includes('blue'), bluePl, tokensBlue)}
 
-            <!-- 4. Yellow Base Yard (Bottom-Right 6x6, Decorative) -->
-            <div class="ludo-yard yellow-yard">
-              <div class="yard-box decorative">
-                <div class="yard-title">🟡 Yellow (Inactive)</div>
-              </div>
-            </div>
+            <!-- 4. Yellow Base Yard (Bottom-Right 6x6) -->
+            ${renderYardHtml('yellow', '🟡 Yellow Base', activeColors.includes('yellow'), yellowPl, tokensYellow)}
 
             <!-- 5. Center Home Victory Zone (3x3) -->
             <div class="ludo-center-home">
@@ -1885,8 +2055,10 @@ export async function initTeamBonding(container, options = {}) {
               <div class="home-center-core">
                 <span class="home-crown">🏆</span>
                 <div class="home-finished-tokens">
-                  ${p1Tokens.filter(t => t.step === 56).map(t => `<span class="tok-finished red" title="Red Token ${t.id + 1} Home">🔴${t.id+1}</span>`).join('')}
-                  ${p2Tokens.filter(t => t.step === 56).map(t => `<span class="tok-finished green" title="Green Token ${t.id + 1} Home">🟢${t.id+1}</span>`).join('')}
+                  ${tokensRed.filter(t => t.step === 56).map(t => `<span class="tok-finished red" title="Red Pawn ${t.id + 1} Home">🔴${t.id + 1}</span>`).join('')}
+                  ${tokensGreen.filter(t => t.step === 56).map(t => `<span class="tok-finished green" title="Green Pawn ${t.id + 1} Home">🟢${t.id + 1}</span>`).join('')}
+                  ${tokensYellow.filter(t => t.step === 56).map(t => `<span class="tok-finished yellow" title="Yellow Pawn ${t.id + 1} Home">🟡${t.id + 1}</span>`).join('')}
+                  ${tokensBlue.filter(t => t.step === 56).map(t => `<span class="tok-finished blue" title="Blue Pawn ${t.id + 1} Home">🔵${t.id + 1}</span>`).join('')}
                 </div>
               </div>
             </div>
@@ -1905,18 +2077,21 @@ export async function initTeamBonding(container, options = {}) {
             </div>
 
             <div class="ludo-controls-box">
-              ${isMyTurn && !rolled && match.status === 'active' ? `
+              ${isMyCurrentTurn && !rolled && match.status === 'active' ? `
                 <button class="btn-ludo-roll pulse" id="btn-ludo-roll">🎲 Roll Dice</button>
-              ` : (isMyTurn && rolled && match.status === 'active' ? `
+              ` : (isMyCurrentTurn && rolled && match.status === 'active' ? `
                 <div class="ludo-prompt-text highlight">
-                  ${myTokens.some(t => isTokenMovable(t))
-                    ? '👉 Tap your <strong>glowing token</strong> to advance!'
+                  ${getTokensForColor(myColor).some(t => isTokenMovable(myColor, t))
+                    ? '👉 Tap your <strong>glowing pawn</strong> to advance!'
                     : 'No moves possible with this roll. Turn passing...'
                   }
                 </div>
               ` : `
                 <div class="ludo-prompt-text">
-                  ${match.status === 'active' ? '⏳ Waiting for opponent...' : '🏁 Match Concluded'}
+                  ${match.status === 'active'
+                    ? `⏳ Waiting for ${escapeHtml(players.find(p => p.color === currentTurnColor)?.name || 'opponent')} (${currentTurnColor.toUpperCase()})...`
+                    : '🏁 Match Concluded'
+                  }
                 </div>
               `)}
 
@@ -1926,14 +2101,19 @@ export async function initTeamBonding(container, options = {}) {
             </div>
           </div>
 
-          <!-- Token Progress Strip -->
+          <!-- Token Progress Strip for all active players -->
           <div class="ludo-progress-strip">
-            <div class="progress-pill red">
-              <strong>🔴 Red (P1):</strong> T1: ${formatStepDesc(p1Tokens[0])} · T2: ${formatStepDesc(p1Tokens[1])}
-            </div>
-            <div class="progress-pill green">
-              <strong>🟢 Green (P2):</strong> T1: ${formatStepDesc(p2Tokens[0])} · T2: ${formatStepDesc(p2Tokens[1])}
-            </div>
+            ${activeColors.map(col => {
+              const pl = players.find(p => p.color === col);
+              const tokArr = getTokensForColor(col);
+              const colorEmoji = { red: '🔴', green: '🟢', yellow: '🟡', blue: '🔵' }[col];
+              return `
+                <div class="progress-pill ${col} ${currentTurnColor === col ? 'active-turn' : ''}">
+                  <strong>${colorEmoji} ${pl ? escapeHtml(pl.name) : col.toUpperCase()}${pl?.isBot ? ' 🤖' : ''}:</strong>
+                  ${tokArr.map((t, i) => `P${i + 1}: ${formatStepDesc(t)}`).join(' · ')}
+                </div>
+              `;
+            }).join('')}
           </div>
         </div>
       `;
@@ -2172,6 +2352,29 @@ export async function initTeamBonding(container, options = {}) {
     }
 
     renderArena();
+
+    // Trigger automated Bot Turn if active player is an AI Bot
+    function checkBotTurnTrigger() {
+      if (match && match.gameType === 'ludo' && match.status === 'active') {
+        const turnColor = match.gameState?.turnColor || match.turn || 'red';
+        const pl = (match.gameState?.players || []).find(p => p.color === turnColor);
+        if (pl && pl.isBot) {
+          if (window._ludoBotTimer) clearTimeout(window._ludoBotTimer);
+          window._ludoBotTimer = setTimeout(async () => {
+            if (!activeMatchModalId || activeMatchModalId !== matchId) return;
+            try {
+              const updated = await apiPost(`/bonding/matches/${matchId}/bot-move`);
+              match = updated;
+              renderArena();
+              checkBotTurnTrigger();
+            } catch (err) {
+              console.error('Bot turn failed:', err);
+            }
+          }, 850);
+        }
+      }
+    }
+    checkBotTurnTrigger();
   }
 
   /* =========================================================================
@@ -4958,6 +5161,24 @@ function injectBondingStyles() {
       background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
     }
 
+    .ludo-yard.yard-active-turn {
+      outline: 3px solid #38bdf8;
+      box-shadow: 0 0 16px rgba(56, 189, 248, 0.6);
+      transform: scale(1.02);
+      z-index: 2;
+    }
+
+    .yard-player-lbl {
+      display: block;
+      font-size: 8.5px;
+      color: #64748b;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 90px;
+    }
+
     .yard-box {
       width: 100%;
       height: 100%;
@@ -4986,15 +5207,17 @@ function injectBondingStyles() {
     }
 
     .yard-slots {
-      display: flex;
-      gap: 12px;
+      display: grid !important;
+      grid-template-columns: repeat(2, 28px);
+      grid-template-rows: repeat(2, 28px);
+      gap: 6px;
       align-items: center;
       justify-content: center;
     }
 
     .yard-token-slot {
-      width: 32px;
-      height: 32px;
+      width: 28px;
+      height: 28px;
       border-radius: 50%;
       background: #f1f5f9;
       border: 1.5px dashed #cbd5e1;
@@ -5167,6 +5390,85 @@ function injectBondingStyles() {
       background: radial-gradient(circle at 35% 35%, #34d399, #047857);
       border: 1.5px solid #ffffff;
       box-shadow: 0 2px 5px rgba(4, 120, 87, 0.7);
+    }
+
+    .ludo-token.token-yellow {
+      background: radial-gradient(circle at 35% 35%, #fde047, #d97706);
+      border: 1.5px solid #ffffff;
+      box-shadow: 0 2px 5px rgba(217, 119, 6, 0.7);
+    }
+
+    .ludo-token.token-blue {
+      background: radial-gradient(circle at 35% 35%, #60a5fa, #1d4ed8);
+      border: 1.5px solid #ffffff;
+      box-shadow: 0 2px 5px rgba(29, 78, 216, 0.7);
+    }
+
+    .cell-yellow-start {
+      background: #fef3c7 !important;
+      border: 1.5px solid #f59e0b !important;
+    }
+
+    .cell-blue-start {
+      background: #dbeafe !important;
+      border: 1.5px solid #3b82f6 !important;
+    }
+
+    .cell-yellow-stretch {
+      background: #f59e0b !important;
+      color: #ffffff !important;
+    }
+
+    .cell-blue-stretch {
+      background: #3b82f6 !important;
+      color: #ffffff !important;
+    }
+
+    .tok-finished.yellow { background: #d97706; }
+    .tok-finished.blue { background: #2563eb; }
+
+    .progress-pill.yellow { border-left: 4px solid #f59e0b; }
+    .progress-pill.blue { border-left: 4px solid #3b82f6; }
+
+    .ludo-players-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .player-tag.turn-active {
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.7);
+      border-color: #38bdf8 !important;
+    }
+
+    .ludo-mode-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .ludo-mode-btn {
+      flex: 1;
+      min-width: 90px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border-sm, #334155);
+      background: var(--bg-card, #1e293b);
+      color: var(--text-1, #e2e8f0);
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s ease;
+    }
+
+    .ludo-mode-btn.active {
+      background: #3b82f6;
+      border-color: #60a5fa;
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.35);
     }
 
     .ludo-token.movable {

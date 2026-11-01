@@ -16,11 +16,12 @@ const GameMatchSchema = new mongoose.Schema({
     assignedRole: { type: String, required: true } // 'white', 'X', 'red'
   },
   player2: {
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
     name: { type: String, required: true },
     role: { type: String, default: 'employee' },
     assignedRole: { type: String, required: true } // 'black', 'O', 'yellow'
   },
+  playerCount: { type: Number, default: 2 },
   status: {
     type: String,
     enum: ['active', 'completed', 'resigned', 'draw', 'abandoned'],
@@ -28,7 +29,7 @@ const GameMatchSchema = new mongoose.Schema({
     index: true
   },
   turn: { type: String, required: true }, // 'white'|'black', 'X'|'O', 'red'|'yellow'
-  currentTurnUserId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  currentTurnUserId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
   gameState: {
     type: mongoose.Schema.Types.Mixed,
     default: {}
