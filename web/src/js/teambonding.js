@@ -490,7 +490,7 @@ export async function initTeamBonding(container, options = {}) {
         const cd = msg.challengeData;
         const gTitle = cd.gameTitle || 'Game Challenge';
         const gType = cd.gameType || 'chess';
-        const gIcon = gType === 'chess' ? '♟️' : '❌';
+        const gIcon = gType === 'chess' ? '♟️' : (gType === 'ludo' ? '🎲' : '❌');
         const inviteId = cd.gameState?.invitationId;
         const targetId = cd.targetUserId?.toString();
         const senderId = msg.sender?.userId?.toString();
@@ -1014,7 +1014,7 @@ export async function initTeamBonding(container, options = {}) {
                       return `
                         <div class="lounge-active-match-card ${myTurn ? 'turn-active' : ''}">
                           <div class="active-match-left">
-                            <span class="match-game-icon">${m.gameType === 'chess' ? '♟️' : '❌'}</span>
+                            <span class="match-game-icon">${m.gameType === 'chess' ? '♟️' : (m.gameType === 'ludo' ? '🎲' : '❌')}</span>
                             <div>
                               <div class="match-game-title">${escapeHtml(m.gameTitle)}</div>
                               <div class="match-opp-text">Opponent: <strong>${escapeHtml(opp.name)}</strong> (${escapeHtml(opp.role)})</div>
@@ -1246,6 +1246,9 @@ export async function initTeamBonding(container, options = {}) {
                   <button class="game-pill-btn ${selectedGame === 'tictactoe' ? 'active' : ''}" data-game="tictactoe">
                     <span>❌</span> <span>Tic-Tac-Toe</span>
                   </button>
+                  <button class="game-pill-btn ${selectedGame === 'ludo' ? 'active' : ''}" data-game="ludo">
+                    <span>🎲</span> <span>Ludo Duel</span>
+                  </button>
                 </div>
               </div>
 
@@ -1300,7 +1303,7 @@ export async function initTeamBonding(container, options = {}) {
               <div class="flow-confirmation-card">
                 <div class="confirm-head">Challenge Summary:</div>
                 <div class="confirm-body">
-                  <div><strong>Game:</strong> ${selectedGame === 'chess' ? '♟️ Chess Duel' : '❌ Tic-Tac-Toe Challenge'}</div>
+                  <div><strong>Game:</strong> ${selectedGame === 'ludo' ? '🎲 Ludo Duel' : (selectedGame === 'chess' ? '♟️ Chess Duel' : '❌ Tic-Tac-Toe Challenge')}</div>
                   <div><strong>Opponent:</strong> ${targetUserObj ? `<strong>${escapeHtml(targetUserObj.name)}</strong> (${escapeHtml(targetUserObj.role)})` : '<span style="color:#ef4444">⚠️ No employee selected yet</span>'}</div>
                   ${selectedGame === 'chess' ? `<div><strong>Time Control:</strong> ${selectedTimerMode === 'none' ? 'Untimed' : selectedTimerMode}</div>` : ''}
                 </div>
@@ -1502,13 +1505,13 @@ export async function initTeamBonding(container, options = {}) {
             <!-- Arena Header Bar -->
             <div class="arena-header">
               <div class="arena-title-wrap">
-                <span class="arena-icon">${match.gameType === 'chess' ? '♟️' : '❌'}</span>
+                <span class="arena-icon">${match.gameType === 'ludo' ? '🎲' : (match.gameType === 'chess' ? '♟️' : '❌')}</span>
                 <div>
                   <h3 class="arena-title">${escapeHtml(match.gameTitle)}</h3>
                   <div class="arena-players-vs">
-                    <span class="player-tag self">${escapeHtml(me.name)} (You · <strong>${match.gameType === 'tictactoe' ? (me.assignedRole === 'X' ? '✕' : '◯') : me.assignedRole}</strong>)</span>
+                    <span class="player-tag self">${escapeHtml(me.name)} (You · <strong>${match.gameType === 'ludo' ? (me.assignedRole === 'red' ? '🔴 Red' : '🟢 Green') : (match.gameType === 'tictactoe' ? (me.assignedRole === 'X' ? '✕' : '◯') : me.assignedRole)}</strong>)</span>
                     <span class="vs-pill">VS</span>
-                    <span class="player-tag opp">${escapeHtml(opp.name)} (<strong>${match.gameType === 'tictactoe' ? (opp.assignedRole === 'X' ? '✕' : '◯') : opp.assignedRole}</strong>)</span>
+                    <span class="player-tag opp">${escapeHtml(opp.name)} (<strong>${match.gameType === 'ludo' ? (opp.assignedRole === 'red' ? '🔴 Red' : '🟢 Green') : (match.gameType === 'tictactoe' ? (opp.assignedRole === 'X' ? '✕' : '◯') : opp.assignedRole)}</strong>)</span>
                   </div>
                 </div>
               </div>
@@ -1528,9 +1531,15 @@ export async function initTeamBonding(container, options = {}) {
             <!-- Sub-Toolbar with Quick Instructions & Draw/Resign Actions -->
             <div class="arena-toolbar">
               <div class="arena-tip-text">
-                ${match.gameType === 'tictactoe'
-                  ? (isMyTurn ? '👉 Tap any open cell to place your symbol!' : '⏳ Opponent is deciding their move...')
-                  : (isMyTurn ? '👉 Click your piece, then click a green target dot to move!' : '⏳ Opponent is thinking...')
+                ${match.gameType === 'ludo'
+                  ? (isMyTurn
+                      ? (match.gameState?.rolled
+                          ? '👉 Click one of your glowing tokens to advance!'
+                          : '🎲 Your turn! Click ROLL DICE to start your move.')
+                      : '⏳ Opponent is rolling/moving their tokens...')
+                  : (match.gameType === 'tictactoe'
+                      ? (isMyTurn ? '👉 Tap any open cell to place your symbol!' : '⏳ Opponent is deciding their move...')
+                      : (isMyTurn ? '👉 Click your piece, then click a green target dot to move!' : '⏳ Opponent is thinking...'))
                 }
               </div>
               <div class="arena-action-btns">
@@ -1555,6 +1564,7 @@ export async function initTeamBonding(container, options = {}) {
             <div class="arena-board-wrap">
               ${match.gameType === 'chess' ? renderChessBoardHtml(isP1) : ''}
               ${match.gameType === 'tictactoe' ? renderTicTacToeBoardHtml() : ''}
+              ${match.gameType === 'ludo' ? renderLudoBoardHtml(isP1, me, isMyTurn) : ''}
             </div>
 
             <!-- Match Result Banner (When finished) -->
@@ -1649,6 +1659,281 @@ export async function initTeamBonding(container, options = {}) {
                 </div>
               `;
             }).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    /* ── LUDO 2-PLAYER DUEL BOARD HTML BUILDER ── */
+    function renderLudoBoardHtml(isP1, me, isMyTurn) {
+      const state = match.gameState || {};
+      const p1Tokens = state.p1Tokens || [{ id: 0, step: -1 }, { id: 1, step: -1 }];
+      const p2Tokens = state.p2Tokens || [{ id: 0, step: -1 }, { id: 1, step: -1 }];
+      const myRole = me.assignedRole; // 'red' or 'green'
+      const myTokens = myRole === 'red' ? p1Tokens : p2Tokens;
+      const oppTokens = myRole === 'red' ? p2Tokens : p1Tokens;
+      const rolled = !!state.rolled;
+      const dice = state.dice;
+
+      const trackCoords = [
+        [6, 1], [6, 2], [6, 3], [6, 4], [6, 5],
+        [5, 6], [4, 6], [3, 6], [2, 6], [1, 6], [0, 6],
+        [0, 7], [0, 8],
+        [1, 8], [2, 8], [3, 8], [4, 8], [5, 8],
+        [6, 9], [6, 10], [6, 11], [6, 12], [6, 13], [6, 14],
+        [7, 14], [8, 14],
+        [8, 13], [8, 12], [8, 11], [8, 10], [8, 9],
+        [9, 8], [10, 8], [11, 8], [12, 8], [13, 8], [14, 8],
+        [14, 7], [14, 6],
+        [13, 6], [12, 6], [11, 6], [10, 6], [9, 6],
+        [8, 5], [8, 4], [8, 3], [8, 2], [8, 1], [8, 0],
+        [7, 0], [6, 0]
+      ];
+      const redHomeStretch = [ [7, 1], [7, 2], [7, 3], [7, 4], [7, 5] ];
+      const greenHomeStretch = [ [1, 7], [2, 7], [3, 7], [4, 7], [5, 7] ];
+      const safeSquares = [0, 8, 13, 21, 26, 34, 39, 47];
+
+      function getTokenCoord(color, step) {
+        if (step < 0) return null;
+        if (step >= 56) return color === 'red' ? [7, 6] : [6, 7];
+        if (color === 'red') {
+          if (step <= 50) return trackCoords[step];
+          return redHomeStretch[step - 51];
+        } else {
+          if (step <= 50) return trackCoords[(13 + step) % 52];
+          return greenHomeStretch[step - 51];
+        }
+      }
+
+      function isTokenMovable(token) {
+        if (!isMyTurn || !rolled || !dice || match.status !== 'active') return false;
+        if (token.step === -1) return dice === 6;
+        return token.step >= 0 && token.step + dice <= 56;
+      }
+
+      // Map tokens on the path (0..55)
+      const cellTokenMap = {};
+      p1Tokens.forEach(t => {
+        if (t.step >= 0 && t.step < 56) {
+          const coord = getTokenCoord('red', t.step);
+          if (coord) {
+            const k = coord[0] + ',' + coord[1];
+            (cellTokenMap[k] = cellTokenMap[k] || []).push({
+              color: 'red',
+              id: t.id,
+              step: t.step,
+              movable: myRole === 'red' && isTokenMovable(t)
+            });
+          }
+        }
+      });
+
+      p2Tokens.forEach(t => {
+        if (t.step >= 0 && t.step < 56) {
+          const coord = getTokenCoord('green', t.step);
+          if (coord) {
+            const k = coord[0] + ',' + coord[1];
+            (cellTokenMap[k] = cellTokenMap[k] || []).push({
+              color: 'green',
+              id: t.id,
+              step: t.step,
+              movable: myRole === 'green' && isTokenMovable(t)
+            });
+          }
+        }
+      });
+
+      // Track cell lookup
+      const trackCoordIndexMap = {};
+      trackCoords.forEach(([r, c], idx) => {
+        trackCoordIndexMap[r + ',' + c] = idx;
+      });
+
+      // Red Home Stretch lookup
+      const redStretchIndexMap = {};
+      redHomeStretch.forEach(([r, c], idx) => {
+        redStretchIndexMap[r + ',' + c] = idx + 1;
+      });
+
+      // Green Home Stretch lookup
+      const greenStretchIndexMap = {};
+      greenHomeStretch.forEach(([r, c], idx) => {
+        greenStretchIndexMap[r + ',' + c] = idx + 1;
+      });
+
+      // Generate all cells for the 4 arms
+      const pathCellsHtml = [];
+      for (let r = 0; r < 15; r++) {
+        for (let c = 0; c < 15; c++) {
+          // Skip the 4 yards (6x6 each) and Center Home (3x3)
+          if (r < 6 && c < 6) continue; // Red yard
+          if (r < 6 && c > 8) continue; // Green yard
+          if (r > 8 && c < 6) continue; // Blue yard
+          if (r > 8 && c > 8) continue; // Yellow yard
+          if (r >= 6 && r <= 8 && c >= 6 && c <= 8) continue; // Center Home
+
+          const key = r + ',' + c;
+          const trkIdx = trackCoordIndexMap[key];
+          const isRedStretch = redStretchIndexMap[key];
+          const isGreenStretch = greenStretchIndexMap[key];
+          const isSafe = trkIdx !== undefined && safeSquares.includes(trkIdx);
+          const isRedStart = r === 6 && c === 1;
+          const isGreenStart = r === 1 && c === 8;
+
+          let cellClass = 'ludo-cell';
+          if (isRedStart) cellClass += ' cell-red-start';
+          else if (isGreenStart) cellClass += ' cell-green-start';
+          else if (isRedStretch) cellClass += ' cell-red-stretch';
+          else if (isGreenStretch) cellClass += ' cell-green-stretch';
+          else if (isSafe) cellClass += ' cell-safe-star';
+
+          const tokensHere = cellTokenMap[key] || [];
+
+          pathCellsHtml.push(`
+            <div class="${cellClass}" style="grid-row:${r + 1};grid-column:${c + 1}" data-pos="${key}">
+              ${isSafe ? '<span class="cell-star-glyph">⭐</span>' : ''}
+              ${isRedStart ? '<span class="cell-arrow-glyph">➔</span>' : ''}
+              ${isGreenStart ? '<span class="cell-arrow-glyph">➔</span>' : ''}
+              ${tokensHere.map(t => `
+                <div class="ludo-token token-${t.color} ${t.movable ? 'movable' : ''}" data-token-id="${t.id}" data-color="${t.color}" title="${t.color === 'red' ? 'Red' : 'Green'} Token ${t.id + 1}">
+                  <span>${t.id + 1}</span>
+                </div>
+              `).join('')}
+            </div>
+          `);
+        }
+      }
+
+      const diceGlyphs = ['', '⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
+
+      function formatStepDesc(t) {
+        if (t.step === -1) return 'In Base';
+        if (t.step === 56) return '🏁 Home!';
+        if (t.step > 50) return `Stretch ${t.step - 50}/5`;
+        return `Step ${t.step}/50`;
+      }
+
+      return `
+        <div class="ludo-arena-layout">
+          <div class="ludo-board-grid">
+            <!-- 1. Red Base Yard (Top-Left 6x6) -->
+            <div class="ludo-yard red-yard">
+              <div class="yard-box">
+                <div class="yard-title">🔴 Red Base</div>
+                <div class="yard-slots">
+                  <div class="yard-token-slot">
+                    ${p1Tokens[0].step === -1 ? `
+                      <div class="ludo-token token-red ${myRole === 'red' && isTokenMovable(p1Tokens[0]) ? 'movable' : ''}" data-token-id="0" data-color="red" title="Red Token 1">
+                        <span>1</span>
+                      </div>
+                    ` : '<span class="slot-empty">1</span>'}
+                  </div>
+                  <div class="yard-token-slot">
+                    ${p1Tokens[1].step === -1 ? `
+                      <div class="ludo-token token-red ${myRole === 'red' && isTokenMovable(p1Tokens[1]) ? 'movable' : ''}" data-token-id="1" data-color="red" title="Red Token 2">
+                        <span>2</span>
+                      </div>
+                    ` : '<span class="slot-empty">2</span>'}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 2. Green Base Yard (Top-Right 6x6) -->
+            <div class="ludo-yard green-yard">
+              <div class="yard-box">
+                <div class="yard-title">🟢 Green Base</div>
+                <div class="yard-slots">
+                  <div class="yard-token-slot">
+                    ${p2Tokens[0].step === -1 ? `
+                      <div class="ludo-token token-green ${myRole === 'green' && isTokenMovable(p2Tokens[0]) ? 'movable' : ''}" data-token-id="0" data-color="green" title="Green Token 1">
+                        <span>1</span>
+                      </div>
+                    ` : '<span class="slot-empty">1</span>'}
+                  </div>
+                  <div class="yard-token-slot">
+                    ${p2Tokens[1].step === -1 ? `
+                      <div class="ludo-token token-green ${myRole === 'green' && isTokenMovable(p2Tokens[1]) ? 'movable' : ''}" data-token-id="1" data-color="green" title="Green Token 2">
+                        <span>2</span>
+                      </div>
+                    ` : '<span class="slot-empty">2</span>'}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 3. Blue Base Yard (Bottom-Left 6x6, Decorative) -->
+            <div class="ludo-yard blue-yard">
+              <div class="yard-box decorative">
+                <div class="yard-title">🔵 Blue (Inactive)</div>
+              </div>
+            </div>
+
+            <!-- 4. Yellow Base Yard (Bottom-Right 6x6, Decorative) -->
+            <div class="ludo-yard yellow-yard">
+              <div class="yard-box decorative">
+                <div class="yard-title">🟡 Yellow (Inactive)</div>
+              </div>
+            </div>
+
+            <!-- 5. Center Home Victory Zone (3x3) -->
+            <div class="ludo-center-home">
+              <div class="home-triangle red-tri"></div>
+              <div class="home-triangle green-tri"></div>
+              <div class="home-triangle yellow-tri"></div>
+              <div class="home-triangle blue-tri"></div>
+              <div class="home-center-core">
+                <span class="home-crown">🏆</span>
+                <div class="home-finished-tokens">
+                  ${p1Tokens.filter(t => t.step === 56).map(t => `<span class="tok-finished red" title="Red Token ${t.id + 1} Home">🔴${t.id+1}</span>`).join('')}
+                  ${p2Tokens.filter(t => t.step === 56).map(t => `<span class="tok-finished green" title="Green Token ${t.id + 1} Home">🟢${t.id+1}</span>`).join('')}
+                </div>
+              </div>
+            </div>
+
+            <!-- 6. All Track Cells -->
+            ${pathCellsHtml.join('')}
+          </div>
+
+          <!-- Ludo Action & Dice Roller Console -->
+          <div class="ludo-console">
+            <div class="ludo-dice-box">
+              <div class="ludo-dice-visual ${rolled ? 'rolled' : ''}">
+                ${dice ? `<span class="dice-glyph">${diceGlyphs[dice]}</span>` : '🎲'}
+              </div>
+              ${dice ? `<span class="dice-num-lbl">Rolled ${dice}</span>` : '<span class="dice-num-lbl">Ready</span>'}
+            </div>
+
+            <div class="ludo-controls-box">
+              ${isMyTurn && !rolled && match.status === 'active' ? `
+                <button class="btn-ludo-roll pulse" id="btn-ludo-roll">🎲 Roll Dice</button>
+              ` : (isMyTurn && rolled && match.status === 'active' ? `
+                <div class="ludo-prompt-text highlight">
+                  ${myTokens.some(t => isTokenMovable(t))
+                    ? '👉 Tap your <strong>glowing token</strong> to advance!'
+                    : 'No moves possible with this roll. Turn passing...'
+                  }
+                </div>
+              ` : `
+                <div class="ludo-prompt-text">
+                  ${match.status === 'active' ? '⏳ Waiting for opponent...' : '🏁 Match Concluded'}
+                </div>
+              `)}
+
+              <div class="ludo-status-banner">
+                ${escapeHtml(state.lastActionText || 'Match in progress.')}
+              </div>
+            </div>
+          </div>
+
+          <!-- Token Progress Strip -->
+          <div class="ludo-progress-strip">
+            <div class="progress-pill red">
+              <strong>🔴 Red (P1):</strong> T1: ${formatStepDesc(p1Tokens[0])} · T2: ${formatStepDesc(p1Tokens[1])}
+            </div>
+            <div class="progress-pill green">
+              <strong>🟢 Green (P2):</strong> T1: ${formatStepDesc(p2Tokens[0])} · T2: ${formatStepDesc(p2Tokens[1])}
+            </div>
           </div>
         </div>
       `;
@@ -1843,6 +2128,46 @@ export async function initTeamBonding(container, options = {}) {
             }
           };
         });
+      }
+
+      // C. LUDO DICE ROLL & TOKEN MOVEMENT INTERACTION
+      if (match.gameType === 'ludo' && match.status === 'active') {
+        // Roll dice button
+        const btnRoll = modalRoot.querySelector('#btn-ludo-roll');
+        if (btnRoll && isMyTurn) {
+          btnRoll.onclick = async () => {
+            try {
+              btnRoll.disabled = true;
+              btnRoll.textContent = 'Rolling 🎲...';
+              const updated = await apiPost(`/bonding/matches/${matchId}/move`, { action: 'roll' });
+              match = updated;
+              renderArena();
+            } catch (err) {
+              flashToast(err.message || 'Failed to roll', 'error');
+              btnRoll.disabled = false;
+              btnRoll.textContent = '🎲 Roll Dice';
+            }
+          };
+        }
+
+        // Movable tokens click
+        if (isMyTurn) {
+          modalRoot.querySelectorAll('.ludo-token.movable').forEach(tokenEl => {
+            tokenEl.onclick = async (e) => {
+              e.stopPropagation();
+              const tId = tokenEl.dataset.tokenId;
+              try {
+                tokenEl.style.opacity = '0.5';
+                const updated = await apiPost(`/bonding/matches/${matchId}/move`, { action: 'move', tokenId: Number(tId) });
+                match = updated;
+                renderArena();
+              } catch (err) {
+                flashToast(err.message || 'Invalid token move', 'error');
+                tokenEl.style.opacity = '1';
+              }
+            };
+          });
+        }
       }
     }
 
@@ -4561,6 +4886,460 @@ function injectBondingStyles() {
       flex-wrap: wrap;
       gap: 4px;
       align-content: flex-start;
+    }
+
+
+    /* =========================================================================
+       LUDO MULTIPLAYER DUEL BOARD (15x15 AUTHENTIC CROSS)
+       ========================================================================= */
+    .ludo-arena-layout {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      width: 100%;
+    }
+
+    .ludo-board-grid {
+      display: grid !important;
+      grid-template-columns: repeat(15, 26px) !important;
+      grid-template-rows: repeat(15, 26px) !important;
+      width: 390px !important;
+      height: 390px !important;
+      border: 3px solid #334155;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.28);
+      background: #ffffff;
+      user-select: none;
+      box-sizing: border-box !important;
+      position: relative;
+    }
+
+    @media (max-width: 480px) {
+      .ludo-board-grid {
+        grid-template-columns: repeat(15, 21px) !important;
+        grid-template-rows: repeat(15, 21px) !important;
+        width: 315px !important;
+        height: 315px !important;
+      }
+    }
+
+    /* Yards */
+    .ludo-yard {
+      padding: 8px;
+      box-sizing: border-box;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .ludo-yard.red-yard {
+      grid-column: 1 / 7;
+      grid-row: 1 / 7;
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    }
+
+    .ludo-yard.green-yard {
+      grid-column: 10 / 16;
+      grid-row: 1 / 7;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    }
+
+    .ludo-yard.blue-yard {
+      grid-column: 1 / 7;
+      grid-row: 10 / 16;
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    }
+
+    .ludo-yard.yellow-yard {
+      grid-column: 10 / 16;
+      grid-row: 10 / 16;
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    }
+
+    .yard-box {
+      width: 100%;
+      height: 100%;
+      background: #ffffff;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: inset 0 2px 6px rgba(0,0,0,0.15);
+      padding: 6px;
+      box-sizing: border-box;
+    }
+
+    .yard-box.decorative {
+      opacity: 0.65;
+    }
+
+    .yard-title {
+      font-size: 10.5px;
+      font-weight: 800;
+      color: #334155;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    .yard-slots {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .yard-token-slot {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #f1f5f9;
+      border: 1.5px dashed #cbd5e1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .slot-empty {
+      font-size: 10px;
+      color: #94a3b8;
+      font-weight: 700;
+    }
+
+    /* Center Home Victory Area */
+    .ludo-center-home {
+      grid-column: 7 / 10;
+      grid-row: 7 / 10;
+      position: relative;
+      background: #1e293b;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .home-triangle {
+      position: absolute;
+      width: 0;
+      height: 0;
+      border-style: solid;
+    }
+
+    .home-triangle.red-tri {
+      top: 0; left: 0; bottom: 0;
+      border-width: 39px 0 39px 39px;
+      border-color: transparent transparent transparent #ef4444;
+    }
+
+    .home-triangle.green-tri {
+      top: 0; left: 0; right: 0;
+      border-width: 39px 39px 0 39px;
+      border-color: #10b981 transparent transparent transparent;
+    }
+
+    .home-triangle.yellow-tri {
+      top: 0; right: 0; bottom: 0;
+      border-width: 39px 39px 39px 0;
+      border-color: transparent #f59e0b transparent transparent;
+    }
+
+    .home-triangle.blue-tri {
+      bottom: 0; left: 0; right: 0;
+      border-width: 0 39px 39px 39px;
+      border-color: transparent transparent #3b82f6 transparent;
+    }
+
+    .home-center-core {
+      position: relative;
+      z-index: 5;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .home-crown {
+      font-size: 18px;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+    }
+
+    .home-finished-tokens {
+      display: flex;
+      gap: 3px;
+      margin-top: 2px;
+    }
+
+    .tok-finished {
+      font-size: 9px;
+      font-weight: 800;
+      padding: 1px 3px;
+      border-radius: 4px;
+      background: rgba(0,0,0,0.6);
+      color: #fff;
+    }
+
+    /* Pathway Cells */
+    .ludo-cell {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 0.5px solid #cbd5e1;
+      background: #ffffff;
+      box-sizing: border-box;
+      font-size: 11px;
+    }
+
+    [data-theme="dark"] .ludo-cell {
+      background: #1e293b;
+      border-color: #334155;
+    }
+
+    .cell-red-start {
+      background: #fee2e2 !important;
+      border: 1.5px solid #ef4444 !important;
+    }
+
+    .cell-green-start {
+      background: #d1fae5 !important;
+      border: 1.5px solid #10b981 !important;
+    }
+
+    .cell-red-stretch {
+      background: #ef4444 !important;
+      color: #ffffff !important;
+    }
+
+    .cell-green-stretch {
+      background: #10b981 !important;
+      color: #ffffff !important;
+    }
+
+    .cell-safe-star {
+      background: #fef3c7 !important;
+    }
+
+    .cell-star-glyph {
+      font-size: 11px;
+      line-height: 1;
+      position: absolute;
+      opacity: 0.85;
+      pointer-events: none;
+    }
+
+    .cell-arrow-glyph {
+      font-size: 10px;
+      font-weight: 800;
+      color: inherit;
+      position: absolute;
+      opacity: 0.7;
+      pointer-events: none;
+    }
+
+    /* Tokens */
+    .ludo-token {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 10px;
+      color: #ffffff;
+      cursor: default;
+      transition: all 0.15s ease;
+      z-index: 10;
+      user-select: none;
+    }
+
+    .ludo-token.token-red {
+      background: radial-gradient(circle at 35% 35%, #f87171, #b91c1c);
+      border: 1.5px solid #ffffff;
+      box-shadow: 0 2px 5px rgba(185, 28, 28, 0.7);
+    }
+
+    .ludo-token.token-green {
+      background: radial-gradient(circle at 35% 35%, #34d399, #047857);
+      border: 1.5px solid #ffffff;
+      box-shadow: 0 2px 5px rgba(4, 120, 87, 0.7);
+    }
+
+    .ludo-token.movable {
+      cursor: pointer !important;
+      animation: ludoTokPulse 0.9s infinite alternate !important;
+      transform: scale(1.18);
+      box-shadow: 0 0 10px #38bdf8, 0 0 18px #0284c7 !important;
+    }
+
+    .ludo-token.movable:hover {
+      transform: scale(1.3) !important;
+    }
+
+    @keyframes ludoTokPulse {
+      from { transform: scale(1.1); filter: brightness(1); }
+      to { transform: scale(1.22); filter: brightness(1.25); }
+    }
+
+    /* Ludo Console & Dice */
+    .ludo-console {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      width: 100%;
+      max-width: 440px;
+      background: var(--bg-muted, #f8fafc);
+      border: 1px solid var(--border-sm, #e2e8f0);
+      border-radius: 12px;
+      padding: 12px 16px;
+      box-sizing: border-box;
+    }
+
+    [data-theme="dark"] .ludo-console {
+      background: #182234;
+      border-color: #2b3952;
+    }
+
+    .ludo-dice-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+
+    .ludo-dice-visual {
+      width: 44px;
+      height: 44px;
+      background: #ffffff;
+      color: #0f172a;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+      border: 2px solid #cbd5e1;
+      transition: transform 0.25s ease;
+    }
+
+    .dice-glyph {
+      font-size: 30px;
+      line-height: 1;
+    }
+
+    .dice-num-lbl {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-2, #64748B);
+    }
+
+    .ludo-controls-box {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .btn-ludo-roll {
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      color: #ffffff;
+      font-weight: 700;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 13px;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+      transition: all 0.15s ease;
+      align-self: flex-start;
+    }
+
+    .btn-ludo-roll:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(37, 99, 235, 0.45);
+    }
+
+    .btn-ludo-roll.pulse {
+      animation: ludoRollPulse 1s infinite alternate;
+    }
+
+    @keyframes ludoRollPulse {
+      from { box-shadow: 0 0 4px rgba(37, 99, 235, 0.4); }
+      to { box-shadow: 0 0 16px rgba(37, 99, 235, 0.8); }
+    }
+
+    .ludo-prompt-text {
+      font-size: 12px;
+      color: var(--text-2, #64748B);
+    }
+
+    .ludo-prompt-text.highlight {
+      color: #0284c7;
+      font-weight: 600;
+    }
+
+    [data-theme="dark"] .ludo-prompt-text.highlight {
+      color: #38bdf8;
+    }
+
+    .ludo-status-banner {
+      font-size: 11.5px;
+      color: var(--text-1, #1e293b);
+      background: var(--bg-card, #ffffff);
+      padding: 4px 8px;
+      border-radius: 6px;
+      border: 1px solid var(--border-sm, #e2e8f0);
+    }
+
+    [data-theme="dark"] .ludo-status-banner {
+      background: #111827;
+      border-color: #374151;
+      color: #f3f4f6;
+    }
+
+    .ludo-progress-strip {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+      width: 100%;
+      max-width: 440px;
+    }
+
+    .progress-pill {
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 12px;
+      border: 1px solid;
+    }
+
+    .progress-pill.red {
+      background: #fef2f2;
+      border-color: #fecaca;
+      color: #b91c1c;
+    }
+
+    [data-theme="dark"] .progress-pill.red {
+      background: rgba(239, 68, 68, 0.15);
+      border-color: rgba(239, 68, 68, 0.4);
+      color: #fca5a5;
+    }
+
+    .progress-pill.green {
+      background: #f0fdf4;
+      border-color: #bbf7d0;
+      color: #15803d;
+    }
+
+    [data-theme="dark"] .progress-pill.green {
+      background: rgba(16, 185, 129, 0.15);
+      border-color: rgba(16, 185, 129, 0.4);
+      color: #86efac;
     }
 
     .chess-move-token {

@@ -44,6 +44,7 @@ async function awardPoints(userId, userName, userRole, pts, isWin = false, gameT
     if (gameType === 'speedtyper') badges.add('Lightning Fingers');
     if (gameType === 'wordle') badges.add('Word Wizard');
     if (gameType === 'tictactoe' && isWin) badges.add('Tactician');
+    if (gameType === 'ludo' && isWin) badges.add('Ludo Master');
 
     score.badges = Array.from(badges);
     await score.save();
@@ -944,6 +945,14 @@ router.get('/games/overview', async (req, res) => {
         desc: 'Fast-paced 3×3 strategic duel. Match three in a row to win before your opponent blocks you.',
         duration: '1–3 mins',
         modes: ['Classic Turn-Based']
+      },
+      {
+        id: 'ludo',
+        name: 'Ludo Duel',
+        icon: '🎲',
+        desc: 'Classic multiplayer Ludo dice battle! Roll a 6 to enter the track, capture opponent tokens, and race home.',
+        duration: '3–6 mins',
+        modes: ['Turn-Based Dice']
       }
     ];
 
@@ -994,8 +1003,8 @@ router.post('/invitations', async (req, res) => {
   try {
     const { gameType, targetUserId, matchSettings, channelId } = req.body;
 
-    if (!['chess', 'tictactoe'].includes(gameType)) {
-      return res.status(400).json({ error: 'Invalid game type. Choose chess or tictactoe.' });
+    if (!['chess', 'tictactoe', 'ludo'].includes(gameType)) {
+      return res.status(400).json({ error: 'Invalid game type. Choose chess, tictactoe, or ludo.' });
     }
 
     if (!targetUserId) {
@@ -1032,7 +1041,8 @@ router.post('/invitations', async (req, res) => {
 
     const titleMap = {
       chess: 'Chess Duel',
-      tictactoe: 'Tic-Tac-Toe Challenge'
+      tictactoe: 'Tic-Tac-Toe Challenge',
+      ludo: 'Ludo Duel'
     };
     const gameTitle = titleMap[gameType] || 'Game Challenge';
 
@@ -1234,6 +1244,19 @@ router.put('/invitations/:id/respond', async (req, res) => {
         initialGameState = {
           grid: Array(6).fill(null).map(() => Array(7).fill(null)),
           turn: 'red'
+        };
+      } else if (invitation.gameType === 'ludo') {
+        p1Role = 'red';
+        p2Role = 'green';
+        initialTurn = 'red';
+        initialGameState = {
+          p1Tokens: [{ id: 0, step: -1 }, { id: 1, step: -1 }],
+          p2Tokens: [{ id: 0, step: -1 }, { id: 1, step: -1 }],
+          dice: null,
+          rolled: false,
+          lastRoll: null,
+          extraRoll: false,
+          lastActionText: 'Match started! Red rolls first.'
         };
       }
 
@@ -1530,6 +1553,165 @@ router.post('/matches/:id/move', async (req, res) => {
       }
     }
 
+    /* ── D. LUDO MOVE ── */
+    else if (match.gameType === 'ludo') {
+      const { action, tokenId } = req.body;
+      const state = match.gameState || {};
+      const pKey = playerRole === 'red' ? 'p1Tokens' : 'p2Tokens';
+      const oppKey = playerRole === 'red' ? 'p2Tokens' : 'p1Tokens';
+      const myTokens = state[pKey] || [{ id: 0, step: -1 }, { id: 1, step: -1 }];
+      const oppTokens = state[oppKey] || [{ id: 0, step: -1 }, { id: 1, step: -1 }];
+      const safeSquares = [0, 8, 13, 21, 26, 34, 39, 47];
+
+      // ACTION 1: ROLL DICE
+      if (action === 'roll') {
+        if (state.rolled) {
+          return res.status(400).json({ error: 'You have already rolled! Select a token to move.' });
+        }
+
+        const dice = Math.floor(Math.random() * 6) + 1;
+        state.dice = dice;
+        state.lastRoll = dice;
+        state.rolled = true;
+
+        // Check if any legal moves exist
+        const movable = [];
+        myTokens.forEach(t => {
+          if (t.step === -1 && dice === 6) movable.push(t.id);
+          else if (t.step >= 0 && t.step + dice <= 56) movable.push(t.id);
+        });
+
+        if (movable.length === 0) {
+          state.rolled = false;
+          state.dice = null;
+          state.lastActionText = `${req.user.name} rolled a ${dice} — No legal moves. Turn passed!`;
+          match.moves.push({
+            moveNum: match.moves.length + 1,
+            playerId: req.user._id,
+            playerRole,
+            moveData: { action: 'roll', dice, movable: false },
+            timestamp: now
+          });
+          // Pass turn to opponent
+          match.turn = playerRole === 'red' ? 'green' : 'red';
+          match.currentTurnUserId = opponentUserId;
+        } else {
+          state.lastActionText = `${req.user.name} rolled a ${dice}! Choose a token to move.`;
+        }
+
+        match.gameState = state;
+        match.drawOfferedBy = null;
+        match.markModified('gameState');
+        match.markModified('matchSettings');
+        await match.save();
+        return res.json(match);
+      }
+
+      // ACTION 2: MOVE TOKEN
+      else if (action === 'move') {
+        if (!state.rolled || !state.dice) {
+          return res.status(400).json({ error: 'You must roll the dice first!' });
+        }
+
+        const tId = Number(tokenId);
+        const token = myTokens.find(t => t.id === tId);
+        if (!token) {
+          return res.status(400).json({ error: 'Invalid token ID' });
+        }
+
+        const dice = state.dice;
+        let canMove = false;
+        if (token.step === -1 && dice === 6) canMove = true;
+        else if (token.step >= 0 && token.step + dice <= 56) canMove = true;
+
+        if (!canMove) {
+          return res.status(400).json({ error: 'This token cannot move with the current roll' });
+        }
+
+        // Execute move
+        let oldStep = token.step;
+        if (token.step === -1) {
+          token.step = 0; // Move out of base onto start square
+        } else {
+          token.step += dice;
+        }
+
+        let captured = false;
+        let bonusRoll = dice === 6;
+
+        // Check capture if on shared track (step 0..50)
+        if (token.step >= 0 && token.step <= 50) {
+          const myTrackIdx = playerRole === 'red' ? token.step : (13 + token.step) % 52;
+          if (!safeSquares.includes(myTrackIdx)) {
+            oppTokens.forEach(oppT => {
+              if (oppT.step >= 0 && oppT.step <= 50) {
+                const oppTrackIdx = playerRole === 'red' ? (13 + oppT.step) % 52 : oppT.step;
+                if (oppTrackIdx === myTrackIdx) {
+                  oppT.step = -1; // Send back to base!
+                  captured = true;
+                  bonusRoll = true;
+                }
+              }
+            });
+          }
+        }
+
+        // Check if token just reached Home
+        if (token.step === 56) {
+          bonusRoll = true;
+        }
+
+        // Update state
+        state[pKey] = myTokens;
+        state[oppKey] = oppTokens;
+
+        match.moves.push({
+          moveNum: match.moves.length + 1,
+          playerId: req.user._id,
+          playerRole,
+          moveData: { action: 'move', tokenId: tId, fromStep: oldStep, toStep: token.step, dice, captured },
+          timestamp: now
+        });
+
+        // Check WIN CONDITION (all tokens of player reached Home 56)
+        const won = myTokens.every(t => t.step === 56);
+        if (won) {
+          match.status = 'completed';
+          match.winnerId = req.user._id;
+          match.winnerName = req.user.name;
+          match.winnerRole = playerRole;
+          match.winningReason = 'All tokens reached Home! 🏆';
+          match.completedAt = now;
+          state.lastActionText = `🏆 ${req.user.name} brought all tokens home and won the match!`;
+          match.gameState = state;
+          await awardGameMatchResult(match);
+          match.drawOfferedBy = null;
+          match.markModified('gameState');
+          match.markModified('matchSettings');
+          await match.save();
+          return res.json(match);
+        }
+
+        // Check turn continuation or switch
+        state.rolled = false;
+        state.dice = null;
+
+        if (bonusRoll) {
+          const reason = captured ? 'Cut opponent token!' : (token.step === 56 ? 'Reached Home!' : 'Rolled a 6!');
+          state.lastActionText = `${req.user.name} moved Token ${tId + 1}. ${reason} Bonus roll! 🎲`;
+          // Turn stays with current player!
+        } else {
+          state.lastActionText = `${req.user.name} moved Token ${tId + 1}.`;
+          match.turn = playerRole === 'red' ? 'green' : 'red';
+          match.currentTurnUserId = opponentUserId;
+        }
+
+        match.gameState = state;
+      } else {
+        return res.status(400).json({ error: 'Unknown Ludo action. Use roll or move.' });
+      }
+    }
+
     match.drawOfferedBy = null;
     match.markModified('gameState');
     match.markModified('matchSettings');
@@ -1646,6 +1828,17 @@ router.post('/matches/:id/action', async (req, res) => {
         initialGameState = {
           grid: Array(6).fill(null).map(() => Array(7).fill(null)),
           turn: 'red'
+        };
+      } else if (match.gameType === 'ludo') {
+        initialTurn = 'red';
+        initialGameState = {
+          p1Tokens: [{ id: 0, step: -1 }, { id: 1, step: -1 }],
+          p2Tokens: [{ id: 0, step: -1 }, { id: 1, step: -1 }],
+          dice: null,
+          rolled: false,
+          lastRoll: null,
+          extraRoll: false,
+          lastActionText: 'Rematch started! Red rolls first.'
         };
       }
 

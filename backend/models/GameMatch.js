@@ -5,7 +5,7 @@ const GameMatchSchema = new mongoose.Schema({
   channelId: { type: mongoose.Schema.Types.ObjectId, ref: 'BondingChannel', default: null },
   gameType: {
     type: String,
-    enum: ['chess', 'tictactoe', 'connectfour'],
+    enum: ['chess', 'tictactoe', 'connectfour', 'ludo'],
     required: true
   },
   gameTitle: { type: String, required: true },

@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const GameInvitationSchema = new mongoose.Schema({
   gameType: {
     type: String,
-    enum: ['chess', 'tictactoe', 'connectfour'],
+    enum: ['chess', 'tictactoe', 'connectfour', 'ludo'],
     required: true
   },
   gameTitle: { type: String, required: true },
