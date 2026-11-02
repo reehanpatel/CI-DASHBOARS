@@ -982,6 +982,31 @@
   font-weight: 500;
 }
 
+.jira-att-card.is-video {
+  background: #111a2e;
+  border-color: #2b3b55;
+  grid-column: 1 / -1;
+}
+
+.jira-video-slot {
+  border-radius: 6px;
+  overflow: hidden;
+  background: #000;
+  border: 1px solid #1e293b;
+}
+
+.jira-video-slot video {
+  display: block;
+  width: 100%;
+  max-height: 380px;
+  outline: none;
+}
+
+.jira-att-dropzone:hover {
+  border-color: #38bdf8 !important;
+  background: #0f172a !important;
+}
+
 .jira-att-del {
   color: #ef4444;
   cursor: pointer;

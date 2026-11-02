@@ -2360,10 +2360,11 @@ export function fmtFileSize(bytes) {
   bytes = Number(bytes) || 0;
   if (bytes === 0) return '0 B';
   const k = 1024;
-  const sizes = ['B', 'KB', 'MB', 'GB'];
+  const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + (sizes[i] || 'GB');
 }
+export const formatFileSize = fmtFileSize;
 
 export function getFileCategory(name = '', type = '') {
   const ext = (name.split('.').pop() || '').toLowerCase();
@@ -2414,6 +2415,18 @@ export function openFilePreviewModal(att) {
           <img src="${att.url}" alt="${fileName}" style="max-height:72vh;object-fit:contain;cursor:zoom-in" onclick="window.open('${att.url}','_blank')">
         ` : (isPdf ? `
           <iframe src="${att.url}" title="${fileName}"></iframe>
+        ` : (cat.cls === 'video' ? `
+          <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px;width:100%;max-width:880px;">
+            <video controls autoplay preload="metadata" style="max-height:70vh;width:100%;border-radius:8px;background:#000;box-shadow:0 8px 24px rgba(0,0,0,0.5);">
+              <source src="${att.url}" type="${att.type || 'video/mp4'}">
+              Your browser does not support HTML5 video streaming.
+            </video>
+            <div style="margin-top:10px;font-size:12px;color:var(--text-3);display:flex;align-items:center;gap:12px;">
+              <span>🎬 ${fileName}</span>
+              <span>•</span>
+              <span>${fileSize}</span>
+            </div>
+          </div>
         ` : `
           <div style="text-align:center;padding:40px 20px">
             <div style="font-size:48px;margin-bottom:12px">${cat.icon}</div>
@@ -2424,7 +2437,7 @@ export function openFilePreviewModal(att) {
               Download Attachment
             </a>
           </div>
-        `)}
+        `))}
       </div>
     </div>
   `;
@@ -2481,55 +2494,100 @@ export function renderAttachmentChips(attachments = [], options = {}) {
 // Global state container for file uploaders
 const uploaderStores = {};
 
-export async function uploadFilesToServer(fileList) {
+export function uploadSingleFileDirectly(file, onProgress) {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    const token = (typeof getToken === 'function') ? getToken() : (localStorage.getItem('ci360_token') || '');
+    const encodedName = encodeURIComponent(file.name || 'upload.mp4');
+    const mimeType = file.type || (file.name && file.name.match(/\.(mp4|mov|webm)$/i) ? 'video/mp4' : 'application/octet-stream');
+    const url = `/api/upload/stream?name=${encodedName}&type=${encodeURIComponent(mimeType)}`;
+
+    xhr.open('POST', url, true);
+    if (token) {
+      xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+    }
+    xhr.setRequestHeader('Content-Type', 'application/octet-stream');
+    xhr.setRequestHeader('X-File-Name', encodedName);
+    xhr.setRequestHeader('X-File-Type', mimeType);
+
+    if (xhr.upload && typeof onProgress === 'function') {
+      xhr.upload.onprogress = (evt) => {
+        if (evt.lengthComputable) {
+          const percent = Math.round((evt.loaded / evt.total) * 100);
+          onProgress(percent, evt.loaded, evt.total);
+        }
+      };
+    }
+
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        try {
+          const res = JSON.parse(xhr.responseText);
+          resolve(res.file || (res.files && res.files[0]));
+        } catch (e) {
+          reject(new Error('Failed to parse upload response'));
+        }
+      } else {
+        try {
+          const res = JSON.parse(xhr.responseText);
+          reject(new Error(res.error || `Upload failed with HTTP ${xhr.status}`));
+        } catch {
+          reject(new Error(`Upload failed with HTTP ${xhr.status}`));
+        }
+      }
+    };
+
+    xhr.onerror = () => reject(new Error('Network error during file upload'));
+    xhr.ontimeout = () => reject(new Error('Upload timed out'));
+    xhr.timeout = 1800000; // 30 min for 1GB+ files
+    xhr.send(file);
+  });
+}
+
+export async function uploadFilesToServer(fileList, onProgress) {
   const files = Array.from(fileList || []);
   if (!files.length) return [];
 
-  const prepared = await Promise.all(files.map(async (file) => {
-    return new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        resolve({
-          name: file.name,
-          type: file.type,
-          size: file.size,
-          base64: reader.result,
-          data: reader.result
+  const results = [];
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
+    try {
+      const res = await uploadSingleFileDirectly(file, (percent, loaded, total) => {
+        if (typeof onProgress === 'function') {
+          onProgress(percent, loaded, total, file, i, files.length);
+        }
+      });
+      if (res) results.push(res);
+    } catch (err) {
+      console.warn('Direct stream upload failed, attempting fallback for', file.name, err);
+      if (file.size < 15 * 1024 * 1024) {
+        const fallback = await new Promise(res => {
+          const reader = new FileReader();
+          reader.onload = () => res({
+            name: file.name,
+            url: reader.result,
+            size: file.size,
+            type: file.type || 'application/octet-stream',
+            uploadedAt: new Date()
+          });
+          reader.onerror = () => res(null);
+          reader.readAsDataURL(file);
         });
-      };
-      reader.onerror = () => resolve(null);
-      reader.readAsDataURL(file);
-    });
-  }));
-
-  const valid = prepared.filter(Boolean);
-  if (!valid.length) return [];
-
-  try {
-    const res = await apiPost('/upload', { files: valid });
-    if (res && res.files && res.files.length) {
-      return res.files;
+        if (fallback) results.push(fallback);
+      } else {
+        throw err;
+      }
     }
-  } catch (err) {
-    console.warn('Backend upload failed, fallback to base64 data URLs:', err);
   }
-
-  // Fallback to data URI attachment object if upload endpoint failed
-  return valid.map(f => ({
-    name: f.name,
-    url: f.base64,
-    size: f.size,
-    type: f.type,
-    uploadedAt: new Date()
-  }));
+  return results;
 }
 
 export function renderAttachmentUploader({
   id = 'uploader',
   label = 'Attachments & Files',
-  subtitle = 'Upload briefs, proofs, PDFs, spreadsheets, screenshots or design assets',
+  subtitle = 'Upload briefs, proofs, PDFs, MP4 videos (up to 1GB), spreadsheets, or design assets',
   multiple = true,
-  accept = '*/*',
+  accept = '*/*,video/mp4,video/*,.mp4,.mov,.webm,.avi',
   maxFiles = 10
 } = {}) {
   return `
@@ -3270,7 +3328,7 @@ Object.assign(window, {
   getTheme, setTheme,
   initServiceWorker, playNotificationChime, triggerPhoneVibration,
   requestNotificationPermission, triggerSystemNotification,
-  fmtFileSize, getFileCategory, isImageAttachment, openFilePreviewModal,
+  fmtFileSize, formatFileSize, uploadSingleFileDirectly, getFileCategory, isImageAttachment, openFilePreviewModal,
   renderAttachmentChips, uploadFilesToServer, renderAttachmentUploader,
   bindAttachmentUploader, getUploaderAttachments, setUploaderAttachments,
   renderRoleSwitcher, bindRoleSwitcher, renderNotificationBell, initNotificationBell,

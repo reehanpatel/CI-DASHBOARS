@@ -1,7 +1,8 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
-const { verifyToken } = require('../middleware/auth');
+const jwt = require('jsonwebtoken');
+const User = require('../models/User');
 
 const router = express.Router();
 
@@ -11,8 +12,129 @@ if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
 
-// POST /api/upload - Accepts one or more files in base64 format or Data URIs
-router.post('/', verifyToken, async (req, res) => {
+// Generate unique filename preserving extension (e.g. .mp4)
+function createUniqueFilename(originalName, mimeType) {
+  let ext = path.extname(originalName || '');
+  if (!ext) {
+    if (mimeType && mimeType.includes('mp4')) ext = '.mp4';
+    else if (mimeType && mimeType.includes('quicktime')) ext = '.mov';
+    else if (mimeType && mimeType.includes('webm')) ext = '.webm';
+    else if (mimeType && mimeType.includes('pdf')) ext = '.pdf';
+    else if (mimeType && mimeType.includes('png')) ext = '.png';
+    else if (mimeType && (mimeType.includes('jpeg') || mimeType.includes('jpg'))) ext = '.jpg';
+    else ext = '';
+  }
+  const cleanName = path.basename(originalName || 'upload', ext).replace(/[^a-zA-Z0-9_-]/g, '_').substring(0, 80);
+  return `${Date.now()}_${Math.random().toString(36).substring(2, 8)}_${cleanName}${ext}`;
+}
+
+// Helper to authenticate stream requests (via header or query)
+async function authenticateRequest(req) {
+  try {
+    const header = req.headers.authorization || '';
+    const token = header.startsWith('Bearer ') ? header.slice(7) : (req.query.token || null);
+    if (!token) return null;
+
+    const secret = process.env.JWT_SECRET || 'ci360-super-secret-jwt-key-2026';
+    const payload = jwt.verify(token, secret);
+    const user = await User.findById(payload.id);
+    if (user && user.active) return user;
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+// Raw binary stream upload handler (supports heavy MP4 videos, 1GB+, 2GB+, without Node memory buffering)
+async function streamUploadHandler(req, res) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  const user = await authenticateRequest(req);
+  if (!user) {
+    return res.status(401).json({ error: 'Authentication required for uploading files' });
+  }
+
+  try {
+    const rawName = req.query.name || req.headers['x-file-name'] || 'video.mp4';
+    let originalName = 'upload.mp4';
+    try {
+      originalName = decodeURIComponent(rawName);
+    } catch {
+      originalName = rawName;
+    }
+
+    const mimeType = req.query.type || req.headers['x-file-type'] || req.headers['content-type'] || 'video/mp4';
+    const uniqueName = createUniqueFilename(originalName, mimeType);
+    const filePath = path.join(uploadsDir, uniqueName);
+
+    const writeStream = fs.createWriteStream(filePath);
+    let bytesReceived = 0;
+
+    req.on('data', (chunk) => {
+      bytesReceived += chunk.length;
+    });
+
+    req.pipe(writeStream);
+
+    writeStream.on('finish', () => {
+      const fileData = {
+        name: originalName,
+        filename: uniqueName,
+        url: `/uploads/${uniqueName}`,
+        size: bytesReceived,
+        type: mimeType,
+        uploadedBy: user.name || 'User',
+        uploadedAt: new Date()
+      };
+
+      res.status(200).json({
+        success: true,
+        file: fileData,
+        files: [fileData]
+      });
+    });
+
+    writeStream.on('error', (err) => {
+      console.error('File stream write error:', err);
+      try { if (fs.existsSync(filePath)) fs.unlinkSync(filePath); } catch {}
+      if (!res.headersSent) {
+        res.status(500).json({ error: 'Failed to write upload stream: ' + err.message });
+      }
+    });
+
+    req.on('aborted', () => {
+      writeStream.destroy();
+      try { if (fs.existsSync(filePath)) fs.unlinkSync(filePath); } catch {}
+    });
+
+    req.on('error', (err) => {
+      console.error('File stream request error:', err);
+      writeStream.destroy();
+      try { if (fs.existsSync(filePath)) fs.unlinkSync(filePath); } catch {}
+      if (!res.headersSent) {
+        res.status(500).json({ error: 'Upload stream interrupted: ' + err.message });
+      }
+    });
+  } catch (err) {
+    console.error('Upload stream handler error:', err);
+    if (!res.headersSent) {
+      res.status(500).json({ error: 'Failed to handle upload stream: ' + err.message });
+    }
+  }
+}
+
+// POST /api/upload/stream
+router.post('/stream', streamUploadHandler);
+
+// POST /api/upload - Backwards compatible JSON/base64 upload for small files
+router.post('/', async (req, res) => {
+  const user = await authenticateRequest(req);
+  if (!user) {
+    return res.status(401).json({ error: 'Authentication required' });
+  }
+
   try {
     const rawFiles = req.body.files || (req.body.file ? [req.body.file] : []);
     if (!rawFiles || !rawFiles.length) {
@@ -23,9 +145,7 @@ router.post('/', verifyToken, async (req, res) => {
 
     for (const f of rawFiles) {
       const originalName = f.name || `file_${Date.now()}`;
-      const ext = path.extname(originalName) || '';
-      const cleanName = path.basename(originalName, ext).replace(/[^a-zA-Z0-9_-]/g, '_');
-      const uniqueName = `${Date.now()}_${Math.random().toString(36).substring(2, 8)}_${cleanName}${ext}`;
+      const uniqueName = createUniqueFilename(originalName, f.type);
       const filePath = path.join(uploadsDir, uniqueName);
 
       let buffer = null;
@@ -47,17 +167,16 @@ router.post('/', verifyToken, async (req, res) => {
           url: `/uploads/${uniqueName}`,
           size: buffer.length || f.size || 0,
           type: f.type || 'application/octet-stream',
-          uploadedBy: req.user ? req.user.name : 'User',
+          uploadedBy: user.name || 'User',
           uploadedAt: new Date()
         });
       } else if (f.url) {
-        // Already hosted or remote URL
         uploaded.push({
           name: originalName,
           url: f.url,
           size: f.size || 0,
           type: f.type || 'application/octet-stream',
-          uploadedBy: req.user ? req.user.name : 'User',
+          uploadedBy: user.name || 'User',
           uploadedAt: new Date()
         });
       }
@@ -73,5 +192,7 @@ router.post('/', verifyToken, async (req, res) => {
     res.status(500).json({ error: 'Failed to process file upload: ' + err.message });
   }
 });
+
+router.streamUploadHandler = streamUploadHandler;
 
 module.exports = router;

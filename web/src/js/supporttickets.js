@@ -15,7 +15,9 @@ import {
   escapeHtml,
   flashToast,
   timeAgo,
-  fmtFileSize
+  fmtFileSize,
+  uploadSingleFileDirectly,
+  openFilePreviewModal
 } from './api.js';
 
 const STATUS_COLUMNS = [
@@ -824,31 +826,59 @@ export async function initSupportTickets(container, options = {}) {
                 `}
               </div>
 
-              <!-- Attachments Section -->
+              <!-- Attachments Section (MP4 & heavy files up to 1GB supported) -->
               <div class="jira-section-block">
                 <div class="jira-sec-title">
                   <span>Attachments (${attachments.length})</span>
-                  <label class="btn-jira-secondary" style="font-size:11px;padding:4px 8px;cursor:pointer;">
-                    📎 Upload File
-                    <input type="file" id="inp-detail-att-upload" multiple style="display:none;" />
+                  <label class="btn-jira-secondary" style="font-size:11px;padding:4px 9px;cursor:pointer;display:inline-flex;align-items:center;gap:4px;">
+                    <span>🎥 Upload File / MP4 Video (Up to 1GB)</span>
+                    <input type="file" id="inp-detail-att-upload" multiple accept="*/*,video/mp4,video/*,.mp4,.mov,.webm,.avi" style="display:none;" />
                   </label>
                 </div>
 
+                <div id="detail-att-upload-progress" style="display:none;margin-top:8px;"></div>
+
                 ${attachments.length === 0 ? `
-                  <div style="color:#64748b;font-size:12px;font-style:italic;">No attachments yet. Upload screenshots, logs, or briefs.</div>
+                  <div style="color:#64748b;font-size:12px;font-style:italic;">No attachments yet. Upload MP4 videos (up to 1GB), screen recordings, screenshots, or logs.</div>
                 ` : `
                   <div class="jira-attachments-grid">
-                    ${attachments.map(att => `
-                      <div class="jira-att-card">
-                        <div class="jira-att-left">
-                          <span>📎</span>
-                          <a href="${att.url}" target="_blank" rel="noopener noreferrer" class="jira-att-name" title="${escapeHtml(att.name)}">
-                            ${escapeHtml(att.name)}
-                          </a>
+                    ${attachments.map(att => {
+                      const isVideo = (att.type && att.type.includes('video')) || 
+                                      (att.name && att.name.match(/\.(mp4|mov|webm|avi|mkv)$/i)) ||
+                                      (att.url && att.url.match(/\.(mp4|mov|webm|avi|mkv)$/i));
+                      return `
+                        <div class="jira-att-card ${isVideo ? 'is-video' : ''}" style="${isVideo ? 'grid-column: 1 / -1; display:flex; flex-direction:column; gap:6px;' : ''}">
+                          <div style="display:flex;align-items:center;justify-content:space-between;width:100%;gap:8px;">
+                            <div class="jira-att-left">
+                              <span style="font-size:${isVideo ? '16px' : '13px'};">${isVideo ? '🎬' : '📎'}</span>
+                              <div style="display:flex;flex-direction:column;min-width:0;">
+                                <a href="${att.url}" target="_blank" rel="noopener noreferrer" class="jira-att-name" title="${escapeHtml(att.name)}">
+                                  ${escapeHtml(att.name)}
+                                </a>
+                                <span style="font-size:10.5px;color:#94a3b8;">${fmtFileSize(att.size)} ${isVideo ? '• MP4 Video' : ''}</span>
+                              </div>
+                            </div>
+                            <div style="display:flex;align-items:center;gap:6px;">
+                              ${isVideo ? `
+                                <button type="button" class="btn-play-att-video" data-slot="video-slot-${att.id}" style="background:#0284c7;color:#fff;border:none;border-radius:4px;padding:3px 9px;font-size:11px;font-weight:600;cursor:pointer;">
+                                  ▶ Play Video
+                                </button>
+                              ` : ''}
+                              <a href="${att.url}" download="${escapeHtml(att.name)}" class="btn-jira-secondary" style="font-size:11px;padding:3px 7px;text-decoration:none;" title="Download">⬇</a>
+                              <button type="button" class="jira-att-del btn-del-att" data-att-id="${att.id}" title="Delete file">&times;</button>
+                            </div>
+                          </div>
+                          ${isVideo ? `
+                            <div class="jira-video-slot" id="video-slot-${att.id}" style="display:none;margin-top:6px;width:100%;">
+                              <video controls preload="metadata" style="width:100%;max-height:360px;border-radius:6px;background:#000;">
+                                <source src="${att.url}" type="${att.type || 'video/mp4'}">
+                                Your browser does not support HTML5 video streaming.
+                              </video>
+                            </div>
+                          ` : ''}
                         </div>
-                        <button type="button" class="jira-att-del btn-del-att" data-att-id="${att.id}" title="Delete file">&times;</button>
-                      </div>
-                    `).join('')}
+                      `;
+                    }).join('')}
                   </div>
                 `}
               </div>
@@ -1575,60 +1605,85 @@ export async function initSupportTickets(container, options = {}) {
       };
     }
 
-    // Attachments upload
+    // Attachments upload (direct binary streaming - supports MP4 videos up to 1GB+)
     const attUploadInp = modalRoot.querySelector('#inp-detail-att-upload');
+    const attProgressBox = modalRoot.querySelector('#detail-att-upload-progress');
+
     if (attUploadInp) {
       attUploadInp.onchange = async (e) => {
         const files = Array.from(e.target.files);
         if (!files.length) return;
 
-        flashToast('Uploading attachment(s)...', false);
         const uploadedMeta = [];
+        if (attProgressBox) attProgressBox.style.display = 'block';
 
-        for (const file of files) {
-          // Read as base64 to leverage existing /api/upload
-          const reader = new FileReader();
-          await new Promise((resolve) => {
-            reader.onload = async () => {
-              try {
-                const base64Data = reader.result.split(',')[1];
-                const res = await apiPost('/upload', {
-                  files: [{
-                    name: file.name,
-                    data: base64Data,
-                    size: file.size,
-                    type: file.type
-                  }]
-                });
-                if (res && res.files && res.files[0]) {
-                  uploadedMeta.push({
-                    name: res.files[0].name || file.name,
-                    url: res.files[0].url,
-                    size: file.size,
-                    type: file.type
-                  });
-                }
-              } catch (upErr) {
-                console.warn('Upload error for file:', file.name, upErr);
-              }
-              resolve();
-            };
-            reader.readAsDataURL(file);
-          });
+        for (let i = 0; i < files.length; i++) {
+          const file = files[i];
+
+          if (attProgressBox) {
+            attProgressBox.innerHTML = `
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;font-size:11.5px;color:#cbd5e1;">
+                <span>Uploading <strong>${escapeHtml(file.name)}</strong> (${fmtFileSize(file.size)})...</span>
+                <span id="att-prog-pct" style="font-weight:700;color:#38bdf8;">0%</span>
+              </div>
+              <div style="width:100%;height:4px;background:#334155;border-radius:2px;overflow:hidden;">
+                <div id="att-prog-bar" style="width:0%;height:100%;background:#38bdf8;transition:width 0.15s ease;"></div>
+              </div>
+            `;
+          }
+
+          try {
+            const res = await uploadSingleFileDirectly(file, (percent) => {
+              const pctEl = modalRoot.querySelector('#att-prog-pct');
+              const barEl = modalRoot.querySelector('#att-prog-bar');
+              if (pctEl) pctEl.textContent = `${percent}%`;
+              if (barEl) barEl.style.width = `${percent}%`;
+            });
+
+            if (res) {
+              uploadedMeta.push({
+                name: res.name || file.name,
+                url: res.url,
+                size: res.size || file.size,
+                type: res.type || file.type || 'video/mp4'
+              });
+            }
+          } catch (upErr) {
+            console.error('Upload error for file:', file.name, upErr);
+            flashToast(`Upload failed for ${file.name}: ${upErr.message}`, true);
+          }
         }
+
+        if (attProgressBox) attProgressBox.style.display = 'none';
 
         if (uploadedMeta.length) {
           try {
             const updated = await apiPost(`/tickets/${activeModalTicket._id}/attachments`, { attachments: uploadedMeta });
             activeModalTicket = updated;
             renderTicketDetailModal();
-            flashToast('File(s) attached successfully', false);
+            flashToast(`Successfully attached ${uploadedMeta.length} file(s)! 🎥`, false);
           } catch (err) {
             flashToast(err.message || 'Failed to attach file(s)', true);
           }
         }
       };
     }
+
+    // Toggle play for MP4 video attachments
+    modalRoot.querySelectorAll('.btn-play-att-video').forEach(btn => {
+      btn.onclick = () => {
+        const slotId = btn.dataset.slot;
+        const slot = modalRoot.querySelector('#' + slotId);
+        if (slot) {
+          const isHidden = slot.style.display === 'none';
+          slot.style.display = isHidden ? 'block' : 'none';
+          btn.textContent = isHidden ? '⏸ Close Video' : '▶ Play Video';
+          const video = slot.querySelector('video');
+          if (video && isHidden) video.play().catch(() => {});
+          else if (video) video.pause();
+        }
+      };
+    });
 
     // Delete attachment
     modalRoot.querySelectorAll('.btn-del-att').forEach(btn => {
@@ -1888,6 +1943,22 @@ export async function initSupportTickets(container, options = {}) {
                 </select>
               </div>
             </div>
+
+            <!-- Attachments & MP4 Video Uploader (Up to 1GB) -->
+            <div class="jira-form-group" style="margin-top:14px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                <label class="jira-form-label" style="margin:0;">Attachments &amp; MP4 Videos (Up to 1GB)</label>
+                <span id="create-att-count" style="font-size:11px;color:#94a3b8;">0 files attached</span>
+              </div>
+              <label class="jira-att-dropzone" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:14px;border:1px dashed #334155;border-radius:8px;background:#0b1120;cursor:pointer;transition:border-color 0.2s;">
+                <div style="font-size:18px;">🎥 📁</div>
+                <div style="font-size:12px;font-weight:600;color:#e2e8f0;">Click or drag &amp; drop MP4 videos, recordings or files here</div>
+                <div style="font-size:10.5px;color:#64748b;">Supports MP4, MOV, WebM, screenshots, PDFs, logs (Heavy files up to 1GB supported)</div>
+                <input type="file" id="inp-create-ticket-att" multiple accept="*/*,video/mp4,video/*,.mp4,.mov,.webm,.avi" style="display:none;" />
+              </label>
+              <div id="create-att-progress" style="display:none;margin-top:8px;"></div>
+              <div id="create-att-list" class="jira-attachments-grid" style="margin-top:8px;"></div>
+            </div>
           </div>
 
           <div class="jira-modal-footer">
@@ -1925,6 +1996,86 @@ export async function initSupportTickets(container, options = {}) {
       btnClearAssign.onclick = () => {
         modalRoot.querySelectorAll('.chk-create-emp').forEach(chk => { chk.checked = false; });
         updateSelectedStyles();
+      };
+    }
+
+    const pendingAttachments = [];
+    const inpCreateAtt = modalRoot.querySelector('#inp-create-ticket-att');
+    const attListEl = modalRoot.querySelector('#create-att-list');
+    const attCountEl = modalRoot.querySelector('#create-att-count');
+    const attProgEl = modalRoot.querySelector('#create-att-progress');
+
+    const renderPendingAtts = () => {
+      if (attCountEl) attCountEl.textContent = `${pendingAttachments.length} file(s) attached`;
+      if (!attListEl) return;
+      attListEl.innerHTML = pendingAttachments.map((att, idx) => {
+        const isVideo = (att.type && att.type.includes('video')) || (att.name && att.name.match(/\.(mp4|mov|webm|avi|mkv)$/i));
+        return `
+          <div class="jira-att-card">
+            <div class="jira-att-left">
+              <span>${isVideo ? '🎬' : '📎'}</span>
+              <div style="display:flex;flex-direction:column;min-width:0;">
+                <span class="jira-att-name" title="${escapeHtml(att.name)}">${escapeHtml(att.name)}</span>
+                <span style="font-size:10px;color:#94a3b8;">${fmtFileSize(att.size)} ${isVideo ? '• MP4' : ''}</span>
+              </div>
+            </div>
+            <button type="button" class="jira-att-del btn-del-pending-att" data-idx="${idx}" title="Remove">&times;</button>
+          </div>
+        `;
+      }).join('');
+
+      attListEl.querySelectorAll('.btn-del-pending-att').forEach(btn => {
+        btn.onclick = () => {
+          pendingAttachments.splice(Number(btn.dataset.idx), 1);
+          renderPendingAtts();
+        };
+      });
+    };
+
+    if (inpCreateAtt) {
+      inpCreateAtt.onchange = async (e) => {
+        const files = Array.from(e.target.files);
+        if (!files.length) return;
+
+        if (attProgEl) attProgEl.style.display = 'block';
+
+        for (const file of files) {
+          if (attProgEl) {
+            attProgEl.innerHTML = `
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;font-size:11.5px;color:#cbd5e1;">
+                <span>Uploading <strong>${escapeHtml(file.name)}</strong> (${fmtFileSize(file.size)})...</span>
+                <span id="create-prog-pct" style="font-weight:700;color:#38bdf8;">0%</span>
+              </div>
+              <div style="width:100%;height:4px;background:#334155;border-radius:2px;overflow:hidden;">
+                <div id="create-prog-bar" style="width:0%;height:100%;background:#38bdf8;transition:width 0.15s ease;"></div>
+              </div>
+            `;
+          }
+
+          try {
+            const res = await uploadSingleFileDirectly(file, (percent) => {
+              const pctEl = modalRoot.querySelector('#create-prog-pct');
+              const barEl = modalRoot.querySelector('#create-prog-bar');
+              if (pctEl) pctEl.textContent = `${percent}%`;
+              if (barEl) barEl.style.width = `${percent}%`;
+            });
+
+            if (res) {
+              pendingAttachments.push({
+                name: res.name || file.name,
+                url: res.url,
+                size: res.size || file.size,
+                type: res.type || file.type || 'video/mp4'
+              });
+              renderPendingAtts();
+            }
+          } catch (err) {
+            flashToast(`Failed to upload ${file.name}: ${err.message}`, true);
+          }
+        }
+
+        if (attProgEl) attProgEl.style.display = 'none';
+        inpCreateAtt.value = '';
       };
     }
 
@@ -1970,7 +2121,8 @@ export async function initSupportTickets(container, options = {}) {
             assigneeIds,
             assigneeId: assigneeIds[0] || null,
             dueDate,
-            jobId
+            jobId,
+            attachments: pendingAttachments
           });
 
           flashToast(`Ticket ${created.ticketId} created! 🎫`, false);

@@ -2335,6 +2335,11 @@ var cors = require("cors");
 var connectDB = require_db();
 var app = express();
 app.use(cors());
+
+// Direct binary streaming upload for heavy files (MP4 videos up to 1GB+) bypassing body parsers
+const uploadRouter = require("./routes/upload");
+app.use("/api/upload/stream", uploadRouter.streamUploadHandler);
+
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 connectDB();
@@ -2343,7 +2348,7 @@ var uploadsPath = path.join(__dirname, "uploads");
 if (!fs.existsSync(uploadsPath)) {
   fs.mkdirSync(uploadsPath, { recursive: true });
 }
-app.use("/uploads", express.static(uploadsPath));
+app.use("/uploads", express.static(uploadsPath, { acceptRanges: true, maxAge: "7d" }));
 
 app.use("/api/auth", require_auth2());
 app.use("/api/users", require_users());
@@ -2357,7 +2362,7 @@ app.use("/api/salary", require_salary());
 app.use("/api/dashboard", require_dashboard());
 app.use("/api/notifications", require("./routes/notifications"));
 app.use("/api/tickets", require("./routes/tickets"));
-app.use("/api/upload", require_upload());
+app.use("/api/upload", uploadRouter);
 app.use("/api/tasks", require("./routes/tasks"));
 app.use("/api/accounts", require("./routes/accounts"));
 app.use("/api/proposals", require("./routes/proposals"));
