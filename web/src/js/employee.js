@@ -1,6 +1,7 @@
 import { initProposalStudio } from './proposals.js';
 import { initDailyPlanner } from './planner.js';
 import { initTeamBonding } from './teambonding.js';
+import { initSupportTickets } from './supporttickets.js';
 import { renderAccountSettingsCard, bindAccountSettingsCard } from './api.js';
 
 let user = null;
@@ -27,6 +28,7 @@ function getEmployeeTabs() {
     { key: 'dashboard',  label: 'Overview Dashboard', icon: '📊' },
     { key: 'myjobs',     label: 'My Jobs',            icon: '📋' },
     { key: 'dailytasks', label: 'Daily Planner',      icon: '📅' },
+    { key: 'tickets',    label: 'Support Tickets',    icon: '🎫' },
     { key: 'proposals',  label: 'Proposal Studio',    icon: '📜' },
     { key: 'teambonding',label: 'Team Chat & Lounge', icon: '💬' },
     { key: 'targets',    label: 'My Targets',         icon: '🎯' },
@@ -76,6 +78,8 @@ window.ci360NavTab = (tabName, highlightId = null) => {
     tabName = 'proposals';
   } else if (tabName === 'teambonding' || tabName === 'bonding' || tabName === 'arcade' || tabName === 'chat') {
     tabName = 'teambonding';
+  } else if (tabName === 'tickets' || tabName === 'supporttickets' || tabName === 'ticket') {
+    tabName = 'tickets';
   } else if (tabName === 'dashboard' || tabName === 'overview') {
     tabName = 'dashboard';
   }
@@ -95,6 +99,7 @@ async function renderTab(){
     if(ui.tab==='dashboard')                                                await tabEmployeeDashboard(c);
     else if(ui.tab==='myjobs' || ui.tab==='jobs')                          await tabMyJobs(c);
     else if(ui.tab==='dailytasks' || ui.tab==='mytasks' || ui.tab==='tasks') await tabDailyTasks(c);
+    else if(ui.tab==='tickets' || ui.tab==='supporttickets' || ui.tab==='ticket') await tabSupportTickets(c);
     else if(ui.tab==='proposals' || ui.tab==='proposal')                   await tabProposals(c);
     else if(ui.tab==='teambonding' || ui.tab==='bonding')                  await tabTeamBonding(c);
     else if(ui.tab==='targets' || ui.tab==='target')                       await tabTargets(c);
@@ -118,6 +123,12 @@ async function tabTeamBonding(c) {
   c.innerHTML = '<div id="teambonding-module-root"></div>';
   const root = c.querySelector('#teambonding-module-root');
   initTeamBonding(root, { userRole: 'employee', currentUser: user });
+}
+
+async function tabSupportTickets(c) {
+  c.innerHTML = '<div id="support-tickets-module-root"></div>';
+  const root = c.querySelector('#support-tickets-module-root');
+  initSupportTickets(root, { userRole: 'employee', currentUser: user });
 }
 
 async function tabSettings(c) {

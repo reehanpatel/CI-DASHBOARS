@@ -1,6 +1,7 @@
 import { initProposalStudio } from './proposals.js';
 import { initDailyPlanner } from './planner.js';
 import { initTeamBonding } from './teambonding.js';
+import { initSupportTickets } from './supporttickets.js';
 import { renderAccountSettingsCard, bindAccountSettingsCard } from './api.js';
 
 let user = null;
@@ -41,6 +42,7 @@ function clientName(id){ const c = cache.clients.find(c=>c._id===id); return c ?
 const ADMIN_TABS = [
   { key: 'dashboard', label: 'Dashboard', icon: '📊' },
   { key: 'dailytasks', label: 'Daily Planner', icon: '📅' },
+  { key: 'tickets', label: 'Support Tickets', icon: '🎫' },
   { key: 'proposals', label: 'Proposal Studio', icon: '📜' },
   { key: 'teambonding', label: 'Team Chat & Lounge', icon: '💬' },
   { key: 'logjob', label: 'Log a Job', icon: '➕' },
@@ -84,6 +86,7 @@ async function renderTab(){
   try{
     if(ui.tab==='dashboard') await tabDashboard(c);
     else if(ui.tab==='dailytasks') await tabDailyTasks(c);
+    else if(ui.tab==='tickets' || ui.tab==='supporttickets') await tabSupportTickets(c);
     else if(ui.tab==='proposals') await tabProposals(c);
     else if(ui.tab==='teambonding' || ui.tab==='bonding') await tabTeamBonding(c);
     else if(ui.tab==='logjob') tabLogJob(c);
@@ -111,6 +114,12 @@ async function tabTeamBonding(c) {
   c.innerHTML = '<div id="teambonding-module-root"></div>';
   const root = c.querySelector('#teambonding-module-root');
   initTeamBonding(root, { userRole: 'superadmin', currentUser: user });
+}
+
+async function tabSupportTickets(c) {
+  c.innerHTML = '<div id="support-tickets-module-root"></div>';
+  const root = c.querySelector('#support-tickets-module-root');
+  initSupportTickets(root, { userRole: 'superadmin', currentUser: user });
 }
 
 function periodPicker(){

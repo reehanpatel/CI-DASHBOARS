@@ -1,0 +1,1577 @@
+/**
+ * CI360 SUPPORT TICKETS MODULE — JIRA-STYLE INTERNAL MANAGEMENT
+ * Complete Scrum board with drag-and-drop, 2-column issue detail modal,
+ * subtasks, comments, attachments, activity history, and work logging.
+ *
+ * STRICT INTERNAL MODULE: ONLY ADMINS & EMPLOYEES CAN ACCESS.
+ */
+
+import { 
+  apiGet, 
+  apiPost, 
+  apiPatch, 
+  apiPut, 
+  apiDelete, 
+  escapeHtml, 
+  flashToast, 
+  timeAgo,
+  fmtFileSize
+} from './api.js';
+
+const STATUS_COLUMNS = [
+  { key: 'To Do', label: 'To Do', badgeClass: 'todo' },
+  { key: 'In Progress', label: 'In Progress', badgeClass: 'in-progress' },
+  { key: 'Under Review', label: 'Under Review', badgeClass: 'review' },
+  { key: 'Resolved', label: 'Resolved', badgeClass: 'resolved' },
+  { key: 'Closed', label: 'Closed', badgeClass: 'closed' }
+];
+
+const CATEGORIES = [
+  { key: 'Task', label: 'Task', icon: '📝', slug: 'task' },
+  { key: 'Bug', label: 'Bug', icon: '🐛', slug: 'bug' },
+  { key: 'Feature', label: 'Feature', icon: '✨', slug: 'feature' },
+  { key: 'Internal', label: 'Internal', icon: '🏢', slug: 'internal' },
+  { key: 'Infrastructure', label: 'Infrastructure', icon: '⚙️', slug: 'infrastructure' },
+  { key: 'Client Request', label: 'Client Request', icon: '💼', slug: 'client-request' },
+  { key: 'General', label: 'General', icon: '📌', slug: 'general' }
+];
+
+const PRIORITIES = [
+  { key: 'Critical', label: 'Critical', icon: '🔴 ⬆⬆', color: '#ef4444' },
+  { key: 'High', label: 'High', icon: '🟠 ⬆', color: '#f97316' },
+  { key: 'Medium', label: 'Medium', icon: '🟡 〓', color: '#eab308' },
+  { key: 'Low', label: 'Low', icon: '🟢 ⬇', color: '#22c55e' }
+];
+
+export async function initSupportTickets(container, options = {}) {
+  const { userRole = 'employee', currentUser = null, initialTicketId = null } = options;
+
+  // Strict check: if client somehow triggers this, abort immediately
+  if (userRole === 'client' || (currentUser && currentUser.role === 'client')) {
+    container.innerHTML = `
+      <div style="padding:40px;text-align:center;color:#ef4444;font-size:16px;font-weight:700;">
+        ⛔ Access Denied: Support Tickets are internal to company staff only.
+      </div>
+    `;
+    return;
+  }
+
+  let tickets = [];
+  let stats = {};
+  let employees = [];
+  let jobs = [];
+
+  let filters = {
+    search: '',
+    status: 'all',
+    priority: 'all',
+    category: 'all',
+    assigneeId: 'all',
+    myIssuesOnly: false
+  };
+
+  let activeModalTicket = null;
+  let activeActivityTab = 'comments'; // 'comments' | 'history' | 'worklog' | 'all'
+  let isEditingDescription = false;
+
+  // Render Skeleton Initial Structure
+  container.innerHTML = `
+    <div class="jira-module-wrap">
+      <!-- Top Header Toolbar -->
+      <div class="jira-header-bar">
+        <div class="jira-header-left">
+          <div class="jira-breadcrumb">
+            <span class="jira-project-icon">CI</span>
+            <span>CI360 / SUPPORT / SCRUM BOARD</span>
+          </div>
+          <div class="jira-title-row">
+            <h2 class="jira-main-title">🎫 Support Tickets Board</h2>
+          </div>
+        </div>
+        <div class="jira-header-actions">
+          <button class="btn-jira-secondary" id="btn-jira-refresh" title="Refresh Board">
+            🔄 Refresh
+          </button>
+          <button class="btn-jira-primary" id="btn-jira-create-ticket">
+            + Create Ticket
+          </button>
+        </div>
+      </div>
+
+      <!-- Stats Overview Ribbon -->
+      <div class="jira-stats-ribbon" id="jira-stats-root">
+        <div class="jira-stat-card"><span class="jira-stat-val">—</span><span class="jira-stat-lbl">Loading Stats...</span></div>
+      </div>
+
+      <!-- Filter Toolbar -->
+      <div class="jira-filter-bar">
+        <div class="jira-filter-left">
+          <div class="jira-search-wrap">
+            <span class="jira-search-icon">🔍</span>
+            <input type="text" id="jira-search-input" class="jira-search-input" placeholder="Search ticket (ID, title, description)..." />
+          </div>
+
+          <select id="jira-filter-priority" class="jira-filter-select">
+            <option value="all">Priority: All</option>
+            <option value="Critical">🔴 Critical</option>
+            <option value="High">🟠 High</option>
+            <option value="Medium">🟡 Medium</option>
+            <option value="Low">🟢 Low</option>
+          </select>
+
+          <select id="jira-filter-category" class="jira-filter-select">
+            <option value="all">Category: All</option>
+            ${CATEGORIES.map(c => `<option value="${c.key}">${c.icon} ${c.label}</option>`).join('')}
+          </select>
+
+          <select id="jira-filter-assignee" class="jira-filter-select">
+            <option value="all">Assignee: All</option>
+            <option value="unassigned">Unassigned</option>
+          </select>
+
+          <button type="button" class="jira-pill-filter" id="jira-pill-my-issues">
+            Only My Issues
+          </button>
+
+          <span class="jira-clear-filters" id="jira-clear-filters" style="display:none;">Clear Filters</span>
+        </div>
+      </div>
+
+      <!-- Scrum Board Columns Container -->
+      <div class="jira-board-columns" id="jira-board-columns-root">
+        <div style="padding:40px;color:#94a3b8;font-size:14px;font-weight:600;">
+          Loading Scrum Board...
+        </div>
+      </div>
+
+      <!-- Modal Injection Root -->
+      <div id="jira-modals-root"></div>
+    </div>
+  `;
+
+  // Fetch all initial data
+  await Promise.all([
+    fetchStats(),
+    fetchTickets(),
+    fetchEmployees(),
+    fetchJobs()
+  ]);
+
+  renderStats();
+  renderBoard();
+  populateFilterDropdowns();
+  bindGlobalEvents();
+
+  if (initialTicketId) {
+    openTicketDetailModal(initialTicketId);
+  }
+
+  /* ──────────────────────────────────────────────────────────────────────────
+     DATA FETCHING
+     ────────────────────────────────────────────────────────────────────────── */
+  async function fetchTickets() {
+    try {
+      const qParams = new URLSearchParams();
+      if (filters.search) qParams.set('search', filters.search);
+      if (filters.priority !== 'all') qParams.set('priority', filters.priority);
+      if (filters.category !== 'all') qParams.set('category', filters.category);
+      if (filters.assigneeId !== 'all') qParams.set('assigneeId', filters.assigneeId);
+      if (filters.myIssuesOnly) qParams.set('myIssuesOnly', 'true');
+
+      const data = await apiGet('/tickets?' + qParams.toString());
+      tickets = Array.isArray(data) ? data : [];
+    } catch (err) {
+      flashToast(err.message || 'Failed to load tickets', true);
+      tickets = [];
+    }
+  }
+
+  async function fetchStats() {
+    try {
+      stats = await apiGet('/tickets/stats');
+    } catch (e) {
+      console.warn('Could not fetch ticket stats:', e);
+    }
+  }
+
+  async function fetchEmployees() {
+    try {
+      const res = await apiGet('/users');
+      // Filter strictly active internal staff (no clients)
+      employees = (res || []).filter(u => u.active && u.role !== 'client');
+    } catch (e) {
+      console.warn('Could not fetch employees:', e);
+    }
+  }
+
+  async function fetchJobs() {
+    try {
+      const res = await apiGet('/jobs?limit=50');
+      jobs = Array.isArray(res) ? res : (res?.jobs || []);
+    } catch (e) {
+      console.warn('Could not fetch jobs:', e);
+    }
+  }
+
+  /* ──────────────────────────────────────────────────────────────────────────
+     RENDER STATS OVERVIEW RIBBON
+     ────────────────────────────────────────────────────────────────────────── */
+  function renderStats() {
+    const root = container.querySelector('#jira-stats-root');
+    if (!root) return;
+
+    root.innerHTML = `
+      <div class="jira-stat-card ${filters.status === 'all' && !filters.myIssuesOnly ? 'active' : ''}" data-stat-filter="all">
+        <span class="jira-stat-val">${stats.total || 0}</span>
+        <span class="jira-stat-lbl">Total Tickets</span>
+      </div>
+      <div class="jira-stat-card ${filters.status === 'To Do' ? 'active' : ''}" data-stat-filter="To Do">
+        <span class="jira-stat-val">${stats.toDo || 0}</span>
+        <span class="jira-stat-lbl">To Do</span>
+      </div>
+      <div class="jira-stat-card in-progress ${filters.status === 'In Progress' ? 'active' : ''}" data-stat-filter="In Progress">
+        <span class="jira-stat-val">${stats.inProgress || 0}</span>
+        <span class="jira-stat-lbl">In Progress</span>
+      </div>
+      <div class="jira-stat-card ${filters.status === 'Under Review' ? 'active' : ''}" data-stat-filter="Under Review">
+        <span class="jira-stat-val">${stats.underReview || 0}</span>
+        <span class="jira-stat-lbl">Under Review</span>
+      </div>
+      <div class="jira-stat-card resolved ${filters.status === 'Resolved' ? 'active' : ''}" data-stat-filter="Resolved">
+        <span class="jira-stat-val">${stats.resolved || 0}</span>
+        <span class="jira-stat-lbl">Resolved</span>
+      </div>
+      <div class="jira-stat-card critical" data-stat-filter="critical">
+        <span class="jira-stat-val">${stats.critical || 0}</span>
+        <span class="jira-stat-lbl">Critical 🔴</span>
+      </div>
+      <div class="jira-stat-card overdue" data-stat-filter="overdue">
+        <span class="jira-stat-val">${stats.overdue || 0}</span>
+        <span class="jira-stat-lbl">Overdue ⚠️</span>
+      </div>
+    `;
+
+    root.querySelectorAll('.jira-stat-card').forEach(card => {
+      card.onclick = async () => {
+        const filterType = card.dataset.statFilter;
+        if (filterType === 'all') {
+          filters.status = 'all';
+          filters.priority = 'all';
+        } else if (filterType === 'critical') {
+          filters.priority = 'Critical';
+          filters.status = 'all';
+        } else {
+          filters.status = filterType;
+          filters.priority = 'all';
+        }
+        await reloadBoard();
+      };
+    });
+  }
+
+  function populateFilterDropdowns() {
+    const selAssignee = container.querySelector('#jira-filter-assignee');
+    if (selAssignee) {
+      selAssignee.innerHTML = `
+        <option value="all">Assignee: All</option>
+        <option value="unassigned">Unassigned</option>
+        ${employees.map(u => `
+          <option value="${u._id}" ${filters.assigneeId === u._id.toString() ? 'selected' : ''}>
+            ${escapeHtml(u.name)} (${escapeHtml(u.role)})
+          </option>
+        `).join('')}
+      `;
+    }
+  }
+
+  /* ──────────────────────────────────────────────────────────────────────────
+     RENDER SCRUM BOARD COLUMNS & CARDS
+     ────────────────────────────────────────────────────────────────────────── */
+  function renderBoard() {
+    const boardRoot = container.querySelector('#jira-board-columns-root');
+    if (!boardRoot) return;
+
+    // Group tickets by status
+    const grouped = {};
+    STATUS_COLUMNS.forEach(col => { grouped[col.key] = []; });
+
+    tickets.forEach(t => {
+      const st = t.status || 'To Do';
+      if (!grouped[st]) grouped[st] = [];
+      grouped[st].push(t);
+    });
+
+    boardRoot.innerHTML = STATUS_COLUMNS.map(col => {
+      const colTickets = grouped[col.key] || [];
+
+      return `
+        <div class="jira-board-column" data-status="${col.key}">
+          <div class="jira-column-header">
+            <div class="jira-col-title-wrap">
+              <span class="jira-col-title">${escapeHtml(col.label)}</span>
+              <span class="jira-col-badge">${colTickets.length}</span>
+            </div>
+          </div>
+          <div class="jira-cards-list" data-column-status="${col.key}">
+            ${colTickets.length === 0 ? `
+              <div style="padding:28px 10px;text-align:center;color:#475569;font-size:12px;font-style:italic;">
+                No tickets
+              </div>
+            ` : colTickets.map(t => renderCardHtml(t)).join('')}
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    bindDragAndDrop();
+    bindCardClicks();
+  }
+
+  function renderCardHtml(t) {
+    const cat = CATEGORIES.find(c => c.key === t.category) || CATEGORIES[0];
+    const pri = PRIORITIES.find(p => p.key === t.priority) || PRIORITIES[2];
+    const isOverdue = t.dueDate && new Date(t.dueDate) < new Date() && t.status !== 'Resolved' && t.status !== 'Closed';
+    const subtaskDone = (t.subtasks || []).filter(s => s.completed).length;
+    const subtaskTotal = (t.subtasks || []).length;
+
+    const assigneeName = t.assignee?.name || 'Unassigned';
+    const assigneeInitial = (assigneeName === 'Unassigned' ? '?' : assigneeName.slice(0, 1)).toUpperCase();
+
+    return `
+      <div class="jira-card" draggable="true" data-ticket-id="${t._id}">
+        <div class="jira-card-top">
+          <span class="jira-category-pill ${cat.slug}">
+            ${cat.icon} ${cat.label}
+          </span>
+          ${t.dueDate ? `
+            <span class="jira-due-pill ${isOverdue ? 'overdue' : ''}" title="Due Date">
+              ${isOverdue ? '⚠️ ' : '📅 '}
+              ${new Date(t.dueDate).toISOString().slice(0, 10)}
+            </span>
+          ` : ''}
+        </div>
+
+        <div class="jira-card-title" title="${escapeHtml(t.title)}">
+          ${escapeHtml(t.title)}
+        </div>
+
+        <div class="jira-card-bottom">
+          <div class="jira-card-id-row">
+            <span class="jira-pri-icon" title="Priority: ${pri.label}">${pri.icon}</span>
+            <span class="jira-ticket-id">${escapeHtml(t.ticketId)}</span>
+          </div>
+
+          <div class="jira-card-assignee-row">
+            ${subtaskTotal > 0 ? `
+              <span class="jira-subtask-badge" title="${subtaskDone} of ${subtaskTotal} subtasks completed">
+                ☑ ${subtaskDone}/${subtaskTotal}
+              </span>
+            ` : ''}
+            <div class="jira-avatar ${assigneeName === 'Unassigned' ? 'unassigned' : ''}" title="Assignee: ${escapeHtml(assigneeName)}">
+              ${assigneeInitial}
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  /* ──────────────────────────────────────────────────────────────────────────
+     HTML5 DRAG AND DROP ENGINE
+     ────────────────────────────────────────────────────────────────────────── */
+  function bindDragAndDrop() {
+    const cards = container.querySelectorAll('.jira-card');
+    const columns = container.querySelectorAll('.jira-board-column');
+
+    cards.forEach(card => {
+      card.ondragstart = (e) => {
+        e.dataTransfer.setData('text/plain', card.dataset.ticketId);
+        card.classList.add('dragging');
+      };
+
+      card.ondragend = () => {
+        card.classList.remove('dragging');
+      };
+    });
+
+    columns.forEach(col => {
+      col.ondragover = (e) => {
+        e.preventDefault();
+        col.classList.add('drag-over');
+      };
+
+      col.ondragleave = () => {
+        col.classList.remove('drag-over');
+      };
+
+      col.ondrop = async (e) => {
+        e.preventDefault();
+        col.classList.remove('drag-over');
+        const ticketDocId = e.dataTransfer.getData('text/plain');
+        const targetStatus = col.dataset.status;
+
+        if (!ticketDocId || !targetStatus) return;
+
+        const ticket = tickets.find(t => t._id.toString() === ticketDocId);
+        if (!ticket || ticket.status === targetStatus) return;
+
+        // Optimistic UI update
+        const prevStatus = ticket.status;
+        ticket.status = targetStatus;
+        renderBoard();
+
+        try {
+          const updated = await apiPatch(`/tickets/${ticketDocId}/status`, { status: targetStatus });
+          flashToast(`Moved ${updated.ticketId} to ${targetStatus}`, false);
+          await fetchStats();
+          renderStats();
+        } catch (err) {
+          flashToast(err.message || 'Status update failed', true);
+          ticket.status = prevStatus;
+          renderBoard();
+        }
+      };
+    });
+  }
+
+  function bindCardClicks() {
+    container.querySelectorAll('.jira-card').forEach(card => {
+      card.onclick = (e) => {
+        // Prevent trigger if clicking an internal link
+        if (e.target.tagName === 'A') return;
+        const ticketDocId = card.dataset.ticketId;
+        openTicketDetailModal(ticketDocId);
+      };
+    });
+  }
+
+  /* ──────────────────────────────────────────────────────────────────────────
+     GLOBAL FILTER & HEADER EVENTS
+     ────────────────────────────────────────────────────────────────────────── */
+  function bindGlobalEvents() {
+    // Refresh button
+    const btnRefresh = container.querySelector('#btn-jira-refresh');
+    if (btnRefresh) {
+      btnRefresh.onclick = async () => {
+        btnRefresh.classList.add('pulse');
+        await reloadBoard();
+        flashToast('Board updated', false);
+        btnRefresh.classList.remove('pulse');
+      };
+    }
+
+    // Create ticket button
+    const btnCreate = container.querySelector('#btn-jira-create-ticket');
+    if (btnCreate) {
+      btnCreate.onclick = () => {
+        openCreateTicketModal();
+      };
+    }
+
+    // Search input (debounced)
+    const searchInp = container.querySelector('#jira-search-input');
+    let searchDebounce = null;
+    if (searchInp) {
+      searchInp.oninput = (e) => {
+        clearTimeout(searchDebounce);
+        searchDebounce = setTimeout(async () => {
+          filters.search = e.target.value.trim();
+          updateClearFiltersVisibility();
+          await reloadBoard();
+        }, 300);
+      };
+    }
+
+    // Priority filter
+    const priSelect = container.querySelector('#jira-filter-priority');
+    if (priSelect) {
+      priSelect.onchange = async (e) => {
+        filters.priority = e.target.value;
+        updateClearFiltersVisibility();
+        await reloadBoard();
+      };
+    }
+
+    // Category filter
+    const catSelect = container.querySelector('#jira-filter-category');
+    if (catSelect) {
+      catSelect.onchange = async (e) => {
+        filters.category = e.target.value;
+        updateClearFiltersVisibility();
+        await reloadBoard();
+      };
+    }
+
+    // Assignee filter
+    const assSelect = container.querySelector('#jira-filter-assignee');
+    if (assSelect) {
+      assSelect.onchange = async (e) => {
+        filters.assigneeId = e.target.value;
+        updateClearFiltersVisibility();
+        await reloadBoard();
+      };
+    }
+
+    // Only My Issues pill
+    const pillMy = container.querySelector('#jira-pill-my-issues');
+    if (pillMy) {
+      pillMy.onclick = async () => {
+        filters.myIssuesOnly = !filters.myIssuesOnly;
+        pillMy.classList.toggle('active', filters.myIssuesOnly);
+        updateClearFiltersVisibility();
+        await reloadBoard();
+      };
+    }
+
+    // Clear filters
+    const clearBtn = container.querySelector('#jira-clear-filters');
+    if (clearBtn) {
+      clearBtn.onclick = async () => {
+        filters = {
+          search: '',
+          status: 'all',
+          priority: 'all',
+          category: 'all',
+          assigneeId: 'all',
+          myIssuesOnly: false
+        };
+        if (searchInp) searchInp.value = '';
+        if (priSelect) priSelect.value = 'all';
+        if (catSelect) catSelect.value = 'all';
+        if (assSelect) assSelect.value = 'all';
+        if (pillMy) pillMy.classList.remove('active');
+        updateClearFiltersVisibility();
+        await reloadBoard();
+      };
+    }
+  }
+
+  function updateClearFiltersVisibility() {
+    const clearBtn = container.querySelector('#jira-clear-filters');
+    if (!clearBtn) return;
+    const hasActive = filters.search || filters.priority !== 'all' || filters.category !== 'all' || filters.assigneeId !== 'all' || filters.myIssuesOnly;
+    clearBtn.style.display = hasActive ? 'inline' : 'none';
+  }
+
+  async function reloadBoard() {
+    await fetchTickets();
+    renderBoard();
+  }
+
+  /* ──────────────────────────────────────────────────────────────────────────
+     JIRA ISSUE DETAIL MODAL (2-COLUMN COMPREHENSIVE VIEW)
+     ────────────────────────────────────────────────────────────────────────── */
+  async function openTicketDetailModal(ticketDocId) {
+    const modalRoot = container.querySelector('#jira-modals-root');
+    if (!modalRoot) return;
+
+    modalRoot.innerHTML = `
+      <div class="jira-modal-backdrop">
+        <div class="jira-modal-card" style="align-items:center;justify-content:center;">
+          <div style="color:#94a3b8;font-size:15px;font-weight:600;">Loading Issue Details...</div>
+        </div>
+      </div>
+    `;
+
+    try {
+      activeModalTicket = await apiGet(`/tickets/${ticketDocId}`);
+    } catch (e) {
+      flashToast(e.message || 'Could not load ticket', true);
+      modalRoot.innerHTML = '';
+      return;
+    }
+
+    renderTicketDetailModal();
+  }
+
+  function renderTicketDetailModal() {
+    const modalRoot = container.querySelector('#jira-modals-root');
+    if (!modalRoot || !activeModalTicket) return;
+
+    const t = activeModalTicket;
+    const cat = CATEGORIES.find(c => c.key === t.category) || CATEGORIES[0];
+    const pri = PRIORITIES.find(p => p.key === t.priority) || PRIORITIES[2];
+
+    const subtasks = t.subtasks || [];
+    const subtaskDone = subtasks.filter(s => s.completed).length;
+    const subtaskPct = subtasks.length > 0 ? Math.round((subtaskDone / subtasks.length) * 100) : 0;
+
+    const attachments = t.attachments || [];
+    const comments = t.comments || [];
+    const history = (t.history || []).slice().reverse();
+    const workLogs = t.workLogs || [];
+    const linkedTickets = t.linkedTickets || [];
+
+    const myId = currentUser?._id || currentUser?.id;
+    const isReporter = t.reporter && t.reporter.userId && t.reporter.userId.toString() === myId?.toString();
+    const isSuper = userRole === 'superadmin' || userRole === 'admin';
+
+    modalRoot.innerHTML = `
+      <div class="jira-modal-backdrop" id="jira-detail-backdrop">
+        <div class="jira-modal-card">
+          <!-- Top Bar -->
+          <div class="jira-modal-header">
+            <div class="jira-modal-title-row">
+              <span class="jira-category-pill ${cat.slug}">${cat.icon} ${cat.label}</span>
+              <span class="jira-ticket-id" style="font-size:13px;color:#38bdf8;">${escapeHtml(t.ticketId)}</span>
+            </div>
+            <button class="jira-modal-close" id="btn-close-jira-modal" title="Close (Esc)">&times;</button>
+          </div>
+
+          <!-- 2-Column Body -->
+          <div class="jira-detail-body">
+            <!-- Left Main Column (68%) -->
+            <div class="jira-detail-main">
+              <!-- Issue Title Header -->
+              <div class="jira-issue-header-wrap">
+                <input type="text" class="jira-editable-title" id="inp-detail-title" value="${escapeHtml(t.title)}" title="Click to edit title" />
+              </div>
+
+              <!-- Description Section -->
+              <div class="jira-section-block">
+                <div class="jira-sec-title">
+                  <span>Description</span>
+                  <button type="button" class="jira-tool-btn" id="btn-toggle-desc-edit">
+                    ${isEditingDescription ? 'Cancel' : '✏️ Edit'}
+                  </button>
+                </div>
+
+                ${isEditingDescription ? `
+                  <div class="jira-editor-toolbar">
+                    <button type="button" class="jira-tool-btn" data-fmt="bold"><strong>B</strong></button>
+                    <button type="button" class="jira-tool-btn" data-fmt="italic"><em>I</em></button>
+                    <button type="button" class="jira-tool-btn" data-fmt="bullet">• List</button>
+                    <button type="button" class="jira-tool-btn" data-fmt="code">&lt;/&gt;</button>
+                  </div>
+                  <textarea id="inp-detail-desc" class="jira-desc-editor" rows="6">${escapeHtml(t.description || '')}</textarea>
+                  <div style="display:flex;gap:8px;margin-top:6px;">
+                    <button class="btn-jira-primary" id="btn-save-desc">Save Description</button>
+                    <button class="btn-jira-secondary" id="btn-cancel-desc">Cancel</button>
+                  </div>
+                ` : `
+                  <div class="jira-desc-wrap" id="view-detail-desc">
+                    ${t.description ? escapeHtml(t.description) : '<span style="color:#64748b;font-style:italic;">No description provided. Click "Edit" to add details.</span>'}
+                  </div>
+                `}
+              </div>
+
+              <!-- Attachments Section -->
+              <div class="jira-section-block">
+                <div class="jira-sec-title">
+                  <span>Attachments (${attachments.length})</span>
+                  <label class="btn-jira-secondary" style="font-size:11px;padding:4px 8px;cursor:pointer;">
+                    📎 Upload File
+                    <input type="file" id="inp-detail-att-upload" multiple style="display:none;" />
+                  </label>
+                </div>
+
+                ${attachments.length === 0 ? `
+                  <div style="color:#64748b;font-size:12px;font-style:italic;">No attachments yet. Upload screenshots, logs, or briefs.</div>
+                ` : `
+                  <div class="jira-attachments-grid">
+                    ${attachments.map(att => `
+                      <div class="jira-att-card">
+                        <div class="jira-att-left">
+                          <span>📎</span>
+                          <a href="${att.url}" target="_blank" rel="noopener noreferrer" class="jira-att-name" title="${escapeHtml(att.name)}">
+                            ${escapeHtml(att.name)}
+                          </a>
+                        </div>
+                        <button type="button" class="jira-att-del btn-del-att" data-att-id="${att.id}" title="Delete file">&times;</button>
+                      </div>
+                    `).join('')}
+                  </div>
+                `}
+              </div>
+
+              <!-- Subtasks Section -->
+              <div class="jira-section-block">
+                <div class="jira-sec-title">
+                  <span>Subtasks (${subtaskDone}/${subtasks.length})</span>
+                  <span style="font-size:11px;color:#10b981;font-weight:700;">${subtaskPct}% Done</span>
+                </div>
+
+                <div class="jira-subtask-progress">
+                  <div class="jira-subtask-bar" style="width:${subtaskPct}%"></div>
+                </div>
+
+                <div class="jira-subtask-list">
+                  ${subtasks.map(s => `
+                    <div class="jira-subtask-item">
+                      <div class="jira-subtask-left">
+                        <input type="checkbox" class="jira-subtask-cb cb-subtask-toggle" data-subtask-id="${s.id}" ${s.completed ? 'checked' : ''} />
+                        <span class="jira-subtask-title ${s.completed ? 'done' : ''}">${escapeHtml(s.title)}</span>
+                      </div>
+                      <button type="button" class="jira-att-del btn-del-subtask" data-subtask-id="${s.id}" title="Remove subtask">&times;</button>
+                    </div>
+                  `).join('')}
+                </div>
+
+                <div class="jira-subtask-add-row">
+                  <input type="text" id="inp-new-subtask" class="jira-subtask-input" placeholder="+ Add a subtask (press Enter)..." />
+                  <button type="button" class="btn-jira-secondary" id="btn-add-subtask">Add</button>
+                </div>
+              </div>
+
+              <!-- Linked Work Items Section -->
+              <div class="jira-section-block">
+                <div class="jira-sec-title">
+                  <span>Linked Work Items (${linkedTickets.length})</span>
+                  <button type="button" class="btn-jira-secondary" id="btn-open-link-dialog" style="font-size:11px;padding:4px 8px;">
+                    🔗 Link Issue
+                  </button>
+                </div>
+
+                ${linkedTickets.length === 0 ? `
+                  <div style="color:#64748b;font-size:12px;font-style:italic;">No linked issues.</div>
+                ` : `
+                  <div style="display:flex;flex-direction:column;gap:6px;">
+                    ${linkedTickets.map(lnk => `
+                      <div class="jira-subtask-item">
+                        <div style="display:flex;align-items:center;gap:8px;">
+                          <span style="font-size:11px;color:#94a3b8;font-weight:700;text-transform:uppercase;">${escapeHtml(lnk.relationship)}</span>
+                          <span class="jira-ticket-id" style="color:#38bdf8;">${escapeHtml(lnk.ticketId)}</span>
+                          <span style="font-size:12.5px;color:#f1f5f9;">${escapeHtml(lnk.title)}</span>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:6px;">
+                          <span class="jira-col-badge">${escapeHtml(lnk.status || 'Open')}</span>
+                          <button type="button" class="jira-att-del btn-del-link" data-link-id="${lnk.id}" title="Remove link">&times;</button>
+                        </div>
+                      </div>
+                    `).join('')}
+                  </div>
+                `}
+
+                <div id="jira-link-box" style="display:none;padding:10px;background:#162032;border:1px solid #334155;border-radius:6px;margin-top:6px;">
+                  <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                    <select id="sel-link-rel" class="jira-select-field" style="width:140px;">
+                      <option value="relates to">relates to</option>
+                      <option value="blocks">blocks</option>
+                      <option value="is blocked by">is blocked by</option>
+                      <option value="duplicates">duplicates</option>
+                    </select>
+                    <input type="text" id="inp-link-target" class="jira-subtask-input" placeholder="Ticket ID (e.g. SUP-002)..." style="flex:1;" />
+                    <button class="btn-jira-primary" id="btn-submit-link">Link</button>
+                    <button class="btn-jira-secondary" id="btn-cancel-link">Cancel</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Activity Tabs Section -->
+              <div class="jira-section-block" style="margin-top:10px;">
+                <div class="jira-sec-title">Activity</div>
+                <div class="jira-activity-tabs">
+                  <button type="button" class="jira-act-tab ${activeActivityTab === 'comments' ? 'active' : ''}" data-act-tab="comments">
+                    Comments (${comments.length})
+                  </button>
+                  <button type="button" class="jira-act-tab ${activeActivityTab === 'history' ? 'active' : ''}" data-act-tab="history">
+                    History (${history.length})
+                  </button>
+                  <button type="button" class="jira-act-tab ${activeActivityTab === 'worklog' ? 'active' : ''}" data-act-tab="worklog">
+                    Work Log (${workLogs.length})
+                  </button>
+                </div>
+
+                <!-- A. Comments Tab -->
+                ${activeActivityTab === 'comments' ? `
+                  <div class="jira-comments-feed">
+                    ${comments.map(c => `
+                      <div class="jira-comment-item">
+                        <div class="jira-avatar" style="background:#2563eb;">
+                          ${(c.userName || 'U').slice(0, 1).toUpperCase()}
+                        </div>
+                        <div class="jira-comment-main">
+                          <div class="jira-comment-head">
+                            <span class="jira-comment-author">${escapeHtml(c.userName)} <span style="font-size:10px;color:#94a3b8;font-weight:400;">(${escapeHtml(c.userRole)})</span></span>
+                            <span class="jira-comment-time">${timeAgo(c.createdAt)}</span>
+                          </div>
+                          <div class="jira-comment-body">${escapeHtml(c.content)}</div>
+                        </div>
+                      </div>
+                    `).join('')}
+
+                    <!-- Add Comment Composer -->
+                    <div class="jira-comment-composer">
+                      <div class="jira-avatar" style="background:#3b82f6;">
+                        ${(currentUser?.name || 'U').slice(0, 1).toUpperCase()}
+                      </div>
+                      <div style="flex:1;display:flex;flex-direction:column;gap:6px;">
+                        <textarea id="inp-new-comment" class="jira-comment-textarea" rows="2" placeholder="Add an internal comment..."></textarea>
+                        <div style="display:flex;justify-content:flex-end;">
+                          <button class="btn-jira-primary" id="btn-submit-comment">Save Comment</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ` : ''}
+
+                <!-- B. History Tab -->
+                ${activeActivityTab === 'history' ? `
+                  <div class="jira-history-feed">
+                    ${history.length === 0 ? `
+                      <div style="color:#64748b;font-size:12px;font-style:italic;">No recorded history.</div>
+                    ` : history.map(h => `
+                      <div class="jira-history-item">
+                        <div class="jira-avatar unassigned" style="width:20px;height:20px;font-size:9px;">
+                          ${(h.userName || 'S').slice(0, 1).toUpperCase()}
+                        </div>
+                        <div class="jira-history-main">
+                          <div class="jira-history-head">
+                            <span style="font-weight:600;color:#f1f5f9;font-size:12px;">${escapeHtml(h.userName)}</span>
+                            <span class="jira-comment-time">${timeAgo(h.timestamp)}</span>
+                          </div>
+                          <div style="font-size:12px;color:#94a3b8;">
+                            Changed <strong style="color:#cbd5e1;">${escapeHtml(h.field)}</strong>:
+                            ${h.from ? `<span style="text-decoration:line-through;color:#ef4444;">${escapeHtml(h.from)}</span> ➔ ` : ''}
+                            <span style="color:#10b981;font-weight:600;">${escapeHtml(h.to)}</span>
+                          </div>
+                        </div>
+                      </div>
+                    `).join('')}
+                  </div>
+                ` : ''}
+
+                <!-- C. Work Log Tab -->
+                ${activeActivityTab === 'worklog' ? `
+                  <div class="jira-worklog-feed">
+                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                      <span style="font-size:12px;color:#94a3b8;">Total Logged: <strong>${t.loggedHours || 0} hrs</strong></span>
+                      <button class="btn-jira-secondary" id="btn-open-worklog-dialog" style="font-size:11px;padding:4px 8px;">
+                        ⏱️ Log Work
+                      </button>
+                    </div>
+
+                    <div id="jira-worklog-box" style="display:none;padding:10px;background:#162032;border:1px solid #334155;border-radius:6px;margin:6px 0;">
+                      <div style="display:flex;flex-direction:column;gap:8px;">
+                        <input type="text" id="inp-worklog-time" class="jira-subtask-input" placeholder="Time spent (e.g. 2h 30m, 45m)..." />
+                        <input type="text" id="inp-worklog-desc" class="jira-subtask-input" placeholder="Description of work performed..." />
+                        <div style="display:flex;justify-content:flex-end;gap:6px;">
+                          <button class="btn-jira-primary" id="btn-submit-worklog">Log</button>
+                          <button class="btn-jira-secondary" id="btn-cancel-worklog">Cancel</button>
+                        </div>
+                      </div>
+                    </div>
+
+                    ${workLogs.length === 0 ? `
+                      <div style="color:#64748b;font-size:12px;font-style:italic;">No work logged yet.</div>
+                    ` : workLogs.map(w => `
+                      <div class="jira-worklog-item">
+                        <div class="jira-avatar" style="background:#10b981;width:20px;height:20px;font-size:9px;">
+                          ${(w.userName || 'U').slice(0, 1).toUpperCase()}
+                        </div>
+                        <div class="jira-worklog-main">
+                          <div class="jira-worklog-head">
+                            <span style="font-weight:600;color:#f1f5f9;font-size:12px;">${escapeHtml(w.userName)} logged <strong style="color:#38bdf8;">${escapeHtml(w.timeSpent)}</strong></span>
+                            <span class="jira-comment-time">${timeAgo(w.loggedAt)}</span>
+                          </div>
+                          ${w.description ? `<div style="font-size:12px;color:#cbd5e1;">${escapeHtml(w.description)}</div>` : ''}
+                        </div>
+                      </div>
+                    `).join('')}
+                  </div>
+                ` : ''}
+              </div>
+            </div>
+
+            <!-- Right Sidebar Panel (32%) -->
+            <div class="jira-detail-sidebar">
+              <!-- Status -->
+              <div class="jira-side-field">
+                <span class="jira-side-lbl">Status</span>
+                <select id="sel-detail-status" class="jira-select-field">
+                  ${STATUS_COLUMNS.map(s => `
+                    <option value="${s.key}" ${t.status === s.key ? 'selected' : ''}>
+                      ${s.label}
+                    </option>
+                  `).join('')}
+                </select>
+              </div>
+
+              <!-- Priority -->
+              <div class="jira-side-field">
+                <span class="jira-side-lbl">Priority</span>
+                <select id="sel-detail-priority" class="jira-select-field">
+                  ${PRIORITIES.map(p => `
+                    <option value="${p.key}" ${t.priority === p.key ? 'selected' : ''}>
+                      ${p.icon} ${p.label}
+                    </option>
+                  `).join('')}
+                </select>
+              </div>
+
+              <!-- Assignee -->
+              <div class="jira-side-field">
+                <span class="jira-side-lbl">Assignee</span>
+                <select id="sel-detail-assignee" class="jira-select-field">
+                  <option value="">Unassigned</option>
+                  ${employees.map(u => `
+                    <option value="${u._id}" ${t.assignee && t.assignee.userId && t.assignee.userId.toString() === u._id.toString() ? 'selected' : ''}>
+                      ${escapeHtml(u.name)} (${escapeHtml(u.role)})
+                    </option>
+                  `).join('')}
+                </select>
+              </div>
+
+              <!-- Reporter (Read Only) -->
+              <div class="jira-side-field">
+                <span class="jira-side-lbl">Reporter</span>
+                <div style="display:flex;align-items:center;gap:8px;margin-top:2px;">
+                  <div class="jira-avatar" style="background:#2563eb;">
+                    ${(t.reporter?.name || 'U').slice(0, 1).toUpperCase()}
+                  </div>
+                  <div>
+                    <div style="font-size:12.5px;font-weight:600;color:#f8fafc;">${escapeHtml(t.reporter?.name || 'Staff')}</div>
+                    <div style="font-size:11px;color:#94a3b8;">${escapeHtml(t.reporter?.role || 'employee')}</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Category -->
+              <div class="jira-side-field">
+                <span class="jira-side-lbl">Category</span>
+                <select id="sel-detail-category" class="jira-select-field">
+                  ${CATEGORIES.map(c => `
+                    <option value="${c.key}" ${t.category === c.key ? 'selected' : ''}>
+                      ${c.icon} ${c.label}
+                    </option>
+                  `).join('')}
+                </select>
+              </div>
+
+              <!-- Due Date -->
+              <div class="jira-side-field">
+                <span class="jira-side-lbl">Due Date</span>
+                <input type="date" id="inp-detail-duedate" class="jira-date-field" value="${t.dueDate ? new Date(t.dueDate).toISOString().slice(0, 10) : ''}" />
+              </div>
+
+              <!-- Linked Job / Project -->
+              <div class="jira-side-field">
+                <span class="jira-side-lbl">Linked Internal Project / Job</span>
+                <select id="sel-detail-job" class="jira-select-field">
+                  <option value="">None (Workspace General)</option>
+                  ${jobs.map(j => `
+                    <option value="${j._id}" ${t.jobId && t.jobId.toString() === j._id.toString() ? 'selected' : ''}>
+                      📁 ${escapeHtml(j.title || 'Untitled Job')}
+                    </option>
+                  `).join('')}
+                </select>
+              </div>
+
+              <!-- Estimated & Logged Time -->
+              <div class="jira-side-field">
+                <span class="jira-side-lbl">Time Tracking</span>
+                <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:#cbd5e1;">
+                  <span>Logged: <strong>${t.loggedHours || 0}h</strong></span>
+                  <span>/ Est: <input type="number" id="inp-detail-esthours" value="${t.estimatedHours || 0}" style="width:45px;background:#1e293b;border:1px solid #334155;color:#f8fafc;padding:2px 4px;border-radius:4px;font-size:12px;" />h</span>
+                </div>
+              </div>
+
+              <!-- Timestamps -->
+              <div style="padding-top:14px;border-top:1px solid #243248;display:flex;flex-direction:column;gap:4px;font-size:11px;color:#64748b;">
+                <div>Created: ${new Date(t.createdAt).toLocaleString()}</div>
+                <div>Updated: ${new Date(t.updatedAt).toLocaleString()}</div>
+                ${t.resolvedAt ? `<div style="color:#10b981;">Resolved: ${new Date(t.resolvedAt).toLocaleString()}</div>` : ''}
+              </div>
+
+              <!-- Actions (Delete) -->
+              ${(isSuper || isReporter) ? `
+                <div style="padding-top:10px;">
+                  <button type="button" class="jira-tool-btn" id="btn-delete-ticket" style="color:#ef4444;border-color:rgba(239,68,68,0.4);width:100%;padding:6px;">
+                    🗑️ Delete Ticket
+                  </button>
+                </div>
+              ` : ''}
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    bindTicketDetailEvents();
+  }
+
+  function bindTicketDetailEvents() {
+    const modalRoot = container.querySelector('#jira-modals-root');
+    if (!modalRoot || !activeModalTicket) return;
+
+    // Close button & backdrop click
+    const btnClose = modalRoot.querySelector('#btn-close-jira-modal');
+    if (btnClose) btnClose.onclick = closeTicketDetailModal;
+
+    const backdrop = modalRoot.querySelector('#jira-detail-backdrop');
+    if (backdrop) {
+      backdrop.onclick = (e) => {
+        if (e.target === backdrop) closeTicketDetailModal();
+      };
+    }
+
+    // Editable Title (Save on change/blur)
+    const inpTitle = modalRoot.querySelector('#inp-detail-title');
+    if (inpTitle) {
+      inpTitle.onchange = async () => {
+        const val = inpTitle.value.trim();
+        if (!val) return;
+        try {
+          const updated = await apiPatch(`/tickets/${activeModalTicket._id}`, { title: val });
+          activeModalTicket = updated;
+          await reloadBoard();
+        } catch (e) {
+          flashToast(e.message || 'Failed to update title', true);
+        }
+      };
+    }
+
+    // Description edit toggle
+    const btnToggleDesc = modalRoot.querySelector('#btn-toggle-desc-edit');
+    if (btnToggleDesc) {
+      btnToggleDesc.onclick = () => {
+        isEditingDescription = !isEditingDescription;
+        renderTicketDetailModal();
+      };
+    }
+
+    const btnCancelDesc = modalRoot.querySelector('#btn-cancel-desc');
+    if (btnCancelDesc) {
+      btnCancelDesc.onclick = () => {
+        isEditingDescription = false;
+        renderTicketDetailModal();
+      };
+    }
+
+    const btnSaveDesc = modalRoot.querySelector('#btn-save-desc');
+    if (btnSaveDesc) {
+      btnSaveDesc.onclick = async () => {
+        const val = modalRoot.querySelector('#inp-detail-desc')?.value;
+        try {
+          const updated = await apiPatch(`/tickets/${activeModalTicket._id}`, { description: val });
+          activeModalTicket = updated;
+          isEditingDescription = false;
+          renderTicketDetailModal();
+          await reloadBoard();
+          flashToast('Description saved', false);
+        } catch (e) {
+          flashToast(e.message || 'Failed to save description', true);
+        }
+      };
+    }
+
+    // Status change
+    const selStatus = modalRoot.querySelector('#sel-detail-status');
+    if (selStatus) {
+      selStatus.onchange = async (e) => {
+        try {
+          const updated = await apiPatch(`/tickets/${activeModalTicket._id}/status`, { status: e.target.value });
+          activeModalTicket = updated;
+          renderTicketDetailModal();
+          await fetchStats();
+          renderStats();
+          await reloadBoard();
+          flashToast(`Status changed to ${updated.status}`, false);
+        } catch (err) {
+          flashToast(err.message || 'Status change failed', true);
+        }
+      };
+    }
+
+    // Priority change
+    const selPriority = modalRoot.querySelector('#sel-detail-priority');
+    if (selPriority) {
+      selPriority.onchange = async (e) => {
+        try {
+          const updated = await apiPatch(`/tickets/${activeModalTicket._id}`, { priority: e.target.value });
+          activeModalTicket = updated;
+          renderTicketDetailModal();
+          await reloadBoard();
+        } catch (err) {
+          flashToast(err.message, true);
+        }
+      };
+    }
+
+    // Assignee change
+    const selAssignee = modalRoot.querySelector('#sel-detail-assignee');
+    if (selAssignee) {
+      selAssignee.onchange = async (e) => {
+        try {
+          const updated = await apiPatch(`/tickets/${activeModalTicket._id}`, { assigneeId: e.target.value || null });
+          activeModalTicket = updated;
+          renderTicketDetailModal();
+          await reloadBoard();
+          flashToast(`Assigned to ${updated.assignee?.name || 'Unassigned'}`, false);
+        } catch (err) {
+          flashToast(err.message, true);
+        }
+      };
+    }
+
+    // Category change
+    const selCategory = modalRoot.querySelector('#sel-detail-category');
+    if (selCategory) {
+      selCategory.onchange = async (e) => {
+        try {
+          const updated = await apiPatch(`/tickets/${activeModalTicket._id}`, { category: e.target.value });
+          activeModalTicket = updated;
+          renderTicketDetailModal();
+          await reloadBoard();
+        } catch (err) {
+          flashToast(err.message, true);
+        }
+      };
+    }
+
+    // Due date change
+    const inpDueDate = modalRoot.querySelector('#inp-detail-duedate');
+    if (inpDueDate) {
+      inpDueDate.onchange = async (e) => {
+        try {
+          const updated = await apiPatch(`/tickets/${activeModalTicket._id}`, { dueDate: e.target.value || null });
+          activeModalTicket = updated;
+          renderTicketDetailModal();
+          await reloadBoard();
+        } catch (err) {
+          flashToast(err.message, true);
+        }
+      };
+    }
+
+    // Linked Job change
+    const selJob = modalRoot.querySelector('#sel-detail-job');
+    if (selJob) {
+      selJob.onchange = async (e) => {
+        try {
+          const updated = await apiPatch(`/tickets/${activeModalTicket._id}`, { jobId: e.target.value || null });
+          activeModalTicket = updated;
+          renderTicketDetailModal();
+          await reloadBoard();
+        } catch (err) {
+          flashToast(err.message, true);
+        }
+      };
+    }
+
+    // Estimated hours change
+    const inpEstHours = modalRoot.querySelector('#inp-detail-esthours');
+    if (inpEstHours) {
+      inpEstHours.onchange = async (e) => {
+        try {
+          const updated = await apiPatch(`/tickets/${activeModalTicket._id}`, { estimatedHours: Number(e.target.value) || 0 });
+          activeModalTicket = updated;
+        } catch (err) {
+          flashToast(err.message, true);
+        }
+      };
+    }
+
+    // Subtasks checkbox toggle
+    modalRoot.querySelectorAll('.cb-subtask-toggle').forEach(cb => {
+      cb.onchange = async () => {
+        const sId = cb.dataset.subtaskId;
+        try {
+          const updated = await apiPatch(`/tickets/${activeModalTicket._id}/subtasks/${sId}`, { completed: cb.checked });
+          activeModalTicket = updated;
+          renderTicketDetailModal();
+          await reloadBoard();
+        } catch (err) {
+          flashToast(err.message, true);
+        }
+      };
+    });
+
+    // Delete subtask
+    modalRoot.querySelectorAll('.btn-del-subtask').forEach(btn => {
+      btn.onclick = async () => {
+        const sId = btn.dataset.subtaskId;
+        try {
+          const updated = await apiDelete(`/tickets/${activeModalTicket._id}/subtasks/${sId}`);
+          activeModalTicket = updated;
+          renderTicketDetailModal();
+          await reloadBoard();
+        } catch (err) {
+          flashToast(err.message, true);
+        }
+      };
+    });
+
+    // Add subtask
+    const inpSubtask = modalRoot.querySelector('#inp-new-subtask');
+    const btnAddSubtask = modalRoot.querySelector('#btn-add-subtask');
+    const handleAddSubtask = async () => {
+      const val = inpSubtask?.value.trim();
+      if (!val) return;
+      try {
+        const updated = await apiPost(`/tickets/${activeModalTicket._id}/subtasks`, { title: val });
+        activeModalTicket = updated;
+        renderTicketDetailModal();
+        await reloadBoard();
+      } catch (err) {
+        flashToast(err.message, true);
+      }
+    };
+    if (btnAddSubtask) btnAddSubtask.onclick = handleAddSubtask;
+    if (inpSubtask) {
+      inpSubtask.onkeydown = (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          handleAddSubtask();
+        }
+      };
+    }
+
+    // Attachments upload
+    const attUploadInp = modalRoot.querySelector('#inp-detail-att-upload');
+    if (attUploadInp) {
+      attUploadInp.onchange = async (e) => {
+        const files = Array.from(e.target.files);
+        if (!files.length) return;
+
+        flashToast('Uploading attachment(s)...', false);
+        const uploadedMeta = [];
+
+        for (const file of files) {
+          // Read as base64 to leverage existing /api/upload
+          const reader = new FileReader();
+          await new Promise((resolve) => {
+            reader.onload = async () => {
+              try {
+                const base64Data = reader.result.split(',')[1];
+                const res = await apiPost('/upload', {
+                  files: [{
+                    name: file.name,
+                    data: base64Data,
+                    size: file.size,
+                    type: file.type
+                  }]
+                });
+                if (res && res.files && res.files[0]) {
+                  uploadedMeta.push({
+                    name: res.files[0].name || file.name,
+                    url: res.files[0].url,
+                    size: file.size,
+                    type: file.type
+                  });
+                }
+              } catch (upErr) {
+                console.warn('Upload error for file:', file.name, upErr);
+              }
+              resolve();
+            };
+            reader.readAsDataURL(file);
+          });
+        }
+
+        if (uploadedMeta.length) {
+          try {
+            const updated = await apiPost(`/tickets/${activeModalTicket._id}/attachments`, { attachments: uploadedMeta });
+            activeModalTicket = updated;
+            renderTicketDetailModal();
+            flashToast('File(s) attached successfully', false);
+          } catch (err) {
+            flashToast(err.message || 'Failed to attach file(s)', true);
+          }
+        }
+      };
+    }
+
+    // Delete attachment
+    modalRoot.querySelectorAll('.btn-del-att').forEach(btn => {
+      btn.onclick = async () => {
+        const aId = btn.dataset.attId;
+        try {
+          const updated = await apiDelete(`/tickets/${activeModalTicket._id}/attachments/${aId}`);
+          activeModalTicket = updated;
+          renderTicketDetailModal();
+        } catch (err) {
+          flashToast(err.message, true);
+        }
+      };
+    });
+
+    // Activity Tabs
+    modalRoot.querySelectorAll('.jira-act-tab').forEach(tab => {
+      tab.onclick = () => {
+        activeActivityTab = tab.dataset.actTab;
+        renderTicketDetailModal();
+      };
+    });
+
+    // Add Comment
+    const inpComment = modalRoot.querySelector('#inp-new-comment');
+    const btnComment = modalRoot.querySelector('#btn-submit-comment');
+    if (btnComment && inpComment) {
+      btnComment.onclick = async () => {
+        const val = inpComment.value.trim();
+        if (!val) return;
+        try {
+          btnComment.disabled = true;
+          btnComment.textContent = 'Saving...';
+          const updated = await apiPost(`/tickets/${activeModalTicket._id}/comments`, { content: val });
+          activeModalTicket = updated;
+          renderTicketDetailModal();
+          flashToast('Comment added', false);
+        } catch (err) {
+          flashToast(err.message || 'Failed to add comment', true);
+        } finally {
+          btnComment.disabled = false;
+        }
+      };
+    }
+
+    // Link Issue Dialog
+    const btnOpenLink = modalRoot.querySelector('#btn-open-link-dialog');
+    const linkBox = modalRoot.querySelector('#jira-link-box');
+    const btnCancelLink = modalRoot.querySelector('#btn-cancel-link');
+    const btnSubmitLink = modalRoot.querySelector('#btn-submit-link');
+    const inpLinkTarget = modalRoot.querySelector('#inp-link-target');
+    const selLinkRel = modalRoot.querySelector('#sel-link-rel');
+
+    if (btnOpenLink && linkBox) {
+      btnOpenLink.onclick = () => { linkBox.style.display = 'block'; };
+    }
+    if (btnCancelLink && linkBox) {
+      btnCancelLink.onclick = () => { linkBox.style.display = 'none'; };
+    }
+    if (btnSubmitLink && linkBox) {
+      btnSubmitLink.onclick = async () => {
+        const target = inpLinkTarget?.value.trim();
+        const rel = selLinkRel?.value || 'relates to';
+        if (!target) return;
+        try {
+          btnSubmitLink.disabled = true;
+          const updated = await apiPost(`/tickets/${activeModalTicket._id}/links`, { targetTicketId: target, relationship: rel });
+          activeModalTicket = updated;
+          renderTicketDetailModal();
+          flashToast(`Linked with ${target}`, false);
+        } catch (err) {
+          flashToast(err.message || 'Failed to link ticket', true);
+        } finally {
+          btnSubmitLink.disabled = false;
+        }
+      };
+    }
+
+    // Delete linked issue
+    modalRoot.querySelectorAll('.btn-del-link').forEach(btn => {
+      btn.onclick = async () => {
+        const lId = btn.dataset.linkId;
+        try {
+          const updated = await apiDelete(`/tickets/${activeModalTicket._id}/links/${lId}`);
+          activeModalTicket = updated;
+          renderTicketDetailModal();
+        } catch (err) {
+          flashToast(err.message, true);
+        }
+      };
+    });
+
+    // Log Work Dialog
+    const btnOpenWorklog = modalRoot.querySelector('#btn-open-worklog-dialog');
+    const worklogBox = modalRoot.querySelector('#jira-worklog-box');
+    const btnCancelWorklog = modalRoot.querySelector('#btn-cancel-worklog');
+    const btnSubmitWorklog = modalRoot.querySelector('#btn-submit-worklog');
+    const inpWorkTime = modalRoot.querySelector('#inp-worklog-time');
+    const inpWorkDesc = modalRoot.querySelector('#inp-worklog-desc');
+
+    if (btnOpenWorklog && worklogBox) {
+      btnOpenWorklog.onclick = () => { worklogBox.style.display = 'block'; };
+    }
+    if (btnCancelWorklog && worklogBox) {
+      btnCancelWorklog.onclick = () => { worklogBox.style.display = 'none'; };
+    }
+    if (btnSubmitWorklog && worklogBox) {
+      btnSubmitWorklog.onclick = async () => {
+        const time = inpWorkTime?.value.trim();
+        const desc = inpWorkDesc?.value.trim();
+        if (!time) {
+          flashToast('Enter time spent (e.g. 2h 30m)', true);
+          return;
+        }
+        try {
+          btnSubmitWorklog.disabled = true;
+          const updated = await apiPost(`/tickets/${activeModalTicket._id}/worklogs`, { timeSpent: time, description: desc });
+          activeModalTicket = updated;
+          renderTicketDetailModal();
+          flashToast('Work logged', false);
+        } catch (err) {
+          flashToast(err.message || 'Failed to log work', true);
+        } finally {
+          btnSubmitWorklog.disabled = false;
+        }
+      };
+    }
+
+    // Delete Ticket
+    const btnDeleteTicket = modalRoot.querySelector('#btn-delete-ticket');
+    if (btnDeleteTicket) {
+      btnDeleteTicket.onclick = async () => {
+        if (!confirm(`Are you sure you want to permanently delete ticket ${activeModalTicket.ticketId}?`)) return;
+        try {
+          btnDeleteTicket.disabled = true;
+          await apiDelete(`/tickets/${activeModalTicket._id}`);
+          flashToast(`Ticket ${activeModalTicket.ticketId} deleted`, false);
+          closeTicketDetailModal();
+          await fetchStats();
+          renderStats();
+          await reloadBoard();
+        } catch (err) {
+          flashToast(err.message || 'Failed to delete ticket', true);
+          btnDeleteTicket.disabled = false;
+        }
+      };
+    }
+  }
+
+  function closeTicketDetailModal() {
+    activeModalTicket = null;
+    isEditingDescription = false;
+    const modalRoot = container.querySelector('#jira-modals-root');
+    if (modalRoot) modalRoot.innerHTML = '';
+  }
+
+  /* ──────────────────────────────────────────────────────────────────────────
+     CREATE TICKET MODAL (JIRA-STYLE)
+     ────────────────────────────────────────────────────────────────────────── */
+  function openCreateTicketModal() {
+    const modalRoot = container.querySelector('#jira-modals-root');
+    if (!modalRoot) return;
+
+    modalRoot.innerHTML = `
+      <div class="jira-modal-backdrop" id="jira-create-backdrop">
+        <div class="jira-modal-card" style="max-width:680px;height:auto;max-height:92vh;">
+          <div class="jira-modal-header">
+            <h3 style="margin:0;font-size:16px;font-weight:700;color:#f8fafc;">
+              🎫 Create Support Ticket
+            </h3>
+            <button class="jira-modal-close" id="btn-close-create-modal">&times;</button>
+          </div>
+
+          <div style="padding:22px;overflow-y:auto;flex:1;">
+            <div class="jira-form-grid-2">
+              <div class="jira-form-group">
+                <label class="jira-form-label">Issue Type / Category *</label>
+                <select id="create-ticket-cat" class="jira-select-field">
+                  ${CATEGORIES.map(c => `<option value="${c.key}">${c.icon} ${c.label}</option>`).join('')}
+                </select>
+              </div>
+
+              <div class="jira-form-group">
+                <label class="jira-form-label">Priority *</label>
+                <select id="create-ticket-pri" class="jira-select-field">
+                  <option value="Medium" selected>🟡 Medium</option>
+                  <option value="Low">🟢 Low</option>
+                  <option value="High">🟠 High</option>
+                  <option value="Critical">🔴 Critical</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="jira-form-group">
+              <label class="jira-form-label">Summary / Title *</label>
+              <input type="text" id="create-ticket-title" class="jira-form-input" placeholder="e.g. Navigation dropdown glitch on Safari mobile" required />
+            </div>
+
+            <div class="jira-form-group">
+              <label class="jira-form-label">Description (Provide details, steps, or context)</label>
+              <textarea id="create-ticket-desc" class="jira-form-textarea" rows="4" placeholder="Describe the issue, requirements, or internal request..."></textarea>
+            </div>
+
+            <div class="jira-form-grid-2">
+              <div class="jira-form-group">
+                <label class="jira-form-label">Assignee</label>
+                <select id="create-ticket-assignee" class="jira-select-field">
+                  <option value="">Unassigned</option>
+                  ${employees.map(u => `
+                    <option value="${u._id}">
+                      ${escapeHtml(u.name)} (${escapeHtml(u.role)})
+                    </option>
+                  `).join('')}
+                </select>
+              </div>
+
+              <div class="jira-form-group">
+                <label class="jira-form-label">Due Date (Optional)</label>
+                <input type="date" id="create-ticket-duedate" class="jira-date-field" />
+              </div>
+            </div>
+
+            <div class="jira-form-group">
+              <label class="jira-form-label">Related Job / Internal Project (Optional)</label>
+              <select id="create-ticket-job" class="jira-select-field">
+                <option value="">None (General Workspace Issue)</option>
+                ${jobs.map(j => `
+                  <option value="${j._id}">
+                    📁 ${escapeHtml(j.title || 'Untitled Job')}
+                  </option>
+                `).join('')}
+              </select>
+            </div>
+          </div>
+
+          <div class="jira-modal-footer">
+            <button type="button" class="btn-jira-secondary" id="btn-cancel-create-ticket">Cancel</button>
+            <button type="button" class="btn-jira-primary" id="btn-submit-create-ticket">Create Ticket 🚀</button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    const closeCreate = () => { modalRoot.innerHTML = ''; };
+
+    const btnClose = modalRoot.querySelector('#btn-close-create-modal');
+    if (btnClose) btnClose.onclick = closeCreate;
+
+    const btnCancel = modalRoot.querySelector('#btn-cancel-create-ticket');
+    if (btnCancel) btnCancel.onclick = closeCreate;
+
+    const backdrop = modalRoot.querySelector('#jira-create-backdrop');
+    if (backdrop) {
+      backdrop.onclick = (e) => { if (e.target === backdrop) closeCreate(); };
+    }
+
+    const btnSubmit = modalRoot.querySelector('#btn-submit-create-ticket');
+    if (btnSubmit) {
+      btnSubmit.onclick = async () => {
+        const title = modalRoot.querySelector('#create-ticket-title')?.value.trim();
+        const desc = modalRoot.querySelector('#create-ticket-desc')?.value.trim();
+        const category = modalRoot.querySelector('#create-ticket-cat')?.value || 'Task';
+        const priority = modalRoot.querySelector('#create-ticket-pri')?.value || 'Medium';
+        const assigneeId = modalRoot.querySelector('#create-ticket-assignee')?.value || null;
+        const dueDate = modalRoot.querySelector('#create-ticket-duedate')?.value || null;
+        const jobId = modalRoot.querySelector('#create-ticket-job')?.value || null;
+
+        if (!title) {
+          flashToast('Ticket summary / title is required', true);
+          return;
+        }
+
+        try {
+          btnSubmit.disabled = true;
+          btnSubmit.textContent = 'Creating...';
+
+          const created = await apiPost('/tickets', {
+            title,
+            description: desc,
+            category,
+            priority,
+            assigneeId,
+            dueDate,
+            jobId
+          });
+
+          flashToast(`Ticket ${created.ticketId} created! 🎫`, false);
+          closeCreate();
+
+          await fetchStats();
+          renderStats();
+          await reloadBoard();
+
+          // Open newly created ticket in detail view
+          openTicketDetailModal(created._id);
+        } catch (err) {
+          flashToast(err.message || 'Could not create ticket', true);
+          btnSubmit.disabled = false;
+          btnSubmit.textContent = 'Create Ticket 🚀';
+        }
+      };
+    }
+  }
+}

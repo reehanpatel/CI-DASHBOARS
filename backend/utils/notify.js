@@ -163,48 +163,45 @@ async function createNotificationForTicket({ type, title, message, ticket, actor
     if (!ticket) return;
     const targetUserIds = new Set();
 
-    // 1. All Super Admins & Managers
-    const managers = await User.find({ 
-      $or: [
-        { role: { $in: ['superadmin', 'admin'] } },
-        { name: { $regex: /(mansi|urna)/i } }
-      ], 
+    // 1. All Super Admins & Admins
+    const admins = await User.find({ 
+      role: { $in: ['superadmin', 'admin'] },
       active: true 
     });
-    managers.forEach(u => targetUserIds.add(String(u._id)));
+    admins.forEach(u => targetUserIds.add(String(u._id)));
 
-    // 2. Ticket creator user
-    if (ticket.userId) {
-      targetUserIds.add(String(ticket.userId));
+    // 2. Ticket reporter / creator user (Internal employee or admin only)
+    const reporterUserId = (ticket.reporter && ticket.reporter.userId) || ticket.userId;
+    if (reporterUserId) {
+      targetUserIds.add(String(reporterUserId));
     }
 
-    // 3. If tied to a job, include assigned personnel & client
-    if (ticket.jobId) {
-      try {
-        const job = await Job.findById(ticket.jobId);
-        if (job) {
-          if (job.clientId) {
-            const clientUsers = await User.find({ clientId: job.clientId, active: true });
-            clientUsers.forEach(u => targetUserIds.add(String(u._id)));
-          }
-          if (job.assignments && job.assignments.length) {
-            const pIds = job.assignments.map(a => a.personId).filter(Boolean);
-            const assignedUsers = await User.find({ personnelId: { $in: pIds }, active: true });
-            assignedUsers.forEach(u => targetUserIds.add(String(u._id)));
-          }
-        }
-      } catch(e){}
+    // 3. Ticket assignee user
+    const assigneeUserId = ticket.assignee && ticket.assignee.userId;
+    if (assigneeUserId) {
+      targetUserIds.add(String(assigneeUserId));
     }
 
-    // 4. Always include actor
+    // 4. Always include actor who performed the action
     if (actorId) {
       targetUserIds.add(String(actorId));
     }
 
-    const nTitle = title || `🎫 Support Ticket: ${ticket.subject || 'Update'}`;
-    const nMessage = message || `Ticket "${ticket.subject || ''}" was updated.`;
+    // STRICT CHECK: Ensure NO clients receive ticket notifications under any circumstances
+    const validInternalUsers = await User.find({
+      _id: { $in: Array.from(targetUserIds) },
+      role: { $ne: 'client' },
+      active: true
+    }).select('_id role');
 
-    const docs = Array.from(targetUserIds).map(uId => ({
+    const internalUserIds = validInternalUsers.map(u => String(u._id));
+    if (!internalUserIds.length) return;
+
+    const ticketIdentifier = ticket.ticketId || ticket.subject || 'Ticket';
+    const nTitle = title || `🎫 Support Ticket: ${ticketIdentifier}`;
+    const nMessage = message || `Ticket "${ticketIdentifier}" was updated.`;
+
+    const docs = internalUserIds.map(uId => ({
       userId: uId,
       type: type || 'ticket_created',
       title: nTitle,
@@ -217,7 +214,7 @@ async function createNotificationForTicket({ type, title, message, ticket, actor
 
     if (deduplicatedDocs.length) {
       await Notification.insertMany(deduplicatedDocs);
-      sendPushToUsers(Array.from(targetUserIds), {
+      sendPushToUsers(internalUserIds, {
         title: nTitle,
         message: nMessage,
         type: type || 'ticket_created',
