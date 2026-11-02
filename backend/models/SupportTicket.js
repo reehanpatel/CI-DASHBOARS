@@ -105,7 +105,7 @@ const SupportTicketSchema = new mongoose.Schema({
     avatar: { type: String, default: '' }
   },
 
-  // Assignee
+  // Assignee (primary)
   assignee: {
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
     name: { type: String, default: 'Unassigned' },
@@ -113,6 +113,15 @@ const SupportTicketSchema = new mongoose.Schema({
     email: { type: String, default: '' },
     avatar: { type: String, default: '' }
   },
+
+  // Multiple Assignees (team collaboration)
+  assignees: [{
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+    name: { type: String, default: '' },
+    role: { type: String, default: '' },
+    email: { type: String, default: '' },
+    avatar: { type: String, default: '' }
+  }],
 
   // Optional link to internal job / project
   jobId: { type: mongoose.Schema.Types.ObjectId, ref: 'Job', default: null },
@@ -143,8 +152,18 @@ const SupportTicketSchema = new mongoose.Schema({
   adminAttachments: [AttachmentSchema]
 }, { timestamps: true });
 
-// Auto-sync legacy fields before saving
+// Auto-sync legacy fields and assignees before saving
 SupportTicketSchema.pre('save', function(next) {
+  // Sync assignees array and primary assignee
+  if (Array.isArray(this.assignees) && this.assignees.length > 0) {
+    this.assignee = this.assignees[0];
+  } else if (this.assignee && this.assignee.userId) {
+    this.assignees = [this.assignee];
+  } else {
+    this.assignee = { userId: null, name: 'Unassigned', role: '', email: '', avatar: '' };
+    this.assignees = [];
+  }
+
   if (this.reporter && this.reporter.userId) {
     this.userId = this.reporter.userId;
     this.userName = this.reporter.name;

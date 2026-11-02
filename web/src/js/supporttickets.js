@@ -68,6 +68,8 @@ export async function initSupportTickets(container, options = {}) {
     priority: 'all',
     category: 'all',
     assigneeId: 'all',
+    reporterId: 'all',
+    scope: 'all', // 'all' | 'assigned' | 'created'
     jobId: options.initialJobId || 'all',
     myIssuesOnly: false
   };
@@ -84,10 +86,10 @@ export async function initSupportTickets(container, options = {}) {
         <div class="jira-header-left">
           <div class="jira-breadcrumb">
             <span class="jira-project-icon">CI</span>
-            <span>CI360 / SUPPORT / ${isSuper ? 'ALL TICKETS (ADMIN)' : 'MY ASSIGNED TICKETS'}</span>
+            <span>CI360 / SUPPORT / ${isSuper ? 'ALL TICKETS (ADMIN)' : 'INTERNAL TICKETS (ASSIGNED & CREATED)'}</span>
           </div>
           <div class="jira-title-row">
-            <h2 class="jira-main-title">🎫 ${isSuper ? 'Support Tickets Board' : 'My Support Tickets'}</h2>
+            <h2 class="jira-main-title">🎫 ${isSuper ? 'Support Tickets Board' : 'Support Tickets'}</h2>
           </div>
         </div>
         <div class="jira-header-actions">
@@ -140,9 +142,15 @@ export async function initSupportTickets(container, options = {}) {
               Only My Issues
             </button>
           ` : `
-            <span style="font-size:12px;font-weight:600;color:#94a3b8;background:#1e293b;padding:6px 12px;border-radius:6px;border:1px solid #334155;display:inline-flex;align-items:center;gap:6px;">
-              👤 Assigned to You
-            </span>
+            <button type="button" class="jira-pill-filter active" id="jira-pill-scope-all">
+              📁 All My Tickets
+            </button>
+            <button type="button" class="jira-pill-filter" id="jira-pill-scope-assigned">
+              👤 Assigned to Me
+            </button>
+            <button type="button" class="jira-pill-filter" id="jira-pill-scope-created">
+              ✍️ Created by Me
+            </button>
           `}
 
           <span class="jira-clear-filters" id="jira-clear-filters" style="display:none;">Clear Filters</span>
@@ -210,6 +218,9 @@ export async function initSupportTickets(container, options = {}) {
       if (filters.category !== 'all') qParams.set('category', filters.category);
       if (filters.assigneeId !== 'all') qParams.set('assigneeId', filters.assigneeId);
       if (filters.jobId && filters.jobId !== 'all') qParams.set('jobId', filters.jobId);
+      if (filters.reporterId && filters.reporterId !== 'all') qParams.set('reporterId', filters.reporterId);
+      if (filters.scope === 'created') qParams.set('reporterId', currentUser?._id || currentUser?.id);
+      if (filters.scope === 'assigned') qParams.set('assigneeId', currentUser?._id || currentUser?.id);
       if (filters.myIssuesOnly) qParams.set('myIssuesOnly', 'true');
 
       const data = await apiGet('/tickets?' + qParams.toString());
@@ -387,8 +398,34 @@ export async function initSupportTickets(container, options = {}) {
     const subtaskDone = (t.subtasks || []).filter(s => s.completed).length;
     const subtaskTotal = (t.subtasks || []).length;
 
-    const assigneeName = t.assignee?.name || 'Unassigned';
-    const assigneeInitial = (assigneeName === 'Unassigned' ? '?' : assigneeName.slice(0, 1)).toUpperCase();
+    const assigneesList = Array.isArray(t.assignees) && t.assignees.length > 0
+      ? t.assignees
+      : (t.assignee && t.assignee.userId ? [t.assignee] : []);
+
+    const myId = currentUser?._id || currentUser?.id;
+    const isReporter = t.reporter && t.reporter.userId && String(t.reporter.userId) === String(myId);
+
+    let avatarsHtml = '';
+    if (assigneesList.length === 0) {
+      avatarsHtml = `<div class="jira-avatar unassigned" title="Unassigned">?</div>`;
+    } else {
+      const displayAssignees = assigneesList.slice(0, 3);
+      const remainingCount = assigneesList.length - 3;
+      avatarsHtml = `
+        <div class="jira-avatar-group">
+          ${displayAssignees.map(a => `
+            <div class="jira-avatar" title="Assignee: ${escapeHtml(a.name || 'Member')} (${escapeHtml(a.role || '')})">
+              ${(a.avatar || a.name?.slice(0, 1) || 'U').toUpperCase()}
+            </div>
+          `).join('')}
+          ${remainingCount > 0 ? `
+            <div class="jira-avatar extra-count" title="${remainingCount} more assignees: ${escapeHtml(assigneesList.slice(3).map(a => a.name).join(', '))}">
+              +${remainingCount}
+            </div>
+          ` : ''}
+        </div>
+      `;
+    }
 
     return `
       <div class="jira-card" draggable="true" data-ticket-id="${t._id}">
@@ -397,6 +434,11 @@ export async function initSupportTickets(container, options = {}) {
             <span class="jira-category-pill ${cat.slug}">
               ${cat.icon} ${cat.label}
             </span>
+            ${isReporter ? `
+              <span class="jira-reporter-tag" title="You created this ticket">
+                ✍️ By You
+              </span>
+            ` : ''}
             ${t.dueDate ? `
               <span class="jira-due-pill ${isOverdue ? 'overdue' : ''}" title="Due Date">
                 ${isOverdue ? '⚠️ ' : '📅 '}
@@ -431,9 +473,7 @@ export async function initSupportTickets(container, options = {}) {
                 ☑ ${subtaskDone}/${subtaskTotal}
               </span>
             ` : ''}
-            <div class="jira-avatar ${assigneeName === 'Unassigned' ? 'unassigned' : ''}" title="Assignee: ${escapeHtml(assigneeName)}">
-              ${assigneeInitial}
-            </div>
+            ${avatarsHtml}
           </div>
         </div>
       </div>
@@ -606,7 +646,7 @@ export async function initSupportTickets(container, options = {}) {
       };
     }
 
-    // Only My Issues pill
+    // Only My Issues pill (Admin)
     const pillMy = container.querySelector('#jira-pill-my-issues');
     if (pillMy) {
       pillMy.onclick = async () => {
@@ -616,6 +656,24 @@ export async function initSupportTickets(container, options = {}) {
         await reloadBoard();
       };
     }
+
+    // Employee scope filter pills (All / Assigned / Created)
+    const pillScopeAll = container.querySelector('#jira-pill-scope-all');
+    const pillScopeAssigned = container.querySelector('#jira-pill-scope-assigned');
+    const pillScopeCreated = container.querySelector('#jira-pill-scope-created');
+
+    const setScope = async (scope) => {
+      filters.scope = scope;
+      if (pillScopeAll) pillScopeAll.classList.toggle('active', scope === 'all');
+      if (pillScopeAssigned) pillScopeAssigned.classList.toggle('active', scope === 'assigned');
+      if (pillScopeCreated) pillScopeCreated.classList.toggle('active', scope === 'created');
+      updateClearFiltersVisibility();
+      await reloadBoard();
+    };
+
+    if (pillScopeAll) pillScopeAll.onclick = () => setScope('all');
+    if (pillScopeAssigned) pillScopeAssigned.onclick = () => setScope('assigned');
+    if (pillScopeCreated) pillScopeCreated.onclick = () => setScope('created');
 
     // Clear filters
     const clearBtn = container.querySelector('#jira-clear-filters');
@@ -627,6 +685,8 @@ export async function initSupportTickets(container, options = {}) {
           priority: 'all',
           category: 'all',
           assigneeId: 'all',
+          reporterId: 'all',
+          scope: 'all',
           jobId: 'all',
           myIssuesOnly: false
         };
@@ -637,6 +697,9 @@ export async function initSupportTickets(container, options = {}) {
         if (jobSel) jobSel.value = 'all';
         if (assSelect) assSelect.value = 'all';
         if (pillMy) pillMy.classList.remove('active');
+        if (pillScopeAll) pillScopeAll.classList.add('active');
+        if (pillScopeAssigned) pillScopeAssigned.classList.remove('active');
+        if (pillScopeCreated) pillScopeCreated.classList.remove('active');
         updateClearFiltersVisibility();
         await reloadBoard();
       };
@@ -646,7 +709,7 @@ export async function initSupportTickets(container, options = {}) {
   function updateClearFiltersVisibility() {
     const clearBtn = container.querySelector('#jira-clear-filters');
     if (!clearBtn) return;
-    const hasActive = filters.search || filters.priority !== 'all' || filters.category !== 'all' || (filters.jobId && filters.jobId !== 'all') || filters.assigneeId !== 'all' || filters.myIssuesOnly;
+    const hasActive = filters.search || filters.priority !== 'all' || filters.category !== 'all' || (filters.jobId && filters.jobId !== 'all') || filters.assigneeId !== 'all' || filters.myIssuesOnly || (filters.scope && filters.scope !== 'all');
     clearBtn.style.display = hasActive ? 'inline' : 'none';
   }
 
@@ -700,9 +763,14 @@ export async function initSupportTickets(container, options = {}) {
     const linkedTickets = t.linkedTickets || [];
 
     const myId = currentUser?._id || currentUser?.id;
-    const isReporter = t.reporter && t.reporter.userId && t.reporter.userId.toString() === myId?.toString();
-    const isAssigned = t.assignee && t.assignee.userId && t.assignee.userId.toString() === myId?.toString();
+    const isReporter = (t.reporter && t.reporter.userId && String(t.reporter.userId) === String(myId)) ||
+                       (t.userId && String(t.userId) === String(myId));
+    const assigneesList = Array.isArray(t.assignees) && t.assignees.length > 0
+      ? t.assignees
+      : (t.assignee && t.assignee.userId ? [t.assignee] : []);
+    const isAssigned = assigneesList.some(a => a && a.userId && String(a.userId) === String(myId));
     const isSuper = userRole === 'superadmin' || userRole === 'admin';
+    const canManageTicket = isSuper || isReporter || isAssigned;
 
     const currentJobId = t.jobId?._id ? t.jobId._id.toString() : (t.jobId ? t.jobId.toString() : '');
     const currentJobTitle = t.jobTitle || (t.jobId && t.jobId.title) || '';
@@ -1050,17 +1118,59 @@ export async function initSupportTickets(container, options = {}) {
                 </select>
               </div>
 
-              <!-- Assignee -->
+              <!-- Assignees (Multi-Employee Team Assignment) -->
               <div class="jira-side-field">
-                <span class="jira-side-lbl">Assignee</span>
-                <select id="sel-detail-assignee" class="jira-select-field">
-                  <option value="">Unassigned</option>
-                  ${employees.map(u => `
-                    <option value="${u._id}" ${t.assignee && t.assignee.userId && t.assignee.userId.toString() === u._id.toString() ? 'selected' : ''}>
-                      ${escapeHtml(u.name)} (${escapeHtml(u.role)})
-                    </option>
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+                  <span class="jira-side-lbl" style="margin-bottom:0;">Assigned Personnel (${assigneesList.length})</span>
+                  ${canManageTicket ? `
+                    <button type="button" class="jira-tool-btn" id="btn-toggle-assignee-picker" style="font-size:11px;padding:2px 7px;">
+                      ✏️ Assign / Change
+                    </button>
+                  ` : ''}
+                </div>
+
+                <div class="jira-assigned-chips-wrap">
+                  ${assigneesList.length === 0 ? `
+                    <span style="font-size:12px;color:#64748b;font-style:italic;">Unassigned</span>
+                  ` : assigneesList.map(a => `
+                    <div class="jira-assignee-chip">
+                      <div class="jira-avatar" style="width:20px;height:20px;font-size:10px;">
+                        ${(a.avatar || a.name?.slice(0, 1) || 'U').toUpperCase()}
+                      </div>
+                      <span class="jira-assignee-chip-name" title="${escapeHtml(a.name)}">${escapeHtml(a.name)}</span>
+                      ${canManageTicket ? `
+                        <button type="button" class="jira-assignee-chip-remove btn-remove-assignee" data-user-id="${a.userId}" title="Remove ${escapeHtml(a.name)}">&times;</button>
+                      ` : ''}
+                    </div>
                   `).join('')}
-                </select>
+                </div>
+
+                <!-- Interactive Multi-select Assignee Picker -->
+                <div id="jira-detail-assignee-box" style="display:none;margin-top:8px;padding:10px;background:#162032;border:1px solid #334155;border-radius:6px;">
+                  <div style="font-size:11px;font-weight:700;color:#94a3b8;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;">
+                    <span>ASSIGN / REASSIGN EMPLOYEES</span>
+                    <button type="button" id="btn-close-detail-assignee-box" style="background:none;border:none;color:#94a3b8;cursor:pointer;font-size:13px;">✕</button>
+                  </div>
+                  <div class="jira-emp-checklist" style="max-height:160px;overflow-y:auto;display:flex;flex-direction:column;gap:4px;">
+                    ${employees.map(u => {
+                      const isAssigned = assigneesList.some(a => a && a.userId && String(a.userId) === String(u._id));
+                      return `
+                        <label class="jira-emp-check-item ${isAssigned ? 'selected' : ''}">
+                          <input type="checkbox" class="chk-detail-emp" value="${u._id}" ${isAssigned ? 'checked' : ''} />
+                          <div class="jira-avatar" style="width:18px;height:18px;font-size:9px;">${(u.name || 'U').slice(0, 1).toUpperCase()}</div>
+                          <span style="font-size:12px;color:#f1f5f9;flex:1;">
+                            ${escapeHtml(u.name)} <span style="font-size:10.5px;color:#94a3b8;">(${escapeHtml(u.role)})</span>
+                          </span>
+                        </label>
+                      `;
+                    }).join('')}
+                  </div>
+                  <div style="margin-top:8px;display:flex;justify-content:flex-end;gap:6px;">
+                    <button type="button" class="btn-jira-primary" id="btn-save-detail-assignees" style="font-size:11px;padding:4px 10px;">
+                      Save Assignees
+                    </button>
+                  </div>
+                </div>
               </div>
 
               <!-- Reporter (Read Only) -->
@@ -1239,21 +1349,69 @@ export async function initSupportTickets(container, options = {}) {
       };
     }
 
-    // Assignee change
-    const selAssignee = modalRoot.querySelector('#sel-detail-assignee');
-    if (selAssignee) {
-      selAssignee.onchange = async (e) => {
+    // Assignee Picker Toggle & Actions
+    const btnToggleAssigneePicker = modalRoot.querySelector('#btn-toggle-assignee-picker');
+    const detailAssigneeBox = modalRoot.querySelector('#jira-detail-assignee-box');
+    const btnCloseDetailAssignee = modalRoot.querySelector('#btn-close-detail-assignee-box');
+    const btnSaveDetailAssignees = modalRoot.querySelector('#btn-save-detail-assignees');
+
+    if (btnToggleAssigneePicker && detailAssigneeBox) {
+      btnToggleAssigneePicker.onclick = () => {
+        const isHidden = detailAssigneeBox.style.display === 'none';
+        detailAssigneeBox.style.display = isHidden ? 'block' : 'none';
+      };
+    }
+
+    if (btnCloseDetailAssignee && detailAssigneeBox) {
+      btnCloseDetailAssignee.onclick = () => {
+        detailAssigneeBox.style.display = 'none';
+      };
+    }
+
+    modalRoot.querySelectorAll('.chk-detail-emp').forEach(chk => {
+      chk.onchange = () => {
+        chk.closest('.jira-emp-check-item')?.classList.toggle('selected', chk.checked);
+      };
+    });
+
+    if (btnSaveDetailAssignees) {
+      btnSaveDetailAssignees.onclick = async () => {
+        const checkedIds = Array.from(modalRoot.querySelectorAll('.chk-detail-emp:checked')).map(c => c.value);
         try {
-          const updated = await apiPatch(`/tickets/${activeModalTicket._id}`, { assigneeId: e.target.value || null });
+          btnSaveDetailAssignees.disabled = true;
+          const updated = await apiPatch(`/tickets/${activeModalTicket._id}`, { assigneeIds: checkedIds });
           activeModalTicket = updated;
           renderTicketDetailModal();
           await reloadBoard();
-          flashToast(`Assigned to ${updated.assignee?.name || 'Unassigned'}`, false);
+          flashToast('Assignees updated!', false);
+        } catch (err) {
+          flashToast(err.message, true);
+          btnSaveDetailAssignees.disabled = false;
+        }
+      };
+    }
+
+    // Remove single assignee chip
+    modalRoot.querySelectorAll('.btn-remove-assignee').forEach(btn => {
+      btn.onclick = async () => {
+        const removeUserId = btn.dataset.userId;
+        const currentAssignees = Array.isArray(activeModalTicket.assignees) && activeModalTicket.assignees.length > 0
+          ? activeModalTicket.assignees
+          : (activeModalTicket.assignee?.userId ? [activeModalTicket.assignee] : []);
+        const newIds = currentAssignees
+          .filter(a => a && a.userId && String(a.userId) !== String(removeUserId))
+          .map(a => String(a.userId));
+        try {
+          const updated = await apiPatch(`/tickets/${activeModalTicket._id}`, { assigneeIds: newIds });
+          activeModalTicket = updated;
+          renderTicketDetailModal();
+          await reloadBoard();
+          flashToast('Assignee removed', false);
         } catch (err) {
           flashToast(err.message, true);
         }
       };
-    }
+    });
 
     // Category change
     const selCategory = modalRoot.querySelector('#sel-detail-category');
@@ -1676,39 +1834,59 @@ export async function initSupportTickets(container, options = {}) {
               <textarea id="create-ticket-desc" class="jira-form-textarea" rows="4" placeholder="Describe the issue, requirements, or internal request..."></textarea>
             </div>
 
-            <div class="jira-form-grid-2">
-              <div class="jira-form-group">
-                <label class="jira-form-label">Assignee</label>
-                <select id="create-ticket-assignee" class="jira-select-field">
-                  ${isSuper ? '<option value="">Unassigned</option>' : ''}
-                  ${employees.map(u => {
-      const isSelf = currentUser && String(currentUser._id || currentUser.id) === String(u._id);
-      const isSelected = (!isSuper && isSelf) ? 'selected' : '';
-      return `
-                      <option value="${u._id}" ${isSelected}>
-                        ${escapeHtml(u.name)} (${escapeHtml(u.role)})${isSelf ? ' — (You)' : ''}
-                      </option>
-                    `;
-    }).join('')}
-                </select>
+            <div class="jira-form-group">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                <label class="jira-form-label" style="margin-bottom:0;">Assign Employees (Choose one or multiple)</label>
+                <div style="display:flex;gap:8px;">
+                  <button type="button" id="btn-create-assign-self" style="background:none;border:none;color:#38bdf8;font-size:11px;font-weight:600;cursor:pointer;text-decoration:underline;">
+                    + Select Myself
+                  </button>
+                  <button type="button" id="btn-create-clear-assign" style="background:none;border:none;color:#94a3b8;font-size:11px;cursor:pointer;">
+                    Clear All
+                  </button>
+                </div>
               </div>
 
+              <div class="jira-emp-checklist-box">
+                <div class="jira-emp-checklist" id="create-emp-checklist">
+                  ${employees.map(u => {
+                    const isSelf = currentUser && String(currentUser._id || currentUser.id) === String(u._id);
+                    return `
+                      <label class="jira-emp-check-item ${isSelf ? 'selected' : ''}">
+                        <input type="checkbox" class="chk-create-emp" value="${u._id}" ${isSelf ? 'checked' : ''} />
+                        <div class="jira-avatar" style="width:20px;height:20px;font-size:10px;">
+                          ${(u.name || 'U').slice(0, 1).toUpperCase()}
+                        </div>
+                        <span style="font-size:12px;color:#f1f5f9;flex:1;">
+                          ${escapeHtml(u.name)} <span style="font-size:10.5px;color:#94a3b8;">(${escapeHtml(u.role)})${isSelf ? ' — (You)' : ''}</span>
+                        </span>
+                      </label>
+                    `;
+                  }).join('')}
+                </div>
+              </div>
+              <div id="create-assignee-hint" style="font-size:11px;color:#94a3b8;margin-top:4px;">
+                Check all employees you want to assign to this ticket.
+              </div>
+            </div>
+
+            <div class="jira-form-grid-2">
               <div class="jira-form-group">
                 <label class="jira-form-label">Due Date (Optional)</label>
                 <input type="date" id="create-ticket-duedate" class="jira-date-field" />
               </div>
-            </div>
 
-            <div class="jira-form-group">
-              <label class="jira-form-label">Related Job / Internal Project (Optional)</label>
-              <select id="create-ticket-job" class="jira-select-field">
-                <option value="">None (General Workspace Issue)</option>
-                ${jobs.map(j => `
-                  <option value="${j._id}" ${chosenJobId && String(chosenJobId) === String(j._id) ? 'selected' : ''}>
-                    📁 ${escapeHtml(j.title || 'Untitled Job')}
-                  </option>
-                `).join('')}
-              </select>
+              <div class="jira-form-group">
+                <label class="jira-form-label">Related Job / Internal Project (Optional)</label>
+                <select id="create-ticket-job" class="jira-select-field">
+                  <option value="">None (General Workspace Issue)</option>
+                  ${jobs.map(j => `
+                    <option value="${j._id}" ${chosenJobId && String(chosenJobId) === String(j._id) ? 'selected' : ''}>
+                      📁 ${escapeHtml(j.title || 'Untitled Job')}
+                    </option>
+                  `).join('')}
+                </select>
+              </div>
             </div>
           </div>
 
@@ -1719,6 +1897,36 @@ export async function initSupportTickets(container, options = {}) {
         </div>
       </div>
     `;
+
+    const updateSelectedStyles = () => {
+      modalRoot.querySelectorAll('.jira-emp-check-item').forEach(label => {
+        const chk = label.querySelector('.chk-create-emp');
+        label.classList.toggle('selected', Boolean(chk?.checked));
+      });
+    };
+
+    modalRoot.querySelectorAll('.chk-create-emp').forEach(chk => {
+      chk.onchange = updateSelectedStyles;
+    });
+
+    const btnAssignSelf = modalRoot.querySelector('#btn-create-assign-self');
+    if (btnAssignSelf && currentUser) {
+      btnAssignSelf.onclick = () => {
+        const selfId = String(currentUser._id || currentUser.id);
+        modalRoot.querySelectorAll('.chk-create-emp').forEach(chk => {
+          if (chk.value === selfId) chk.checked = true;
+        });
+        updateSelectedStyles();
+      };
+    }
+
+    const btnClearAssign = modalRoot.querySelector('#btn-create-clear-assign');
+    if (btnClearAssign) {
+      btnClearAssign.onclick = () => {
+        modalRoot.querySelectorAll('.chk-create-emp').forEach(chk => { chk.checked = false; });
+        updateSelectedStyles();
+      };
+    }
 
     const closeCreate = () => { modalRoot.innerHTML = ''; };
 
@@ -1740,7 +1948,8 @@ export async function initSupportTickets(container, options = {}) {
         const desc = modalRoot.querySelector('#create-ticket-desc')?.value.trim();
         const category = modalRoot.querySelector('#create-ticket-cat')?.value || 'Task';
         const priority = modalRoot.querySelector('#create-ticket-pri')?.value || 'Medium';
-        const assigneeId = modalRoot.querySelector('#create-ticket-assignee')?.value || null;
+        const assigneeCheckboxes = Array.from(modalRoot.querySelectorAll('.chk-create-emp:checked'));
+        const assigneeIds = assigneeCheckboxes.map(cb => cb.value);
         const dueDate = modalRoot.querySelector('#create-ticket-duedate')?.value || null;
         const jobId = modalRoot.querySelector('#create-ticket-job')?.value || null;
 
@@ -1758,7 +1967,8 @@ export async function initSupportTickets(container, options = {}) {
             description: desc,
             category,
             priority,
-            assigneeId,
+            assigneeIds,
+            assigneeId: assigneeIds[0] || null,
             dueDate,
             jobId
           });
