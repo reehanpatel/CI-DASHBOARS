@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Notification = require('../models/Notification');
 const User = require('../models/User');
 const Invoice = require('../models/Invoice');
@@ -5,6 +6,14 @@ const Job = require('../models/Job');
 const Task = require('../models/Task');
 const { sendPushToUsers } = require('./webpush');
 const { recordSyncUpdate } = require('./notify');
+
+const DailyAlertLogSchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  alertType: { type: String, required: true },
+  date: { type: String, required: true }
+}, { timestamps: true });
+DailyAlertLogSchema.index({ userId: 1, alertType: 1, date: 1 }, { unique: true });
+const DailyAlertLog = mongoose.models.DailyAlertLog || mongoose.model('DailyAlertLog', DailyAlertLogSchema);
 
 let cronRunning = false;
 
@@ -78,12 +87,10 @@ async function checkAndDispatchOverduePush() {
     }
 
     for (const [uId, dueList] of userDueJobsMap.entries()) {
-      const existing = await Notification.findOne({
-        userId: uId,
-        type: 'job_due',
-        createdAt: { $gte: oneDayAgo }
-      });
-      if (!existing && dueList.length > 0) {
+      const alreadyAlerted = await DailyAlertLog.findOne({ userId: uId, alertType: 'job_due', date: todayStr });
+      if (!alreadyAlerted && dueList.length > 0) {
+        await DailyAlertLog.create({ userId: uId, alertType: 'job_due', date: todayStr }).catch(() => {});
+
         const count = dueList.length;
         const title = count === 1 ? '⏳ Job Due Today' : `⏳ ${count} Jobs Due Today`;
         const names = dueList.map(j => `"${j.title || 'Untitled Job'}"`).slice(0, 3).join(', ');

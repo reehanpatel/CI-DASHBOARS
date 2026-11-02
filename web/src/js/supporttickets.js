@@ -831,8 +831,8 @@ export async function initSupportTickets(container, options = {}) {
                 <div class="jira-sec-title">
                   <span>Attachments (${attachments.length})</span>
                   <label class="btn-jira-secondary" style="font-size:11px;padding:4px 9px;cursor:pointer;display:inline-flex;align-items:center;gap:4px;">
-                    <span>🎥 Upload File / MP4 Video (Up to 1GB)</span>
-                    <input type="file" id="inp-detail-att-upload" multiple accept="*/*,video/mp4,video/*,.mp4,.mov,.webm,.avi" style="display:none;" />
+                    <span>📎 Upload Any File / MP4 Video (Up to 1GB)</span>
+                    <input type="file" id="inp-detail-att-upload" multiple style="display:none;" />
                   </label>
                 </div>
 
@@ -1954,7 +1954,7 @@ export async function initSupportTickets(container, options = {}) {
                 <div style="font-size:18px;">🎥 📁</div>
                 <div style="font-size:12px;font-weight:600;color:#e2e8f0;">Click or drag &amp; drop MP4 videos, recordings or files here</div>
                 <div style="font-size:10.5px;color:#64748b;">Supports MP4, MOV, WebM, screenshots, PDFs, logs (Heavy files up to 1GB supported)</div>
-                <input type="file" id="inp-create-ticket-att" multiple accept="*/*,video/mp4,video/*,.mp4,.mov,.webm,.avi" style="display:none;" />
+                <input type="file" id="inp-create-ticket-att" multiple style="display:none;" />
               </label>
               <div id="create-att-progress" style="display:none;margin-top:8px;"></div>
               <div id="create-att-list" class="jira-attachments-grid" style="margin-top:8px;"></div>

@@ -1,7 +1,17 @@
 const express = require('express');
 const router = express.Router();
+const mongoose = require('mongoose');
 
-// Track daily automatic alerts per user so they only trigger 1 time per day
+// Persistent daily alert log schema & model to guarantee 1 automatic alert per day per user
+const DailyAlertLogSchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  alertType: { type: String, required: true },
+  date: { type: String, required: true }
+}, { timestamps: true });
+DailyAlertLogSchema.index({ userId: 1, alertType: 1, date: 1 }, { unique: true });
+const DailyAlertLog = mongoose.models.DailyAlertLog || mongoose.model('DailyAlertLog', DailyAlertLogSchema);
+
+// In-memory daily alert cache
 const dailyAlertTracker = new Map();
 
 const Notification = require('../models/Notification');
@@ -168,17 +178,14 @@ router.get('/', async (req, res) => {
     const startOfToday = new Date(new Date().setHours(0, 0, 0, 0));
     const dailyKey = `${userId}_${todayStr}`;
 
-    // Only create 1 single automatic job-due notification for today
+    // Only create 1 single automatic job-due notification for today (Tracked in database)
     if (dueTodayJobsList.length > 0) {
-      const alreadyAlertedToday = dailyAlertTracker.get(dailyKey) === 'job_due';
-      const existingToday = await Notification.findOne({
-        userId,
-        type: 'job_due',
-        createdAt: { $gte: startOfToday }
-      });
+      const alreadyAlertedToday = await DailyAlertLog.findOne({ userId, alertType: 'job_due', date: todayStr });
 
-      if (!existingToday && !alreadyAlertedToday) {
-        dailyAlertTracker.set(dailyKey, 'job_due');
+      if (!alreadyAlertedToday) {
+        // Record in daily log so it will NEVER re-create today even if user deletes/dismisses the notification
+        await DailyAlertLog.create({ userId, alertType: 'job_due', date: todayStr }).catch(() => {});
+
         const count = dueTodayJobsList.length;
         const title = count === 1 ? '⏳ Job Due Today' : `⏳ ${count} Jobs Due Today`;
         const names = dueTodayJobsList.map(j => `"${j.title || 'Untitled Job'}"`).slice(0, 3).join(', ');
@@ -196,16 +203,18 @@ router.get('/', async (req, res) => {
       }
     }
 
-    // Auto-clean any legacy duplicate job_due notifications from today so user only sees 1 in list
+    // Auto-clean ALL legacy/duplicate job_due notifications so user only sees at most 1 in list
     try {
-      const todayJobDueNotifs = await Notification.find({
+      const allJobDueNotifs = await Notification.find({
         userId,
-        type: 'job_due',
-        createdAt: { $gte: startOfToday }
+        $or: [
+          { type: 'job_due' },
+          { title: /Job Due/i }
+        ]
       }).sort({ createdAt: -1 });
 
-      if (todayJobDueNotifs.length > 1) {
-        const duplicateIds = todayJobDueNotifs.slice(1).map(n => n._id);
+      if (allJobDueNotifs.length > 1) {
+        const duplicateIds = allJobDueNotifs.slice(1).map(n => n._id);
         await Notification.deleteMany({ _id: { $in: duplicateIds } });
       }
     } catch(e){}
@@ -245,13 +254,11 @@ router.get('/', async (req, res) => {
       }
 
       if (dueTodayTasksList.length > 0) {
-        const existingTaskToday = await Notification.findOne({
-          userId,
-          type: 'task_due',
-          createdAt: { $gte: startOfToday }
-        });
+        const alreadyAlertedTask = await DailyAlertLog.findOne({ userId, alertType: 'task_due', date: todayStr });
 
-        if (!existingTaskToday) {
+        if (!alreadyAlertedTask) {
+          await DailyAlertLog.create({ userId, alertType: 'task_due', date: todayStr }).catch(() => {});
+
           const count = dueTodayTasksList.length;
           const title = count === 1 ? '⚡ Task Due Today' : `⚡ ${count} Tasks Due Today`;
           const names = dueTodayTasksList.map(t => `"${t.title}"`).slice(0, 3).join(', ');
@@ -269,16 +276,21 @@ router.get('/', async (req, res) => {
         }
       }
 
-      // Auto-clean any duplicate task_due notifications from today
+      // Auto-clean any duplicate task_due notifications so user only sees at most 1 in list
       try {
-        const todayTaskDueNotifs = await Notification.find({
+        const allTaskDueNotifs = await Notification.find({
           userId,
-          type: 'task_due',
-          createdAt: { $gte: startOfToday }
+          $or: [
+            { type: 'task_due' },
+            { title: /Task Due/i }
+          ]
         }).sort({ createdAt: -1 });
 
-        if (todayTaskDueNotifs.length > 1) {
-          const duplicateIds = todayTaskDueNotifs.slice(1).map(n => n._id);
+        if (allTaskDueNotifs.length > 1) {
+          const duplicateIds = allTaskDueNotifs.slice(1).map(n => n._id);
+          await Notification.deleteMany({ _id: { $in: duplicateIds } });
+        }
+      } catch(e){}
           await Notification.deleteMany({ _id: { $in: duplicateIds } });
         }
       } catch(e){}

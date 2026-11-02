@@ -12,19 +12,74 @@ if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
 
-// Generate unique filename preserving extension (e.g. .mp4)
+// Comprehensive extension-to-mime and mime-to-extension dictionary supporting all file formats
+const EXT_MIME_MAP = {
+  // Video formats
+  '.mp4': 'video/mp4', '.mov': 'video/quicktime', '.webm': 'video/webm',
+  '.mkv': 'video/x-matroska', '.avi': 'video/x-msvideo', '.m4v': 'video/x-m4v',
+  '.3gp': 'video/3gpp', '.wmv': 'video/x-ms-wmv', '.flv': 'video/x-flv',
+  '.ts': 'video/mp2t', '.ogv': 'video/ogg',
+  // Audio formats
+  '.mp3': 'audio/mpeg', '.wav': 'audio/wav', '.ogg': 'audio/ogg',
+  '.m4a': 'audio/mp4', '.flac': 'audio/flac', '.aac': 'audio/aac', '.wma': 'audio/x-ms-wma',
+  // Image formats
+  '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg',
+  '.gif': 'image/gif', '.webp': 'image/webp', '.svg': 'image/svg+xml',
+  '.bmp': 'image/bmp', '.ico': 'image/x-icon', '.tiff': 'image/tiff', '.tif': 'image/tiff',
+  '.heic': 'image/heic', '.heif': 'image/heif', '.psd': 'image/vnd.adobe.photoshop',
+  // Documents & Office formats
+  '.pdf': 'application/pdf',
+  '.doc': 'application/msword',
+  '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  '.xls': 'application/vnd.ms-excel',
+  '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  '.csv': 'text/csv',
+  '.ppt': 'application/vnd.ms-powerpoint',
+  '.pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+  '.txt': 'text/plain',
+  '.rtf': 'application/rtf',
+  '.odt': 'application/vnd.oasis.opendocument.text',
+  '.ods': 'application/vnd.oasis.opendocument.spreadsheet',
+  // Archives & Compressed
+  '.zip': 'application/zip',
+  '.rar': 'application/vnd.rar',
+  '.7z': 'application/x-7z-compressed',
+  '.tar': 'application/x-tar',
+  '.gz': 'application/gzip',
+  // Design, 3D & Creative
+  '.ai': 'application/postscript',
+  '.eps': 'application/postscript',
+  '.fig': 'application/octet-stream',
+  '.sketch': 'application/octet-stream',
+  '.blend': 'application/x-blender',
+  '.obj': 'model/obj',
+  '.fbx': 'application/octet-stream',
+  '.xd': 'application/octet-stream',
+  // Code & Data
+  '.json': 'application/json',
+  '.xml': 'application/xml',
+  '.html': 'text/html',
+  '.htm': 'text/html',
+  '.css': 'text/css',
+  '.js': 'text/javascript',
+  '.sql': 'text/plain',
+  '.md': 'text/markdown'
+};
+
+const MIME_EXT_MAP = {};
+for (const [ext, mime] of Object.entries(EXT_MIME_MAP)) {
+  if (!MIME_EXT_MAP[mime]) MIME_EXT_MAP[mime] = ext;
+}
+
+// Generate unique filename preserving original file extension for any format
 function createUniqueFilename(originalName, mimeType) {
-  let ext = path.extname(originalName || '');
-  if (!ext) {
-    if (mimeType && mimeType.includes('mp4')) ext = '.mp4';
-    else if (mimeType && mimeType.includes('quicktime')) ext = '.mov';
-    else if (mimeType && mimeType.includes('webm')) ext = '.webm';
-    else if (mimeType && mimeType.includes('pdf')) ext = '.pdf';
-    else if (mimeType && mimeType.includes('png')) ext = '.png';
-    else if (mimeType && (mimeType.includes('jpeg') || mimeType.includes('jpg'))) ext = '.jpg';
-    else ext = '';
+  let ext = path.extname(originalName || '').toLowerCase();
+  if (!ext && mimeType) {
+    const cleanMime = mimeType.split(';')[0].trim().toLowerCase();
+    ext = MIME_EXT_MAP[cleanMime] || '';
   }
-  const cleanName = path.basename(originalName || 'upload', ext).replace(/[^a-zA-Z0-9_-]/g, '_').substring(0, 80);
+  const baseOnly = path.basename(originalName || 'file', ext);
+  const cleanName = baseOnly.replace(/[^a-zA-Z0-9_-]/g, '_').substring(0, 80) || 'upload';
   return `${Date.now()}_${Math.random().toString(36).substring(2, 8)}_${cleanName}${ext}`;
 }
 
@@ -208,13 +263,7 @@ router.get('/file/:filename', (req, res) => {
   const range = req.headers.range;
 
   const ext = path.extname(filename).toLowerCase();
-  let contentType = 'application/octet-stream';
-  if (ext === '.mp4') contentType = 'video/mp4';
-  else if (ext === '.mov') contentType = 'video/quicktime';
-  else if (ext === '.webm') contentType = 'video/webm';
-  else if (ext === '.pdf') contentType = 'application/pdf';
-  else if (ext === '.png') contentType = 'image/png';
-  else if (ext === '.jpg' || ext === '.jpeg') contentType = 'image/jpeg';
+  const contentType = EXT_MIME_MAP[ext] || 'application/octet-stream';
 
   res.setHeader('Accept-Ranges', 'bytes');
 

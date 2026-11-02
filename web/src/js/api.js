@@ -585,13 +585,16 @@ export function getOrCreateFloatingAlertContainer(){
   return container;
 }
 
-export function showInAppPopupAlert({ id, title, message, type, time, actionText, onAction, persistent = false, timeout = 6500 }){
+export function showInAppPopupAlert({ id, title, message, type, time, actionText, onAction, persistent = false, timeout = 4500 }){
   const container = getOrCreateFloatingAlertContainer();
   if(!container) return;
 
   const cardId = `ci360-pop-${id || Math.random().toString(36).slice(2, 9)}`;
-  const existing = document.getElementById(cardId);
-  if(existing) return;
+
+  // Strictly enforce only 1 visible popup at any time ("it should just come once and than go")
+  while(container.firstChild){
+    try { container.removeChild(container.firstChild); } catch(e){}
+  }
 
   let icon = '🔔';
   let priority = 'info';
@@ -629,6 +632,12 @@ export function showInAppPopupAlert({ id, title, message, type, time, actionText
 
   const finalActionText = actionText || defaultActionText;
 
+  // Prevent double icons if title already starts with icon
+  let cleanTitle = (title || 'Notification').trim();
+  if (cleanTitle.startsWith(icon)) {
+    cleanTitle = cleanTitle.slice(icon.length).trim();
+  }
+
   const card = document.createElement('div');
   card.id = cardId;
   card.className = `ci360-popup-card ci360-priority-${priority}`;
@@ -637,7 +646,7 @@ export function showInAppPopupAlert({ id, title, message, type, time, actionText
       <div class="ci360-popup-header">
         <div class="ci360-popup-header-left">
           <span class="ci360-popup-icon">${icon}</span>
-          <span class="ci360-popup-title">${escapeHtml(title || 'Notification')}</span>
+          <span class="ci360-popup-title">${escapeHtml(cleanTitle || 'Notification')}</span>
         </div>
         <div class="ci360-popup-header-right">
           ${finalActionText ? `<button type="button" class="ci360-popup-action-btn">${finalActionText}</button>` : ''}
@@ -707,21 +716,21 @@ export function showInAppPopupAlert({ id, title, message, type, time, actionText
     executeAction();
   };
 
-  // Keep maximum 3 visible popups
-  while(container.children.length >= 3){
+  // Strictly keep only 1 visible popup ("it should just come once and than go")
+  while(container.children.length >= 1){
     const oldest = container.firstChild;
     if(oldest) container.removeChild(oldest);
   }
 
   container.appendChild(card);
 
-  // Auto-dismiss timeout (6.5s)
+  // Auto-dismiss timeout (4.5s: come once and then go)
   if(!persistent){
     setTimeout(() => {
       if(document.body.contains(card)){
         closeCard();
       }
-    }, timeout);
+    }, timeout || 4500);
   }
 }
 
@@ -1200,51 +1209,15 @@ export function initNotificationBell(){
         }
       }
 
-      // Device-aware initial session baseline:
-      // When user opens on phone or desktop, unalerted unread items alert the device (up to 3 recent items)
-      // so phone or desktop catches up with any alerts logged while away!
+      // Session baseline: On initial page load / refresh, mark existing notifications as alerted
+      // so older notifications do not pop up on screen repeatedly ("it should just come once and than go")
       if(!isSessionBaselineEstablished){
-        const unalertedUnread = allNotifs.filter(n => !n.read && !alertedNotifIds.has(String(n._id)));
-        allNotifs.forEach(n => seenNotifIds.add(String(n._id)));
-
-        if(unalertedUnread.length > 0){
-          const todayStr = new Date().toISOString().slice(0, 10);
-          const dailyJobAlertKey = 'ci360_daily_alert_job_' + todayStr;
-          let jobDueAlertedInLoop = !!localStorage.getItem(dailyJobAlertKey);
-
-          const itemsToAlert = unalertedUnread.slice(0, 3);
-          for(const n of itemsToAlert){
-            const sid = String(n._id);
-            if (n.type === 'job_due' || (n.title && n.title.includes('Job Due'))) {
-              if (jobDueAlertedInLoop) {
-                alertedNotifIds.add(sid);
-                continue;
-              }
-              jobDueAlertedInLoop = true;
-              localStorage.setItem(dailyJobAlertKey, 'true');
-            }
-
-            showInAppPopupAlert({
-              id: sid,
-              title: n.title || 'CI360 Alert',
-              message: n.message || '',
-              type: n.type
-            });
-            await triggerSystemNotification({
-              title: n.title || 'CI360 Alert',
-              message: n.message || '',
-              type: n.type,
-              id: sid
-            });
-          }
-          // Mark older unread items as alerted on this device to prevent flood
-          unalertedUnread.forEach(n => alertedNotifIds.add(String(n._id)));
-          saveAlertedNotifIds();
-        } else {
-          // Record existing notifications as alerted on this device
-          allNotifs.forEach(n => alertedNotifIds.add(String(n._id)));
-          saveAlertedNotifIds();
-        }
+        allNotifs.forEach(n => {
+          const sid = String(n._id);
+          seenNotifIds.add(sid);
+          alertedNotifIds.add(sid);
+        });
+        saveAlertedNotifIds();
         isSessionBaselineEstablished = true;
       } else {
         // Genuine new incoming unread notifications that arrived during the active session
@@ -1255,34 +1228,44 @@ export function initNotificationBell(){
           const dailyJobAlertKey = 'ci360_daily_alert_job_' + todayStr;
           let jobDueAlertedInLoop = !!localStorage.getItem(dailyJobAlertKey);
 
-          for(const n of newlyArrived){
+          // Mark all newly arrived items as alerted immediately
+          newlyArrived.forEach(n => {
             const sid = String(n._id);
             seenNotifIds.add(sid);
+            alertedNotifIds.add(sid);
+          });
+          saveAlertedNotifIds();
 
-            if (n.type === 'job_due' || (n.title && n.title.includes('Job Due'))) {
+          // Only pop up the single newest notification so screen is never cluttered
+          const latestNew = newlyArrived[0];
+          if(latestNew){
+            const sid = String(latestNew._id);
+            let shouldShow = true;
+            if (latestNew.type === 'job_due' || (latestNew.title && latestNew.title.includes('Job Due'))) {
               if (jobDueAlertedInLoop) {
-                alertedNotifIds.add(sid);
-                continue;
+                shouldShow = false;
+              } else {
+                localStorage.setItem(dailyJobAlertKey, 'true');
               }
-              jobDueAlertedInLoop = true;
-              localStorage.setItem(dailyJobAlertKey, 'true');
             }
 
-            // Pop up interactive in-app toast card
-            showInAppPopupAlert({
-              id: sid,
-              title: n.title || 'CI360 Alert',
-              message: n.message || '',
-              type: n.type
-            });
+            if(shouldShow){
+              // Pop up interactive in-app toast card (stays 4.5s and goes)
+              showInAppPopupAlert({
+                id: sid,
+                title: latestNew.title || 'CI360 Alert',
+                message: latestNew.message || '',
+                type: latestNew.type
+              });
 
-            // Trigger system / OS desktop notification
-            await triggerSystemNotification({
-              title: n.title || 'CI360 Alert',
-              message: n.message || '',
-              type: n.type,
-              id: sid
-            });
+              // Trigger system / OS desktop notification
+              await triggerSystemNotification({
+                title: latestNew.title || 'CI360 Alert',
+                message: latestNew.message || '',
+                type: latestNew.type,
+                id: sid
+              });
+            }
           }
           saveAlertedNotifIds();
 
@@ -2462,13 +2445,16 @@ export function resolveFileUrl(url) {
 
 export function getFileCategory(name = '', type = '') {
   const ext = (name.split('.').pop() || '').toLowerCase();
-  if (['png','jpg','jpeg','gif','webp','svg','bmp','ico'].includes(ext) || type.startsWith('image/')) return { icon: '🖼️', cls: 'img', label: 'Image' };
+  if (['png','jpg','jpeg','gif','webp','svg','bmp','ico','tiff','tif','heic','heif'].includes(ext) || type.startsWith('image/')) return { icon: '🖼️', cls: 'img', label: 'Image' };
   if (ext === 'pdf' || type === 'application/pdf') return { icon: '📄', cls: 'pdf', label: 'PDF Document' };
   if (['doc','docx','odt','txt','rtf'].includes(ext)) return { icon: '📝', cls: 'doc', label: 'Document' };
-  if (['xls','xlsx','csv','ods'].includes(ext)) return { icon: '📊', cls: 'sheet', label: 'Spreadsheet' };
-  if (['zip','rar','7z','tar','gz'].includes(ext)) return { icon: '📦', cls: 'zip', label: 'Archive' };
-  if (['mp4','mov','avi','mkv','webm'].includes(ext) || type.startsWith('video/')) return { icon: '🎬', cls: 'video', label: 'Video' };
-  if (['mp3','wav','ogg','m4a'].includes(ext) || type.startsWith('audio/')) return { icon: '🎵', cls: 'audio', label: 'Audio' };
+  if (['xls','xlsx','csv','ods','tsv'].includes(ext)) return { icon: '📊', cls: 'sheet', label: 'Spreadsheet' };
+  if (['ppt','pptx','key'].includes(ext)) return { icon: '📑', cls: 'pres', label: 'Presentation' };
+  if (['zip','rar','7z','tar','gz','bz2'].includes(ext)) return { icon: '📦', cls: 'zip', label: 'Archive' };
+  if (['mp4','mov','avi','mkv','webm','m4v','3gp','wmv','flv'].includes(ext) || type.startsWith('video/')) return { icon: '🎬', cls: 'video', label: 'Video' };
+  if (['mp3','wav','ogg','m4a','flac','aac','wma'].includes(ext) || type.startsWith('audio/')) return { icon: '🎵', cls: 'audio', label: 'Audio' };
+  if (['psd','ai','eps','sketch','fig','xd','blend','obj','fbx','cdr'].includes(ext)) return { icon: '🎨', cls: 'design', label: 'Design & Creative' };
+  if (['js','ts','jsx','tsx','html','css','json','xml','py','sql','md','sh','php'].includes(ext)) return { icon: '💻', cls: 'code', label: 'Code File' };
   return { icon: '📎', cls: 'other', label: 'File' };
 }
 
@@ -2485,6 +2471,54 @@ export function openFilePreviewModal(att) {
   const isPdf = cat.cls === 'pdf';
   const fileName = escapeHtml(att.name || 'Attachment');
   const fileSize = fmtFileSize(att.size);
+
+  let bodyHtml = '';
+  if (isImg) {
+    bodyHtml = `<img src="${att.url}" alt="${fileName}" style="max-height:72vh;object-fit:contain;cursor:zoom-in" onclick="window.open('${att.url}','_blank')">`;
+  } else if (isPdf) {
+    bodyHtml = `<iframe src="${att.url}" title="${fileName}"></iframe>`;
+  } else if (cat.cls === 'video') {
+    bodyHtml = `
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px;width:100%;max-width:880px;">
+        <video controls autoplay preload="metadata" style="max-height:70vh;width:100%;border-radius:8px;background:#000;box-shadow:0 8px 24px rgba(0,0,0,0.5);">
+          <source src="${att.url}" type="${att.type || 'video/mp4'}">
+          Your browser does not support HTML5 video streaming.
+        </video>
+        <div style="margin-top:10px;font-size:12px;color:var(--text-3);display:flex;align-items:center;gap:12px;">
+          <span>🎬 ${fileName}</span>
+          <span>•</span>
+          <span>${fileSize}</span>
+        </div>
+      </div>
+    `;
+  } else if (cat.cls === 'audio') {
+    bodyHtml = `
+      <div style="text-align:center;padding:32px 20px;max-width:480px;margin:0 auto">
+        <div style="font-size:44px;margin-bottom:12px">🎵</div>
+        <div style="font-size:15px;font-weight:700;color:var(--text-1);margin-bottom:6px">${fileName}</div>
+        <div style="font-size:12px;color:var(--text-3);margin-bottom:16px">${fileSize}</div>
+        <audio controls autoplay style="width:100%;margin-bottom:16px;">
+          <source src="${att.url}" type="${att.type || 'audio/mpeg'}">
+          Your browser does not support audio playback.
+        </audio>
+        <div>
+          <a href="${att.url}" download="${fileName}" target="_blank" class="btn gold small">Download Audio</a>
+        </div>
+      </div>
+    `;
+  } else {
+    bodyHtml = `
+      <div style="text-align:center;padding:40px 20px">
+        <div style="font-size:48px;margin-bottom:12px">${cat.icon}</div>
+        <div style="font-size:15px;font-weight:700;color:var(--text-1);margin-bottom:6px">${fileName}</div>
+        <div style="font-size:12.5px;color:var(--text-3);margin-bottom:18px">${cat.label} · ${fileSize}</div>
+        <a href="${att.url}" download="${fileName}" target="_blank" class="btn gold">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download Attachment
+        </a>
+      </div>
+    `;
+  }
 
   const modal = document.createElement('div');
   modal.className = 'preview-modal-overlay';
@@ -2505,33 +2539,7 @@ export function openFilePreviewModal(att) {
         </div>
       </div>
       <div class="preview-modal-body">
-        ${isImg ? `
-          <img src="${att.url}" alt="${fileName}" style="max-height:72vh;object-fit:contain;cursor:zoom-in" onclick="window.open('${att.url}','_blank')">
-        ` : (isPdf ? `
-          <iframe src="${att.url}" title="${fileName}"></iframe>
-        ` : (cat.cls === 'video' ? `
-          <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px;width:100%;max-width:880px;">
-            <video controls autoplay preload="metadata" style="max-height:70vh;width:100%;border-radius:8px;background:#000;box-shadow:0 8px 24px rgba(0,0,0,0.5);">
-              <source src="${att.url}" type="${att.type || 'video/mp4'}">
-              Your browser does not support HTML5 video streaming.
-            </video>
-            <div style="margin-top:10px;font-size:12px;color:var(--text-3);display:flex;align-items:center;gap:12px;">
-              <span>🎬 ${fileName}</span>
-              <span>•</span>
-              <span>${fileSize}</span>
-            </div>
-          </div>
-        ` : `
-          <div style="text-align:center;padding:40px 20px">
-            <div style="font-size:48px;margin-bottom:12px">${cat.icon}</div>
-            <div style="font-size:15px;font-weight:700;color:var(--text-1);margin-bottom:6px">${fileName}</div>
-            <div style="font-size:12.5px;color:var(--text-3);margin-bottom:18px">${cat.label} · ${fileSize}</div>
-            <a href="${att.url}" download="${fileName}" target="_blank" class="btn gold">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-              Download Attachment
-            </a>
-          </div>
-        `))}
+        ${bodyHtml}
       </div>
     </div>
   `;
@@ -2721,11 +2729,12 @@ export async function uploadFilesToServer(fileList, onProgress) {
 export function renderAttachmentUploader({
   id = 'uploader',
   label = 'Attachments & Files',
-  subtitle = 'Upload briefs, proofs, PDFs, MP4 videos (up to 1GB), spreadsheets, or design assets',
+  subtitle = 'Upload any file: MP4 videos (up to 1GB), images, PDFs, spreadsheets, design assets, or archives',
   multiple = true,
-  accept = '*/*,video/mp4,video/*,.mp4,.mov,.webm,.avi',
-  maxFiles = 10
+  accept = '',
+  maxFiles = 30
 } = {}) {
+  const acceptAttr = accept ? `accept="${accept}"` : '';
   return `
     <div class="uploader-container" id="container-${id}">
       <label style="font-size:12.5px;font-weight:700;color:var(--text-2);display:flex;align-items:center;justify-content:space-between">
@@ -2733,7 +2742,7 @@ export function renderAttachmentUploader({
         <span style="font-size:11px;font-weight:500;color:var(--text-4)" id="count-${id}">0 files attached</span>
       </label>
       <div class="uploader-zone" id="zone-${id}">
-        <input type="file" id="input-${id}" ${multiple ? 'multiple' : ''} accept="${accept}" style="display:none">
+        <input type="file" id="input-${id}" ${multiple ? 'multiple' : ''} ${acceptAttr} style="display:none">
         <div class="uploader-icon">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
         </div>
