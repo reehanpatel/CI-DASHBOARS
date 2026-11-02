@@ -362,6 +362,28 @@
   gap: 6px;
 }
 
+.jira-card-quick-del {
+  background: transparent;
+  border: none;
+  font-size: 11px;
+  cursor: pointer;
+  opacity: 0.35;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  padding: 2px 4px;
+  border-radius: 4px;
+  line-height: 1;
+}
+
+.jira-card:hover .jira-card-quick-del {
+  opacity: 0.85;
+}
+
+.jira-card-quick-del:hover {
+  opacity: 1;
+  background: rgba(239, 68, 68, 0.25);
+  transform: scale(1.15);
+}
+
 .jira-category-pill {
   font-size: 10px;
   font-weight: 700;

@@ -1238,15 +1238,11 @@ router.delete('/:id', async (req, res) => {
     if (!ticket) return res.status(404).json({ error: 'Ticket not found' });
 
     const isAdmin = req.user.role === 'superadmin' || req.user.role === 'admin';
-    if (!isAdmin) {
-      const isAssigned = ticket.assignee && ticket.assignee.userId && String(ticket.assignee.userId) === String(req.user._id);
-      if (!isAssigned) {
-        return res.status(403).json({ error: 'Access denied: You can only update tickets assigned to you.' });
-      }
-    }
+    const isAssigned = ticket.assignee && ticket.assignee.userId && String(ticket.assignee.userId) === String(req.user._id);
+    const isReporter = ticket.reporter && ticket.reporter.userId && String(ticket.reporter.userId) === String(req.user._id);
 
-    const isReporter = ticket.reporter && String(ticket.reporter.userId) === String(req.user._id);
-    if (!isAdmin(req.user) && !isReporter) {
+    // Admins, assigned employees, or original creators can delete the ticket
+    if (!isAdmin && !isAssigned && !isReporter) {
       return res.status(403).json({ error: 'Not allowed to delete this ticket' });
     }
 

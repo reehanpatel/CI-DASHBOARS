@@ -375,15 +375,20 @@ export async function initSupportTickets(container, options = {}) {
     return `
       <div class="jira-card" draggable="true" data-ticket-id="${t._id}">
         <div class="jira-card-top">
-          <span class="jira-category-pill ${cat.slug}">
-            ${cat.icon} ${cat.label}
-          </span>
-          ${t.dueDate ? `
-            <span class="jira-due-pill ${isOverdue ? 'overdue' : ''}" title="Due Date">
-              ${isOverdue ? '⚠️ ' : '📅 '}
-              ${new Date(t.dueDate).toISOString().slice(0, 10)}
+          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+            <span class="jira-category-pill ${cat.slug}">
+              ${cat.icon} ${cat.label}
             </span>
-          ` : ''}
+            ${t.dueDate ? `
+              <span class="jira-due-pill ${isOverdue ? 'overdue' : ''}" title="Due Date">
+                ${isOverdue ? '⚠️ ' : '📅 '}
+                ${new Date(t.dueDate).toISOString().slice(0, 10)}
+              </span>
+            ` : ''}
+          </div>
+          <button type="button" class="jira-card-quick-del btn-delete-card-ticket" data-ticket-id="${t._id}" data-ticket-num="${escapeHtml(t.ticketId)}" title="Delete Ticket">
+            🗑️
+          </button>
         </div>
 
         <div class="jira-card-title" title="${escapeHtml(t.title)}">
@@ -469,10 +474,31 @@ export async function initSupportTickets(container, options = {}) {
   }
 
   function bindCardClicks() {
+    // Quick Delete button on cards
+    container.querySelectorAll('.btn-delete-card-ticket').forEach(btn => {
+      btn.onclick = async (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        const ticketDocId = btn.dataset.ticketId;
+        const ticketNum = btn.dataset.ticketNum || 'ticket';
+        if (!confirm(`Are you sure you want to permanently delete ticket ${ticketNum}?`)) return;
+
+        btn.disabled = true;
+        try {
+          await apiDelete(`/tickets/${ticketDocId}`);
+          flashToast(`Ticket ${ticketNum} deleted`, false);
+          await reloadBoard();
+        } catch (err) {
+          flashToast(err.message || 'Failed to delete ticket', true);
+          btn.disabled = false;
+        }
+      };
+    });
+
     container.querySelectorAll('.jira-card').forEach(card => {
       card.onclick = (e) => {
-        // Prevent trigger if clicking an internal link
-        if (e.target.tagName === 'A') return;
+        // Prevent trigger if clicking an internal link or delete button
+        if (e.target.tagName === 'A' || e.target.closest('.btn-delete-card-ticket')) return;
         const ticketDocId = card.dataset.ticketId;
         openTicketDetailModal(ticketDocId);
       };
@@ -638,6 +664,7 @@ export async function initSupportTickets(container, options = {}) {
 
     const myId = currentUser?._id || currentUser?.id;
     const isReporter = t.reporter && t.reporter.userId && t.reporter.userId.toString() === myId?.toString();
+    const isAssigned = t.assignee && t.assignee.userId && t.assignee.userId.toString() === myId?.toString();
     const isSuper = userRole === 'superadmin' || userRole === 'admin';
 
     modalRoot.innerHTML = `
@@ -1014,7 +1041,7 @@ export async function initSupportTickets(container, options = {}) {
               </div>
 
               <!-- Actions (Delete) -->
-              ${(isSuper || isReporter) ? `
+              ${(isSuper || isReporter || isAssigned) ? `
                 <div style="padding-top:10px;">
                   <button type="button" class="jira-tool-btn" id="btn-delete-ticket" style="color:#ef4444;border-color:rgba(239,68,68,0.4);width:100%;padding:6px;">
                     🗑️ Delete Ticket
