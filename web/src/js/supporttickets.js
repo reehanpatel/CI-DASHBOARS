@@ -45,6 +45,7 @@ const PRIORITIES = [
 
 export async function initSupportTickets(container, options = {}) {
   const { userRole = 'employee', currentUser = null, initialTicketId = null } = options;
+  const isSuper = userRole === 'superadmin' || userRole === 'admin';
 
   // Strict check: if client somehow triggers this, abort immediately
   if (userRole === 'client' || (currentUser && currentUser.role === 'client')) {
@@ -82,10 +83,10 @@ export async function initSupportTickets(container, options = {}) {
         <div class="jira-header-left">
           <div class="jira-breadcrumb">
             <span class="jira-project-icon">CI</span>
-            <span>CI360 / SUPPORT / SCRUM BOARD</span>
+            <span>CI360 / SUPPORT / ${isSuper ? 'ALL TICKETS (ADMIN)' : 'MY ASSIGNED TICKETS'}</span>
           </div>
           <div class="jira-title-row">
-            <h2 class="jira-main-title">🎫 Support Tickets Board</h2>
+            <h2 class="jira-main-title">🎫 ${isSuper ? 'Support Tickets Board' : 'My Support Tickets'}</h2>
           </div>
         </div>
         <div class="jira-header-actions">
@@ -124,14 +125,20 @@ export async function initSupportTickets(container, options = {}) {
             ${CATEGORIES.map(c => `<option value="${c.key}">${c.icon} ${c.label}</option>`).join('')}
           </select>
 
-          <select id="jira-filter-assignee" class="jira-filter-select">
-            <option value="all">Assignee: All</option>
-            <option value="unassigned">Unassigned</option>
-          </select>
+          ${isSuper ? `
+            <select id="jira-filter-assignee" class="jira-filter-select">
+              <option value="all">Assignee: All</option>
+              <option value="unassigned">Unassigned</option>
+            </select>
 
-          <button type="button" class="jira-pill-filter" id="jira-pill-my-issues">
-            Only My Issues
-          </button>
+            <button type="button" class="jira-pill-filter" id="jira-pill-my-issues">
+              Only My Issues
+            </button>
+          ` : `
+            <span style="font-size:12px;font-weight:600;color:#94a3b8;background:#1e293b;padding:6px 12px;border-radius:6px;border:1px solid #334155;display:inline-flex;align-items:center;gap:6px;">
+              👤 Assigned to You
+            </span>
+          `}
 
           <span class="jira-clear-filters" id="jira-clear-filters" style="display:none;">Clear Filters</span>
         </div>
@@ -1491,12 +1498,16 @@ export async function initSupportTickets(container, options = {}) {
               <div class="jira-form-group">
                 <label class="jira-form-label">Assignee</label>
                 <select id="create-ticket-assignee" class="jira-select-field">
-                  <option value="">Unassigned</option>
-                  ${employees.map(u => `
-                    <option value="${u._id}">
-                      ${escapeHtml(u.name)} (${escapeHtml(u.role)})
-                    </option>
-                  `).join('')}
+                  ${isSuper ? '<option value="">Unassigned</option>' : ''}
+                  ${employees.map(u => {
+                    const isSelf = currentUser && String(currentUser._id || currentUser.id) === String(u._id);
+                    const isSelected = (!isSuper && isSelf) ? 'selected' : '';
+                    return `
+                      <option value="${u._id}" ${isSelected}>
+                        ${escapeHtml(u.name)} (${escapeHtml(u.role)})${isSelf ? ' — (You)' : ''}
+                      </option>
+                    `;
+                  }).join('')}
                 </select>
               </div>
 

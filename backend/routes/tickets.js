@@ -83,8 +83,11 @@ function parseTimeStringToHours(str) {
    ───────────────────────────────────────────────────────────────────────────── */
 router.get('/stats', async (req, res) => {
   try {
+    const isAdmin = req.user.role === 'superadmin' || req.user.role === 'admin';
     const filter = {};
-    // Employees have access to internal tickets; if wanted, can filter by assigned/reported
+    if (!isAdmin) {
+      filter['assignee.userId'] = req.user._id;
+    }
     const tickets = await SupportTicket.find(filter).lean();
     const now = new Date();
 
@@ -158,7 +161,22 @@ router.get('/', async (req, res) => {
       sort 
     } = req.query;
 
+    const isAdmin = req.user.role === 'superadmin' || req.user.role === 'admin';
     const filter = {};
+
+    // Strict Role Separation: Employees ONLY see tickets assigned to them; Admins see all
+    if (!isAdmin) {
+      filter['assignee.userId'] = req.user._id;
+    } else {
+      // Assignee filter (Admins only)
+      if (assigneeId && assigneeId !== 'all') {
+        if (assigneeId === 'unassigned') {
+          filter.$or = [{ 'assignee.userId': null }, { assignee: null }];
+        } else {
+          filter['assignee.userId'] = assigneeId;
+        }
+      }
+    }
 
     // Status filter
     if (status && status !== 'all') {
@@ -177,15 +195,6 @@ router.get('/', async (req, res) => {
     // Category filter
     if (category && category !== 'all') {
       filter.category = category;
-    }
-
-    // Assignee filter
-    if (assigneeId && assigneeId !== 'all') {
-      if (assigneeId === 'unassigned') {
-        filter.$or = [{ 'assignee.userId': null }, { assignee: null }];
-      } else {
-        filter['assignee.userId'] = assigneeId;
-      }
     }
 
     // Reporter filter
@@ -270,6 +279,14 @@ router.get('/:id', async (req, res) => {
 
     if (!ticket) {
       return res.status(404).json({ error: 'Ticket not found' });
+    }
+
+    const isAdmin = req.user.role === 'superadmin' || req.user.role === 'admin';
+    if (!isAdmin) {
+      const isAssigned = ticket.assignee && ticket.assignee.userId && String(ticket.assignee.userId) === String(req.user._id);
+      if (!isAssigned) {
+        return res.status(403).json({ error: 'Access denied: You can only view tickets assigned to you.' });
+      }
     }
 
     res.json(ticket);
@@ -438,6 +455,14 @@ router.patch('/:id/status', async (req, res) => {
     const ticket = await SupportTicket.findById(req.params.id);
     if (!ticket) return res.status(404).json({ error: 'Ticket not found' });
 
+    const isAdmin = req.user.role === 'superadmin' || req.user.role === 'admin';
+    if (!isAdmin) {
+      const isAssigned = ticket.assignee && ticket.assignee.userId && String(ticket.assignee.userId) === String(req.user._id);
+      if (!isAssigned) {
+        return res.status(403).json({ error: 'Access denied: You can only update tickets assigned to you.' });
+      }
+    }
+
     const oldStatus = ticket.status;
     if (oldStatus === status) {
       return res.json(ticket);
@@ -492,6 +517,14 @@ router.patch('/:id', async (req, res) => {
   try {
     const ticket = await SupportTicket.findById(req.params.id);
     if (!ticket) return res.status(404).json({ error: 'Ticket not found' });
+
+    const isAdmin = req.user.role === 'superadmin' || req.user.role === 'admin';
+    if (!isAdmin) {
+      const isAssigned = ticket.assignee && ticket.assignee.userId && String(ticket.assignee.userId) === String(req.user._id);
+      if (!isAssigned) {
+        return res.status(403).json({ error: 'Access denied: You can only update tickets assigned to you.' });
+      }
+    }
 
     const {
       title,
@@ -644,6 +677,14 @@ router.post('/:id/comments', async (req, res) => {
     const ticket = await SupportTicket.findById(req.params.id);
     if (!ticket) return res.status(404).json({ error: 'Ticket not found' });
 
+    const isAdmin = req.user.role === 'superadmin' || req.user.role === 'admin';
+    if (!isAdmin) {
+      const isAssigned = ticket.assignee && ticket.assignee.userId && String(ticket.assignee.userId) === String(req.user._id);
+      if (!isAssigned) {
+        return res.status(403).json({ error: 'Access denied: You can only update tickets assigned to you.' });
+      }
+    }
+
     const newComment = {
       id: new mongoose.Types.ObjectId().toString(),
       userId: req.user._id,
@@ -701,6 +742,14 @@ router.put('/:id/comments/:commentId', async (req, res) => {
     const ticket = await SupportTicket.findById(req.params.id);
     if (!ticket) return res.status(404).json({ error: 'Ticket not found' });
 
+    const isAdmin = req.user.role === 'superadmin' || req.user.role === 'admin';
+    if (!isAdmin) {
+      const isAssigned = ticket.assignee && ticket.assignee.userId && String(ticket.assignee.userId) === String(req.user._id);
+      if (!isAssigned) {
+        return res.status(403).json({ error: 'Access denied: You can only update tickets assigned to you.' });
+      }
+    }
+
     const comment = ticket.comments.find(c => c.id === req.params.commentId);
     if (!comment) return res.status(404).json({ error: 'Comment not found' });
 
@@ -727,6 +776,14 @@ router.delete('/:id/comments/:commentId', async (req, res) => {
   try {
     const ticket = await SupportTicket.findById(req.params.id);
     if (!ticket) return res.status(404).json({ error: 'Ticket not found' });
+
+    const isAdmin = req.user.role === 'superadmin' || req.user.role === 'admin';
+    if (!isAdmin) {
+      const isAssigned = ticket.assignee && ticket.assignee.userId && String(ticket.assignee.userId) === String(req.user._id);
+      if (!isAssigned) {
+        return res.status(403).json({ error: 'Access denied: You can only update tickets assigned to you.' });
+      }
+    }
 
     const comment = ticket.comments.find(c => c.id === req.params.commentId);
     if (!comment) return res.status(404).json({ error: 'Comment not found' });
@@ -757,6 +814,14 @@ router.post('/:id/subtasks', async (req, res) => {
 
     const ticket = await SupportTicket.findById(req.params.id);
     if (!ticket) return res.status(404).json({ error: 'Ticket not found' });
+
+    const isAdmin = req.user.role === 'superadmin' || req.user.role === 'admin';
+    if (!isAdmin) {
+      const isAssigned = ticket.assignee && ticket.assignee.userId && String(ticket.assignee.userId) === String(req.user._id);
+      if (!isAssigned) {
+        return res.status(403).json({ error: 'Access denied: You can only update tickets assigned to you.' });
+      }
+    }
 
     let assignedTo = { userId: null, name: '', avatar: '' };
     if (assignedToUserId && mongoose.Types.ObjectId.isValid(assignedToUserId)) {
@@ -806,6 +871,14 @@ router.patch('/:id/subtasks/:subtaskId', async (req, res) => {
   try {
     const ticket = await SupportTicket.findById(req.params.id);
     if (!ticket) return res.status(404).json({ error: 'Ticket not found' });
+
+    const isAdmin = req.user.role === 'superadmin' || req.user.role === 'admin';
+    if (!isAdmin) {
+      const isAssigned = ticket.assignee && ticket.assignee.userId && String(ticket.assignee.userId) === String(req.user._id);
+      if (!isAssigned) {
+        return res.status(403).json({ error: 'Access denied: You can only update tickets assigned to you.' });
+      }
+    }
 
     const subtask = ticket.subtasks.find(s => s.id === req.params.subtaskId);
     if (!subtask) return res.status(404).json({ error: 'Subtask not found' });
@@ -859,6 +932,14 @@ router.delete('/:id/subtasks/:subtaskId', async (req, res) => {
     const ticket = await SupportTicket.findById(req.params.id);
     if (!ticket) return res.status(404).json({ error: 'Ticket not found' });
 
+    const isAdmin = req.user.role === 'superadmin' || req.user.role === 'admin';
+    if (!isAdmin) {
+      const isAssigned = ticket.assignee && ticket.assignee.userId && String(ticket.assignee.userId) === String(req.user._id);
+      if (!isAssigned) {
+        return res.status(403).json({ error: 'Access denied: You can only update tickets assigned to you.' });
+      }
+    }
+
     ticket.subtasks = ticket.subtasks.filter(s => s.id !== req.params.subtaskId);
     await ticket.save();
     const updated = await SupportTicket.findById(ticket._id).populate('jobId', 'title').lean();
@@ -880,6 +961,14 @@ router.post('/:id/worklogs', async (req, res) => {
 
     const ticket = await SupportTicket.findById(req.params.id);
     if (!ticket) return res.status(404).json({ error: 'Ticket not found' });
+
+    const isAdmin = req.user.role === 'superadmin' || req.user.role === 'admin';
+    if (!isAdmin) {
+      const isAssigned = ticket.assignee && ticket.assignee.userId && String(ticket.assignee.userId) === String(req.user._id);
+      if (!isAssigned) {
+        return res.status(403).json({ error: 'Access denied: You can only update tickets assigned to you.' });
+      }
+    }
 
     const hours = parseTimeStringToHours(timeSpent);
     const newLog = {
@@ -920,6 +1009,14 @@ router.delete('/:id/worklogs/:logId', async (req, res) => {
   try {
     const ticket = await SupportTicket.findById(req.params.id);
     if (!ticket) return res.status(404).json({ error: 'Ticket not found' });
+
+    const isAdmin = req.user.role === 'superadmin' || req.user.role === 'admin';
+    if (!isAdmin) {
+      const isAssigned = ticket.assignee && ticket.assignee.userId && String(ticket.assignee.userId) === String(req.user._id);
+      if (!isAssigned) {
+        return res.status(403).json({ error: 'Access denied: You can only update tickets assigned to you.' });
+      }
+    }
 
     const log = ticket.workLogs.find(l => l.id === req.params.logId);
     if (!log) return res.status(404).json({ error: 'Work log not found' });
@@ -1026,6 +1123,14 @@ router.delete('/:id/links/:linkId', async (req, res) => {
     const ticket = await SupportTicket.findById(req.params.id);
     if (!ticket) return res.status(404).json({ error: 'Ticket not found' });
 
+    const isAdmin = req.user.role === 'superadmin' || req.user.role === 'admin';
+    if (!isAdmin) {
+      const isAssigned = ticket.assignee && ticket.assignee.userId && String(ticket.assignee.userId) === String(req.user._id);
+      if (!isAssigned) {
+        return res.status(403).json({ error: 'Access denied: You can only update tickets assigned to you.' });
+      }
+    }
+
     const link = ticket.linkedTickets.find(l => l.id === req.params.linkId);
     if (!link) return res.status(404).json({ error: 'Link not found' });
 
@@ -1059,6 +1164,14 @@ router.post('/:id/attachments', async (req, res) => {
 
     const ticket = await SupportTicket.findById(req.params.id);
     if (!ticket) return res.status(404).json({ error: 'Ticket not found' });
+
+    const isAdmin = req.user.role === 'superadmin' || req.user.role === 'admin';
+    if (!isAdmin) {
+      const isAssigned = ticket.assignee && ticket.assignee.userId && String(ticket.assignee.userId) === String(req.user._id);
+      if (!isAssigned) {
+        return res.status(403).json({ error: 'Access denied: You can only update tickets assigned to you.' });
+      }
+    }
 
     attachments.forEach(att => {
       ticket.attachments.push({
@@ -1098,6 +1211,14 @@ router.delete('/:id/attachments/:attachmentId', async (req, res) => {
     const ticket = await SupportTicket.findById(req.params.id);
     if (!ticket) return res.status(404).json({ error: 'Ticket not found' });
 
+    const isAdmin = req.user.role === 'superadmin' || req.user.role === 'admin';
+    if (!isAdmin) {
+      const isAssigned = ticket.assignee && ticket.assignee.userId && String(ticket.assignee.userId) === String(req.user._id);
+      if (!isAssigned) {
+        return res.status(403).json({ error: 'Access denied: You can only update tickets assigned to you.' });
+      }
+    }
+
     ticket.attachments = ticket.attachments.filter(a => a.id !== req.params.attachmentId);
     await ticket.save();
 
@@ -1115,6 +1236,14 @@ router.delete('/:id', async (req, res) => {
   try {
     const ticket = await SupportTicket.findById(req.params.id);
     if (!ticket) return res.status(404).json({ error: 'Ticket not found' });
+
+    const isAdmin = req.user.role === 'superadmin' || req.user.role === 'admin';
+    if (!isAdmin) {
+      const isAssigned = ticket.assignee && ticket.assignee.userId && String(ticket.assignee.userId) === String(req.user._id);
+      if (!isAssigned) {
+        return res.status(403).json({ error: 'Access denied: You can only update tickets assigned to you.' });
+      }
+    }
 
     const isReporter = ticket.reporter && String(ticket.reporter.userId) === String(req.user._id);
     if (!isAdmin(req.user) && !isReporter) {
