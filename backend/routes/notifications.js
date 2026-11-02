@@ -291,9 +291,6 @@ router.get('/', async (req, res) => {
           await Notification.deleteMany({ _id: { $in: duplicateIds } });
         }
       } catch(e){}
-          await Notification.deleteMany({ _id: { $in: duplicateIds } });
-        }
-      } catch(e){}
     }
 
     const notifications = await Notification.find({ userId, dismissed: { $ne: true } })
