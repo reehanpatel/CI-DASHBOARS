@@ -1,8 +1,8 @@
-import{l as q,m as J}from"./api-B2T0Z1h0.js";import{initProposalStudio as M}from"./proposals-D1twPRPO.js";import{i as O,a as L,b as B}from"./supporttickets-1LSvFdY9.js";let o=null,A={personnel:[],clients:[],services:[]},l={tab:"dashboard",period:"month"};async function F(){if(initTheme(),o=requireAuth("employee"),!o)return;const[t,i,s]=await Promise.all([apiGet("/personnel"),apiGet("/clients"),apiGet("/services")]);A.personnel=t,A.clients=i,A.services=s,C()}function H(t){const i=A.clients.find(s=>s._id===t);return i?i.name:"—"}function N(){return o&&(/mansi/i.test(o.name)||/urna/i.test(o.name))}function W(){const t=o&&(o.role==="accounts"||o.role==="superadmin"||/ekta/i.test(o.name)||/ekta/i.test(o.email)),i=[{key:"dashboard",label:"Overview Dashboard",icon:"📊"},{key:"myjobs",label:"My Jobs",icon:"📋"},{key:"dailytasks",label:"Daily Planner",icon:"📅"},{key:"tickets",label:"Support Tickets",icon:"🎫"},{key:"proposals",label:"Proposal Studio",icon:"📜"},{key:"teambonding",label:"Team Chat & Lounge",icon:"💬"},{key:"targets",label:"My Targets",icon:"🎯"},{key:"settings",label:"Settings",icon:"⚙️"}];return t&&i.push({key:"accounts_redirect",label:"Accounts Dashboard 💰",icon:"💳"}),i}function C(){const t=document.getElementById("app"),i=W(),s=i.find(e=>e.key===l.tab)||i[0];t.innerHTML=renderAppShell({user:o,currentRole:"employee",activeTab:l.tab,tabs:i,title:s.label,subtitle:N()?"Lead Workspace · Mansi & Urna Management":"Employee Workspace & Productivity Dashboard"}),bindAppShellEvents(e=>{if(e==="accounts_redirect"){window.location.href="/accounts";return}l.tab=e,C()}),x()}window.ci360NavTab=(t,i=null)=>{if(t==="accounts_redirect"){window.location.href="/accounts";return}t==="jobs"||t==="myjobs"?t="myjobs":t==="tasks"||t==="mytasks"||t==="dailytasks"?t="dailytasks":t==="target"||t==="targets"?t="targets":t==="proposal"||t==="proposals"?t="proposals":t==="teambonding"||t==="bonding"||t==="arcade"||t==="chat"?t="teambonding":t==="tickets"||t==="supporttickets"||t==="ticket"?t="tickets":(t==="dashboard"||t==="overview")&&(t="dashboard"),i&&typeof i=="object"&&(params=i,i=params.highlightId||null),l.tabParams=params||{},l.tab=t,i&&(l.highlightId=i),C()};async function x(t=!1){const i=document.getElementById("content");if(i){!t&&!i.dataset.loaded&&(i.innerHTML=renderSkeletonCards(3)),i.dataset.loaded="true";try{l.tab==="dashboard"?await _(i):l.tab==="myjobs"||l.tab==="jobs"?await Z(i):l.tab==="dailytasks"||l.tab==="mytasks"||l.tab==="tasks"?await ae(i):l.tab==="tickets"||l.tab==="supporttickets"||l.tab==="ticket"?await V(i):l.tab==="proposals"||l.tab==="proposal"?await G(i):l.tab==="teambonding"||l.tab==="bonding"?await Q(i):l.tab==="targets"||l.tab==="target"?await oe(i):l.tab==="settings"?await Y(i):(l.tab="dashboard",await _(i))}catch(s){i.innerHTML=renderEmptyState("Something went wrong",s.message,"⚠️")}}}async function G(t){t.innerHTML='<div id="proposals-module-root"></div>';const i=t.querySelector("#proposals-module-root");M(i,{userRole:"employee",currentUser:o})}async function Q(t){t.innerHTML='<div id="teambonding-module-root"></div>';const i=t.querySelector("#teambonding-module-root");B(i,{currentUser:o})}async function V(t){t.innerHTML='<div id="support-tickets-module-root"></div>';const i=t.querySelector("#support-tickets-module-root"),s=l.tabParams||{};L(i,{userRole:"employee",currentUser:o,initialJobId:s.jobId||null})}async function Y(t){t.innerHTML=`
+import{l as I,m as q}from"./api-CiGFmghh.js";import{initProposalStudio as J}from"./proposals-BcYYF4sJ.js";import{i as M,a as O,b as L}from"./supporttickets-D_eedpc8.js";let p=null,k={personnel:[],clients:[],services:[]},r={tab:"dashboard",period:"month"};async function B(){if(initTheme(),p=requireAuth("employee"),!p)return;const[t,i,s]=await Promise.all([apiGet("/personnel"),apiGet("/clients"),apiGet("/services")]);k.personnel=t,k.clients=i,k.services=s,$()}function U(t){const i=k.clients.find(s=>s._id===t);return i?i.name:"—"}function F(){return p&&(/mansi/i.test(p.name)||/urna/i.test(p.name))}function N(){const t=p&&(p.role==="accounts"||p.role==="superadmin"||/ekta/i.test(p.name)||/ekta/i.test(p.email)),i=[{key:"dashboard",label:"Overview Dashboard",icon:"📊"},{key:"myjobs",label:"My Jobs",icon:"📋"},{key:"dailytasks",label:"Daily Planner",icon:"📅"},{key:"tickets",label:"Support Tickets",icon:"🎫"},{key:"proposals",label:"Proposal Studio",icon:"📜"},{key:"teambonding",label:"Team Chat & Lounge",icon:"💬"},{key:"targets",label:"My Targets",icon:"🎯"},{key:"settings",label:"Settings",icon:"⚙️"}];return t&&i.push({key:"accounts_redirect",label:"Accounts Dashboard 💰",icon:"💳"}),i}function $(){const t=document.getElementById("app"),i=N(),s=i.find(e=>e.key===r.tab)||i[0];t.innerHTML=renderAppShell({user:p,currentRole:"employee",activeTab:r.tab,tabs:i,title:s.label,subtitle:F()?"Lead Workspace · Mansi & Urna Management":"Employee Workspace & Productivity Dashboard"}),bindAppShellEvents(e=>{if(e==="accounts_redirect"){window.location.href="/accounts";return}r.tab=e,$()}),v()}window.ci360NavTab=(t,i=null)=>{if(t==="accounts_redirect"){window.location.href="/accounts";return}t==="jobs"||t==="myjobs"?t="myjobs":t==="tasks"||t==="mytasks"||t==="dailytasks"?t="dailytasks":t==="target"||t==="targets"?t="targets":t==="proposal"||t==="proposals"?t="proposals":t==="teambonding"||t==="bonding"||t==="arcade"||t==="chat"?t="teambonding":t==="tickets"||t==="supporttickets"||t==="ticket"?t="tickets":(t==="dashboard"||t==="overview")&&(t="dashboard"),i&&typeof i=="object"&&(params=i,i=params.highlightId||null),r.tabParams=params||{},r.tab=t,i&&(r.highlightId=i),$()};async function v(t=!1){const i=document.getElementById("content");if(i){!t&&!i.dataset.loaded&&(i.innerHTML=renderSkeletonCards(3)),i.dataset.loaded="true";try{r.tab==="dashboard"?await R(i):r.tab==="myjobs"||r.tab==="jobs"?await X(i):r.tab==="dailytasks"||r.tab==="mytasks"||r.tab==="tasks"?await se(i):r.tab==="tickets"||r.tab==="supporttickets"||r.tab==="ticket"?await Q(i):r.tab==="proposals"||r.tab==="proposal"?await W(i):r.tab==="teambonding"||r.tab==="bonding"?await G(i):r.tab==="targets"||r.tab==="target"?await ae(i):r.tab==="settings"?await V(i):(r.tab="dashboard",await R(i))}catch(s){i.innerHTML=renderEmptyState("Something went wrong",s.message,"⚠️")}}}async function W(t){t.innerHTML='<div id="proposals-module-root"></div>';const i=t.querySelector("#proposals-module-root");J(i,{userRole:"employee",currentUser:p})}async function G(t){t.innerHTML='<div id="teambonding-module-root"></div>';const i=t.querySelector("#teambonding-module-root");L(i,{currentUser:p})}async function Q(t){t.innerHTML='<div id="support-tickets-module-root"></div>';const i=t.querySelector("#support-tickets-module-root"),s=r.tabParams||{};O(i,{userRole:"employee",currentUser:p,initialJobId:s.jobId||null})}async function V(t){t.innerHTML=`
     <div style="padding:8px 0 24px 0;">
-      ${q({title:"Employee Account & Security",subtitle:"Manage your personal login email, display name, and password"})}
+      ${I({title:"Employee Account & Security",subtitle:"Manage your personal login email, display name, and password"})}
     </div>
-  `,J(t)}function K(){return renderPeriodPicker(l.period)}function X(){document.querySelectorAll("[data-period]").forEach(t=>{t.onclick=()=>{l.period=t.dataset.period,x()}})}async function _(t){const[i,s,e]=await Promise.all([apiGet("/dashboard/employee?period="+l.period).catch(()=>({stats:{},person:{},recentJobs:[],accounts:[]})),apiGet("/jobs?mine=true").catch(()=>[]),apiGet("/tasks").catch(()=>[])]),n=i.person||{},d=n.name||(o==null?void 0:o.name)||"Team Member",p=n.duties||"Creative Specialist",m=Number(n.capacity)||48,v=i.stats||{hours:0,revenue:0,utilization:0,label:"Optimal",badge:"green"},c=s||[],r=c.filter(a=>a.status==="Completed"||a.clientApproval&&a.clientApproval.status==="Approved"||a.completionDate),g=c.filter(a=>!a.completionDate&&a.status!=="Completed"&&(!a.clientApproval||a.clientApproval.status!=="Approved")),b=c.filter(a=>a.clientApproval&&a.clientApproval.status==="Revision Requested"),u=g.filter(a=>a.priority==="Urgent");g.filter(a=>a.priority==="High");const f=new Date().toISOString().slice(0,10),y=(e||[]).filter(a=>a.date?a.date.slice(0,10)===f:!0),k=y.filter(a=>a.status==="Completed"),T=y.filter(a=>a.status!=="Completed"),S=y.length>0?Math.round(k.length/y.length*100):100,h=i.accounts||[];t.innerHTML=`
+  `,q(t)}function Y(){return renderPeriodPicker(r.period)}function K(){document.querySelectorAll("[data-period]").forEach(t=>{t.onclick=()=>{r.period=t.dataset.period,v()}})}async function R(t){const[i,s,e]=await Promise.all([apiGet("/dashboard/employee?period="+r.period).catch(()=>({stats:{},person:{},recentJobs:[],accounts:[]})),apiGet("/jobs?mine=true").catch(()=>[]),apiGet("/tasks").catch(()=>[])]),o=i.person||{},l=o.name||p?.name||"Team Member",d=o.duties||"Creative Specialist",m=Number(o.capacity)||48,g=i.stats||{hours:0,revenue:0,utilization:0,label:"Optimal",badge:"green"},c=s||[],n=c.filter(a=>a.status==="Completed"||a.clientApproval&&a.clientApproval.status==="Approved"||a.completionDate),u=c.filter(a=>!a.completionDate&&a.status!=="Completed"&&(!a.clientApproval||a.clientApproval.status!=="Approved")),x=c.filter(a=>a.clientApproval&&a.clientApproval.status==="Revision Requested"),b=u.filter(a=>a.priority==="Urgent");u.filter(a=>a.priority==="High");const T=new Date().toISOString().slice(0,10),y=(e||[]).filter(a=>a.date?a.date.slice(0,10)===T:!0),h=y.filter(a=>a.status==="Completed"),A=y.filter(a=>a.status!=="Completed"),C=y.length>0?Math.round(h.length/y.length*100):100,f=i.accounts||[];t.innerHTML=`
     <div class="block employee-overview-container" style="max-width:1280px;margin:0 auto">
       
       <!-- Employee Profile Hero Card -->
@@ -11,13 +11,13 @@ import{l as q,m as J}from"./api-B2T0Z1h0.js";import{initProposalStudio as M}from
           
           <div style="display:flex;align-items:center;gap:18px">
             <div style="width:56px;height:56px;border-radius:var(--r-lg);background:linear-gradient(135deg,#4F46E5 0%,#7C3AED 100%);color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900;box-shadow:0 8px 16px -4px rgba(79,70,229,0.4);flex-shrink:0">
-              ${d.slice(0,2).toUpperCase()}
+              ${l.slice(0,2).toUpperCase()}
             </div>
             <div>
               <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:4px">
-                <h1 style="font-size:24px;font-weight:800;color:var(--text-1);margin:0;letter-spacing:-0.5px">${escapeHtml(d)}</h1>
-                <span class="badge blue" style="font-size:11px;font-weight:700">${escapeHtml(p)}</span>
-                <span class="badge ${v.badge||"green"}" style="font-size:11px;font-weight:700">● ${escapeHtml(v.label||"Optimal Pace")}</span>
+                <h1 style="font-size:24px;font-weight:800;color:var(--text-1);margin:0;letter-spacing:-0.5px">${escapeHtml(l)}</h1>
+                <span class="badge blue" style="font-size:11px;font-weight:700">${escapeHtml(d)}</span>
+                <span class="badge ${g.badge||"green"}" style="font-size:11px;font-weight:700">● ${escapeHtml(g.label||"Optimal Pace")}</span>
               </div>
               <p style="font-size:13.5px;color:var(--text-3);margin:0">
                 Personal Workspace &amp; Performance Radar · Standard Capacity: <strong>${m}h / week</strong>
@@ -44,13 +44,13 @@ import{l as q,m as J}from"./api-B2T0Z1h0.js";import{initProposalStudio as M}from
             Period Performance Scope
           </div>
           <div id="empOverviewPeriodWrapper">
-            ${renderPeriodPicker(l.period)}
+            ${renderPeriodPicker(r.period)}
           </div>
         </div>
       </div>
 
       <!-- Action Banner: Urgent / Revision Alerts -->
-      ${u.length>0||b.length>0?`
+      ${b.length>0||x.length>0?`
         <div class="card" style="background:linear-gradient(135deg, rgba(239,68,68,0.08) 0%, rgba(245,158,11,0.06) 100%);border:1px solid rgba(239,68,68,0.3);border-radius:var(--r-lg);padding:16px 22px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px">
           <div style="display:flex;align-items:center;gap:14px">
             <span style="font-size:24px">⚡</span>
@@ -59,8 +59,8 @@ import{l as q,m as J}from"./api-B2T0Z1h0.js";import{initProposalStudio as M}from
                 High Priority Focus Items
               </div>
               <div style="font-size:13px;color:var(--text-2);display:flex;gap:12px;flex-wrap:wrap">
-                ${u.length>0?`<span style="color:var(--red);font-weight:700">🔴 ${u.length} Urgent Job(s)</span>`:""}
-                ${b.length>0?`<span style="color:var(--amber-500);font-weight:700">↺ ${b.length} Revision Request(s)</span>`:""}
+                ${b.length>0?`<span style="color:var(--red);font-weight:700">🔴 ${b.length} Urgent Job(s)</span>`:""}
+                ${x.length>0?`<span style="color:var(--amber-500);font-weight:700">↺ ${x.length} Revision Request(s)</span>`:""}
               </div>
             </div>
           </div>
@@ -79,8 +79,8 @@ import{l as q,m as J}from"./api-B2T0Z1h0.js";import{initProposalStudio as M}from
               <div class="label" style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--text-3)">Capacity Utilization</div>
               <div style="font-size:20px">📈</div>
             </div>
-            <div class="value" style="font-size:32px;font-weight:900;color:var(--text-1);line-height:1">${Number(v.utilization||0).toFixed(0)}%</div>
-            <div class="sub" style="font-size:12px;color:var(--text-4);margin-top:6px">${Number(v.hours||0).toFixed(1)} hrs tracked this period</div>
+            <div class="value" style="font-size:32px;font-weight:900;color:var(--text-1);line-height:1">${Number(g.utilization||0).toFixed(0)}%</div>
+            <div class="sub" style="font-size:12px;color:var(--text-4);margin-top:6px">${Number(g.hours||0).toFixed(1)} hrs tracked this period</div>
           </div>
 
           <div class="card kpi" style="border-top:3px solid var(--amber-500);padding:20px">
@@ -88,8 +88,8 @@ import{l as q,m as J}from"./api-B2T0Z1h0.js";import{initProposalStudio as M}from
               <div class="label" style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--text-3)">Active Workload</div>
               <div style="font-size:20px">⏳</div>
             </div>
-            <div class="value" style="font-size:32px;font-weight:900;color:var(--amber-500);line-height:1">${g.length}</div>
-            <div class="sub" style="font-size:12px;color:var(--text-4);margin-top:6px">${r.length} completed deliverables</div>
+            <div class="value" style="font-size:32px;font-weight:900;color:var(--amber-500);line-height:1">${u.length}</div>
+            <div class="sub" style="font-size:12px;color:var(--text-4);margin-top:6px">${n.length} completed deliverables</div>
           </div>
 
           <div class="card kpi" style="border-top:3px solid var(--green-500);padding:20px">
@@ -97,8 +97,8 @@ import{l as q,m as J}from"./api-B2T0Z1h0.js";import{initProposalStudio as M}from
               <div class="label" style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--text-3)">Today's Task Progress</div>
               <div style="font-size:20px">✅</div>
             </div>
-            <div class="value" style="font-size:32px;font-weight:900;color:var(--green-500);line-height:1">${k.length} <span style="font-size:18px;font-weight:600;color:var(--text-4)">/ ${y.length}</span></div>
-            <div class="sub" style="font-size:12px;color:var(--text-4);margin-top:6px">${S}% of today's checklist completed</div>
+            <div class="value" style="font-size:32px;font-weight:900;color:var(--green-500);line-height:1">${h.length} <span style="font-size:18px;font-weight:600;color:var(--text-4)">/ ${y.length}</span></div>
+            <div class="sub" style="font-size:12px;color:var(--text-4);margin-top:6px">${C}% of today's checklist completed</div>
           </div>
 
           <div class="card kpi" style="border-top:3px solid #8B5CF6;padding:20px">
@@ -106,7 +106,7 @@ import{l as q,m as J}from"./api-B2T0Z1h0.js";import{initProposalStudio as M}from
               <div class="label" style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--text-3)">Value Output Tracked</div>
               <div style="font-size:20px">💰</div>
             </div>
-            <div class="value" style="font-size:32px;font-weight:900;color:#8B5CF6;line-height:1">${fmtINR(v.revenue||0)}</div>
+            <div class="value" style="font-size:32px;font-weight:900;color:#8B5CF6;line-height:1">${fmtINR(g.revenue||0)}</div>
             <div class="sub" style="font-size:12px;color:var(--text-4);margin-top:6px">Revenue deliverable contribution</div>
           </div>
 
@@ -121,7 +121,7 @@ import{l as q,m as J}from"./api-B2T0Z1h0.js";import{initProposalStudio as M}from
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
             <div>
               <h3 style="font-size:16px;font-weight:800;color:var(--text-1);margin:0 0 2px 0">Today's Task Checklist</h3>
-              <p style="font-size:12px;color:var(--text-3);margin:0">${T.length} pending · ${k.length} done</p>
+              <p style="font-size:12px;color:var(--text-3);margin:0">${A.length} pending · ${h.length} done</p>
             </div>
             <button class="btn secondary small" onclick="ci360NavTab('dailytasks')" style="font-size:12px">
               Open Checklist →
@@ -131,7 +131,7 @@ import{l as q,m as J}from"./api-B2T0Z1h0.js";import{initProposalStudio as M}from
           <!-- Progress Bar -->
           <div style="margin-bottom:16px">
             <div style="width:100%;height:8px;background:var(--border-sm);border-radius:8px;overflow:hidden">
-              <div style="width:${S}%;height:100%;background:linear-gradient(90deg, var(--green-500), #059669);border-radius:8px;transition:width 0.4s ease"></div>
+              <div style="width:${C}%;height:100%;background:linear-gradient(90deg, var(--green-500), #059669);border-radius:8px;transition:width 0.4s ease"></div>
             </div>
           </div>
 
@@ -166,21 +166,21 @@ import{l as q,m as J}from"./api-B2T0Z1h0.js";import{initProposalStudio as M}from
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
             <div>
               <h3 style="font-size:16px;font-weight:800;color:var(--text-1);margin:0 0 2px 0">Assigned Client Accounts</h3>
-              <p style="font-size:12px;color:var(--text-3);margin:0">${h.length} active client accounts on roster</p>
+              <p style="font-size:12px;color:var(--text-3);margin:0">${f.length} active client accounts on roster</p>
             </div>
-            <span class="badge gold" style="font-weight:700">${h.length} Accounts</span>
+            <span class="badge gold" style="font-weight:700">${f.length} Accounts</span>
           </div>
 
-          ${h.length>0?`
+          ${f.length>0?`
             <div style="display:flex;flex-direction:column;gap:10px">
-              ${h.slice(0,5).map(a=>{const E=(A.clients.find(P=>String(P._id)===String(a.clientId))||{}).name||"Client Account";return`
+              ${f.slice(0,5).map(a=>{const S=(k.clients.find(z=>String(z._id)===String(a.clientId))||{}).name||"Client Account";return`
                   <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px;background:var(--bg-surface);border:1px solid var(--border-xs);border-radius:var(--r-md)">
                     <div style="display:flex;align-items:center;gap:10px;min-width:0">
                       <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--brand-500) 0%,#4338CA 100%);color:#FFF;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0">
-                        ${E.slice(0,2).toUpperCase()}
+                        ${S.slice(0,2).toUpperCase()}
                       </div>
                       <div style="min-width:0">
-                        <div style="font-size:13.5px;font-weight:700;color:var(--text-1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(E)}</div>
+                        <div style="font-size:13.5px;font-weight:700;color:var(--text-1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(S)}</div>
                         <div style="font-size:11px;color:var(--text-4)">${escapeHtml(a.nature||"Retainer")} · ${escapeHtml(a.difficulty||"Normal")}</div>
                       </div>
                     </div>
@@ -225,22 +225,22 @@ import{l as q,m as J}from"./api-B2T0Z1h0.js";import{initProposalStudio as M}from
                 </tr>
               </thead>
               <tbody>
-                ${c.slice(0,6).map(a=>{var R;const w=a.status==="Completed"||a.clientApproval&&a.clientApproval.status==="Approved"||a.completionDate,E=a.clientApproval&&a.clientApproval.status==="Revision Requested",P=((R=a.clientId)==null?void 0:R.name)||H(a.clientId)||"Client",I=a.priority==="Urgent"?"red":a.priority==="High"?"amber":"gray";return`
+                ${c.slice(0,6).map(a=>{const w=a.status==="Completed"||a.clientApproval&&a.clientApproval.status==="Approved"||a.completionDate,S=a.clientApproval&&a.clientApproval.status==="Revision Requested",z=a.clientId?.name||U(a.clientId)||"Client",H=a.priority==="Urgent"?"red":a.priority==="High"?"amber":"gray";return`
                     <tr style="cursor:pointer" onclick="ci360NavTab('myjobs')">
                       <td style="padding-left:24px;font-weight:800;color:var(--text-1)">
                         ${escapeHtml(a.title||"Untitled Job")}
                       </td>
                       <td>
-                        <span class="badge blue" style="font-size:11px">${escapeHtml(P)}</span>
+                        <span class="badge blue" style="font-size:11px">${escapeHtml(z)}</span>
                       </td>
                       <td>
-                        <span class="badge ${I}" style="font-size:11px;font-weight:700">${escapeHtml(a.priority||"Medium")}</span>
+                        <span class="badge ${H}" style="font-size:11px;font-weight:700">${escapeHtml(a.priority||"Medium")}</span>
                       </td>
                       <td style="font-size:12.5px;color:var(--text-3)">${fmtDate(a.date)}</td>
                       <td style="font-size:12.5px;color:var(--text-2);font-weight:600">${a.completionDate?fmtDate(a.completionDate):"—"}</td>
                       <td>
-                        <span class="badge ${w?"green":E?"red":"amber"}" style="font-weight:700">
-                          ${w?"✓ Completed":E?"↺ Revision":"⏳ In Progress"}
+                        <span class="badge ${w?"green":S?"red":"amber"}" style="font-weight:700">
+                          ${w?"✓ Completed":S?"↺ Revision":"⏳ In Progress"}
                         </span>
                       </td>
                     </tr>
@@ -258,7 +258,7 @@ import{l as q,m as J}from"./api-B2T0Z1h0.js";import{initProposalStudio as M}from
       </div>
 
     </div>
-  `;const $=document.getElementById("btnEmpQuickJobs");$&&($.onclick=()=>{l.tab="myjobs",C()});const z=document.getElementById("btnEmpQuickTasks");z&&(z.onclick=()=>{l.tab="dailytasks",C()});const D=document.getElementById("btnEmpQuickProposals");D&&(D.onclick=()=>{l.tab="proposals",C()}),document.querySelectorAll("#empOverviewPeriodWrapper [data-period]").forEach(a=>{a.onclick=()=>{l.period=a.dataset.period,x()}})}async function Z(t){const i=await apiGet("/jobs?mine=true"),s={Medium:"gray",High:"amber",Urgent:"red"};if(i.length===0){t.innerHTML=`
+  `;const D=document.getElementById("btnEmpQuickJobs");D&&(D.onclick=()=>{r.tab="myjobs",$()});const E=document.getElementById("btnEmpQuickTasks");E&&(E.onclick=()=>{r.tab="dailytasks",$()});const P=document.getElementById("btnEmpQuickProposals");P&&(P.onclick=()=>{r.tab="proposals",$()}),document.querySelectorAll("#empOverviewPeriodWrapper [data-period]").forEach(a=>{a.onclick=()=>{r.period=a.dataset.period,v()}})}async function X(t){const i=await apiGet("/jobs?mine=true"),s={Medium:"gray",High:"amber",Urgent:"red"};if(i.length===0){t.innerHTML=`
       <div class="block">
         <h2>My Jobs <span class="eyebrow">No assigned jobs yet</span></h2>
         ${renderEmptyState("No jobs assigned yet","Jobs assigned to you by admins will appear here.","📋")}
@@ -272,27 +272,27 @@ import{l as q,m as J}from"./api-B2T0Z1h0.js";import{initProposalStudio as M}from
       </div>
 
       <div style="display:flex;flex-direction:column;gap:14px">
-        ${i.map(e=>{var u,f,y,k,T,S,h,$,z,D,a;const n=(e.assignments||[]).find(w=>String(w.personId)===String(o.personnelId._id||o.personnelId)),d=String(e.createdBy)===String(o._id),p=e.status==="Denied"||e.clientApproval&&e.clientApproval.status==="Denied",m=e.status==="Completed"&&!p,v=e.clientApproval&&e.clientApproval.status==="Approved"&&!p,c=e.clientApproval&&e.clientApproval.status==="Revision Requested"&&!p,r=!v&&!p&&!c&&!!(e.clientApproval&&e.clientApproval.isRevised),g=e.completionDate?new Date(e.completionDate).toISOString().slice(0,10):"",b=s[e.priority||"Medium"]||"gray";return`
-          <div class="job-card" id="job-card-${e._id}" style="background:var(--bg-card);border:1px solid var(--border-sm);border-radius:var(--r-md);padding:20px 22px;box-shadow:var(--shadow-xs);transition:all var(--t-fast);border-left:4px solid ${p?"var(--red-500)":v?"var(--green-500)":c?"var(--amber-500)":r?"var(--brand-500)":m?"var(--green-500)":"var(--brand-500)"}">
+        ${i.map(e=>{const o=(e.assignments||[]).find(b=>String(b.personId)===String(p.personnelId._id||p.personnelId)),l=String(e.createdBy)===String(p._id),d=e.status==="Denied"||e.clientApproval&&e.clientApproval.status==="Denied",m=e.status==="Completed"&&!d,g=e.clientApproval&&e.clientApproval.status==="Approved"&&!d,c=e.clientApproval&&e.clientApproval.status==="Revision Requested"&&!d,n=!g&&!d&&!c&&!!(e.clientApproval&&e.clientApproval.isRevised),u=e.completionDate?new Date(e.completionDate).toISOString().slice(0,10):"",x=s[e.priority||"Medium"]||"gray";return`
+          <div class="job-card" id="job-card-${e._id}" style="background:var(--bg-card);border:1px solid var(--border-sm);border-radius:var(--r-md);padding:20px 22px;box-shadow:var(--shadow-xs);transition:all var(--t-fast);border-left:4px solid ${d?"var(--red-500)":g?"var(--green-500)":c?"var(--amber-500)":n?"var(--brand-500)":m?"var(--green-500)":"var(--brand-500)"}">
             <!-- Header row -->
             <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px;flex-wrap:wrap">
               <div style="min-width:0">
                 <h3 style="font-size:15px;font-weight:800;color:var(--text-1);margin:0 0 6px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(e.title||"Untitled Job")}</h3>
                 <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center">
-                  <span class="badge ${p?"red":m?"green":"amber"}">${p?"❌ Denied by Client":m?"✓ Completed":"⏳ In Progress"}</span>
-                  ${v?`<span class="badge green">✓ Client Approved ${e.clientApproval.rating?`(${e.clientApproval.rating}★)`:""}</span>`:""}
+                  <span class="badge ${d?"red":m?"green":"amber"}">${d?"❌ Denied by Client":m?"✓ Completed":"⏳ In Progress"}</span>
+                  ${g?`<span class="badge green">✓ Client Approved ${e.clientApproval.rating?`(${e.clientApproval.rating}★)`:""}</span>`:""}
                   ${c?'<span class="badge red">↺ Revision Requested</span>':""}
-                  ${r?'<span class="badge blue">📦 Revised — Awaiting Client Re-approval</span>':""}
-                  <span class="badge ${b}">${escapeHtml(e.priority||"Medium")}</span>
-                  ${(e.serviceNames||[]).map(w=>`<span class="badge gray">${escapeHtml(w)}</span>`).join("")}
+                  ${n?'<span class="badge blue">📦 Revised — Awaiting Client Re-approval</span>':""}
+                  <span class="badge ${x}">${escapeHtml(e.priority||"Medium")}</span>
+                  ${(e.serviceNames||[]).map(b=>`<span class="badge gray">${escapeHtml(b)}</span>`).join("")}
                 </div>
               </div>
               <div style="display:flex;gap:8px;flex-shrink:0;align-items:center">
                 <button type="button" class="btn ghost small emp-job-ticket-btn" data-id="${e._id}" title="Support Tickets linked to this Job" style="font-size:12px">
                   🎫 Ticket
                 </button>
-                ${p||c?`
-                  <button type="button" class="btn gold small emp-resubmit-btn" data-id="${e._id}" data-title="${escapeHtml(e.title||"Job")}" data-reason="${escapeHtml(((u=e.clientApproval)==null?void 0:u.feedback)||((f=e.clientApproval)==null?void 0:f.deniedReason)||"")}" data-type="${c?"revision":"denial"}" style="font-weight:700;font-size:12px">
+                ${d||c?`
+                  <button type="button" class="btn gold small emp-resubmit-btn" data-id="${e._id}" data-title="${escapeHtml(e.title||"Job")}" data-reason="${escapeHtml(e.clientApproval?.feedback||e.clientApproval?.deniedReason||"")}" data-type="${c?"revision":"denial"}" style="font-weight:700;font-size:12px">
                     🔁 Resubmit Job
                   </button>
                 `:`
@@ -303,26 +303,26 @@ import{l as q,m as J}from"./api-B2T0Z1h0.js";import{initProposalStudio as M}from
                     ${m?"↩ Reopen":"✓ Mark Done"}
                   </button>
                 `}
-                ${d?`<button type="button" class="btn danger small" onclick="delJob('${e._id}')">Delete</button>`:""}
+                ${l?`<button type="button" class="btn danger small" onclick="delJob('${e._id}')">Delete</button>`:""}
               </div>
             </div>
 
             <!-- Denied Alert Box for Employee -->
-            ${p?`
+            ${d?`
               <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:var(--r-sm);padding:12px 14px;margin-bottom:14px">
                 <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px">
                   <strong style="color:var(--red-500);font-size:13px;display:flex;align-items:center;gap:6px">
-                    <span>❌</span> Job Denied by Client (${escapeHtml(((y=e.clientApproval)==null?void 0:y.deniedBy)||"Client")})
+                    <span>❌</span> Job Denied by Client (${escapeHtml(e.clientApproval?.deniedBy||"Client")})
                   </strong>
-                  <span style="font-size:11px;color:var(--text-4)">${fmtDate(((k=e.clientApproval)==null?void 0:k.deniedAt)||e.updatedAt)}</span>
+                  <span style="font-size:11px;color:var(--text-4)">${fmtDate(e.clientApproval?.deniedAt||e.updatedAt)}</span>
                 </div>
                 <div style="font-size:12.5px;color:var(--text-1);background:var(--bg-surface);padding:8px 10px;border-radius:var(--r-xs);margin-top:6px;border-left:3px solid var(--red-500);line-height:1.4">
                   <strong style="color:var(--red-500);font-size:11px;text-transform:uppercase;display:block;margin-bottom:2px;">Reason for Denial:</strong>
-                  "${escapeHtml(((T=e.clientApproval)==null?void 0:T.deniedReason)||((S=e.clientApproval)==null?void 0:S.feedback)||"Job denied")}"
+                  "${escapeHtml(e.clientApproval?.deniedReason||e.clientApproval?.feedback||"Job denied")}"
                 </div>
                 <div style="margin-top:10px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;padding-top:8px;border-top:1px dashed rgba(239,68,68,0.25)">
                   <span style="font-size:12px;color:var(--text-3)">Review client's reason above, then resubmit:</span>
-                  <button type="button" class="btn gold small emp-resubmit-btn" data-id="${e._id}" data-title="${escapeHtml(e.title||"Job")}" data-reason="${escapeHtml(((h=e.clientApproval)==null?void 0:h.deniedReason)||"")}" style="font-weight:700">
+                  <button type="button" class="btn gold small emp-resubmit-btn" data-id="${e._id}" data-title="${escapeHtml(e.title||"Job")}" data-reason="${escapeHtml(e.clientApproval?.deniedReason||"")}" style="font-weight:700">
                     🔁 Resubmit Work to Client
                   </button>
                 </div>
@@ -336,19 +336,19 @@ import{l as q,m as J}from"./api-B2T0Z1h0.js";import{initProposalStudio as M}from
                   <strong style="color:var(--red-500);font-size:13px;display:flex;align-items:center;gap:6px">
                     <span>⚠️</span> Client Requested Changes / Revision
                   </strong>
-                  <span style="font-size:11px;color:var(--text-4)">${fmtDate((($=(e.clientApproval.revisions||[]).slice(-1)[0])==null?void 0:$.requestedAt)||e.updatedAt)}</span>
+                  <span style="font-size:11px;color:var(--text-4)">${fmtDate((e.clientApproval.revisions||[]).slice(-1)[0]?.requestedAt||e.updatedAt)}</span>
                 </div>
                 <div style="font-size:12.5px;color:var(--text-1);background:var(--bg-surface);padding:8px 10px;border-radius:var(--r-xs);margin-top:6px;line-height:1.4">
                   "${escapeHtml(e.clientApproval.feedback||"Revision requested")}"
                 </div>
-                ${(D=(z=(e.clientApproval.revisions||[]).slice(-1)[0])==null?void 0:z.attachments)!=null&&D.length?`
+                ${(e.clientApproval.revisions||[]).slice(-1)[0]?.attachments?.length?`
                   <div style="margin-top:8px">
                     ${renderAttachmentChips(e.clientApproval.revisions.slice(-1)[0].attachments,{title:"Client Reference Markups"})}
                   </div>
                 `:""}
                 <div style="margin-top:10px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;padding-top:8px;border-top:1px dashed rgba(239,68,68,0.25)">
                   <span style="font-size:12px;color:var(--text-3)">Review client's revision notes above, make corrections, then resubmit:</span>
-                  <button type="button" class="btn gold small emp-resubmit-btn" data-id="${e._id}" data-title="${escapeHtml(e.title||"Job")}" data-reason="${escapeHtml(((a=e.clientApproval)==null?void 0:a.feedback)||"")}" data-type="revision" style="font-weight:700">
+                  <button type="button" class="btn gold small emp-resubmit-btn" data-id="${e._id}" data-title="${escapeHtml(e.title||"Job")}" data-reason="${escapeHtml(e.clientApproval?.feedback||"")}" data-type="revision" style="font-weight:700">
                     🔁 Resubmit Revised Work to Client
                   </button>
                 </div>
@@ -359,7 +359,7 @@ import{l as q,m as J}from"./api-B2T0Z1h0.js";import{initProposalStudio as M}from
             <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:14px">
               <div>
                 <div style="font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--text-4);margin-bottom:3px">Client</div>
-                <div style="font-size:13px;font-weight:600;color:var(--text-1)">${escapeHtml(H(e.clientId))}</div>
+                <div style="font-size:13px;font-weight:600;color:var(--text-1)">${escapeHtml(U(e.clientId))}</div>
               </div>
               <div>
                 <div style="font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--text-4);margin-bottom:3px">Start Date</div>
@@ -373,7 +373,7 @@ import{l as q,m as J}from"./api-B2T0Z1h0.js";import{initProposalStudio as M}from
               </div>
               <div>
                 <div style="font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--text-4);margin-bottom:3px">Your Logged Hours</div>
-                <div style="font-size:13px;font-weight:600;color:var(--text-1)">${n?fmtHours(n.hours):"0 hrs"}</div>
+                <div style="font-size:13px;font-weight:600;color:var(--text-1)">${o?fmtHours(o.hours):"0 hrs"}</div>
               </div>
               ${e.description?`
               <div style="grid-column:1 / -1">
@@ -435,24 +435,24 @@ import{l as q,m as J}from"./api-B2T0Z1h0.js";import{initProposalStudio as M}from
                 type="date"
                 class="emp-completion-date"
                 data-id="${e._id}"
-                value="${g}"
+                value="${u}"
                 style="border:1px solid var(--border-sm);border-radius:var(--r-sm);padding:6px 10px;font-size:13px;background:var(--bg-surface);color:var(--text-1);cursor:pointer;outline:none;max-width:180px"
               >
               <button type="button" class="btn gold small" onclick="saveCompDate('${e._id}')" title="Save your delivery date">
                 💾 Save Date
               </button>
-              ${g?`<span class="badge green" style="margin-left:auto">Committed Delivery: ${g}</span>`:'<span class="badge gray" style="margin-left:auto">No Date Set</span>'}
+              ${u?`<span class="badge green" style="margin-left:auto">Committed Delivery: ${u}</span>`:'<span class="badge gray" style="margin-left:auto">No Date Set</span>'}
             </div>
           </div>`}).join("")}
       </div>
-    </div>`,document.querySelectorAll(".emp-completion-date").forEach(e=>{e.addEventListener("focus",()=>{e.style.borderColor="var(--border-focus)",e.style.boxShadow="0 0 0 3px var(--accent-ring)"}),e.addEventListener("blur",()=>{e.style.borderColor="",e.style.boxShadow=""})}),i.forEach(e=>{bindAttachmentUploader("empDelUp-"+e._id)}),document.querySelectorAll(".emp-del-toggle").forEach(e=>{e.onclick=()=>{const n=document.getElementById("empDelForm-"+e.dataset.id);if(n){const d=n.style.display==="none";n.style.display=d?"block":"none",e.textContent=d?"✕ Close":"+ Add Deliverables"}}}),document.querySelectorAll(".emp-del-cancel").forEach(e=>{e.onclick=()=>{const n=document.getElementById("empDelForm-"+e.dataset.id);n&&(n.style.display="none");const d=document.querySelector(`.emp-del-toggle[data-id="${e.dataset.id}"]`);d&&(d.textContent="+ Add Deliverables")}}),document.querySelectorAll(".emp-resubmit-btn").forEach(e=>{e.onclick=()=>ne(e.dataset.id,e.dataset.title,e.dataset.reason,e.dataset.type)}),document.querySelectorAll(".emp-job-ticket-btn").forEach(e=>{e.onclick=()=>{window.ci360NavTab("tickets",{jobId:e.dataset.id})}}),document.querySelectorAll(".emp-del-submit").forEach(e=>{e.onclick=async()=>{var r,g,b;const n=e.dataset.id,d=getUploaderAttachments("empDelUp-"+n),p=((r=(document.getElementById("empDelNotes-"+n)||{}).value)==null?void 0:r.trim())||"",m=((g=(document.getElementById("empDelUrl-"+n)||{}).value)==null?void 0:g.trim())||"",v=((b=document.getElementById("empDelMarkComplete-"+n))==null?void 0:b.checked)||!1,c=d.map(u=>({...u,notes:p}));if(m){let u=m;/^https?:\/\//i.test(u)||(u="https://"+u),c.unshift({name:p?`${p} (Live URL)`:"Live Deliverable URL / Website",url:u,type:"url",size:0,notes:p||"Live URL"})}if(!c.length){flashToast("Please enter a deliverable URL or attach files",!0);return}e.disabled=!0,e.textContent="Submitting…";try{await apiPost(`/jobs/${n}/deliverables`,{deliverables:c,markComplete:v}),flashToast(v?"Deliverables submitted & sent to Client for Approval! 📦🎉":"Deliverables submitted successfully! 📦"),x()}catch(u){flashToast(u.message,!0)}finally{e.disabled=!1,e.textContent="Submit Deliverables"}}}),l.highlightId){const e=l.highlightId;delete l.highlightId,setTimeout(()=>{const n=document.getElementById("job-card-"+e);n&&(n.scrollIntoView({behavior:"smooth",block:"center"}),n.classList.add("pulse-highlight"),setTimeout(()=>n.classList.remove("pulse-highlight"),2200))},150)}}let j={date:new Date().toISOString().slice(0,10),filter:"all",search:""};async function ee(){try{const t=await apiGet("/tasks");if(Array.isArray(t))return localStorage.setItem("ci360_tasks_"+((o==null?void 0:o._id)||"user"),JSON.stringify(t)),t}catch(t){console.warn("Backend /api/tasks offline, using local fallback:",t)}try{const t=localStorage.getItem("ci360_tasks_"+((o==null?void 0:o._id)||"user"));return t?JSON.parse(t):[]}catch{return[]}}async function te(t,i=null){let s=null;try{i?s=await apiPut("/tasks/"+i,t):s=await apiPost("/tasks",t)}catch(n){console.warn("API task save failed, writing local backup:",n)}let e=[];try{const n=localStorage.getItem("ci360_tasks_"+((o==null?void 0:o._id)||"user"));e=n?JSON.parse(n):[]}catch{}if(i){const n=e.findIndex(d=>d._id===i);n>=0&&(e[n]=s||{...e[n],...t,updatedAt:new Date})}else s||(s={_id:"loc_"+Date.now(),...t,createdAt:new Date,completedAt:t.status==="Completed"?new Date:null}),e.unshift(s);return localStorage.setItem("ci360_tasks_"+((o==null?void 0:o._id)||"user"),JSON.stringify(e)),s}async function ie(t){try{await apiDelete("/tasks/"+t)}catch(i){console.warn("API task delete failed, updating storage:",i)}try{const i=localStorage.getItem("ci360_tasks_"+((o==null?void 0:o._id)||"user"));let s=i?JSON.parse(i):[];s=s.filter(e=>e._id!==t),localStorage.setItem("ci360_tasks_"+((o==null?void 0:o._id)||"user"),JSON.stringify(s))}catch{}}async function se(t){try{return await apiPatch("/tasks/"+t+"/toggle",{})}catch(i){console.warn("API toggle failed, toggling locally:",i)}try{const i=localStorage.getItem("ci360_tasks_"+((o==null?void 0:o._id)||"user"));let s=i?JSON.parse(i):[];const e=s.find(n=>n._id===t);if(e){const n=e.status!=="Completed";return e.status=n?"Completed":"Todo",e.completedAt=n?new Date:null,localStorage.setItem("ci360_tasks_"+((o==null?void 0:o._id)||"user"),JSON.stringify(s)),e}}catch{}return null}async function ae(t){O(t,{userRole:"employee",currentUser:o})}window.toggleDailyTask=async function(t){try{await se(t),x()}catch(i){flashToast(i.message,!0)}};window.deleteDailyTask=async function(t){try{await ie(t),flashToast("Task deleted"),x()}catch(i){flashToast(i.message,!0)}};window.editDailyTask=async function(t){const s=(await ee()).find(n=>n._id===t);if(!s)return;const e=prompt("Edit task:",s.title);if(e!==null&&e.trim())try{await te({title:e.trim()},t),flashToast("Task updated"),x()}catch(n){flashToast(n.message,!0)}};window.clearCompletedDailyTasks=async function(){if(confirm("Delete all completed tasks from this view?"))try{await apiPost("/tasks/clear-completed",{date:j.date});try{const t=localStorage.getItem("ci360_tasks_"+((o==null?void 0:o._id)||"user"));if(t){let i=JSON.parse(t);i=i.filter(s=>s.status!=="Completed"),localStorage.setItem("ci360_tasks_"+((o==null?void 0:o._id)||"user"),JSON.stringify(i))}}catch{}flashToast("Completed tasks deleted! 🗑️"),x()}catch(t){flashToast(t.message,!0)}};window.saveCompDate=async function(t){try{const i=document.querySelector(`.emp-completion-date[data-id="${t}"]`);if(!i)return;const s=i.value?i.value:null;await apiPut("/jobs/"+t,{completionDate:s,status:s?"Completed":"In Progress"}),flashToast("Delivery date & status saved!"),x()}catch(i){flashToast(i.message,!0)}};window.toggleStatus=async function(t,i){try{const s=document.querySelector(`.emp-completion-date[data-id="${t}"]`);let e=i?(s==null?void 0:s.value)||new Date().toISOString().slice(0,10):null;s&&(s.value=e||""),await apiPut("/jobs/"+t,{status:i?"Completed":"In Progress",completionDate:e}),flashToast(i?"Job marked as Completed! 🎉":"Job reopened as In Progress"),x()}catch(s){flashToast(s.message,!0)}};window.delJob=async function(t){if(confirm("Delete this job entry? This cannot be undone."))try{await apiDelete("/jobs/"+t),flashToast("Job deleted"),x()}catch(i){flashToast(i.message,!0)}};async function oe(t){const[i,s]=await Promise.all([apiGet("/dashboard/employee?period="+l.period),apiGet("/targets?mine=true")]),e=A.personnel.find(r=>{var g;return String(r._id)===String(((g=o.personnelId)==null?void 0:g._id)||o.personnelId)}),n=e?e.capacity:48,d=i.target?i.target.targetHours:Math.round(n*.85),p=Math.round(i.hours/(d||1)*100),m=p>=100?"green":p>=75?"amber":"red",v=Math.min(p,100);t.innerHTML=`
+    </div>`,document.querySelectorAll(".emp-completion-date").forEach(e=>{e.addEventListener("focus",()=>{e.style.borderColor="var(--border-focus)",e.style.boxShadow="0 0 0 3px var(--accent-ring)"}),e.addEventListener("blur",()=>{e.style.borderColor="",e.style.boxShadow=""})}),i.forEach(e=>{bindAttachmentUploader("empDelUp-"+e._id)}),document.querySelectorAll(".emp-del-toggle").forEach(e=>{e.onclick=()=>{const o=document.getElementById("empDelForm-"+e.dataset.id);if(o){const l=o.style.display==="none";o.style.display=l?"block":"none",e.textContent=l?"✕ Close":"+ Add Deliverables"}}}),document.querySelectorAll(".emp-del-cancel").forEach(e=>{e.onclick=()=>{const o=document.getElementById("empDelForm-"+e.dataset.id);o&&(o.style.display="none");const l=document.querySelector(`.emp-del-toggle[data-id="${e.dataset.id}"]`);l&&(l.textContent="+ Add Deliverables")}}),document.querySelectorAll(".emp-resubmit-btn").forEach(e=>{e.onclick=()=>oe(e.dataset.id,e.dataset.title,e.dataset.reason,e.dataset.type)}),document.querySelectorAll(".emp-job-ticket-btn").forEach(e=>{e.onclick=()=>{window.ci360NavTab("tickets",{jobId:e.dataset.id})}}),document.querySelectorAll(".emp-del-submit").forEach(e=>{e.onclick=async()=>{const o=e.dataset.id,l=getUploaderAttachments("empDelUp-"+o),d=(document.getElementById("empDelNotes-"+o)||{}).value?.trim()||"",m=(document.getElementById("empDelUrl-"+o)||{}).value?.trim()||"",g=document.getElementById("empDelMarkComplete-"+o)?.checked||!1,c=l.map(n=>({...n,notes:d}));if(m){let n=m;/^https?:\/\//i.test(n)||(n="https://"+n),c.unshift({name:d?`${d} (Live URL)`:"Live Deliverable URL / Website",url:n,type:"url",size:0,notes:d||"Live URL"})}if(!c.length){flashToast("Please enter a deliverable URL or attach files",!0);return}e.disabled=!0,e.textContent="Submitting…";try{await apiPost(`/jobs/${o}/deliverables`,{deliverables:c,markComplete:g}),flashToast(g?"Deliverables submitted & sent to Client for Approval! 📦🎉":"Deliverables submitted successfully! 📦"),v()}catch(n){flashToast(n.message,!0)}finally{e.disabled=!1,e.textContent="Submit Deliverables"}}}),r.highlightId){const e=r.highlightId;delete r.highlightId,setTimeout(()=>{const o=document.getElementById("job-card-"+e);o&&(o.scrollIntoView({behavior:"smooth",block:"center"}),o.classList.add("pulse-highlight"),setTimeout(()=>o.classList.remove("pulse-highlight"),2200))},150)}}let Z={date:new Date().toISOString().slice(0,10),filter:"all",search:""};async function j(){try{const t=await apiGet("/tasks");if(Array.isArray(t))return localStorage.setItem("ci360_tasks_"+(p?._id||"user"),JSON.stringify(t)),t}catch(t){console.warn("Backend /api/tasks offline, using local fallback:",t)}try{const t=localStorage.getItem("ci360_tasks_"+(p?._id||"user"));return t?JSON.parse(t):[]}catch{return[]}}async function ee(t,i=null){let s=null;try{i?s=await apiPut("/tasks/"+i,t):s=await apiPost("/tasks",t)}catch(o){console.warn("API task save failed, writing local backup:",o)}let e=[];try{const o=localStorage.getItem("ci360_tasks_"+(p?._id||"user"));e=o?JSON.parse(o):[]}catch{}if(i){const o=e.findIndex(l=>l._id===i);o>=0&&(e[o]=s||{...e[o],...t,updatedAt:new Date})}else s||(s={_id:"loc_"+Date.now(),...t,createdAt:new Date,completedAt:t.status==="Completed"?new Date:null}),e.unshift(s);return localStorage.setItem("ci360_tasks_"+(p?._id||"user"),JSON.stringify(e)),s}async function te(t){try{await apiDelete("/tasks/"+t)}catch(i){console.warn("API task delete failed, updating storage:",i)}try{const i=localStorage.getItem("ci360_tasks_"+(p?._id||"user"));let s=i?JSON.parse(i):[];s=s.filter(e=>e._id!==t),localStorage.setItem("ci360_tasks_"+(p?._id||"user"),JSON.stringify(s))}catch{}}async function ie(t){try{return await apiPatch("/tasks/"+t+"/toggle",{})}catch(i){console.warn("API toggle failed, toggling locally:",i)}try{const i=localStorage.getItem("ci360_tasks_"+(p?._id||"user"));let s=i?JSON.parse(i):[];const e=s.find(o=>o._id===t);if(e){const o=e.status!=="Completed";return e.status=o?"Completed":"Todo",e.completedAt=o?new Date:null,localStorage.setItem("ci360_tasks_"+(p?._id||"user"),JSON.stringify(s)),e}}catch{}return null}async function se(t){M(t,{userRole:"employee",currentUser:p})}window.toggleDailyTask=async function(t){try{await ie(t),v()}catch(i){flashToast(i.message,!0)}};window.deleteDailyTask=async function(t){try{await te(t),flashToast("Task deleted"),v()}catch(i){flashToast(i.message,!0)}};window.editDailyTask=async function(t){const s=(await j()).find(o=>o._id===t);if(!s)return;const e=prompt("Edit task:",s.title);if(e!==null&&e.trim())try{await ee({title:e.trim()},t),flashToast("Task updated"),v()}catch(o){flashToast(o.message,!0)}};window.clearCompletedDailyTasks=async function(){if(confirm("Delete all completed tasks from this view?"))try{await apiPost("/tasks/clear-completed",{date:Z.date});try{const t=localStorage.getItem("ci360_tasks_"+(p?._id||"user"));if(t){let i=JSON.parse(t);i=i.filter(s=>s.status!=="Completed"),localStorage.setItem("ci360_tasks_"+(p?._id||"user"),JSON.stringify(i))}}catch{}flashToast("Completed tasks deleted! 🗑️"),v()}catch(t){flashToast(t.message,!0)}};window.saveCompDate=async function(t){try{const i=document.querySelector(`.emp-completion-date[data-id="${t}"]`);if(!i)return;const s=i.value?i.value:null;await apiPut("/jobs/"+t,{completionDate:s,status:s?"Completed":"In Progress"}),flashToast("Delivery date & status saved!"),v()}catch(i){flashToast(i.message,!0)}};window.toggleStatus=async function(t,i){try{const s=document.querySelector(`.emp-completion-date[data-id="${t}"]`);let e=i?s?.value||new Date().toISOString().slice(0,10):null;s&&(s.value=e||""),await apiPut("/jobs/"+t,{status:i?"Completed":"In Progress",completionDate:e}),flashToast(i?"Job marked as Completed! 🎉":"Job reopened as In Progress"),v()}catch(s){flashToast(s.message,!0)}};window.delJob=async function(t){if(confirm("Delete this job entry? This cannot be undone."))try{await apiDelete("/jobs/"+t),flashToast("Job deleted"),v()}catch(i){flashToast(i.message,!0)}};async function ae(t){const[i,s]=await Promise.all([apiGet("/dashboard/employee?period="+r.period),apiGet("/targets?mine=true")]),e=k.personnel.find(n=>String(n._id)===String(p.personnelId?._id||p.personnelId)),o=e?e.capacity:48,l=i.target?i.target.targetHours:Math.round(o*.85),d=Math.round(i.hours/(l||1)*100),m=d>=100?"green":d>=75?"amber":"red",g=Math.min(d,100);t.innerHTML=`
     <div class="block">
       <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px">
         <div>
-          <h2 style="margin:0 0 2px">My Targets <span class="eyebrow">${escapeHtml(o.name)}</span></h2>
+          <h2 style="margin:0 0 2px">My Targets <span class="eyebrow">${escapeHtml(p.name)}</span></h2>
           <div style="font-size:12.5px;color:var(--text-3)">Track your productivity targets and output quotas assigned by management.</div>
         </div>
-        ${K()}
+        ${Y()}
       </div>
 
       <!-- Top Summary Metrics -->
@@ -464,12 +464,12 @@ import{l as q,m as J}from"./api-B2T0Z1h0.js";import{initProposalStudio as M}from
         </div>
         <div class="card kpi">
           <div class="kpi-header"><span class="kpi-label">Target Hours</span><div class="kpi-icon">🎯</div></div>
-          <div class="kpi-value">${fmtHours(d)}</div>
-          <div class="kpi-sub">${p}% completed</div>
+          <div class="kpi-value">${fmtHours(l)}</div>
+          <div class="kpi-sub">${d}% completed</div>
         </div>
         <div class="card kpi">
           <div class="kpi-header"><span class="kpi-label">Weekly Capacity</span><div class="kpi-icon">⚡</div></div>
-          <div class="kpi-value">${n} hrs/wk</div>
+          <div class="kpi-value">${o} hrs/wk</div>
           <div class="kpi-sub">${e?e.status:"active"} status</div>
         </div>
         <div class="card kpi">
@@ -483,16 +483,16 @@ import{l as q,m as J}from"./api-B2T0Z1h0.js";import{initProposalStudio as M}from
       <div class="card" style="margin-bottom:24px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
           <div>
-            <div style="font-size:13.5px;font-weight:700;color:var(--text-1)">Overall Hours Target (${l.period})</div>
-            <div style="font-size:12px;color:var(--text-3);margin-top:2px">${fmtHours(i.hours)} logged of ${fmtHours(d)} target capacity</div>
+            <div style="font-size:13.5px;font-weight:700;color:var(--text-1)">Overall Hours Target (${r.period})</div>
+            <div style="font-size:12px;color:var(--text-3);margin-top:2px">${fmtHours(i.hours)} logged of ${fmtHours(l)} target capacity</div>
           </div>
-          <span class="badge ${m}" style="font-size:12.5px;padding:4px 10px">${p}% Achieved</span>
+          <span class="badge ${m}" style="font-size:12.5px;padding:4px 10px">${d}% Achieved</span>
         </div>
         <div class="progress-bar-wrap" style="height:10px;border-radius:var(--r-full);background:var(--bg-surface);overflow:hidden">
-          <div class="progress-bar-fill ${m}" style="width:${v}%;height:100%;border-radius:var(--r-full);background:var(--${m==="green"?"green":"amber"}-500);transition:width 0.8s ease"></div>
+          <div class="progress-bar-fill ${m}" style="width:${g}%;height:100%;border-radius:var(--r-full);background:var(--${m==="green"?"green":"amber"}-500);transition:width 0.8s ease"></div>
         </div>
         <div style="display:flex;justify-content:space-between;font-size:11.5px;color:var(--text-4);margin-top:8px">
-          <span>0 hrs</span><span>Target: ${fmtHours(d)}</span>
+          <span>0 hrs</span><span>Target: ${fmtHours(l)}</span>
         </div>
       </div>
 
@@ -514,64 +514,64 @@ import{l as q,m as J}from"./api-B2T0Z1h0.js";import{initProposalStudio as M}from
         </div>
       `:`
         <div class="grid grid-2" style="gap:16px">
-          ${s.map(r=>{var $;const g=(($=r.serviceId)==null?void 0:$.name)||"General Service",u={count:"Deliverables",hours:"Hours",reels:"Reels",stories:"Stories",posts:"Posts"}[r.unit]||(r.unit?r.unit.charAt(0).toUpperCase()+r.unit.slice(1):"Deliverables"),f=r.actual||0,y=r.quantity||1,k=y>0?f/y:0,T=Math.round(k*100),S=Math.min(T,100),h=k>=1?{l:"🟢 On Pace",c:"green"}:k>=.6?{l:"🟡 Behind",c:"amber"}:{l:"🔴 Off Pace",c:"red"};return`
+          ${s.map(n=>{const u=n.serviceId?.name||"General Service",b={count:"Deliverables",hours:"Hours",reels:"Reels",stories:"Stories",posts:"Posts"}[n.unit]||(n.unit?n.unit.charAt(0).toUpperCase()+n.unit.slice(1):"Deliverables"),T=n.actual||0,y=n.quantity||1,h=y>0?T/y:0,A=Math.round(h*100),C=Math.min(A,100),f=h>=1?{l:"🟢 On Pace",c:"green"}:h>=.6?{l:"🟡 Behind",c:"amber"}:{l:"🔴 Off Pace",c:"red"};return`
             <div class="card" style="display:flex;flex-direction:column;justify-content:space-between;gap:12px;border:1px solid var(--border-sm);position:relative">
               <div>
                 <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;gap:8px">
                   <div>
                     <span style="font-size:11px;font-weight:700;color:var(--text-4);text-transform:uppercase;letter-spacing:0.04em">Service Target</span>
-                    <h4 style="font-size:15.5px;font-weight:700;margin:2px 0 0;color:var(--text-1)">${escapeHtml(g)}</h4>
+                    <h4 style="font-size:15.5px;font-weight:700;margin:2px 0 0;color:var(--text-1)">${escapeHtml(u)}</h4>
                   </div>
                   <div style="display:flex;gap:6px;align-items:center">
-                    <span class="badge ${h.c}">${h.l}</span>
-                    <button type="button" class="btn ghost small edit-emp-target" data-id="${r._id}" style="padding:4px 8px;font-size:11.5px">✏️ Edit</button>
+                    <span class="badge ${f.c}">${f.l}</span>
+                    <button type="button" class="btn ghost small edit-emp-target" data-id="${n._id}" style="padding:4px 8px;font-size:11.5px">✏️ Edit</button>
                   </div>
                 </div>
 
                 <div style="display:flex;align-items:baseline;gap:6px;margin:10px 0 6px">
-                  <span style="font-size:24px;font-weight:800;color:var(--text-1)">${f}</span>
-                  <span style="font-size:13px;color:var(--text-3)">/ ${y} ${escapeHtml(u)} per ${r.period==="day"?"day":r.period==="week"?"week":"month"}</span>
+                  <span style="font-size:24px;font-weight:800;color:var(--text-1)">${T}</span>
+                  <span style="font-size:13px;color:var(--text-3)">/ ${y} ${escapeHtml(b)} per ${n.period==="day"?"day":n.period==="week"?"week":"month"}</span>
                 </div>
 
                 <!-- Progress Bar -->
                 <div class="progress-bar-wrap" style="height:8px;border-radius:var(--r-full);background:var(--bg-surface);overflow:hidden;margin:6px 0 10px">
-                  <div class="progress-bar-fill ${h.c}" style="width:${S}%;height:100%;border-radius:var(--r-full);background:var(--${h.c==="green"?"green":"amber"}-500);transition:width 0.8s ease"></div>
+                  <div class="progress-bar-fill ${f.c}" style="width:${C}%;height:100%;border-radius:var(--r-full);background:var(--${f.c==="green"?"green":"amber"}-500);transition:width 0.8s ease"></div>
                 </div>
 
                 <!-- Direct Log Completed Output -->
                 <div style="background:var(--bg-elevated);border:1px solid var(--border-sm);border-radius:var(--r-sm);padding:8px 12px;display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px">
                   <span style="font-size:12px;font-weight:700;color:var(--text-2)">Completed:</span>
                   <div style="display:flex;align-items:center;gap:5px">
-                    <button type="button" class="btn ghost small" onclick="stepTargetCompleted('${r._id}', -1)" style="padding:2px 8px;font-weight:800;font-size:13px;border:1px solid var(--border-sm);line-height:1">-</button>
-                    <input type="number" min="0" step="0.5" class="emp-target-completed-inp" data-id="${r._id}" value="${f}" style="width:60px;padding:4px 6px;text-align:center;font-weight:700;font-size:13px;border:1px solid var(--border-sm);border-radius:var(--r-xs);background:var(--bg-surface);color:var(--text-1);outline:none">
-                    <button type="button" class="btn ghost small" onclick="stepTargetCompleted('${r._id}', 1)" style="padding:2px 8px;font-weight:800;font-size:13px;border:1px solid var(--border-sm);line-height:1">+</button>
-                    <button type="button" class="btn gold small" onclick="saveTargetCompleted('${r._id}')" style="padding:4px 8px;font-size:11.5px" title="Save completed quantity">💾 Save</button>
+                    <button type="button" class="btn ghost small" onclick="stepTargetCompleted('${n._id}', -1)" style="padding:2px 8px;font-weight:800;font-size:13px;border:1px solid var(--border-sm);line-height:1">-</button>
+                    <input type="number" min="0" step="0.5" class="emp-target-completed-inp" data-id="${n._id}" value="${T}" style="width:60px;padding:4px 6px;text-align:center;font-weight:700;font-size:13px;border:1px solid var(--border-sm);border-radius:var(--r-xs);background:var(--bg-surface);color:var(--text-1);outline:none">
+                    <button type="button" class="btn ghost small" onclick="stepTargetCompleted('${n._id}', 1)" style="padding:2px 8px;font-weight:800;font-size:13px;border:1px solid var(--border-sm);line-height:1">+</button>
+                    <button type="button" class="btn gold small" onclick="saveTargetCompleted('${n._id}')" style="padding:4px 8px;font-size:11.5px" title="Save completed quantity">💾 Save</button>
                   </div>
                 </div>
 
                 <!-- Proof of Work Attachments -->
-                ${r.attachments&&r.attachments.length?`
-                  <div data-attachments="${encodeURIComponent(JSON.stringify(r.attachments))}" style="margin-top:8px">
-                    ${renderAttachmentChips(r.attachments,{title:"Attached Proofs & Files"})}
+                ${n.attachments&&n.attachments.length?`
+                  <div data-attachments="${encodeURIComponent(JSON.stringify(n.attachments))}" style="margin-top:8px">
+                    ${renderAttachmentChips(n.attachments,{title:"Attached Proofs & Files"})}
                   </div>
                 `:""}
               </div>
 
               <div style="display:flex;justify-content:space-between;align-items:center;font-size:11.5px;color:var(--text-4);border-top:1px solid var(--border-sm);padding-top:10px">
-                <span>Period: <strong style="color:var(--text-2)">${r.period==="day"?"Daily":r.period==="week"?"Weekly":"Monthly"}</strong></span>
-                <span><strong>${T}%</strong> Completed</span>
+                <span>Period: <strong style="color:var(--text-2)">${n.period==="day"?"Daily":n.period==="week"?"Weekly":"Monthly"}</strong></span>
+                <span><strong>${A}%</strong> Completed</span>
               </div>
             </div>`}).join("")}
         </div>
       `}
-    </div>`;const c=document.getElementById("addEmpTargetBtn");c&&(c.onclick=()=>U(null)),document.querySelectorAll(".edit-emp-target").forEach(r=>{r.onclick=()=>U(s.find(g=>g._id===r.dataset.id))}),X()}window.stepTargetCompleted=function(t,i){const s=document.querySelector(`.emp-target-completed-inp[data-id="${t}"]`);if(!s)return;let e=Math.max(0,(Number(s.value)||0)+i);s.value=e,saveTargetCompleted(t)};window.saveTargetCompleted=async function(t){try{const i=document.querySelector(`.emp-target-completed-inp[data-id="${t}"]`);if(!i)return;const s=Number(i.value)||0;await apiPut("/targets/"+t,{completed:s}),flashToast("Target progress updated! 🎯"),x()}catch(i){flashToast(i.message,!0)}};function U(t){var r,g;const i=!t,s=A.services||[];t=t||{serviceId:(r=s[0])==null?void 0:r._id,quantity:5,unit:"reels",period:"day",completed:0,attachments:[]};const e=((g=t.serviceId)==null?void 0:g._id)||t.serviceId||"",d=["reels","stories","posts","count","hours"].includes(t.unit),p=openModal(`
+    </div>`;const c=document.getElementById("addEmpTargetBtn");c&&(c.onclick=()=>_(null)),document.querySelectorAll(".edit-emp-target").forEach(n=>{n.onclick=()=>_(s.find(u=>u._id===n.dataset.id))}),K()}window.stepTargetCompleted=function(t,i){const s=document.querySelector(`.emp-target-completed-inp[data-id="${t}"]`);if(!s)return;let e=Math.max(0,(Number(s.value)||0)+i);s.value=e,saveTargetCompleted(t)};window.saveTargetCompleted=async function(t){try{const i=document.querySelector(`.emp-target-completed-inp[data-id="${t}"]`);if(!i)return;const s=Number(i.value)||0;await apiPut("/targets/"+t,{completed:s}),flashToast("Target progress updated! 🎯"),v()}catch(i){flashToast(i.message,!0)}};function _(t){const i=!t,s=k.services||[];t=t||{serviceId:s[0]?._id,quantity:5,unit:"reels",period:"day",completed:0,attachments:[]};const e=t.serviceId?._id||t.serviceId||"",l=["reels","stories","posts","count","hours"].includes(t.unit),d=openModal(`
     <h3>${i?"Set New":"Edit"} Target</h3>
     <p style="font-size:12.5px;color:var(--text-3);margin-bottom:16px">Customize your output target goals, choose or type your own unit, and track completed output.</p>
 
     <div class="field" style="margin-bottom:12px">
       <label>Service / Deliverable Category *</label>
       <select id="mEmpTgtService">
-        ${s.map(b=>`<option value="${b._id}" ${String(b._id)===String(e)?"selected":""}>${escapeHtml(b.name)}</option>`).join("")}
+        ${s.map(n=>`<option value="${n._id}" ${String(n._id)===String(e)?"selected":""}>${escapeHtml(n.name)}</option>`).join("")}
       </select>
     </div>
 
@@ -590,12 +590,12 @@ import{l as q,m as J}from"./api-B2T0Z1h0.js";import{initProposalStudio as M}from
       <div class="field" style="margin-bottom:0">
         <label>Measured In *</label>
         <select id="mEmpTgtUnit">
-          <option value="reels" ${d&&t.unit==="reels"?"selected":""}>🎬 Reels</option>
-          <option value="stories" ${d&&t.unit==="stories"?"selected":""}>📱 Stories</option>
-          <option value="posts" ${d&&t.unit==="posts"?"selected":""}>🖼️ Posts</option>
-          <option value="count" ${d&&t.unit==="count"?"selected":""}>📦 Deliverables / Jobs Count</option>
-          <option value="hours" ${d&&t.unit==="hours"?"selected":""}>⏱️ Hours Spent</option>
-          <option value="custom" ${d?"":"selected"}>✏️ Custom / Add Your Own…</option>
+          <option value="reels" ${l&&t.unit==="reels"?"selected":""}>🎬 Reels</option>
+          <option value="stories" ${l&&t.unit==="stories"?"selected":""}>📱 Stories</option>
+          <option value="posts" ${l&&t.unit==="posts"?"selected":""}>🖼️ Posts</option>
+          <option value="count" ${l&&t.unit==="count"?"selected":""}>📦 Deliverables / Jobs Count</option>
+          <option value="hours" ${l&&t.unit==="hours"?"selected":""}>⏱️ Hours Spent</option>
+          <option value="custom" ${l?"":"selected"}>✏️ Custom / Add Your Own…</option>
         </select>
       </div>
 
@@ -609,9 +609,9 @@ import{l as q,m as J}from"./api-B2T0Z1h0.js";import{initProposalStudio as M}from
       </div>
     </div>
 
-    <div class="field" id="mEmpTgtCustomUnitWrap" style="margin-bottom:16px;display:${d?"none":"flex"}">
+    <div class="field" id="mEmpTgtCustomUnitWrap" style="margin-bottom:16px;display:${l?"none":"flex"}">
       <label>Custom Unit Name (e.g. Shorts, Banners, Thumbnails, Articles, Calls) *</label>
-      <input type="text" id="mEmpTgtCustomUnit" placeholder="e.g. Shorts, Banners, Thumbnails, Articles…" value="${d?"":escapeHtml(t.unit||"")}">
+      <input type="text" id="mEmpTgtCustomUnit" placeholder="e.g. Shorts, Banners, Thumbnails, Articles…" value="${l?"":escapeHtml(t.unit||"")}">
     </div>
 
     <div style="margin-bottom:16px">
@@ -622,7 +622,7 @@ import{l as q,m as J}from"./api-B2T0Z1h0.js";import{initProposalStudio as M}from
       <button class="btn ghost" id="mEmpTgtCancel">Cancel</button>
       <button class="btn gold" id="mEmpTgtSave">💾 Save Target</button>
     </div>
-  `);bindAttachmentUploader("mEmpTgtAttachments",{existing:t.attachments||[]});const m=p.querySelector("#mEmpTgtUnit"),v=p.querySelector("#mEmpTgtCustomUnitWrap"),c=p.querySelector("#mEmpTgtCustomUnit");m.onchange=()=>{m.value==="custom"?(v.style.display="flex",c.focus()):v.style.display="none"},p.querySelector("#mEmpTgtCancel").onclick=()=>p.remove(),p.querySelector("#mEmpTgtSave").onclick=async()=>{let b=m.value;b==="custom"&&(b=c.value.trim()||"Deliverables");const u=getUploaderAttachments("mEmpTgtAttachments"),f={serviceId:p.querySelector("#mEmpTgtService").value,quantity:Number(p.querySelector("#mEmpTgtQty").value)||1,completed:Number(p.querySelector("#mEmpTgtCompleted").value)||0,unit:b,period:p.querySelector("#mEmpTgtPeriod").value,attachments:u};if(!f.serviceId){flashToast("Service is required",!0);return}try{i?await apiPost("/targets",f):await apiPut("/targets/"+t._id,f),flashToast("Target saved! 🎯"),p.remove(),x()}catch(y){flashToast(y.message,!0)}}}window.addEventListener("ci360:dataUpdated",t=>{const i=document.activeElement,s=i&&(i.tagName==="INPUT"||i.tagName==="TEXTAREA"||i.isContentEditable),e=document.querySelector(".modal-bg, .modal-backdrop, #jobModal");!s&&!e&&l.tab!=="logjob"&&x(!0)});F();function ne(t,i,s,e="denial"){const n=e==="revision",d=openModal(`
+  `);bindAttachmentUploader("mEmpTgtAttachments",{existing:t.attachments||[]});const m=d.querySelector("#mEmpTgtUnit"),g=d.querySelector("#mEmpTgtCustomUnitWrap"),c=d.querySelector("#mEmpTgtCustomUnit");m.onchange=()=>{m.value==="custom"?(g.style.display="flex",c.focus()):g.style.display="none"},d.querySelector("#mEmpTgtCancel").onclick=()=>d.remove(),d.querySelector("#mEmpTgtSave").onclick=async()=>{let n=m.value;n==="custom"&&(n=c.value.trim()||"Deliverables");const u=getUploaderAttachments("mEmpTgtAttachments"),x={serviceId:d.querySelector("#mEmpTgtService").value,quantity:Number(d.querySelector("#mEmpTgtQty").value)||1,completed:Number(d.querySelector("#mEmpTgtCompleted").value)||0,unit:n,period:d.querySelector("#mEmpTgtPeriod").value,attachments:u};if(!x.serviceId){flashToast("Service is required",!0);return}try{i?await apiPost("/targets",x):await apiPut("/targets/"+t._id,x),flashToast("Target saved! 🎯"),d.remove(),v()}catch(b){flashToast(b.message,!0)}}}window.addEventListener("ci360:dataUpdated",t=>{const i=document.activeElement,s=i&&(i.tagName==="INPUT"||i.tagName==="TEXTAREA"||i.isContentEditable),e=document.querySelector(".modal-bg, .modal-backdrop, #jobModal");!s&&!e&&r.tab!=="logjob"&&v(!0)});B();function oe(t,i,s,e="denial"){const o=e==="revision",l=openModal(`
     <div style="margin-bottom:14px">
       <div style="font-size:18px;font-weight:800;color:var(--text-1);margin-bottom:4px;display:flex;align-items:center;gap:8px">
         <span>🔁</span> Resubmit Work to Client for Approval
@@ -632,7 +632,7 @@ import{l as q,m as J}from"./api-B2T0Z1h0.js";import{initProposalStudio as M}from
 
     ${s?`
       <div style="margin-bottom:14px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);border-radius:var(--r-sm);padding:10px 14px">
-        <strong style="color:var(--red-500);font-size:11.5px;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:2px">${n?"Client's Revision Request / Notes:":"Client's Previous Denial Reason:"}</strong>
+        <strong style="color:var(--red-500);font-size:11.5px;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:2px">${o?"Client's Revision Request / Notes:":"Client's Previous Denial Reason:"}</strong>
         <div style="font-size:12.5px;color:var(--text-1)">"${escapeHtml(s)}"</div>
       </div>
     `:""}
@@ -656,4 +656,4 @@ import{l as q,m as J}from"./api-B2T0Z1h0.js";import{initProposalStudio as M}from
       <button class="btn ghost" id="mEmpResubCancel">Cancel</button>
       <button class="btn gold" id="mEmpResubConfirm" style="font-weight:700">🔁 Resubmit to Client for Approval</button>
     </div>
-  `);bindAttachmentUploader("mEmpResubUp"),d.querySelector("#mEmpResubCancel").onclick=()=>d.remove(),d.querySelector("#mEmpResubConfirm").onclick=async()=>{const p=d.querySelector("#mEmpResubNotes").value.trim(),m=d.querySelector("#mEmpResubUrl").value.trim(),v=getUploaderAttachments("mEmpResubUp"),c=d.querySelector("#mEmpResubConfirm");c.disabled=!0,c.textContent="Resubmitting…";try{await apiPost(`/jobs/${t}/resubmit`,{notes:p,url:m,deliverables:v}),flashToast("Job resubmitted to client for re-approval! 🔁🎉"),d.remove(),x()}catch(r){flashToast(r.message,!0),c.disabled=!1,c.textContent="🔁 Resubmit to Client for Approval"}}}
+  `);bindAttachmentUploader("mEmpResubUp"),l.querySelector("#mEmpResubCancel").onclick=()=>l.remove(),l.querySelector("#mEmpResubConfirm").onclick=async()=>{const d=l.querySelector("#mEmpResubNotes").value.trim(),m=l.querySelector("#mEmpResubUrl").value.trim(),g=getUploaderAttachments("mEmpResubUp"),c=l.querySelector("#mEmpResubConfirm");c.disabled=!0,c.textContent="Resubmitting…";try{await apiPost(`/jobs/${t}/resubmit`,{notes:d,url:m,deliverables:g}),flashToast("Job resubmitted to client for re-approval! 🔁🎉"),l.remove(),v()}catch(n){flashToast(n.message,!0),c.disabled=!1,c.textContent="🔁 Resubmit to Client for Approval"}}}

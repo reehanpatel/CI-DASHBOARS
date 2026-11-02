@@ -1,9 +1,9 @@
-const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/proposals-D1twPRPO.js","assets/api-B2T0Z1h0.js","assets/api-D_2OAAB8.css"])))=>i.map(i=>d[i]);
-import{l as ne,m as re}from"./api-B2T0Z1h0.js";const le="modulepreload",de=function(e){return"/"+e},j={},ee=function(i,s,r){let t=Promise.resolve();if(s&&s.length>0){document.getElementsByTagName("link");const o=document.querySelector("meta[property=csp-nonce]"),l=(o==null?void 0:o.nonce)||(o==null?void 0:o.getAttribute("nonce"));t=Promise.allSettled(s.map(p=>{if(p=de(p),p in j)return;j[p]=!0;const v=p.endsWith(".css"),c=v?'[rel="stylesheet"]':"";if(document.querySelector(`link[href="${p}"]${c}`))return;const d=document.createElement("link");if(d.rel=v?"stylesheet":le,v||(d.as="script"),d.crossOrigin="",d.href=p,l&&d.setAttribute("nonce",l),document.head.appendChild(d),v)return new Promise((x,m)=>{d.addEventListener("load",x),d.addEventListener("error",()=>m(new Error(`Unable to preload CSS for ${p}`)))})}))}function n(o){const l=new Event("vite:preloadError",{cancelable:!0});if(l.payload=o,window.dispatchEvent(l),!l.defaultPrevented)throw o}return t.then(o=>{for(const l of o||[])l.status==="rejected"&&n(l.reason);return i().catch(n)})};let h=null,M=[],R=[],g={tab:"dashboard",period:"month"},u={title:"",serviceId:"",date:new Date().toISOString().slice(0,10),completionDate:"",desc:"",priority:"Medium",preferredPersonId:""};const te=[["strategy","Strategy"],["cs","CS"],["website","Website"],["design","Design"],["copy","Copy"],["edit","Edit"],["shoot","Shoot"],["seo","SEO"],["smo","SMO"],["qc","Quality Check"]];async function pe(){if(initTheme(),h=requireAuth("client"),!!h){try{const[e,i]=await Promise.all([apiGet("/services"),apiGet("/personnel")]);M=e,R=i.filter(s=>s.status==="active")}catch{M=[],R=[]}y()}}const L=[{key:"dashboard",label:"Overview Dashboard",icon:"📊"},{key:"jobs",label:"All Jobs Logged",icon:"📋"},{key:"logjob",label:"Log a Job",icon:"➕"},{key:"delivered",label:"Work Delivered",icon:"📦"},{key:"proposals",label:"Proposals & Scope",icon:"📜"},{key:"billing",label:"Billing & Invoices",icon:"💳"},{key:"team",label:"Our Team",icon:"👥"},{key:"settings",label:"Settings",icon:"⚙️"}];function y(){const e=document.getElementById("app"),i=L.find(s=>s.key===g.tab)||L[0];e.innerHTML=renderAppShell({user:h,currentRole:"client",activeTab:g.tab,tabs:L,title:i.label,subtitle:"Client Portal & Service Requests"}),bindAppShellEvents(s=>{g.tab=s,y()}),S()}window.ci360NavTab=e=>{g.tab=e,y()};async function S(e=!1){const i=document.getElementById("content");if(i){if(g.tab==="logjob"){ie(i);return}!e&&!i.dataset.loaded&&(i.innerHTML=renderSkeletonCards(3)),i.dataset.loaded="true";try{const s=await apiGet("/dashboard/client?period="+g.period);g.tab==="dashboard"?await ve(i,s):g.tab==="jobs"?ge(i,s):g.tab==="delivered"?me(i,s):g.tab==="proposals"?await ue(i,s):g.tab==="billing"?await he(i):g.tab==="team"?ye(i,s):g.tab==="settings"&&ce(i)}catch(s){i.innerHTML=renderEmptyState("Something went wrong",s.message,"⚠️")}}}function ce(e){e.innerHTML=`
+const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/proposals-BcYYF4sJ.js","assets/api-CiGFmghh.js","assets/api-CwD-ROey.css"])))=>i.map(i=>d[i]);
+import{l as ee,m as te}from"./api-CiGFmghh.js";const ie="modulepreload",ae=function(e){return"/"+e},U={},_=function(i,s,r){let t=Promise.resolve();if(s&&s.length>0){let o=function(c){return Promise.all(c.map(d=>Promise.resolve(d).then(p=>({status:"fulfilled",value:p}),p=>({status:"rejected",reason:p}))))};document.getElementsByTagName("link");const l=document.querySelector("meta[property=csp-nonce]"),v=l?.nonce||l?.getAttribute("nonce");t=o(s.map(c=>{if(c=ae(c),c in U)return;U[c]=!0;const d=c.endsWith(".css"),p=d?'[rel="stylesheet"]':"";if(document.querySelector(`link[href="${c}"]${p}`))return;const f=document.createElement("link");if(f.rel=d?"stylesheet":ie,d||(f.as="script"),f.crossOrigin="",f.href=c,v&&f.setAttribute("nonce",v),document.head.appendChild(f),d)return new Promise((m,h)=>{f.addEventListener("load",m),f.addEventListener("error",()=>h(new Error(`Unable to preload CSS for ${c}`)))})}))}function n(o){const l=new Event("vite:preloadError",{cancelable:!0});if(l.payload=o,window.dispatchEvent(l),!l.defaultPrevented)throw o}return t.then(o=>{for(const l of o||[])l.status==="rejected"&&n(l.reason);return i().catch(n)})};let $=null,H=[],D=[],g={tab:"dashboard",period:"month"},u={title:"",serviceId:"",date:new Date().toISOString().slice(0,10),completionDate:"",desc:"",priority:"Medium",preferredPersonId:""};const W=[["strategy","Strategy"],["cs","CS"],["website","Website"],["design","Design"],["copy","Copy"],["edit","Edit"],["shoot","Shoot"],["seo","SEO"],["smo","SMO"],["qc","Quality Check"]];async function se(){if(initTheme(),$=requireAuth("client"),!!$){try{const[e,i]=await Promise.all([apiGet("/services"),apiGet("/personnel")]);H=e,D=i.filter(s=>s.status==="active")}catch{H=[],D=[]}y()}}const J=[{key:"dashboard",label:"Overview Dashboard",icon:"📊"},{key:"jobs",label:"All Jobs Logged",icon:"📋"},{key:"logjob",label:"Log a Job",icon:"➕"},{key:"delivered",label:"Work Delivered",icon:"📦"},{key:"proposals",label:"Proposals & Scope",icon:"📜"},{key:"billing",label:"Billing & Invoices",icon:"💳"},{key:"team",label:"Our Team",icon:"👥"},{key:"settings",label:"Settings",icon:"⚙️"}];function y(){const e=document.getElementById("app"),i=J.find(s=>s.key===g.tab)||J[0];e.innerHTML=renderAppShell({user:$,currentRole:"client",activeTab:g.tab,tabs:J,title:i.label,subtitle:"Client Portal & Service Requests"}),bindAppShellEvents(s=>{g.tab=s,y()}),C()}window.ci360NavTab=e=>{g.tab=e,y()};async function C(e=!1){const i=document.getElementById("content");if(i){if(g.tab==="logjob"){V(i);return}!e&&!i.dataset.loaded&&(i.innerHTML=renderSkeletonCards(3)),i.dataset.loaded="true";try{const s=await apiGet("/dashboard/client?period="+g.period);g.tab==="dashboard"?await ne(i,s):g.tab==="jobs"?re(i,s):g.tab==="delivered"?le(i,s):g.tab==="proposals"?await ve(i,s):g.tab==="billing"?await me(i):g.tab==="team"?ge(i,s):g.tab==="settings"&&oe(i)}catch(s){i.innerHTML=renderEmptyState("Something went wrong",s.message,"⚠️")}}}function oe(e){e.innerHTML=`
     <div style="padding:8px 0 24px 0;">
-      ${ne({title:"Client Account Credentials",subtitle:"Manage your authorized client portal username, login email, and security password"})}
+      ${ee({title:"Client Account Credentials",subtitle:"Manage your authorized client portal username, login email, and security password"})}
     </div>
-  `,re(e)}async function ve(e,i){var Y,Q,K,X,Z;const s=((Y=i.client)==null?void 0:Y.name)||(h==null?void 0:h.name)||"Valued Client",r=((Q=i.client)==null?void 0:Q.code)||"CI360-ACC",t=((K=i.client)==null?void 0:K.nature)||((X=i.client)==null?void 0:X.difficulty)||"Retainer Account",n=i.jobs||[];let o=[];try{o=((await apiGet("/accounts/client-portal")).invoices||[]).filter(f=>f.status==="overdue"||f.pendingAmount>0&&new Date(f.dueDate)<new Date),o.length>0&&typeof window.showClientOverdueInvoiceModal=="function"&&window.showClientOverdueInvoiceModal(o)}catch{}let l=[];try{l=(await apiGet("/proposals")||[]).filter(b=>["approved","with_client","won","changes"].includes(b.status))}catch{}const p=g.period==="all"?n:n.filter(a=>{if(!a.date)return!0;const b=a.date.slice(0,10);return(!i.from||b>=i.from)&&(!i.to||b<=i.to)}),v=p.length,d=p.filter(a=>a.status==="Completed"||a.clientApproval&&a.clientApproval.status==="Approved"||a.completionDate).length,m=p.filter(a=>!a.completionDate&&a.status!=="Completed"&&(!a.clientApproval||a.clientApproval.status!=="Approved")).length,P=p.filter(a=>a.clientApproval&&a.clientApproval.status==="Revision Requested").length,J=((Z=i.stats)==null?void 0:Z.hours)!=null?Number(i.stats.hours):p.reduce((a,b)=>{let f=0;return(b.assignments||[]).forEach(N=>f+=Number(N.hours)||0),a+f},0),A=v>0?Math.round(d/v*100):n.length>0?Math.round(n.filter(a=>a.completionDate).length/n.length*100):100,I=n.filter(a=>(a.deliverables&&a.deliverables.length||a.status==="Completed")&&(!a.clientApproval||a.clientApproval.status==="Pending")&&a.status!=="Denied"&&(!a.clientApproval||a.clientApproval.status!=="Approved")),D={};p.forEach(a=>{(a.serviceNames&&a.serviceNames.length?a.serviceNames:["General Deliverable"]).forEach(f=>{D[f]=(D[f]||0)+1})});const C=Object.entries(D).sort((a,b)=>b[1]-a[1]),H=p.filter(a=>a.priority==="Urgent").length,B=p.filter(a=>a.priority==="High").length,T=i.roster||[],k=[];T.forEach(a=>{te.forEach(([b,f])=>{var q;String(((q=a.roles)==null?void 0:q[b])||"").split(",").map(F=>F.trim()).filter(Boolean).forEach(F=>{k.some(oe=>oe.name===F)||k.push({name:F,role:f})})})});const E=n.slice(0,5);e.innerHTML=`
+  `,te(e)}async function ne(e,i){const s=i.client?.name||$?.name||"Valued Client",r=i.client?.code||"CI360-ACC",t=i.client?.nature||i.client?.difficulty||"Retainer Account",n=i.jobs||[];let o=[];try{o=((await apiGet("/accounts/client-portal")).invoices||[]).filter(x=>x.status==="overdue"||x.pendingAmount>0&&new Date(x.dueDate)<new Date),o.length>0&&typeof window.showClientOverdueInvoiceModal=="function"&&window.showClientOverdueInvoiceModal(o)}catch{}let l=[];try{l=(await apiGet("/proposals")||[]).filter(b=>["approved","with_client","won","changes"].includes(b.status))}catch{}const v=g.period==="all"?n:n.filter(a=>{if(!a.date)return!0;const b=a.date.slice(0,10);return(!i.from||b>=i.from)&&(!i.to||b<=i.to)}),c=v.length,p=v.filter(a=>a.status==="Completed"||a.clientApproval&&a.clientApproval.status==="Approved"||a.completionDate).length,m=v.filter(a=>!a.completionDate&&a.status!=="Completed"&&(!a.clientApproval||a.clientApproval.status!=="Approved")).length,B=v.filter(a=>a.clientApproval&&a.clientApproval.status==="Revision Requested").length,Q=i.stats?.hours!=null?Number(i.stats.hours):v.reduce((a,b)=>{let x=0;return(b.assignments||[]).forEach(S=>x+=Number(S.hours)||0),a+x},0),z=c>0?Math.round(p/c*100):n.length>0?Math.round(n.filter(a=>a.completionDate).length/n.length*100):100,T=n.filter(a=>(a.deliverables&&a.deliverables.length||a.status==="Completed")&&(!a.clientApproval||a.clientApproval.status==="Pending")&&a.status!=="Denied"&&(!a.clientApproval||a.clientApproval.status!=="Approved")),P={};v.forEach(a=>{(a.serviceNames&&a.serviceNames.length?a.serviceNames:["General Deliverable"]).forEach(x=>{P[x]=(P[x]||0)+1})});const I=Object.entries(P).sort((a,b)=>b[1]-a[1]),K=v.filter(a=>a.priority==="Urgent").length,X=v.filter(a=>a.priority==="High").length,Z=i.roster||[],R=[];Z.forEach(a=>{W.forEach(([b,x])=>{String(a.roles?.[b]||"").split(",").map(A=>A.trim()).filter(Boolean).forEach(A=>{R.some(j=>j.name===A)||R.push({name:A,role:x})})})});const E=n.slice(0,5);e.innerHTML=`
     <div class="block client-overview-container" style="max-width:1280px;margin:0 auto">
       
       <!-- Overdue Invoice Urgent Alert (if any) -->
@@ -88,7 +88,7 @@ import{l as ne,m as re}from"./api-B2T0Z1h0.js";const le="modulepreload",de=funct
       `:""}
 
       <!-- Action Required: Pending Approval Banner -->
-      ${I.length>0?`
+      ${T.length>0?`
         <div class="card" style="background:linear-gradient(135deg, rgba(245,158,11,0.12) 0%, rgba(217,119,6,0.05) 100%);border:1px solid var(--amber-500);border-radius:var(--r-lg);padding:16px 22px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px">
           <div style="display:flex;align-items:center;gap:14px">
             <div style="width:40px;height:40px;border-radius:50%;background:rgba(245,158,11,0.2);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">
@@ -99,7 +99,7 @@ import{l as ne,m as re}from"./api-B2T0Z1h0.js";const le="modulepreload",de=funct
                 Deliverables Ready for Review &amp; Approval
               </div>
               <div style="font-size:13px;color:var(--text-2)">
-                You have <strong style="color:var(--amber-500)">${I.length} job(s)</strong> with finished creative assets awaiting your client sign-off or feedback.
+                You have <strong style="color:var(--amber-500)">${T.length} job(s)</strong> with finished creative assets awaiting your client sign-off or feedback.
               </div>
             </div>
           </div>
@@ -118,7 +118,7 @@ import{l as ne,m as re}from"./api-B2T0Z1h0.js";const le="modulepreload",de=funct
               <div class="label" style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--text-3)">Work Orders Logged</div>
               <div style="font-size:20px">📋</div>
             </div>
-            <div class="value" style="font-size:32px;font-weight:900;color:var(--text-1);line-height:1">${v}</div>
+            <div class="value" style="font-size:32px;font-weight:900;color:var(--text-1);line-height:1">${c}</div>
             <div class="sub" style="font-size:12px;color:var(--text-4);margin-top:6px">${n.length} all-time requests recorded</div>
           </div>
 
@@ -128,7 +128,7 @@ import{l as ne,m as re}from"./api-B2T0Z1h0.js";const le="modulepreload",de=funct
               <div style="font-size:20px">⏳</div>
             </div>
             <div class="value" style="font-size:32px;font-weight:900;color:var(--amber-500);line-height:1">${m}</div>
-            <div class="sub" style="font-size:12px;color:var(--text-4);margin-top:6px">${P>0?`<strong style="color:var(--amber-600)">${P}</strong> in revision review`:"Under active execution"}</div>
+            <div class="sub" style="font-size:12px;color:var(--text-4);margin-top:6px">${B>0?`<strong style="color:var(--amber-600)">${B}</strong> in revision review`:"Under active execution"}</div>
           </div>
 
           <div class="card kpi" style="border-top:3px solid var(--green-500);padding:20px">
@@ -136,8 +136,8 @@ import{l as ne,m as re}from"./api-B2T0Z1h0.js";const le="modulepreload",de=funct
               <div class="label" style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--text-3)">Delivered &amp; Signed Off</div>
               <div style="font-size:20px">✅</div>
             </div>
-            <div class="value" style="font-size:32px;font-weight:900;color:var(--green-500);line-height:1">${d}</div>
-            <div class="sub" style="font-size:12px;color:var(--text-4);margin-top:6px">${A}% delivery fulfillment rate</div>
+            <div class="value" style="font-size:32px;font-weight:900;color:var(--green-500);line-height:1">${p}</div>
+            <div class="sub" style="font-size:12px;color:var(--text-4);margin-top:6px">${z}% delivery fulfillment rate</div>
           </div>
 
           <div class="card kpi" style="border-top:3px solid #8B5CF6;padding:20px">
@@ -145,7 +145,7 @@ import{l as ne,m as re}from"./api-B2T0Z1h0.js";const le="modulepreload",de=funct
               <div class="label" style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--text-3)">Dedicated Effort</div>
               <div style="font-size:20px">⏱️</div>
             </div>
-            <div class="value" style="font-size:32px;font-weight:900;color:#8B5CF6;line-height:1">${J.toFixed(1)} <span style="font-size:18px;font-weight:600">hrs</span></div>
+            <div class="value" style="font-size:32px;font-weight:900;color:#8B5CF6;line-height:1">${Q.toFixed(1)} <span style="font-size:18px;font-weight:600">hrs</span></div>
             <div class="sub" style="font-size:12px;color:var(--text-4);margin-top:6px">Tracked creative &amp; production hours</div>
           </div>
 
@@ -159,23 +159,23 @@ import{l as ne,m as re}from"./api-B2T0Z1h0.js";const le="modulepreload",de=funct
         <div class="card" style="padding:22px">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
             <h3 style="font-size:16px;font-weight:800;color:var(--text-1);margin:0">Delivery Performance &amp; Health</h3>
-            <span class="badge ${A>=80?"green":"gold"}" style="font-weight:700">${A}% Complete</span>
+            <span class="badge ${z>=80?"green":"gold"}" style="font-weight:700">${z}% Complete</span>
           </div>
 
           <div style="margin-bottom:16px">
             <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:700;color:var(--text-3);margin-bottom:6px">
               <span>Fulfillment Rate</span>
-              <span>${d} of ${v} Jobs Completed</span>
+              <span>${p} of ${c} Jobs Completed</span>
             </div>
             <div style="width:100%;height:10px;background:var(--border-sm);border-radius:10px;overflow:hidden;display:flex">
-              <div style="width:${A}%;background:linear-gradient(90deg, var(--green-500), #059669);border-radius:10px;transition:width 0.6s ease"></div>
+              <div style="width:${z}%;background:linear-gradient(90deg, var(--green-500), #059669);border-radius:10px;transition:width 0.6s ease"></div>
             </div>
           </div>
 
           <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:10px;text-align:center;padding:12px 8px;background:var(--bg-surface);border-radius:var(--r-md);border:1px solid var(--border-xs)">
             <div>
               <div style="font-size:11px;font-weight:700;color:var(--text-4);text-transform:uppercase">Completed</div>
-              <div style="font-size:18px;font-weight:900;color:var(--green-500);margin-top:2px">${d}</div>
+              <div style="font-size:18px;font-weight:900;color:var(--green-500);margin-top:2px">${p}</div>
             </div>
             <div style="border-left:1px solid var(--border-sm);border-right:1px solid var(--border-sm)">
               <div style="font-size:11px;font-weight:700;color:var(--text-4);text-transform:uppercase">In Progress</div>
@@ -183,7 +183,7 @@ import{l as ne,m as re}from"./api-B2T0Z1h0.js";const le="modulepreload",de=funct
             </div>
             <div>
               <div style="font-size:11px;font-weight:700;color:var(--text-4);text-transform:uppercase">Urgent / High</div>
-              <div style="font-size:18px;font-weight:900;color:var(--brand-500);margin-top:2px">${H+B}</div>
+              <div style="font-size:18px;font-weight:900;color:var(--brand-500);margin-top:2px">${K+X}</div>
             </div>
           </div>
         </div>
@@ -192,19 +192,19 @@ import{l as ne,m as re}from"./api-B2T0Z1h0.js";const le="modulepreload",de=funct
         <div class="card" style="padding:22px">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
             <h3 style="font-size:16px;font-weight:800;color:var(--text-1);margin:0">Services Retainer Breakdown</h3>
-            <span style="font-size:12px;font-weight:700;color:var(--text-3)">${C.length} Active Services</span>
+            <span style="font-size:12px;font-weight:700;color:var(--text-3)">${I.length} Active Services</span>
           </div>
 
-          ${C.length>0?`
+          ${I.length>0?`
             <div style="display:flex;flex-direction:column;gap:12px">
-              ${C.slice(0,5).map(([a,b])=>{const f=Math.round(b/(v||1)*100);return`
+              ${I.slice(0,5).map(([a,b])=>{const x=Math.round(b/(c||1)*100);return`
                   <div>
                     <div style="display:flex;justify-content:space-between;font-size:12.5px;font-weight:700;color:var(--text-2);margin-bottom:4px">
                       <span>${escapeHtml(a)}</span>
-                      <span style="color:var(--text-4)">${b} job(s) (${f}%)</span>
+                      <span style="color:var(--text-4)">${b} job(s) (${x}%)</span>
                     </div>
                     <div style="width:100%;height:7px;background:var(--border-sm);border-radius:6px;overflow:hidden">
-                      <div style="width:${f}%;height:100%;background:linear-gradient(90deg, var(--brand-500), #6366F1);border-radius:6px"></div>
+                      <div style="width:${x}%;height:100%;background:linear-gradient(90deg, var(--brand-500), #6366F1);border-radius:6px"></div>
                     </div>
                   </div>
                 `}).join("")}
@@ -228,9 +228,9 @@ import{l as ne,m as re}from"./api-B2T0Z1h0.js";const le="modulepreload",de=funct
           </button>
         </div>
 
-        ${k.length>0?`
+        ${R.length>0?`
           <div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(220px, 1fr));gap:14px">
-            ${k.slice(0,6).map(a=>`
+            ${R.slice(0,6).map(a=>`
               <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--bg-surface);border:1px solid var(--border-xs);border-radius:var(--r-md)">
                 <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#4F46E5 0%,#7C3AED 100%);color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;flex-shrink:0">
                   ${a.name.slice(0,2).toUpperCase()}
@@ -278,22 +278,22 @@ import{l as ne,m as re}from"./api-B2T0Z1h0.js";const le="modulepreload",de=funct
                 </tr>
               </thead>
               <tbody>
-                ${E.map(a=>{const b=a.status==="Completed"||a.clientApproval&&a.clientApproval.status==="Approved"||a.completionDate,f=a.clientApproval&&a.clientApproval.status==="Revision Requested",N=a.priority==="Urgent"?"red":a.priority==="High"?"amber":"blue";return`
+                ${E.map(a=>{const b=a.status==="Completed"||a.clientApproval&&a.clientApproval.status==="Approved"||a.completionDate,x=a.clientApproval&&a.clientApproval.status==="Revision Requested",S=a.priority==="Urgent"?"red":a.priority==="High"?"amber":"blue";return`
                     <tr style="cursor:pointer" onclick="ci360NavTab('jobs')">
                       <td style="padding-left:24px;font-weight:800;color:var(--text-1)">
                         ${escapeHtml(a.title||"Untitled Request")}
                       </td>
                       <td>
-                        ${(a.serviceNames||[]).map(q=>`<span class="badge gray" style="font-size:11px">${escapeHtml(q)}</span>`).join(" ")||'<span style="color:var(--text-4)">—</span>'}
+                        ${(a.serviceNames||[]).map(A=>`<span class="badge gray" style="font-size:11px">${escapeHtml(A)}</span>`).join(" ")||'<span style="color:var(--text-4)">—</span>'}
                       </td>
                       <td>
-                        <span class="badge ${N}" style="font-size:11px;font-weight:700">${escapeHtml(a.priority||"Medium")}</span>
+                        <span class="badge ${S}" style="font-size:11px;font-weight:700">${escapeHtml(a.priority||"Medium")}</span>
                       </td>
                       <td style="font-size:12.5px;color:var(--text-3)">${fmtDate(a.date)}</td>
                       <td style="font-size:12.5px;color:var(--text-2);font-weight:600">${a.completionDate?fmtDate(a.completionDate):"—"}</td>
                       <td>
-                        <span class="badge ${b?"green":f?"amber":"gold"}" style="font-weight:700">
-                          ${b?"✓ Completed":f?"↺ Revision":"⏳ In Progress"}
+                        <span class="badge ${b?"green":x?"amber":"gold"}" style="font-weight:700">
+                          ${b?"✓ Completed":x?"↺ Revision":"⏳ In Progress"}
                         </span>
                       </td>
                     </tr>
@@ -312,7 +312,7 @@ import{l as ne,m as re}from"./api-B2T0Z1h0.js";const le="modulepreload",de=funct
       </div>
 
     </div>
-  `;const O=document.getElementById("btnHeroLogJob");O&&(O.onclick=()=>{g.tab="logjob",y()});const U=document.getElementById("btnHeroProposals");U&&(U.onclick=()=>{g.tab="proposals",y()});const _=document.getElementById("btnHeroInvoices");_&&(_.onclick=()=>{g.tab="billing",y()});const W=document.getElementById("btnReviewNow");W&&(W.onclick=()=>{g.tab="delivered",y()});const V=document.getElementById("btnMeetTeam");V&&(V.onclick=()=>{g.tab="team",y()});const G=document.getElementById("btnViewAllJobs");G&&(G.onclick=()=>{g.tab="jobs",y()}),document.querySelectorAll("#overviewPeriodWrapper [data-period]").forEach(a=>{a.onclick=()=>{g.period=a.dataset.period,S()}})}function ie(e){e.innerHTML=`
+  `;const N=document.getElementById("btnHeroLogJob");N&&(N.onclick=()=>{g.tab="logjob",y()});const q=document.getElementById("btnHeroProposals");q&&(q.onclick=()=>{g.tab="proposals",y()});const F=document.getElementById("btnHeroInvoices");F&&(F.onclick=()=>{g.tab="billing",y()});const L=document.getElementById("btnReviewNow");L&&(L.onclick=()=>{g.tab="delivered",y()});const M=document.getElementById("btnMeetTeam");M&&(M.onclick=()=>{g.tab="team",y()});const O=document.getElementById("btnViewAllJobs");O&&(O.onclick=()=>{g.tab="jobs",y()}),document.querySelectorAll("#overviewPeriodWrapper [data-period]").forEach(a=>{a.onclick=()=>{g.period=a.dataset.period,C()}})}function V(e){e.innerHTML=`
     <div class="block">
       <h2>Log a New Job <span class="eyebrow">Request or record work for your account</span></h2>
       <div class="card form-card">
@@ -331,7 +331,7 @@ import{l as ne,m as re}from"./api-B2T0Z1h0.js";const le="modulepreload",de=funct
               <label for="clientJobService">Select Service *</label>
               <select id="clientJobService" required>
                 <option value="">Select a service…</option>
-                ${M.map(i=>`<option value="${i._id}" ${u.serviceId===i._id?"selected":""}>${escapeHtml(i.name)}</option>`).join("")}
+                ${H.map(i=>`<option value="${i._id}" ${u.serviceId===i._id?"selected":""}>${escapeHtml(i.name)}</option>`).join("")}
               </select>
             </div>
           </div>
@@ -354,7 +354,7 @@ import{l as ne,m as re}from"./api-B2T0Z1h0.js";const le="modulepreload",de=funct
                 <label for="clientJobPrefPerson">Preferred Team Member</label>
                 <select id="clientJobPrefPerson">
                   <option value="">No Preference (Auto-Assign)</option>
-                  ${R.map(i=>`<option value="${i._id}" ${u.preferredPersonId===i._id?"selected":""}>👤 ${escapeHtml(i.name)}${i.duties?` (${escapeHtml(i.duties)})`:""}</option>`).join("")}
+                  ${D.map(i=>`<option value="${i._id}" ${u.preferredPersonId===i._id?"selected":""}>👤 ${escapeHtml(i.name)}${i.duties?` (${escapeHtml(i.duties)})`:""}</option>`).join("")}
                 </select>
               </div>
             </div>
@@ -405,18 +405,18 @@ import{l as ne,m as re}from"./api-B2T0Z1h0.js";const le="modulepreload",de=funct
           </div>
         </form>
       </div>
-    </div>`,bindAttachmentUploader("clientJobAttachments",{existing:u.attachments||[]}),document.getElementById("resetClientJobBtn").onclick=()=>{u={title:"",serviceId:"",date:new Date().toISOString().slice(0,10),completionDate:"",desc:"",priority:"Medium",preferredPersonId:"",attachments:[]},setUploaderAttachments("clientJobAttachments",[]),ie(e)},document.getElementById("clientLogJobForm").onsubmit=async i=>{i.preventDefault();const s=document.getElementById("submitClientJobBtn"),r=document.getElementById("clientJobTitle").value.trim(),t=document.getElementById("clientJobService").value;if(!t){flashToast("Please select a service",!0);return}const n=document.getElementById("clientJobDate").value,o=document.getElementById("clientJobCompDate").value,l=document.getElementById("clientJobDesc").value.trim(),p=document.getElementById("clientJobPriority").value,v=document.getElementById("clientJobPrefPerson").value,c=getUploaderAttachments("clientJobAttachments");s.disabled=!0,s.textContent="Submitting…";try{if(typeof Notification<"u"&&Notification.permission==="default")try{await Notification.requestPermission()}catch{}await apiPost("/jobs",{title:r,serviceIds:[t],date:n,completionDate:o,value:0,description:l,priority:p,preferredPersonId:v||null,assignments:[],attachments:c}),flashToast("Job logged successfully with attachments! 🎉"),typeof window.ci360FetchNotifications=="function"&&window.ci360FetchNotifications(),u={title:"",serviceId:"",date:new Date().toISOString().slice(0,10),completionDate:"",desc:"",priority:"Medium",preferredPersonId:"",attachments:[]},g.tab="jobs",y()}catch(d){flashToast(d.message,!0)}finally{s.disabled=!1,s.textContent="Submit Job"}}}let w="all",z="";function ae(e,i){var $,P,J,A,I,D,C,H,B,T,k;const s=!!(e.clientApproval&&e.clientApproval.status==="Approved"),r=e.status==="Denied"||!!(e.clientApproval&&e.clientApproval.status==="Denied"),t=!r&&!s&&!!(e.clientApproval&&e.clientApproval.status==="Revision Requested"),n=!r&&!s&&!t&&!!(e.clientApproval&&e.clientApproval.isRevised),o=!!(e.deliverables&&e.deliverables.length>0),l=e.status==="Completed"||!!e.completionDate,v=(o||l)&&!s&&!r&&!t,c=i[e.priority||"Medium"]||"gray",d=h&&e.createdBy&&(typeof e.createdBy=="object"&&String(e.createdBy._id)===String(h._id||h.id)||String(e.createdBy)===String(h._id||h.id)),x=r?"var(--red-500)":s?"var(--green-500)":t?"var(--amber-500)":n||v?"var(--brand-500)":"var(--amber-500)";let m="";return s?m='<span class="badge green">✓ Approved &amp; Signed Off</span>':r?m='<span class="badge red">❌ Denied by Client</span>':t?m='<span class="badge amber">↺ Revision Requested</span>':n?m='<span class="badge blue">📦 Revised — Awaiting Re-approval</span>':v?m='<span class="badge blue">🔔 Ready for Your Approval</span>':m='<span class="badge gold">⏳ In Progress</span>',`
-    <div class="card client-job-card" data-id="${e._id}" style="border-left:4px solid ${x};padding:18px 22px">
+    </div>`,bindAttachmentUploader("clientJobAttachments",{existing:u.attachments||[]}),document.getElementById("resetClientJobBtn").onclick=()=>{u={title:"",serviceId:"",date:new Date().toISOString().slice(0,10),completionDate:"",desc:"",priority:"Medium",preferredPersonId:"",attachments:[]},setUploaderAttachments("clientJobAttachments",[]),V(e)},document.getElementById("clientLogJobForm").onsubmit=async i=>{i.preventDefault();const s=document.getElementById("submitClientJobBtn"),r=document.getElementById("clientJobTitle").value.trim(),t=document.getElementById("clientJobService").value;if(!t){flashToast("Please select a service",!0);return}const n=document.getElementById("clientJobDate").value,o=document.getElementById("clientJobCompDate").value,l=document.getElementById("clientJobDesc").value.trim(),v=document.getElementById("clientJobPriority").value,c=document.getElementById("clientJobPrefPerson").value,d=getUploaderAttachments("clientJobAttachments");s.disabled=!0,s.textContent="Submitting…";try{if(typeof Notification<"u"&&Notification.permission==="default")try{await Notification.requestPermission()}catch{}await apiPost("/jobs",{title:r,serviceIds:[t],date:n,completionDate:o,value:0,description:l,priority:v,preferredPersonId:c||null,assignments:[],attachments:d}),flashToast("Job logged successfully with attachments! 🎉"),typeof window.ci360FetchNotifications=="function"&&window.ci360FetchNotifications(),u={title:"",serviceId:"",date:new Date().toISOString().slice(0,10),completionDate:"",desc:"",priority:"Medium",preferredPersonId:"",attachments:[]},g.tab="jobs",y()}catch(p){flashToast(p.message,!0)}finally{s.disabled=!1,s.textContent="Submit Job"}}}let w="all",k="";function G(e,i){const s=!!(e.clientApproval&&e.clientApproval.status==="Approved"),r=e.status==="Denied"||!!(e.clientApproval&&e.clientApproval.status==="Denied"),t=!r&&!s&&!!(e.clientApproval&&e.clientApproval.status==="Revision Requested"),n=!r&&!s&&!t&&!!(e.clientApproval&&e.clientApproval.isRevised),o=!!(e.deliverables&&e.deliverables.length>0),l=e.status==="Completed"||!!e.completionDate,c=(o||l)&&!s&&!r&&!t,d=i[e.priority||"Medium"]||"gray",p=$&&e.createdBy&&(typeof e.createdBy=="object"&&String(e.createdBy._id)===String($._id||$.id)||String(e.createdBy)===String($._id||$.id)),f=r?"var(--red-500)":s?"var(--green-500)":t?"var(--amber-500)":n||c?"var(--brand-500)":"var(--amber-500)";let m="";return s?m='<span class="badge green">✓ Approved &amp; Signed Off</span>':r?m='<span class="badge red">❌ Denied by Client</span>':t?m='<span class="badge amber">↺ Revision Requested</span>':n?m='<span class="badge blue">📦 Revised — Awaiting Re-approval</span>':c?m='<span class="badge blue">🔔 Ready for Your Approval</span>':m='<span class="badge gold">⏳ In Progress</span>',`
+    <div class="card client-job-card" data-id="${e._id}" style="border-left:4px solid ${f};padding:18px 22px">
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:10px">
         <div>
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px">
             <span style="font-size:15px;font-weight:800;color:var(--text-1)">${escapeHtml(e.title||"Untitled Job")}</span>
-            ${d?'<span class="badge blue" style="font-size:10.5px;padding:2px 8px">👤 Logged by You</span>':""}
+            ${p?'<span class="badge blue" style="font-size:10.5px;padding:2px 8px">👤 Logged by You</span>':""}
           </div>
           <div style="display:flex;flex-wrap:wrap;gap:6px">
             ${m}
-            <span class="badge ${c}">${escapeHtml(e.priority||"Medium")}</span>
-            ${(e.serviceNames||[]).map(E=>`<span class="badge gray">${escapeHtml(E)}</span>`).join("")}
+            <span class="badge ${d}">${escapeHtml(e.priority||"Medium")}</span>
+            ${(e.serviceNames||[]).map(h=>`<span class="badge gray">${escapeHtml(h)}</span>`).join("")}
           </div>
         </div>
         <div style="text-align:right;flex-shrink:0">
@@ -427,7 +427,7 @@ import{l as ne,m as re}from"./api-B2T0Z1h0.js";const le="modulepreload",de=funct
       </div>
       ${e.description?`<div style="font-size:12.5px;color:var(--text-3);line-height:1.5;padding-top:10px;border-top:1px solid var(--border-xs)">${escapeHtml(e.description)}</div>`:""}
       ${e.preferredPersonName?`<div style="margin-top:8px;font-size:12px;color:var(--text-4)">Assigned to: <strong style="color:var(--text-2)">${escapeHtml(e.preferredPersonName)}</strong></div>`:""}
-      ${s&&(($=e.clientApproval)!=null&&$.approvedAt||e.completionDate)?`<div style="margin-top:6px;font-size:12px;color:var(--s-green-text)">✓ Signed Off: ${fmtDate(((P=e.clientApproval)==null?void 0:P.approvedAt)||e.completionDate)}</div>`:e.completionDate?`<div style="margin-top:6px;font-size:12px;color:var(--text-3)">Delivered on: ${fmtDate(e.completionDate)}</div>`:""}
+      ${s&&(e.clientApproval?.approvedAt||e.completionDate)?`<div style="margin-top:6px;font-size:12px;color:var(--s-green-text)">✓ Signed Off: ${fmtDate(e.clientApproval?.approvedAt||e.completionDate)}</div>`:e.completionDate?`<div style="margin-top:6px;font-size:12px;color:var(--text-3)">Delivered on: ${fmtDate(e.completionDate)}</div>`:""}
 
       <!-- Brief Attachments & Completed Deliverables -->
       ${e.attachments&&e.attachments.length?`
@@ -449,10 +449,10 @@ import{l as ne,m as re}from"./api-B2T0Z1h0.js";const le="modulepreload",de=funct
             <span style="font-size:16px">✅</span>
             <div>
               <div style="font-size:13px;font-weight:700;color:var(--green-500)">Approved &amp; Signed Off</div>
-              <div style="font-size:11.5px;color:var(--text-3)">Approved by ${escapeHtml(((J=e.clientApproval)==null?void 0:J.approvedBy)||"Client")} on ${fmtDate(((A=e.clientApproval)==null?void 0:A.approvedAt)||e.completionDate)}</div>
+              <div style="font-size:11.5px;color:var(--text-3)">Approved by ${escapeHtml(e.clientApproval?.approvedBy||"Client")} on ${fmtDate(e.clientApproval?.approvedAt||e.completionDate)}</div>
             </div>
           </div>
-          ${(I=e.clientApproval)!=null&&I.rating?`<span class="badge gold" style="font-size:12px">${"★".repeat(e.clientApproval.rating)} ${e.clientApproval.rating}/5</span>`:""}
+          ${e.clientApproval?.rating?`<span class="badge gold" style="font-size:12px">${"★".repeat(e.clientApproval.rating)} ${e.clientApproval.rating}/5</span>`:""}
         </div>
       `:r?`
         <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:var(--r-sm);padding:12px 14px;margin-top:12px">
@@ -460,11 +460,11 @@ import{l as ne,m as re}from"./api-B2T0Z1h0.js";const le="modulepreload",de=funct
             <div style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:var(--red-500)">
               <span>❌</span> Deliverable Denied by You
             </div>
-            <span style="font-size:11px;color:var(--text-4)">${fmtDate(((D=e.clientApproval)==null?void 0:D.deniedAt)||e.updatedAt)}</span>
+            <span style="font-size:11px;color:var(--text-4)">${fmtDate(e.clientApproval?.deniedAt||e.updatedAt)}</span>
           </div>
           <div style="font-size:12.5px;color:var(--text-1);background:var(--bg-surface);border-radius:var(--r-xs);padding:10px 12px;margin-top:6px;border-left:3px solid var(--red-500);line-height:1.5">
             <strong style="color:var(--red-500);font-size:11.5px;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:3px;">Reason for Denial:</strong>
-            "${escapeHtml(((C=e.clientApproval)==null?void 0:C.deniedReason)||((H=e.clientApproval)==null?void 0:H.feedback)||"Job denied")}"
+            "${escapeHtml(e.clientApproval?.deniedReason||e.clientApproval?.feedback||"Job denied")}"
           </div>
         </div>
       `:t?`
@@ -473,10 +473,10 @@ import{l as ne,m as re}from"./api-B2T0Z1h0.js";const le="modulepreload",de=funct
             <div style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:var(--amber-500)">
               <span>↺</span> Revision Requested
             </div>
-            <span style="font-size:11px;color:var(--text-4)">${fmtDate(((T=(((B=e.clientApproval)==null?void 0:B.revisions)||[]).slice(-1)[0])==null?void 0:T.requestedAt)||e.updatedAt)}</span>
+            <span style="font-size:11px;color:var(--text-4)">${fmtDate((e.clientApproval?.revisions||[]).slice(-1)[0]?.requestedAt||e.updatedAt)}</span>
           </div>
           <div style="font-size:12.5px;color:var(--text-2);background:var(--bg-surface);border-radius:var(--r-xs);padding:8px 10px;margin-top:6px;line-height:1.4">
-            "${escapeHtml(((k=e.clientApproval)==null?void 0:k.feedback)||"Revision requested")}"
+            "${escapeHtml(e.clientApproval?.feedback||"Revision requested")}"
           </div>
         </div>
       `:n?`
@@ -499,7 +499,7 @@ import{l as ne,m as re}from"./api-B2T0Z1h0.js";const le="modulepreload",de=funct
             </button>
           </div>
         </div>
-      `:v?`
+      `:c?`
         <div style="background:linear-gradient(135deg,rgba(99,102,241,0.08) 0%,rgba(139,92,246,0.04) 100%);border:1px solid rgba(99,102,241,0.25);border-radius:var(--r-sm);padding:12px 14px;margin-top:12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
           <div>
             <div style="font-size:13px;font-weight:700;color:var(--brand-500)">Deliverables Ready for Review</div>
@@ -523,11 +523,11 @@ import{l as ne,m as re}from"./api-B2T0Z1h0.js";const le="modulepreload",de=funct
           <span style="font-size:12px;color:var(--text-3)">Our team is actively working on this job. Once deliverables or live links are submitted, you will be able to review and approve them here.</span>
         </div>
       `}
-    </div>`}function se(e){document.querySelectorAll(".client-app-btn").forEach(i=>{i.onclick=()=>be(i.dataset.id,i.dataset.title,()=>S())}),document.querySelectorAll(".client-rev-btn").forEach(i=>{i.onclick=()=>fe(i.dataset.id,i.dataset.title,()=>S())}),document.querySelectorAll(".client-deny-btn").forEach(i=>{i.onclick=()=>xe(i.dataset.id,i.dataset.title,()=>S())})}function ge(e,i){const s=i.jobs||[],r={Medium:"gray",High:"amber",Urgent:"red"};if(s.length===0){e.innerHTML=`
+    </div>`}function Y(e){document.querySelectorAll(".client-app-btn").forEach(i=>{i.onclick=()=>de(i.dataset.id,i.dataset.title,()=>C())}),document.querySelectorAll(".client-rev-btn").forEach(i=>{i.onclick=()=>pe(i.dataset.id,i.dataset.title,()=>C())}),document.querySelectorAll(".client-deny-btn").forEach(i=>{i.onclick=()=>ce(i.dataset.id,i.dataset.title,()=>C())})}function re(e,i){const s=i.jobs||[],r={Medium:"gray",High:"amber",Urgent:"red"};if(s.length===0){e.innerHTML=`
       <div class="block">
         <h2>All Jobs Logged <span class="eyebrow">No jobs logged yet</span></h2>
         ${renderEmptyState("No jobs logged yet","Log your first job to request projects, design, campaigns, or services from our team.","📋",`<button class="btn gold" onclick="ui.tab='logjob';render()">➕ Log Your First Job</button>`)}
-      </div>`;return}function t(){let c=s;if(w==="inprogress"?c=c.filter(d=>d.status!=="Denied"&&(!d.clientApproval||d.clientApproval.status!=="Approved")):w==="completed"?c=c.filter(d=>d.clientApproval&&d.clientApproval.status==="Approved"&&d.status!=="Denied"):w==="revision"?c=c.filter(d=>d.clientApproval&&d.clientApproval.status==="Revision Requested"&&d.status!=="Denied"):w==="denied"&&(c=c.filter(d=>d.status==="Denied"||d.clientApproval&&d.clientApproval.status==="Denied")),z){const d=z.toLowerCase();c=c.filter(x=>(x.title||"").toLowerCase().includes(d)||(x.description||"").toLowerCase().includes(d)||(x.serviceNames||[]).some(m=>m.toLowerCase().includes(d))||(x.preferredPersonName||"").toLowerCase().includes(d))}return c}const n=s.filter(c=>c.status!=="Denied"&&(!c.clientApproval||c.clientApproval.status!=="Approved")).length,o=s.filter(c=>c.clientApproval&&c.clientApproval.status==="Approved"&&c.status!=="Denied").length,l=s.filter(c=>c.clientApproval&&c.clientApproval.status==="Revision Requested"&&c.status!=="Denied").length,p=s.filter(c=>c.status==="Denied"||c.clientApproval&&c.clientApproval.status==="Denied").length;function v(){const c=t();e.innerHTML=`
+      </div>`;return}function t(){let d=s;if(w==="inprogress"?d=d.filter(p=>p.status!=="Denied"&&(!p.clientApproval||p.clientApproval.status!=="Approved")):w==="completed"?d=d.filter(p=>p.clientApproval&&p.clientApproval.status==="Approved"&&p.status!=="Denied"):w==="revision"?d=d.filter(p=>p.clientApproval&&p.clientApproval.status==="Revision Requested"&&p.status!=="Denied"):w==="denied"&&(d=d.filter(p=>p.status==="Denied"||p.clientApproval&&p.clientApproval.status==="Denied")),k){const p=k.toLowerCase();d=d.filter(f=>(f.title||"").toLowerCase().includes(p)||(f.description||"").toLowerCase().includes(p)||(f.serviceNames||[]).some(m=>m.toLowerCase().includes(p))||(f.preferredPersonName||"").toLowerCase().includes(p))}return d}const n=s.filter(d=>d.status!=="Denied"&&(!d.clientApproval||d.clientApproval.status!=="Approved")).length,o=s.filter(d=>d.clientApproval&&d.clientApproval.status==="Approved"&&d.status!=="Denied").length,l=s.filter(d=>d.clientApproval&&d.clientApproval.status==="Revision Requested"&&d.status!=="Denied").length,v=s.filter(d=>d.status==="Denied"||d.clientApproval&&d.clientApproval.status==="Denied").length;function c(){const d=t();e.innerHTML=`
       <div class="block">
         <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:18px">
           <div>
@@ -558,10 +558,10 @@ import{l as ne,m as re}from"./api-B2T0Z1h0.js";const le="modulepreload",de=funct
             <div style="font-size:11px;font-weight:700;color:var(--amber-500);text-transform:uppercase;letter-spacing:0.5px">Revisions</div>
             <div style="font-size:22px;font-weight:800;color:var(--amber-500);margin-top:2px">${l}</div>
           </div>`:""}
-          ${p>0?`
+          ${v>0?`
           <div class="card" style="padding:12px 14px;text-align:center;border-left:3px solid var(--red-500)">
             <div style="font-size:11px;font-weight:700;color:var(--red-500);text-transform:uppercase;letter-spacing:0.5px">Denied</div>
-            <div style="font-size:22px;font-weight:800;color:var(--red-500);margin-top:2px">${p}</div>
+            <div style="font-size:22px;font-weight:800;color:var(--red-500);margin-top:2px">${v}</div>
           </div>`:""}
         </div>
 
@@ -572,22 +572,22 @@ import{l as ne,m as re}from"./api-B2T0Z1h0.js";const le="modulepreload",de=funct
             <button type="button" class="btn ${w==="inprogress"?"primary":"ghost"} small filter-tab-btn" data-f="inprogress">In Progress (${n})</button>
             <button type="button" class="btn ${w==="completed"?"primary":"ghost"} small filter-tab-btn" data-f="completed">Completed (${o})</button>
             ${l>0?`<button type="button" class="btn ${w==="revision"?"primary":"ghost"} small filter-tab-btn" data-f="revision">Revisions (${l})</button>`:""}
-            ${p>0?`<button type="button" class="btn ${w==="denied"?"primary":"ghost"} small filter-tab-btn" data-f="denied" style="color:var(--red-500)">Denied (${p})</button>`:""}
+            ${v>0?`<button type="button" class="btn ${w==="denied"?"primary":"ghost"} small filter-tab-btn" data-f="denied" style="color:var(--red-500)">Denied (${v})</button>`:""}
           </div>
           <div style="flex:1;max-width:280px;min-width:180px">
-            <input type="text" id="clientJobSearchInput" value="${escapeHtml(z)}" placeholder="Search jobs…" style="padding:6px 12px;font-size:12.5px;width:100%;border-radius:var(--r-xs)">
+            <input type="text" id="clientJobSearchInput" value="${escapeHtml(k)}" placeholder="Search jobs…" style="padding:6px 12px;font-size:12.5px;width:100%;border-radius:var(--r-xs)">
           </div>
         </div>
 
         <!-- Jobs Listing -->
         <div style="display:flex;flex-direction:column;gap:14px">
-          ${c.length===0?`
+          ${d.length===0?`
             <div class="card empty" style="padding:32px 16px;text-align:center;font-size:13px;color:var(--text-4)">
-              No matching jobs found ${z?`for "${escapeHtml(z)}"`:""}
+              No matching jobs found ${k?`for "${escapeHtml(k)}"`:""}
             </div>
-          `:c.map(m=>ae(m,r)).join("")}
+          `:d.map(m=>G(m,r)).join("")}
         </div>
-      </div>`;const d=document.getElementById("tabJobsLogNewBtn");d&&(d.onclick=()=>{g.tab="logjob",y()}),e.querySelectorAll(".filter-tab-btn").forEach(m=>{m.onclick=()=>{w=m.dataset.f,v()}});const x=document.getElementById("clientJobSearchInput");x&&(x.oninput=m=>{z=m.target.value.trim(),v();const $=document.getElementById("clientJobSearchInput");$&&($.focus(),$.selectionStart=$.selectionEnd=$.value.length)}),se()}v()}function me(e,i){const r=(i.jobs||[]).filter(o=>o.deliverables&&o.deliverables.length>0||o.status==="Completed"||o.status==="Denied"||o.clientApproval&&(o.clientApproval.status==="Approved"||o.clientApproval.status==="Denied")),t={Medium:"gray",High:"amber",Urgent:"red"};if(r.length===0){e.innerHTML=`
+      </div>`;const p=document.getElementById("tabJobsLogNewBtn");p&&(p.onclick=()=>{g.tab="logjob",y()}),e.querySelectorAll(".filter-tab-btn").forEach(m=>{m.onclick=()=>{w=m.dataset.f,c()}});const f=document.getElementById("clientJobSearchInput");f&&(f.oninput=m=>{k=m.target.value.trim(),c();const h=document.getElementById("clientJobSearchInput");h&&(h.focus(),h.selectionStart=h.selectionEnd=h.value.length)}),Y()}c()}function le(e,i){const r=(i.jobs||[]).filter(o=>o.deliverables&&o.deliverables.length>0||o.status==="Completed"||o.status==="Denied"||o.clientApproval&&(o.clientApproval.status==="Approved"||o.clientApproval.status==="Denied")),t={Medium:"gray",High:"amber",Urgent:"red"};if(r.length===0){e.innerHTML=`
       <div class="block">
         <h2>Work Delivered <span class="eyebrow">No delivered work yet</span></h2>
         ${renderEmptyState("No completed deliverables yet","When the team uploads final deliverables and marks work complete, you can review and sign off on them here.","📦",`<button class="btn ghost" onclick="ui.tab='jobs';render()">View All Jobs Logged</button>`)}
@@ -608,9 +608,9 @@ import{l as ne,m as re}from"./api-B2T0Z1h0.js";const le="modulepreload",de=funct
       `:""}
 
       <div style="display:flex;flex-direction:column;gap:14px">
-        ${r.map(o=>ae(o,t)).join("")}
+        ${r.map(o=>G(o,t)).join("")}
       </div>
-    </div>`,se()}function be(e,i,s){let r=5;const t=openModal(`
+    </div>`,Y()}function de(e,i,s){let r=5;const t=openModal(`
     <div style="margin-bottom:14px">
       <div style="font-size:18px;font-weight:800;color:var(--text-1);margin-bottom:4px">Approve Deliverables &amp; Sign Off</div>
       <div style="font-size:12.5px;color:var(--text-3)">${escapeHtml(i)}</div>
@@ -641,7 +641,7 @@ import{l as ne,m as re}from"./api-B2T0Z1h0.js";const le="modulepreload",de=funct
       <button class="btn ghost" id="mAppCancel">Cancel</button>
       <button class="btn gold" id="mAppConfirm">✓ Confirm Approval</button>
     </div>
-  `),n=t.querySelectorAll(".star-item");function o(l){r=l,n.forEach(p=>{p.style.color=Number(p.dataset.val)<=l?"#F59E0B":"var(--text-4)"})}n.forEach(l=>{l.onclick=()=>o(Number(l.dataset.val))}),t.querySelector("#mAppCancel").onclick=()=>t.remove(),t.querySelector("#mAppConfirm").onclick=async()=>{const l=t.querySelector("#mAppFeedback").value.trim(),p=t.querySelector("#mAppConfirm");p.disabled=!0,p.textContent="Approving…";try{await apiPost(`/jobs/${e}/approve`,{rating:r,feedback:l}),flashToast("Deliverables approved & signed off! 🎉"),t.remove(),s&&s()}catch(v){flashToast(v.message,!0)}finally{p.disabled=!1,p.textContent="✓ Confirm Approval"}}}function fe(e,i,s){const r=openModal(`
+  `),n=t.querySelectorAll(".star-item");function o(l){r=l,n.forEach(v=>{v.style.color=Number(v.dataset.val)<=l?"#F59E0B":"var(--text-4)"})}n.forEach(l=>{l.onclick=()=>o(Number(l.dataset.val))}),t.querySelector("#mAppCancel").onclick=()=>t.remove(),t.querySelector("#mAppConfirm").onclick=async()=>{const l=t.querySelector("#mAppFeedback").value.trim(),v=t.querySelector("#mAppConfirm");v.disabled=!0,v.textContent="Approving…";try{await apiPost(`/jobs/${e}/approve`,{rating:r,feedback:l}),flashToast("Deliverables approved & signed off! 🎉"),t.remove(),s&&s()}catch(c){flashToast(c.message,!0)}finally{v.disabled=!1,v.textContent="✓ Confirm Approval"}}}function pe(e,i,s){const r=openModal(`
     <div style="margin-bottom:14px">
       <div style="font-size:18px;font-weight:800;color:var(--text-1);margin-bottom:4px">Request Deliverable Revision</div>
       <div style="font-size:12.5px;color:var(--text-3)">${escapeHtml(i)}</div>
@@ -660,7 +660,7 @@ import{l as ne,m as re}from"./api-B2T0Z1h0.js";const le="modulepreload",de=funct
       <button class="btn ghost" id="mRevCancel">Cancel</button>
       <button class="btn gold" id="mRevConfirm" style="background:linear-gradient(135deg,var(--amber-500) 0%,#D97706 100%)">↺ Send Revision Request</button>
     </div>
-  `);bindAttachmentUploader("mRevAttachments"),r.querySelector("#mRevCancel").onclick=()=>r.remove(),r.querySelector("#mRevConfirm").onclick=async()=>{const t=r.querySelector("#mRevNotes").value.trim();if(!t){flashToast("Please enter revision details",!0);return}const n=getUploaderAttachments("mRevAttachments"),o=r.querySelector("#mRevConfirm");o.disabled=!0,o.textContent="Sending…";try{await apiPost(`/jobs/${e}/revision`,{feedback:t,attachments:n}),flashToast("Revision request sent to the team! ↺"),r.remove(),s&&s()}catch(l){flashToast(l.message,!0)}finally{o.disabled=!1,o.textContent="↺ Send Revision Request"}}}function xe(e,i,s){const r=openModal(`
+  `);bindAttachmentUploader("mRevAttachments"),r.querySelector("#mRevCancel").onclick=()=>r.remove(),r.querySelector("#mRevConfirm").onclick=async()=>{const t=r.querySelector("#mRevNotes").value.trim();if(!t){flashToast("Please enter revision details",!0);return}const n=getUploaderAttachments("mRevAttachments"),o=r.querySelector("#mRevConfirm");o.disabled=!0,o.textContent="Sending…";try{await apiPost(`/jobs/${e}/revision`,{feedback:t,attachments:n}),flashToast("Revision request sent to the team! ↺"),r.remove(),s&&s()}catch(l){flashToast(l.message,!0)}finally{o.disabled=!1,o.textContent="↺ Send Revision Request"}}}function ce(e,i,s){const r=openModal(`
     <div style="margin-bottom:14px">
       <div style="font-size:18px;font-weight:800;color:var(--red-500);margin-bottom:4px;display:flex;align-items:center;gap:8px">
         <span>❌</span> Deny Delivered Job
@@ -686,7 +686,7 @@ import{l as ne,m as re}from"./api-B2T0Z1h0.js";const le="modulepreload",de=funct
         ❌ Confirm &amp; Deny Job
       </button>
     </div>
-  `),t=r.querySelector("#mDenyReason");t&&t.focus(),r.querySelector("#mDenyCancel").onclick=()=>r.remove(),r.querySelector("#mDenyConfirm").onclick=async()=>{const n=r.querySelector("#mDenyReason").value.trim();if(!n){flashToast("Please enter the reason why this job is denied",!0),t&&t.focus();return}const o=r.querySelector("#mDenyConfirm");o.disabled=!0,o.textContent="Submitting Denial…";try{await apiPost(`/jobs/${e}/deny`,{reason:n}),flashToast("Job marked as denied. The team has been notified. ❌"),r.remove(),s&&s()}catch(l){flashToast(l.message,!0),o.disabled=!1,o.textContent="❌ Confirm & Deny Job"}}}async function ue(e,i){let s=[];try{s=await apiGet("/proposals")||[]}catch{s=[]}const r=s.filter(t=>["approved","with_client","won","changes"].includes(t.status));e.innerHTML=`
+  `),t=r.querySelector("#mDenyReason");t&&t.focus(),r.querySelector("#mDenyCancel").onclick=()=>r.remove(),r.querySelector("#mDenyConfirm").onclick=async()=>{const n=r.querySelector("#mDenyReason").value.trim();if(!n){flashToast("Please enter the reason why this job is denied",!0),t&&t.focus();return}const o=r.querySelector("#mDenyConfirm");o.disabled=!0,o.textContent="Submitting Denial…";try{await apiPost(`/jobs/${e}/deny`,{reason:n}),flashToast("Job marked as denied. The team has been notified. ❌"),r.remove(),s&&s()}catch(l){flashToast(l.message,!0),o.disabled=!1,o.textContent="❌ Confirm & Deny Job"}}}async function ve(e,i){let s=[];try{s=await apiGet("/proposals")||[]}catch{s=[]}const r=s.filter(t=>["approved","with_client","won","changes"].includes(t.status));e.innerHTML=`
     <div class="block">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
         <div>
@@ -796,7 +796,7 @@ import{l as ne,m as re}from"./api-B2T0Z1h0.js";const le="modulepreload",de=funct
         </div>
       `}
     </div>
-  `,e.querySelectorAll("[data-client-pdf]").forEach(t=>{t.onclick=async()=>{const n=t.dataset.clientPdf,o=r.find(l=>l._id===n);if(o){t.disabled=!0,t.textContent="Generating PDF…";try{const{exportPdfDoc:l}=await ee(async()=>{const{exportPdfDoc:v}=await import("./proposals-D1twPRPO.js");return{exportPdfDoc:v}},__vite__mapDeps([0,1,2])),p=await apiGet("/proposals/ratecard").catch(()=>({}));await l(o,p.settings||{},t)}catch(l){flashToast("Failed to download PDF: "+l.message,!0),t.disabled=!1,t.textContent="📄 Download PDF"}}}}),e.querySelectorAll("[data-client-word]").forEach(t=>{t.onclick=async()=>{const n=t.dataset.clientWord,o=r.find(l=>l._id===n);if(o){t.disabled=!0,t.textContent="Generating Word…";try{const{exportWordDocx:l}=await ee(async()=>{const{exportWordDocx:v}=await import("./proposals-D1twPRPO.js");return{exportWordDocx:v}},__vite__mapDeps([0,1,2])),p=await apiGet("/proposals/ratecard").catch(()=>({}));await l(o,p.settings||{},t)}catch(l){flashToast("Failed to download Word document: "+l.message,!0),t.disabled=!1,t.textContent="📝 Download Word (.docx)"}}}})}function ye(e,i){const s=i.roster||[],r=R&&R.length?R:[];e.innerHTML=`
+  `,e.querySelectorAll("[data-client-pdf]").forEach(t=>{t.onclick=async()=>{const n=t.dataset.clientPdf,o=r.find(l=>l._id===n);if(o){t.disabled=!0,t.textContent="Generating PDF…";try{const{exportPdfDoc:l}=await _(async()=>{const{exportPdfDoc:c}=await import("./proposals-BcYYF4sJ.js");return{exportPdfDoc:c}},__vite__mapDeps([0,1,2])),v=await apiGet("/proposals/ratecard").catch(()=>({}));await l(o,v.settings||{},t)}catch(l){flashToast("Failed to download PDF: "+l.message,!0),t.disabled=!1,t.textContent="📄 Download PDF"}}}}),e.querySelectorAll("[data-client-word]").forEach(t=>{t.onclick=async()=>{const n=t.dataset.clientWord,o=r.find(l=>l._id===n);if(o){t.disabled=!0,t.textContent="Generating Word…";try{const{exportWordDocx:l}=await _(async()=>{const{exportWordDocx:c}=await import("./proposals-BcYYF4sJ.js");return{exportWordDocx:c}},__vite__mapDeps([0,1,2])),v=await apiGet("/proposals/ratecard").catch(()=>({}));await l(o,v.settings||{},t)}catch(l){flashToast("Failed to download Word document: "+l.message,!0),t.disabled=!1,t.textContent="📝 Download Word (.docx)"}}}})}function ge(e,i){const s=i.roster||[],r=D&&D.length?D:[];e.innerHTML=`
     <div class="block">
       <h2>Our Team <span class="eyebrow">${r.length} members</span></h2>
 
@@ -810,7 +810,7 @@ import{l as ne,m as re}from"./api-B2T0Z1h0.js";const le="modulepreload",de=funct
                 <span class="badge ${t.nature==="Existing"?"green":"blue"}">${t.nature}</span>
               </div>
               <div class="grid grid-2">
-                ${te.filter(([n])=>(t.roles[n]||"").trim()&&t.roles[n]!=="TBD").map(([n,o])=>`
+                ${W.filter(([n])=>(t.roles[n]||"").trim()&&t.roles[n]!=="TBD").map(([n,o])=>`
                   <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border-xs)">
                     <span style="font-size:12.5px;color:var(--text-3)">${o}</span>
                     <strong style="font-size:12.5px;color:var(--text-1)">${escapeHtml(t.roles[n])}</strong>
@@ -834,7 +834,7 @@ import{l as ne,m as re}from"./api-B2T0Z1h0.js";const le="modulepreload",de=funct
             </div>
           </div>`).join("")}
       </div>
-    </div>`}async function he(e){const i=await apiGet("/accounts/client-portal"),s=i.summary||{},r=i.invoices||[],t=i.payments||[];e.innerHTML=`
+    </div>`}async function me(e){const i=await apiGet("/accounts/client-portal"),s=i.summary||{},r=i.invoices||[],t=i.payments||[];e.innerHTML=`
     <div class="block">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px">
         <div>
@@ -945,4 +945,4 @@ import{l as ne,m as re}from"./api-B2T0Z1h0.js";const le="modulepreload",de=funct
             </table>
           </div>
         </div>`:""}
-    </div>`}window.addEventListener("ci360:dataUpdated",e=>{const i=document.activeElement;!(i&&(i.tagName==="INPUT"||i.tagName==="TEXTAREA"||i.isContentEditable))&&g.tab!=="logjob"&&S(!0)});pe();
+    </div>`}window.addEventListener("ci360:dataUpdated",e=>{const i=document.activeElement;!(i&&(i.tagName==="INPUT"||i.tagName==="TEXTAREA"||i.isContentEditable))&&g.tab!=="logjob"&&C(!0)});se();
