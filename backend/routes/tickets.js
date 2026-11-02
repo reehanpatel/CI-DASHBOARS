@@ -1,5 +1,5 @@
-const express  = require('express');
-const router   = express.Router();
+const express = require('express');
+const router = express.Router();
 const mongoose = require('mongoose');
 const SupportTicket = mongoose.models.SupportTicket || require('../models/SupportTicket');
 const Job = mongoose.models.Job || require('../models/Job');
@@ -52,7 +52,7 @@ async function generateUniqueTicketId() {
 
   let nextNum = maxNum + 1;
   let candidateId = `SUP-${String(nextNum).padStart(3, '0')}`;
-  
+
   // Guard against any collision
   while (await SupportTicket.findOne({ ticketId: candidateId })) {
     nextNum++;
@@ -149,16 +149,16 @@ router.get('/stats', async (req, res) => {
    ───────────────────────────────────────────────────────────────────────────── */
 router.get('/', async (req, res) => {
   try {
-    const { 
-      search, 
-      status, 
-      priority, 
-      category, 
-      assigneeId, 
-      reporterId, 
-      jobId, 
+    const {
+      search,
+      status,
+      priority,
+      category,
+      assigneeId,
+      reporterId,
+      jobId,
       myIssuesOnly,
-      sort 
+      sort
     } = req.query;
 
     const isAdmin = req.user.role === 'superadmin' || req.user.role === 'admin';
@@ -300,17 +300,17 @@ router.get('/:id', async (req, res) => {
    ───────────────────────────────────────────────────────────────────────────── */
 router.post('/', async (req, res) => {
   try {
-    const { 
-      title, 
-      subject, 
-      description, 
-      message, 
-      category = 'Task', 
-      priority = 'Medium', 
+    const {
+      title,
+      subject,
+      description,
+      message,
+      category = 'Task',
+      priority = 'Medium',
       assigneeId,
-      dueDate, 
-      jobId, 
-      attachments = [] 
+      dueDate,
+      jobId,
+      attachments = []
     } = req.body;
 
     const ticketTitle = (title || subject || '').trim();

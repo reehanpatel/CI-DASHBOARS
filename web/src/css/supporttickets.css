@@ -427,6 +427,36 @@
   word-break: break-word;
 }
 
+.jira-card-job-link {
+  font-size: 11px;
+  font-weight: 600;
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  padding: 2px 7px;
+  border-radius: 4px;
+  margin-top: 5px;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 100%;
+}
+
+.jira-linked-job-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: #162032;
+  border: 1px solid #293952;
+  border-radius: 6px;
+  margin-top: 6px;
+}
+
 .jira-card-bottom {
   display: flex;
   align-items: center;

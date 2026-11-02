@@ -84,6 +84,11 @@ window.ci360NavTab = (tabName, highlightId = null) => {
     tabName = 'dashboard';
   }
 
+  if (highlightId && typeof highlightId === 'object') {
+    params = highlightId;
+    highlightId = params.highlightId || null;
+  }
+  ui.tabParams = params || {};
   ui.tab = tabName; 
   if (highlightId) {
     ui.highlightId = highlightId;
@@ -128,7 +133,12 @@ async function tabTeamBonding(c) {
 async function tabSupportTickets(c) {
   c.innerHTML = '<div id="support-tickets-module-root"></div>';
   const root = c.querySelector('#support-tickets-module-root');
-  initSupportTickets(root, { userRole: 'employee', currentUser: user });
+  const params = ui.tabParams || {};
+  initSupportTickets(root, {
+    userRole: 'employee',
+    currentUser: user,
+    initialJobId: params.jobId || null
+  });
 }
 
 async function tabSettings(c) {
@@ -529,6 +539,9 @@ async function tabMyJobs(c){
                 </div>
               </div>
               <div style="display:flex;gap:8px;flex-shrink:0;align-items:center">
+                <button type="button" class="btn ghost small emp-job-ticket-btn" data-id="${j._id}" title="Support Tickets linked to this Job" style="font-size:12px">
+                  🎫 Ticket
+                </button>
                 ${(isDenied || isRevisionReq) ? `
                   <button type="button" class="btn gold small emp-resubmit-btn" data-id="${j._id}" data-title="${escapeHtml(j.title || 'Job')}" data-reason="${escapeHtml(j.clientApproval?.feedback || j.clientApproval?.deniedReason || '')}" data-type="${isRevisionReq ? 'revision' : 'denial'}" style="font-weight:700;font-size:12px">
                     🔁 Resubmit Job
@@ -719,6 +732,12 @@ async function tabMyJobs(c){
 
   document.querySelectorAll('.emp-resubmit-btn').forEach(btn => {
     btn.onclick = () => openEmployeeResubmitModal(btn.dataset.id, btn.dataset.title, btn.dataset.reason, btn.dataset.type);
+  });
+
+  document.querySelectorAll('.emp-job-ticket-btn').forEach(btn => {
+    btn.onclick = () => {
+      window.ci360NavTab('tickets', { jobId: btn.dataset.id });
+    };
   });
 
   document.querySelectorAll('.emp-del-submit').forEach(btn => {

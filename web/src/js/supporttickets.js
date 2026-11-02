@@ -6,14 +6,14 @@
  * STRICT INTERNAL MODULE: ONLY ADMINS & EMPLOYEES CAN ACCESS.
  */
 
-import { 
-  apiGet, 
-  apiPost, 
-  apiPatch, 
-  apiPut, 
-  apiDelete, 
-  escapeHtml, 
-  flashToast, 
+import {
+  apiGet,
+  apiPost,
+  apiPatch,
+  apiPut,
+  apiDelete,
+  escapeHtml,
+  flashToast,
   timeAgo,
   fmtFileSize
 } from './api.js';
@@ -68,6 +68,7 @@ export async function initSupportTickets(container, options = {}) {
     priority: 'all',
     category: 'all',
     assigneeId: 'all',
+    jobId: options.initialJobId || 'all',
     myIssuesOnly: false
   };
 
@@ -125,6 +126,10 @@ export async function initSupportTickets(container, options = {}) {
             ${CATEGORIES.map(c => `<option value="${c.key}">${c.icon} ${c.label}</option>`).join('')}
           </select>
 
+          <select id="jira-filter-job" class="jira-filter-select">
+            <option value="all">Linked Job: All</option>
+          </select>
+
           ${isSuper ? `
             <select id="jira-filter-assignee" class="jira-filter-select">
               <option value="all">Assignee: All</option>
@@ -179,9 +184,9 @@ export async function initSupportTickets(container, options = {}) {
       clearInterval(autoRefreshTimer);
       return;
     }
-    const isInteracting = container.querySelector('.dragging') || 
-                          container.querySelector('input:focus') || 
-                          container.querySelector('textarea:focus');
+    const isInteracting = container.querySelector('.dragging') ||
+      container.querySelector('input:focus') ||
+      container.querySelector('textarea:focus');
     if (!isInteracting && !activeModalTicket) {
       reloadBoard();
     }
@@ -204,6 +209,7 @@ export async function initSupportTickets(container, options = {}) {
       if (filters.priority !== 'all') qParams.set('priority', filters.priority);
       if (filters.category !== 'all') qParams.set('category', filters.category);
       if (filters.assigneeId !== 'all') qParams.set('assigneeId', filters.assigneeId);
+      if (filters.jobId && filters.jobId !== 'all') qParams.set('jobId', filters.jobId);
       if (filters.myIssuesOnly) qParams.set('myIssuesOnly', 'true');
 
       const data = await apiGet('/tickets?' + qParams.toString());
@@ -234,7 +240,7 @@ export async function initSupportTickets(container, options = {}) {
 
   async function fetchJobs() {
     try {
-      const res = await apiGet('/jobs?limit=50');
+      const res = await apiGet('/jobs?limit=250');
       jobs = Array.isArray(res) ? res : (res?.jobs || []);
     } catch (e) {
       console.warn('Could not fetch jobs:', e);
@@ -310,6 +316,18 @@ export async function initSupportTickets(container, options = {}) {
         ${employees.map(u => `
           <option value="${u._id}" ${filters.assigneeId === u._id.toString() ? 'selected' : ''}>
             ${escapeHtml(u.name)} (${escapeHtml(u.role)})
+          </option>
+        `).join('')}
+      `;
+    }
+
+    const selJob = container.querySelector('#jira-filter-job');
+    if (selJob) {
+      selJob.innerHTML = `
+        <option value="all">Linked Job: All</option>
+        ${jobs.map(j => `
+          <option value="${j._id}" ${filters.jobId === j._id.toString() ? 'selected' : ''}>
+            📁 ${escapeHtml(j.title || 'Untitled Job')}
           </option>
         `).join('')}
       `;
@@ -394,6 +412,12 @@ export async function initSupportTickets(container, options = {}) {
         <div class="jira-card-title" title="${escapeHtml(t.title)}">
           ${escapeHtml(t.title)}
         </div>
+
+        ${(t.jobTitle || (t.jobId && t.jobId.title)) ? `
+          <div class="jira-card-job-link" title="Linked Internal Job: ${escapeHtml(t.jobTitle || t.jobId.title)}">
+            📁 ${escapeHtml(t.jobTitle || t.jobId.title)}
+          </div>
+        ` : ''}
 
         <div class="jira-card-bottom">
           <div class="jira-card-id-row">
@@ -562,6 +586,16 @@ export async function initSupportTickets(container, options = {}) {
       };
     }
 
+    // Linked Job filter
+    const jobSelect = container.querySelector('#jira-filter-job');
+    if (jobSelect) {
+      jobSelect.onchange = async (e) => {
+        filters.jobId = e.target.value;
+        updateClearFiltersVisibility();
+        await reloadBoard();
+      };
+    }
+
     // Assignee filter
     const assSelect = container.querySelector('#jira-filter-assignee');
     if (assSelect) {
@@ -593,11 +627,14 @@ export async function initSupportTickets(container, options = {}) {
           priority: 'all',
           category: 'all',
           assigneeId: 'all',
+          jobId: 'all',
           myIssuesOnly: false
         };
         if (searchInp) searchInp.value = '';
         if (priSelect) priSelect.value = 'all';
         if (catSelect) catSelect.value = 'all';
+        const jobSel = container.querySelector('#jira-filter-job');
+        if (jobSel) jobSel.value = 'all';
         if (assSelect) assSelect.value = 'all';
         if (pillMy) pillMy.classList.remove('active');
         updateClearFiltersVisibility();
@@ -609,7 +646,7 @@ export async function initSupportTickets(container, options = {}) {
   function updateClearFiltersVisibility() {
     const clearBtn = container.querySelector('#jira-clear-filters');
     if (!clearBtn) return;
-    const hasActive = filters.search || filters.priority !== 'all' || filters.category !== 'all' || filters.assigneeId !== 'all' || filters.myIssuesOnly;
+    const hasActive = filters.search || filters.priority !== 'all' || filters.category !== 'all' || (filters.jobId && filters.jobId !== 'all') || filters.assigneeId !== 'all' || filters.myIssuesOnly;
     clearBtn.style.display = hasActive ? 'inline' : 'none';
   }
 
@@ -666,6 +703,9 @@ export async function initSupportTickets(container, options = {}) {
     const isReporter = t.reporter && t.reporter.userId && t.reporter.userId.toString() === myId?.toString();
     const isAssigned = t.assignee && t.assignee.userId && t.assignee.userId.toString() === myId?.toString();
     const isSuper = userRole === 'superadmin' || userRole === 'admin';
+
+    const currentJobId = t.jobId?._id ? t.jobId._id.toString() : (t.jobId ? t.jobId.toString() : '');
+    const currentJobTitle = t.jobTitle || (t.jobId && t.jobId.title) || '';
 
     modalRoot.innerHTML = `
       <div class="jira-modal-backdrop" id="jira-detail-backdrop">
@@ -818,6 +858,50 @@ export async function initSupportTickets(container, options = {}) {
                 </div>
               </div>
 
+              <!-- Dedicated Linked Internal Job Block -->
+              <div class="jira-section-block">
+                <div class="jira-sec-title">
+                  <span style="display:flex;align-items:center;gap:6px;">📁 Linked Internal Job</span>
+                  <button type="button" class="jira-tool-btn" id="btn-toggle-job-link">
+                    ${currentJobTitle ? '✏️ Change Job' : '+ Link a Job'}
+                  </button>
+                </div>
+                ${currentJobTitle ? `
+                  <div class="jira-linked-job-card">
+                    <div style="display:flex;align-items:center;gap:10px;">
+                      <span style="font-size:22px;">📁</span>
+                      <div>
+                        <div style="font-weight:700;color:#f8fafc;font-size:13px;">${escapeHtml(currentJobTitle)}</div>
+                        <div style="font-size:11px;color:#38bdf8;">CI360 Job ID: ${escapeHtml(currentJobId)}</div>
+                      </div>
+                    </div>
+                    <button type="button" class="jira-tool-btn" id="btn-unlink-job" style="color:#ef4444;border-color:rgba(239,68,68,0.3);" title="Remove job link">
+                      ✕ Unlink
+                    </button>
+                  </div>
+                ` : `
+                  <div style="color:#64748b;font-size:12.5px;font-style:italic;padding:4px 0;">
+                    No job linked yet. Click "+ Link a Job" to associate this ticket with a client deliverable or project.
+                  </div>
+                `}
+
+                <div id="jira-job-link-box" style="display:none;padding:12px;background:#162032;border:1px solid #334155;border-radius:6px;margin-top:8px;">
+                  <label style="font-size:11.5px;font-weight:700;color:#cbd5e1;display:block;margin-bottom:6px;">Choose Job to Link:</label>
+                  <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                    <select id="inp-modal-job-select" class="jira-select-field" style="flex:1;min-width:220px;">
+                      <option value="">-- Select a Job --</option>
+                      ${jobs.map(j => `
+                        <option value="${j._id}" ${currentJobId === j._id.toString() ? 'selected' : ''}>
+                          📁 ${escapeHtml(j.title || 'Untitled Job')}
+                        </option>
+                      `).join('')}
+                    </select>
+                    <button class="btn-jira-primary" id="btn-save-job-link">Link Job</button>
+                    <button class="btn-jira-secondary" id="btn-cancel-job-link">Cancel</button>
+                  </div>
+                </div>
+              </div>
+
               <!-- Activity Tabs Section -->
               <div class="jira-section-block" style="margin-top:10px;">
                 <div class="jira-sec-title">Activity</div>
@@ -941,16 +1025,16 @@ export async function initSupportTickets(container, options = {}) {
                 <span class="jira-side-lbl">Status</span>
                 <select id="sel-detail-status" class="jira-select-field">
                   ${STATUS_COLUMNS.map(s => {
-                    let normSt = t.status || 'To Do';
-                    if (normSt === 'In Progress') normSt = 'Content';
-                    else if (normSt === 'Resolved') normSt = 'Under Review';
-                    else if (normSt === 'Closed') normSt = 'Ready to Leave';
-                    return `
+      let normSt = t.status || 'To Do';
+      if (normSt === 'In Progress') normSt = 'Content';
+      else if (normSt === 'Resolved') normSt = 'Under Review';
+      else if (normSt === 'Closed') normSt = 'Ready to Leave';
+      return `
                       <option value="${s.key}" ${normSt === s.key ? 'selected' : ''}>
                         ${s.label}
                       </option>
                     `;
-                  }).join('')}
+    }).join('')}
                 </select>
               </div>
 
@@ -1017,7 +1101,7 @@ export async function initSupportTickets(container, options = {}) {
                 <select id="sel-detail-job" class="jira-select-field">
                   <option value="">None (Workspace General)</option>
                   ${jobs.map(j => `
-                    <option value="${j._id}" ${t.jobId && t.jobId.toString() === j._id.toString() ? 'selected' : ''}>
+                    <option value="${j._id}" ${currentJobId === j._id.toString() ? 'selected' : ''}>
                       📁 ${escapeHtml(j.title || 'Untitled Job')}
                     </option>
                   `).join('')}
@@ -1201,7 +1285,7 @@ export async function initSupportTickets(container, options = {}) {
       };
     }
 
-    // Linked Job change
+    // Linked Job change (Sidebar)
     const selJob = modalRoot.querySelector('#sel-detail-job');
     if (selJob) {
       selJob.onchange = async (e) => {
@@ -1210,6 +1294,55 @@ export async function initSupportTickets(container, options = {}) {
           activeModalTicket = updated;
           renderTicketDetailModal();
           await reloadBoard();
+          flashToast(e.target.value ? 'Job linked to ticket! 📁' : 'Job unlinked', false);
+        } catch (err) {
+          flashToast(err.message, true);
+        }
+      };
+    }
+
+    // Toggle Job link form (Main Section)
+    const btnToggleJobLink = modalRoot.querySelector('#btn-toggle-job-link');
+    const jobLinkBox = modalRoot.querySelector('#jira-job-link-box');
+    if (btnToggleJobLink && jobLinkBox) {
+      btnToggleJobLink.onclick = () => {
+        jobLinkBox.style.display = jobLinkBox.style.display === 'none' ? 'block' : 'none';
+      };
+    }
+
+    const btnCancelJobLink = modalRoot.querySelector('#btn-cancel-job-link');
+    if (btnCancelJobLink && jobLinkBox) {
+      btnCancelJobLink.onclick = () => {
+        jobLinkBox.style.display = 'none';
+      };
+    }
+
+    const btnSaveJobLink = modalRoot.querySelector('#btn-save-job-link');
+    if (btnSaveJobLink) {
+      btnSaveJobLink.onclick = async () => {
+        const val = modalRoot.querySelector('#inp-modal-job-select')?.value || null;
+        try {
+          const updated = await apiPatch(`/tickets/${activeModalTicket._id}`, { jobId: val });
+          activeModalTicket = updated;
+          renderTicketDetailModal();
+          await reloadBoard();
+          flashToast(val ? 'Job linked to ticket! 📁' : 'Job unlinked', false);
+        } catch (err) {
+          flashToast(err.message, true);
+        }
+      };
+    }
+
+    const btnUnlinkJob = modalRoot.querySelector('#btn-unlink-job');
+    if (btnUnlinkJob) {
+      btnUnlinkJob.onclick = async () => {
+        if (!confirm('Unlink this job from the support ticket?')) return;
+        try {
+          const updated = await apiPatch(`/tickets/${activeModalTicket._id}`, { jobId: null });
+          activeModalTicket = updated;
+          renderTicketDetailModal();
+          await reloadBoard();
+          flashToast('Job unlinked', false);
         } catch (err) {
           flashToast(err.message, true);
         }
@@ -1497,9 +1630,11 @@ export async function initSupportTickets(container, options = {}) {
   /* ──────────────────────────────────────────────────────────────────────────
      CREATE TICKET MODAL (JIRA-STYLE)
      ────────────────────────────────────────────────────────────────────────── */
-  function openCreateTicketModal() {
+  function openCreateTicketModal(preSelectedJobId = null) {
     const modalRoot = container.querySelector('#jira-modals-root');
     if (!modalRoot) return;
+
+    const chosenJobId = preSelectedJobId || (filters.jobId && filters.jobId !== 'all' ? filters.jobId : null);
 
     modalRoot.innerHTML = `
       <div class="jira-modal-backdrop" id="jira-create-backdrop">
@@ -1547,14 +1682,14 @@ export async function initSupportTickets(container, options = {}) {
                 <select id="create-ticket-assignee" class="jira-select-field">
                   ${isSuper ? '<option value="">Unassigned</option>' : ''}
                   ${employees.map(u => {
-                    const isSelf = currentUser && String(currentUser._id || currentUser.id) === String(u._id);
-                    const isSelected = (!isSuper && isSelf) ? 'selected' : '';
-                    return `
+      const isSelf = currentUser && String(currentUser._id || currentUser.id) === String(u._id);
+      const isSelected = (!isSuper && isSelf) ? 'selected' : '';
+      return `
                       <option value="${u._id}" ${isSelected}>
                         ${escapeHtml(u.name)} (${escapeHtml(u.role)})${isSelf ? ' — (You)' : ''}
                       </option>
                     `;
-                  }).join('')}
+    }).join('')}
                 </select>
               </div>
 
@@ -1569,7 +1704,7 @@ export async function initSupportTickets(container, options = {}) {
               <select id="create-ticket-job" class="jira-select-field">
                 <option value="">None (General Workspace Issue)</option>
                 ${jobs.map(j => `
-                  <option value="${j._id}">
+                  <option value="${j._id}" ${chosenJobId && String(chosenJobId) === String(j._id) ? 'selected' : ''}>
                     📁 ${escapeHtml(j.title || 'Untitled Job')}
                   </option>
                 `).join('')}
@@ -1645,5 +1780,16 @@ export async function initSupportTickets(container, options = {}) {
       };
     }
   }
+
+  // Expose methods on container for direct programmatic actions
+  container._openCreateTicketModal = openCreateTicketModal;
+  container._openTicketDetailModal = openTicketDetailModal;
+  container._setJobFilter = async (jobId) => {
+    filters.jobId = jobId || 'all';
+    const jobSel = container.querySelector('#jira-filter-job');
+    if (jobSel) jobSel.value = filters.jobId;
+    updateClearFiltersVisibility();
+    await reloadBoard();
+  };
 }
 

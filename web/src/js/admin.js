@@ -76,7 +76,7 @@ function render(){
 
   renderTab();
 }
-window.ci360NavTab = (newTab) => { ui.tab = newTab; render(); };
+window.ci360NavTab = (newTab, params = {}) => { ui.tab = newTab; ui.tabParams = params; render(); };
 
 async function renderTab(){
   const c = document.getElementById('content');
@@ -119,7 +119,12 @@ async function tabTeamBonding(c) {
 async function tabSupportTickets(c) {
   c.innerHTML = '<div id="support-tickets-module-root"></div>';
   const root = c.querySelector('#support-tickets-module-root');
-  initSupportTickets(root, { userRole: 'superadmin', currentUser: user });
+  const params = ui.tabParams || {};
+  initSupportTickets(root, {
+    userRole: 'superadmin',
+    currentUser: user,
+    initialJobId: params.jobId || null
+  });
 }
 
 function periodPicker(){
@@ -673,6 +678,7 @@ async function tabJobs(c){
               </td>
               <td class="num">${fmtHours((j.assignments||[]).reduce((s,a)=>s+(Number(a.hours)||0),0))}</td>
               <td style="text-align:right;white-space:nowrap;">
+                <button class="btn ghost small job-ticket-btn" data-id="${j._id}" title="Support Tickets linked to this Job" style="margin-right:4px;padding:3px 8px;font-size:11px;">🎫 Ticket</button>
                 <button class="btn ghost small view-job-files" data-id="${j._id}" style="margin-right:4px;padding:3px 8px;font-size:11px;">📁 Files</button>
                 <button class="btn ghost small edit-job" data-id="${j._id}" style="margin-right:4px;padding:3px 8px;font-size:11px;">Assign / Edit</button>
                 <button class="btn danger small del-job" data-id="${j._id}" style="padding:3px 8px;font-size:11px;">Delete</button>
@@ -685,6 +691,12 @@ async function tabJobs(c){
     </section>
   `;
   document.querySelectorAll('[data-jf]').forEach(b=> b.onclick = ()=>{ ui.jobsFilter = b.dataset.jf; renderTab(); });
+
+  document.querySelectorAll('.job-ticket-btn').forEach(btn => {
+    btn.onclick = () => {
+      window.ci360NavTab('tickets', { jobId: btn.dataset.id });
+    };
+  });
 
   document.querySelectorAll('.admin-resubmit-btn').forEach(btn => {
     btn.onclick = () => openAdminResubmitModal(btn.dataset.id, btn.dataset.title, btn.dataset.reason, btn.dataset.type);
