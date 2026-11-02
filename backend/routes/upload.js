@@ -193,6 +193,60 @@ router.post('/', async (req, res) => {
   }
 });
 
+
+// Dedicated video/file streaming route with full HTTP 206 Partial Content & Range request support (for heavy 400MB - 1GB+ MP4 videos)
+router.get('/file/:filename', (req, res) => {
+  const filename = path.basename(req.params.filename);
+  const filePath = path.join(uploadsDir, filename);
+
+  if (!fs.existsSync(filePath)) {
+    return res.status(404).json({ error: 'File not found' });
+  }
+
+  const stat = fs.statSync(filePath);
+  const fileSize = stat.size;
+  const range = req.headers.range;
+
+  const ext = path.extname(filename).toLowerCase();
+  let contentType = 'application/octet-stream';
+  if (ext === '.mp4') contentType = 'video/mp4';
+  else if (ext === '.mov') contentType = 'video/quicktime';
+  else if (ext === '.webm') contentType = 'video/webm';
+  else if (ext === '.pdf') contentType = 'application/pdf';
+  else if (ext === '.png') contentType = 'image/png';
+  else if (ext === '.jpg' || ext === '.jpeg') contentType = 'image/jpeg';
+
+  res.setHeader('Accept-Ranges', 'bytes');
+
+  if (range) {
+    const parts = range.replace(/bytes=/, "").split("-");
+    const start = parseInt(parts[0], 10);
+    const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
+
+    if (start >= fileSize) {
+      res.status(416).send('Requested range not satisfiable\n' + start + ' >= ' + fileSize);
+      return;
+    }
+
+    const chunksize = (end - start) + 1;
+    const fileStream = fs.createReadStream(filePath, { start, end });
+    res.writeHead(206, {
+      'Content-Range': `bytes ${start}-${end}/${fileSize}`,
+      'Accept-Ranges': 'bytes',
+      'Content-Length': chunksize,
+      'Content-Type': contentType,
+    });
+    fileStream.pipe(res);
+  } else {
+    res.writeHead(200, {
+      'Content-Length': fileSize,
+      'Content-Type': contentType,
+      'Accept-Ranges': 'bytes',
+    });
+    fs.createReadStream(filePath).pipe(res);
+  }
+});
+
 router.streamUploadHandler = streamUploadHandler;
 
 module.exports = router;

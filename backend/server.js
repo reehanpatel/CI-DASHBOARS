@@ -2349,6 +2349,7 @@ if (!fs.existsSync(uploadsPath)) {
   fs.mkdirSync(uploadsPath, { recursive: true });
 }
 app.use("/uploads", express.static(uploadsPath, { acceptRanges: true, maxAge: "7d" }));
+app.use("/api/uploads", express.static(uploadsPath, { acceptRanges: true, maxAge: "7d" }));
 
 app.use("/api/auth", require_auth2());
 app.use("/api/users", require_users());

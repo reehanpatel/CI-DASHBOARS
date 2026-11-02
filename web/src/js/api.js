@@ -2421,6 +2421,19 @@ export function fmtFileSize(bytes) {
 }
 export const formatFileSize = fmtFileSize;
 
+
+export function resolveFileUrl(url) {
+  if (!url) return '';
+  if (/^https?:\/\//i.test(url) || url.startsWith('data:') || url.startsWith('blob:')) return url;
+  if (API_BASE && /^https?:\/\//i.test(API_BASE)) {
+    try {
+      const origin = new URL(API_BASE).origin;
+      return origin + (url.startsWith('/') ? url : '/' + url);
+    } catch(e){}
+  }
+  return url;
+}
+
 export function getFileCategory(name = '', type = '') {
   const ext = (name.split('.').pop() || '').toLowerCase();
   if (['png','jpg','jpeg','gif','webp','svg','bmp','ico'].includes(ext) || type.startsWith('image/')) return { icon: '🖼️', cls: 'img', label: 'Image' };
@@ -2509,8 +2522,16 @@ export function renderAttachmentChips(attachments = [], options = {}) {
   if (!attachments || !attachments.length) return '';
   const canDelete = !!options.canDelete;
 
+  // Filter out any video deliverables to render dedicated playable inline video players
+  const videos = attachments.filter(att => {
+    if (!att || !att.url) return false;
+    if (att.type === 'url' || /^https?:\/\//i.test(att.url || '')) return false;
+    const cat = getFileCategory(att.name, att.type);
+    return cat.cls === 'video' || (att.name && att.name.match(/\.(mp4|mov|webm|mkv|avi)$/i)) || (att.type && att.type.startsWith('video/'));
+  });
+
   return `
-    <div class="attachment-chips-wrap">
+    <div class="attachment-chips-wrap" data-attachments="${encodeURIComponent(JSON.stringify(attachments))}">
       ${options.title ? `<div class="attachment-chips-header">📎 ${escapeHtml(options.title)} <span style="font-weight:500;color:var(--text-4)">(${attachments.length})</span></div>` : ''}
       <div class="attachment-chips-list">
         ${attachments.map((att, idx) => {
@@ -2518,23 +2539,28 @@ export function renderAttachmentChips(attachments = [], options = {}) {
           const cat = isUrl ? { cls: 'file-type-doc', icon: '🌐', label: 'Live Link' } : getFileCategory(att.name, att.type);
           const name = escapeHtml(att.name || (isUrl ? 'Live Deliverable URL' : 'File'));
           const size = isUrl ? 'Live Link' : fmtFileSize(att.size);
+          const isVid = cat.cls === 'video' || (att.name && att.name.match(/\.(mp4|mov|webm|mkv|avi)$/i));
+          const fileUrl = resolveFileUrl(att.url);
           return `
-            <div class="attachment-chip" data-idx="${idx}" title="${name} (${size})">
+            <div class="attachment-chip ${isVid ? 'is-video' : ''}" data-idx="${idx}" title="${name} (${size})">
               <span class="file-type-icon ${cat.cls}" style="width:22px;height:22px;font-size:12px">${cat.icon}</span>
               ${isUrl ? `
                 <a href="${att.url}" target="_blank" rel="noopener noreferrer" class="attachment-chip-name" style="text-decoration:none;color:inherit;cursor:pointer" title="Open live URL in new tab">
                   ${name} <span style="font-size:11px;opacity:0.75">↗</span>
                 </a>
               ` : `
-                <span class="attachment-chip-name" onclick="window.__openPreview(${idx}, this)">${name}</span>
+                <span class="attachment-chip-name" onclick="window.__openPreview(${idx}, this)">
+                  ${name}
+                  ${isVid ? '<span class="badge blue" style="font-size:9.5px;padding:1px 4px;margin-left:5px">🎬 MP4 Video</span>' : ''}
+                </span>
               `}
               <span class="attachment-chip-size">${size}</span>
               <div class="attachment-chip-actions">
                 ${isUrl ? `
                   <a href="${att.url}" target="_blank" rel="noopener noreferrer" class="attachment-chip-btn" title="Open Live Link" onclick="event.stopPropagation()">🔗</a>
                 ` : `
-                  <button type="button" class="attachment-chip-btn" title="View Preview" onclick="window.__openPreview(${idx}, this)">👁️</button>
-                  <a href="${att.url}" download="${name}" target="_blank" class="attachment-chip-btn" title="Download" onclick="event.stopPropagation()">⬇️</a>
+                  <button type="button" class="attachment-chip-btn" title="${isVid ? 'Play Video' : 'View Preview'}" onclick="window.__openPreview(${idx}, this)">${isVid ? '▶️' : '👁️'}</button>
+                  <a href="${fileUrl}" download="${name}" target="_blank" class="attachment-chip-btn" title="Download File" onclick="event.stopPropagation()">⬇️</a>
                 `}
                 ${canDelete ? `<button type="button" class="attachment-chip-btn" title="Remove" style="color:var(--red-500)" onclick="window.__removeChip(${idx}, this)">✕</button>` : ''}
               </div>
@@ -2542,6 +2568,34 @@ export function renderAttachmentChips(attachments = [], options = {}) {
           `;
         }).join('')}
       </div>
+
+      ${videos.length > 0 ? `
+        <div class="attachment-videos-container" style="display:flex;flex-direction:column;gap:12px;margin-top:10px">
+          ${videos.map((v) => {
+            const vName = escapeHtml(v.name || 'Deliverable Video');
+            const vSize = fmtFileSize(v.size);
+            const vUrl = resolveFileUrl(v.url);
+            return `
+              <div class="attachment-video-card" style="background:var(--bg-elevated);border:1px solid var(--border-sm);border-radius:8px;padding:12px;overflow:hidden">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:6px">
+                  <span style="font-size:12.5px;font-weight:700;color:var(--text-1);display:flex;align-items:center;gap:6px">
+                    <span style="font-size:16px">🎬</span>
+                    <span>${vName}</span>
+                    <span class="badge blue" style="font-size:10px;padding:2px 6px">${vSize}</span>
+                  </span>
+                  <a href="${vUrl}" download="${vName}" target="_blank" class="btn ghost small" style="font-size:11.5px;padding:3px 10px" onclick="event.stopPropagation()">
+                    ⬇️ Download Video (${vSize})
+                  </a>
+                </div>
+                <video controls preload="metadata" style="width:100%;max-height:380px;background:#000;border-radius:6px;box-shadow:0 4px 14px rgba(0,0,0,0.4);" playsinline>
+                  <source src="${vUrl}" type="${v.type || 'video/mp4'}">
+                  Your browser does not support HTML5 video streaming.
+                </video>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      ` : ''}
     </div>
   `;
 }
@@ -2555,7 +2609,9 @@ export function uploadSingleFileDirectly(file, onProgress) {
     const token = (typeof getToken === 'function') ? getToken() : (localStorage.getItem('ci360_token') || '');
     const encodedName = encodeURIComponent(file.name || 'upload.mp4');
     const mimeType = file.type || (file.name && file.name.match(/\.(mp4|mov|webm)$/i) ? 'video/mp4' : 'application/octet-stream');
-    const url = `/api/upload/stream?name=${encodedName}&type=${encodeURIComponent(mimeType)}`;
+    const base = (API_BASE ? API_BASE.replace(/\/+$/, '') : '/api');
+    const tokenParam = token ? `&token=${encodeURIComponent(token)}` : '';
+    const url = `${base}/upload/stream?name=${encodedName}&type=${encodeURIComponent(mimeType)}${tokenParam}`;
 
     xhr.open('POST', url, true);
     if (token) {
@@ -2565,9 +2621,9 @@ export function uploadSingleFileDirectly(file, onProgress) {
     xhr.setRequestHeader('X-File-Name', encodedName);
     xhr.setRequestHeader('X-File-Type', mimeType);
 
-    if (xhr.upload && typeof onProgress === 'function') {
+    if (xhr.upload) {
       xhr.upload.onprogress = (evt) => {
-        if (evt.lengthComputable) {
+        if (evt.lengthComputable && typeof onProgress === 'function') {
           const percent = Math.round((evt.loaded / evt.total) * 100);
           onProgress(percent, evt.loaded, evt.total);
         }
@@ -2592,9 +2648,9 @@ export function uploadSingleFileDirectly(file, onProgress) {
       }
     };
 
-    xhr.onerror = () => reject(new Error('Network error during file upload'));
-    xhr.ontimeout = () => reject(new Error('Upload timed out'));
-    xhr.timeout = 1800000; // 30 min for 1GB+ files
+    xhr.onerror = () => reject(new Error('Network error during file upload. Please check connection.'));
+    xhr.ontimeout = () => reject(new Error('Upload timed out. File may be too heavy or connection slow.'));
+    xhr.timeout = 3600000; // 60 min for heavy 1GB+ files
     xhr.send(file);
   });
 }
@@ -2636,7 +2692,6 @@ export async function uploadFilesToServer(fileList, onProgress) {
   }
   return results;
 }
-
 export function renderAttachmentUploader({
   id = 'uploader',
   label = 'Attachments & Files',
@@ -2690,26 +2745,106 @@ export function bindAttachmentUploader(id, options = {}) {
       const cat = getFileCategory(f.name, f.type);
       const name = escapeHtml(f.name || 'File');
       const size = fmtFileSize(f.size);
+      const isVideo = cat.cls === 'video' || (f.name && f.name.match(/\.(mp4|mov|webm|mkv|avi)$/i)) || (f.type && f.type.startsWith('video/'));
+      const fUrl = resolveFileUrl(f.url);
       return `
-        <div class="uploader-file-item">
-          <div class="uploader-file-info">
-            <span class="file-type-icon ${cat.cls}">${cat.icon}</span>
-            <div style="min-width:0;flex:1">
-              <div class="uploader-file-name" title="${name}">${name}</div>
-              <div class="uploader-file-size">${cat.label} · ${size}</div>
+        <div class="uploader-file-item ${isVideo ? 'is-video' : ''}" style="display:flex;flex-direction:column;gap:6px;padding:8px 10px;background:var(--bg-elevated);border:1px solid var(--border-sm);border-radius:6px;margin-bottom:8px">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+            <div class="uploader-file-info" style="display:flex;align-items:center;gap:8px;min-width:0;flex:1">
+              <span class="file-type-icon ${cat.cls}" style="width:24px;height:24px;font-size:13px">${cat.icon}</span>
+              <div style="min-width:0;flex:1">
+                <div class="uploader-file-name" title="${name}" style="font-size:12px;font-weight:700;color:var(--text-1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+                  ${name}
+                  ${isVideo ? '<span class="badge blue" style="font-size:9.5px;padding:1px 5px;margin-left:6px">🎬 Video Deliverable</span>' : ''}
+                </div>
+                <div class="uploader-file-size" style="font-size:11px;color:var(--text-3)">${cat.label} · ${size}</div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px">
+              <button type="button" class="btn ghost small" style="padding:3px 8px;font-size:11px" onclick="window.__previewUploaderFile('${id}', ${idx})">Preview / Play</button>
+              <button type="button" class="uploader-file-del" title="Remove file" onclick="window.__removeUploaderFile('${id}', ${idx})">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
             </div>
           </div>
-          <div style="display:flex;align-items:center;gap:6px">
-            <button type="button" class="btn ghost small" style="padding:3px 8px;font-size:11px" onclick="window.__previewUploaderFile('${id}', ${idx})">Preview</button>
-            <button type="button" class="uploader-file-del" title="Remove file" onclick="window.__removeUploaderFile('${id}', ${idx})">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-            </button>
-          </div>
+          ${isVideo && fUrl ? `
+            <div style="margin-top:4px;border-radius:6px;overflow:hidden;background:#000;border:1px solid var(--border-sm)">
+              <video controls preload="metadata" style="width:100%;max-height:240px;display:block;" playsinline>
+                <source src="${fUrl}" type="${f.type || 'video/mp4'}">
+                Your browser does not support HTML5 video streaming.
+              </video>
+            </div>
+          ` : ''}
         </div>
       `;
     }).join('');
 
     if (options.onChange) options.onChange(files);
+  }
+
+  // Handle uploading files with live visual progress bar
+  async function handleFilesUpload(fileList) {
+    const rawFiles = Array.from(fileList || []);
+    if (!rawFiles.length) return;
+
+    if (!list) return;
+
+    for (let i = 0; i < rawFiles.length; i++) {
+      const file = rawFiles[i];
+      const tempId = `up-prog-${Date.now()}-${i}`;
+      const fName = escapeHtml(file.name || 'video.mp4');
+      const fSize = fmtFileSize(file.size);
+      const isVid = file.type?.startsWith('video/') || file.name?.match(/\.(mp4|mov|webm|mkv|avi)$/i);
+
+      // Render progress item card
+      const progItem = document.createElement('div');
+      progItem.id = tempId;
+      progItem.className = 'uploader-progress-card';
+      progItem.style.cssText = 'padding:10px 12px;background:var(--bg-elevated);border:1px solid var(--brand-500,#3b82f6);border-radius:6px;margin-bottom:8px;';
+      progItem.innerHTML = `
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+          <span style="font-size:12px;font-weight:700;color:var(--text-1);display:flex;align-items:center;gap:6px">
+            <span>${isVid ? '🎬' : '📎'}</span>
+            <span style="max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${fName}</span>
+          </span>
+          <span style="font-size:11.5px;font-weight:700;color:var(--brand-500,#3b82f6)" id="${tempId}-percent">0%</span>
+        </div>
+        <div style="background:rgba(255,255,255,0.12);height:7px;border-radius:4px;overflow:hidden;margin-bottom:6px">
+          <div id="${tempId}-bar" style="width:0%;height:100%;background:linear-gradient(90deg, #3b82f6, #06b6d4);transition:width 0.1s linear;"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--text-3)">
+          <span id="${tempId}-status">Uploading ${fSize}… please wait</span>
+          <span id="${tempId}-bytes">0 MB / ${fSize}</span>
+        </div>
+      `;
+      list.appendChild(progItem);
+
+      try {
+        const uploadedFile = await uploadSingleFileDirectly(file, (percent, loaded, total) => {
+          const bar = document.getElementById(`${tempId}-bar`);
+          const pct = document.getElementById(`${tempId}-percent`);
+          const bytes = document.getElementById(`${tempId}-bytes`);
+          if (bar) bar.style.width = `${percent}%`;
+          if (pct) pct.textContent = `${percent}%`;
+          if (bytes) bytes.textContent = `${fmtFileSize(loaded)} / ${fmtFileSize(total)}`;
+        });
+
+        progItem.remove();
+        if (uploadedFile) {
+          uploaderStores[id] = [...(uploaderStores[id] || []), uploadedFile];
+          updateListUI();
+        }
+      } catch (err) {
+        console.error('File upload failed:', err);
+        const status = document.getElementById(`${tempId}-status`);
+        if (status) {
+          status.textContent = '❌ Upload failed: ' + (err.message || 'Network error');
+          status.style.color = 'var(--red-500, #ef4444)';
+        }
+        flashToast('Upload failed for ' + file.name + ': ' + (err.message || 'Network error'), true);
+      }
+    }
+    flashToast('File attached successfully! ✓');
   }
 
   window.__removeUploaderFile = (storeId, idx) => {
@@ -2740,29 +2875,21 @@ export function bindAttachmentUploader(id, options = {}) {
       e.preventDefault();
       zone.classList.remove('dragover');
       if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length) {
-        flashToast('Uploading files… ⏳');
-        const uploaded = await uploadFilesToServer(e.dataTransfer.files);
-        uploaderStores[id] = [...(uploaderStores[id] || []), ...uploaded];
-        updateListUI();
-        flashToast('Files attached! ✓');
+        await handleFilesUpload(e.dataTransfer.files);
       }
     };
 
     input.onchange = async () => {
       if (input.files && input.files.length) {
-        flashToast('Uploading files… ⏳');
-        const uploaded = await uploadFilesToServer(input.files);
-        uploaderStores[id] = [...(uploaderStores[id] || []), ...uploaded];
-        updateListUI();
-        flashToast('Files attached! ✓');
+        const fileList = input.files;
         input.value = '';
+        await handleFilesUpload(fileList);
       }
     };
   }
 
   updateListUI();
 }
-
 export function getUploaderAttachments(id) {
   return uploaderStores[id] || [];
 }
@@ -2775,12 +2902,11 @@ export function setUploaderAttachments(id, files = []) {
 
 // Global preview & chip remove helpers
 window.__openPreview = (idx, el) => {
-  const container = el.closest('.attachment-chips-wrap');
+  const container = el.closest('.attachment-chips-wrap') || el.closest('[data-attachments]');
   if (!container) return;
   const chip = el.closest('.attachment-chip');
-  if (!chip) return;
-  const chipIdx = Number(chip.dataset.idx);
-  const jsonStr = container.dataset.attachments;
+  const chipIdx = chip ? Number(chip.dataset.idx) : idx;
+  const jsonStr = container.dataset.attachments || container.parentElement?.dataset?.attachments;
   if (jsonStr) {
     try {
       const arr = JSON.parse(decodeURIComponent(jsonStr));
