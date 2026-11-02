@@ -577,10 +577,10 @@ export async function initSupportTickets(container, options = {}) {
     const btnRefresh = container.querySelector('#btn-jira-refresh');
     if (btnRefresh) {
       btnRefresh.onclick = async () => {
-        btnRefresh.classList.add('pulse');
+        // no animation on refresh
         await reloadBoard();
         flashToast('Board updated', false);
-        btnRefresh.classList.remove('pulse');
+        
       };
     }
 

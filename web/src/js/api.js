@@ -648,27 +648,18 @@ export function showInAppPopupAlert({ id, title, message, type, time, actionText
   card.id = cardId;
   card.className = `ci360-popup-card ci360-priority-${priority}`;
   card.innerHTML = `
-    <div class="ci360-popup-indicator"></div>
     <div class="ci360-popup-body">
       <div class="ci360-popup-header">
         <div class="ci360-popup-header-left">
-          <div class="ci360-popup-icon-badge">${icon}</div>
-          <span class="ci360-popup-tag ${priority}">${tagText}</span>
-          <span class="ci360-popup-time">${time || 'Just now'}</span>
+          <span class="ci360-popup-icon">${icon}</span>
+          <span class="ci360-popup-title">${escapeHtml(title || 'CI360 Notification')}</span>
         </div>
-        <button type="button" class="ci360-popup-close-btn" aria-label="Dismiss">✕</button>
+        <div class="ci360-popup-header-right">
+          <button type="button" class="ci360-popup-action-btn">${finalActionText} →</button>
+          <button type="button" class="ci360-popup-close-btn" aria-label="Dismiss">✕</button>
+        </div>
       </div>
-      <div class="ci360-popup-title">${escapeHtml(title || 'CI360 Notification')}</div>
-      <div class="ci360-popup-message">${escapeHtml(message || '')}</div>
-      <div class="ci360-popup-footer">
-        <button type="button" class="ci360-popup-dismiss-link">Dismiss</button>
-        <button type="button" class="ci360-popup-action-btn">
-          ${finalActionText} →
-        </button>
-      </div>
-    </div>
-    <div class="ci360-popup-progress">
-      <div class="ci360-popup-progress-fill"></div>
+      ${message ? `<div class="ci360-popup-message">${escapeHtml(message || '')}</div>` : ''}
     </div>
   `;
 
@@ -679,19 +670,15 @@ export function showInAppPopupAlert({ id, title, message, type, time, actionText
   // Close handler
   const closeCard = () => {
     card.style.opacity = '0';
-    card.style.transform = 'translateX(40px) scale(0.95)';
-    setTimeout(() => card.remove(), 220);
+    card.style.transform = 'translateX(20px) scale(0.96)';
+    setTimeout(() => card.remove(), 180);
   };
 
-  card.querySelector('.ci360-popup-close-btn').onclick = (e) => {
-    e.stopPropagation();
-    closeCard();
-  };
+  const closeBtn = card.querySelector('.ci360-popup-close-btn');
+  if(closeBtn) closeBtn.onclick = (e) => { e.stopPropagation(); closeCard(); };
 
-  card.querySelector('.ci360-popup-dismiss-link').onclick = (e) => {
-    e.stopPropagation();
-    closeCard();
-  };
+  const dismissLink = card.querySelector('.ci360-popup-dismiss-link');
+  if(dismissLink) dismissLink.onclick = (e) => { e.stopPropagation(); closeCard(); };
 
   // Action button click
   const executeAction = () => {

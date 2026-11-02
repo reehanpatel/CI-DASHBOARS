@@ -96,10 +96,11 @@ window.ci360NavTab = (tabName, highlightId = null) => {
   render(); 
 };
 
-async function renderTab(){
+async function renderTab(skipSkeleton = false){
   const c = document.getElementById('content');
   if(!c) return;
-  c.innerHTML = renderSkeletonCards(3);
+  if(!skipSkeleton && !c.dataset.loaded) c.innerHTML = renderSkeletonCards(3);
+  c.dataset.loaded = 'true';
   try{
     if(ui.tab==='dashboard')                                                await tabEmployeeDashboard(c);
     else if(ui.tab==='myjobs' || ui.tab==='jobs')                          await tabMyJobs(c);
@@ -1576,7 +1577,7 @@ window.addEventListener('ci360:dataUpdated', (e) => {
   const isTyping = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || activeEl.isContentEditable);
   const hasOpenModal = document.querySelector('.modal-bg, .modal-backdrop, #jobModal');
   if (!isTyping && !hasOpenModal && ui.tab !== 'logjob') {
-    renderTab();
+    renderTab(true);
   }
 });
 

@@ -78,10 +78,11 @@ function render(){
 }
 window.ci360NavTab = (newTab, params = {}) => { ui.tab = newTab; ui.tabParams = params; render(); };
 
-async function renderTab(){
+async function renderTab(skipSkeleton = false){
   const c = document.getElementById('content');
   if(!c) return;
-  c.innerHTML = renderSkeletonCards(4);
+  if(!skipSkeleton && !c.dataset.loaded) c.innerHTML = renderSkeletonCards(4);
+  c.dataset.loaded = 'true';
 
   try{
     if(ui.tab==='dashboard') await tabDashboard(c);
@@ -2585,7 +2586,7 @@ window.addEventListener('ci360:dataUpdated', () => {
   const isTyping = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || activeEl.isContentEditable);
   const hasOpenModal = document.querySelector('.modal-bg, .modal-backdrop, #jobModal, .modal');
   if (!isTyping && !hasOpenModal && ui.tab !== 'logjob') {
-    renderTab();
+    renderTab(true);
   }
 });
 
