@@ -173,6 +173,27 @@ export async function initSupportTickets(container, options = {}) {
     openTicketDetailModal(initialTicketId);
   }
 
+  // Auto-refresh board in background (every 12s) and on window focus
+  const autoRefreshTimer = setInterval(() => {
+    if (!document.contains(container)) {
+      clearInterval(autoRefreshTimer);
+      return;
+    }
+    const isInteracting = container.querySelector('.dragging') || 
+                          container.querySelector('input:focus') || 
+                          container.querySelector('textarea:focus');
+    if (!isInteracting && !activeModalTicket) {
+      reloadBoard();
+    }
+  }, 12000);
+
+  const onWindowFocus = () => {
+    if (document.contains(container) && !activeModalTicket) {
+      reloadBoard();
+    }
+  };
+  window.addEventListener('focus', onWindowFocus);
+
   /* ──────────────────────────────────────────────────────────────────────────
      DATA FETCHING
      ────────────────────────────────────────────────────────────────────────── */
@@ -437,12 +458,11 @@ export async function initSupportTickets(container, options = {}) {
         try {
           const updated = await apiPatch(`/tickets/${ticketDocId}/status`, { status: targetStatus });
           flashToast(`Moved ${updated.ticketId} to ${targetStatus}`, false);
-          await fetchStats();
-          renderStats();
+          await reloadBoard();
         } catch (err) {
           flashToast(err.message || 'Status update failed', true);
           ticket.status = prevStatus;
-          renderBoard();
+          await reloadBoard();
         }
       };
     });
