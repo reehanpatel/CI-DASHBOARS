@@ -1,5 +1,9 @@
 const express = require('express');
 const router = express.Router();
+
+// Track daily automatic alerts per user so they only trigger 1 time per day
+const dailyAlertTracker = new Map();
+
 const Notification = require('../models/Notification');
 const Job = require('../models/Job');
 const Target = require('../models/Target');
@@ -133,7 +137,7 @@ router.get('/', async (req, res) => {
       }
     }
 
-    // 2. Check for due/overdue jobs relevant to user
+    // 2. Check for due/overdue jobs relevant to user (CONSOLIDATED: ONLY 1 NOTIFICATION PER DAY)
     let jobFilter = { status: { $ne: 'Completed' } };
     let pId = req.user.personnelId;
     if (req.user.role === 'employee') {
@@ -148,24 +152,63 @@ router.get('/', async (req, res) => {
 
     const upcomingJobs = await Job.find(jobFilter).limit(30);
     const overdueJobsList = [];
+    const dueTodayJobsList = [];
+
     for (const j of upcomingJobs) {
       const jobDateStr = j.completionDate ? new Date(j.completionDate).toISOString().slice(0, 10) : (j.date ? new Date(j.date).toISOString().slice(0, 10) : null);
       if (jobDateStr && jobDateStr <= todayStr) {
-        const isOverdue = jobDateStr < todayStr;
-        if (isOverdue) overdueJobsList.push(j);
-        const existing = await Notification.findOne({ userId, jobId: j._id, type: 'job_due' });
-        if (!existing) {
-          await Notification.create({
-            userId,
-            type: 'job_due',
-            title: isOverdue ? '⚠️ Overdue Job Deadline' : '⏳ Job Due Today',
-            message: `Job "${j.title || 'Untitled Job'}" is ${isOverdue ? 'past its deadline (' + jobDateStr + ')' : 'due today'}.`,
-            jobId: j._id,
-            read: false
-          });
+        if (jobDateStr < todayStr) {
+          overdueJobsList.push(j);
+        } else {
+          dueTodayJobsList.push(j);
         }
       }
     }
+
+    const startOfToday = new Date(new Date().setHours(0, 0, 0, 0));
+    const dailyKey = `${userId}_${todayStr}`;
+
+    // Only create 1 single automatic job-due notification for today
+    if (dueTodayJobsList.length > 0) {
+      const alreadyAlertedToday = dailyAlertTracker.get(dailyKey) === 'job_due';
+      const existingToday = await Notification.findOne({
+        userId,
+        type: 'job_due',
+        createdAt: { $gte: startOfToday }
+      });
+
+      if (!existingToday && !alreadyAlertedToday) {
+        dailyAlertTracker.set(dailyKey, 'job_due');
+        const count = dueTodayJobsList.length;
+        const title = count === 1 ? '⏳ Job Due Today' : `⏳ ${count} Jobs Due Today`;
+        const names = dueTodayJobsList.map(j => `"${j.title || 'Untitled Job'}"`).slice(0, 3).join(', ');
+        const extra = count > 3 ? ` and ${count - 3} more` : '';
+        const message = count === 1 ? `Job ${names} is due today.` : `You have ${count} jobs due today: ${names}${extra}.`;
+
+        await Notification.create({
+          userId,
+          type: 'job_due',
+          title,
+          message,
+          jobId: dueTodayJobsList[0]._id,
+          read: false
+        });
+      }
+    }
+
+    // Auto-clean any legacy duplicate job_due notifications from today so user only sees 1 in list
+    try {
+      const todayJobDueNotifs = await Notification.find({
+        userId,
+        type: 'job_due',
+        createdAt: { $gte: startOfToday }
+      }).sort({ createdAt: -1 });
+
+      if (todayJobDueNotifs.length > 1) {
+        const duplicateIds = todayJobDueNotifs.slice(1).map(n => n._id);
+        await Notification.deleteMany({ _id: { $in: duplicateIds } });
+      }
+    } catch(e){}
 
     // 3. Check targets for employee
     if (req.user.role === 'employee' && pId) {
@@ -188,28 +231,57 @@ router.get('/', async (req, res) => {
       }
     }
 
-    // 4. Check for active/due/overdue tasks
+    // 4. Check for active/due/overdue tasks (CONSOLIDATED: ONLY 1 NOTIFICATION PER DAY)
     let overdueTasksList = [];
+    let dueTodayTasksList = [];
     if (req.user.role === 'employee' || req.user.role === 'superadmin' || req.user.role === 'admin') {
       const activeTasks = await Task.find({ userId, status: { $ne: 'Completed' } }).limit(30);
       for (const t of activeTasks) {
         const taskDateStr = t.dueDate ? new Date(t.dueDate).toISOString().slice(0, 10) : todayStr;
         if (taskDateStr <= todayStr) {
-          const isOverdue = taskDateStr < todayStr;
-          if (isOverdue) overdueTasksList.push(t);
-          const existing = await Notification.findOne({ userId, taskId: t._id, type: 'task_due' });
-          if (!existing) {
-            await Notification.create({
-              userId,
-              type: 'task_due',
-              title: isOverdue ? '⚠️ Overdue Daily Task' : '⚡ Task Due Today',
-              message: `Daily Task "${t.title}" is ${isOverdue ? 'overdue' : 'on your checklist for today'}. Check it off when done!`,
-              taskId: t._id,
-              read: false
-            });
-          }
+          if (taskDateStr < todayStr) overdueTasksList.push(t);
+          else dueTodayTasksList.push(t);
         }
       }
+
+      if (dueTodayTasksList.length > 0) {
+        const existingTaskToday = await Notification.findOne({
+          userId,
+          type: 'task_due',
+          createdAt: { $gte: startOfToday }
+        });
+
+        if (!existingTaskToday) {
+          const count = dueTodayTasksList.length;
+          const title = count === 1 ? '⚡ Task Due Today' : `⚡ ${count} Tasks Due Today`;
+          const names = dueTodayTasksList.map(t => `"${t.title}"`).slice(0, 3).join(', ');
+          const extra = count > 3 ? ` and ${count - 3} more` : '';
+          const message = count === 1 ? `Daily Task ${names} is on your checklist for today.` : `You have ${count} tasks scheduled for today: ${names}${extra}.`;
+
+          await Notification.create({
+            userId,
+            type: 'task_due',
+            title,
+            message,
+            taskId: dueTodayTasksList[0]._id,
+            read: false
+          });
+        }
+      }
+
+      // Auto-clean any duplicate task_due notifications from today
+      try {
+        const todayTaskDueNotifs = await Notification.find({
+          userId,
+          type: 'task_due',
+          createdAt: { $gte: startOfToday }
+        }).sort({ createdAt: -1 });
+
+        if (todayTaskDueNotifs.length > 1) {
+          const duplicateIds = todayTaskDueNotifs.slice(1).map(n => n._id);
+          await Notification.deleteMany({ _id: { $in: duplicateIds } });
+        }
+      } catch(e){}
     }
 
     const notifications = await Notification.find({ userId, dismissed: { $ne: true } })

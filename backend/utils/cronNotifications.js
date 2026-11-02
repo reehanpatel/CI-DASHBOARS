@@ -64,39 +64,46 @@ async function checkAndDispatchOverduePush() {
       }
     }
 
-    // 2. Overdue or due-today jobs
+    // 2. Overdue or due-today jobs (Consolidated to at most 1 per user per day)
     const activeJobs = await Job.find({ status: { $ne: 'Completed' } }).limit(25);
+    const userDueJobsMap = new Map();
+
     for (const j of activeJobs) {
       const jobDateStr = j.completionDate ? new Date(j.completionDate).toISOString().slice(0, 10) : (j.date ? new Date(j.date).toISOString().slice(0, 10) : null);
-      if (jobDateStr && jobDateStr <= todayStr) {
-        const isOverdue = jobDateStr < todayStr;
-        const targetIds = [];
-        if (j.createdBy) targetIds.push(String(j.createdBy));
-        
-        for (const uId of targetIds) {
-          const existing = await Notification.findOne({
-            userId: uId,
-            jobId: j._id,
-            type: 'job_due',
-            createdAt: { $gte: oneDayAgo }
-          });
-          if (!existing) {
-            const notif = await Notification.create({
-              userId: uId,
-              type: 'job_due',
-              title: isOverdue ? '⚠️ Overdue Job Deadline' : '⏳ Job Due Today',
-              message: `Job "${j.title || 'Untitled Job'}" is ${isOverdue ? 'past its deadline' : 'due today'}.`,
-              jobId: j._id,
-              read: false
-            });
-            await sendPushToUsers([uId], {
-              title: notif.title,
-              message: notif.message,
-              type: 'job_due',
-              url: '/admin'
-            });
-          }
-        }
+      if (jobDateStr && jobDateStr === todayStr && j.createdBy) {
+        const uId = String(j.createdBy);
+        if (!userDueJobsMap.has(uId)) userDueJobsMap.set(uId, []);
+        userDueJobsMap.get(uId).push(j);
+      }
+    }
+
+    for (const [uId, dueList] of userDueJobsMap.entries()) {
+      const existing = await Notification.findOne({
+        userId: uId,
+        type: 'job_due',
+        createdAt: { $gte: oneDayAgo }
+      });
+      if (!existing && dueList.length > 0) {
+        const count = dueList.length;
+        const title = count === 1 ? '⏳ Job Due Today' : `⏳ ${count} Jobs Due Today`;
+        const names = dueList.map(j => `"${j.title || 'Untitled Job'}"`).slice(0, 3).join(', ');
+        const extra = count > 3 ? ` and ${count - 3} more` : '';
+        const message = count === 1 ? `Job ${names} is due today.` : `You have ${count} jobs due today: ${names}${extra}.`;
+
+        const notif = await Notification.create({
+          userId: uId,
+          type: 'job_due',
+          title,
+          message,
+          jobId: dueList[0]._id,
+          read: false
+        });
+        await sendPushToUsers([uId], {
+          title: notif.title,
+          message: notif.message,
+          type: 'job_due',
+          url: '/admin'
+        });
       }
     }
   } catch (err) {

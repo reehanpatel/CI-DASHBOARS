@@ -1208,9 +1208,22 @@ export function initNotificationBell(){
         allNotifs.forEach(n => seenNotifIds.add(String(n._id)));
 
         if(unalertedUnread.length > 0){
+          const todayStr = new Date().toISOString().slice(0, 10);
+          const dailyJobAlertKey = 'ci360_daily_alert_job_' + todayStr;
+          let jobDueAlertedInLoop = !!localStorage.getItem(dailyJobAlertKey);
+
           const itemsToAlert = unalertedUnread.slice(0, 3);
           for(const n of itemsToAlert){
             const sid = String(n._id);
+            if (n.type === 'job_due' || (n.title && n.title.includes('Job Due'))) {
+              if (jobDueAlertedInLoop) {
+                alertedNotifIds.add(sid);
+                continue;
+              }
+              jobDueAlertedInLoop = true;
+              localStorage.setItem(dailyJobAlertKey, 'true');
+            }
+
             showInAppPopupAlert({
               id: sid,
               title: n.title || 'CI360 Alert',
@@ -1238,9 +1251,22 @@ export function initNotificationBell(){
         const newlyArrived = allNotifs.filter(n => !n.read && !alertedNotifIds.has(String(n._id)));
         
         if(newlyArrived.length > 0){
+          const todayStr = new Date().toISOString().slice(0, 10);
+          const dailyJobAlertKey = 'ci360_daily_alert_job_' + todayStr;
+          let jobDueAlertedInLoop = !!localStorage.getItem(dailyJobAlertKey);
+
           for(const n of newlyArrived){
             const sid = String(n._id);
             seenNotifIds.add(sid);
+
+            if (n.type === 'job_due' || (n.title && n.title.includes('Job Due'))) {
+              if (jobDueAlertedInLoop) {
+                alertedNotifIds.add(sid);
+                continue;
+              }
+              jobDueAlertedInLoop = true;
+              localStorage.setItem(dailyJobAlertKey, 'true');
+            }
 
             // Pop up interactive in-app toast card
             showInAppPopupAlert({
