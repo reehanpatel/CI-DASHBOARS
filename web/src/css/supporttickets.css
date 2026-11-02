@@ -160,8 +160,10 @@
 
 .jira-stat-card.critical .jira-stat-val { color: #ef4444; }
 .jira-stat-card.overdue .jira-stat-val { color: #f59e0b; }
-.jira-stat-card.resolved .jira-stat-val { color: #10b981; }
-.jira-stat-card.in-progress .jira-stat-val { color: #38bdf8; }
+.jira-stat-card.content .jira-stat-val, .jira-stat-card.in-progress .jira-stat-val { color: #38bdf8; }
+.jira-stat-card.design .jira-stat-val { color: #a855f7; }
+.jira-stat-card.review .jira-stat-val { color: #eab308; }
+.jira-stat-card.ready .jira-stat-val, .jira-stat-card.resolved .jira-stat-val { color: #10b981; }
 
 /* ── Filter Bar ── */
 .jira-filter-bar {
@@ -982,3 +984,4 @@
   gap: 10px;
   flex-shrink: 0;
 }
+

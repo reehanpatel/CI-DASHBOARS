@@ -91,8 +91,12 @@ router.get('/stats', async (req, res) => {
     const stats = {
       total: tickets.length,
       toDo: 0,
-      inProgress: 0,
+      content: 0,
+      design: 0,
       underReview: 0,
+      readyToLeave: 0,
+      // Backwards compatibility mirrors
+      inProgress: 0,
       resolved: 0,
       closed: 0,
       critical: 0,
@@ -104,16 +108,21 @@ router.get('/stats', async (req, res) => {
     const myId = String(req.user._id);
 
     tickets.forEach(t => {
-      const st = t.status || 'To Do';
+      let st = t.status || 'To Do';
+      // Normalize legacy statuses
+      if (st === 'In Progress') st = 'Content';
+      else if (st === 'Resolved') st = 'Under Review';
+      else if (st === 'Closed') st = 'Ready to Leave';
+
       if (st === 'To Do') stats.toDo++;
-      else if (st === 'In Progress') stats.inProgress++;
-      else if (st === 'Under Review') stats.underReview++;
-      else if (st === 'Resolved') stats.resolved++;
-      else if (st === 'Closed') stats.closed++;
+      else if (st === 'Content') { stats.content++; stats.inProgress++; }
+      else if (st === 'Design') stats.design++;
+      else if (st === 'Under Review') { stats.underReview++; stats.resolved++; }
+      else if (st === 'Ready to Leave') { stats.readyToLeave++; stats.closed++; }
 
       if (t.priority === 'Critical') stats.critical++;
 
-      if (t.dueDate && new Date(t.dueDate) < now && st !== 'Resolved' && st !== 'Closed') {
+      if (t.dueDate && new Date(t.dueDate) < now && st !== 'Ready to Leave' && st !== 'Closed') {
         stats.overdue++;
       }
 
@@ -421,7 +430,7 @@ router.post('/', async (req, res) => {
 router.patch('/:id/status', async (req, res) => {
   try {
     const { status } = req.body;
-    const validStatuses = ['To Do', 'In Progress', 'Under Review', 'Resolved', 'Closed'];
+    const validStatuses = ['To Do', 'Content', 'Design', 'Under Review', 'Ready to Leave', 'In Progress', 'Resolved', 'Closed'];
     if (!validStatuses.includes(status)) {
       return res.status(400).json({ error: 'Invalid status column' });
     }
@@ -435,10 +444,10 @@ router.patch('/:id/status', async (req, res) => {
     }
 
     ticket.status = status;
-    if (status === 'Resolved' && !ticket.resolvedAt) {
+    if ((status === 'Under Review' || status === 'Ready to Leave' || status === 'Resolved') && !ticket.resolvedAt) {
       ticket.resolvedAt = new Date();
     }
-    if (status === 'Closed' && !ticket.closedAt) {
+    if ((status === 'Ready to Leave' || status === 'Closed') && !ticket.closedAt) {
       ticket.closedAt = new Date();
     }
 
@@ -457,7 +466,7 @@ router.patch('/:id/status', async (req, res) => {
 
     // Notify
     createNotificationForTicket({
-      type: status === 'Resolved' ? 'ticket_resolved' : 'ticket_status_changed',
+      type: (status === 'Ready to Leave' || status === 'Resolved') ? 'ticket_resolved' : 'ticket_status_changed',
       title: `🎫 [${ticket.ticketId}] Status: ${status}`,
       message: `${req.user.name} moved ticket ${ticket.ticketId} from "${oldStatus}" to "${status}".`,
       ticket,

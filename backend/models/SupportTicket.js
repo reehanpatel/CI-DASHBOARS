@@ -84,7 +84,7 @@ const SupportTicketSchema = new mongoose.Schema({
   // 5 Jira Scrum status columns
   status: { 
     type: String, 
-    enum: ['To Do', 'In Progress', 'Under Review', 'Resolved', 'Closed'], 
+    enum: ['To Do', 'Content', 'Design', 'Under Review', 'Ready to Leave', 'In Progress', 'Resolved', 'Closed'], 
     default: 'To Do',
     index: true 
   },

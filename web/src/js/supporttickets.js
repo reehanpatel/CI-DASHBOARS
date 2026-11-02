@@ -20,10 +20,10 @@ import {
 
 const STATUS_COLUMNS = [
   { key: 'To Do', label: 'To Do', badgeClass: 'todo' },
-  { key: 'In Progress', label: 'In Progress', badgeClass: 'in-progress' },
+  { key: 'Content', label: 'Content', badgeClass: 'content' },
+  { key: 'Design', label: 'Design', badgeClass: 'design' },
   { key: 'Under Review', label: 'Under Review', badgeClass: 'review' },
-  { key: 'Resolved', label: 'Resolved', badgeClass: 'resolved' },
-  { key: 'Closed', label: 'Closed', badgeClass: 'closed' }
+  { key: 'Ready to Leave', label: 'Ready to Leave', badgeClass: 'ready' }
 ];
 
 const CATEGORIES = [
@@ -229,17 +229,21 @@ export async function initSupportTickets(container, options = {}) {
         <span class="jira-stat-val">${stats.toDo || 0}</span>
         <span class="jira-stat-lbl">To Do</span>
       </div>
-      <div class="jira-stat-card in-progress ${filters.status === 'In Progress' ? 'active' : ''}" data-stat-filter="In Progress">
-        <span class="jira-stat-val">${stats.inProgress || 0}</span>
-        <span class="jira-stat-lbl">In Progress</span>
+      <div class="jira-stat-card content ${filters.status === 'Content' ? 'active' : ''}" data-stat-filter="Content">
+        <span class="jira-stat-val">${stats.content ?? (stats.inProgress || 0)}</span>
+        <span class="jira-stat-lbl">Content</span>
       </div>
-      <div class="jira-stat-card ${filters.status === 'Under Review' ? 'active' : ''}" data-stat-filter="Under Review">
+      <div class="jira-stat-card design ${filters.status === 'Design' ? 'active' : ''}" data-stat-filter="Design">
+        <span class="jira-stat-val">${stats.design || 0}</span>
+        <span class="jira-stat-lbl">Design</span>
+      </div>
+      <div class="jira-stat-card review ${filters.status === 'Under Review' ? 'active' : ''}" data-stat-filter="Under Review">
         <span class="jira-stat-val">${stats.underReview || 0}</span>
         <span class="jira-stat-lbl">Under Review</span>
       </div>
-      <div class="jira-stat-card resolved ${filters.status === 'Resolved' ? 'active' : ''}" data-stat-filter="Resolved">
-        <span class="jira-stat-val">${stats.resolved || 0}</span>
-        <span class="jira-stat-lbl">Resolved</span>
+      <div class="jira-stat-card ready ${filters.status === 'Ready to Leave' ? 'active' : ''}" data-stat-filter="Ready to Leave">
+        <span class="jira-stat-val">${stats.readyToLeave ?? (stats.resolved || stats.closed || 0)}</span>
+        <span class="jira-stat-lbl">Ready to Leave</span>
       </div>
       <div class="jira-stat-card critical" data-stat-filter="critical">
         <span class="jira-stat-val">${stats.critical || 0}</span>
@@ -296,7 +300,10 @@ export async function initSupportTickets(container, options = {}) {
     STATUS_COLUMNS.forEach(col => { grouped[col.key] = []; });
 
     tickets.forEach(t => {
-      const st = t.status || 'To Do';
+      let st = t.status || 'To Do';
+      if (st === 'In Progress') st = 'Content';
+      else if (st === 'Resolved') st = 'Under Review';
+      else if (st === 'Closed') st = 'Ready to Leave';
       if (!grouped[st]) grouped[st] = [];
       grouped[st].push(t);
     });
@@ -330,7 +337,7 @@ export async function initSupportTickets(container, options = {}) {
   function renderCardHtml(t) {
     const cat = CATEGORIES.find(c => c.key === t.category) || CATEGORIES[0];
     const pri = PRIORITIES.find(p => p.key === t.priority) || PRIORITIES[2];
-    const isOverdue = t.dueDate && new Date(t.dueDate) < new Date() && t.status !== 'Resolved' && t.status !== 'Closed';
+    const isOverdue = t.dueDate && new Date(t.dueDate) < new Date() && t.status !== 'Ready to Leave' && t.status !== 'Closed';
     const subtaskDone = (t.subtasks || []).filter(s => s.completed).length;
     const subtaskTotal = (t.subtasks || []).length;
 
@@ -879,11 +886,17 @@ export async function initSupportTickets(container, options = {}) {
               <div class="jira-side-field">
                 <span class="jira-side-lbl">Status</span>
                 <select id="sel-detail-status" class="jira-select-field">
-                  ${STATUS_COLUMNS.map(s => `
-                    <option value="${s.key}" ${t.status === s.key ? 'selected' : ''}>
-                      ${s.label}
-                    </option>
-                  `).join('')}
+                  ${STATUS_COLUMNS.map(s => {
+                    let normSt = t.status || 'To Do';
+                    if (normSt === 'In Progress') normSt = 'Content';
+                    else if (normSt === 'Resolved') normSt = 'Under Review';
+                    else if (normSt === 'Closed') normSt = 'Ready to Leave';
+                    return `
+                      <option value="${s.key}" ${normSt === s.key ? 'selected' : ''}>
+                        ${s.label}
+                      </option>
+                    `;
+                  }).join('')}
                 </select>
               </div>
 
@@ -1575,3 +1588,4 @@ export async function initSupportTickets(container, options = {}) {
     }
   }
 }
+
