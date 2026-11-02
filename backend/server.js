@@ -70,7 +70,7 @@ var require_User = __commonJS({
       deletedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
       deletedByName: { type: String, default: "" }
     }, { timestamps: true });
-    module2.exports = mongoose.model("User", UserSchema);
+    module2.exports = mongoose.models.User || mongoose.model("User", UserSchema);
   }
 });
 var require_auth = __commonJS({
@@ -398,7 +398,7 @@ var require_Personnel = __commonJS({
       deletedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
       deletedByName: { type: String, default: "" }
     }, { timestamps: true });
-    module2.exports = mongoose.model("Personnel", PersonnelSchema);
+    module2.exports = mongoose.models.Personnel || mongoose.model("Personnel", PersonnelSchema);
   }
 });
 var require_personnel = __commonJS({
@@ -499,7 +499,7 @@ var require_Client = __commonJS({
       deletedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
       deletedByName: { type: String, default: "" }
     }, { timestamps: true });
-    module2.exports = mongoose.model("Client", ClientSchema);
+    module2.exports = mongoose.models.Client || mongoose.model("Client", ClientSchema);
   }
 });
 var require_clients = __commonJS({
@@ -588,7 +588,7 @@ var require_Service = __commonJS({
       deletedByName: { type: String, default: "" }
       // reference / informational effort estimate
     }, { timestamps: true });
-    module2.exports = mongoose.model("Service", ServiceSchema);
+    module2.exports = mongoose.models.Service || mongoose.model("Service", ServiceSchema);
   }
 });
 var require_services = __commonJS({
@@ -1341,7 +1341,7 @@ var require_Roster = __commonJS({
       difficulty: { type: Number, min: 1, max: 10, default: 5 },
       comments: { type: String, default: "" }
     }, { timestamps: true });
-    module2.exports = mongoose.model("Roster", RosterSchema);
+    module2.exports = mongoose.models.Roster || mongoose.model("Roster", RosterSchema);
   }
 });
 var require_roster = __commonJS({
@@ -1421,7 +1421,7 @@ var require_Target = __commonJS({
         uploadedAt: { type: Date, default: Date.now }
       }]
     }, { timestamps: true });
-    module2.exports = mongoose.model("Target", TargetSchema);
+    module2.exports = mongoose.models.Target || mongoose.model("Target", TargetSchema);
   }
 });
 var require_stats = __commonJS({
@@ -1725,7 +1725,7 @@ var require_SalaryGrade = __commonJS({
       min: { type: Number, default: 0 },
       max: { type: Number, default: 0 }
     }, { timestamps: true });
-    module2.exports = mongoose.model("SalaryGrade", SalaryGradeSchema);
+    module2.exports = mongoose.models.SalaryGrade || mongoose.model("SalaryGrade", SalaryGradeSchema);
   }
 });
 var require_SalaryAssignment = __commonJS({
@@ -1735,7 +1735,7 @@ var require_SalaryAssignment = __commonJS({
       personId: { type: mongoose.Schema.Types.ObjectId, ref: "Personnel", required: true, unique: true },
       gradeId: { type: mongoose.Schema.Types.ObjectId, ref: "SalaryGrade", required: true }
     }, { timestamps: true });
-    module2.exports = mongoose.model("SalaryAssignment", SalaryAssignmentSchema);
+    module2.exports = mongoose.models.SalaryAssignment || mongoose.model("SalaryAssignment", SalaryAssignmentSchema);
   }
 });
 var require_salary = __commonJS({
@@ -2118,7 +2118,7 @@ var require_SupportTicket = __commonJS({
         uploadedAt: { type: Date, default: Date.now }
       }]
     }, { timestamps: true });
-    module2.exports = mongoose.model("SupportTicket", SupportTicketSchema);
+    module2.exports = mongoose.models.SupportTicket || mongoose.model("SupportTicket", SupportTicketSchema);
   }
 });
 
