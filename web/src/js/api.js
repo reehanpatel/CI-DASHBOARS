@@ -585,9 +585,7 @@ export function getOrCreateFloatingAlertContainer(){
   return container;
 }
 
-export function showInAppPopupAlert({ id, title, message, type, time, actionText, onAction, persistent = false, timeout = 8000 }){
-  playNotificationChime();
-  triggerPhoneVibration();
+export function showInAppPopupAlert({ id, title, message, type, time, actionText, onAction, persistent = false, timeout = 6500 }){
   const container = getOrCreateFloatingAlertContainer();
   if(!container) return;
 
@@ -597,49 +595,36 @@ export function showInAppPopupAlert({ id, title, message, type, time, actionText
 
   let icon = '🔔';
   let priority = 'info';
-  let tagText = 'UPDATE';
-  let defaultActionText = 'View Details';
+  let defaultActionText = 'View';
   let defaultNavTab = '';
 
   const t = (type || '').toLowerCase();
   const m = (message || '').toLowerCase();
 
   if(t.includes('invoice_overdue')){
-    icon = '🚨'; priority = 'critical'; tagText = 'OVERDUE INVOICE';
-    defaultActionText = 'Pay / View Invoice'; defaultNavTab = 'billing';
+    icon = '🚨'; priority = 'critical'; defaultActionText = 'View Invoice'; defaultNavTab = 'billing';
   } else if(t.includes('invoice_paid') || t.includes('payment')){
-    icon = '💳'; priority = 'success'; tagText = 'PAYMENT CLEARED';
-    defaultActionText = 'View Billing'; defaultNavTab = 'billing';
+    icon = '💳'; priority = 'success'; defaultActionText = 'View Billing'; defaultNavTab = 'billing';
   } else if(t.includes('invoice')){
-    icon = '🧾'; priority = 'info'; tagText = 'NEW INVOICE';
-    defaultActionText = 'View Invoice'; defaultNavTab = 'billing';
+    icon = '🧾'; priority = 'info'; defaultActionText = 'View Invoice'; defaultNavTab = 'billing';
   } else if(t.includes('job') && (m.includes('overdue') || t.includes('overdue'))){
-    icon = '⚠️'; priority = 'critical'; tagText = 'OVERDUE JOB';
-    defaultActionText = 'View Job'; defaultNavTab = 'jobs';
+    icon = '⚠️'; priority = 'critical'; defaultActionText = 'View Job'; defaultNavTab = 'jobs';
   } else if(t.includes('job') && m.includes('due today')){
-    icon = '⏳'; priority = 'warning'; tagText = 'JOB DUE TODAY';
-    defaultActionText = 'View Job'; defaultNavTab = 'jobs';
+    icon = '⏳'; priority = 'warning'; defaultActionText = 'View Job'; defaultNavTab = 'jobs';
   } else if(t.includes('job_created')){
-    icon = '📋'; priority = 'info'; tagText = 'NEW JOB LOGGED';
-    defaultActionText = 'View Job'; defaultNavTab = 'jobs';
+    icon = '📋'; priority = 'info'; defaultActionText = 'View Job'; defaultNavTab = 'jobs';
   } else if(t.includes('job') || t.includes('status')){
-    icon = '🔄'; priority = 'info'; tagText = 'JOB UPDATED';
-    defaultActionText = 'View Job'; defaultNavTab = 'jobs';
+    icon = '📋'; priority = 'info'; defaultActionText = 'View Job'; defaultNavTab = 'jobs';
   } else if(t.includes('task') && (m.includes('overdue') || t.includes('overdue'))){
-    icon = '⚠️'; priority = 'critical'; tagText = 'OVERDUE TASK';
-    defaultActionText = 'Check Planner'; defaultNavTab = 'dailytasks';
+    icon = '⚠️'; priority = 'critical'; defaultActionText = 'View Planner'; defaultNavTab = 'dailytasks';
   } else if(t.includes('task_completed')){
-    icon = '✅'; priority = 'success'; tagText = 'TASK COMPLETED';
-    defaultActionText = 'View Planner'; defaultNavTab = 'dailytasks';
+    icon = '✅'; priority = 'success'; defaultActionText = 'View Planner'; defaultNavTab = 'dailytasks';
   } else if(t.includes('task')){
-    icon = '📅'; priority = 'warning'; tagText = 'DAILY PLANNER';
-    defaultActionText = 'Open Planner'; defaultNavTab = 'dailytasks';
+    icon = '📅'; priority = 'info'; defaultActionText = 'Open Planner'; defaultNavTab = 'dailytasks';
   } else if(t.includes('ticket')){
-    icon = '💬'; priority = 'info'; tagText = 'SUPPORT TICKET';
-    defaultActionText = 'View Ticket'; defaultNavTab = 'tickets';
+    icon = '🎫'; priority = 'info'; defaultActionText = 'View Ticket'; defaultNavTab = 'tickets';
   } else if(t.includes('target')){
-    icon = '🎉'; priority = 'success'; tagText = 'TARGET REACHED';
-    defaultActionText = 'View Targets'; defaultNavTab = 'targets';
+    icon = '🎯'; priority = 'success'; defaultActionText = 'View Targets'; defaultNavTab = 'targets';
   }
 
   const finalActionText = actionText || defaultActionText;
@@ -652,10 +637,10 @@ export function showInAppPopupAlert({ id, title, message, type, time, actionText
       <div class="ci360-popup-header">
         <div class="ci360-popup-header-left">
           <span class="ci360-popup-icon">${icon}</span>
-          <span class="ci360-popup-title">${escapeHtml(title || 'CI360 Notification')}</span>
+          <span class="ci360-popup-title">${escapeHtml(title || 'Notification')}</span>
         </div>
         <div class="ci360-popup-header-right">
-          <button type="button" class="ci360-popup-action-btn">${finalActionText} →</button>
+          ${finalActionText ? `<button type="button" class="ci360-popup-action-btn">${finalActionText}</button>` : ''}
           <button type="button" class="ci360-popup-close-btn" aria-label="Dismiss">✕</button>
         </div>
       </div>
@@ -663,22 +648,34 @@ export function showInAppPopupAlert({ id, title, message, type, time, actionText
     </div>
   `;
 
-  // Sound chime & phone vibration
+  // Subtle audio chime & vibration
   playNotificationChime();
   triggerPhoneVibration();
+
+  // Purge notification from database and bell list UI when dismissed or expired
+  const purgeNotification = async () => {
+    if(id){
+      try {
+        await apiDelete(`/notifications/${id}`);
+      } catch(err){}
+      if(typeof window.ci360RemoveNotifFromUI === 'function'){
+        window.ci360RemoveNotifFromUI(id);
+      }
+    }
+  };
 
   // Close handler
   const closeCard = () => {
     card.style.opacity = '0';
-    card.style.transform = 'translateX(20px) scale(0.96)';
-    setTimeout(() => card.remove(), 180);
+    card.style.transform = 'translateY(-6px) scale(0.97)';
+    setTimeout(() => {
+      try { card.remove(); } catch(e){}
+    }, 180);
+    purgeNotification();
   };
 
   const closeBtn = card.querySelector('.ci360-popup-close-btn');
   if(closeBtn) closeBtn.onclick = (e) => { e.stopPropagation(); closeCard(); };
-
-  const dismissLink = card.querySelector('.ci360-popup-dismiss-link');
-  if(dismissLink) dismissLink.onclick = (e) => { e.stopPropagation(); closeCard(); };
 
   // Action button click
   const executeAction = () => {
@@ -692,39 +689,39 @@ export function showInAppPopupAlert({ id, title, message, type, time, actionText
       }
       window.ci360NavTab(navTarget);
     }
-    // Mark as read on server if id is provided
-    if(id){
-      try { api(`/notifications/${id}/read`, { method: 'PATCH' }); } catch(err){}
-    }
+    purgeNotification();
     closeCard();
   };
 
-  card.querySelector('.ci360-popup-action-btn').onclick = (e) => {
-    e.stopPropagation();
-    executeAction();
-  };
+  const actionBtn = card.querySelector('.ci360-popup-action-btn');
+  if(actionBtn) {
+    actionBtn.onclick = (e) => {
+      e.stopPropagation();
+      executeAction();
+    };
+  }
 
   card.style.cursor = 'pointer';
   card.onclick = (e) => {
-    if(e.target.closest('.ci360-popup-close-btn') || e.target.closest('.ci360-popup-dismiss-link')) return;
+    if(e.target.closest('.ci360-popup-close-btn')) return;
     executeAction();
   };
 
-  // Manage container stacking (keep maximum 4 visible popups)
-  while(container.children.length >= 4){
-    container.removeChild(container.firstChild);
+  // Keep maximum 3 visible popups
+  while(container.children.length >= 3){
+    const oldest = container.firstChild;
+    if(oldest) container.removeChild(oldest);
   }
 
   container.appendChild(card);
 
-  // Auto-dismiss timeout (unless critical and persistent)
+  // Auto-dismiss timeout (6.5s)
   if(!persistent){
-    const dismissDuration = priority === 'critical' ? 14000 : timeout;
     setTimeout(() => {
       if(document.body.contains(card)){
         closeCard();
       }
-    }, dismissDuration);
+    }, timeout);
   }
 }
 
@@ -1279,11 +1276,26 @@ export function initNotificationBell(){
     }
   }
 
-  // Expose fetchNotifications globally so other actions (like logging a job) can trigger an immediate check
+  // Expose remove & fetch helpers globally
   if(typeof window !== 'undefined'){
     window.ci360FetchNotifications = fetchNotifications;
     window.showInAppPopupAlert = showInAppPopupAlert;
     window.showClientOverdueInvoiceModal = showClientOverdueInvoiceModal;
+    window.ci360RemoveNotifFromUI = (notifId) => {
+      if(!notifId) return;
+      const sId = String(notifId);
+      allNotifs = allNotifs.filter(n => String(n._id) !== sId);
+      const unread = allNotifs.filter(n => !n.read).length;
+      if(badge){
+        badge.textContent = unread > 99 ? '99+' : unread;
+        badge.style.display = unread > 0 ? 'inline-flex' : 'none';
+      }
+      if(unreadTxt){
+        unreadTxt.textContent = unread > 0 ? `${unread} unread` : '';
+        unreadTxt.style.display = unread > 0 ? 'inline' : 'none';
+      }
+      renderList();
+    };
   }
 
   fetchNotifications();
@@ -1581,8 +1593,10 @@ export function renderAppShell({ user, currentRole, activeTab, tabs, title, subt
     ];
   }
 
+  const isSidebarCollapsed = typeof localStorage !== 'undefined' && localStorage.getItem('ci360_sidebar_collapsed') === 'true';
+
   return `
-    <div class="app-shell">
+    <div class="app-shell ${isSidebarCollapsed ? 'sidebar-collapsed' : ''}">
       <div class="sidebar-overlay" id="sidebarOverlay"></div>
       <aside class="app-sidebar" id="appSidebar">
         <div class="sidebar-brand">
@@ -1591,6 +1605,11 @@ export function renderAppShell({ user, currentRole, activeTab, tabs, title, subt
             <h1>CI360</h1>
             <div class="tag">Intelligence Suite</div>
           </div>
+          <button type="button" class="sidebar-collapse-btn" id="sidebarCollapseBtn" title="Toggle Sidebar (Ctrl+B)" aria-label="Minimize sidebar">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+          </button>
         </div>
         <nav class="sidebar-nav" role="navigation" aria-label="Main navigation">
           <div class="nav-group-label">Navigation</div>
@@ -1615,6 +1634,13 @@ export function renderAppShell({ user, currentRole, activeTab, tabs, title, subt
           <div class="topbar-left">
             <button type="button" class="mobile-nav-toggle" id="mobileNavToggle" aria-label="Open navigation">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
+
+            <button type="button" class="desktop-sidebar-toggle" id="desktopSidebarToggle" title="Toggle Sidebar (Ctrl+B)" aria-label="Toggle sidebar">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="9" y1="3" x2="9" y2="21"></line>
+              </svg>
             </button>
 
             <!-- Mobile Brand Title (Same Logo as Desktop) -->
@@ -1873,6 +1899,35 @@ export function bindAppShellEvents(onTabChange){
 
   if(mobileToggle) mobileToggle.onclick = openSidebar;
   if(overlay) overlay.onclick = closeSidebar;
+
+  // Desktop sidebar collapse toggle
+  const shell = document.querySelector('.app-shell');
+  function toggleSidebarCollapse() {
+    if(!shell) return;
+    shell.classList.toggle('sidebar-collapsed');
+    const isCollapsed = shell.classList.contains('sidebar-collapsed');
+    try {
+      localStorage.setItem('ci360_sidebar_collapsed', isCollapsed ? 'true' : 'false');
+    } catch(e){}
+  }
+
+  const sidebarCollapseBtn = document.getElementById('sidebarCollapseBtn');
+  if(sidebarCollapseBtn) sidebarCollapseBtn.onclick = toggleSidebarCollapse;
+
+  const desktopSidebarToggle = document.getElementById('desktopSidebarToggle');
+  if(desktopSidebarToggle) desktopSidebarToggle.onclick = toggleSidebarCollapse;
+
+  if(!window.__ci360SidebarKeyBound){
+    window.__ci360SidebarKeyBound = true;
+    window.addEventListener('keydown', (e) => {
+      if((e.ctrlKey || e.metaKey) && (e.key === 'b' || e.key === 'B')){
+        const activeTag = document.activeElement ? document.activeElement.tagName.toLowerCase() : '';
+        if(activeTag === 'input' || activeTag === 'textarea' || (document.activeElement && document.activeElement.isContentEditable)) return;
+        e.preventDefault();
+        toggleSidebarCollapse();
+      }
+    });
+  }
 
   // Mobile More Sheet Drawer
   const moreBackdrop = document.getElementById('mobileMoreBackdrop');

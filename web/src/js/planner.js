@@ -499,34 +499,41 @@ export function initDailyPlanner(container, options = {}) {
           </div>
         </div>
 
-        <!-- Inline Quick-Add Card -->
-        <div class="ci360-quick-add-bar">
-          <div class="ci360-quick-add-input-wrap">
-            <input type="text" id="quickAddTitleInp" class="ci360-quick-input" placeholder="Add a focus task for ${formatShortDate(state.selectedDate)}... (Press Enter to save)">
+        <!-- Inline Quick-Add Card / Past Date Locked Banner -->
+        ${state.selectedDate < todayStr ? `
+          <div class="ci360-past-date-banner" style="display:flex;align-items:center;gap:10px;padding:12px 18px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.22);border-radius:10px;font-size:12.5px;color:#f87171;margin-bottom:16px;box-sizing:border-box;">
+            <span style="font-size:16px;">🔒</span>
+            <span><strong>Date Passed:</strong> Tasks cannot be added or edited for <strong>${formatFullDate(state.selectedDate)}</strong> because this date has already passed.</span>
           </div>
+        ` : `
+          <div class="ci360-quick-add-bar">
+            <div class="ci360-quick-add-input-wrap">
+              <input type="text" id="quickAddTitleInp" class="ci360-quick-input" placeholder="Add a focus task for ${formatShortDate(state.selectedDate)}... (Press Enter to save)">
+            </div>
 
-          <div class="ci360-quick-add-meta">
-            <select id="quickAddPriority" class="ci360-quick-select" title="Priority">
-              <option value="Low">Priority: Low</option>
-              <option value="Medium" selected>Priority: Medium</option>
-              <option value="High">Priority: High</option>
-              <option value="Urgent">Priority: Urgent</option>
-            </select>
+            <div class="ci360-quick-add-meta">
+              <select id="quickAddPriority" class="ci360-quick-select" title="Priority">
+                <option value="Low">Priority: Low</option>
+                <option value="Medium" selected>Priority: Medium</option>
+                <option value="High">Priority: High</option>
+                <option value="Urgent">Priority: Urgent</option>
+              </select>
 
-            <select id="quickAddCategory" class="ci360-quick-select" title="Category">
-              <option value="General" selected>General</option>
-              <option value="Client Work">Client Work</option>
-              <option value="Development">Development</option>
-              <option value="Design">Design</option>
-              <option value="Meeting">Meeting</option>
-              <option value="Follow-up">Follow-up</option>
-            </select>
+              <select id="quickAddCategory" class="ci360-quick-select" title="Category">
+                <option value="General" selected>General</option>
+                <option value="Client Work">Client Work</option>
+                <option value="Development">Development</option>
+                <option value="Design">Design</option>
+                <option value="Meeting">Meeting</option>
+                <option value="Follow-up">Follow-up</option>
+              </select>
 
-            <button type="button" class="ci360-quick-add-btn" id="btnQuickAddSubmit">
-              <span>+ Add</span>
-            </button>
+              <button type="button" class="ci360-quick-add-btn" id="btnQuickAddSubmit">
+                <span>+ Add</span>
+              </button>
+            </div>
           </div>
-        </div>
+        `}
 
         <!-- Task List or Empty State -->
         <div class="ci360-tasks-container">
@@ -562,6 +569,8 @@ export function initDailyPlanner(container, options = {}) {
   function renderTaskCard(task, todayStr) {
     const isCompleted = task.status === 'Completed';
     const isPastDue = isOverdue(task, todayStr);
+    const taskDate = task.dateStr || (task.dueDate ? new Date(task.dueDate).toISOString().slice(0, 10) : todayStr);
+    const isDateGone = taskDate < todayStr;
     const priClass = `pri-${(task.priority || 'medium').toLowerCase()}`;
     const statusClass = `status-${(task.status || 'pending').toLowerCase().replace(/\s+/g, '-')}`;
 
@@ -632,12 +641,16 @@ export function initDailyPlanner(container, options = {}) {
 
         <!-- Task Actions Menu -->
         <div class="ci360-task-actions">
-          <button type="button" class="task-action-btn edit" data-action="edit" data-id="${task._id}" title="Edit task">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-          </button>
-          <button type="button" class="task-action-btn delete" data-action="delete" data-id="${task._id}" title="Delete task">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-          </button>
+          ${isDateGone ? `
+            <span class="task-action-btn" title="Locked: Tasks cannot be edited after the date has passed" style="opacity:0.45;cursor:not-allowed;display:flex;align-items:center;justify-content:center;font-size:13px;">🔒</span>
+          ` : `
+            <button type="button" class="task-action-btn edit" data-action="edit" data-id="${task._id}" title="Edit task">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </button>
+            <button type="button" class="task-action-btn delete" data-action="delete" data-id="${task._id}" title="Delete task">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            </button>
+          `}
         </div>
 
       </div>
@@ -1187,6 +1200,12 @@ export function initDailyPlanner(container, options = {}) {
     const initialDate = existingTask
       ? (existingTask.dateStr || (existingTask.dueDate ? new Date(existingTask.dueDate).toISOString().slice(0, 10) : state.selectedDate))
       : (targetDate || state.selectedDate);
+
+    const todayStr = getTodayStr();
+    if (initialDate < todayStr) {
+      flashToast('Tasks cannot be added or edited after the date is gone.', true);
+      return;
+    }
 
     const modalHtml = `
       <div class="ci360-planner-modal">

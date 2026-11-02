@@ -131,6 +131,11 @@ router.post('/', async (req, res) => {
 
     const dStr = dateStr || (dueDate ? new Date(dueDate).toISOString().slice(0, 10) : new Date().toISOString().slice(0, 10));
     const calculatedDueDate = dueDate ? new Date(dueDate) : (dStr ? new Date(dStr + 'T00:00:00.000Z') : null);
+
+    const todayStr = new Date().toISOString().slice(0, 10);
+    if (dStr < todayStr) {
+      return res.status(400).json({ error: 'Cannot add tasks after the date is gone. Please select today or a future date.' });
+    }
     const isCompleted = status === 'Completed';
 
     // Handle Admin bulk assignment to all team members
@@ -241,6 +246,15 @@ router.put('/:id', async (req, res) => {
       return res.status(404).json({ error: 'Task not found' });
     }
 
+    const todayStr = new Date().toISOString().slice(0, 10);
+    const existingTaskDate = task.dateStr || (task.dueDate ? new Date(task.dueDate).toISOString().slice(0, 10) : todayStr);
+    if (existingTaskDate < todayStr) {
+      return res.status(400).json({ error: 'Cannot edit or modify tasks after the date is gone.' });
+    }
+    if (req.body.dateStr && req.body.dateStr < todayStr) {
+      return res.status(400).json({ error: 'Cannot move tasks to a past date.' });
+    }
+
     const {
       title,
       description,
@@ -344,6 +358,12 @@ router.patch('/:id/toggle', async (req, res) => {
     const task = await Task.findOne(taskQuery);
     if (!task) {
       return res.status(404).json({ error: 'Task not found' });
+    }
+
+    const todayStr = new Date().toISOString().slice(0, 10);
+    const existingTaskDate = task.dateStr || (task.dueDate ? new Date(task.dueDate).toISOString().slice(0, 10) : todayStr);
+    if (existingTaskDate < todayStr) {
+      return res.status(400).json({ error: 'Cannot modify tasks after the date is gone.' });
     }
 
     const isNowDone = task.status !== 'Completed';

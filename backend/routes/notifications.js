@@ -260,23 +260,23 @@ router.patch('/:id/read', async (req, res) => {
   }
 });
 
-// DELETE /api/notifications (Clear all - marks dismissed so auto-generators don't recreate them)
+// DELETE /api/notifications (Clear all permanently)
 router.delete('/', async (req, res) => {
   try {
-    await Notification.updateMany({ userId: req.user._id, dismissed: { $ne: true } }, { dismissed: true, read: true });
-    res.json({ success: true });
+    await Notification.deleteMany({ userId: req.user._id });
+    res.json({ success: true, message: 'All notifications cleared' });
   } catch (err) {
     res.status(500).json({ error: 'Could not clear notifications', detail: err.message });
   }
 });
 
-// DELETE /api/notifications/:id
+// DELETE /api/notifications/:id - Permanently delete notification
 router.delete('/:id', async (req, res) => {
   try {
-    await Notification.findOneAndUpdate({ _id: req.params.id, userId: req.user._id }, { dismissed: true, read: true });
-    res.json({ success: true });
+    await Notification.deleteOne({ _id: req.params.id, userId: req.user._id });
+    res.json({ success: true, message: 'Notification removed' });
   } catch (err) {
-    res.status(500).json({ error: 'Could not dismiss notification', detail: err.message });
+    res.status(500).json({ error: 'Could not delete notification', detail: err.message });
   }
 });
 

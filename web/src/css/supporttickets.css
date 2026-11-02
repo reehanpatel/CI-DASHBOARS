@@ -1207,4 +1207,509 @@
   gap: 10px;
   flex-shrink: 0;
 }
+/* ==========================================================================
+   SUPPORT TICKETS — COMPREHENSIVE LIGHT THEME STYLES
+   ========================================================================== */
+[data-theme="light"] .jira-module-wrap {
+  background: #f8fafc;
+  color: #0f172a;
+}
 
+[data-theme="light"] .jira-main-title {
+  color: #0f172a;
+}
+
+[data-theme="light"] .jira-breadcrumb {
+  color: #64748b;
+}
+
+[data-theme="light"] .btn-jira-secondary {
+  background: #ffffff;
+  color: #334155;
+  border-color: #cbd5e1;
+}
+
+[data-theme="light"] .btn-jira-secondary:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+  border-color: #94a3b8;
+}
+
+[data-theme="light"] .jira-stat-card {
+  background: #ffffff;
+  border-color: #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .jira-stat-card:hover,
+[data-theme="light"] .jira-stat-card.active {
+  background: #f8fafc;
+  border-color: #2563eb;
+}
+
+[data-theme="light"] .jira-stat-val {
+  color: #0f172a;
+}
+
+[data-theme="light"] .jira-stat-lbl {
+  color: #64748b;
+}
+
+[data-theme="light"] .jira-controls-bar {
+  background: #ffffff;
+  border-color: #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] .jira-search-wrap {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+[data-theme="light"] .jira-search-input {
+  color: #0f172a;
+}
+
+[data-theme="light"] .jira-search-input::placeholder {
+  color: #94a3b8;
+}
+
+[data-theme="light"] .jira-select-filter {
+  background: #ffffff;
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+
+[data-theme="light"] .jira-pill-filter {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #475569;
+}
+
+[data-theme="light"] .jira-pill-filter:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+[data-theme="light"] .jira-pill-filter.active {
+  background: #2563eb;
+  color: #ffffff;
+  border-color: #2563eb;
+}
+
+[data-theme="light"] .jira-clear-filters-btn {
+  color: #64748b;
+}
+
+[data-theme="light"] .jira-clear-filters-btn:hover {
+  color: #ef4444;
+}
+
+[data-theme="light"] .jira-board-columns {
+  background: transparent;
+}
+
+[data-theme="light"] .jira-column {
+  background: #f1f5f9;
+  border-color: #e2e8f0;
+}
+
+[data-theme="light"] .jira-column.drag-over {
+  background: rgba(37, 99, 235, 0.08);
+  border-color: #2563eb;
+}
+
+[data-theme="light"] .jira-column-title {
+  color: #334155;
+}
+
+[data-theme="light"] .jira-column-count {
+  background: #e2e8f0;
+  color: #475569;
+}
+
+[data-theme="light"] .jira-card {
+  background: #ffffff;
+  border-color: #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .jira-card:hover {
+  border-color: #2563eb;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .jira-card-title {
+  color: #0f172a;
+}
+
+[data-theme="light"] .jira-card-meta {
+  color: #64748b;
+}
+
+[data-theme="light"] .jira-badge-category {
+  background: #f1f5f9;
+  color: #475569;
+  border-color: #e2e8f0;
+}
+
+[data-theme="light"] .jira-linked-job-badge {
+  background: #f1f5f9;
+  color: #475569;
+  border-color: #e2e8f0;
+}
+
+[data-theme="light"] .jira-empty-col {
+  color: #94a3b8;
+}
+
+/* Modals in Light Mode */
+[data-theme="light"] .jira-modal-backdrop {
+  background: rgba(15, 23, 42, 0.6);
+}
+
+[data-theme="light"] .jira-modal-card {
+  background: #ffffff;
+  border-color: #e2e8f0;
+  color: #0f172a;
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.15);
+}
+
+[data-theme="light"] .jira-modal-header {
+  border-bottom-color: #e2e8f0;
+  background: #ffffff;
+}
+
+[data-theme="light"] .jira-modal-footer {
+  border-top-color: #e2e8f0;
+  background: #f8fafc;
+}
+
+[data-theme="light"] .jira-modal-close {
+  color: #64748b;
+}
+
+[data-theme="light"] .jira-modal-close:hover {
+  color: #0f172a;
+  background: #f1f5f9;
+}
+
+[data-theme="light"] .jira-detail-left {
+  border-right-color: #e2e8f0;
+}
+
+[data-theme="light"] .jira-sec-title {
+  color: #334155;
+  border-bottom-color: #e2e8f0;
+}
+
+[data-theme="light"] .jira-editable-title {
+  color: #0f172a;
+  background: transparent;
+}
+
+[data-theme="light"] .jira-editable-title:hover,
+[data-theme="light"] .jira-editable-title:focus {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+[data-theme="light"] .jira-desc-box {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+  color: #334155;
+}
+
+[data-theme="light"] .jira-desc-textarea {
+  background: #ffffff;
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+
+[data-theme="light"] .jira-input-field,
+[data-theme="light"] .jira-select-field,
+[data-theme="light"] .jira-date-field,
+[data-theme="light"] .jira-textarea-field,
+[data-theme="light"] .jira-form-input,
+[data-theme="light"] .jira-form-textarea {
+  background: #ffffff;
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+
+[data-theme="light"] .jira-input-field:focus,
+[data-theme="light"] .jira-select-field:focus,
+[data-theme="light"] .jira-date-field:focus,
+[data-theme="light"] .jira-textarea-field:focus,
+[data-theme="light"] .jira-form-input:focus,
+[data-theme="light"] .jira-form-textarea:focus {
+  border-color: #2563eb;
+}
+
+[data-theme="light"] .jira-form-label {
+  color: #475569;
+}
+
+[data-theme="light"] .jira-field-row {
+  border-bottom-color: #f1f5f9;
+}
+
+[data-theme="light"] .jira-field-lbl {
+  color: #64748b;
+}
+
+[data-theme="light"] .jira-field-val {
+  color: #0f172a;
+}
+
+[data-theme="light"] .jira-detail-panel {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+}
+
+[data-theme="light"] .jira-activity-tabs {
+  border-bottom-color: #e2e8f0;
+}
+
+[data-theme="light"] .jira-tab-btn {
+  color: #64748b;
+}
+
+[data-theme="light"] .jira-tab-btn:hover {
+  color: #0f172a;
+}
+
+[data-theme="light"] .jira-tab-btn.active {
+  color: #2563eb;
+  border-bottom-color: #2563eb;
+}
+
+[data-theme="light"] .jira-comment-box {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+}
+
+[data-theme="light"] .jira-comment-card,
+[data-theme="light"] .jira-history-item,
+[data-theme="light"] .jira-worklog-card {
+  background: #ffffff;
+  border-color: #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] .jira-comment-user {
+  color: #0f172a;
+}
+
+[data-theme="light"] .jira-comment-body {
+  color: #334155;
+}
+
+[data-theme="light"] .jira-att-card {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+}
+
+[data-theme="light"] .jira-att-card.is-video {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+[data-theme="light"] .jira-att-name {
+  color: #0284c7;
+}
+
+[data-theme="light"] .jira-subtask-item {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+}
+
+[data-theme="light"] .jira-subtask-item.done {
+  background: #f1f5f9;
+}
+
+[data-theme="light"] .jira-subtask-title {
+  color: #0f172a;
+}
+
+[data-theme="light"] .jira-subtask-progress {
+  background: #e2e8f0;
+}
+
+[data-theme="light"] .jira-emp-checklist-box {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+}
+
+[data-theme="light"] .jira-emp-check-item {
+  background: #ffffff;
+  border-color: #e2e8f0;
+}
+
+[data-theme="light"] .jira-emp-check-item:hover {
+  border-color: #cbd5e1;
+}
+
+[data-theme="light"] .jira-emp-check-item.selected {
+  background: rgba(37, 99, 235, 0.08);
+  border-color: #3b82f6;
+}
+
+[data-theme="light"] .jira-emp-check-item span {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .jira-att-dropzone {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+}
+
+[data-theme="light"] .jira-att-dropzone:hover {
+  border-color: #2563eb !important;
+  background: #eff6ff !important;
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   STRICT SINGLE-LINE HORIZONTAL FILTER BAR (NEVER WRAP)
+   ═══════════════════════════════════════════════════════════ */
+.jira-filter-bar {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  flex-wrap: nowrap !important;
+  gap: 8px !important;
+  width: 100% !important;
+  overflow-x: auto !important;
+  white-space: nowrap !important;
+  scrollbar-width: thin !important;
+  box-sizing: border-box !important;
+  padding: 8px 12px !important;
+  margin-bottom: 20px !important;
+}
+
+.jira-filter-left {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  flex-wrap: nowrap !important;
+  gap: 8px !important;
+  width: auto !important;
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+}
+
+.jira-search-wrap {
+  width: 220px !important;
+  min-width: 160px !important;
+  max-width: 260px !important;
+  flex: 0 0 auto !important;
+  display: block !important;
+}
+
+.jira-search-input {
+  width: 100% !important;
+  height: 32px !important;
+  box-sizing: border-box !important;
+}
+
+.jira-filter-select {
+  width: auto !important;
+  min-width: 125px !important;
+  max-width: 175px !important;
+  flex: 0 0 auto !important;
+  display: inline-block !important;
+  height: 32px !important;
+  box-sizing: border-box !important;
+}
+
+.jira-pill-filter {
+  flex: 0 0 auto !important;
+  white-space: nowrap !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  height: 32px !important;
+}
+
+/* Light Mode Overrides for Filter Bar & Board */
+[data-theme="light"] .jira-filter-bar {
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+[data-theme="light"] .jira-filter-select {
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .jira-filter-select option {
+  background: #ffffff !important;
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .jira-search-input {
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .jira-search-input::placeholder {
+  color: #94a3b8 !important;
+}
+
+[data-theme="light"] .jira-search-icon {
+  color: #64748b !important;
+}
+
+[data-theme="light"] .jira-pill-filter {
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #475569 !important;
+}
+
+[data-theme="light"] .jira-pill-filter:hover {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+  border-color: #94a3b8 !important;
+}
+
+[data-theme="light"] .jira-pill-filter.active {
+  background: #2563eb !important;
+  border-color: #2563eb !important;
+  color: #ffffff !important;
+}
+
+[data-theme="light"] .jira-board-wrap {
+  background: var(--bg-surface, #ffffff) !important;
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .jira-header-bar {
+  border-bottom-color: #e2e8f0 !important;
+}
+
+[data-theme="light"] .jira-board-title {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .btn-jira-primary {
+  background: #2563eb !important;
+  color: #ffffff !important;
+}
+
+[data-theme="light"] .btn-jira-primary:hover {
+  background: #1d4ed8 !important;
+}
+
+[data-theme="light"] .btn-jira-secondary {
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #334155 !important;
+}
+
+[data-theme="light"] .btn-jira-secondary:hover {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+}

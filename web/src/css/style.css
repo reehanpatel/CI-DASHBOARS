@@ -6610,3 +6610,264 @@ html:not([data-theme="dark"]) textarea {
   break-inside: avoid !important;
   page-break-inside: avoid !important;
 }
+
+
+/* ═══════════════════════════════════════════════════════════
+   SIDEBAR MINIMIZATION / COLLAPSE
+   ═══════════════════════════════════════════════════════════ */
+.sidebar-collapse-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-4);
+  cursor: pointer;
+  padding: 5px;
+  border-radius: var(--r-xs);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: auto;
+  transition: all var(--t-fast);
+}
+.sidebar-collapse-btn:hover {
+  color: var(--text-1);
+  background: var(--bg-hover);
+}
+
+.desktop-sidebar-toggle {
+  display: none;
+  background: transparent;
+  border: 1px solid var(--border-sm);
+  color: var(--text-3);
+  padding: 6px;
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--t-fast);
+  margin-right: 8px;
+}
+.desktop-sidebar-toggle:hover {
+  color: var(--text-1);
+  background: var(--bg-hover);
+  border-color: var(--border-md);
+}
+
+@media (min-width: 769px) {
+  .desktop-sidebar-toggle {
+    display: inline-flex;
+  }
+
+  /* Minimized Sidebar State */
+  .app-shell.sidebar-collapsed .app-sidebar {
+    width: 68px !important;
+  }
+  .app-shell.sidebar-collapsed .app-main {
+    margin-left: 68px !important;
+  }
+  .app-shell.sidebar-collapsed .sidebar-brand {
+    padding: 0 10px !important;
+    justify-content: center !important;
+    gap: 0 !important;
+  }
+  .app-shell.sidebar-collapsed .brand-logo-img {
+    margin: 0 auto;
+  }
+  .app-shell.sidebar-collapsed .brand-info,
+  .app-shell.sidebar-collapsed .sidebar-collapse-btn,
+  .app-shell.sidebar-collapsed .nav-group-label,
+  .app-shell.sidebar-collapsed .sidebar-item span:not(.icon),
+  .app-shell.sidebar-collapsed .sidebar-user .user-details {
+    display: none !important;
+  }
+  .app-shell.sidebar-collapsed .sidebar-item {
+    justify-content: center !important;
+    padding: 11px 0 !important;
+    gap: 0 !important;
+    position: relative;
+  }
+  .app-shell.sidebar-collapsed .sidebar-item .icon {
+    font-size: 19px !important;
+    margin: 0 !important;
+  }
+  .app-shell.sidebar-collapsed .sidebar-user {
+    justify-content: center !important;
+    padding: 12px 0 !important;
+  }
+  .app-shell.sidebar-collapsed .sidebar-user .user-avatar {
+    margin: 0 auto;
+  }
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   DISABLE REFRESH ANIMATIONS ACROSS ALL SOFTWARE
+   ═══════════════════════════════════════════════════════════ */
+.pulse,
+.pulse-dot,
+.pulse-highlight,
+.refreshing,
+.refresh-spin,
+[class*="refresh-icon"],
+[class*="refreshing"],
+.data-refreshing,
+.jira-refresh-spin {
+  animation: none !important;
+  transform: none !important;
+  transition: none !important;
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   ULTRA-MINIMAL NOTIFICATION POPUP CARD
+   ═══════════════════════════════════════════════════════════ */
+.ci360-floating-container {
+  position: fixed !important;
+  top: 14px !important;
+  right: 14px !important;
+  z-index: 999999 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px !important;
+  max-width: 290px !important;
+  width: auto !important;
+  pointer-events: none !important;
+}
+
+.ci360-popup-card {
+  pointer-events: auto !important;
+  position: relative !important;
+  background: rgba(15, 23, 42, 0.94) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 6px !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.28) !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+  animation: ci360SlideInRight 0.18s ease-out forwards !important;
+  transition: transform 0.15s ease, opacity 0.15s ease !important;
+}
+
+[data-theme="light"] .ci360-popup-card {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08) !important;
+}
+
+.ci360-popup-body {
+  padding: 6px 10px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 2px !important;
+}
+
+.ci360-popup-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 6px !important;
+}
+
+.ci360-popup-header-left {
+  display: flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  min-width: 0 !important;
+  flex: 1 !important;
+}
+
+.ci360-popup-icon {
+  font-size: 12px !important;
+  line-height: 1 !important;
+  flex-shrink: 0 !important;
+}
+
+.ci360-popup-title {
+  font-size: 11.5px !important;
+  font-weight: 600 !important;
+  color: #f1f5f9 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+[data-theme="light"] .ci360-popup-title {
+  color: #0f172a !important;
+}
+
+.ci360-popup-header-right {
+  display: flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  flex-shrink: 0 !important;
+}
+
+.ci360-popup-message {
+  font-size: 11px !important;
+  color: #94a3b8 !important;
+  line-height: 1.3 !important;
+  word-break: break-word !important;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 2 !important;
+  -webkit-box-orient: vertical !important;
+  overflow: hidden !important;
+}
+
+[data-theme="light"] .ci360-popup-message {
+  color: #475569 !important;
+}
+
+.ci360-popup-action-btn {
+  background: rgba(56, 189, 248, 0.15) !important;
+  color: #38bdf8 !important;
+  border: 1px solid rgba(56, 189, 248, 0.3) !important;
+  font-size: 10px !important;
+  font-weight: 600 !important;
+  padding: 1px 6px !important;
+  border-radius: 4px !important;
+  cursor: pointer !important;
+  white-space: nowrap !important;
+  transition: opacity 0.15s !important;
+}
+
+[data-theme="light"] .ci360-popup-action-btn {
+  background: #eff6ff !important;
+  color: #2563eb !important;
+  border-color: #bfdbfe !important;
+}
+
+.ci360-priority-critical .ci360-popup-action-btn {
+  background: rgba(239, 68, 68, 0.15) !important;
+  color: #ef4444 !important;
+  border-color: rgba(239, 68, 68, 0.3) !important;
+}
+
+.ci360-popup-close-btn {
+  background: transparent !important;
+  border: none !important;
+  color: #94a3b8 !important;
+  cursor: pointer !important;
+  padding: 2px !important;
+  font-size: 11px !important;
+  line-height: 1 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.ci360-popup-close-btn:hover {
+  color: #f1f5f9 !important;
+}
+
+[data-theme="light"] .ci360-popup-close-btn:hover {
+  color: #0f172a !important;
+}
+
+.ci360-popup-indicator,
+.ci360-popup-tag,
+.ci360-popup-time,
+.ci360-popup-footer,
+.ci360-popup-dismiss-link,
+.ci360-popup-progress {
+  display: none !important;
+}
