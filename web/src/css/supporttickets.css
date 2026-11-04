@@ -10,7 +10,7 @@
   color: var(--text-1, #f8fafc);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, "Fira Sans", "Droid Sans", sans-serif;
   box-sizing: border-box;
-  padding: 18px 24px 40px;
+  padding: 14px 14px 35px;
 }
 
 @media (max-width: 768px) {
@@ -280,28 +280,46 @@
   flex-shrink: 0;
 }
 
-/* ── Scrum Board Columns Container ── */
+/* ── Scrum Board Columns Container (Strictly 1 Line, Compact Boxes) ── */
 .jira-board-columns {
-  display: flex;
-  gap: 14px;
-  overflow-x: auto;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+  width: 100%;
   padding-bottom: 16px;
-  min-height: 520px;
+  min-height: 460px;
   align-items: flex-start;
   user-select: none;
+  box-sizing: border-box;
+}
+
+@media (max-width: 820px) {
+  .jira-board-columns {
+    display: flex;
+    overflow-x: auto;
+    gap: 8px;
+    padding-bottom: 12px;
+  }
 }
 
 .jira-board-column {
-  flex: 1;
-  min-width: 250px;
-  max-width: 320px;
+  width: 100%;
+  min-width: 0;
   background: #162032;
-  border-radius: 8px;
+  border-radius: 6px;
   border: 1px solid #223048;
   display: flex;
   flex-direction: column;
-  max-height: calc(100vh - 220px);
+  max-height: calc(100vh - 210px);
   transition: background 0.15s ease, border-color 0.15s ease;
+  box-sizing: border-box;
+}
+
+@media (max-width: 820px) {
+  .jira-board-column {
+    flex: 0 0 200px;
+    min-width: 200px;
+  }
 }
 
 .jira-board-column.drag-over {
@@ -310,59 +328,67 @@
 }
 
 .jira-column-header {
-  padding: 12px 14px;
+  padding: 8px 10px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   border-bottom: 1px solid #223048;
   flex-shrink: 0;
+  gap: 4px;
 }
 
 .jira-col-title-wrap {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 5px;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .jira-col-title {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
   color: #cbd5e1;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .jira-col-badge {
   background: #243248;
   color: #94a3b8;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
-  padding: 2px 7px;
-  border-radius: 10px;
+  padding: 1px 5px;
+  border-radius: 8px;
+  flex-shrink: 0;
 }
 
 .jira-cards-list {
-  padding: 10px;
+  padding: 6px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 6px;
   overflow-y: auto;
   flex: 1;
-  min-height: 120px;
+  min-height: 100px;
 }
 
 /* ── Ticket Card ── */
 .jira-card {
   background: #1e293b;
   border: 1px solid #334155;
-  border-radius: 6px;
-  padding: 12px;
+  border-radius: 5px;
+  padding: 8px 9px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 5px;
   cursor: grab;
   transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
   position: relative;
+  word-break: break-word;
 }
 
 .jira-card:hover {
@@ -1309,20 +1335,28 @@
   background: transparent;
 }
 
+[data-theme="light"] .jira-board-column,
 [data-theme="light"] .jira-column {
   background: #f1f5f9;
   border-color: #e2e8f0;
 }
 
+[data-theme="light"] .jira-board-column.drag-over,
 [data-theme="light"] .jira-column.drag-over {
   background: rgba(37, 99, 235, 0.08);
   border-color: #2563eb;
 }
 
+[data-theme="light"] .jira-column-header {
+  border-bottom-color: #e2e8f0;
+}
+
+[data-theme="light"] .jira-col-title,
 [data-theme="light"] .jira-column-title {
   color: #334155;
 }
 
+[data-theme="light"] .jira-col-badge,
 [data-theme="light"] .jira-column-count {
   background: #e2e8f0;
   color: #475569;

@@ -374,7 +374,7 @@ export async function initSupportTickets(container, options = {}) {
           </div>
           <div class="jira-cards-list" data-column-status="${col.key}">
             ${colTickets.length === 0 ? `
-              <div style="padding:28px 10px;text-align:center;color:#475569;font-size:12px;font-style:italic;">
+              <div style="padding:18px 6px;text-align:center;color:#475569;font-size:11px;font-style:italic;">
                 No tickets
               </div>
             ` : colTickets.map(t => renderCardHtml(t)).join('')}
