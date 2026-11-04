@@ -72,6 +72,7 @@ html:not([data-theme="dark"]) {
   --bg-card: #FFFFFF;
   --bg-hover: #F1F5F9;
   --bg-active: #E2E8F0;
+  --bg-page: #F8FAFC;
 
   --border-subtle: #E2E8F0;
   --border-strong: #CBD5E1;
@@ -104,6 +105,7 @@ html:not([data-theme="dark"]) {
   --bg-card: #151D2A;
   --bg-hover: #1F2937;
   --bg-active: #374151;
+  --bg-page: #0B0F17;
 
   --border-subtle: #1F2937;
   --border-strong: #374151;

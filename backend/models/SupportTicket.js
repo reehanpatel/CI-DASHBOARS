@@ -35,10 +35,10 @@ const LinkedTicketSchema = new mongoose.Schema({
   id: { type: String, default: () => new mongoose.Types.ObjectId().toString() },
   ticketId: { type: String, required: true }, // e.g. SUP-002
   ticketDocId: { type: mongoose.Schema.Types.ObjectId, ref: 'SupportTicket', default: null },
-  relationship: { 
-    type: String, 
-    enum: ['relates to', 'blocks', 'is blocked by', 'duplicates'], 
-    default: 'relates to' 
+  relationship: {
+    type: String,
+    enum: ['relates to', 'blocks', 'is blocked by', 'duplicates'],
+    default: 'relates to'
   },
   title: { type: String, default: '' },
   status: { type: String, default: 'To Do' }
@@ -82,26 +82,26 @@ const SupportTicketSchema = new mongoose.Schema({
   title: { type: String, required: true, trim: true },
   description: { type: String, default: '', trim: true },
 
-  category: { 
-    type: String, 
-    enum: ['Bug', 'Feature', 'Task', 'Internal', 'Infrastructure', 'Client Request', 'General'], 
+  category: {
+    type: String,
+    enum: ['Bug', 'Feature', 'Task', 'Internal', 'Infrastructure', 'Client Request', 'General'],
     default: 'Task',
-    index: true 
+    index: true
   },
 
   // 5 Jira Scrum status columns
-  status: { 
-    type: String, 
-    enum: ['To Do', 'Content', 'Design', 'Under Review', 'Ready to Leave', 'In Progress', 'Resolved', 'Closed'], 
+  status: {
+    type: String,
+    enum: ['To Do', 'Content', 'Creative', 'Under Review', 'Ready to Leave', 'In Progress', 'Resolved', 'Closed'],
     default: 'To Do',
-    index: true 
+    index: true
   },
 
-  priority: { 
-    type: String, 
-    enum: ['Low', 'Medium', 'High', 'Critical'], 
+  priority: {
+    type: String,
+    enum: ['Low', 'Medium', 'High', 'Critical'],
     default: 'Medium',
-    index: true 
+    index: true
   },
 
   // Reporter (creator of ticket)
@@ -163,7 +163,7 @@ const SupportTicketSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 // Auto-sync legacy fields and assignees before saving
-SupportTicketSchema.pre('save', function(next) {
+SupportTicketSchema.pre('save', function (next) {
   // Sync assignees array and primary assignee
   if (Array.isArray(this.assignees) && this.assignees.length > 0) {
     this.assignee = this.assignees[0];

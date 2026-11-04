@@ -1061,15 +1061,19 @@ router.get('/games/overview', async (req, res) => {
         $or: [
           { 'player1.userId': req.user._id },
           { 'player2.userId': req.user._id },
-          { 'gameState.players.userId': req.user._id }
+          { 'players.userId': req.user._id },
+          { 'gameState.players.userId': req.user._id },
+          { 'gameState.players.userId': req.user._id.toString() }
         ]
       }).sort({ updatedAt: -1 }),
       GameMatch.find({
-        status: { $in: ['completed', 'draw', 'resigned'] },
+        status: { $in: ['completed', 'draw', 'resigned', 'abandoned'] },
         $or: [
           { 'player1.userId': req.user._id },
           { 'player2.userId': req.user._id },
-          { 'gameState.players.userId': req.user._id }
+          { 'players.userId': req.user._id },
+          { 'gameState.players.userId': req.user._id },
+          { 'gameState.players.userId': req.user._id.toString() }
         ]
       }).sort({ completedAt: -1 }).limit(15),
       BondingScore.findOne({ userId: req.user._id })
@@ -1183,6 +1187,7 @@ router.post('/matches/instant-ludo', async (req, res) => {
         role: playersList[1].role,
         assignedRole: playersList[1].assignedRole || 'green'
       },
+      players: playersList,
       playerCount: numPlayers,
       status: 'active',
       turn: 'red',
@@ -1414,12 +1419,23 @@ router.put('/invitations/:id/respond', async (req, res) => {
       await invitation.save();
 
       // Remove any challenge card messages from channel chat so it completely goes away
-      await BondingMessage.deleteMany({ 'challengeData.gameState.invitationId': invitation._id });
+      await BondingMessage.deleteMany({
+        $or: [
+          { 'challengeData.gameState.invitationId': invitation._id },
+          { 'challengeData.gameState.invitationId': invitation._id.toString() }
+        ]
+      });
 
       // Clean up any lingering notifications for this challenge
-      await Notification.deleteMany({ invitationId: invitation._id });
+      await Notification.deleteMany({
+        $or: [
+          { invitationId: invitation._id },
+          { invitationId: invitation._id.toString() }
+        ]
+      });
 
       recordSyncUpdate('bonding');
+      recordSyncUpdate('games');
       return res.json({ success: true, invitation, removed: true });
     }
 
@@ -1525,6 +1541,10 @@ router.put('/invitations/:id/respond', async (req, res) => {
           role: invitation.recipient.role,
           assignedRole: p2Role
         },
+        players: (invitation.gameType === 'ludo' && playersList) ? playersList : [
+          { userId: invitation.sender.userId, name: invitation.sender.name, role: invitation.sender.role, color: p1Role, assignedRole: p1Role },
+          { userId: invitation.recipient.userId, name: invitation.recipient.name, role: invitation.recipient.role, color: p2Role, assignedRole: p2Role }
+        ],
         status: 'active',
         turn: initialTurn,
         currentTurnUserId: invitation.sender.userId,
@@ -1586,9 +1606,9 @@ router.get('/matches/:id', async (req, res) => {
     const match = await GameMatch.findById(req.params.id);
     if (!match) return res.status(404).json({ error: 'Match not found' });
 
-    const isP1 = match.player1.userId.toString() === req.user._id.toString();
-    const isP2 = match.player2.userId.toString() === req.user._id.toString();
-    const isLudoPlayer = (match.gameState?.players || []).some(p => p.userId && p.userId.toString() === req.user._id.toString());
+    const isP1 = match.player1 && match.player1.userId && match.player1.userId.toString() === req.user._id.toString();
+    const isP2 = match.player2 && match.player2.userId && match.player2.userId.toString() === req.user._id.toString();
+    const isLudoPlayer = (match.players || match.gameState?.players || []).some(p => p.userId && p.userId.toString() === req.user._id.toString());
 
     if (!isP1 && !isP2 && !isLudoPlayer) {
       return res.status(403).json({ error: 'You are not an authorized player in this match' });
@@ -1610,9 +1630,9 @@ router.post('/matches/:id/move', async (req, res) => {
       return res.status(400).json({ error: `Match has ended (${match.status}). No more moves allowed.` });
     }
 
-    const isP1 = match.player1.userId.toString() === req.user._id.toString();
-    const isP2 = match.player2.userId.toString() === req.user._id.toString();
-    const isLudoPlayer = (match.gameState?.players || []).some(p => p.userId && p.userId.toString() === req.user._id.toString());
+    const isP1 = match.player1 && match.player1.userId && match.player1.userId.toString() === req.user._id.toString();
+    const isP2 = match.player2 && match.player2.userId && match.player2.userId.toString() === req.user._id.toString();
+    const isLudoPlayer = (match.players || match.gameState?.players || []).some(p => p.userId && p.userId.toString() === req.user._id.toString());
 
     if (!isP1 && !isP2 && !isLudoPlayer) {
       return res.status(403).json({ error: 'You are not a player in this match' });
@@ -2022,9 +2042,9 @@ router.post('/matches/:id/action', async (req, res) => {
     const match = await GameMatch.findById(req.params.id);
     if (!match) return res.status(404).json({ error: 'Match not found' });
 
-    const isP1 = match.player1.userId.toString() === req.user._id.toString();
-    const isP2 = match.player2.userId.toString() === req.user._id.toString();
-    const isLudoPlayer = (match.gameState?.players || []).some(p => p.userId && p.userId.toString() === req.user._id.toString());
+    const isP1 = match.player1 && match.player1.userId && match.player1.userId.toString() === req.user._id.toString();
+    const isP2 = match.player2 && match.player2.userId && match.player2.userId.toString() === req.user._id.toString();
+    const isLudoPlayer = (match.players || match.gameState?.players || []).some(p => p.userId && p.userId.toString() === req.user._id.toString());
 
     if (!isP1 && !isP2 && !isLudoPlayer) {
       return res.status(403).json({ error: 'You are not a player in this match' });
@@ -2173,9 +2193,10 @@ router.delete('/matches/:id', async (req, res) => {
     const myId = req.user._id.toString();
     const isP1 = match.player1 && match.player1.userId && match.player1.userId.toString() === myId;
     const isP2 = match.player2 && match.player2.userId && match.player2.userId.toString() === myId;
+    const isPlayer = (match.players || match.gameState?.players || []).some(p => p.userId && p.userId.toString() === myId);
     const isAdmin = ['admin', 'superadmin'].includes(req.user.role);
 
-    if (!isP1 && !isP2 && !isAdmin) {
+    if (!isP1 && !isP2 && !isPlayer && !isAdmin) {
       return res.status(403).json({ error: 'Not authorized to delete this match' });
     }
 
@@ -2186,8 +2207,15 @@ router.delete('/matches/:id', async (req, res) => {
     }
 
     // Clean up related challenge message if any
-    await BondingMessage.deleteMany({ 'challengeData.gameState.matchId': match._id.toString() });
+    await BondingMessage.deleteMany({
+      $or: [
+        { 'challengeData.gameState.matchId': match._id.toString() },
+        { 'challengeData.gameState.invitationId': match.invitationId }
+      ]
+    });
 
+    recordSyncUpdate('bonding');
+    recordSyncUpdate('games');
     res.json({ message: 'Match deleted successfully', matchId: match._id });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -2201,7 +2229,13 @@ router.delete('/matches', async (req, res) => {
     const myId = req.user._id;
 
     let query = {
-      $or: [{ 'player1.userId': myId }, { 'player2.userId': myId }]
+      $or: [
+        { 'player1.userId': myId },
+        { 'player2.userId': myId },
+        { 'players.userId': myId },
+        { 'gameState.players.userId': myId },
+        { 'gameState.players.userId': myId.toString() }
+      ]
     };
 
     if (filter === 'completed') {

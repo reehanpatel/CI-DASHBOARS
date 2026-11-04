@@ -128,7 +128,7 @@ async function tabProposals(c) {
 async function tabTeamBonding(c) {
   c.innerHTML = '<div id="teambonding-module-root"></div>';
   const root = c.querySelector('#teambonding-module-root');
-  initTeamBonding(root, { userRole: 'superadmin', currentUser: user });
+  initTeamBonding(root, { userRole: user?.role || 'admin', currentUser: user });
 }
 
 async function tabSupportTickets(c) {

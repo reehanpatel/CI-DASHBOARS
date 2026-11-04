@@ -410,7 +410,10 @@ export async function initSupportTickets(container, options = {}) {
       : (t.assignee && t.assignee.userId ? [t.assignee] : []);
 
     const myId = currentUser?._id || currentUser?.id;
-    const isReporter = t.reporter && t.reporter.userId && String(t.reporter.userId) === String(myId);
+    const isReporter = (t.reporter && t.reporter.userId && String(t.reporter.userId) === String(myId)) ||
+                       (t.userId && String(t.userId) === String(myId));
+    const isSuperadmin = (userRole === 'superadmin' || currentUser?.role === 'superadmin');
+    const canDelete = isReporter || isSuperadmin;
 
     let avatarsHtml = '';
     if (assigneesList.length === 0) {
@@ -453,8 +456,8 @@ export async function initSupportTickets(container, options = {}) {
               </span>
             ` : ''}
           </div>
-          ${isReporter ? `
-            <button type="button" class="jira-card-quick-del btn-delete-card-ticket" data-ticket-id="${t._id}" data-ticket-num="${escapeHtml(t.ticketId)}" title="Delete Ticket (Creator Only)">
+          ${canDelete ? `
+            <button type="button" class="jira-card-quick-del btn-delete-card-ticket" data-ticket-id="${t._id}" data-ticket-num="${escapeHtml(t.ticketId)}" title="Delete Ticket (${isSuperadmin ? 'Superadmin' : 'Creator'})">
               🗑️
             </button>
           ` : ''}
@@ -782,6 +785,8 @@ export async function initSupportTickets(container, options = {}) {
     const myId = currentUser?._id || currentUser?.id;
     const isReporter = (t.reporter && t.reporter.userId && String(t.reporter.userId) === String(myId)) ||
                        (t.userId && String(t.userId) === String(myId));
+    const isSuperadmin = (userRole === 'superadmin' || currentUser?.role === 'superadmin');
+    const canDelete = isReporter || isSuperadmin;
     const assigneesList = Array.isArray(t.assignees) && t.assignees.length > 0
       ? t.assignees
       : (t.assignee && t.assignee.userId ? [t.assignee] : []);
@@ -851,7 +856,7 @@ export async function initSupportTickets(container, options = {}) {
                   </button>
                 </div>
 
-                <div id="add-link-form" style="display:none;background:#162032;border:1px solid #293952;border-radius:8px;padding:12px;margin-bottom:10px;">
+                <div id="add-link-form" class="jira-form-box" style="display:none;padding:12px;margin-bottom:10px;">
                   <div style="display:flex;flex-direction:column;gap:8px;">
                     <input type="url" id="inp-new-link-url" class="jira-form-input" placeholder="Paste link URL (e.g. https://figma.com/..., https://loom.com/..., live website)..." />
                     <input type="text" id="inp-new-link-title" class="jira-form-input" placeholder="Link label / description (Optional, e.g. Figma UI, Loom Video, Live App)..." />
@@ -865,7 +870,7 @@ export async function initSupportTickets(container, options = {}) {
                 ${(t.links && t.links.length > 0) || t.linkUrl ? `
                   <div class="jira-links-list" style="display:flex;flex-direction:column;gap:8px;">
                     ${t.linkUrl && !(t.links || []).some(l => l.url === t.linkUrl) ? `
-                      <div class="jira-link-card" style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 12px;background:#162032;border:1px solid #223048;border-radius:8px;">
+                      <div class="jira-link-card" style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 12px;border-radius:8px;">
                         <div style="display:flex;align-items:center;gap:8px;min-width:0;flex:1;">
                           <span style="font-size:16px;">🔗</span>
                           <div style="min-width:0;flex:1;">
@@ -882,7 +887,7 @@ export async function initSupportTickets(container, options = {}) {
                       </div>
                     ` : ''}
                     ${(t.links || []).map(lnk => `
-                      <div class="jira-link-card" style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 12px;background:#162032;border:1px solid #223048;border-radius:8px;">
+                      <div class="jira-link-card" style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 12px;border-radius:8px;">
                         <div style="display:flex;align-items:center;gap:8px;min-width:0;flex:1;">
                           <span style="font-size:16px;">🔗</span>
                           <div style="min-width:0;flex:1;">
@@ -1011,7 +1016,7 @@ export async function initSupportTickets(container, options = {}) {
                         <div style="display:flex;align-items:center;gap:8px;">
                           <span style="font-size:11px;color:#94a3b8;font-weight:700;text-transform:uppercase;">${escapeHtml(lnk.relationship)}</span>
                           <span class="jira-ticket-id" style="color:#38bdf8;">${escapeHtml(lnk.ticketId)}</span>
-                          <span style="font-size:12.5px;color:#f1f5f9;">${escapeHtml(lnk.title)}</span>
+                          <span class="jira-linked-title" style="font-size:12.5px;">${escapeHtml(lnk.title)}</span>
                         </div>
                         <div style="display:flex;align-items:center;gap:6px;">
                           <span class="jira-col-badge">${escapeHtml(lnk.status || 'Open')}</span>
@@ -1022,7 +1027,7 @@ export async function initSupportTickets(container, options = {}) {
                   </div>
                 `}
 
-                <div id="jira-link-box" style="display:none;padding:10px;background:#162032;border:1px solid #334155;border-radius:6px;margin-top:6px;">
+                <div id="jira-link-box" class="jira-form-box" style="display:none;padding:10px;border-radius:6px;margin-top:6px;">
                   <div style="display:flex;gap:8px;flex-wrap:wrap;">
                     <select id="sel-link-rel" class="jira-select-field" style="width:140px;">
                       <option value="relates to">relates to</option>
@@ -1050,7 +1055,7 @@ export async function initSupportTickets(container, options = {}) {
                     <div style="display:flex;align-items:center;gap:10px;">
                       <span style="font-size:22px;">📁</span>
                       <div>
-                        <div style="font-weight:700;color:#f8fafc;font-size:13px;">${escapeHtml(currentJobTitle)}</div>
+                        <div class="jira-job-card-title" style="font-weight:700;font-size:13px;">${escapeHtml(currentJobTitle)}</div>
                         <div style="font-size:11px;color:#38bdf8;">CI360 Job ID: ${escapeHtml(currentJobId)}</div>
                       </div>
                     </div>
@@ -1064,8 +1069,8 @@ export async function initSupportTickets(container, options = {}) {
                   </div>
                 `}
 
-                <div id="jira-job-link-box" style="display:none;padding:12px;background:#162032;border:1px solid #334155;border-radius:6px;margin-top:8px;">
-                  <label style="font-size:11.5px;font-weight:700;color:#cbd5e1;display:block;margin-bottom:6px;">Choose Job to Link:</label>
+                <div id="jira-job-link-box" class="jira-form-box" style="display:none;padding:12px;border-radius:6px;margin-top:8px;">
+                  <label class="jira-form-label" style="font-size:11.5px;font-weight:700;display:block;margin-bottom:6px;">Choose Job to Link:</label>
                   <div style="display:flex;gap:8px;flex-wrap:wrap;">
                     <select id="inp-modal-job-select" class="jira-select-field" style="flex:1;min-width:220px;">
                       <option value="">-- Select a Job --</option>
@@ -1141,11 +1146,11 @@ export async function initSupportTickets(container, options = {}) {
                         </div>
                         <div class="jira-history-main">
                           <div class="jira-history-head">
-                            <span style="font-weight:600;color:#f1f5f9;font-size:12px;">${escapeHtml(h.userName)}</span>
+                            <span class="jira-comment-author" style="font-size:12px;">${escapeHtml(h.userName)}</span>
                             <span class="jira-comment-time">${timeAgo(h.timestamp)}</span>
                           </div>
                           <div style="font-size:12px;color:#94a3b8;">
-                            Changed <strong style="color:#cbd5e1;">${escapeHtml(h.field)}</strong>:
+                            Changed <strong class="jira-history-field">${escapeHtml(h.field)}</strong>:
                             ${h.from ? `<span style="text-decoration:line-through;color:#ef4444;">${escapeHtml(h.from)}</span> ➔ ` : ''}
                             <span style="color:#10b981;font-weight:600;">${escapeHtml(h.to)}</span>
                           </div>
@@ -1165,7 +1170,7 @@ export async function initSupportTickets(container, options = {}) {
                       </button>
                     </div>
 
-                    <div id="jira-worklog-box" style="display:none;padding:10px;background:#162032;border:1px solid #334155;border-radius:6px;margin:6px 0;">
+                    <div id="jira-worklog-box" class="jira-form-box" style="display:none;padding:10px;border-radius:6px;margin:6px 0;">
                       <div style="display:flex;flex-direction:column;gap:8px;">
                         <input type="text" id="inp-worklog-time" class="jira-subtask-input" placeholder="Time spent (e.g. 2h 30m, 45m)..." />
                         <input type="text" id="inp-worklog-desc" class="jira-subtask-input" placeholder="Description of work performed..." />
@@ -1185,10 +1190,10 @@ export async function initSupportTickets(container, options = {}) {
                         </div>
                         <div class="jira-worklog-main">
                           <div class="jira-worklog-head">
-                            <span style="font-weight:600;color:#f1f5f9;font-size:12px;">${escapeHtml(w.userName)} logged <strong style="color:#38bdf8;">${escapeHtml(w.timeSpent)}</strong></span>
+                            <span class="jira-comment-author" style="font-size:12px;">${escapeHtml(w.userName)} logged <strong style="color:#38bdf8;">${escapeHtml(w.timeSpent)}</strong></span>
                             <span class="jira-comment-time">${timeAgo(w.loggedAt)}</span>
                           </div>
-                          ${w.description ? `<div style="font-size:12px;color:#cbd5e1;">${escapeHtml(w.description)}</div>` : ''}
+                          ${w.description ? `<div class="jira-comment-body" style="font-size:12px;">${escapeHtml(w.description)}</div>` : ''}
                         </div>
                       </div>
                     `).join('')}
@@ -1257,8 +1262,8 @@ export async function initSupportTickets(container, options = {}) {
                 </div>
 
                 <!-- Interactive Multi-select Assignee Picker -->
-                <div id="jira-detail-assignee-box" style="display:none;margin-top:8px;padding:10px;background:#162032;border:1px solid #334155;border-radius:6px;">
-                  <div style="font-size:11px;font-weight:700;color:#94a3b8;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;">
+                <div id="jira-detail-assignee-box" class="jira-form-box" style="display:none;margin-top:8px;padding:10px;border-radius:6px;">
+                  <div class="jira-assignee-header" style="font-size:11px;font-weight:700;color:#94a3b8;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;">
                     <span>ASSIGN / REASSIGN EMPLOYEES</span>
                     <button type="button" id="btn-close-detail-assignee-box" style="background:none;border:none;color:#94a3b8;cursor:pointer;font-size:13px;">✕</button>
                   </div>
@@ -1269,8 +1274,8 @@ export async function initSupportTickets(container, options = {}) {
                         <label class="jira-emp-check-item ${isAssigned ? 'selected' : ''}">
                           <input type="checkbox" class="chk-detail-emp" value="${u._id}" ${isAssigned ? 'checked' : ''} />
                           <div class="jira-avatar" style="width:18px;height:18px;font-size:9px;">${(u.name || 'U').slice(0, 1).toUpperCase()}</div>
-                          <span style="font-size:12px;color:#f1f5f9;flex:1;">
-                            ${escapeHtml(u.name)} <span style="font-size:10.5px;color:#94a3b8;">(${escapeHtml(u.role)})</span>
+                          <span class="jira-emp-name" style="font-size:12px;flex:1;">
+                            ${escapeHtml(u.name)} <span class="jira-emp-role" style="font-size:10.5px;color:#94a3b8;">(${escapeHtml(u.role)})</span>
                           </span>
                         </label>
                       `;
@@ -1334,7 +1339,7 @@ export async function initSupportTickets(container, options = {}) {
                 <span class="jira-side-lbl">Time Tracking</span>
                 <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:#cbd5e1;">
                   <span>Logged: <strong>${t.loggedHours || 0}h</strong></span>
-                  <span>/ Est: <input type="number" id="inp-detail-esthours" value="${t.estimatedHours || 0}" style="width:45px;background:#1e293b;border:1px solid #334155;color:#f8fafc;padding:2px 4px;border-radius:4px;font-size:12px;" />h</span>
+                  <span>/ Est: <input type="number" id="inp-detail-esthours" class="jira-est-input" value="${t.estimatedHours || 0}" />h</span>
                 </div>
               </div>
 
@@ -1345,8 +1350,8 @@ export async function initSupportTickets(container, options = {}) {
                 ${t.resolvedAt ? `<div style="color:#10b981;">Resolved: ${new Date(t.resolvedAt).toLocaleString()}</div>` : ''}
               </div>
 
-              <!-- Actions (Delete - ONLY original creator / reporter) -->
-              ${isReporter ? `
+              <!-- Actions (Delete - Creator or Superadmin) -->
+              ${canDelete ? `
                 <div style="padding-top:10px;">
                   <button type="button" class="jira-tool-btn" id="btn-delete-ticket" style="color:#ef4444;border-color:rgba(239,68,68,0.4);width:100%;padding:6px;">
                     🗑️ Delete Ticket
@@ -2072,8 +2077,8 @@ export async function initSupportTickets(container, options = {}) {
                         <div class="jira-avatar" style="width:20px;height:20px;font-size:10px;">
                           ${(u.name || 'U').slice(0, 1).toUpperCase()}
                         </div>
-                        <span style="font-size:12px;color:#f1f5f9;flex:1;">
-                          ${escapeHtml(u.name)} <span style="font-size:10.5px;color:#94a3b8;">(${escapeHtml(u.role)})${isSelf ? ' — (You)' : ''}</span>
+                        <span class="jira-emp-name" style="font-size:12px;flex:1;">
+                          ${escapeHtml(u.name)} <span class="jira-emp-role" style="font-size:10.5px;color:#94a3b8;">(${escapeHtml(u.role)})${isSelf ? ' — (You)' : ''}</span>
                         </span>
                       </label>
                     `;
@@ -2116,7 +2121,7 @@ export async function initSupportTickets(container, options = {}) {
                 <label class="jira-form-label" style="margin:0;">Attachments &amp; Files (All formats up to 1GB)</label>
                 <span id="create-att-count" style="font-size:11px;color:#94a3b8;">0 files attached</span>
               </div>
-              <label class="jira-att-dropzone" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:14px;border:1px dashed #334155;border-radius:8px;background:#0b1120;cursor:pointer;transition:border-color 0.2s;">
+              <label class="jira-att-dropzone" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:14px;border-radius:8px;cursor:pointer;transition:border-color 0.2s;">
                 <div style="font-size:18px;">📁 ⚡</div>
                 <div style="font-size:12px;font-weight:600;color:#e2e8f0;">Click or drag &amp; drop files or videos here</div>
                 <div style="font-size:10.5px;color:#64748b;">Fast parallel uploading: MP4, MOV, WebM, images, PDFs, archives (Up to 1GB supported)</div>

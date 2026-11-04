@@ -21,6 +21,13 @@ const GameMatchSchema = new mongoose.Schema({
     role: { type: String, default: 'employee' },
     assignedRole: { type: String, required: true } // 'black', 'O', 'yellow'
   },
+  players: [{
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    name: { type: String, default: '' },
+    role: { type: String, default: 'employee' },
+    color: { type: String, default: '' },
+    assignedRole: { type: String, default: '' }
+  }],
   playerCount: { type: Number, default: 2 },
   status: {
     type: String,
@@ -58,6 +65,7 @@ const GameMatchSchema = new mongoose.Schema({
 
 GameMatchSchema.index({ 'player1.userId': 1, status: 1 });
 GameMatchSchema.index({ 'player2.userId': 1, status: 1 });
+GameMatchSchema.index({ 'players.userId': 1, status: 1 });
 GameMatchSchema.index({ status: 1, updatedAt: -1 });
 
 module.exports = mongoose.models.GameMatch || mongoose.model('GameMatch', GameMatchSchema);

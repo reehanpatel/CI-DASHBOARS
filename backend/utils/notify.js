@@ -37,6 +37,8 @@ function recordSyncUpdate(entity) {
   else if (entity === 'tasks') global.__ci360LastTaskUpdate = now;
   else if (entity === 'invoices') global.__ci360LastInvoiceUpdate = now;
   else if (entity === 'tickets') global.__ci360LastTicketUpdate = now;
+  else if (entity === 'chat') global.__ci360LastChatUpdate = now;
+  else if (entity === 'bonding' || entity === 'games') global.__ci360LastBondingUpdate = now;
   global.__ci360LastGlobalUpdate = now;
 }
 

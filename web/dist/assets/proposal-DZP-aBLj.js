@@ -1,14 +1,14 @@
-import"./api-CM-riqyf.js";import{exportPdfDoc as S,exportWordDocx as R,printProposalDocument as B,docModel as L,paperHTML as M}from"./proposals-BV6NVRc1.js";const e=document.getElementById("proposal-client-root"),C=new URLSearchParams(window.location.search),u=C.get("p");u?T(u):e.innerHTML=`
-    <div class="card" style="padding:48px;text-align:center;">
-      <h3>Invalid Proposal Link</h3>
-      <p class="muted">No proposal identifier provided. Please use the exact link sent to you by your CI360 contact.</p>
-    </div>
-  `;let r=null;async function T(n){try{const o=await fetch(`/api/proposals/shared/${encodeURIComponent(n)}`);if(!o.ok){const p=await o.json().catch(()=>({}));throw new Error(p.error||"Proposal not found or link has expired")}r=await o.json(),v()}catch(o){e.innerHTML=`
+import"./api-oR0ut9pM.js";import{exportPdfDoc as D,exportWordDocx as S,printProposalDocument as F,docModel as B,paperHTML as L}from"./proposals-Sw4sxsTK.js";const e=document.getElementById("proposal-client-root"),R=new URLSearchParams(window.location.search),u=R.get("p");u?M(u):e&&(e.innerHTML=`
       <div class="card" style="padding:48px;text-align:center;">
-        <h3>Unable to Open Proposal</h3>
-        <p class="muted">${o.message}</p>
+        <h3>Invalid Proposal Link</h3>
+        <p class="muted">No proposal identifier provided. Please use the exact link sent to you by your CI360 contact.</p>
       </div>
-    `}}function v(){const{proposal:n,company:o,version:p,clientResponse:t}=r,y=t&&t.decision;e.innerHTML=`
+    `);let r=null;async function M(n){try{const o=await fetch(`/api/proposals/shared/${encodeURIComponent(n)}`);if(!o.ok){const t=await o.json().catch(()=>({}));throw new Error(t.error||"Proposal not found or link has expired")}r=await o.json(),v()}catch(o){e&&(e.innerHTML=`
+        <div class="card" style="padding:48px;text-align:center;">
+          <h3>Unable to Open Proposal</h3>
+          <p class="muted">${o.message}</p>
+        </div>
+      `)}}function v(){if(!e||!r)return;const{proposal:n,company:o,clientResponse:t}=r,p=t&&t.decision;e.innerHTML=`
     <div class="client-split">
       <div class="paperwrap" id="client-paper-preview" data-theme="light">
         <!-- Render paper inside -->
@@ -16,7 +16,7 @@ import"./api-CM-riqyf.js";import{exportPdfDoc as S,exportWordDocx as R,printProp
 
       <div class="card respond-card">
         <h3 style="margin:0 0 4px 0;font-size:18px;font-weight:800;color:var(--text-1);">
-          ${y?t.decision==="approved"?"🎉 Proposal Approved":"⚠️ Modification Requested":"Sign-off & Response"}
+          ${p?t.decision==="approved"?"🎉 Proposal Approved":"⚠️ Modification Requested":"Sign-off & Response"}
         </h3>
         <p class="muted small" style="margin:0 0 16px 0;">
           Review the scope, deliverables, and commercial terms, then approve online or request changes.
@@ -32,7 +32,7 @@ import"./api-CM-riqyf.js";import{exportPdfDoc as S,exportWordDocx as R,printProp
           </div>
         </div>
 
-        ${y?`
+        ${p?`
           <div style="padding:14px;border-radius:var(--r-md);background:${t.decision==="approved"?"var(--green-50, #ECFDF5)":"var(--amber-50, #FFFBEB)"};border:1px solid ${t.decision==="approved"?"rgba(16,185,129,0.3)":"rgba(245,158,11,0.3)"};margin-bottom:14px;">
             <strong style="color:${t.decision==="approved"?"var(--green-600)":"var(--amber-600)"}">
               ${t.decision==="approved"?"Proposal Officially Approved":"Revision Requested"}
@@ -72,4 +72,4 @@ import"./api-CM-riqyf.js";import{exportPdfDoc as S,exportWordDocx as R,printProp
         `}
       </div>
     </div>
-  `,A();const s=e.querySelector("#client-download-pdf-btn");s&&(s.onclick=()=>S(n,o,s));const a=e.querySelector("#client-download-word-btn");a&&(a.onclick=()=>R(n,o,a));const g=e.querySelector("#client-print-btn");g&&(g.onclick=()=>B(n,o));const f=C.get("dl");f==="pdf"&&s?S(n,o,s):f==="word"&&a&&R(n,o,a);const h=e.querySelector("#client-change-btn");h&&(h.onclick=()=>{r.clientResponse=null,v()});const x=e.querySelector("#client-response-form");if(x){let m="approved";const l=e.querySelector("#btn-decide-approve"),c=e.querySelector("#btn-decide-changes"),w=e.querySelector("#client-comment-label");l.onclick=()=>{m="approved",l.style.background="var(--green-600)",l.style.color="#fff",c.style.background="var(--bg-surface)",c.style.color="var(--text-1)",w.textContent="Comments / Remarks (Optional)"},c.onclick=()=>{m="changes",c.style.background="var(--amber-500)",c.style.color="#fff",l.style.background="var(--bg-surface)",l.style.color="var(--text-1)",w.textContent="Please Describe the Required Changes *"},x.onsubmit=async P=>{P.preventDefault();const k=e.querySelector("#client-res-name").value.trim(),q=e.querySelector("#client-res-role").value.trim(),D=e.querySelector("#client-res-comment").value.trim(),i=e.querySelector("#client-res-error");if(!k){i.textContent="Please enter your name",i.style.display="block";return}if(m==="changes"&&!D){i.textContent="Please describe what needs to be changed in the remarks field",i.style.display="block";return}const b=e.querySelector("#client-submit-btn");b.disabled=!0,b.textContent="Submitting…";try{const d=await fetch(`/api/proposals/shared/${encodeURIComponent(u)}/respond`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({decision:m,name:k,role:q,comment:D,answers:{}})});if(!d.ok){const F=await d.json().catch(()=>({}));throw new Error(F.error||"Failed to submit response")}const $=await d.json();r.clientResponse=$.response,v()}catch(d){i.textContent=d.message,i.style.display="block",b.disabled=!1,b.textContent="Confirm & Submit Response"}}}}function A(){const n=e.querySelector("#client-paper-preview");if(n&&r){const{proposal:o,company:p}=r,t=L(o,p,{approval:r.clientResponse});n.innerHTML=M(t)}}
+  `,T();const s=e.querySelector("#client-download-pdf-btn");s&&(s.onclick=()=>D(n,o,s));const a=e.querySelector("#client-download-word-btn");a&&(a.onclick=()=>S(n,o,a));const y=e.querySelector("#client-print-btn");y&&(y.onclick=()=>F(n,o));const g=R.get("dl");g==="pdf"&&s?D(n,o,s):g==="word"&&a&&S(n,o,a);const f=e.querySelector("#client-change-btn");f&&(f.onclick=()=>{r.clientResponse=null,v()});const h=e.querySelector("#client-response-form");if(h){let m="approved";const l=e.querySelector("#btn-decide-approve"),c=e.querySelector("#btn-decide-changes"),x=e.querySelector("#client-comment-label");l.onclick=()=>{m="approved",l.style.background="var(--green-600)",l.style.color="#fff",c.style.background="var(--bg-surface)",c.style.color="var(--text-1)",x.textContent="Comments / Remarks (Optional)"},c.onclick=()=>{m="changes",c.style.background="var(--amber-500)",c.style.color="#fff",l.style.background="var(--bg-surface)",l.style.color="var(--text-1)",x.textContent="Please Describe the Required Changes *"},h.onsubmit=async C=>{C.preventDefault();const w=e.querySelector("#client-res-name").value.trim(),P=e.querySelector("#client-res-role").value.trim(),k=e.querySelector("#client-res-comment").value.trim(),i=e.querySelector("#client-res-error");if(!w){i.textContent="Please enter your name",i.style.display="block";return}if(m==="changes"&&!k){i.textContent="Please describe what needs to be changed in the remarks field",i.style.display="block";return}const b=e.querySelector("#client-submit-btn");b.disabled=!0,b.textContent="Submitting…";try{const d=await fetch(`/api/proposals/shared/${encodeURIComponent(u)}/respond`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({decision:m,name:w,role:P,comment:k,answers:{}})});if(!d.ok){const $=await d.json().catch(()=>({}));throw new Error($.error||"Failed to submit response")}const q=await d.json();r.clientResponse=q.response,v()}catch(d){i.textContent=d.message,i.style.display="block",b.disabled=!1,b.textContent="Confirm & Submit Response"}}}}function T(){if(!e||!r)return;const n=e.querySelector("#client-paper-preview");if(n){const{proposal:o,company:t}=r,p=B(o,t,{approval:r.clientResponse});n.innerHTML=L(p)}}

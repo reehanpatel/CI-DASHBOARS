@@ -26,6 +26,7 @@ import { Chess } from 'chess.js';
 
 export async function initTeamBonding(container, options = {}) {
   const currentUser = options.currentUser || {};
+  const userRole = options.userRole || currentUser?.role || 'employee';
   let currentView = 'chat'; // 'chat' or 'lounge_games'
   let channels = [];
   let activeChannel = null;
@@ -223,6 +224,7 @@ export async function initTeamBonding(container, options = {}) {
     }
   }
 
+  let pollCycle = 0;
   function startPolling() {
     if (pollInterval) clearInterval(pollInterval);
     pollInterval = setInterval(async () => {
@@ -230,6 +232,16 @@ export async function initTeamBonding(container, options = {}) {
         if (!document.body.contains(container)) {
           clearInterval(pollInterval);
           return;
+        }
+
+        pollCycle++;
+        // Every 6s (2 cycles), sync channel list in case a new group/chat was started
+        if (pollCycle % 2 === 0) {
+          const latestChans = await apiGet('/bonding/channels').catch(() => null);
+          if (latestChans && JSON.stringify(latestChans.map(c => c._id + c.lastMessage?.sentAt)) !== JSON.stringify(channels.map(c => c._id + c.lastMessage?.sentAt))) {
+            channels = latestChans;
+            renderSidebarChannels();
+          }
         }
 
         if (currentView === 'chat' && activeChannel) {
@@ -1071,8 +1083,12 @@ export async function initTeamBonding(container, options = {}) {
           : `
                   <div class="lounge-active-matches-list">
                     ${activeMatches.map(m => {
-            const isP1 = myId && m.player1.userId.toString() === myId.toString();
-            const opp = isP1 ? m.player2 : m.player1;
+            const allPlayers = m.players || m.gameState?.players || [m.player1, m.player2].filter(Boolean);
+            const otherPlayers = allPlayers.filter(p => p.userId && p.userId.toString() !== myId?.toString());
+            const opp = m.player1?.userId?.toString() === myId?.toString() ? m.player2 : m.player1;
+            const oppNames = otherPlayers.length > 0
+              ? otherPlayers.map(p => escapeHtml(p.name)).join(', ')
+              : (opp?.name ? escapeHtml(opp.name) : 'Colleagues');
             const myTurn = myId && m.currentTurnUserId && m.currentTurnUserId.toString() === myId.toString();
 
             return `
@@ -1081,7 +1097,7 @@ export async function initTeamBonding(container, options = {}) {
                             <span class="match-game-icon">${m.gameType === 'chess' ? '♟️' : (m.gameType === 'ludo' ? '🎲' : '❌')}</span>
                             <div>
                               <div class="match-game-title">${escapeHtml(m.gameTitle)}</div>
-                              <div class="match-opp-text">Opponent: <strong>${escapeHtml(opp.name)}</strong> (${escapeHtml(opp.role)})</div>
+                              <div class="match-opp-text">Opponent(s): <strong>${oppNames}</strong></div>
                             </div>
                           </div>
 
@@ -1606,10 +1622,35 @@ export async function initTeamBonding(container, options = {}) {
     let match = null;
     let selectedChessFromSquare = null;
     let legalDestinations = [];
+    let prevFingerprint = '';
+    let autoMoveTimeout = null;
+    let autoMoveInProgress = false;
+
+    function getMatchFingerprint(m) {
+      if (!m) return '';
+      return JSON.stringify({
+        status: m.status,
+        turn: m.currentTurnUserId?.toString(),
+        turnColor: m.turn,
+        movesCount: m.moves?.length,
+        dice: m.gameState?.dice,
+        rolled: m.gameState?.rolled,
+        lastRoll: m.gameState?.lastRoll,
+        lastRollColor: m.gameState?.lastRollColor,
+        lastRollBy: m.gameState?.lastRollBy,
+        lastActionText: m.gameState?.lastActionText,
+        tokens: m.gameState?.tokens,
+        board: m.gameState?.board,
+        grid: m.gameState?.grid,
+        fen: m.gameState?.fen,
+        draw: m.drawOfferedBy?.toString()
+      });
+    }
 
     async function fetchMatchState() {
       try {
-        match = await apiGet(`/bonding/matches/${matchId}`);
+        const data = await apiGet(`/bonding/matches/${matchId}`);
+        match = data;
         return match;
       } catch (err) {
         flashToast(err.message || 'Could not load match', 'error');
@@ -1620,9 +1661,12 @@ export async function initTeamBonding(container, options = {}) {
 
     match = await fetchMatchState();
     if (!match) return;
+    prevFingerprint = getMatchFingerprint(match);
 
     function closeMatchModal() {
       if (matchPollInterval) clearInterval(matchPollInterval);
+      if (autoMoveTimeout) clearTimeout(autoMoveTimeout);
+      autoMoveInProgress = false;
 
       activeMatchModalId = null;
       modalRoot.innerHTML = '';
@@ -1630,24 +1674,25 @@ export async function initTeamBonding(container, options = {}) {
       if (activeChannel) loadMessages(activeChannel._id, true);
     }
 
-    // Start 1.5s active match polling for live updates
+    // Start 1.0s active match polling for live updates
     matchPollInterval = setInterval(async () => {
       if (!activeMatchModalId || activeMatchModalId !== matchId) {
         clearInterval(matchPollInterval);
         return;
       }
-      const prevTurn = match?.currentTurnUserId?.toString();
-      const prevStatus = match?.status;
-      const updated = await fetchMatchState();
-      if (updated) {
-        const newTurn = updated.currentTurnUserId?.toString();
-        // If turn or status changed, re-render arena board
-        if (newTurn !== prevTurn || updated.status !== prevStatus || updated.moves?.length !== match.moves?.length) {
+      try {
+        const updated = await apiGet(`/bonding/matches/${matchId}`);
+        if (!updated) return;
+        const newFp = getMatchFingerprint(updated);
+        if (newFp !== prevFingerprint) {
+          prevFingerprint = newFp;
+          match = updated;
           renderArena();
-
         }
+      } catch (e) {
+        // quiet polling error
       }
-    }, 1500);
+    }, 1000);
 
     function renderArena() {
       if (!match) return;
@@ -2060,12 +2105,17 @@ export async function initTeamBonding(container, options = {}) {
               </div>
               <div class="yard-slots">
                 ${tokensList.map((t, idx) => `
-                  <div class="yard-token-slot">
+                  <div class="yard-token-slot ${t.step === 56 ? 'slot-home' : ''}">
                     ${t.step === -1 ? `
                       <div class="ludo-token token-${col} ${isTokenMovable(col, t) ? 'movable' : ''}" data-token-id="${t.id}" data-color="${col}" title="${col.toUpperCase()} Pawn ${t.id + 1}">
                         <span>${t.id + 1}</span>
                       </div>
-                    ` : `<span class="slot-empty">${idx + 1}</span>`}
+                    ` : (t.step === 56 ? `
+                      <div class="ludo-token token-reached-home token-${col}" title="${col.toUpperCase()} Pawn ${t.id + 1} Reached Home! 👑">
+                        <span class="home-crown-mini">👑</span>
+                        <span>${t.id + 1}</span>
+                      </div>
+                    ` : `<span class="slot-empty">${idx + 1}</span>`)}
                   </div>
                 `).join('')}
               </div>
@@ -2106,10 +2156,18 @@ export async function initTeamBonding(container, options = {}) {
 
             <!-- 5. Center Home Victory Zone (3x3) with celebratory crowned pawns -->
             <div class="ludo-center-home">
-              <div class="home-triangle red-tri"></div>
-              <div class="home-triangle green-tri"></div>
-              <div class="home-triangle yellow-tri"></div>
-              <div class="home-triangle blue-tri"></div>
+              <div class="home-triangle red-tri">
+                ${tokensRed.filter(t => t.step === 56).map(t => `<div class="home-tri-pawn red" title="Red Pawn ${t.id + 1} Home! 👑">👑${t.id + 1}</div>`).join('')}
+              </div>
+              <div class="home-triangle green-tri">
+                ${tokensGreen.filter(t => t.step === 56).map(t => `<div class="home-tri-pawn green" title="Green Pawn ${t.id + 1} Home! 👑">👑${t.id + 1}</div>`).join('')}
+              </div>
+              <div class="home-triangle yellow-tri">
+                ${tokensYellow.filter(t => t.step === 56).map(t => `<div class="home-tri-pawn yellow" title="Yellow Pawn ${t.id + 1} Home! 👑">👑${t.id + 1}</div>`).join('')}
+              </div>
+              <div class="home-triangle blue-tri">
+                ${tokensBlue.filter(t => t.step === 56).map(t => `<div class="home-tri-pawn blue" title="Blue Pawn ${t.id + 1} Home! 👑">👑${t.id + 1}</div>`).join('')}
+              </div>
               <div class="home-center-core">
                 <span class="home-crown">🏆</span>
                 <div class="home-finished-tokens">
@@ -2408,6 +2466,7 @@ export async function initTeamBonding(container, options = {}) {
             try {
               const updated = await apiPost(`/bonding/matches/${matchId}/move`, { action: 'roll' });
               match = updated;
+              prevFingerprint = getMatchFingerprint(updated);
               renderArena();
             } catch (err) {
               flashToast(err.message || 'Failed to roll', 'error');
@@ -2435,20 +2494,22 @@ export async function initTeamBonding(container, options = {}) {
             return false;
           });
 
-          if (movableList.length === 1 && !window.__ci360LudoAutoMoving) {
-            window.__ci360LudoAutoMoving = true;
+          if (movableList.length === 1 && !autoMoveInProgress) {
+            autoMoveInProgress = true;
             const singleToken = movableList[0];
-            setTimeout(async () => {
+            if (autoMoveTimeout) clearTimeout(autoMoveTimeout);
+            autoMoveTimeout = setTimeout(async () => {
               try {
                 const updated = await apiPost(`/bonding/matches/${matchId}/move`, { action: 'move', tokenId: Number(singleToken.id) });
                 match = updated;
-                window.__ci360LudoAutoMoving = false;
+                prevFingerprint = getMatchFingerprint(updated);
+                autoMoveInProgress = false;
                 renderArena();
               } catch (err) {
-                window.__ci360LudoAutoMoving = false;
+                autoMoveInProgress = false;
                 flashToast(err.message || 'Auto-move failed', 'error');
               }
-            }, 450);
+            }, 400);
           }
         }
 
@@ -2462,6 +2523,7 @@ export async function initTeamBonding(container, options = {}) {
                 tokenEl.style.opacity = '0.5';
                 const updated = await apiPost(`/bonding/matches/${matchId}/move`, { action: 'move', tokenId: Number(tId) });
                 match = updated;
+                prevFingerprint = getMatchFingerprint(updated);
                 renderArena();
               } catch (err) {
                 flashToast(err.message || 'Invalid token move', 'error');
@@ -5915,6 +5977,46 @@ function injectBondingStyles() {
       font-size: 10px;
       font-weight: 800;
       animation: homePawnGlow 1.5s infinite alternate;
+    }
+
+    .home-tri-pawn {
+      position: absolute;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 8px;
+      font-weight: 800;
+      padding: 1px 3px;
+      border-radius: 4px;
+      background: rgba(0, 0, 0, 0.7);
+      color: #fef08a;
+      box-shadow: 0 0 6px rgba(245, 158, 11, 0.9);
+      z-index: 6;
+    }
+    .home-triangle.red-tri .home-tri-pawn { left: 4px; top: 35%; }
+    .home-triangle.green-tri .home-tri-pawn { top: 4px; left: 35%; }
+    .home-triangle.yellow-tri .home-tri-pawn { right: 4px; top: 35%; }
+    .home-triangle.blue-tri .home-tri-pawn { bottom: 4px; left: 35%; }
+
+    .ludo-token.token-reached-home {
+      background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%) !important;
+      border: 2px solid #fef08a !important;
+      box-shadow: 0 0 10px rgba(245, 158, 11, 0.9), 0 2px 4px rgba(0,0,0,0.4) !important;
+      color: #ffffff !important;
+      position: relative;
+      animation: homePawnGlow 1.4s infinite alternate;
+    }
+    .home-crown-mini {
+      position: absolute;
+      top: -9px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 12px;
+      filter: drop-shadow(0 1px 2px rgba(0,0,0,0.8));
+    }
+    .yard-token-slot.slot-home {
+      border-color: rgba(245, 158, 11, 0.7) !important;
+      background: rgba(245, 158, 11, 0.1) !important;
     }
 
     @keyframes homePawnGlow {
