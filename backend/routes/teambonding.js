@@ -1057,11 +1057,19 @@ router.get('/games/overview', async (req, res) => {
       GameInvitation.find({ 'sender.userId': req.user._id, status: 'pending', expiresAt: { $gt: now } }).sort({ createdAt: -1 }),
       GameMatch.find({
         status: 'active',
-        $or: [{ 'player1.userId': req.user._id }, { 'player2.userId': req.user._id }]
+        $or: [
+          { 'player1.userId': req.user._id },
+          { 'player2.userId': req.user._id },
+          { 'gameState.players.userId': req.user._id }
+        ]
       }).sort({ updatedAt: -1 }),
       GameMatch.find({
         status: { $in: ['completed', 'draw', 'resigned'] },
-        $or: [{ 'player1.userId': req.user._id }, { 'player2.userId': req.user._id }]
+        $or: [
+          { 'player1.userId': req.user._id },
+          { 'player2.userId': req.user._id },
+          { 'gameState.players.userId': req.user._id }
+        ]
       }).sort({ completedAt: -1 }).limit(15),
       BondingScore.findOne({ userId: req.user._id })
     ]);
@@ -1187,6 +1195,20 @@ router.post('/matches/instant-ludo', async (req, res) => {
     });
 
     await match.save();
+
+    // Notify all challenged opponents so they immediately see the live game
+    for (const pl of playersList.slice(1)) {
+      if (pl.userId && pl.userId.toString() !== req.user._id.toString()) {
+        createNotificationForGameChallenge({
+          title: '🎮 Ludo Match Started!',
+          message: `${req.user.name} challenged you to a ${numPlayers}P Ludo match! Tap to enter arena.`,
+          targetUserId: pl.userId,
+          gameType: 'ludo'
+        }).catch(() => {});
+      }
+    }
+
+    recordSyncUpdate('bonding');
     res.json({ success: true, match, _id: match._id });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -1382,20 +1404,22 @@ router.put('/invitations/:id/respond', async (req, res) => {
     const isRecipient = invitation.recipient.userId.toString() === req.user._id.toString();
     const isSender = invitation.sender.userId.toString() === req.user._id.toString();
 
-    if (action === 'cancel') {
-      if (!isSender && !isRecipient) return res.status(403).json({ error: 'Unauthorized to cancel this invitation' });
-      invitation.status = 'cancelled';
-      invitation.respondedAt = new Date();
-      await invitation.save();
-      return res.json({ success: true, invitation });
-    }
+    if (action === 'cancel' || action === 'decline') {
+      if (action === 'cancel' && !isSender && !isRecipient) return res.status(403).json({ error: 'Unauthorized to cancel this invitation' });
+      if (action === 'decline' && !isRecipient) return res.status(403).json({ error: 'Only the invited employee can decline' });
 
-    if (action === 'decline') {
-      if (!isRecipient) return res.status(403).json({ error: 'Only the invited employee can decline' });
-      invitation.status = 'declined';
+      invitation.status = action === 'cancel' ? 'cancelled' : 'declined';
       invitation.respondedAt = new Date();
       await invitation.save();
-      return res.json({ success: true, invitation });
+
+      // Remove any challenge card messages from channel chat so it completely goes away
+      await BondingMessage.deleteMany({ 'challengeData.gameState.invitationId': invitation._id });
+
+      // Clean up any lingering notifications for this challenge
+      await Notification.deleteMany({ invitationId: invitation._id });
+
+      recordSyncUpdate('bonding');
+      return res.json({ success: true, invitation, removed: true });
     }
 
     if (action === 'accept') {
@@ -1563,8 +1587,9 @@ router.get('/matches/:id', async (req, res) => {
 
     const isP1 = match.player1.userId.toString() === req.user._id.toString();
     const isP2 = match.player2.userId.toString() === req.user._id.toString();
+    const isLudoPlayer = (match.gameState?.players || []).some(p => p.userId && p.userId.toString() === req.user._id.toString());
 
-    if (!isP1 && !isP2) {
+    if (!isP1 && !isP2 && !isLudoPlayer) {
       return res.status(403).json({ error: 'You are not an authorized player in this match' });
     }
 
@@ -1586,8 +1611,9 @@ router.post('/matches/:id/move', async (req, res) => {
 
     const isP1 = match.player1.userId.toString() === req.user._id.toString();
     const isP2 = match.player2.userId.toString() === req.user._id.toString();
+    const isLudoPlayer = (match.gameState?.players || []).some(p => p.userId && p.userId.toString() === req.user._id.toString());
 
-    if (!isP1 && !isP2) {
+    if (!isP1 && !isP2 && !isLudoPlayer) {
       return res.status(403).json({ error: 'You are not a player in this match' });
     }
 
@@ -1821,6 +1847,8 @@ router.post('/matches/:id/move', async (req, res) => {
         const dice = Math.floor(Math.random() * 6) + 1;
         state.dice = dice;
         state.lastRoll = dice;
+        state.lastRollColor = turnColor;
+        state.lastRollBy = req.user.name;
         state.rolled = true;
 
         // Check if any pawn can move
@@ -1995,8 +2023,9 @@ router.post('/matches/:id/action', async (req, res) => {
 
     const isP1 = match.player1.userId.toString() === req.user._id.toString();
     const isP2 = match.player2.userId.toString() === req.user._id.toString();
+    const isLudoPlayer = (match.gameState?.players || []).some(p => p.userId && p.userId.toString() === req.user._id.toString());
 
-    if (!isP1 && !isP2) {
+    if (!isP1 && !isP2 && !isLudoPlayer) {
       return res.status(403).json({ error: 'You are not a player in this match' });
     }
 

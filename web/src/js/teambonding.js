@@ -541,6 +541,10 @@ export async function initTeamBonding(container, options = {}) {
       // MULTIPLAYER GAME INVITATION CARD IN CHAT STREAM
       if (msg.type === 'challenge' && msg.challengeData) {
         const cd = msg.challengeData;
+        if (cd.status === 'declined' || cd.status === 'cancelled') {
+          // After challenge is declined or cancelled, it goes away completely
+          return '';
+        }
         const gTitle = cd.gameTitle || 'Game Challenge';
         const gType = cd.gameType || 'chess';
         const gIcon = gType === 'chess' ? '♟️' : (gType === 'ludo' ? '🎲' : '❌');
@@ -1567,8 +1571,17 @@ export async function initTeamBonding(container, options = {}) {
         }
       } else if (action === 'decline') {
         flashToast('Challenge declined', 'info');
+        // Instantly remove challenge elements from UI so it goes away
+        container.querySelectorAll(`[data-invite-id="${invitationId}"]`).forEach(el => {
+          const item = el.closest('.lounge-invite-item') || el.closest('.bonding-msg-row');
+          if (item) item.remove();
+        });
       } else if (action === 'cancel') {
         flashToast('Challenge cancelled', 'info');
+        container.querySelectorAll(`[data-invite-id="${invitationId}"]`).forEach(el => {
+          const item = el.closest('.lounge-invite-item') || el.closest('.bonding-msg-row');
+          if (item) item.remove();
+        });
       }
 
       if (activeChannel) {
@@ -2006,13 +2019,22 @@ export async function initTeamBonding(container, options = {}) {
         }
       }
 
-      const diceGlyphs = ['', '⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
-
-      function formatStepDesc(t) {
-        if (!t || t.step === -1) return 'Base';
-        if (t.step === 56) return '🏁 Home!';
-        if (t.step > 50) return `H${t.step - 50}`;
-        return `S${t.step}`;
+      function renderDicePips(val) {
+        const v = Math.max(1, Math.min(6, Number(val) || 1));
+        const pipMap = {
+          1: [5],
+          2: [1, 9],
+          3: [1, 5, 9],
+          4: [1, 3, 7, 9],
+          5: [1, 3, 7, 9, 5],
+          6: [1, 4, 7, 3, 6, 9]
+        };
+        const active = new Set(pipMap[v] || [5]);
+        let dots = '';
+        for (let i = 1; i <= 9; i++) {
+          dots += `<span class="ludo-pip ${active.has(i) ? 'filled' : 'empty'}"></span>`;
+        }
+        return `<div class="ludo-dice-face face-${v}">${dots}</div>`;
       }
 
       function renderYardHtml(col, titleText, isActive, playerInfo, tokensList) {
@@ -2027,11 +2049,14 @@ export async function initTeamBonding(container, options = {}) {
           `;
         }
 
+        const homeCount = tokensList.filter(t => t.step === 56).length;
+
         return `
           <div class="ludo-yard ${yardClass} ${currentTurnColor === col ? 'yard-active-turn' : ''}">
             <div class="yard-box">
               <div class="yard-title">
                 <span>${titleText}</span>
+                ${homeCount > 0 ? `<span class="yard-home-badge" title="${homeCount} of 4 pawns reached Home!">👑 ${homeCount}/4 Home</span>` : ''}
                 ${playerInfo ? `<small class="yard-player-lbl">${escapeHtml(playerInfo.name)}${playerInfo.isBot ? ' 🤖' : ''}</small>` : ''}
               </div>
               <div class="yard-slots">
@@ -2055,6 +2080,16 @@ export async function initTeamBonding(container, options = {}) {
       const yellowPl = players.find(p => p.color === 'yellow');
       const bluePl = players.find(p => p.color === 'blue');
 
+      const turnPl = players.find(p => p.color === currentTurnColor) || (currentTurnColor === 'red' ? redPl : greenPl);
+      const turnPlName = turnPl ? escapeHtml(turnPl.name) : currentTurnColor.toUpperCase();
+      const turnColorEmoji = { red: '🔴', green: '🟢', yellow: '🟡', blue: '🔵' }[currentTurnColor] || '🔴';
+      const myColorEmoji = { red: '🔴', green: '🟢', yellow: '🟡', blue: '🔵' }[myColor] || '🔴';
+
+      const displayDice = dice || state.lastRoll || 6;
+      const canClickRoll = isMyCurrentTurn && !rolled && match.status === 'active';
+      const myTokens = getTokensForColor(myColor);
+      const movableTokens = myTokens.filter(t => isTokenMovable(myColor, t));
+
       return `
         <div class="ludo-arena-layout">
           <div class="ludo-board-grid">
@@ -2070,7 +2105,7 @@ export async function initTeamBonding(container, options = {}) {
             <!-- 4. Yellow Base Yard (Bottom-Right 6x6) -->
             ${renderYardHtml('yellow', '🟡 Yellow Base', activeColors.includes('yellow'), yellowPl, tokensYellow)}
 
-            <!-- 5. Center Home Victory Zone (3x3) -->
+            <!-- 5. Center Home Victory Zone (3x3) with celebratory crowned pawns -->
             <div class="ludo-center-home">
               <div class="home-triangle red-tri"></div>
               <div class="home-triangle green-tri"></div>
@@ -2079,10 +2114,17 @@ export async function initTeamBonding(container, options = {}) {
               <div class="home-center-core">
                 <span class="home-crown">🏆</span>
                 <div class="home-finished-tokens">
-                  ${tokensRed.filter(t => t.step === 56).map(t => `<span class="tok-finished red" title="Red Pawn ${t.id + 1} Home">🔴${t.id + 1}</span>`).join('')}
-                  ${tokensGreen.filter(t => t.step === 56).map(t => `<span class="tok-finished green" title="Green Pawn ${t.id + 1} Home">🟢${t.id + 1}</span>`).join('')}
-                  ${tokensYellow.filter(t => t.step === 56).map(t => `<span class="tok-finished yellow" title="Yellow Pawn ${t.id + 1} Home">🟡${t.id + 1}</span>`).join('')}
-                  ${tokensBlue.filter(t => t.step === 56).map(t => `<span class="tok-finished blue" title="Blue Pawn ${t.id + 1} Home">🔵${t.id + 1}</span>`).join('')}
+                  ${[
+                    ...tokensRed.filter(t => t.step === 56).map(t => ({ col: 'red', id: t.id })),
+                    ...tokensGreen.filter(t => t.step === 56).map(t => ({ col: 'green', id: t.id })),
+                    ...tokensYellow.filter(t => t.step === 56).map(t => ({ col: 'yellow', id: t.id })),
+                    ...tokensBlue.filter(t => t.step === 56).map(t => ({ col: 'blue', id: t.id }))
+                  ].map(t => `
+                    <div class="tok-home-champion ${t.col}" title="${t.col.toUpperCase()} Pawn ${t.id + 1} Reached Home! 👑">
+                      <span class="champ-crown">👑</span>
+                      <span class="champ-num">${t.id + 1}</span>
+                    </div>
+                  `).join('')}
                 </div>
               </div>
             </div>
@@ -2091,53 +2133,64 @@ export async function initTeamBonding(container, options = {}) {
             ${pathCellsHtml.join('')}
           </div>
 
-          <!-- Ludo Action & Dice Roller Console -->
-          <div class="ludo-console">
-            <div class="ludo-dice-box">
-              <div class="ludo-dice-visual ${rolled ? 'rolled' : ''}">
-                ${dice ? `<span class="dice-glyph">${diceGlyphs[dice]}</span>` : '🎲'}
+          <!-- Ludo Action & 3D Interactive Dice Console (Clickable dice replaces text button, opponent dice visible!) -->
+          <div class="ludo-interactive-console">
+            <div class="ludo-dice-interactive-box">
+              <div 
+                class="ludo-3d-dice ${canClickRoll ? 'clickable pulse-roll' : ''} ${rolled ? 'just-rolled' : ''} border-${currentTurnColor}"
+                id="btn-interactive-ludo-dice"
+                role="button"
+                tabindex="${canClickRoll ? '0' : '-1'}"
+                title="${canClickRoll ? 'Click Dice to Roll!' : (isMyCurrentTurn ? 'Choose a pawn to move' : `${turnPlName}'s turn`)}"
+              >
+                ${renderDicePips(displayDice)}
               </div>
-              ${dice ? `<span class="dice-num-lbl">Rolled ${dice}</span>` : '<span class="dice-num-lbl">Ready</span>'}
-            </div>
-
-            <div class="ludo-controls-box">
-              ${isMyCurrentTurn && !rolled && match.status === 'active' ? `
-                <button class="btn-ludo-roll pulse" id="btn-ludo-roll">🎲 Roll Dice</button>
-              ` : (isMyCurrentTurn && rolled && match.status === 'active' ? `
-                <div class="ludo-prompt-text highlight">
-                  ${getTokensForColor(myColor).some(t => isTokenMovable(myColor, t))
-                    ? '👉 Tap your <strong>glowing pawn</strong> to advance!'
-                    : 'No moves possible with this roll. Turn passing...'
-                  }
-                </div>
-              ` : `
-                <div class="ludo-prompt-text">
-                  ${match.status === 'active'
-                    ? `⏳ Waiting for ${escapeHtml(players.find(p => p.color === currentTurnColor)?.name || 'opponent')} (${currentTurnColor.toUpperCase()})...`
-                    : '🏁 Match Concluded'
-                  }
-                </div>
-              `)}
-
-              <div class="ludo-status-banner">
-                ${escapeHtml(state.lastActionText || 'Match in progress.')}
+              <div class="ludo-dice-action-badge">
+                ${canClickRoll 
+                  ? `<span class="badge-click-roll">🎲 TAP TO ROLL</span>` 
+                  : (rolled 
+                      ? `<span class="badge-rolled-val">${turnColorEmoji} Rolled ${displayDice}</span>` 
+                      : (state.lastRoll 
+                          ? `<span class="badge-last-roll">${turnColorEmoji} Rolled ${state.lastRoll}</span>` 
+                          : `<span class="badge-waiting">Ready</span>`))
+                }
               </div>
             </div>
-          </div>
 
-          <!-- Token Progress Strip for all active players -->
-          <div class="ludo-progress-strip">
-            ${activeColors.map(col => {
-              const pl = players.find(p => p.color === col);
-              const tokArr = getTokensForColor(col);
-              const colorEmoji = { red: '🔴', green: '🟢', yellow: '🟡', blue: '🔵' }[col];
-              return `
-                <div class="progress-pill ${col} ${currentTurnColor === col ? 'active-turn' : ''}">
-                  <strong>${colorEmoji} ${pl ? escapeHtml(pl.name) : col.toUpperCase()}:</strong>
-                  ${tokArr.map((t, i) => `P${i + 1}: ${formatStepDesc(t)}`).join(' · ')}
-                </div>
-              `;
-            }).join('')}
+            <div class="ludo-console-status-pane">
+              <div class="ludo-turn-indicator-bar">
+                <span class="ludo-turn-dot ${currentTurnColor}"></span>
+                <span class="ludo-turn-player-tag">
+                  <strong>${turnColorEmoji} ${turnPlName}</strong> (${currentTurnColor.toUpperCase()})
+                </span>
+                ${isMyCurrentTurn 
+                  ? `<span class="badge green" style="font-size:10px;padding:2px 6px;">YOUR TURN</span>` 
+                  : `<span class="badge blue" style="font-size:10px;padding:2px 6px;">OPPONENT'S TURN</span>`
+                }
+              </div>
+
+              <div class="ludo-guidance-message ${isMyCurrentTurn && rolled ? 'highlight' : ''}">
+                ${isMyCurrentTurn && !rolled && match.status === 'active'
+                  ? '👉 It is your turn! <strong>Click the dice</strong> to roll!'
+                  : (isMyCurrentTurn && rolled && match.status === 'active'
+                    ? (movableTokens.length > 0
+                      ? (movableTokens.length === 1
+                        ? `🎲 Rolled <strong>${displayDice}</strong>! Auto-advancing single pawn...`
+                        : `🎲 Rolled <strong>${displayDice}</strong>! Tap your <strong>glowing pawn</strong> to move!`)
+                      : `🎲 Rolled <strong>${displayDice}</strong>. No legal moves possible — turn passing...`)
+                    : (match.status === 'active'
+                      ? (rolled || state.lastRoll
+                        ? `🎲 ${turnColorEmoji} <strong>${turnPlName}</strong> rolled <strong>${displayDice}</strong>!`
+                        : `⏳ Waiting for <strong>${turnPlName}</strong> to roll the dice...`)
+                      : '🏁 Match Concluded')
+                  )
+                }
+              </div>
+
+              <div class="ludo-last-action-caption">
+                ${escapeHtml(state.lastActionText || 'Match live!')}
+              </div>
+            </div>
           </div>
         </div>
       `;
@@ -2334,28 +2387,74 @@ export async function initTeamBonding(container, options = {}) {
         });
       }
 
-      // C. LUDO DICE ROLL & TOKEN MOVEMENT INTERACTION
+      // C. LUDO 3D INTERACTIVE DICE ROLL & AUTOMATIC TOKEN MOVEMENT
       if (match.gameType === 'ludo' && match.status === 'active') {
-        // Roll dice button
-        const btnRoll = modalRoot.querySelector('#btn-ludo-roll');
-        if (btnRoll && isMyTurn) {
-          btnRoll.onclick = async () => {
+        const state = match.gameState || {};
+        const rolled = !!state.rolled;
+        const currentTurnColor = state.turnColor || match.turn || 'red';
+        const myColor = (match.player1.userId.toString() === myId?.toString())
+          ? (match.player1.assignedRole || 'red')
+          : (match.player2.userId.toString() === myId?.toString()
+            ? (match.player2.assignedRole || 'green')
+            : ((state.players || []).find(p => p.userId?.toString() === myId?.toString())?.color || 'red'));
+        const isMyTurnNow = isMyTurn && currentTurnColor === myColor;
+
+        // Click on the 3D dice to roll (instead of a text button)
+        const diceBtn = modalRoot.querySelector('#btn-interactive-ludo-dice');
+        if (diceBtn && isMyTurnNow && !rolled) {
+          const triggerDiceRoll = async () => {
+            if (diceBtn.dataset.rolling === 'true') return;
+            diceBtn.dataset.rolling = 'true';
+            diceBtn.classList.add('rolling');
             try {
-              btnRoll.disabled = true;
-              btnRoll.textContent = 'Rolling 🎲...';
               const updated = await apiPost(`/bonding/matches/${matchId}/move`, { action: 'roll' });
               match = updated;
               renderArena();
             } catch (err) {
               flashToast(err.message || 'Failed to roll', 'error');
-              btnRoll.disabled = false;
-              btnRoll.textContent = '🎲 Roll Dice';
+              diceBtn.classList.remove('rolling');
+              delete diceBtn.dataset.rolling;
+            }
+          };
+          diceBtn.onclick = triggerDiceRoll;
+          diceBtn.onkeydown = (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              triggerDiceRoll();
             }
           };
         }
 
-        // Movable tokens click
-        if (isMyTurn) {
+        // Automatic pawn movement when only 1 pawn is movable
+        if (isMyTurnNow && rolled) {
+          const allTokens = state.tokens || {};
+          const myTokensList = allTokens[myColor] || [];
+          const diceVal = state.dice || state.lastRoll || 0;
+          const movableList = myTokensList.filter(t => {
+            if (t.step === -1 && diceVal === 6) return true;
+            if (t.step >= 0 && t.step + diceVal <= 56) return true;
+            return false;
+          });
+
+          if (movableList.length === 1 && !window.__ci360LudoAutoMoving) {
+            window.__ci360LudoAutoMoving = true;
+            const singleToken = movableList[0];
+            setTimeout(async () => {
+              try {
+                const updated = await apiPost(`/bonding/matches/${matchId}/move`, { action: 'move', tokenId: Number(singleToken.id) });
+                match = updated;
+                window.__ci360LudoAutoMoving = false;
+                renderArena();
+              } catch (err) {
+                window.__ci360LudoAutoMoving = false;
+                flashToast(err.message || 'Auto-move failed', 'error');
+              }
+            }, 450);
+          }
+        }
+
+        // Manual movable pawn click (when player has multiple choices)
+        if (isMyTurnNow && rolled) {
           modalRoot.querySelectorAll('.ludo-token.movable').forEach(tokenEl => {
             tokenEl.onclick = async (e) => {
               e.stopPropagation();
@@ -5558,8 +5657,8 @@ function injectBondingStyles() {
       to { transform: scale(1.22); filter: brightness(1.25); }
     }
 
-    /* Ludo Console & Dice */
-    .ludo-console {
+    /* ── Ludo Interactive 3D Dice Console ── */
+    .ludo-interactive-console {
       display: flex;
       align-items: center;
       gap: 16px;
@@ -5567,146 +5666,261 @@ function injectBondingStyles() {
       max-width: 440px;
       background: var(--bg-muted, #f8fafc);
       border: 1px solid var(--border-sm, #e2e8f0);
-      border-radius: 12px;
+      border-radius: 14px;
       padding: 12px 16px;
       box-sizing: border-box;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
     }
 
-    [data-theme="dark"] .ludo-console {
-      background: #182234;
+    [data-theme="dark"] .ludo-interactive-console {
+      background: #151f32;
       border-color: #2b3952;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
     }
 
-    .ludo-dice-box {
+    .ludo-dice-interactive-box {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 4px;
+      gap: 6px;
       flex-shrink: 0;
     }
 
-    .ludo-dice-visual {
-      width: 44px;
-      height: 44px;
+    .ludo-3d-dice {
+      width: 58px;
+      height: 58px;
       background: #ffffff;
-      color: #0f172a;
-      border-radius: 10px;
+      border-radius: 14px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 28px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-      border: 2px solid #cbd5e1;
-      transition: transform 0.25s ease;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25), inset 0 -3px 0 #cbd5e1;
+      border: 2.5px solid #cbd5e1;
+      cursor: default;
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease, border-color 0.2s ease;
+      user-select: none;
     }
 
-    .dice-glyph {
-      font-size: 30px;
-      line-height: 1;
+    .ludo-3d-dice.clickable {
+      cursor: pointer;
     }
 
-    .dice-num-lbl {
-      font-size: 11px;
-      font-weight: 700;
-      color: var(--text-2, #64748B);
+    .ludo-3d-dice.clickable:hover {
+      transform: translateY(-2px) scale(1.06);
     }
 
-    .ludo-controls-box {
+    .ludo-3d-dice.clickable:active {
+      transform: translateY(1px) scale(0.96);
+    }
+
+    .ludo-3d-dice.pulse-roll {
+      animation: diceGlowPulse 1.2s infinite alternate;
+    }
+
+    .ludo-3d-dice.border-red { border-color: #ef4444; }
+    .ludo-3d-dice.border-green { border-color: #10b981; }
+    .ludo-3d-dice.border-yellow { border-color: #f59e0b; }
+    .ludo-3d-dice.border-blue { border-color: #3b82f6; }
+
+    @keyframes diceGlowPulse {
+      0% { box-shadow: 0 4px 12px rgba(0,0,0,0.25), 0 0 4px rgba(59, 130, 246, 0.4); }
+      100% { box-shadow: 0 6px 20px rgba(0,0,0,0.35), 0 0 16px rgba(59, 130, 246, 0.85); transform: scale(1.04); }
+    }
+
+    .ludo-3d-dice.rolling {
+      animation: diceRollingSpin 0.45s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+
+    @keyframes diceRollingSpin {
+      0% { transform: rotate(0deg) scale(0.9); }
+      50% { transform: rotate(180deg) scale(1.15); }
+      100% { transform: rotate(360deg) scale(1); }
+    }
+
+    .ludo-dice-face {
+      width: 44px;
+      height: 44px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      gap: 3px;
+      padding: 3px;
+      box-sizing: border-box;
+    }
+
+    .ludo-pip {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      margin: auto;
+    }
+
+    .ludo-pip.filled {
+      background: #1e293b;
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.5);
+    }
+
+    .ludo-pip.empty {
+      visibility: hidden;
+    }
+
+    .ludo-dice-face.face-1 .ludo-pip.filled {
+      background: #dc2626;
+      width: 14px;
+      height: 14px;
+    }
+
+    .ludo-dice-action-badge {
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .badge-click-roll {
+      color: #3b82f6;
+      background: rgba(59, 130, 246, 0.12);
+      padding: 2px 7px;
+      border-radius: 6px;
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      animation: badgePulse 1.2s infinite alternate;
+    }
+
+    @keyframes badgePulse {
+      from { opacity: 0.85; }
+      to { opacity: 1; transform: scale(1.03); }
+    }
+
+    .badge-rolled-val {
+      color: #10b981;
+      background: rgba(16, 185, 129, 0.12);
+      padding: 2px 7px;
+      border-radius: 6px;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .badge-last-roll {
+      color: var(--text-2, #64748b);
+      background: var(--bg-card, #e2e8f0);
+      padding: 2px 7px;
+      border-radius: 6px;
+    }
+
+    .badge-waiting {
+      color: var(--text-3, #94a3b8);
+      font-size: 10px;
+    }
+
+    .ludo-console-status-pane {
       flex: 1;
+      min-width: 0;
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 5px;
     }
 
-    .btn-ludo-roll {
-      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-      color: #ffffff;
-      font-weight: 700;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 13px;
-      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
-      transition: all 0.15s ease;
-      align-self: flex-start;
+    .ludo-turn-indicator-bar {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      flex-wrap: wrap;
     }
 
-    .btn-ludo-roll:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 6px 16px rgba(37, 99, 235, 0.45);
+    .ludo-turn-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      flex-shrink: 0;
     }
 
-    .btn-ludo-roll.pulse {
-      animation: ludoRollPulse 1s infinite alternate;
+    .ludo-turn-dot.red { background: #ef4444; box-shadow: 0 0 6px #ef4444; }
+    .ludo-turn-dot.green { background: #10b981; box-shadow: 0 0 6px #10b981; }
+    .ludo-turn-dot.yellow { background: #f59e0b; box-shadow: 0 0 6px #f59e0b; }
+    .ludo-turn-dot.blue { background: #3b82f6; box-shadow: 0 0 6px #3b82f6; }
+
+    .ludo-turn-player-tag {
+      font-size: 12.5px;
+      color: var(--text-1, #0f172a);
     }
 
-    @keyframes ludoRollPulse {
-      from { box-shadow: 0 0 4px rgba(37, 99, 235, 0.4); }
-      to { box-shadow: 0 0 16px rgba(37, 99, 235, 0.8); }
+    [data-theme="dark"] .ludo-turn-player-tag {
+      color: #f1f5f9;
     }
 
-    .ludo-prompt-text {
+    .ludo-guidance-message {
       font-size: 12px;
-      color: var(--text-2, #64748B);
+      color: var(--text-2, #64748b);
+      line-height: 1.4;
     }
 
-    .ludo-prompt-text.highlight {
+    .ludo-guidance-message.highlight {
       color: #0284c7;
-      font-weight: 600;
+      font-weight: 700;
     }
 
-    [data-theme="dark"] .ludo-prompt-text.highlight {
+    [data-theme="dark"] .ludo-guidance-message.highlight {
       color: #38bdf8;
     }
 
-    .ludo-status-banner {
-      font-size: 11.5px;
-      color: var(--text-1, #1e293b);
+    .ludo-last-action-caption {
+      font-size: 11px;
+      color: var(--text-3, #94a3b8);
       background: var(--bg-card, #ffffff);
-      padding: 4px 8px;
+      padding: 3px 8px;
       border-radius: 6px;
       border: 1px solid var(--border-sm, #e2e8f0);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
-    [data-theme="dark"] .ludo-status-banner {
-      background: #111827;
-      border-color: #374151;
-      color: #f3f4f6;
+    [data-theme="dark"] .ludo-last-action-caption {
+      background: #0f172a;
+      border-color: #334155;
+      color: #94a3b8;
     }
 
-    .ludo-progress-strip {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      justify-content: center;
-      width: 100%;
-      max-width: 440px;
+    /* ── Home Finished Celebratory Pawns & Badges ── */
+    .yard-home-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      font-size: 10px;
+      font-weight: 800;
+      color: #b45309;
+      background: #fef3c7;
+      border: 1px solid #fde68a;
+      padding: 2px 6px;
+      border-radius: 10px;
+      margin-left: 5px;
     }
 
-    .progress-pill {
-      font-size: 11px;
-      padding: 4px 10px;
-      border-radius: 12px;
-      border: 1px solid;
+    [data-theme="dark"] .yard-home-badge {
+      color: #fde047;
+      background: rgba(245, 158, 11, 0.2);
+      border-color: rgba(245, 158, 11, 0.4);
     }
 
-    .progress-pill.red {
-      background: #fef2f2;
-      border-color: #fecaca;
-      color: #b91c1c;
+    .tok-home-champion {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      padding: 2px 5px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      border: 1.5px solid #fef08a;
+      box-shadow: 0 0 10px rgba(245, 158, 11, 0.8), 0 2px 4px rgba(0,0,0,0.3);
+      color: #ffffff;
+      font-size: 10px;
+      font-weight: 800;
+      animation: homePawnGlow 1.5s infinite alternate;
     }
 
-    [data-theme="dark"] .progress-pill.red {
-      background: rgba(239, 68, 68, 0.15);
-      border-color: rgba(239, 68, 68, 0.4);
-      color: #fca5a5;
-    }
-
-    .progress-pill.green {
-      background: #f0fdf4;
-      border-color: #bbf7d0;
-      color: #15803d;
+    @keyframes homePawnGlow {
+      from { box-shadow: 0 0 6px #f59e0b; }
+      to { box-shadow: 0 0 14px #fbbf24; transform: scale(1.05); }
     }
 
     [data-theme="dark"] .progress-pill.green {
