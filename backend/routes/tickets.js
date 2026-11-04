@@ -33,12 +33,27 @@ function canAccessTicket(ticket, user) {
   if (!user || !ticket) return false;
   if (user.role === 'superadmin' || user.role === 'admin') return true;
   const uid = String(user._id);
+  const pId = user.personnelId ? String(user.personnelId) : null;
+  const uName = (user.name || '').toLowerCase().trim();
+
   // Check assigned (single or multiple)
-  if (ticket.assignee && ticket.assignee.userId && String(ticket.assignee.userId) === uid) return true;
-  if (Array.isArray(ticket.assignees) && ticket.assignees.some(a => a && a.userId && String(a.userId) === uid)) return true;
+  if (ticket.assignee) {
+    if (ticket.assignee.userId && (String(ticket.assignee.userId) === uid || (pId && String(ticket.assignee.userId) === pId))) return true;
+    if (ticket.assignee.name && ticket.assignee.name.toLowerCase().trim() === uName) return true;
+  }
+  if (Array.isArray(ticket.assignees) && ticket.assignees.some(a => {
+    if (!a) return false;
+    if (a.userId && (String(a.userId) === uid || (pId && String(a.userId) === pId))) return true;
+    if (a.name && a.name.toLowerCase().trim() === uName) return true;
+    return false;
+  })) return true;
+
   // Check reporter / creator
-  if (ticket.reporter && ticket.reporter.userId && String(ticket.reporter.userId) === uid) return true;
-  if (ticket.userId && String(ticket.userId) === uid) return true;
+  if (ticket.reporter) {
+    if (ticket.reporter.userId && (String(ticket.reporter.userId) === uid || (pId && String(ticket.reporter.userId) === pId))) return true;
+    if (ticket.reporter.name && ticket.reporter.name.toLowerCase().trim() === uName) return true;
+  }
+  if (ticket.userId && (String(ticket.userId) === uid || (pId && String(ticket.userId) === pId))) return true;
   return false;
 }
 
@@ -93,6 +108,26 @@ function parseTimeStringToHours(str) {
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
+   GET /api/tickets/staff - Active internal staff/employees for ticket assignment
+   Accessible to all internal roles (superadmin, admin, employee, accounts)
+   ───────────────────────────────────────────────────────────────────────────── */
+router.get('/staff', async (req, res) => {
+  try {
+    const staff = await User.find({
+      active: { $ne: false },
+      isDeleted: { $ne: true },
+      role: { $in: ['employee', 'admin', 'superadmin', 'accounts'] }
+    })
+      .select('_id name role email avatar personnelId')
+      .sort({ name: 1 })
+      .lean();
+    res.json(staff);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+/* ─────────────────────────────────────────────────────────────────────────────
    GET /api/tickets/stats - Aggregate Overview KPI Metrics for Board & Admin
    ───────────────────────────────────────────────────────────────────────────── */
 router.get('/stats', async (req, res) => {
@@ -100,12 +135,22 @@ router.get('/stats', async (req, res) => {
     const isAdmin = req.user.role === 'superadmin' || req.user.role === 'admin';
     const filter = {};
     if (!isAdmin) {
-      filter.$or = [
-        { 'assignees.userId': req.user._id },
-        { 'assignee.userId': req.user._id },
-        { 'reporter.userId': req.user._id },
-        { userId: req.user._id }
+      const myId = req.user._id;
+      const orConditions = [
+        { 'assignees.userId': myId },
+        { 'assignee.userId': myId },
+        { 'reporter.userId': myId },
+        { userId: myId }
       ];
+      if (req.user.personnelId) {
+        orConditions.push({ 'assignees.userId': req.user.personnelId });
+        orConditions.push({ 'assignee.userId': req.user.personnelId });
+      }
+      if (req.user.name) {
+        orConditions.push({ 'assignees.name': new RegExp(`^${req.user.name}$`, 'i') });
+        orConditions.push({ 'assignee.name': new RegExp(`^${req.user.name}$`, 'i') });
+      }
+      filter.$or = orConditions;
     }
     const tickets = await SupportTicket.find(filter).lean();
     const now = new Date();
@@ -128,6 +173,8 @@ router.get('/stats', async (req, res) => {
     };
 
     const myId = String(req.user._id);
+    const myPid = req.user.personnelId ? String(req.user.personnelId) : null;
+    const myName = (req.user.name || '').toLowerCase().trim();
 
     tickets.forEach(t => {
       let st = t.status || 'To Do';
@@ -148,12 +195,21 @@ router.get('/stats', async (req, res) => {
         stats.overdue++;
       }
 
-      const isAssigned = (t.assignees && t.assignees.some(a => a && a.userId && String(a.userId) === myId)) ||
-                         (t.assignee && t.assignee.userId && String(t.assignee.userId) === myId);
+      const isAssigned = (t.assignees && t.assignees.some(a => a && (
+        (a.userId && (String(a.userId) === myId || (myPid && String(a.userId) === myPid))) ||
+        (a.name && a.name.toLowerCase().trim() === myName)
+      ))) || (t.assignee && (
+        (t.assignee.userId && (String(t.assignee.userId) === myId || (myPid && String(t.assignee.userId) === myPid))) ||
+        (t.assignee.name && t.assignee.name.toLowerCase().trim() === myName)
+      ));
+
       if (isAssigned) {
         stats.myAssigned++;
       }
-      if (t.reporter && t.reporter.userId && String(t.reporter.userId) === myId) {
+      if (t.reporter && (
+        (t.reporter.userId && (String(t.reporter.userId) === myId || (myPid && String(t.reporter.userId) === myPid))) ||
+        (t.reporter.name && t.reporter.name.toLowerCase().trim() === myName)
+      )) {
         stats.myReported++;
       }
     });
@@ -166,7 +222,8 @@ router.get('/stats', async (req, res) => {
 });
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   GET /api/tickets - List all tickets with filtering, search, and sorting
+   GET /api/tickets - List tickets with filtering, search, and sorting
+   (Employees see only tickets assigned to them or created by them; Admins see all)
    ───────────────────────────────────────────────────────────────────────────── */
 router.get('/', async (req, res) => {
   try {
@@ -185,29 +242,46 @@ router.get('/', async (req, res) => {
     const isAdmin = req.user.role === 'superadmin' || req.user.role === 'admin';
     const filter = {};
 
-    // Strict Role Separation: Employees see tickets assigned to them OR created by them; Admins see all
+    // Role Filtering: Employees only see their assigned tickets (or tickets they created); Admins see all
     if (!isAdmin) {
-      filter.$or = [
-        { 'assignees.userId': req.user._id },
-        { 'assignee.userId': req.user._id },
-        { 'reporter.userId': req.user._id },
-        { userId: req.user._id }
+      const myId = req.user._id;
+      const orConditions = [
+        { 'assignees.userId': myId },
+        { 'assignee.userId': myId },
+        { 'reporter.userId': myId },
+        { userId: myId }
       ];
-    } else {
-      // Assignee filter (Admins only)
-      if (assigneeId && assigneeId !== 'all') {
-        if (assigneeId === 'unassigned') {
-          filter.$or = [
-            { assignees: { $size: 0 } },
-            { 'assignee.userId': null },
-            { assignee: null }
-          ];
-        } else {
-          filter.$or = [
-            { 'assignees.userId': assigneeId },
-            { 'assignee.userId': assigneeId }
-          ];
-        }
+      if (req.user.personnelId) {
+        orConditions.push({ 'assignees.userId': req.user.personnelId });
+        orConditions.push({ 'assignee.userId': req.user.personnelId });
+      }
+      if (req.user.name) {
+        orConditions.push({ 'assignees.name': new RegExp(`^${req.user.name}$`, 'i') });
+        orConditions.push({ 'assignee.name': new RegExp(`^${req.user.name}$`, 'i') });
+      }
+      filter.$or = orConditions;
+    }
+
+    // Assignee filter (usable by admins or employees filtering among their assigned tickets)
+    if (assigneeId && assigneeId !== 'all') {
+      let assigneeConditions = [];
+      if (assigneeId === 'unassigned') {
+        assigneeConditions = [
+          { assignees: { $size: 0 } },
+          { 'assignee.userId': null },
+          { assignee: null }
+        ];
+      } else {
+        assigneeConditions = [
+          { 'assignees.userId': assigneeId },
+          { 'assignee.userId': assigneeId }
+        ];
+      }
+      if (filter.$or) {
+        filter.$and = [{ $or: filter.$or }, { $or: assigneeConditions }];
+        delete filter.$or;
+      } else {
+        filter.$or = assigneeConditions;
       }
     }
 
@@ -374,7 +448,16 @@ router.post('/', async (req, res) => {
 
     let assignees = [];
     if (targetIds.length > 0) {
-      const targetUsers = await User.find({ _id: { $in: targetIds }, active: true });
+      let targetUsers = await User.find({ _id: { $in: targetIds }, active: { $ne: false } });
+      const matchedPersonnel = await Personnel.find({ _id: { $in: targetIds } });
+      if (matchedPersonnel.length > 0) {
+        const pIds = matchedPersonnel.map(p => p._id);
+        const usersByPersonnel = await User.find({ personnelId: { $in: pIds }, active: { $ne: false } });
+        const existingIds = new Set(targetUsers.map(u => String(u._id)));
+        usersByPersonnel.forEach(u => {
+          if (!existingIds.has(String(u._id))) targetUsers.push(u);
+        });
+      }
       assignees = targetUsers.map(u => ({
         userId: u._id,
         name: u.name,
@@ -643,7 +726,16 @@ router.patch('/:id', async (req, res) => {
 
       let newAssignees = [];
       if (targetIds.length > 0) {
-        const targetUsers = await User.find({ _id: { $in: targetIds }, active: true });
+        let targetUsers = await User.find({ _id: { $in: targetIds }, active: { $ne: false } });
+        const matchedPersonnel = await Personnel.find({ _id: { $in: targetIds } });
+        if (matchedPersonnel.length > 0) {
+          const pIds = matchedPersonnel.map(p => p._id);
+          const usersByPersonnel = await User.find({ personnelId: { $in: pIds }, active: { $ne: false } });
+          const existingIds = new Set(targetUsers.map(u => String(u._id)));
+          usersByPersonnel.forEach(u => {
+            if (!existingIds.has(String(u._id))) targetUsers.push(u);
+          });
+        }
         newAssignees = targetUsers.map(u => ({
           userId: u._id,
           name: u.name,

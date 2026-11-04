@@ -88,7 +88,7 @@ export async function initSupportTickets(container, options = {}) {
         <div class="jira-header-left">
           <div class="jira-breadcrumb">
             <span class="jira-project-icon">CI</span>
-            <span>CI360 / SUPPORT / ${isSuper ? 'ALL TICKETS (ADMIN)' : 'INTERNAL TICKETS (ASSIGNED & CREATED)'}</span>
+            <span>CI360 / SUPPORT / ${isSuper ? 'ALL TICKETS (ADMIN)' : 'MY ASSIGNED TICKETS'}</span>
           </div>
           <div class="jira-title-row">
             <h2 class="jira-main-title">🎫 ${isSuper ? 'Support Tickets Board' : 'Support Tickets'}</h2>
@@ -134,26 +134,14 @@ export async function initSupportTickets(container, options = {}) {
             <option value="all">Linked Job: All</option>
           </select>
 
-          ${isSuper ? `
-            <select id="jira-filter-assignee" class="jira-filter-select">
-              <option value="all">Assignee: All</option>
-              <option value="unassigned">Unassigned</option>
-            </select>
+          <select id="jira-filter-assignee" class="jira-filter-select">
+            <option value="all">Assignee: All</option>
+            <option value="unassigned">Unassigned</option>
+          </select>
 
-            <button type="button" class="jira-pill-filter" id="jira-pill-my-issues">
-              Only My Issues
-            </button>
-          ` : `
-            <button type="button" class="jira-pill-filter active" id="jira-pill-scope-all">
-              📁 All My Tickets
-            </button>
-            <button type="button" class="jira-pill-filter" id="jira-pill-scope-assigned">
-              👤 Assigned to Me
-            </button>
-            <button type="button" class="jira-pill-filter" id="jira-pill-scope-created">
-              ✍️ Created by Me
-            </button>
-          `}
+          <button type="button" class="jira-pill-filter" id="jira-pill-my-issues">
+            Only My Issues
+          </button>
 
           <span class="jira-clear-filters" id="jira-clear-filters" style="display:none;">Clear Filters</span>
         </div>
@@ -243,11 +231,17 @@ export async function initSupportTickets(container, options = {}) {
 
   async function fetchEmployees() {
     try {
-      const res = await apiGet('/users');
+      let res;
+      try {
+        res = await apiGet('/tickets/staff');
+      } catch (err) {
+        res = await apiGet('/users');
+      }
       // Filter strictly active internal staff (no clients)
-      employees = (res || []).filter(u => u.active && u.role !== 'client');
+      employees = (res || []).filter(u => u.active !== false && u.role !== 'client');
     } catch (e) {
       console.warn('Could not fetch employees:', e);
+      employees = [];
     }
   }
 
@@ -772,7 +766,8 @@ export async function initSupportTickets(container, options = {}) {
       : (t.assignee && t.assignee.userId ? [t.assignee] : []);
     const isAssigned = assigneesList.some(a => a && a.userId && String(a.userId) === String(myId));
     const isSuper = userRole === 'superadmin' || userRole === 'admin';
-    const canManageTicket = isSuper || isReporter || isAssigned;
+    // User requirement: In support tickets, everyone has identical access/actions on their tickets
+    const canManageTicket = true;
 
     const currentJobId = t.jobId?._id ? t.jobId._id.toString() : (t.jobId ? t.jobId.toString() : '');
     const currentJobTitle = t.jobTitle || (t.jobId && t.jobId.title) || '';
@@ -1265,7 +1260,7 @@ export async function initSupportTickets(container, options = {}) {
               </div>
 
               <!-- Actions (Delete) -->
-              ${(isSuper || isReporter || isAssigned) ? `
+              ${canManageTicket ? `
                 <div style="padding-top:10px;">
                   <button type="button" class="jira-tool-btn" id="btn-delete-ticket" style="color:#ef4444;border-color:rgba(239,68,68,0.4);width:100%;padding:6px;">
                     🗑️ Delete Ticket
