@@ -1,46 +1,46 @@
 // Remove .html extension from browser address bar cleanly
-(function cleanHtmlFromUrl(){
+(function cleanHtmlFromUrl() {
   try {
     if (typeof window !== 'undefined' && window.location.pathname.endsWith('.html')) {
       let cleanPath = window.location.pathname.slice(0, -5);
       if (cleanPath === '/index') cleanPath = '/';
       window.history.replaceState(null, '', (cleanPath || '/') + window.location.search + window.location.hash);
     }
-  } catch(e){}
+  } catch (e) { }
 })();
 
 // Thin fetch wrapper shared by all dashboards.
 const API_BASE = import.meta.env.VITE_API_URL || '/api';
 
-export function getToken(){ return localStorage.getItem('ci360_token'); }
-export function getUser(){ try{ return JSON.parse(localStorage.getItem('ci360_user')); }catch(e){ return null; } }
-export function setSession(token, user){ localStorage.setItem('ci360_token', token); localStorage.setItem('ci360_user', JSON.stringify(user)); }
-export function clearSession(){ localStorage.removeItem('ci360_token'); localStorage.removeItem('ci360_user'); }
+export function getToken() { return localStorage.getItem('ci360_token'); }
+export function getUser() { try { return JSON.parse(localStorage.getItem('ci360_user')); } catch (e) { return null; } }
+export function setSession(token, user) { localStorage.setItem('ci360_token', token); localStorage.setItem('ci360_user', JSON.stringify(user)); }
+export function clearSession() { localStorage.removeItem('ci360_token'); localStorage.removeItem('ci360_user'); }
 
-export function requireAuth(expectedRole){
+export function requireAuth(expectedRole) {
   const token = getToken();
   const user = getUser();
-  if(!token || !user){
+  if (!token || !user) {
     clearSession();
-    if(typeof window !== 'undefined' && window.location.pathname !== '/login'){
+    if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
       window.location.href = '/login';
     }
     return null;
   }
-  
+
   const isSuper = user.role === 'superadmin' || user.role === 'admin';
   const isEkta = (user.name && user.name.toLowerCase().includes('ekta')) ||
-                 (user.email && user.email.toLowerCase().includes('ekta'));
+    (user.email && user.email.toLowerCase().includes('ekta'));
 
-  if(expectedRole && user.role !== expectedRole && !isSuper){
+  if (expectedRole && user.role !== expectedRole && !isSuper) {
     // Accounts role or Ekta can access both accounts and employee workspaces
-    if((user.role === 'accounts' || isEkta) && (expectedRole === 'accounts' || expectedRole === 'employee')) {
+    if ((user.role === 'accounts' || isEkta) && (expectedRole === 'accounts' || expectedRole === 'employee')) {
       return user;
     }
     const target = isSuper ? '/admin' : ((user.role === 'accounts' || isEkta) ? '/accounts' : (user.role === 'employee' ? '/employee' : (user.role === 'client' ? '/client' : null)));
-    if(!target || (typeof window !== 'undefined' && window.location.pathname.startsWith(target))){
+    if (!target || (typeof window !== 'undefined' && window.location.pathname.startsWith(target))) {
       clearSession();
-      if(typeof window !== 'undefined' && window.location.pathname !== '/login'){
+      if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
         window.location.href = '/login';
       }
       return null;
@@ -51,36 +51,36 @@ export function requireAuth(expectedRole){
   return user;
 }
 
-export async function api(path, options={}){
+export async function api(path, options = {}) {
   const token = getToken();
-  const headers = Object.assign({'Content-Type':'application/json'}, options.headers||{});
-  if(token) headers['Authorization'] = 'Bearer ' + token;
-  const res = await fetch(API_BASE + path, Object.assign({}, options, {headers}));
+  const headers = Object.assign({ 'Content-Type': 'application/json' }, options.headers || {});
+  if (token) headers['Authorization'] = 'Bearer ' + token;
+  const res = await fetch(API_BASE + path, Object.assign({}, options, { headers }));
 
   let data = null;
-  try{ data = await res.json(); }catch(e){ /* no body or non-JSON body */ }
+  try { data = await res.json(); } catch (e) { /* no body or non-JSON body */ }
 
-  if(res.status === 401){
+  if (res.status === 401) {
     // If login attempt failed, return the specific backend error message directly
-    if(path === '/auth/login' || path.includes('/auth/login')){
+    if (path === '/auth/login' || path.includes('/auth/login')) {
       throw new Error((data && data.error) || 'Invalid username/email or password.');
     }
 
     clearSession();
-    if(typeof window !== 'undefined' && window.location.pathname !== '/login'){
+    if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
       window.location.href = '/login?expired=1';
     }
     throw new Error((data && data.error) || 'Session expired. Please sign in again.');
   }
 
-  if(!res.ok){ throw new Error((data && data.error) || ('Server status ' + res.status + ' — Backend waking up, please retry in 10s.')); }
+  if (!res.ok) { throw new Error((data && data.error) || ('Server status ' + res.status + ' — Backend waking up, please retry in 10s.')); }
 
   // If this was a mutating request (POST, PUT, PATCH, DELETE) and not notification read/delete,
   // immediately fetch notifications so alerts, popups, and sounds trigger instantly!
-  if(options.method && options.method !== 'GET' && !path.includes('/notifications')){
-    if(typeof window !== 'undefined' && typeof window.ci360FetchNotifications === 'function'){
+  if (options.method && options.method !== 'GET' && !path.includes('/notifications')) {
+    if (typeof window !== 'undefined' && typeof window.ci360FetchNotifications === 'function') {
       setTimeout(() => {
-        try { window.ci360FetchNotifications(); } catch(e){}
+        try { window.ci360FetchNotifications(); } catch (e) { }
       }, 350);
     }
   }
@@ -88,11 +88,11 @@ export async function api(path, options={}){
   return data;
 }
 
-export const apiGet    = (path)       => api(path, {method:'GET'});
-export const apiPost   = (path, body) => api(path, {method:'POST',   body: JSON.stringify(body)});
-export const apiPut    = (path, body) => api(path, {method:'PUT',    body: JSON.stringify(body)});
-export const apiPatch  = (path, body) => api(path, {method:'PATCH',  body: JSON.stringify(body)});
-export const apiDelete = (path)       => api(path, {method:'DELETE'});
+export const apiGet = (path) => api(path, { method: 'GET' });
+export const apiPost = (path, body) => api(path, { method: 'POST', body: JSON.stringify(body) });
+export const apiPut = (path, body) => api(path, { method: 'PUT', body: JSON.stringify(body) });
+export const apiPatch = (path, body) => api(path, { method: 'PATCH', body: JSON.stringify(body) });
+export const apiDelete = (path) => api(path, { method: 'DELETE' });
 
 // Database Archive APIs (Compulsory preserved deleted records)
 export const getArchive = (type) => apiGet('/archive' + (type ? `?type=${encodeURIComponent(type)}` : ''));
@@ -100,14 +100,14 @@ export const restoreArchiveItem = (type, id) => apiPost(`/archive/restore/${type
 export const purgeArchiveItem = (type, id) => apiDelete(`/archive/purge/${type}/${id}`);
 export const purgeAllArchive = (type) => apiDelete(`/archive/purge-all/${type}`);
 
-export function fmtINR(n){ n = Number(n)||0; return '₹' + n.toLocaleString('en-IN', {maximumFractionDigits:0}); }
-export function fmtHours(n){ return (Number(n)||0).toLocaleString('en-IN', {maximumFractionDigits:1}) + ' hrs'; }
-export function escapeHtml(str){ if(str==null) return ''; return String(str).replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
-export function fmtDate(d){ if(!d) return '—'; return new Date(d).toISOString().slice(0,10); }
+export function fmtINR(n) { n = Number(n) || 0; return '₹' + n.toLocaleString('en-IN', { maximumFractionDigits: 0 }); }
+export function fmtHours(n) { return (Number(n) || 0).toLocaleString('en-IN', { maximumFractionDigits: 1 }) + ' hrs'; }
+export function escapeHtml(str) { if (str == null) return ''; return String(str).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m])); }
+export function fmtDate(d) { if (!d) return '—'; return new Date(d).toISOString().slice(0, 10); }
 
 /* ── THEME MANAGEMENT ───────────────────────────────────────── */
-export function getTheme(){ return localStorage.getItem('ci360_theme') || 'light'; }
-export function setTheme(t){
+export function getTheme() { return localStorage.getItem('ci360_theme') || 'light'; }
+export function setTheme(t) {
   localStorage.setItem('ci360_theme', t);
   document.documentElement.setAttribute('data-theme', t);
   // update desktop toggle buttons
@@ -116,26 +116,26 @@ export function setTheme(t){
   });
   // Topbar dropdown desktop theme toggle
   const tudThemeBtn = document.getElementById('tudThemeToggleBtn');
-  if(tudThemeBtn){
+  if (tudThemeBtn) {
     const icon = tudThemeBtn.querySelector('.tud-icon');
     const label = tudThemeBtn.querySelector('.tud-label');
-    if(icon) icon.textContent = t === 'dark' ? '☀️' : '🌙';
-    if(label) label.textContent = `Switch to ${t === 'dark' ? 'Light' : 'Dark'} Mode`;
+    if (icon) icon.textContent = t === 'dark' ? '☀️' : '🌙';
+    if (label) label.textContent = `Switch to ${t === 'dark' ? 'Light' : 'Dark'} Mode`;
   }
   // Mobile popover toggle button
   const tudMobileThemeIcon = document.getElementById('tudMobileThemeIcon');
   const tudMobileThemeText = document.getElementById('tudMobileThemeText');
-  if(tudMobileThemeIcon) tudMobileThemeIcon.textContent = t === 'dark' ? '☀️' : '🌙';
-  if(tudMobileThemeText) tudMobileThemeText.textContent = t === 'dark' ? 'Light Mode' : 'Dark Mode';
+  if (tudMobileThemeIcon) tudMobileThemeIcon.textContent = t === 'dark' ? '☀️' : '🌙';
+  if (tudMobileThemeText) tudMobileThemeText.textContent = t === 'dark' ? 'Light Mode' : 'Dark Mode';
 
   // Mobile more sheet toggle button
   const mmsThemeBtn = document.getElementById('mmsToggleThemeBtn');
-  if(mmsThemeBtn){
+  if (mmsThemeBtn) {
     const span = mmsThemeBtn.querySelector('span');
-    if(span) span.textContent = t === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+    if (span) span.textContent = t === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
   }
 }
-export function initTheme(){
+export function initTheme() {
   // Never flip login page to light theme — login has dedicated dark cybersecurity styling
   if (typeof document !== 'undefined' && (document.body?.classList.contains('login-page') || window.location.pathname.includes('login') || document.querySelector('.login-box'))) {
     document.documentElement.setAttribute('data-theme', 'dark');
@@ -148,63 +148,63 @@ export function initTheme(){
     b.classList.toggle('active', b.dataset.theme === saved);
   });
   const tudThemeBtn = document.getElementById('tudThemeToggleBtn');
-  if(tudThemeBtn){
+  if (tudThemeBtn) {
     const icon = tudThemeBtn.querySelector('.tud-icon');
     const label = tudThemeBtn.querySelector('.tud-label');
-    if(icon) icon.textContent = saved === 'dark' ? '☀️' : '🌙';
-    if(label) label.textContent = `Switch to ${saved === 'dark' ? 'Light' : 'Dark'} Mode`;
+    if (icon) icon.textContent = saved === 'dark' ? '☀️' : '🌙';
+    if (label) label.textContent = `Switch to ${saved === 'dark' ? 'Light' : 'Dark'} Mode`;
   }
   const tudMobileThemeIcon = document.getElementById('tudMobileThemeIcon');
   const tudMobileThemeText = document.getElementById('tudMobileThemeText');
-  if(tudMobileThemeIcon) tudMobileThemeIcon.textContent = saved === 'dark' ? '☀️' : '🌙';
-  if(tudMobileThemeText) tudMobileThemeText.textContent = saved === 'dark' ? 'Light Mode' : 'Dark Mode';
+  if (tudMobileThemeIcon) tudMobileThemeIcon.textContent = saved === 'dark' ? '☀️' : '🌙';
+  if (tudMobileThemeText) tudMobileThemeText.textContent = saved === 'dark' ? 'Light Mode' : 'Dark Mode';
 
   const mmsThemeBtn = document.getElementById('mmsToggleThemeBtn');
-  if(mmsThemeBtn){
+  if (mmsThemeBtn) {
     const span = mmsThemeBtn.querySelector('span');
-    if(span) span.textContent = saved === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+    if (span) span.textContent = saved === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
   }
 }
 // Run theme initialization immediately on module load
 try {
   initTheme();
-} catch(e){}
+} catch (e) { }
 
 /* ── TOAST ───────────────────────────────────────────────────── */
-export function flashToast(msg, isError){
+export function flashToast(msg, isError) {
   const t = document.createElement('div');
   t.className = 'toast';
   t.style.borderLeftColor = isError ? 'var(--red-500)' : 'var(--green-500)';
   t.textContent = (isError ? '⚠️  ' : '✓  ') + msg;
   document.body.appendChild(t);
-  const remove = () => { t.style.opacity='0'; t.style.transform='translateY(10px)'; setTimeout(()=>t.remove(), 200); };
+  const remove = () => { t.style.opacity = '0'; t.style.transform = 'translateY(10px)'; setTimeout(() => t.remove(), 200); };
   setTimeout(remove, 2800);
 }
 
 /* ── MODAL ───────────────────────────────────────────────────── */
-export function openModal(html){
+export function openModal(html) {
   const bg = document.createElement('div');
   bg.className = 'modal-bg';
   bg.innerHTML = `<div class="modal">${html}</div>`;
-  bg.onclick = (e)=>{ if(e.target===bg) bg.remove(); };
+  bg.onclick = (e) => { if (e.target === bg) bg.remove(); };
   document.body.appendChild(bg);
   return bg;
 }
 
-export function logout(){ clearSession(); window.location.href = '/login'; }
+export function logout() { clearSession(); window.location.href = '/login'; }
 
 /* ── NOTIFICATION ENGINE & SOUND/VIBRATION ───────────────────── */
 let swRegistration = null;
 
-export async function initServiceWorker(){
-  if('serviceWorker' in navigator){
-    try{
+export async function initServiceWorker() {
+  if ('serviceWorker' in navigator) {
+    try {
       swRegistration = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
       console.log('CI360 Service Worker active:', swRegistration.scope);
-      if(typeof Notification !== 'undefined' && Notification.permission === 'granted' && getToken()){
-        registerPushSubscription(swRegistration).catch(()=>{});
+      if (typeof Notification !== 'undefined' && Notification.permission === 'granted' && getToken()) {
+        registerPushSubscription(swRegistration).catch(() => { });
       }
-    }catch(err){
+    } catch (err) {
       console.warn('CI360 Service Worker registration notice:', err);
     }
   }
@@ -213,7 +213,7 @@ export async function initServiceWorker(){
 // Auto-register service worker on load
 try {
   initServiceWorker();
-} catch(e){}
+} catch (e) { }
 
 /* ── NOTIFICATION DEDUPLICATION & THROTTLING (ALERT ONCE ONLY) ── */
 let lastChimeTimestamp = 0;
@@ -222,41 +222,41 @@ export const alertedNotifIds = new Set();
 export const seenNotifIds = new Set();
 let isSessionBaselineEstablished = false;
 
-function getNotifStorageKey(prefix){
+function getNotifStorageKey(prefix) {
   try {
     const user = (typeof getUser === 'function') ? getUser() : null;
     const uid = (user && user._id) ? String(user._id) : 'default';
     return `${prefix}_${uid}`;
-  } catch(e){
+  } catch (e) {
     return `${prefix}_default`;
   }
 }
 
-export function loadAlertedNotifIds(){
-  try{
+export function loadAlertedNotifIds() {
+  try {
     const key = getNotifStorageKey('ci360_alerted_ids');
     const stored = localStorage.getItem(key);
-    if(stored){
+    if (stored) {
       const parsed = JSON.parse(stored);
-      if(Array.isArray(parsed)){
+      if (Array.isArray(parsed)) {
         parsed.forEach(id => alertedNotifIds.add(String(id)));
       }
     }
-  }catch(e){}
+  } catch (e) { }
 }
 
-export function saveAlertedNotifIds(){
-  try{
+export function saveAlertedNotifIds() {
+  try {
     const key = getNotifStorageKey('ci360_alerted_ids');
     const arr = Array.from(alertedNotifIds).slice(-2000);
     localStorage.setItem(key, JSON.stringify(arr));
-  }catch(e){}
+  } catch (e) { }
 }
 
 // Cross-tab synchronization so sibling tabs do not repeat alerts
-if(typeof window !== 'undefined'){
+if (typeof window !== 'undefined') {
   window.addEventListener('storage', (e) => {
-    if(e.key && e.key.includes('ci360_alerted_ids')){
+    if (e.key && e.key.includes('ci360_alerted_ids')) {
       loadAlertedNotifIds();
     }
   });
@@ -265,16 +265,16 @@ if(typeof window !== 'undefined'){
 /* ── AUDIO & VIBRATION ENGINES (DESKTOP & MOBILE PHONE) ── */
 let unlockedAudioCtx = null;
 
-function unlockAudioOnFirstInteraction(){
-  if(typeof window === 'undefined') return;
+function unlockAudioOnFirstInteraction() {
+  if (typeof window === 'undefined') return;
   const unlock = () => {
     try {
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      if(AudioCtx){
-        if(!unlockedAudioCtx) unlockedAudioCtx = new AudioCtx();
-        if(unlockedAudioCtx.state === 'suspended') unlockedAudioCtx.resume();
+      if (AudioCtx) {
+        if (!unlockedAudioCtx) unlockedAudioCtx = new AudioCtx();
+        if (unlockedAudioCtx.state === 'suspended') unlockedAudioCtx.resume();
       }
-    } catch(e){}
+    } catch (e) { }
     window.removeEventListener('touchstart', unlock, true);
     window.removeEventListener('pointerdown', unlock, true);
     window.removeEventListener('click', unlock, true);
@@ -285,17 +285,17 @@ function unlockAudioOnFirstInteraction(){
 }
 unlockAudioOnFirstInteraction();
 
-export function playNotificationChime(){
-  try{
+export function playNotificationChime() {
+  try {
     const now = Date.now();
     // Throttle: Never play chime repeatedly within 2.5 seconds
-    if(now - lastChimeTimestamp < 2500) return;
+    if (now - lastChimeTimestamp < 2500) return;
     lastChimeTimestamp = now;
 
     const AudioCtx = window.AudioContext || window.webkitAudioContext;
-    if(!AudioCtx) return;
+    if (!AudioCtx) return;
     const ctx = unlockedAudioCtx || new AudioCtx();
-    if(ctx.state === 'suspended') ctx.resume();
+    if (ctx.state === 'suspended') ctx.resume();
     const curTime = ctx.currentTime;
 
     // Harmonic 1: 587.33 Hz (D5)
@@ -323,58 +323,58 @@ export function playNotificationChime(){
     gain2.connect(ctx.destination);
     osc2.start(curTime + 0.12);
     osc2.stop(curTime + 0.6);
-  }catch(e){
+  } catch (e) {
     // Browser autoplay policy until user gesture
   }
 }
 
-export function triggerPhoneVibration(){
-  try{
+export function triggerPhoneVibration() {
+  try {
     const now = Date.now();
     // Throttle: Never vibrate repeatedly within 2.5 seconds
-    if(now - lastVibrateTimestamp < 2500) return;
+    if (now - lastVibrateTimestamp < 2500) return;
     lastVibrateTimestamp = now;
 
-    if('vibrate' in navigator){
+    if ('vibrate' in navigator) {
       // Distinct double buzz on phone
       navigator.vibrate([200, 100, 200, 100, 200]);
     }
-  }catch(e){}
+  } catch (e) { }
 }
 
-export function isNotificationEnabled(){
-  try{
-    if(typeof Notification !== 'undefined' && Notification.permission === 'granted'){
+export function isNotificationEnabled() {
+  try {
+    if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
       return true;
     }
-    if(localStorage.getItem('ci360_notif_enabled') === 'true'){
+    if (localStorage.getItem('ci360_notif_enabled') === 'true') {
       return true;
     }
-  }catch(e){}
+  } catch (e) { }
   return false;
 }
 
-export function isNotificationBannerDismissed(){
-  try{
-    if(isNotificationEnabled()) return true;
-    if(localStorage.getItem('ci360_notif_banner_dismissed') === 'true') return true;
-    if(typeof Notification !== 'undefined' && Notification.permission === 'denied') return true;
-  }catch(e){}
+export function isNotificationBannerDismissed() {
+  try {
+    if (isNotificationEnabled()) return true;
+    if (localStorage.getItem('ci360_notif_banner_dismissed') === 'true') return true;
+    if (typeof Notification !== 'undefined' && Notification.permission === 'denied') return true;
+  } catch (e) { }
   return false;
 }
 
-export async function requestNotificationPermission(){
-  if(!('Notification' in window)){
+export async function requestNotificationPermission() {
+  if (!('Notification' in window)) {
     flashToast('Your device browser does not support Web Notifications.', true);
     return false;
   }
-  try{
+  try {
     const perm = await Notification.requestPermission();
     const banner = document.getElementById('notifPermissionBanner');
-    if(perm === 'granted'){
+    if (perm === 'granted') {
       localStorage.setItem('ci360_notif_enabled', 'true');
       await registerPushSubscription();
-      if(banner){
+      if (banner) {
         banner.classList.add('hidden');
         banner.style.setProperty('display', 'none', 'important');
         banner.remove();
@@ -389,28 +389,28 @@ export async function requestNotificationPermission(){
       });
       return true;
     } else {
-      if(banner){
+      if (banner) {
         banner.classList.add('hidden');
         banner.style.setProperty('display', 'none', 'important');
       }
       flashToast('Notification permission was not granted.', true);
       return false;
     }
-  }catch(e){
+  } catch (e) {
     console.error('Notification permission request error:', e);
   }
   return false;
 }
 
-export async function triggerSystemNotification({ title, message, type, id, url }){
+export async function triggerSystemNotification({ title, message, type, id, url }) {
   const strId = id ? String(id) : null;
   loadAlertedNotifIds();
 
   // Deduplication check
-  if(strId && alertedNotifIds.has(strId)){
+  if (strId && alertedNotifIds.has(strId)) {
     return;
   }
-  if(strId){
+  if (strId) {
     alertedNotifIds.add(strId);
     saveAlertedNotifIds();
   }
@@ -419,27 +419,27 @@ export async function triggerSystemNotification({ title, message, type, id, url 
   playNotificationChime();
   triggerPhoneVibration();
 
-  if(!('Notification' in window)){
+  if (!('Notification' in window)) {
     return;
   }
 
   // If permission is default, try requesting on desktop or fallback
-  if(Notification.permission === 'default'){
+  if (Notification.permission === 'default') {
     try {
       const p = await Notification.requestPermission();
-      if(p !== 'granted') return;
+      if (p !== 'granted') return;
       localStorage.setItem('ci360_notif_enabled', 'true');
-    } catch(e){
+    } catch (e) {
       return;
     }
   }
 
-  if(Notification.permission !== 'granted'){
+  if (Notification.permission !== 'granted') {
     return;
   }
 
-  const iconUrl = (typeof window !== 'undefined' && window.location) 
-    ? new URL('/logo.png', window.location.origin).href 
+  const iconUrl = (typeof window !== 'undefined' && window.location)
+    ? new URL('/logo.png', window.location.origin).href
     : '/logo.png';
 
   const options = {
@@ -464,7 +464,7 @@ export async function triggerSystemNotification({ title, message, type, id, url 
         options
       });
     }
-  } catch(e){}
+  } catch (e) { }
 
   // 2. Fallback via active ServiceWorker registration
   try {
@@ -475,7 +475,7 @@ export async function triggerSystemNotification({ title, message, type, id, url 
         return;
       }
     }
-  } catch(err){}
+  } catch (err) { }
 
   // 3. Direct window Notification for desktop Chrome, Edge, Safari, Firefox
   try {
@@ -485,7 +485,7 @@ export async function triggerSystemNotification({ title, message, type, id, url 
       n.close();
     };
     return;
-  } catch(e) {
+  } catch (e) {
     // Expected on mobile Android Chrome
   }
 }
@@ -540,7 +540,7 @@ export async function registerPushSubscription(registration = null) {
           subscription: sub.toJSON ? sub.toJSON() : sub,
           deviceType: isMobile ? 'mobile' : 'desktop'
         })
-      }).catch(() => {});
+      }).catch(() => { });
       return sub;
     }
   } catch (err) {
@@ -549,20 +549,20 @@ export async function registerPushSubscription(registration = null) {
   return null;
 }
 
-if(typeof window !== 'undefined'){
+if (typeof window !== 'undefined') {
   window.triggerSystemNotification = triggerSystemNotification;
   window.requestNotificationPermission = requestNotificationPermission;
   window.registerPushSubscription = registerPushSubscription;
 
   // On first user interaction anywhere in the app, prompt for notification permission if still default
-  if('Notification' in window){
+  if ('Notification' in window) {
     const promptOnUserInteraction = () => {
-      if(Notification.permission === 'default'){
+      if (Notification.permission === 'default') {
         Notification.requestPermission().then(p => {
-          if(p === 'granted'){
+          if (p === 'granted') {
             localStorage.setItem('ci360_notif_enabled', 'true');
           }
-        }).catch(()=>{});
+        }).catch(() => { });
       }
       window.removeEventListener('click', promptOnUserInteraction, true);
       window.removeEventListener('touchstart', promptOnUserInteraction, true);
@@ -573,10 +573,10 @@ if(typeof window !== 'undefined'){
 }
 
 /* ── IN-APP POPUP NOTIFICATIONS & OVERDUE INVOICE MODAL ──────── */
-export function getOrCreateFloatingAlertContainer(){
-  if(typeof document === 'undefined') return null;
+export function getOrCreateFloatingAlertContainer() {
+  if (typeof document === 'undefined') return null;
   let container = document.getElementById('ci360FloatingContainer');
-  if(!container){
+  if (!container) {
     container = document.createElement('div');
     container.id = 'ci360FloatingContainer';
     container.className = 'ci360-floating-container';
@@ -585,15 +585,15 @@ export function getOrCreateFloatingAlertContainer(){
   return container;
 }
 
-export function showInAppPopupAlert({ id, title, message, type, time, actionText, onAction, persistent = false, timeout = 4500 }){
+export function showInAppPopupAlert({ id, title, message, type, time, actionText, onAction, persistent = false, timeout = 4500 }) {
   const container = getOrCreateFloatingAlertContainer();
-  if(!container) return;
+  if (!container) return;
 
   const cardId = `ci360-pop-${id || Math.random().toString(36).slice(2, 9)}`;
 
   // Strictly enforce only 1 visible popup at any time ("it should just come once and than go")
-  while(container.firstChild){
-    try { container.removeChild(container.firstChild); } catch(e){}
+  while (container.firstChild) {
+    try { container.removeChild(container.firstChild); } catch (e) { }
   }
 
   let icon = '🔔';
@@ -604,33 +604,33 @@ export function showInAppPopupAlert({ id, title, message, type, time, actionText
   const t = (type || '').toLowerCase();
   const m = (message || '').toLowerCase();
 
-  if(t.includes('invoice_overdue')){
+  if (t.includes('invoice_overdue')) {
     icon = '🚨'; priority = 'critical'; defaultActionText = 'View Invoice'; defaultNavTab = 'billing';
-  } else if(t.includes('invoice_paid') || t.includes('payment')){
+  } else if (t.includes('invoice_paid') || t.includes('payment')) {
     icon = '💳'; priority = 'success'; defaultActionText = 'View Billing'; defaultNavTab = 'billing';
-  } else if(t.includes('invoice')){
+  } else if (t.includes('invoice')) {
     icon = '🧾'; priority = 'info'; defaultActionText = 'View Invoice'; defaultNavTab = 'billing';
-  } else if(t.includes('job') && (m.includes('overdue') || t.includes('overdue'))){
+  } else if (t.includes('job') && (m.includes('overdue') || t.includes('overdue'))) {
     icon = '⚠️'; priority = 'critical'; defaultActionText = 'View Job'; defaultNavTab = 'jobs';
-  } else if(t.includes('job') && m.includes('due today')){
+  } else if (t.includes('job') && m.includes('due today')) {
     icon = '⏳'; priority = 'warning'; defaultActionText = 'View Job'; defaultNavTab = 'jobs';
-  } else if(t.includes('job_created')){
+  } else if (t.includes('job_created')) {
     icon = '📋'; priority = 'info'; defaultActionText = 'View Job'; defaultNavTab = 'jobs';
-  } else if(t.includes('job') || t.includes('status')){
+  } else if (t.includes('job') || t.includes('status')) {
     icon = '📋'; priority = 'info'; defaultActionText = 'View Job'; defaultNavTab = 'jobs';
-  } else if(t.includes('task') && (m.includes('overdue') || t.includes('overdue'))){
+  } else if (t.includes('task') && (m.includes('overdue') || t.includes('overdue'))) {
     icon = '⚠️'; priority = 'critical'; defaultActionText = 'View Planner'; defaultNavTab = 'dailytasks';
-  } else if(t.includes('task_completed')){
+  } else if (t.includes('task_completed')) {
     icon = '✅'; priority = 'success'; defaultActionText = 'View Planner'; defaultNavTab = 'dailytasks';
-  } else if(t.includes('task')){
+  } else if (t.includes('task')) {
     icon = '📅'; priority = 'info'; defaultActionText = 'Open Planner'; defaultNavTab = 'dailytasks';
-  } else if(t.includes('ticket_under_review') || (t.includes('ticket') && m.includes('under review'))){
+  } else if (t.includes('ticket_under_review') || (t.includes('ticket') && m.includes('under review'))) {
     icon = '🔍'; priority = 'warning'; defaultActionText = 'Review Ticket'; defaultNavTab = 'tickets';
-  } else if(t.includes('ticket_resolved') || t.includes('ticket_completed') || (t.includes('ticket') && m.includes('completed'))){
+  } else if (t.includes('ticket_resolved') || t.includes('ticket_completed') || (t.includes('ticket') && m.includes('completed'))) {
     icon = '✅'; priority = 'success'; defaultActionText = 'View Ticket'; defaultNavTab = 'tickets';
-  } else if(t.includes('ticket')){
+  } else if (t.includes('ticket')) {
     icon = '🎫'; priority = 'info'; defaultActionText = 'View Ticket'; defaultNavTab = 'tickets';
-  } else if(t.includes('target')){
+  } else if (t.includes('target')) {
     icon = '🎯'; priority = 'success'; defaultActionText = 'View Targets'; defaultNavTab = 'targets';
   }
 
@@ -667,11 +667,11 @@ export function showInAppPopupAlert({ id, title, message, type, time, actionText
 
   // Purge notification from database and bell list UI when dismissed or expired
   const purgeNotification = async () => {
-    if(id){
+    if (id) {
       try {
         await apiDelete(`/notifications/${id}`);
-      } catch(err){}
-      if(typeof window.ci360RemoveNotifFromUI === 'function'){
+      } catch (err) { }
+      if (typeof window.ci360RemoveNotifFromUI === 'function') {
         window.ci360RemoveNotifFromUI(id);
       }
     }
@@ -682,22 +682,22 @@ export function showInAppPopupAlert({ id, title, message, type, time, actionText
     card.style.opacity = '0';
     card.style.transform = 'translateY(-6px) scale(0.97)';
     setTimeout(() => {
-      try { card.remove(); } catch(e){}
+      try { card.remove(); } catch (e) { }
     }, 180);
     purgeNotification();
   };
 
   const closeBtn = card.querySelector('.ci360-popup-close-btn');
-  if(closeBtn) closeBtn.onclick = (e) => { e.stopPropagation(); closeCard(); };
+  if (closeBtn) closeBtn.onclick = (e) => { e.stopPropagation(); closeCard(); };
 
   // Action button click
   const executeAction = () => {
-    if(typeof onAction === 'function'){
+    if (typeof onAction === 'function') {
       onAction();
-    } else if(defaultNavTab && typeof window.ci360NavTab === 'function'){
+    } else if (defaultNavTab && typeof window.ci360NavTab === 'function') {
       const curUser = (typeof getUser === 'function') ? getUser() : null;
       let navTarget = defaultNavTab;
-      if(curUser && curUser.role === 'employee' && (navTarget === 'jobs' || navTarget === 'myjobs')){
+      if (curUser && curUser.role === 'employee' && (navTarget === 'jobs' || navTarget === 'myjobs')) {
         navTarget = 'myjobs';
       }
       window.ci360NavTab(navTarget);
@@ -707,7 +707,7 @@ export function showInAppPopupAlert({ id, title, message, type, time, actionText
   };
 
   const actionBtn = card.querySelector('.ci360-popup-action-btn');
-  if(actionBtn) {
+  if (actionBtn) {
     actionBtn.onclick = (e) => {
       e.stopPropagation();
       executeAction();
@@ -716,33 +716,33 @@ export function showInAppPopupAlert({ id, title, message, type, time, actionText
 
   card.style.cursor = 'pointer';
   card.onclick = (e) => {
-    if(e.target.closest('.ci360-popup-close-btn')) return;
+    if (e.target.closest('.ci360-popup-close-btn')) return;
     executeAction();
   };
 
   // Strictly keep only 1 visible popup ("it should just come once and than go")
-  while(container.children.length >= 1){
+  while (container.children.length >= 1) {
     const oldest = container.firstChild;
-    if(oldest) container.removeChild(oldest);
+    if (oldest) container.removeChild(oldest);
   }
 
   container.appendChild(card);
 
   // Auto-dismiss timeout (4.5s: come once and then go)
-  if(!persistent){
+  if (!persistent) {
     setTimeout(() => {
-      if(document.body.contains(card)){
+      if (document.body.contains(card)) {
         closeCard();
       }
     }, timeout || 4500);
   }
 }
 
-export function showClientOverdueInvoiceModal(overdueInvoices = []){
-  if(!overdueInvoices || !overdueInvoices.length) return;
+export function showClientOverdueInvoiceModal(overdueInvoices = []) {
+  if (!overdueInvoices || !overdueInvoices.length) return;
   // If dismissed in this session within last 45 minutes, don't show
   const lastDismissed = sessionStorage.getItem('ci360_client_overdue_dismissed');
-  if(lastDismissed && (Date.now() - Number(lastDismissed) < 45 * 60 * 1000)) return;
+  if (lastDismissed && (Date.now() - Number(lastDismissed) < 45 * 60 * 1000)) return;
 
   const totalOverdue = overdueInvoices.reduce((s, i) => s + (Number(i.pendingAmount || i.totalAmount) || 0), 0);
 
@@ -768,9 +768,9 @@ export function showClientOverdueInvoiceModal(overdueInvoices = []){
 
       <div class="ci360-overdue-list">
         ${overdueInvoices.map(inv => {
-          const due = inv.dueDate ? new Date(inv.dueDate) : new Date();
-          const daysOverdue = Math.max(1, Math.floor((Date.now() - due.getTime()) / (1000 * 60 * 60 * 24)));
-          return `
+    const due = inv.dueDate ? new Date(inv.dueDate) : new Date();
+    const daysOverdue = Math.max(1, Math.floor((Date.now() - due.getTime()) / (1000 * 60 * 60 * 24)));
+    return `
             <div class="ci360-overdue-item">
               <div>
                 <strong style="font-size:13px;color:var(--text-1)">${escapeHtml(inv.invoiceNumber)}</strong>
@@ -783,7 +783,7 @@ export function showClientOverdueInvoiceModal(overdueInvoices = []){
                 <span class="badge red" style="font-size:9.5px;margin-top:2px">OVERDUE</span>
               </div>
             </div>`;
-        }).join('')}
+  }).join('')}
       </div>
 
       <div class="ci360-overdue-bank-box">
@@ -809,17 +809,17 @@ export function showClientOverdueInvoiceModal(overdueInvoices = []){
   const payBtn = modalBg.querySelector('#ci360OverduePayBtn');
   const remindBtn = modalBg.querySelector('#ci360OverdueRemindBtn');
 
-  if(payBtn){
+  if (payBtn) {
     payBtn.onclick = () => {
       sessionStorage.setItem('ci360_client_overdue_dismissed', String(Date.now()));
       modalBg.remove();
-      if(typeof window.ci360NavTab === 'function'){
+      if (typeof window.ci360NavTab === 'function') {
         window.ci360NavTab('billing');
       }
     };
   }
 
-  if(remindBtn){
+  if (remindBtn) {
     remindBtn.onclick = () => {
       sessionStorage.setItem('ci360_client_overdue_dismissed', String(Date.now()));
       modalBg.remove();
@@ -828,7 +828,7 @@ export function showClientOverdueInvoiceModal(overdueInvoices = []){
 }
 
 /* ── NOTIFICATION BELL ───────────────────────────────────────── */
-export function renderNotificationBell(){
+export function renderNotificationBell() {
   const shouldShowBanner = !isNotificationBannerDismissed() && (typeof Notification === 'undefined' || Notification.permission === 'default');
 
   return `
@@ -881,41 +881,41 @@ export function renderNotificationBell(){
     </div>`;
 }
 
-export function getNotifIcon(type){
-  if(!type) return '🔔';
-  if(type.startsWith('task_completed')) return '🎉';
-  if(type.startsWith('task_due')) return '⚡';
-  if(type.startsWith('task')) return '✅';
-  if(type.startsWith('target_completed')) return '🎉';
-  if(type.startsWith('target')) return '🎯';
-  if(type.startsWith('job_due')) return '⏳';
-  if(type.startsWith('job')) return '📋';
-  if(type.startsWith('ticket_under_review')) return '🔍';
-  if(type.startsWith('ticket_resolved') || type.startsWith('ticket_completed')) return '✅';
-  if(type.startsWith('ticket')) return '🎫';
-  if(type.startsWith('status')) return '🔄';
-  if(type.startsWith('test')) return '🧪';
+export function getNotifIcon(type) {
+  if (!type) return '🔔';
+  if (type.startsWith('task_completed')) return '🎉';
+  if (type.startsWith('task_due')) return '⚡';
+  if (type.startsWith('task')) return '✅';
+  if (type.startsWith('target_completed')) return '🎉';
+  if (type.startsWith('target')) return '🎯';
+  if (type.startsWith('job_due')) return '⏳';
+  if (type.startsWith('job')) return '📋';
+  if (type.startsWith('ticket_under_review')) return '🔍';
+  if (type.startsWith('ticket_resolved') || type.startsWith('ticket_completed')) return '✅';
+  if (type.startsWith('ticket')) return '🎫';
+  if (type.startsWith('status')) return '🔄';
+  if (type.startsWith('test')) return '🧪';
   return '🔔';
 }
 
-export function timeAgo(dateStr){
-  if(!dateStr) return '';
+export function timeAgo(dateStr) {
+  if (!dateStr) return '';
   const d = new Date(dateStr);
   const now = new Date();
   const sec = Math.floor((now - d) / 1000);
-  if(sec < 60) return 'Just now';
+  if (sec < 60) return 'Just now';
   const min = Math.floor(sec / 60);
-  if(min < 60) return `${min}m ago`;
+  if (min < 60) return `${min}m ago`;
   const hr = Math.floor(min / 60);
-  if(hr < 24) return `${hr}h ago`;
+  if (hr < 24) return `${hr}h ago`;
   const days = Math.floor(hr / 24);
-  if(days === 1) return 'Yesterday';
-  if(days < 7) return `${days}d ago`;
+  if (days === 1) return 'Yesterday';
+  if (days < 7) return `${days}d ago`;
   return fmtDate(dateStr);
 }
 
-export function openNotificationModal(n){
-  if(!n) return;
+export function openNotificationModal(n) {
+  if (!n) return;
   const icon = getNotifIcon(n.type);
   const type = (n.type || '').toLowerCase();
   const title = n.title || 'Notification';
@@ -931,27 +931,27 @@ export function openNotificationModal(n){
   let targetTab = '';
   const highlightId = n.jobId || n.taskId || n.ticketId || n.targetId || null;
 
-  if(type.includes('job')){
+  if (type.includes('job')) {
     badgeLabel = 'Job Deliverable';
     badgeClass = 'blue';
     targetTab = isEmployee ? 'myjobs' : 'jobs';
     actionBtnText = isEmployee ? 'Open in My Jobs 📋' : 'View Job 📁';
-  } else if(type.includes('task')){
+  } else if (type.includes('task')) {
     badgeLabel = 'Daily Planner';
     badgeClass = 'green';
     targetTab = 'dailytasks';
     actionBtnText = 'Open Daily Planner 📅';
-  } else if(type.includes('ticket')){
+  } else if (type.includes('ticket')) {
     badgeLabel = 'Support Ticket';
     badgeClass = 'brand';
     targetTab = 'tickets';
     actionBtnText = 'Open Support Tickets 🎫';
-  } else if(type.includes('target')){
+  } else if (type.includes('target')) {
     badgeLabel = 'Target Goal';
     badgeClass = 'gold';
     targetTab = 'targets';
     actionBtnText = 'View My Targets 🎯';
-  } else if(type.includes('invoice') || type.includes('billing')){
+  } else if (type.includes('invoice') || type.includes('billing')) {
     badgeLabel = 'Billing & Invoice';
     badgeClass = 'purple';
     targetTab = 'billing';
@@ -1009,38 +1009,38 @@ export function openNotificationModal(n){
   const dismissBtn = bg.querySelector('.notif-modal-dismiss-btn');
   const goBtn = bg.querySelector('.notif-modal-go-btn');
 
-  if(closeBtn) closeBtn.onclick = closeModal;
-  if(dismissBtn) dismissBtn.onclick = closeModal;
+  if (closeBtn) closeBtn.onclick = closeModal;
+  if (dismissBtn) dismissBtn.onclick = closeModal;
 
-  if(goBtn){
+  if (goBtn) {
     goBtn.onclick = () => {
       closeModal();
-      if(typeof window.ci360NavTab === 'function'){
+      if (typeof window.ci360NavTab === 'function') {
         window.ci360NavTab(targetTab, highlightId);
       }
     };
   }
 }
 
-export function initNotificationBell(){
-  const bellBtn   = document.getElementById('notifBellBtn');
-  const dropdown  = document.getElementById('notifDropdown');
-  const badge     = document.getElementById('notifBadge');
-  const list      = document.getElementById('notifList');
-  const clearBtn  = document.getElementById('clearNotifBtn');
+export function initNotificationBell() {
+  const bellBtn = document.getElementById('notifBellBtn');
+  const dropdown = document.getElementById('notifDropdown');
+  const badge = document.getElementById('notifBadge');
+  const list = document.getElementById('notifList');
+  const clearBtn = document.getElementById('clearNotifBtn');
   const markReadBtn = document.getElementById('markAllReadBtn');
   const notifEnableBtn = document.getElementById('notifEnableBtn');
   const notifDismissBannerBtn = document.getElementById('notifDismissBannerBtn');
   const permBanner = document.getElementById('notifPermissionBanner');
   const unreadTxt = document.getElementById('notifUnreadBadge');
-  if(!bellBtn || !dropdown) return;
+  if (!bellBtn || !dropdown) return;
 
   // Initialize service worker
   initServiceWorker();
 
-  function hidePermBanner(){
+  function hidePermBanner() {
     const b = document.getElementById('notifPermissionBanner');
-    if(b){
+    if (b) {
       b.classList.add('hidden');
       b.style.setProperty('display', 'none', 'important');
       b.remove();
@@ -1048,22 +1048,22 @@ export function initNotificationBell(){
   }
 
   // Check permission state for banner
-  function checkPermissionUI(){
-    if(isNotificationBannerDismissed()){
+  function checkPermissionUI() {
+    if (isNotificationBannerDismissed()) {
       hidePermBanner();
       return;
     }
-    if('Notification' in window){
-      if(Notification.permission === 'granted' || Notification.permission === 'denied'){
+    if ('Notification' in window) {
+      if (Notification.permission === 'granted' || Notification.permission === 'denied') {
         hidePermBanner();
-      } else if(Notification.permission === 'default' && permBanner){
+      } else if (Notification.permission === 'default' && permBanner) {
         permBanner.style.setProperty('display', 'flex', 'important');
       }
     }
   }
   checkPermissionUI();
 
-  if(notifDismissBannerBtn){
+  if (notifDismissBannerBtn) {
     notifDismissBannerBtn.onclick = (e) => {
       e.stopPropagation();
       localStorage.setItem('ci360_notif_banner_dismissed', 'true');
@@ -1071,7 +1071,7 @@ export function initNotificationBell(){
     };
   }
 
-  if(notifEnableBtn){
+  if (notifEnableBtn) {
     notifEnableBtn.onclick = async (e) => {
       e.stopPropagation();
       localStorage.setItem('ci360_notif_enabled', 'true');
@@ -1081,12 +1081,12 @@ export function initNotificationBell(){
     };
   }
 
-  if(isNotificationEnabled()){
+  if (isNotificationEnabled()) {
     registerPushSubscription();
   }
 
   // Clear any existing polling interval to ensure only one interval runs across tab switches
-  if(window.__ci360PollInterval){
+  if (window.__ci360PollInterval) {
     clearInterval(window.__ci360PollInterval);
     window.__ci360PollInterval = null;
   }
@@ -1096,23 +1096,23 @@ export function initNotificationBell(){
   let allNotifs = [];
   let currentFilter = 'all';
 
-  function renderList(){
-    if(!list) return;
+  function renderList() {
+    if (!list) return;
     let filtered = allNotifs;
-    if(currentFilter === 'task') filtered = allNotifs.filter(n => (n.type||'').includes('task'));
-    else if(currentFilter === 'target') filtered = allNotifs.filter(n => (n.type||'').includes('target'));
-    else if(currentFilter === 'job') filtered = allNotifs.filter(n => (n.type||'').includes('job'));
-    else if(currentFilter === 'ticket') filtered = allNotifs.filter(n => (n.type||'').includes('ticket'));
+    if (currentFilter === 'task') filtered = allNotifs.filter(n => (n.type || '').includes('task'));
+    else if (currentFilter === 'target') filtered = allNotifs.filter(n => (n.type || '').includes('target'));
+    else if (currentFilter === 'job') filtered = allNotifs.filter(n => (n.type || '').includes('job'));
+    else if (currentFilter === 'ticket') filtered = allNotifs.filter(n => (n.type || '').includes('ticket'));
 
-    if(filtered.length === 0){
-      list.innerHTML = `<div class="empty" style="padding:28px 16px;font-size:12.5px;color:var(--text-4)">No ${currentFilter==='all'?'':currentFilter+' '}notifications</div>`;
+    if (filtered.length === 0) {
+      list.innerHTML = `<div class="empty" style="padding:28px 16px;font-size:12.5px;color:var(--text-4)">No ${currentFilter === 'all' ? '' : currentFilter + ' '}notifications</div>`;
       return;
     }
 
     list.innerHTML = filtered.map(n => {
       const icon = getNotifIcon(n.type);
       return `
-        <div class="notif-item ${n.read ? '' : 'unread'}" data-id="${n._id}" data-type="${escapeHtml(n.type||'')}">
+        <div class="notif-item ${n.read ? '' : 'unread'}" data-id="${n._id}" data-type="${escapeHtml(n.type || '')}">
           <div class="notif-icon">${icon}</div>
           <div style="flex:1;min-width:0">
             <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:2px">
@@ -1129,33 +1129,33 @@ export function initNotificationBell(){
       item.onclick = async () => {
         const id = item.dataset.id;
         const notif = allNotifs.find(n => String(n._id) === String(id));
-        if(id && item.classList.contains('unread')){
+        if (id && item.classList.contains('unread')) {
           item.classList.remove('unread');
-          try { await api(`/notifications/${id}/read`, { method: 'PATCH' }); } catch(e){}
+          try { await api(`/notifications/${id}/read`, { method: 'PATCH' }); } catch (e) { }
           const unreadCount = allNotifs.filter(n => !n.read && String(n._id) !== String(id)).length;
-          if(badge){
+          if (badge) {
             badge.style.display = unreadCount > 0 ? 'flex' : 'none';
             badge.textContent = unreadCount > 99 ? '99+' : unreadCount;
           }
-          if(unreadTxt){
+          if (unreadTxt) {
             unreadTxt.textContent = unreadCount > 0 ? `${unreadCount} new` : '';
             unreadTxt.style.display = unreadCount > 0 ? 'inline-block' : 'none';
           }
         }
         closeDropdown();
-        if(notif){
+        if (notif) {
           openNotificationModal(notif);
         } else {
           const type = item.dataset.type;
           const u = (typeof getUser === 'function') ? getUser() : null;
           const isEmp = u && u.role === 'employee';
-          if(type && type.includes('task') && typeof window.ci360NavTab === 'function') {
+          if (type && type.includes('task') && typeof window.ci360NavTab === 'function') {
             window.ci360NavTab('dailytasks');
-          } else if(type && type.includes('job') && typeof window.ci360NavTab === 'function') {
+          } else if (type && type.includes('job') && typeof window.ci360NavTab === 'function') {
             window.ci360NavTab(isEmp ? 'myjobs' : 'jobs');
-          } else if(type && type.includes('ticket') && typeof window.ci360NavTab === 'function') {
+          } else if (type && type.includes('ticket') && typeof window.ci360NavTab === 'function') {
             window.ci360NavTab('tickets');
-          } else if(type && type.includes('target') && typeof window.ci360NavTab === 'function') {
+          } else if (type && type.includes('target') && typeof window.ci360NavTab === 'function') {
             window.ci360NavTab('targets');
           }
         }
@@ -1166,16 +1166,16 @@ export function initNotificationBell(){
   let lastKnownTimestamps = { jobs: 0, tasks: 0, invoices: 0, tickets: 0 };
   let hasReceivedFirstSync = false;
 
-  async function fetchNotifications(isManual = false){
-    try{
+  async function fetchNotifications(isManual = false) {
+    try {
       const data = await apiGet('/notifications');
       allNotifs = data.notifications || [];
       const unread = data.unreadCount || 0;
-      if(badge){
+      if (badge) {
         badge.textContent = unread > 99 ? '99+' : unread;
         badge.style.display = unread > 0 ? 'flex' : 'none';
       }
-      if(unreadTxt) {
+      if (unreadTxt) {
         unreadTxt.textContent = unread > 0 ? `${unread} new` : '';
         unreadTxt.style.display = unread > 0 ? 'inline-block' : 'none';
       }
@@ -1183,32 +1183,32 @@ export function initNotificationBell(){
       loadAlertedNotifIds();
 
       // Check overdue invoices for clients
-      if(data.overdue && data.overdue.invoices && data.overdue.invoices.length > 0){
+      if (data.overdue && data.overdue.invoices && data.overdue.invoices.length > 0) {
         const user = (typeof getUser === 'function') ? getUser() : null;
-        if(user && user.role === 'client'){
+        if (user && user.role === 'client') {
           showClientOverdueInvoiceModal(data.overdue.invoices);
         }
       }
 
       // Check sync timestamps for live auto-updating without manual page refresh
-      if(data.syncTimestamps){
+      if (data.syncTimestamps) {
         const cur = data.syncTimestamps;
-        if(!hasReceivedFirstSync){
+        if (!hasReceivedFirstSync) {
           lastKnownTimestamps = { ...cur };
           hasReceivedFirstSync = true;
         } else {
           const changedKeys = [];
-          if(cur.jobs > (lastKnownTimestamps.jobs || 0)) changedKeys.push('jobs');
-          if(cur.tasks > (lastKnownTimestamps.tasks || 0)) changedKeys.push('tasks');
-          if(cur.invoices > (lastKnownTimestamps.invoices || 0)) changedKeys.push('invoices');
-          if(cur.tickets > (lastKnownTimestamps.tickets || 0)) changedKeys.push('tickets');
+          if (cur.jobs > (lastKnownTimestamps.jobs || 0)) changedKeys.push('jobs');
+          if (cur.tasks > (lastKnownTimestamps.tasks || 0)) changedKeys.push('tasks');
+          if (cur.invoices > (lastKnownTimestamps.invoices || 0)) changedKeys.push('invoices');
+          if (cur.tickets > (lastKnownTimestamps.tickets || 0)) changedKeys.push('tickets');
 
-          if(changedKeys.length > 0){
+          if (changedKeys.length > 0) {
             lastKnownTimestamps = { ...cur };
-            window.dispatchEvent(new CustomEvent('ci360:dataUpdated', { 
-              detail: { changedKeys, syncTimestamps: cur, overdue: data.overdue } 
+            window.dispatchEvent(new CustomEvent('ci360:dataUpdated', {
+              detail: { changedKeys, syncTimestamps: cur, overdue: data.overdue }
             }));
-            if(typeof window.ci360TriggerAutoUpdate === 'function'){
+            if (typeof window.ci360TriggerAutoUpdate === 'function') {
               window.ci360TriggerAutoUpdate({ changedKeys, syncTimestamps: cur });
             }
           }
@@ -1217,7 +1217,7 @@ export function initNotificationBell(){
 
       // Session baseline: On initial page load / refresh, mark existing notifications as alerted
       // so older notifications do not pop up on screen repeatedly ("it should just come once and than go")
-      if(!isSessionBaselineEstablished){
+      if (!isSessionBaselineEstablished) {
         allNotifs.forEach(n => {
           const sid = String(n._id);
           seenNotifIds.add(sid);
@@ -1228,8 +1228,8 @@ export function initNotificationBell(){
       } else {
         // Genuine new incoming unread notifications that arrived during the active session
         const newlyArrived = allNotifs.filter(n => !n.read && !alertedNotifIds.has(String(n._id)));
-        
-        if(newlyArrived.length > 0){
+
+        if (newlyArrived.length > 0) {
           const todayStr = new Date().toISOString().slice(0, 10);
           const dailyJobAlertKey = 'ci360_daily_alert_job_' + todayStr;
           let jobDueAlertedInLoop = !!localStorage.getItem(dailyJobAlertKey);
@@ -1244,7 +1244,7 @@ export function initNotificationBell(){
 
           // Only pop up the single newest notification so screen is never cluttered
           const latestNew = newlyArrived[0];
-          if(latestNew){
+          if (latestNew) {
             const sid = String(latestNew._id);
             let shouldShow = true;
             if (latestNew.type === 'job_due' || (latestNew.title && latestNew.title.includes('Job Due'))) {
@@ -1255,7 +1255,7 @@ export function initNotificationBell(){
               }
             }
 
-            if(shouldShow){
+            if (shouldShow) {
               // Pop up interactive in-app toast card (stays 4.5s and goes)
               showInAppPopupAlert({
                 id: sid,
@@ -1276,36 +1276,36 @@ export function initNotificationBell(){
           saveAlertedNotifIds();
 
           // Also trigger view auto update so new items immediately appear without refresh
-          window.dispatchEvent(new CustomEvent('ci360:dataUpdated', { 
-            detail: { newNotifications: newlyArrived } 
+          window.dispatchEvent(new CustomEvent('ci360:dataUpdated', {
+            detail: { newNotifications: newlyArrived }
           }));
-          if(typeof window.ci360TriggerAutoUpdate === 'function'){
+          if (typeof window.ci360TriggerAutoUpdate === 'function') {
             window.ci360TriggerAutoUpdate({ newNotifications: newlyArrived });
           }
         }
       }
 
       renderList();
-    }catch(e){
-      if(list && allNotifs.length === 0) list.innerHTML = `<div style="padding:16px;color:var(--s-red-text);font-size:12px">Could not load notifications</div>`;
+    } catch (e) {
+      if (list && allNotifs.length === 0) list.innerHTML = `<div style="padding:16px;color:var(--s-red-text);font-size:12px">Could not load notifications</div>`;
     }
   }
 
   // Expose remove & fetch helpers globally
-  if(typeof window !== 'undefined'){
+  if (typeof window !== 'undefined') {
     window.ci360FetchNotifications = fetchNotifications;
     window.showInAppPopupAlert = showInAppPopupAlert;
     window.showClientOverdueInvoiceModal = showClientOverdueInvoiceModal;
     window.ci360RemoveNotifFromUI = (notifId) => {
-      if(!notifId) return;
+      if (!notifId) return;
       const sId = String(notifId);
       allNotifs = allNotifs.filter(n => String(n._id) !== sId);
       const unread = allNotifs.filter(n => !n.read).length;
-      if(badge){
+      if (badge) {
         badge.textContent = unread > 99 ? '99+' : unread;
         badge.style.display = unread > 0 ? 'inline-flex' : 'none';
       }
-      if(unreadTxt){
+      if (unreadTxt) {
         unreadTxt.textContent = unread > 0 ? `${unread} unread` : '';
         unreadTxt.style.display = unread > 0 ? 'inline' : 'none';
       }
@@ -1318,7 +1318,7 @@ export function initNotificationBell(){
   window.__ci360PollInterval = setInterval(fetchNotifications, 6000);
   window.addEventListener('focus', () => fetchNotifications(true));
   window.addEventListener('beforeunload', () => {
-    if(window.__ci360PollInterval){
+    if (window.__ci360PollInterval) {
       clearInterval(window.__ci360PollInterval);
       window.__ci360PollInterval = null;
     }
@@ -1338,33 +1338,33 @@ export function initNotificationBell(){
 
   const backdrop = document.getElementById('notifBackdrop');
 
-  function openDropdown(){
+  function openDropdown() {
     dropdown.style.display = 'flex';
     dropdown.classList.add('open');
-    if(backdrop){
+    if (backdrop) {
       backdrop.style.display = 'block';
       backdrop.classList.add('open');
     }
     bellBtn.setAttribute('aria-expanded', 'true');
     checkPermissionUI();
     const userDropdown = document.getElementById('topbarUserDropdown');
-    if(userDropdown) userDropdown.style.display = 'none';
+    if (userDropdown) userDropdown.style.display = 'none';
     fetchNotifications();
   }
 
-  function closeDropdown(){
+  function closeDropdown() {
     dropdown.style.display = 'none';
     dropdown.classList.remove('open');
-    if(backdrop){
+    if (backdrop) {
       backdrop.style.display = 'none';
       backdrop.classList.remove('open');
     }
     bellBtn.setAttribute('aria-expanded', 'false');
   }
 
-  function toggleDropdown(){
+  function toggleDropdown() {
     const isOpen = dropdown.classList.contains('open') || dropdown.style.display === 'flex' || dropdown.style.display === 'block';
-    if(isOpen){
+    if (isOpen) {
       closeDropdown();
     } else {
       openDropdown();
@@ -1374,60 +1374,60 @@ export function initNotificationBell(){
   window.ci360CloseNotifications = closeDropdown;
 
   const notifCloseBtn = document.getElementById('notifCloseBtn');
-  if(notifCloseBtn){
+  if (notifCloseBtn) {
     notifCloseBtn.onclick = (e) => {
       e.stopPropagation();
       closeDropdown();
     };
   }
 
-  if(backdrop){
+  if (backdrop) {
     backdrop.onclick = (e) => {
       e.stopPropagation();
       closeDropdown();
     };
   }
 
-  bellBtn.onclick = (e)=>{
+  bellBtn.onclick = (e) => {
     e.stopPropagation();
     toggleDropdown();
   };
 
-  if(markReadBtn){
+  if (markReadBtn) {
     markReadBtn.onclick = async (e) => {
       e.stopPropagation();
       try {
         await api('/notifications/read', { method: 'PATCH' });
         badge.style.display = 'none';
-        if(unreadTxt) { unreadTxt.textContent = ''; unreadTxt.style.display = 'none'; }
+        if (unreadTxt) { unreadTxt.textContent = ''; unreadTxt.style.display = 'none'; }
         allNotifs.forEach(n => n.read = true);
         renderList();
         flashToast('All notifications marked as read');
-      } catch(err){ flashToast(err.message, true); }
+      } catch (err) { flashToast(err.message, true); }
     };
   }
 
-  if(window.__ci360NotifDocClickHandler){
+  if (window.__ci360NotifDocClickHandler) {
     document.removeEventListener('click', window.__ci360NotifDocClickHandler);
   }
   window.__ci360NotifDocClickHandler = (e) => {
-    if(!dropdown.contains(e.target) && !bellBtn.contains(e.target)){
+    if (!dropdown.contains(e.target) && !bellBtn.contains(e.target)) {
       closeDropdown();
     }
   };
   document.addEventListener('click', window.__ci360NotifDocClickHandler);
 
-  if(clearBtn){
-    clearBtn.onclick = async(e)=>{
+  if (clearBtn) {
+    clearBtn.onclick = async (e) => {
       e.stopPropagation();
-      try{
+      try {
         await apiDelete('/notifications');
         allNotifs = [];
         list.innerHTML = `<div class="empty" style="padding:28px 16px;font-size:12.5px;color:var(--text-4)">No notifications yet</div>`;
-        badge.style.display='none';
-        if(unreadTxt) { unreadTxt.textContent = ''; unreadTxt.style.display = 'none'; }
+        badge.style.display = 'none';
+        if (unreadTxt) { unreadTxt.textContent = ''; unreadTxt.style.display = 'none'; }
         flashToast('Notifications cleared');
-      }catch(err){ flashToast(err.message, true); }
+      } catch (err) { flashToast(err.message, true); }
     };
   }
 
@@ -1435,22 +1435,22 @@ export function initNotificationBell(){
   try {
     const urlParams = new URLSearchParams(window.location.search);
     const targetNotifId = urlParams.get('notifId');
-    if(targetNotifId){
+    if (targetNotifId) {
       apiGet('/notifications').then(data => {
         const notifs = data.notifications || [];
         const match = notifs.find(n => String(n._id) === String(targetNotifId));
-        if(match){
+        if (match) {
           openNotificationModal(match);
           const cleanUrl = window.location.pathname + window.location.hash;
           window.history.replaceState(null, '', cleanUrl);
         }
-      }).catch(()=>{});
+      }).catch(() => { });
     }
-  } catch(e){}
+  } catch (e) { }
 }
 
 /* ── APP SHELL ───────────────────────────────────────────────── */
-export function renderAppShell({ user, currentRole, activeTab, tabs, title, subtitle }){
+export function renderAppShell({ user, currentRole, activeTab, tabs, title, subtitle }) {
   const initial = user && user.name ? user.name.charAt(0).toUpperCase() : 'U';
   const roleBadge = user && (user.role === 'superadmin' || user.role === 'admin')
     ? 'Admin'
@@ -1628,13 +1628,13 @@ export function renderAppShell({ user, currentRole, activeTab, tabs, title, subt
         </div>
         <nav class="sidebar-nav" role="navigation" aria-label="Main navigation">
           <div class="nav-group-label">Navigation</div>
-          ${tabs.map(t=> t.href ? `
-            <a href="${t.href}" class="sidebar-item ${activeTab===t.key?'active':''}" data-tab="${t.key}" aria-current="${activeTab===t.key?'page':'false'}" style="text-decoration:none;">
-              <span class="icon">${t.icon||'📌'}</span>
+          ${tabs.map(t => t.href ? `
+            <a href="${t.href}" class="sidebar-item ${activeTab === t.key ? 'active' : ''}" data-tab="${t.key}" aria-current="${activeTab === t.key ? 'page' : 'false'}" style="text-decoration:none;">
+              <span class="icon">${t.icon || '📌'}</span>
               <span>${t.label}</span>
             </a>` : `
-            <button type="button" class="sidebar-item ${activeTab===t.key?'active':''}" data-tab="${t.key}" aria-current="${activeTab===t.key?'page':'false'}">
-              <span class="icon">${t.icon||'📌'}</span>
+            <button type="button" class="sidebar-item ${activeTab === t.key ? 'active' : ''}" data-tab="${t.key}" aria-current="${activeTab === t.key ? 'page' : 'false'}">
+              <span class="icon">${t.icon || '📌'}</span>
               <span>${t.label}</span>
             </button>`).join('')}
         </nav>
@@ -1708,8 +1708,8 @@ export function renderAppShell({ user, currentRole, activeTab, tabs, title, subt
             </button>` : ''}
 
             <div class="theme-toggle-wrap">
-              <button class="theme-btn ${getTheme()==='light'?'active':''}" data-theme="light" onclick="window.__setTheme('light')" title="Light mode" type="button" aria-label="Light mode">☀️</button>
-              <button class="theme-btn ${getTheme()==='dark'?'active':''}" data-theme="dark" onclick="window.__setTheme('dark')" title="Dark mode" type="button" aria-label="Dark mode">🌙</button>
+              <button class="theme-btn ${getTheme() === 'light' ? 'active' : ''}" data-theme="light" onclick="window.__setTheme('light')" title="Light mode" type="button" aria-label="Light mode">☀️</button>
+              <button class="theme-btn ${getTheme() === 'dark' ? 'active' : ''}" data-theme="dark" onclick="window.__setTheme('dark')" title="Dark mode" type="button" aria-label="Dark mode">🌙</button>
             </div>
 
             <!-- Notification Bell (Mockup Right Item 2 with badge 3) -->
@@ -1752,8 +1752,8 @@ export function renderAppShell({ user, currentRole, activeTab, tabs, title, subt
                       <kbd class="tud-kbd">⌘K</kbd>
                     </button>
                     <button type="button" class="tud-item" id="tudThemeToggleBtn" role="menuitem">
-                      <span class="tud-icon">${getTheme()==='dark' ? '☀️' : '🌙'}</span>
-                      <span class="tud-label">Switch to ${getTheme()==='dark' ? 'Light' : 'Dark'} Mode</span>
+                      <span class="tud-icon">${getTheme() === 'dark' ? '☀️' : '🌙'}</span>
+                      <span class="tud-label">Switch to ${getTheme() === 'dark' ? 'Light' : 'Dark'} Mode</span>
                     </button>
                     <div class="tud-item-static">
                       <span class="tud-icon">🛡️</span>
@@ -1774,8 +1774,8 @@ export function renderAppShell({ user, currentRole, activeTab, tabs, title, subt
                   <div class="tud-mobile-list">
                     <button type="button" class="tud-mobile-item" id="tudMobileThemeBtn" role="menuitem">
                       <div class="tmi-left">
-                        <span style="font-size:16px" id="tudMobileThemeIcon">${getTheme()==='dark' ? '☀️' : '🌙'}</span>
-                        <span id="tudMobileThemeText">${getTheme()==='dark' ? 'Light Mode' : 'Dark Mode'}</span>
+                        <span style="font-size:16px" id="tudMobileThemeIcon">${getTheme() === 'dark' ? '☀️' : '🌙'}</span>
+                        <span id="tudMobileThemeText">${getTheme() === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
                       </div>
                       <div class="tmi-right">
                         <svg class="tmi-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
@@ -1878,18 +1878,18 @@ export function renderAppShell({ user, currentRole, activeTab, tabs, title, subt
             </div>
             <div class="mms-grid">
               ${tabs.map(t => t.href ? `
-                <a href="${t.href}" class="mms-card ${activeTab===t.key?'active':''}" data-tab="${t.key}" style="text-decoration:none;">
+                <a href="${t.href}" class="mms-card ${activeTab === t.key ? 'active' : ''}" data-tab="${t.key}" style="text-decoration:none;">
                   <span class="mms-card-icon">${t.icon || '📌'}</span>
                   <span class="mms-card-label">${escapeHtml(t.label)}</span>
                 </a>` : `
-                <button type="button" class="mms-card ${activeTab===t.key?'active':''}" data-tab="${t.key}">
+                <button type="button" class="mms-card ${activeTab === t.key ? 'active' : ''}" data-tab="${t.key}">
                   <span class="mms-card-icon">${t.icon || '📌'}</span>
                   <span class="mms-card-label">${escapeHtml(t.label)}</span>
                 </button>`).join('')}
             </div>
             <div class="mms-quick-actions">
               <button type="button" class="btn ghost small mms-action-btn" id="mmsToggleThemeBtn">
-                <span>${getTheme()==='dark' ? '☀️ Light Mode' : '🌙 Dark Mode'}</span>
+                <span>${getTheme() === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode'}</span>
               </button>
               <button type="button" class="btn ghost small mms-action-btn" id="mmsNotifsBtn">
                 <span>🔔 Notifications</span>
@@ -1904,47 +1904,47 @@ export function renderAppShell({ user, currentRole, activeTab, tabs, title, subt
     </div>`;
 }
 
-export function bindAppShellEvents(onTabChange){
+export function bindAppShellEvents(onTabChange) {
   // Mobile nav (sidebar)
   const mobileToggle = document.getElementById('mobileNavToggle');
-  const sidebar      = document.getElementById('appSidebar');
-  const overlay      = document.getElementById('sidebarOverlay');
+  const sidebar = document.getElementById('appSidebar');
+  const overlay = document.getElementById('sidebarOverlay');
 
-  function openSidebar(){
-    if(sidebar) sidebar.classList.add('open');
-    if(overlay) overlay.classList.add('open');
+  function openSidebar() {
+    if (sidebar) sidebar.classList.add('open');
+    if (overlay) overlay.classList.add('open');
   }
-  function closeSidebar(){
-    if(sidebar) sidebar.classList.remove('open');
-    if(overlay) overlay.classList.remove('open');
+  function closeSidebar() {
+    if (sidebar) sidebar.classList.remove('open');
+    if (overlay) overlay.classList.remove('open');
   }
 
-  if(mobileToggle) mobileToggle.onclick = openSidebar;
-  if(overlay) overlay.onclick = closeSidebar;
+  if (mobileToggle) mobileToggle.onclick = openSidebar;
+  if (overlay) overlay.onclick = closeSidebar;
 
   // Desktop sidebar collapse toggle
   const shell = document.querySelector('.app-shell');
   function toggleSidebarCollapse() {
-    if(!shell) return;
+    if (!shell) return;
     shell.classList.toggle('sidebar-collapsed');
     const isCollapsed = shell.classList.contains('sidebar-collapsed');
     try {
       localStorage.setItem('ci360_sidebar_collapsed', isCollapsed ? 'true' : 'false');
-    } catch(e){}
+    } catch (e) { }
   }
 
   const sidebarCollapseBtn = document.getElementById('sidebarCollapseBtn');
-  if(sidebarCollapseBtn) sidebarCollapseBtn.onclick = toggleSidebarCollapse;
+  if (sidebarCollapseBtn) sidebarCollapseBtn.onclick = toggleSidebarCollapse;
 
   const desktopSidebarToggle = document.getElementById('desktopSidebarToggle');
-  if(desktopSidebarToggle) desktopSidebarToggle.onclick = toggleSidebarCollapse;
+  if (desktopSidebarToggle) desktopSidebarToggle.onclick = toggleSidebarCollapse;
 
-  if(!window.__ci360SidebarKeyBound){
+  if (!window.__ci360SidebarKeyBound) {
     window.__ci360SidebarKeyBound = true;
     window.addEventListener('keydown', (e) => {
-      if((e.ctrlKey || e.metaKey) && (e.key === 'b' || e.key === 'B')){
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'b' || e.key === 'B')) {
         const activeTag = document.activeElement ? document.activeElement.tagName.toLowerCase() : '';
-        if(activeTag === 'input' || activeTag === 'textarea' || (document.activeElement && document.activeElement.isContentEditable)) return;
+        if (activeTag === 'input' || activeTag === 'textarea' || (document.activeElement && document.activeElement.isContentEditable)) return;
         e.preventDefault();
         toggleSidebarCollapse();
       }
@@ -1957,25 +1957,25 @@ export function bindAppShellEvents(onTabChange){
   const moreCloseBtn = document.getElementById('mmsCloseBtn');
   const mobileMoreBtn = document.getElementById('mobileMoreBtn');
 
-  function openMoreSheet(){
-    if(moreBackdrop) moreBackdrop.classList.add('active');
-    if(moreSheet) moreSheet.classList.add('active');
+  function openMoreSheet() {
+    if (moreBackdrop) moreBackdrop.classList.add('active');
+    if (moreSheet) moreSheet.classList.add('active');
   }
-  function closeMoreSheet(){
-    if(moreBackdrop) moreBackdrop.classList.remove('active');
-    if(moreSheet) moreSheet.classList.remove('active');
+  function closeMoreSheet() {
+    if (moreBackdrop) moreBackdrop.classList.remove('active');
+    if (moreSheet) moreSheet.classList.remove('active');
   }
 
-  if(mobileMoreBtn) mobileMoreBtn.onclick = (e)=>{ e.stopPropagation(); openMoreSheet(); };
-  if(moreCloseBtn) moreCloseBtn.onclick = closeMoreSheet;
-  if(moreBackdrop) moreBackdrop.onclick = (e)=>{ if(e.target === moreBackdrop) closeMoreSheet(); };
+  if (mobileMoreBtn) mobileMoreBtn.onclick = (e) => { e.stopPropagation(); openMoreSheet(); };
+  if (moreCloseBtn) moreCloseBtn.onclick = closeMoreSheet;
+  if (moreBackdrop) moreBackdrop.onclick = (e) => { if (e.target === moreBackdrop) closeMoreSheet(); };
 
   // Bottom Navigation Bar items
   document.querySelectorAll('.mbn-item').forEach(btn => {
-    if(btn.dataset.tab && btn.dataset.tab !== '__more__'){
+    if (btn.dataset.tab && btn.dataset.tab !== '__more__') {
       btn.onclick = () => {
         closeMoreSheet();
-        if(onTabChange) onTabChange(btn.dataset.tab);
+        if (onTabChange) onTabChange(btn.dataset.tab);
       };
     }
   });
@@ -1984,35 +1984,35 @@ export function bindAppShellEvents(onTabChange){
   document.querySelectorAll('.mms-card').forEach(card => {
     card.onclick = () => {
       closeMoreSheet();
-      if(card.tagName === 'A') return;
-      if(onTabChange) onTabChange(card.dataset.tab);
+      if (card.tagName === 'A') return;
+      if (onTabChange) onTabChange(card.dataset.tab);
     };
   });
 
   // Mobile More Sheet quick actions
   const mmsThemeBtn = document.getElementById('mmsToggleThemeBtn');
-  if(mmsThemeBtn){
+  if (mmsThemeBtn) {
     mmsThemeBtn.onclick = () => {
       setTheme(getTheme() === 'dark' ? 'light' : 'dark');
     };
   }
   const mmsNotifsBtn = document.getElementById('mmsNotifsBtn');
-  if(mmsNotifsBtn){
+  if (mmsNotifsBtn) {
     mmsNotifsBtn.onclick = () => {
       closeMoreSheet();
       const bell = document.getElementById('notifBellBtn');
-      if(bell) bell.click();
+      if (bell) bell.click();
     };
   }
   const mmsLogoutBtn = document.getElementById('mmsLogoutBtn');
-  if(mmsLogoutBtn) mmsLogoutBtn.onclick = logout;
+  if (mmsLogoutBtn) mmsLogoutBtn.onclick = logout;
 
   // Mobile Calendar Button in Header
   const mobileCalBtn = document.getElementById('mobileCalBtn');
-  if(mobileCalBtn){
+  if (mobileCalBtn) {
     mobileCalBtn.onclick = () => {
       const periodRow = document.querySelector('.period-row');
-      if(periodRow){
+      if (periodRow) {
         periodRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
         periodRow.classList.add('pulse-highlight');
         setTimeout(() => periodRow.classList.remove('pulse-highlight'), 1200);
@@ -2022,7 +2022,7 @@ export function bindAppShellEvents(onTabChange){
 
   // Mobile User Popover Actions
   const tudMobileThemeBtn = document.getElementById('tudMobileThemeBtn');
-  if(tudMobileThemeBtn){
+  if (tudMobileThemeBtn) {
     tudMobileThemeBtn.onclick = (e) => {
       e.stopPropagation();
       setTheme(getTheme() === 'dark' ? 'light' : 'dark');
@@ -2030,24 +2030,24 @@ export function bindAppShellEvents(onTabChange){
   }
 
   const tudMobileNotifsBtn = document.getElementById('tudMobileNotifsBtn');
-  if(tudMobileNotifsBtn){
+  if (tudMobileNotifsBtn) {
     tudMobileNotifsBtn.onclick = (e) => {
       e.stopPropagation();
       const userDropdown = document.getElementById('topbarUserDropdown');
-      if(userDropdown) userDropdown.style.display = 'none';
+      if (userDropdown) userDropdown.style.display = 'none';
       const bell = document.getElementById('notifBellBtn');
-      if(bell) bell.click();
+      if (bell) bell.click();
     };
   }
 
   const tudMobileSettingsBtn = document.getElementById('tudMobileSettingsBtn');
-  if(tudMobileSettingsBtn){
+  if (tudMobileSettingsBtn) {
     tudMobileSettingsBtn.onclick = (e) => {
       e.stopPropagation();
       const userDropdown = document.getElementById('topbarUserDropdown');
-      if(userDropdown) userDropdown.style.display = 'none';
+      if (userDropdown) userDropdown.style.display = 'none';
       const settingsTab = document.querySelector('[data-tab="settings"], [data-tab="manage"]');
-      if(settingsTab && onTabChange) {
+      if (settingsTab && onTabChange) {
         onTabChange(settingsTab.dataset.tab);
       } else {
         openAccountSettingsModal();
@@ -2056,13 +2056,13 @@ export function bindAppShellEvents(onTabChange){
   }
 
   const tudProfileSettingsBtn = document.getElementById('tudProfileSettingsBtn');
-  if(tudProfileSettingsBtn){
+  if (tudProfileSettingsBtn) {
     tudProfileSettingsBtn.onclick = (e) => {
       e.stopPropagation();
       const userDropdown = document.getElementById('topbarUserDropdown');
-      if(userDropdown) userDropdown.style.display = 'none';
+      if (userDropdown) userDropdown.style.display = 'none';
       const settingsTab = document.querySelector('[data-tab="settings"], [data-tab="manage"]');
-      if(settingsTab && onTabChange) {
+      if (settingsTab && onTabChange) {
         onTabChange(settingsTab.dataset.tab);
       } else {
         openAccountSettingsModal();
@@ -2071,11 +2071,11 @@ export function bindAppShellEvents(onTabChange){
   }
 
   const tudMobileHelpBtn = document.getElementById('tudMobileHelpBtn');
-  if(tudMobileHelpBtn){
+  if (tudMobileHelpBtn) {
     tudMobileHelpBtn.onclick = (e) => {
       e.stopPropagation();
       const userDropdown = document.getElementById('topbarUserDropdown');
-      if(userDropdown) userDropdown.style.display = 'none';
+      if (userDropdown) userDropdown.style.display = 'none';
       openModal(`
         <div style="padding:24px;text-align:center;">
           <div style="font-size:36px;margin-bottom:12px;">💬</div>
@@ -2090,24 +2090,24 @@ export function bindAppShellEvents(onTabChange){
   }
 
   const logoutBtnMobile = document.getElementById('logoutBtnMobile');
-  if(logoutBtnMobile) logoutBtnMobile.onclick = logout;
+  if (logoutBtnMobile) logoutBtnMobile.onclick = logout;
 
   // User Dropdown Menu
   const userBtn = document.getElementById('topbarUserBtn');
   const userDropdown = document.getElementById('topbarUserDropdown');
-  if(userBtn && userDropdown){
+  if (userBtn && userDropdown) {
     userBtn.onclick = (e) => {
       e.stopPropagation();
       const isOpen = userDropdown.style.display !== 'none';
       userDropdown.style.display = isOpen ? 'none' : 'block';
       userBtn.setAttribute('aria-expanded', String(!isOpen));
-      if(typeof window.ci360CloseNotifications === 'function'){
+      if (typeof window.ci360CloseNotifications === 'function') {
         window.ci360CloseNotifications();
       }
     };
 
     document.addEventListener('click', (e) => {
-      if(!userDropdown.contains(e.target) && !userBtn.contains(e.target)){
+      if (!userDropdown.contains(e.target) && !userBtn.contains(e.target)) {
         userDropdown.style.display = 'none';
         userBtn.setAttribute('aria-expanded', 'false');
       }
@@ -2116,7 +2116,7 @@ export function bindAppShellEvents(onTabChange){
 
   // User Dropdown Theme Toggle Button
   const tudThemeBtn = document.getElementById('tudThemeToggleBtn');
-  if(tudThemeBtn){
+  if (tudThemeBtn) {
     tudThemeBtn.onclick = () => {
       setTheme(getTheme() === 'dark' ? 'light' : 'dark');
     };
@@ -2124,25 +2124,25 @@ export function bindAppShellEvents(onTabChange){
 
   // Topbar Quick Action (+ Log Job)
   const quickLogJobBtn = document.getElementById('topbarQuickLogJobBtn');
-  if(quickLogJobBtn){
+  if (quickLogJobBtn) {
     quickLogJobBtn.onclick = () => {
-      if(onTabChange) onTabChange('logjob');
+      if (onTabChange) onTabChange('logjob');
     };
   }
 
   // Logout
   const logoutBtn = document.getElementById('logoutBtn');
-  if(logoutBtn) logoutBtn.onclick = logout;
+  if (logoutBtn) logoutBtn.onclick = logout;
 
   // Init notifications
   initNotificationBell();
 
   // Tab navigation
-  document.querySelectorAll('.sidebar-item').forEach(btn=>{
-    btn.onclick = ()=>{
+  document.querySelectorAll('.sidebar-item').forEach(btn => {
+    btn.onclick = () => {
       closeSidebar();
-      if(btn.tagName === 'A') return;
-      if(onTabChange) onTabChange(btn.dataset.tab);
+      if (btn.tagName === 'A') return;
+      if (onTabChange) onTabChange(btn.dataset.tab);
     };
   });
 
@@ -2150,7 +2150,7 @@ export function bindAppShellEvents(onTabChange){
   initCommandPalette(onTabChange);
 }
 
-function initCommandPalette(onTabChange){
+function initCommandPalette(onTabChange) {
   const backdrop = document.getElementById('cmdPaletteBackdrop');
   const input = document.getElementById('cmdSearchInput');
   const results = document.getElementById('cmdResultsList');
@@ -2159,7 +2159,7 @@ function initCommandPalette(onTabChange){
   const tudCmdBtn = document.getElementById('tudCmdBtn');
   const closeKbd = document.getElementById('cmdCloseKbd');
 
-  if(!backdrop || !input || !results) return;
+  if (!backdrop || !input || !results) return;
 
   // Gather navigation items from sidebar
   const sidebarItems = Array.from(document.querySelectorAll('.sidebar-item'));
@@ -2170,13 +2170,13 @@ function initCommandPalette(onTabChange){
     icon: item.querySelector('.icon')?.textContent || '📌',
     sub: 'Navigate to section',
     action: () => {
-      if(onTabChange) onTabChange(item.dataset.tab);
+      if (onTabChange) onTabChange(item.dataset.tab);
     }
   }));
 
   // Quick Action: Log Job if available
   const hasLogJob = sidebarItems.some(i => i.dataset.tab === 'logjob');
-  if(hasLogJob){
+  if (hasLogJob) {
     commands.unshift({
       type: 'action',
       id: 'quick-logjob',
@@ -2184,7 +2184,7 @@ function initCommandPalette(onTabChange){
       icon: '➕',
       sub: 'Create & submit work delivery',
       action: () => {
-        if(onTabChange) onTabChange('logjob');
+        if (onTabChange) onTabChange('logjob');
       }
     });
   }
@@ -2209,7 +2209,7 @@ function initCommandPalette(onTabChange){
     sub: 'Pending alerts and notices',
     action: () => {
       const bell = document.getElementById('notifBellBtn');
-      if(bell) bell.click();
+      if (bell) bell.click();
     }
   });
 
@@ -2236,8 +2236,8 @@ function initCommandPalette(onTabChange){
   let selectedIndex = 0;
   let filtered = [...commands];
 
-  function renderList(){
-    if(!filtered.length){
+  function renderList() {
+    if (!filtered.length) {
       results.innerHTML = `<div class="cmd-result" style="color:var(--text-4);cursor:default;justify-content:center;padding:24px 14px;">No matching tabs or commands found</div>`;
       return;
     }
@@ -2263,23 +2263,23 @@ function initCommandPalette(onTabChange){
     });
   }
 
-  function updateSelection(){
+  function updateSelection() {
     results.querySelectorAll('.cmd-result').forEach((el, idx) => {
       el.classList.toggle('selected', idx === selectedIndex);
     });
   }
 
-  function execute(idx){
+  function execute(idx) {
     const cmd = filtered[idx];
-    if(cmd && cmd.action){
+    if (cmd && cmd.action) {
       closePalette();
       cmd.action();
     }
   }
 
-  function openPalette(){
+  function openPalette() {
     const userDropdown = document.getElementById('topbarUserDropdown');
-    if(userDropdown) userDropdown.style.display = 'none';
+    if (userDropdown) userDropdown.style.display = 'none';
     backdrop.classList.add('open');
     input.value = '';
     filtered = [...commands];
@@ -2288,30 +2288,30 @@ function initCommandPalette(onTabChange){
     setTimeout(() => input.focus(), 50);
   }
 
-  function closePalette(){
+  function closePalette() {
     backdrop.classList.remove('open');
     input.blur();
   }
 
-  if(triggerDesktop) triggerDesktop.onclick = openPalette;
-  if(triggerMobile) triggerMobile.onclick = openPalette;
-  if(tudCmdBtn) tudCmdBtn.onclick = () => {
+  if (triggerDesktop) triggerDesktop.onclick = openPalette;
+  if (triggerMobile) triggerMobile.onclick = openPalette;
+  if (tudCmdBtn) tudCmdBtn.onclick = () => {
     const userDropdown = document.getElementById('topbarUserDropdown');
-    if(userDropdown) userDropdown.style.display = 'none';
+    if (userDropdown) userDropdown.style.display = 'none';
     openPalette();
   };
-  if(closeKbd) closeKbd.onclick = closePalette;
+  if (closeKbd) closeKbd.onclick = closePalette;
 
   backdrop.onclick = (e) => {
-    if(e.target === backdrop) closePalette();
+    if (e.target === backdrop) closePalette();
   };
 
   input.oninput = () => {
     const q = input.value.trim().toLowerCase();
-    if(!q){
+    if (!q) {
       filtered = [...commands];
     } else {
-      filtered = commands.filter(c => 
+      filtered = commands.filter(c =>
         c.label.toLowerCase().includes(q) || c.sub.toLowerCase().includes(q)
       );
     }
@@ -2320,26 +2320,26 @@ function initCommandPalette(onTabChange){
   };
 
   input.onkeydown = (e) => {
-    if(e.key === 'ArrowDown'){
+    if (e.key === 'ArrowDown') {
       e.preventDefault();
-      if(filtered.length > 0){
+      if (filtered.length > 0) {
         selectedIndex = (selectedIndex + 1) % filtered.length;
         updateSelection();
         const sel = results.querySelector('.cmd-result.selected');
-        if(sel) sel.scrollIntoView({ block: 'nearest' });
+        if (sel) sel.scrollIntoView({ block: 'nearest' });
       }
-    } else if(e.key === 'ArrowUp'){
+    } else if (e.key === 'ArrowUp') {
       e.preventDefault();
-      if(filtered.length > 0){
+      if (filtered.length > 0) {
         selectedIndex = (selectedIndex - 1 + filtered.length) % filtered.length;
         updateSelection();
         const sel = results.querySelector('.cmd-result.selected');
-        if(sel) sel.scrollIntoView({ block: 'nearest' });
+        if (sel) sel.scrollIntoView({ block: 'nearest' });
       }
-    } else if(e.key === 'Enter'){
+    } else if (e.key === 'Enter') {
       e.preventDefault();
       execute(selectedIndex);
-    } else if(e.key === 'Escape'){
+    } else if (e.key === 'Escape') {
       e.preventDefault();
       closePalette();
     }
@@ -2347,18 +2347,18 @@ function initCommandPalette(onTabChange){
 
   // Keyboard shortcut listener
   const keyHandler = (e) => {
-    if((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k'){
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
       e.preventDefault();
-      if(backdrop.classList.contains('open')){
+      if (backdrop.classList.contains('open')) {
         closePalette();
       } else {
         openPalette();
       }
-    } else if(e.key === 'Escape' && backdrop.classList.contains('open')){
+    } else if (e.key === 'Escape' && backdrop.classList.contains('open')) {
       closePalette();
     }
   };
-  if(window.__ci360CmdKeyHandler){
+  if (window.__ci360CmdKeyHandler) {
     window.removeEventListener('keydown', window.__ci360CmdKeyHandler);
   }
   window.__ci360CmdKeyHandler = keyHandler;
@@ -2366,10 +2366,10 @@ function initCommandPalette(onTabChange){
 }
 
 /* ── SKELETON LOADERS ────────────────────────────────────────── */
-export function renderSkeletonCards(count=4){
+export function renderSkeletonCards(count = 4) {
   return `
-    <div class="grid grid-${Math.min(count,4)}" style="margin-bottom:24px">
-      ${Array(count).fill(0).map(()=>`
+    <div class="grid grid-${Math.min(count, 4)}" style="margin-bottom:24px">
+      ${Array(count).fill(0).map(() => `
         <div class="card kpi">
           <div class="skeleton-box" style="height:12px;width:55%;margin-bottom:14px;border-radius:4px"></div>
           <div class="skeleton-box" style="height:30px;width:40%;margin-bottom:10px;border-radius:6px"></div>
@@ -2379,7 +2379,7 @@ export function renderSkeletonCards(count=4){
 }
 
 /* ── EMPTY STATE ─────────────────────────────────────────────── */
-export function renderEmptyState(title, subtitle, icon='📁', actionBtn=''){
+export function renderEmptyState(title, subtitle, icon = '📁', actionBtn = '') {
   return `
     <div class="empty">
       <span class="empty-icon">${icon}</span>
@@ -2390,11 +2390,11 @@ export function renderEmptyState(title, subtitle, icon='📁', actionBtn=''){
 }
 
 /* ── KPI CARD ────────────────────────────────────────────────── */
-export function renderKpiCard(title, value, subtext='', icon='📊', trend=''){
+export function renderKpiCard(title, value, subtext = '', icon = '📊', trend = '') {
   let trendHtml = '';
-  if(trend){
+  if (trend) {
     const isUp = trend.startsWith('+') || trend.includes('↑') || trend.toLowerCase().includes('up');
-    trendHtml = `<span class="kpi-trend ${isUp?'up':'down'}">${escapeHtml(trend)}</span>`;
+    trendHtml = `<span class="kpi-trend ${isUp ? 'up' : 'down'}">${escapeHtml(trend)}</span>`;
   }
   return `
     <div class="card kpi">
@@ -2407,12 +2407,12 @@ export function renderKpiCard(title, value, subtext='', icon='📊', trend=''){
     </div>`;
 }
 
-export function renderBadge(text, type='gray'){
+export function renderBadge(text, type = 'gray') {
   return `<span class="badge ${type}">${escapeHtml(text)}</span>`;
 }
 
-export function renderProgressBar(pct, type='indigo'){
-  const percent = Math.min(100, Math.max(0, Number(pct)||0));
+export function renderProgressBar(pct, type = 'indigo') {
+  const percent = Math.min(100, Math.max(0, Number(pct) || 0));
   return `
     <div class="progress-bar-wrap" title="${percent.toFixed(0)}%">
       <div class="progress-bar-fill ${type}" style="width:${percent}%"></div>
@@ -2420,9 +2420,9 @@ export function renderProgressBar(pct, type='indigo'){
 }
 
 /* ── PERIOD PICKER ───────────────────────────────────────────── */
-export function renderPeriodPicker(currentPeriod){
-  const periods = [['all','All Time'],['today','Today'],['week','This Week'],['month','This Month'],['quarter','This Quarter']];
-  return `<div class="period-row">${periods.map(([k,l])=>`<button class="pchip ${currentPeriod===k?'active':''}" data-period="${k}">${l}</button>`).join('')}</div>`;
+export function renderPeriodPicker(currentPeriod) {
+  const periods = [['all', 'All Time'], ['today', 'Today'], ['week', 'This Week'], ['month', 'This Month'], ['quarter', 'This Quarter']];
+  return `<div class="period-row">${periods.map(([k, l]) => `<button class="pchip ${currentPeriod === k ? 'active' : ''}" data-period="${k}">${l}</button>`).join('')}</div>`;
 }
 
 /* ── SUPPORT TICKET HELPERS ──────────────────────────────────── */
@@ -2453,23 +2453,23 @@ export function resolveFileUrl(url) {
     try {
       const origin = new URL(API_BASE).origin;
       return origin + (url.startsWith('/') ? url : '/' + url);
-    } catch(e){}
+    } catch (e) { }
   }
   return url;
 }
 
 export function getFileCategory(name = '', type = '') {
   const ext = (name.split('.').pop() || '').toLowerCase();
-  if (['png','jpg','jpeg','gif','webp','svg','bmp','ico','tiff','tif','heic','heif'].includes(ext) || type.startsWith('image/')) return { icon: '🖼️', cls: 'img', label: 'Image' };
+  if (['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'bmp', 'ico', 'tiff', 'tif', 'heic', 'heif'].includes(ext) || type.startsWith('image/')) return { icon: '🖼️', cls: 'img', label: 'Image' };
   if (ext === 'pdf' || type === 'application/pdf') return { icon: '📄', cls: 'pdf', label: 'PDF Document' };
-  if (['doc','docx','odt','txt','rtf'].includes(ext)) return { icon: '📝', cls: 'doc', label: 'Document' };
-  if (['xls','xlsx','csv','ods','tsv'].includes(ext)) return { icon: '📊', cls: 'sheet', label: 'Spreadsheet' };
-  if (['ppt','pptx','key'].includes(ext)) return { icon: '📑', cls: 'pres', label: 'Presentation' };
-  if (['zip','rar','7z','tar','gz','bz2'].includes(ext)) return { icon: '📦', cls: 'zip', label: 'Archive' };
-  if (['mp4','mov','avi','mkv','webm','m4v','3gp','wmv','flv'].includes(ext) || type.startsWith('video/')) return { icon: '🎬', cls: 'video', label: 'Video' };
-  if (['mp3','wav','ogg','m4a','flac','aac','wma'].includes(ext) || type.startsWith('audio/')) return { icon: '🎵', cls: 'audio', label: 'Audio' };
-  if (['psd','ai','eps','sketch','fig','xd','blend','obj','fbx','cdr'].includes(ext)) return { icon: '🎨', cls: 'design', label: 'Design & Creative' };
-  if (['js','ts','jsx','tsx','html','css','json','xml','py','sql','md','sh','php'].includes(ext)) return { icon: '💻', cls: 'code', label: 'Code File' };
+  if (['doc', 'docx', 'odt', 'txt', 'rtf'].includes(ext)) return { icon: '📝', cls: 'doc', label: 'Document' };
+  if (['xls', 'xlsx', 'csv', 'ods', 'tsv'].includes(ext)) return { icon: '📊', cls: 'sheet', label: 'Spreadsheet' };
+  if (['ppt', 'pptx', 'key'].includes(ext)) return { icon: '📑', cls: 'pres', label: 'Presentation' };
+  if (['zip', 'rar', '7z', 'tar', 'gz', 'bz2'].includes(ext)) return { icon: '📦', cls: 'zip', label: 'Archive' };
+  if (['mp4', 'mov', 'avi', 'mkv', 'webm', 'm4v', '3gp', 'wmv', 'flv'].includes(ext) || type.startsWith('video/')) return { icon: '🎬', cls: 'video', label: 'Video' };
+  if (['mp3', 'wav', 'ogg', 'm4a', 'flac', 'aac', 'wma'].includes(ext) || type.startsWith('audio/')) return { icon: '🎵', cls: 'audio', label: 'Audio' };
+  if (['psd', 'ai', 'eps', 'sketch', 'fig', 'xd', 'blend', 'obj', 'fbx', 'cdr'].includes(ext)) return { icon: '🎨', cls: 'design', label: 'Design & Creative' };
+  if (['js', 'ts', 'jsx', 'tsx', 'html', 'css', 'json', 'xml', 'py', 'sql', 'md', 'sh', 'php'].includes(ext)) return { icon: '💻', cls: 'code', label: 'Code File' };
   return { icon: '📎', cls: 'other', label: 'File' };
 }
 
@@ -2584,13 +2584,13 @@ export function renderAttachmentChips(attachments = [], options = {}) {
       ${options.title ? `<div class="attachment-chips-header">📎 ${escapeHtml(options.title)} <span style="font-weight:500;color:var(--text-4)">(${attachments.length})</span></div>` : ''}
       <div class="attachment-chips-list">
         ${attachments.map((att, idx) => {
-          const isUrl = att.type === 'url' || /^https?:\/\//i.test(att.url || '');
-          const cat = isUrl ? { cls: 'file-type-doc', icon: '🌐', label: 'Live Link' } : getFileCategory(att.name, att.type);
-          const name = escapeHtml(att.name || (isUrl ? 'Live Deliverable URL' : 'File'));
-          const size = isUrl ? 'Live Link' : fmtFileSize(att.size);
-          const isVid = cat.cls === 'video' || (att.name && att.name.match(/\.(mp4|mov|webm|mkv|avi)$/i));
-          const fileUrl = resolveFileUrl(att.url);
-          return `
+    const isUrl = att.type === 'url' || /^https?:\/\//i.test(att.url || '');
+    const cat = isUrl ? { cls: 'file-type-doc', icon: '🌐', label: 'Live Link' } : getFileCategory(att.name, att.type);
+    const name = escapeHtml(att.name || (isUrl ? 'Live Deliverable URL' : 'File'));
+    const size = isUrl ? 'Live Link' : fmtFileSize(att.size);
+    const isVid = cat.cls === 'video' || (att.name && att.name.match(/\.(mp4|mov|webm|mkv|avi)$/i));
+    const fileUrl = resolveFileUrl(att.url);
+    return `
             <div class="attachment-chip ${isVid ? 'is-video' : ''}" data-idx="${idx}" title="${name} (${size})">
               <span class="file-type-icon ${cat.cls}" style="width:22px;height:22px;font-size:12px">${cat.icon}</span>
               ${isUrl ? `
@@ -2615,16 +2615,16 @@ export function renderAttachmentChips(attachments = [], options = {}) {
               </div>
             </div>
           `;
-        }).join('')}
+  }).join('')}
       </div>
 
       ${videos.length > 0 ? `
         <div class="attachment-videos-container" style="display:flex;flex-direction:column;gap:12px;margin-top:10px">
           ${videos.map((v) => {
-            const vName = escapeHtml(v.name || 'Deliverable Video');
-            const vSize = fmtFileSize(v.size);
-            const vUrl = resolveFileUrl(v.url);
-            return `
+    const vName = escapeHtml(v.name || 'Deliverable Video');
+    const vSize = fmtFileSize(v.size);
+    const vUrl = resolveFileUrl(v.url);
+    return `
               <div class="attachment-video-card" style="background:var(--bg-elevated);border:1px solid var(--border-sm);border-radius:8px;padding:12px;overflow:hidden">
                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:6px">
                   <span style="font-size:12.5px;font-weight:700;color:var(--text-1);display:flex;align-items:center;gap:6px">
@@ -2642,7 +2642,7 @@ export function renderAttachmentChips(attachments = [], options = {}) {
                 </video>
               </div>
             `;
-          }).join('')}
+  }).join('')}
         </div>
       ` : ''}
     </div>
@@ -2961,7 +2961,7 @@ window.__openPreview = (idx, el) => {
     try {
       const arr = JSON.parse(decodeURIComponent(jsonStr));
       if (arr[chipIdx]) openFilePreviewModal(arr[chipIdx]);
-    } catch (e) {}
+    } catch (e) { }
   }
 };
 
@@ -3019,11 +3019,11 @@ export function renderSupportTicketSection(jobId, isAdmin = false) {
     </div>`;
 }
 
-const TICKET_STATUS_BADGE = { 'Open':'red', 'In Review':'amber', 'Resolved':'green', 'Closed':'gray' };
-const TICKET_PRI_BADGE    = { 'Low':'green', 'Medium':'gray', 'High':'amber', 'Urgent':'red' };
+const TICKET_STATUS_BADGE = { 'Open': 'red', 'In Review': 'amber', 'Resolved': 'green', 'Closed': 'gray' };
+const TICKET_PRI_BADGE = { 'Low': 'green', 'Medium': 'gray', 'High': 'amber', 'Urgent': 'red' };
 
 function ticketCardHtml(t, isAdmin) {
-  const statusSlug = (t.status || 'Open').toLowerCase().replace(' ','-');
+  const statusSlug = (t.status || 'Open').toLowerCase().replace(' ', '-');
   const isOpen = t.status === 'Open';
   const shortId = (t._id || '').slice(-4).toUpperCase();
   const initials = getInitials(t.userName);
@@ -3040,10 +3040,10 @@ function ticketCardHtml(t, isAdmin) {
           </div>
         </div>
         <div class="ticket-meta-badges">
-          <span class="badge ${TICKET_STATUS_BADGE[t.status]||'gray'}">
+          <span class="badge ${TICKET_STATUS_BADGE[t.status] || 'gray'}">
             ${isOpen ? '<span class="pulse-dot"></span>' : ''} ${escapeHtml(t.status)}
           </span>
-          <span class="badge ${TICKET_PRI_BADGE[t.priority]||'gray'}">${escapeHtml(t.priority)}</span>
+          <span class="badge ${TICKET_PRI_BADGE[t.priority] || 'gray'}">${escapeHtml(t.priority)}</span>
         </div>
       </div>
 
@@ -3089,10 +3089,10 @@ function ticketCardHtml(t, isAdmin) {
         <div class="ticket-toolbar">
           <label style="font-size:11px;font-weight:700;color:var(--text-4);text-transform:uppercase">Status:</label>
           <select class="tk-status-sel" data-tkid="${t._id}" style="font-size:12px;padding:5px 8px;border:1px solid var(--border-sm);border-radius:var(--r-sm);background:var(--bg-surface);color:var(--text-1)">
-            <option value="Open" ${t.status==='Open'?'selected':''}>🔴 Open</option>
-            <option value="In Review" ${t.status==='In Review'?'selected':''}>🟡 In Review</option>
-            <option value="Resolved" ${t.status==='Resolved'?'selected':''}>🟢 Resolved</option>
-            <option value="Closed" ${t.status==='Closed'?'selected':''}>⚪ Closed</option>
+            <option value="Open" ${t.status === 'Open' ? 'selected' : ''}>🔴 Open</option>
+            <option value="In Review" ${t.status === 'In Review' ? 'selected' : ''}>🟡 In Review</option>
+            <option value="Resolved" ${t.status === 'Resolved' ? 'selected' : ''}>🟢 Resolved</option>
+            <option value="Closed" ${t.status === 'Closed' ? 'selected' : ''}>⚪ Closed</option>
           </select>
 
           <button class="btn ghost small tk-reply-toggle" data-tkid="${t._id}" type="button">
@@ -3114,7 +3114,7 @@ function ticketCardHtml(t, isAdmin) {
               <button type="button" class="ticket-template-btn" data-tkid="${t._id}" data-tpl="This issue has been resolved and the updates have been saved.">✅ Resolved</button>
               <button type="button" class="ticket-template-btn" data-tkid="${t._id}" data-tpl="Could you please provide more details so we can assist further?">ℹ️ Need Info</button>
             </div>
-            <textarea id="tkreplytxt-${t._id}" rows="2" placeholder="Write response to ticket..." style="font-size:13px;padding:8px 10px;border:1px solid var(--border-sm);border-radius:var(--r-sm);background:var(--bg-surface);color:var(--text-1);resize:vertical;width:100%;box-sizing:border-box">${escapeHtml(t.adminReply||'')}</textarea>
+            <textarea id="tkreplytxt-${t._id}" rows="2" placeholder="Write response to ticket..." style="font-size:13px;padding:8px 10px;border:1px solid var(--border-sm);border-radius:var(--r-sm);background:var(--bg-surface);color:var(--text-1);resize:vertical;width:100%;box-sizing:border-box">${escapeHtml(t.adminReply || '')}</textarea>
             ${renderAttachmentUploader({ id: 'tkreplyup-' + t._id, label: 'Attach Response Files / Deliverables', subtitle: 'Upload updated files, receipts, or resolution proofs' })}
             <div style="display:flex;justify-content:flex-end;gap:6px;margin-top:8px">
               <button class="btn ghost small tk-reply-cancel" data-tkid="${t._id}" type="button">Cancel</button>
@@ -3265,8 +3265,8 @@ export function bindSupportTicketSection(jobId, isAdmin = false) {
   const submitBtn = document.querySelector(`.tk-submit-btn[data-safeid="${safeid}"]`);
   if (submitBtn) {
     submitBtn.onclick = async () => {
-      const subject  = (document.getElementById('tksub-' + safeid) || {}).value?.trim();
-      const message  = (document.getElementById('tkmsg-' + safeid) || {}).value?.trim();
+      const subject = (document.getElementById('tksub-' + safeid) || {}).value?.trim();
+      const message = (document.getElementById('tkmsg-' + safeid) || {}).value?.trim();
       const priority = (document.getElementById('tkpri-' + safeid) || {}).value;
       const attachments = getUploaderAttachments('tkup-' + safeid);
       if (!subject) { flashToast('Please enter a subject', true); return; }
@@ -3297,8 +3297,8 @@ export function bindSupportTicketSection(jobId, isAdmin = false) {
 }
 
 // legacy compat
-export function renderRoleSwitcher(){ return ''; }
-export function bindRoleSwitcher(){}
+export function renderRoleSwitcher() { return ''; }
+export function bindRoleSwitcher() { }
 
 /* ── ACCOUNT SETTINGS & CREDENTIALS COMPONENT ────────────────── */
 export function renderAccountSettingsCard(options = {}) {
@@ -3516,7 +3516,7 @@ export function bindAccountSettingsCard(container, options = {}) {
 
         if (modalBg) {
           setTimeout(() => {
-            try { modalBg.remove(); } catch(e){}
+            try { modalBg.remove(); } catch (e) { }
           }, 900);
         }
       } catch (err) {
@@ -3535,11 +3535,11 @@ export function openAccountSettingsModal() {
     <div style="position:relative;padding:12px 6px;">
       <button type="button" id="closeAccSettingsModalBtn" style="position:absolute;top:-4px;right:0;border:none;background:transparent;color:var(--text-3);font-size:20px;cursor:pointer;padding:6px 10px;" aria-label="Close modal">✕</button>
       ${renderAccountSettingsCard({
-        title: 'Account Settings',
-        subtitle: 'Manage your personal email, username, and password',
-        showCardWrapper: false,
-        formId: 'modalAccSettingsForm'
-      })}
+    title: 'Account Settings',
+    subtitle: 'Manage your personal email, username, and password',
+    showCardWrapper: false,
+    formId: 'modalAccSettingsForm'
+  })}
     </div>
   `;
   const bg = openModal(modalHtml);
@@ -3550,7 +3550,7 @@ export function openAccountSettingsModal() {
 }
 
 /* ── WINDOW GLOBALS ──────────────────────────────────────────── */
-window.__setTheme = function(t){ setTheme(t); };
+window.__setTheme = function (t) { setTheme(t); };
 
 Object.assign(window, {
   getToken, getUser, setSession, clearSession, requireAuth, initTheme,

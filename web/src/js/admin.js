@@ -8,25 +8,25 @@ let user = null;
 let cache = { personnel: [], clients: [], services: [], salaryGrades: [], salaryAssignments: [] };
 let dash = null; // last /api/dashboard/admin response
 let ui = { tab: 'dashboard', period: 'month', jobsFilter: 'all' };
-let draft = { title: '', clientId: '', serviceIds: [], date: new Date().toISOString().slice(0,10), completion: '', value: '', desc: '', assignments: [{personId:'', percent:100, hours:''}, {personId:'', percent:0, hours:''}] };
+let draft = { title: '', clientId: '', serviceIds: [], date: new Date().toISOString().slice(0, 10), completion: '', value: '', desc: '', assignments: [{ personId: '', percent: 100, hours: '' }, { personId: '', percent: 0, hours: '' }] };
 
 
-async function boot(){
+async function boot() {
   initTheme();
   user = requireAuth('superadmin');
-  if(!user) return;
+  if (!user) return;
   await refreshCache();
   render();
 }
 
-async function refreshCache(){
+async function refreshCache() {
   const [personnel, clients, services] = await Promise.all([apiGet('/personnel'), apiGet('/clients'), apiGet('/services')]);
   cache.personnel = personnel; cache.clients = clients; cache.services = services;
 }
 
-function getDefaultAssignments(){
-  const mansi = cache.personnel.find(p=> /mansi/i.test(p.name));
-  const urna = cache.personnel.find(p=> /urna/i.test(p.name));
+function getDefaultAssignments() {
+  const mansi = cache.personnel.find(p => /mansi/i.test(p.name));
+  const urna = cache.personnel.find(p => /urna/i.test(p.name));
   const rows = [];
   if (mansi) rows.push({ personId: mansi._id, percent: '', hours: '' });
   if (urna) rows.push({ personId: urna._id, percent: '', hours: '' });
@@ -36,8 +36,8 @@ function getDefaultAssignments(){
   return rows;
 }
 
-function personName(id){ const p = cache.personnel.find(p=>p._id===id); return p ? p.name : '—'; }
-function clientName(id){ const c = cache.clients.find(c=>c._id===id); return c ? c.name : '—'; }
+function personName(id) { const p = cache.personnel.find(p => p._id === id); return p ? p.name : '—'; }
+function clientName(id) { const c = cache.clients.find(c => c._id === id); return c ? c.name : '—'; }
 
 const ADMIN_TABS = [
   { key: 'dashboard', label: 'Dashboard', icon: '📊' },
@@ -57,14 +57,19 @@ const ADMIN_TABS = [
   { key: 'manage', label: 'Settings & Manage', icon: '⚙️' }
 ];
 
-function render(){
+function render() {
   const app = document.getElementById('app');
-  const activeTabObj = ADMIN_TABS.find(t => t.key === ui.tab) || ADMIN_TABS[0];
+  const isSuperadmin = user?.role === 'superadmin';
+  const visibleTabs = ADMIN_TABS.filter(t => {
+    if (!isSuperadmin && (t.key === 'salaries' || t.key === 'users')) return false;
+    return true;
+  });
+  const activeTabObj = visibleTabs.find(t => t.key === ui.tab) || visibleTabs[0];
   app.innerHTML = renderAppShell({
     user,
-    currentRole: 'superadmin',
+    currentRole: isSuperadmin ? 'superadmin' : 'admin',
     activeTab: ui.tab,
-    tabs: ADMIN_TABS,
+    tabs: visibleTabs,
     title: activeTabObj.label,
     subtitle: 'Productivity & Revenue Intelligence'
   });
@@ -78,29 +83,38 @@ function render(){
 }
 window.ci360NavTab = (newTab, params = {}) => { ui.tab = newTab; ui.tabParams = params; render(); };
 
-async function renderTab(skipSkeleton = false){
+async function renderTab(skipSkeleton = false) {
   const c = document.getElementById('content');
-  if(!c) return;
-  if(!skipSkeleton && !c.dataset.loaded) c.innerHTML = renderSkeletonCards(4);
+  if (!c) return;
+
+  const isSuperadmin = user?.role === 'superadmin';
+  if ((ui.tab === 'salaries' || ui.tab === 'users') && !isSuperadmin) {
+    ui.tab = 'dashboard';
+    flashToast('Access restricted: Superadmin permission required', true);
+    render();
+    return;
+  }
+
+  if (!skipSkeleton && !c.dataset.loaded) c.innerHTML = renderSkeletonCards(4);
   c.dataset.loaded = 'true';
 
-  try{
-    if(ui.tab==='dashboard') await tabDashboard(c);
-    else if(ui.tab==='dailytasks') await tabDailyTasks(c);
-    else if(ui.tab==='tickets' || ui.tab==='supporttickets') await tabSupportTickets(c);
-    else if(ui.tab==='proposals') await tabProposals(c);
-    else if(ui.tab==='teambonding' || ui.tab==='bonding') await tabTeamBonding(c);
-    else if(ui.tab==='logjob') tabLogJob(c);
-    else if(ui.tab==='jobs') await tabJobs(c);
-    else if(ui.tab==='byclient') await tabByClient(c);
-    else if(ui.tab==='byperson') await tabByPerson(c);
-    else if(ui.tab==='accounts') await tabAccounts(c);
-    else if(ui.tab==='billing_dashboard') { window.location.href = '/accounts'; return; }
-    else if(ui.tab==='targets') await tabTargets(c);
-    else if(ui.tab==='salaries') await tabSalaries(c);
-    else if(ui.tab==='settings' || ui.tab==='manage') tabSettings(c);
-    else if(ui.tab==='users') await tabUsers(c);
-  }catch(err){
+  try {
+    if (ui.tab === 'dashboard') await tabDashboard(c);
+    else if (ui.tab === 'dailytasks') await tabDailyTasks(c);
+    else if (ui.tab === 'tickets' || ui.tab === 'supporttickets') await tabSupportTickets(c);
+    else if (ui.tab === 'proposals') await tabProposals(c);
+    else if (ui.tab === 'teambonding' || ui.tab === 'bonding') await tabTeamBonding(c);
+    else if (ui.tab === 'logjob') tabLogJob(c);
+    else if (ui.tab === 'jobs') await tabJobs(c);
+    else if (ui.tab === 'byclient') await tabByClient(c);
+    else if (ui.tab === 'byperson') await tabByPerson(c);
+    else if (ui.tab === 'accounts') await tabAccounts(c);
+    else if (ui.tab === 'billing_dashboard') { window.location.href = '/accounts'; return; }
+    else if (ui.tab === 'targets') await tabTargets(c);
+    else if (ui.tab === 'salaries') await tabSalaries(c);
+    else if (ui.tab === 'settings' || ui.tab === 'manage') tabSettings(c);
+    else if (ui.tab === 'users') await tabUsers(c);
+  } catch (err) {
     c.innerHTML = `<div class="empty"><h3>Something went wrong</h3>${escapeHtml(err.message)}</div>`;
   }
 }
@@ -128,15 +142,15 @@ async function tabSupportTickets(c) {
   });
 }
 
-function periodPicker(){
+function periodPicker() {
   return renderPeriodPicker(ui.period);
 }
-function bindPeriodPicker(){
-  document.querySelectorAll('[data-period]').forEach(b=>{ b.onclick = ()=>{ ui.period = b.dataset.period; renderTab(); }; });
+function bindPeriodPicker() {
+  document.querySelectorAll('[data-period]').forEach(b => { b.onclick = () => { ui.period = b.dataset.period; renderTab(); }; });
 }
 
 /* ---------------- DASHBOARD ---------------- */
-async function tabDashboard(c){
+async function tabDashboard(c) {
   dash = await apiGet('/dashboard/admin?period=' + ui.period);
   const o = dash.overview;
   c.innerHTML = `
@@ -210,45 +224,45 @@ async function tabDashboard(c){
 
     <section class="block">
       <h2>Roadmap Signals <span class="eyebrow">Auto-generated</span></h2>
-      ${dash.insights.length ? dash.insights.map(i=>`<div class="insight ${i.type}">${escapeHtml(i.text)}</div>`).join('') : `<div class="empty">Log a few jobs to start seeing workload signals here.</div>`}
+      ${dash.insights.length ? dash.insights.map(i => `<div class="insight ${i.type}">${escapeHtml(i.text)}</div>`).join('') : `<div class="empty">Log a few jobs to start seeing workload signals here.</div>`}
     </section>
 
     <div class="grid grid-2">
       <section class="block">
         <h2>Work Value by Client</h2>
-        <div class="card">${barRows(dash.clients.slice(0,8).map(x=>[x.name,x.value]))}</div>
+        <div class="card">${barRows(dash.clients.slice(0, 8).map(x => [x.name, x.value]))}</div>
       </section>
       <section class="block">
         <h2>Work Value by Service</h2>
-        <div class="card">${barRows(dash.services.slice(0,8).map(x=>[x.name,x.value]), true)}</div>
+        <div class="card">${barRows(dash.services.slice(0, 8).map(x => [x.name, x.value]), true)}</div>
       </section>
     </div>
 
     <section class="block">
       <h2>Team Load at a Glance</h2>
-      <div class="card">${dash.personnel.filter(p=>p.status!=='inactive').map(gaugeRow).join('') || '<div class="empty">No personnel yet.</div>'}</div>
+      <div class="card">${dash.personnel.filter(p => p.status !== 'inactive').map(gaugeRow).join('') || '<div class="empty">No personnel yet.</div>'}</div>
     </section>
   `;
   bindPeriodPicker();
 }
 
-function barRows(pairs, gold){
-  if(!pairs.length) return '<div class="empty">No data yet.</div>';
-  const max = Math.max(1, ...pairs.map(p=>p[1]));
-  return pairs.map(([name,val])=>`
+function barRows(pairs, gold) {
+  if (!pairs.length) return '<div class="empty">No data yet.</div>';
+  const max = Math.max(1, ...pairs.map(p => p[1]));
+  return pairs.map(([name, val]) => `
     <div class="bar-row">
       <div>${escapeHtml(name)}</div>
-      <div class="bar-track"><div class="bar-fill ${gold?'gold':''}" style="width:${(val/max*100).toFixed(1)}%"></div></div>
+      <div class="bar-track"><div class="bar-fill ${gold ? 'gold' : ''}" style="width:${(val / max * 100).toFixed(1)}%"></div></div>
       <div class="num">${fmtINR(val)}</div>
     </div>`).join('');
 }
 
-function gaugeRow(b){
+function gaugeRow(b) {
   const pct = Math.min(b.utilization, 160);
   return `
     <div style="margin-bottom:16px;">
       <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:3px;">
-        <span><strong>${escapeHtml(b.name)}</strong> <span class="muted">${escapeHtml(b.duties||'')}</span></span>
+        <span><strong>${escapeHtml(b.name)}</strong> <span class="muted">${escapeHtml(b.duties || '')}</span></span>
         <span><span class="badge ${b.cls}">${b.label}</span> &nbsp; ${b.utilization.toFixed(0)}%</span>
       </div>
       <div class="gauge-track">
@@ -256,17 +270,17 @@ function gaugeRow(b){
         <div class="gauge-zone" style="left:25%;width:30%;background:var(--green-bg);"></div>
         <div class="gauge-zone" style="left:55%;width:35%;background:var(--amber-bg);"></div>
         <div class="gauge-zone" style="left:90%;width:10%;background:var(--red-bg);"></div>
-        <div class="gauge-fill" style="left:${Math.min(pct/1.6,99)}%;"></div>
+        <div class="gauge-fill" style="left:${Math.min(pct / 1.6, 99)}%;"></div>
       </div>
     </div>`;
 }
 
 /* ---------------- LOG A JOB ---------------- */
-function tabLogJob(c){
+function tabLogJob(c) {
   if (!draft.assignments || draft.assignments.every(a => !a.personId)) {
     draft.assignments = getDefaultAssignments();
   }
-  const totalPercent = draft.assignments.reduce((s,a)=>s+(Number(a.percent)||0),0);
+  const totalPercent = draft.assignments.reduce((s, a) => s + (Number(a.percent) || 0), 0);
   c.innerHTML = `
     <section class="block">
       <div style="margin-bottom:20px;">
@@ -282,7 +296,7 @@ function tabLogJob(c){
             <div class="select-with-btn">
               <select id="jClient">
                 <option value="">Select client…</option>
-                ${cache.clients.map(cl=>`<option value="${cl._id}" ${cl._id===draft.clientId?'selected':''}>${escapeHtml(cl.name)}</option>`).join('')}
+                ${cache.clients.map(cl => `<option value="${cl._id}" ${cl._id === draft.clientId ? 'selected' : ''}>${escapeHtml(cl.name)}</option>`).join('')}
               </select>
               <button class="btn ghost small" type="button" id="addNewClientBtn">+ New Client</button>
             </div>
@@ -291,11 +305,11 @@ function tabLogJob(c){
           <div class="log-job-row">
             <div class="field" style="margin-bottom:0;">
               <label>START DATE *</label>
-              <input type="date" id="jDate" value="${draft.date||new Date().toISOString().slice(0,10)}">
+              <input type="date" id="jDate" value="${draft.date || new Date().toISOString().slice(0, 10)}">
             </div>
             <div class="field" style="margin-bottom:0;">
               <label>COMPLETION DATE (OPTIONAL)</label>
-              <input type="date" id="jCompletion" value="${draft.completion||''}" placeholder="dd.mm.yyyy">
+              <input type="date" id="jCompletion" value="${draft.completion || ''}" placeholder="dd.mm.yyyy">
             </div>
           </div>
         </div>
@@ -314,27 +328,27 @@ function tabLogJob(c){
             ${draft.serviceIds.length ? `
               <div class="selected-services-tags" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;">
                 ${draft.serviceIds.map(id => {
-                  const s = cache.services.find(srv => srv._id === id);
-                  if (!s) return '';
-                  return `
+    const s = cache.services.find(srv => srv._id === id);
+    if (!s) return '';
+    return `
                     <span class="badge blue" style="display:inline-flex;align-items:center;gap:6px;padding:6px 12px;font-size:12px;border-radius:20px;">
                       ${escapeHtml(s.name)}
                       <span class="remove-service-tag" data-id="${s._id}" style="cursor:pointer;font-weight:bold;margin-left:4px;" title="Remove service">✕</span>
                     </span>
                   `;
-                }).join('')}
+  }).join('')}
               </div>
             ` : ''}
           </div>
 
           <div class="field" style="margin-bottom:16px;">
             <label>JOB VALUE (₹ ATTRIBUTABLE VALUE)</label>
-            <input type="number" id="jValue" value="${draft.value||''}" placeholder="e.g. 25000" min="0">
+            <input type="number" id="jValue" value="${draft.value || ''}" placeholder="e.g. 25000" min="0">
           </div>
 
           <div class="field" style="margin-bottom:0;">
             <label>DELIVERABLE DESCRIPTION & SPECIFICS</label>
-            <textarea id="jDesc" placeholder="Describe the scope of work, completed artifacts, or client notes..." style="height:90px;resize:vertical;">${escapeHtml(draft.desc||'')}</textarea>
+            <textarea id="jDesc" placeholder="Describe the scope of work, completed artifacts, or client notes..." style="height:90px;resize:vertical;">${escapeHtml(draft.desc || '')}</textarea>
           </div>
         </div>
 
@@ -348,13 +362,13 @@ function tabLogJob(c){
               <div></div>
             </div>
             <div id="assignRows">
-              ${draft.assignments.map((a,i)=>assignRowHtml(a,i)).join('')}
+              ${draft.assignments.map((a, i) => assignRowHtml(a, i)).join('')}
             </div>
             <button class="btn ghost small" id="addAssignRow" type="button" style="margin-top:10px;">+ Add Team Member</button>
             <div style="margin-top:14px;">
-              <div class="assign-total ${totalPercent!==100?'warn':''}">
-                <span>${totalPercent===100?'✓':'⚠️'}</span>
-                <span>${totalPercent}% of work allocated ${totalPercent!==100?'— should total 100%':'(100% Complete)'}</span>
+              <div class="assign-total ${totalPercent !== 100 ? 'warn' : ''}">
+                <span>${totalPercent === 100 ? '✓' : '⚠️'}</span>
+                <span>${totalPercent}% of work allocated ${totalPercent !== 100 ? '— should total 100%' : '(100% Complete)'}</span>
               </div>
             </div>
           </div>
@@ -375,20 +389,20 @@ function tabLogJob(c){
   bindLogJob();
 }
 
-function assignRowHtml(a,i){
+function assignRowHtml(a, i) {
   return `
     <div class="person-assign-row" data-idx="${i}">
       <div class="field">
         <select class="a-person">
           <option value="">Select…</option>
-          ${cache.personnel.map(p=>`<option value="${p._id}" ${p._id===a.personId?'selected':''}>${escapeHtml(p.name)}${p.duties ? ` (${escapeHtml(p.duties)})` : ''}</option>`).join('')}
+          ${cache.personnel.map(p => `<option value="${p._id}" ${p._id === a.personId ? 'selected' : ''}>${escapeHtml(p.name)}${p.duties ? ` (${escapeHtml(p.duties)})` : ''}</option>`).join('')}
         </select>
       </div>
       <div class="field">
-        <input type="number" class="a-percent" value="${a.percent!=null?a.percent:''}" placeholder="100" min="0" max="100">
+        <input type="number" class="a-percent" value="${a.percent != null ? a.percent : ''}" placeholder="100" min="0" max="100">
       </div>
       <div class="field">
-        <input type="number" class="a-hours" value="${a.hours||''}" placeholder="e.g. 3.5" min="0" step="0.5">
+        <input type="number" class="a-hours" value="${a.hours || ''}" placeholder="e.g. 3.5" min="0" step="0.5">
       </div>
       <div style="display:flex;justify-content:center;">
         <button class="btn-remove-person a-remove" type="button" title="Remove person">✕</button>
@@ -397,12 +411,12 @@ function assignRowHtml(a,i){
   `;
 }
 
-function bindLogJob(){
+function bindLogJob() {
   const jClient = document.getElementById('jClient');
-  if(jClient) jClient.onchange = e=> draft.clientId = e.target.value;
+  if (jClient) jClient.onchange = e => draft.clientId = e.target.value;
 
   const addNewClientBtn = document.getElementById('addNewClientBtn');
-  if(addNewClientBtn) {
+  if (addNewClientBtn) {
     addNewClientBtn.onclick = () => {
       const bg = openModal(`
         <h3>Add New Client</h3>
@@ -437,10 +451,10 @@ function bindLogJob(){
   }
 
   const jDate = document.getElementById('jDate');
-  if(jDate) jDate.onchange = e=> draft.date = e.target.value;
+  if (jDate) jDate.onchange = e => draft.date = e.target.value;
 
   const jCompletion = document.getElementById('jCompletion');
-  if(jCompletion) jCompletion.onchange = e=> draft.completion = e.target.value;
+  if (jCompletion) jCompletion.onchange = e => draft.completion = e.target.value;
 
   const jService = document.getElementById('jService');
   if (jService) {
@@ -465,7 +479,7 @@ function bindLogJob(){
   });
 
   const addNewServiceBtn = document.getElementById('addNewServiceBtn');
-  if(addNewServiceBtn) {
+  if (addNewServiceBtn) {
     addNewServiceBtn.onclick = () => {
       const bg = openModal(`
         <h3>Add New Service</h3>
@@ -497,25 +511,25 @@ function bindLogJob(){
   }
 
   const jDesc = document.getElementById('jDesc');
-  if(jDesc) jDesc.oninput = e=> draft.desc = e.target.value;
+  if (jDesc) jDesc.oninput = e => draft.desc = e.target.value;
 
   const jValue = document.getElementById('jValue');
-  if(jValue) jValue.oninput = e=> draft.value = e.target.value;
+  if (jValue) jValue.oninput = e => draft.value = e.target.value;
 
-  document.querySelectorAll('.person-assign-row').forEach(row=>{
+  document.querySelectorAll('.person-assign-row').forEach(row => {
     const idx = Number(row.dataset.idx);
     const personSel = row.querySelector('.a-person');
-    if(personSel) personSel.onchange = e=> draft.assignments[idx].personId = e.target.value;
+    if (personSel) personSel.onchange = e => draft.assignments[idx].personId = e.target.value;
 
     const percentInp = row.querySelector('.a-percent');
-    if(percentInp) percentInp.oninput = e=>{ draft.assignments[idx].percent = e.target.value; syncPercentTotal(); };
+    if (percentInp) percentInp.oninput = e => { draft.assignments[idx].percent = e.target.value; syncPercentTotal(); };
 
     const hoursInp = row.querySelector('.a-hours');
-    if(hoursInp) hoursInp.oninput = e=> draft.assignments[idx].hours = e.target.value;
+    if (hoursInp) hoursInp.oninput = e => draft.assignments[idx].hours = e.target.value;
 
     const removeBtn = row.querySelector('.a-remove');
-    if(removeBtn) removeBtn.onclick = ()=>{
-      if(draft.assignments.length > 1){
+    if (removeBtn) removeBtn.onclick = () => {
+      if (draft.assignments.length > 1) {
         draft.assignments.splice(idx, 1);
         tabLogJob(document.getElementById('content'));
       }
@@ -523,9 +537,9 @@ function bindLogJob(){
   });
 
   const addAssignRow = document.getElementById('addAssignRow');
-  if(addAssignRow) {
-    addAssignRow.onclick = ()=>{
-      draft.assignments.push({personId:'', percent:0, hours:''});
+  if (addAssignRow) {
+    addAssignRow.onclick = () => {
+      draft.assignments.push({ personId: '', percent: 0, hours: '' });
       tabLogJob(document.getElementById('content'));
     };
   }
@@ -533,21 +547,21 @@ function bindLogJob(){
   bindAttachmentUploader('jAttachments', { existing: draft.attachments || [] });
 
   const clearJobBtn = document.getElementById('clearJobBtn');
-  if(clearJobBtn) {
-    clearJobBtn.onclick = ()=>{
-      draft = { title: '', assignments: getDefaultAssignments(), serviceIds:[], clientId:'', date: new Date().toISOString().slice(0,10), completion:'', value:'', desc:'', attachments: [] };
+  if (clearJobBtn) {
+    clearJobBtn.onclick = () => {
+      draft = { title: '', assignments: getDefaultAssignments(), serviceIds: [], clientId: '', date: new Date().toISOString().slice(0, 10), completion: '', value: '', desc: '', attachments: [] };
       setUploaderAttachments('jAttachments', []);
       tabLogJob(document.getElementById('content'));
     };
   }
 
   const saveJobBtn = document.getElementById('saveJobBtn');
-  if(saveJobBtn) {
-    saveJobBtn.onclick = async ()=>{
-      try{
+  if (saveJobBtn) {
+    saveJobBtn.onclick = async () => {
+      try {
         // Prompt for browser notification permission during active user click if not decided yet
         if (typeof Notification !== 'undefined' && Notification.permission === 'default') {
-          try { await Notification.requestPermission(); } catch(e){}
+          try { await Notification.requestPermission(); } catch (e) { }
         }
 
         if (!draft.clientId) {
@@ -558,7 +572,7 @@ function bindLogJob(){
           flashToast('Please select at least one service', true);
           return;
         }
-        const valid = draft.assignments.filter(a=>a.personId);
+        const valid = draft.assignments.filter(a => a.personId);
         if (!valid.length) {
           flashToast('Please assign at least one person', true);
           return;
@@ -570,9 +584,9 @@ function bindLogJob(){
           }
         }
 
-        const clientObj = cache.clients.find(c=>c._id === draft.clientId);
-        const selectedServices = cache.services.filter(s=>draft.serviceIds.includes(s._id));
-        const serviceNamesStr = selectedServices.map(s=>s.name).join(', ');
+        const clientObj = cache.clients.find(c => c._id === draft.clientId);
+        const selectedServices = cache.services.filter(s => draft.serviceIds.includes(s._id));
+        const serviceNamesStr = selectedServices.map(s => s.name).join(', ');
         const title = draft.title || (clientObj ? `${clientObj.name} — ${serviceNamesStr || 'Deliverable'}` : (serviceNamesStr || 'Untitled Job'));
         const attachments = getUploaderAttachments('jAttachments');
 
@@ -580,7 +594,7 @@ function bindLogJob(){
           title,
           clientId: draft.clientId,
           serviceIds: draft.serviceIds,
-          date: draft.date || new Date().toISOString().slice(0,10),
+          date: draft.date || new Date().toISOString().slice(0, 10),
           completionDate: draft.completion || null,
           value: Number(draft.value) || 0,
           description: draft.desc || '',
@@ -588,53 +602,53 @@ function bindLogJob(){
           attachments,
         });
         flashToast('Job saved successfully! 📁');
-        
+
         // Immediately fetch notifications so Chrome displays the desktop alert without delay
         if (typeof window.ci360FetchNotifications === 'function') {
           window.ci360FetchNotifications();
         }
 
-        draft = { title: '', assignments: getDefaultAssignments(), serviceIds:[], clientId:'', date: new Date().toISOString().slice(0,10), completion:'', value:'', desc:'', attachments: [] };
+        draft = { title: '', assignments: getDefaultAssignments(), serviceIds: [], clientId: '', date: new Date().toISOString().slice(0, 10), completion: '', value: '', desc: '', attachments: [] };
         ui.tab = 'jobs';
         renderTab();
-      } catch(err){ flashToast(err.message, true); }
+      } catch (err) { flashToast(err.message, true); }
     };
   }
 }
 
-function syncPercentTotal(){
-  const total = draft.assignments.reduce((s,a)=>s+(Number(a.percent)||0),0);
+function syncPercentTotal() {
+  const total = draft.assignments.reduce((s, a) => s + (Number(a.percent) || 0), 0);
   const el = document.querySelector('.assign-total');
-  if(el){ el.textContent = `${total}% of work allocated ${total!==100?'— should total 100%':'✓'}`; el.classList.toggle('warn', total!==100); }
+  if (el) { el.textContent = `${total}% of work allocated ${total !== 100 ? '— should total 100%' : '✓'}`; el.classList.toggle('warn', total !== 100); }
 }
 
 
 /* ---------------- ALL JOBS ---------------- */
-async function tabJobs(c){
+async function tabJobs(c) {
   let jobs = await apiGet('/jobs');
-  jobs.sort((a,b)=> new Date(b.date)-new Date(a.date));
-  if(ui.jobsFilter==='progress') jobs = jobs.filter(j=>!j.completionDate);
-  if(ui.jobsFilter==='done') jobs = jobs.filter(j=>j.completionDate);
+  jobs.sort((a, b) => new Date(b.date) - new Date(a.date));
+  if (ui.jobsFilter === 'progress') jobs = jobs.filter(j => !j.completionDate);
+  if (ui.jobsFilter === 'done') jobs = jobs.filter(j => j.completionDate);
   c.innerHTML = `
     <section class="block">
       <h2>All Jobs <span class="eyebrow">${jobs.length} shown</span></h2>
       <div style="margin-bottom:12px;display:flex;gap:6px;">
-        <button class="pchip ${ui.jobsFilter==='all'?'active':''}" data-jf="all">All</button>
-        <button class="pchip ${ui.jobsFilter==='progress'?'active':''}" data-jf="progress">In Progress</button>
-        <button class="pchip ${ui.jobsFilter==='done'?'active':''}" data-jf="done">Completed</button>
+        <button class="pchip ${ui.jobsFilter === 'all' ? 'active' : ''}" data-jf="all">All</button>
+        <button class="pchip ${ui.jobsFilter === 'progress' ? 'active' : ''}" data-jf="progress">In Progress</button>
+        <button class="pchip ${ui.jobsFilter === 'done' ? 'active' : ''}" data-jf="done">Completed</button>
       </div>
-      ${jobs.length===0 ? `<div class="empty">No jobs logged yet.</div>` : `
+      ${jobs.length === 0 ? `<div class="empty">No jobs logged yet.</div>` : `
       <div class="card" style="overflow-x:auto;">
         <table>
           <thead><tr><th>Job Title</th><th>Files &amp; Artifacts</th><th>Start</th><th>Status &amp; Sign-Off</th><th>Client</th><th>Service(s)</th><th>Assigned Personnel</th><th class="num">Hours</th><th style="text-align:right;">Actions</th></tr></thead>
           <tbody>
-          ${jobs.map(j=>{
-            const isDone = j.status === 'Completed';
-            const assignedPeople = (j.assignments||[]).map(a=>`${escapeHtml(personName(a.personId))} (${a.percent}%)`).join(', ');
-            const attCount = (j.attachments || []).length;
-            const delCount = (j.deliverables || []).length;
+          ${jobs.map(j => {
+    const isDone = j.status === 'Completed';
+    const assignedPeople = (j.assignments || []).map(a => `${escapeHtml(personName(a.personId))} (${a.percent}%)`).join(', ');
+    const attCount = (j.attachments || []).length;
+    const delCount = (j.deliverables || []).length;
 
-            return `<tr>
+    return `<tr>
               <td><strong>${escapeHtml(j.title || 'Untitled Job')}</strong></td>
               <td>
                 <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap">
@@ -646,8 +660,8 @@ async function tabJobs(c){
               <td>${fmtDate(j.date)}</td>
               <td>
                 <div style="display:flex;flex-direction:column;gap:3px;align-items:flex-start">
-                  <button class="btn ${isDone?'ghost':'gold'} small toggle-status-btn" data-id="${j._id}" data-done="${isDone}" style="padding:2px 7px;font-size:11px;cursor:pointer;">
-                    <span class="badge ${isDone?'green':((j.status==='Needs Revision'||j.status==='Denied')?'red':'amber')}">${isDone?'Completed':(j.status==='Needs Revision'?'Needs Revision':(j.status==='Denied'?'Denied':'In Progress'))}</span>
+                  <button class="btn ${isDone ? 'ghost' : 'gold'} small toggle-status-btn" data-id="${j._id}" data-done="${isDone}" style="padding:2px 7px;font-size:11px;cursor:pointer;">
+                    <span class="badge ${isDone ? 'green' : ((j.status === 'Needs Revision' || j.status === 'Denied') ? 'red' : 'amber')}">${isDone ? 'Completed' : (j.status === 'Needs Revision' ? 'Needs Revision' : (j.status === 'Denied' ? 'Denied' : 'In Progress'))}</span>
                   </button>
                   ${j.clientApproval && j.clientApproval.status === 'Approved' ? `<span style="font-size:10px;font-weight:700;color:var(--green-500)">✓ Client Approved ${j.clientApproval.rating ? `(${j.clientApproval.rating}★)` : ''}</span>` : (j.clientApproval && j.clientApproval.status === 'Revision Requested' ? `<span style="font-size:10px;font-weight:700;color:var(--amber-500)">↺ Revision Req.</span>
                    <button type="button" class="btn gold small admin-resubmit-btn" data-id="${j._id}" data-title="${escapeHtml(j.title || 'Job')}" data-reason="${escapeHtml(j.clientApproval?.feedback || '')}" data-type="revision" style="margin-top:3px;padding:2px 7px;font-size:10px;font-weight:700">🔁 Resubmit</button>` : (j.clientApproval && j.clientApproval.isRevised ? `<span style="font-size:10px;font-weight:700;color:var(--brand-500)">📦 Revised — Awaiting Re-approval</span>` : ((j.status === 'Denied' || j.clientApproval?.status === 'Denied') ? `<span style="font-size:10px;font-weight:700;color:var(--red-500)" title="Reason: ${escapeHtml(j.clientApproval?.deniedReason || '')}">❌ Denied</span>
@@ -655,12 +669,12 @@ async function tabJobs(c){
                 </div>
               </td>
               <td>${escapeHtml(clientName(j.clientId))}</td>
-              <td>${(j.serviceNames||[]).map(s=>`<span class="badge gray">${escapeHtml(s)}</span>`).join(' ')}</td>
+              <td>${(j.serviceNames || []).map(s => `<span class="badge gray">${escapeHtml(s)}</span>`).join(' ')}</td>
               <td class="assign-cell-click" data-id="${j._id}" style="cursor:pointer;" title="Click to assign or change personnel">
                 ${assignedPeople || '<span class="muted">Unassigned</span>'}
                 <span style="font-size:11px;color:var(--gold-600);margin-left:4px;">✏️</span>
               </td>
-              <td class="num">${fmtHours((j.assignments||[]).reduce((s,a)=>s+(Number(a.hours)||0),0))}</td>
+              <td class="num">${fmtHours((j.assignments || []).reduce((s, a) => s + (Number(a.hours) || 0), 0))}</td>
               <td style="text-align:right;white-space:nowrap;">
                 <button class="btn ghost small job-ticket-btn" data-id="${j._id}" title="Support Tickets linked to this Job" style="margin-right:4px;padding:3px 8px;font-size:11px;">🎫 Ticket</button>
                 <button class="btn ghost small view-job-files" data-id="${j._id}" style="margin-right:4px;padding:3px 8px;font-size:11px;">📁 Files</button>
@@ -668,13 +682,13 @@ async function tabJobs(c){
                 <button class="btn danger small del-job" data-id="${j._id}" style="padding:3px 8px;font-size:11px;">Delete</button>
               </td>
             </tr>`;
-          }).join('')}
+  }).join('')}
           </tbody>
         </table>
       </div>`}
     </section>
   `;
-  document.querySelectorAll('[data-jf]').forEach(b=> b.onclick = ()=>{ ui.jobsFilter = b.dataset.jf; renderTab(); });
+  document.querySelectorAll('[data-jf]').forEach(b => b.onclick = () => { ui.jobsFilter = b.dataset.jf; renderTab(); });
 
   document.querySelectorAll('.job-ticket-btn').forEach(btn => {
     btn.onclick = () => {
@@ -727,7 +741,7 @@ async function tabJobs(c){
         ` : '')}
 
         <div style="margin-bottom:16px">
-          <h4 style="font-size:13px;font-weight:700;color:var(--text-1);margin-bottom:8px">📎 Briefs &amp; Initial Client Assets (${(jobObj.attachments||[]).length})</h4>
+          <h4 style="font-size:13px;font-weight:700;color:var(--text-1);margin-bottom:8px">📎 Briefs &amp; Initial Client Assets (${(jobObj.attachments || []).length})</h4>
           ${(jobObj.attachments && jobObj.attachments.length) ? `
             <div data-attachments="${attsJson}">
               ${renderAttachmentChips(jobObj.attachments)}
@@ -736,7 +750,7 @@ async function tabJobs(c){
         </div>
 
         <div style="margin-bottom:20px">
-          <h4 style="font-size:13px;font-weight:700;color:var(--text-1);margin-bottom:8px">📦 Completed Deliverables &amp; Proofs (${(jobObj.deliverables||[]).length})</h4>
+          <h4 style="font-size:13px;font-weight:700;color:var(--text-1);margin-bottom:8px">📦 Completed Deliverables &amp; Proofs (${(jobObj.deliverables || []).length})</h4>
           ${(jobObj.deliverables && jobObj.deliverables.length) ? `
             <div data-attachments="${delsJson}">
               ${renderAttachmentChips(jobObj.deliverables)}
@@ -819,10 +833,10 @@ async function tabJobs(c){
     };
   });
 
-  document.querySelectorAll('.toggle-status-btn').forEach(b=> b.onclick = async ()=>{
+  document.querySelectorAll('.toggle-status-btn').forEach(b => b.onclick = async () => {
     const id = b.dataset.id;
     const completed = b.dataset.done === 'false';
-    const jobObj = jobs.find(j=> j._id === id);
+    const jobObj = jobs.find(j => j._id === id);
     let completionDate = jobObj ? jobObj.completionDate : null;
     if (completed && !completionDate) {
       completionDate = new Date().toISOString().slice(0, 10);
@@ -831,9 +845,9 @@ async function tabJobs(c){
     flashToast(completed ? 'Job marked as Completed!' : 'Job marked as In Progress');
     renderTab();
   });
-  document.querySelectorAll('.del-job').forEach(b=> b.onclick = async ()=>{
-    if(!confirm('Delete this job?')) return;
-    await apiDelete('/jobs/'+b.dataset.id); flashToast('Deleted'); renderTab();
+  document.querySelectorAll('.del-job').forEach(b => b.onclick = async () => {
+    if (!confirm('Delete this job?')) return;
+    await apiDelete('/jobs/' + b.dataset.id); flashToast('Deleted'); renderTab();
   });
 }
 
@@ -851,10 +865,10 @@ function openEditJobModal(job, onSaveSuccess) {
     preferredPersonId: job.preferredPersonId ? (job.preferredPersonId._id || job.preferredPersonId) : '',
     assignments: (job.assignments && job.assignments.length)
       ? job.assignments.map(a => ({
-          personId: String(a.personId._id || a.personId),
-          percent: a.percent != null ? a.percent : 0,
-          hours: a.hours != null ? a.hours : 0
-        }))
+        personId: String(a.personId._id || a.personId),
+        percent: a.percent != null ? a.percent : 0,
+        hours: a.hours != null ? a.hours : 0
+      }))
       : getDefaultAssignments()
   };
 
@@ -1003,9 +1017,16 @@ function openEditJobModal(job, onSaveSuccess) {
         </div>
       </div>
 
-      <div class="modal-actions" style="margin-top:16px;">
-        <button type="button" class="btn ghost" id="mEditCancel">Cancel</button>
-        <button type="button" class="btn gold" id="mEditSave" style="padding:8px 20px;">Save & Update Assignments</button>
+      <div class="modal-actions" style="margin-top:16px;display:flex;justify-content:space-between;align-items:center;">
+        <div>
+          ${(user?.role === 'superadmin') ? `
+            <button type="button" class="btn danger" id="mEditDeleteJob" style="padding:8px 16px;">🗑️ Delete Job</button>
+          ` : ''}
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button type="button" class="btn ghost" id="mEditCancel">Cancel</button>
+          <button type="button" class="btn gold" id="mEditSave" style="padding:8px 20px;">Save & Update Assignments</button>
+        </div>
       </div>
     </div>
   `);
@@ -1072,6 +1093,22 @@ function openEditJobModal(job, onSaveSuccess) {
   const mCancel = bg.querySelector('#mEditCancel');
   if (mClose) mClose.onclick = () => bg.remove();
   if (mCancel) mCancel.onclick = () => bg.remove();
+
+  const mDeleteJob = bg.querySelector('#mEditDeleteJob');
+  if (mDeleteJob) {
+    mDeleteJob.onclick = async () => {
+      const jobTitle = job.title || 'this job';
+      if (!confirm(`Are you sure you want to delete "${jobTitle}"?\n(It will be safely retained in the database archive.)`)) return;
+      try {
+        await apiDelete('/jobs/' + job._id);
+        flashToast('Job deleted');
+        bg.remove();
+        if (onSaveSuccess) onSaveSuccess();
+      } catch (err) {
+        flashToast(err.message, true);
+      }
+    };
+  }
 
   const mTitle = bg.querySelector('#mEditTitle');
   if (mTitle) mTitle.oninput = e => editDraft.title = e.target.value;
@@ -1186,12 +1223,12 @@ function openEditJobModal(job, onSaveSuccess) {
 }
 
 /* ---------------- BY CLIENT / BY PERSON ---------------- */
-async function tabByClient(c){
+async function tabByClient(c) {
   dash = await apiGet('/dashboard/admin?period=' + ui.period);
   c.innerHTML = `${periodPicker()}
     <section class="block"><h2>By Client</h2>
       <div class="grid grid-3">
-        ${dash.clients.map(cl=>`
+        ${dash.clients.map(cl => `
           <div class="card">
             <h3 style="font-size:17px;">${escapeHtml(cl.name)}</h3>
             <div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span class="muted">Work Value</span><strong>${fmtINR(cl.value)}</strong></div>
@@ -1204,30 +1241,49 @@ async function tabByClient(c){
   bindPeriodPicker();
 }
 
-async function tabByPerson(c){
+async function tabByPerson(c) {
   dash = await apiGet('/dashboard/admin?period=' + ui.period);
+  const isSuperadmin = user?.role === 'superadmin';
   c.innerHTML = `${periodPicker()}
     <section class="block"><h2>By Person</h2>
       <div class="card table-card" style="padding:0;overflow:hidden">
         <div class="table-wrapper">
-          <table><thead><tr><th style="padding-left:22px">Person</th><th>Duties</th><th>Status</th><th class="num">Hours</th><th class="num">Utilization</th><th class="num">Jobs</th><th class="num" style="padding-right:22px">Work Credit</th></tr></thead>
-          <tbody>${dash.personnel.map(b=>{
-            const st = (b.status||'active').toLowerCase();
-            const pId = b.personId || b._id;
-            return `<tr>
-              <td style="padding-left:22px"><strong>${escapeHtml(b.name)}</strong></td><td class="muted">${escapeHtml(b.duties||'')}</td>
+          <table><thead><tr>
+            <th style="padding-left:22px">Person</th>
+            <th>Duties</th>
+            <th>Status</th>
+            <th class="num">Hours</th>
+            <th class="num">Utilization</th>
+            <th class="num">Jobs</th>
+            <th class="num">Work Credit</th>
+            ${isSuperadmin ? `<th class="num" style="padding-right:22px;text-align:right">Actions</th>` : ''}
+          </tr></thead>
+          <tbody>${dash.personnel.map(b => {
+    const st = (b.status || 'active').toLowerCase();
+    const pId = b.personId || b._id;
+    return `<tr>
+              <td style="padding-left:22px"><strong>${escapeHtml(b.name)}</strong></td><td class="muted">${escapeHtml(b.duties || '')}</td>
               <td>
                 <select class="person-status-sel" data-id="${pId}" style="padding:4px 10px;font-size:12.5px;font-weight:700;border-radius:6px;border:1px solid var(--border-sm);background:var(--bg-input);color:var(--text-1);cursor:pointer;">
-                  <option value="active" ${st==='active'?'selected':''}>🟢 Active</option>
-                  <option value="work from home" ${(st==='work from home'||st==='wfh')?'selected':''}>🏠 Work From Home</option>
-                  <option value="on leave" ${(st==='on leave'||st==='pn leave')?'selected':''}>🏖️ On Leave</option>
+                  <option value="active" ${st === 'active' ? 'selected' : ''}>🟢 Active</option>
+                  <option value="work from home" ${(st === 'work from home' || st === 'wfh') ? 'selected' : ''}>🏠 Work From Home</option>
+                  <option value="on leave" ${(st === 'on leave' || st === 'pn leave') ? 'selected' : ''}>🏖️ On Leave</option>
                 </select>
               </td>
               <td class="num">${fmtHours(b.hours)}</td>
               <td class="num"><span class="badge ${b.cls}">${b.label}</span> ${b.utilization.toFixed(0)}%</td>
-              <td class="num">${b.jobCount}</td><td class="num" style="padding-right:22px">${fmtINR(b.revenue)}</td>
+              <td class="num">${b.jobCount}</td>
+              <td class="num">${fmtINR(b.revenue)}</td>
+              ${isSuperadmin ? `
+                <td class="num" style="padding-right:22px;text-align:right;white-space:nowrap">
+                  <div style="display:inline-flex;gap:6px;align-items:center;justify-content:flex-end">
+                    <button class="btn ghost small edit-person-direct" data-id="${pId}" style="padding:3px 8px;font-size:11.5px">Edit</button>
+                    <button class="btn danger small del-person-direct" data-id="${pId}" style="padding:3px 8px;font-size:11.5px">Remove</button>
+                  </div>
+                </td>
+              ` : ''}
             </tr>`;
-          }).join('')}</tbody></table>
+  }).join('')}</tbody></table>
         </div>
       </div>
     </section>`;
@@ -1241,7 +1297,30 @@ async function tabByPerson(c){
         await refreshCache();
         flashToast('Status updated to ' + newStatus);
         tabByPerson(c);
-      } catch(err) {
+      } catch (err) {
+        flashToast(err.message, true);
+      }
+    };
+  });
+
+  document.querySelectorAll('.edit-person-direct').forEach(b => {
+    b.onclick = () => {
+      const p = cache.personnel.find(x => String(x._id) === String(b.dataset.id));
+      if (p) openPersonModal(p);
+    };
+  });
+
+  document.querySelectorAll('.del-person-direct').forEach(b => {
+    b.onclick = async () => {
+      const p = cache.personnel.find(x => String(x._id) === String(b.dataset.id));
+      const pName = p ? p.name : 'this person';
+      if (!confirm(`Are you sure you want to remove ${pName}?\n(They will be safely retained in the database archive.)`)) return;
+      try {
+        await apiDelete('/personnel/' + b.dataset.id);
+        await refreshCache();
+        flashToast(`${pName} removed`);
+        tabByPerson(c);
+      } catch (err) {
         flashToast(err.message, true);
       }
     };
@@ -1249,8 +1328,8 @@ async function tabByPerson(c){
 }
 
 /* ---------------- ACCOUNTS (ROSTER) ---------------- */
-const ROLE_COLUMNS = [['strategy','Strategy'],['cs','CS'],['website','Website'],['design','Design'],['copy','Copy'],['edit','Edit'],['shoot','Shoot'],['seo','SEO'],['smo','SMO'],['qc','QC']];
-async function tabAccounts(c){
+const ROLE_COLUMNS = [['strategy', 'Strategy'], ['cs', 'CS'], ['website', 'Website'], ['design', 'Design'], ['copy', 'Copy'], ['edit', 'Edit'], ['shoot', 'Shoot'], ['seo', 'SEO'], ['smo', 'SMO'], ['qc', 'QC']];
+async function tabAccounts(c) {
   const roster = await apiGet('/roster');
   c.innerHTML = `
     <section class="block">
@@ -1259,69 +1338,69 @@ async function tabAccounts(c){
       <div style="margin-bottom:14px;display:flex;gap:8px;"><button class="btn gold small" id="addAccountBtn">+ Add Account</button></div>
       <div class="card table-card" style="padding:0;overflow:hidden">
         <div class="table-wrapper">
-          <table><thead><tr><th style="padding-left:22px">Client</th><th>Nature</th>${ROLE_COLUMNS.map(c=>`<th>${c[1]}</th>`).join('')}<th class="num">Difficulty</th><th class="num" style="padding-right:22px"></th></tr></thead>
-          <tbody>${roster.map(r=>`<tr>
+          <table><thead><tr><th style="padding-left:22px">Client</th><th>Nature</th>${ROLE_COLUMNS.map(c => `<th>${c[1]}</th>`).join('')}<th class="num">Difficulty</th><th class="num" style="padding-right:22px"></th></tr></thead>
+          <tbody>${roster.map(r => `<tr>
             <td style="padding-left:22px"><strong>${escapeHtml(clientName(r.clientId))}</strong></td>
-            <td><span class="badge ${r.nature==='Existing'?'green':'blue'}">${r.nature}</span></td>
-            ${ROLE_COLUMNS.map(cc=>`<td>${escapeHtml(r.roles[cc[0]]||'—')}</td>`).join('')}
-            <td class="num"><span class="badge ${r.difficulty>=9?'red':r.difficulty>=7?'amber':r.difficulty>=4?'blue':'green'}">${r.difficulty}</span></td>
+            <td><span class="badge ${r.nature === 'Existing' ? 'green' : 'blue'}">${r.nature}</span></td>
+            ${ROLE_COLUMNS.map(cc => `<td>${escapeHtml(r.roles[cc[0]] || '—')}</td>`).join('')}
+            <td class="num"><span class="badge ${r.difficulty >= 9 ? 'red' : r.difficulty >= 7 ? 'amber' : r.difficulty >= 4 ? 'blue' : 'green'}">${r.difficulty}</span></td>
             <td class="num" style="padding-right:22px"><button class="btn ghost small edit-roster" data-id="${r._id}">Edit</button></td>
           </tr>`).join('') || '<tr><td colspan="13"><div class="empty">No accounts yet.</div></td></tr>'}</tbody></table>
         </div>
       </div>
     </section>`;
-  document.getElementById('addAccountBtn').onclick = ()=> openRosterModal(null, roster);
-  document.querySelectorAll('.edit-roster').forEach(b=> b.onclick = ()=> openRosterModal(roster.find(r=>r._id===b.dataset.id)));
+  document.getElementById('addAccountBtn').onclick = () => openRosterModal(null, roster);
+  document.querySelectorAll('.edit-roster').forEach(b => b.onclick = () => openRosterModal(roster.find(r => r._id === b.dataset.id)));
 }
-function openRosterModal(entry){
+function openRosterModal(entry) {
   const isNew = !entry;
-  const r = entry || {_id:null, clientId:'', nature:'Existing', roles:{}, difficulty:5, comments:''};
-  ROLE_COLUMNS.forEach(cc=>{ if(r.roles[cc[0]]==null) r.roles[cc[0]]=''; });
+  const r = entry || { _id: null, clientId: '', nature: 'Existing', roles: {}, difficulty: 5, comments: '' };
+  ROLE_COLUMNS.forEach(cc => { if (r.roles[cc[0]] == null) r.roles[cc[0]] = ''; });
   const bg = openModal(`
-    <h3>${isNew?'Add Account':'Edit Account'}</h3>
+    <h3>${isNew ? 'Add Account' : 'Edit Account'}</h3>
     <div class="field-row">
       <div class="field"><label>Client</label>
-        ${isNew ? `<select id="rClient"><option value="">Select…</option>${cache.clients.map(cl=>`<option value="${cl._id}">${escapeHtml(cl.name)}</option>`).join('')}</select>`
-                : `<input type="text" value="${escapeHtml(clientName(r.clientId))}" disabled>`}
+        ${isNew ? `<select id="rClient"><option value="">Select…</option>${cache.clients.map(cl => `<option value="${cl._id}">${escapeHtml(cl.name)}</option>`).join('')}</select>`
+      : `<input type="text" value="${escapeHtml(clientName(r.clientId))}" disabled>`}
       </div>
-      <div class="field"><label>Nature</label><select id="rNature"><option value="Existing" ${r.nature==='Existing'?'selected':''}>Existing</option><option value="Prospect" ${r.nature==='Prospect'?'selected':''}>Prospect</option></select></div>
+      <div class="field"><label>Nature</label><select id="rNature"><option value="Existing" ${r.nature === 'Existing' ? 'selected' : ''}>Existing</option><option value="Prospect" ${r.nature === 'Prospect' ? 'selected' : ''}>Prospect</option></select></div>
     </div>
-    <div class="field-row">${ROLE_COLUMNS.slice(0,5).map(cc=>`<div class="field"><label>${cc[1]}</label><input type="text" class="r-role" data-key="${cc[0]}" value="${escapeHtml(r.roles[cc[0]])}"></div>`).join('')}</div>
-    <div class="field-row">${ROLE_COLUMNS.slice(5,10).map(cc=>`<div class="field"><label>${cc[1]}</label><input type="text" class="r-role" data-key="${cc[0]}" value="${escapeHtml(r.roles[cc[0]])}"></div>`).join('')}</div>
+    <div class="field-row">${ROLE_COLUMNS.slice(0, 5).map(cc => `<div class="field"><label>${cc[1]}</label><input type="text" class="r-role" data-key="${cc[0]}" value="${escapeHtml(r.roles[cc[0]])}"></div>`).join('')}</div>
+    <div class="field-row">${ROLE_COLUMNS.slice(5, 10).map(cc => `<div class="field"><label>${cc[1]}</label><input type="text" class="r-role" data-key="${cc[0]}" value="${escapeHtml(r.roles[cc[0]])}"></div>`).join('')}</div>
     <div class="field-row">
       <div class="field"><label>Difficulty (1-10)</label><input id="rDifficulty" type="number" min="1" max="10" value="${r.difficulty}"></div>
     </div>
-    <div class="field"><label>Comments</label><textarea id="rComments">${escapeHtml(r.comments||'')}</textarea></div>
+    <div class="field"><label>Comments</label><textarea id="rComments">${escapeHtml(r.comments || '')}</textarea></div>
     <div class="modal-actions">
-      ${!isNew?`<button class="btn danger" id="mDelete" style="margin-right:auto;">Remove</button>`:''}
+      ${!isNew ? `<button class="btn danger" id="mDelete" style="margin-right:auto;">Remove</button>` : ''}
       <button class="btn ghost" id="mCancel">Cancel</button>
       <button class="btn gold" id="mSave">Save</button>
     </div>`);
-  bg.querySelector('#mCancel').onclick = ()=> bg.remove();
-  if(!isNew) bg.querySelector('#mDelete').onclick = async ()=>{ if(!confirm('Remove this account?')) return; await apiDelete('/roster/'+r._id); bg.remove(); renderTab(); };
-  bg.querySelector('#mSave').onclick = async ()=>{
-    const roles = {}; bg.querySelectorAll('.r-role').forEach(inp=> roles[inp.dataset.key]=inp.value.trim());
-    const payload = { nature: bg.querySelector('#rNature').value, roles, difficulty: Number(bg.querySelector('#rDifficulty').value)||1, comments: bg.querySelector('#rComments').value.trim() };
-    try{
-      if(isNew){
+  bg.querySelector('#mCancel').onclick = () => bg.remove();
+  if (!isNew) bg.querySelector('#mDelete').onclick = async () => { if (!confirm('Remove this account?')) return; await apiDelete('/roster/' + r._id); bg.remove(); renderTab(); };
+  bg.querySelector('#mSave').onclick = async () => {
+    const roles = {}; bg.querySelectorAll('.r-role').forEach(inp => roles[inp.dataset.key] = inp.value.trim());
+    const payload = { nature: bg.querySelector('#rNature').value, roles, difficulty: Number(bg.querySelector('#rDifficulty').value) || 1, comments: bg.querySelector('#rComments').value.trim() };
+    try {
+      if (isNew) {
         const clientId = bg.querySelector('#rClient').value;
-        if(!clientId){ flashToast('Select a client', true); return; }
-        await apiPost('/roster', Object.assign({clientId}, payload));
-      } else { await apiPut('/roster/'+r._id, payload); }
+        if (!clientId) { flashToast('Select a client', true); return; }
+        await apiPost('/roster', Object.assign({ clientId }, payload));
+      } else { await apiPut('/roster/' + r._id, payload); }
       bg.remove(); renderTab();
-    }catch(err){ flashToast(err.message, true); }
+    } catch (err) { flashToast(err.message, true); }
   };
 }
 
 /* ---------------- TARGETS ---------------- */
-function formatTargetUnit(u){
+function formatTargetUnit(u) {
   if (!u) return 'Deliverables';
   const unitNames = { count: 'Deliverables', hours: 'Hours', reels: 'Reels', stories: 'Stories', posts: 'Posts' };
   if (unitNames[u]) return unitNames[u];
   return u.charAt(0).toUpperCase() + u.slice(1);
 }
 
-async function tabTargets(c){
+async function tabTargets(c) {
   const targets = await apiGet('/targets');
   const periodNames = { day: 'Daily', week: 'Weekly', month: 'Monthly' };
 
@@ -1351,18 +1430,18 @@ async function tabTargets(c){
             </thead>
             <tbody>
               ${targets.map(t => {
-                const pName = t.personId?.name || '—';
-                const sName = t.serviceId?.name || '—';
-                const unitLabel = formatTargetUnit(t.unit);
-                const freqLabel = periodNames[t.period] || (t.period ? t.period.toUpperCase() : 'Daily');
-                const actual = t.actual || 0;
-                const ratio = t.quantity > 0 ? (actual / t.quantity) : 0;
-                const pct = Math.round(ratio * 100);
-                const paceCls = ratio >= 1.0 ? 'green' : (ratio >= 0.6 ? 'amber' : 'red');
-                const paceLbl = ratio >= 1.0 ? '✓ Met' : (ratio >= 0.6 ? 'Behind' : 'Off Pace');
-                const barWidth = Math.min(pct, 100);
+    const pName = t.personId?.name || '—';
+    const sName = t.serviceId?.name || '—';
+    const unitLabel = formatTargetUnit(t.unit);
+    const freqLabel = periodNames[t.period] || (t.period ? t.period.toUpperCase() : 'Daily');
+    const actual = t.actual || 0;
+    const ratio = t.quantity > 0 ? (actual / t.quantity) : 0;
+    const pct = Math.round(ratio * 100);
+    const paceCls = ratio >= 1.0 ? 'green' : (ratio >= 0.6 ? 'amber' : 'red');
+    const paceLbl = ratio >= 1.0 ? '✓ Met' : (ratio >= 0.6 ? 'Behind' : 'Off Pace');
+    const barWidth = Math.min(pct, 100);
 
-                return `
+    return `
                 <tr>
                   <td style="padding-left:22px"><strong>${escapeHtml(pName)}</strong></td>
                   <td><span class="badge blue" style="white-space:normal;line-height:1.3;display:inline-block;padding:4px 8px;font-size:12px">${escapeHtml(sName)}</span></td>
@@ -1376,7 +1455,7 @@ async function tabTargets(c){
                         <span class="badge ${paceCls}" style="font-size:10px;padding:1px 5px">${paceLbl}</span>
                       </div>
                       <div style="height:5px;width:100%;background:var(--bg-surface);border-radius:10px;overflow:hidden;border:1px solid var(--border-xs)">
-                        <div style="width:${barWidth}%;height:100%;background:var(--${paceCls==='green'?'green':'amber'}-500);border-radius:10px;transition:width 0.6s ease"></div>
+                        <div style="width:${barWidth}%;height:100%;background:var(--${paceCls === 'green' ? 'green' : 'amber'}-500);border-radius:10px;transition:width 0.6s ease"></div>
                       </div>
                     </div>
                   </td>
@@ -1387,7 +1466,7 @@ async function tabTargets(c){
                     </div>
                   </td>
                 </tr>`;
-              }).join('') || '<tr><td colspan="7"><div class="empty" style="padding:32px 20px">No targets defined yet. Click "+ Add Target" to assign output quotas.</div></td></tr>'}
+  }).join('') || '<tr><td colspan="7"><div class="empty" style="padding:32px 20px">No targets defined yet. Click "+ Add Target" to assign output quotas.</div></td></tr>'}
             </tbody>
           </table>
         </div>
@@ -1411,7 +1490,7 @@ async function tabTargets(c){
   });
 }
 
-function openTargetModal(t){
+function openTargetModal(t) {
   const isNew = !t;
   t = t || { personId: cache.personnel[0]?._id, serviceId: cache.services[0]?._id, quantity: 5, unit: 'reels', period: 'day' };
   const currentPId = t.personId?._id || t.personId || '';
@@ -1426,14 +1505,14 @@ function openTargetModal(t){
     <div class="field" style="margin-bottom:12px">
       <label>Personnel Member *</label>
       <select id="mTgtPerson">
-        ${cache.personnel.map(p => `<option value="${p._id}" ${String(p._id)===String(currentPId)?'selected':''}>${escapeHtml(p.name)}</option>`).join('')}
+        ${cache.personnel.map(p => `<option value="${p._id}" ${String(p._id) === String(currentPId) ? 'selected' : ''}>${escapeHtml(p.name)}</option>`).join('')}
       </select>
     </div>
 
     <div class="field" style="margin-bottom:12px">
       <label>Service / Deliverable Type *</label>
       <select id="mTgtService">
-        ${cache.services.map(s => `<option value="${s._id}" ${String(s._id)===String(currentSId)?'selected':''}>${escapeHtml(s.name)}</option>`).join('')}
+        ${cache.services.map(s => `<option value="${s._id}" ${String(s._id) === String(currentSId) ? 'selected' : ''}>${escapeHtml(s.name)}</option>`).join('')}
       </select>
     </div>
 
@@ -1445,11 +1524,11 @@ function openTargetModal(t){
       <div class="field" style="margin-bottom:0">
         <label>Measured In *</label>
         <select id="mTgtUnit">
-          <option value="reels" ${isStd && t.unit==='reels'?'selected':''}>🎬 Reels</option>
-          <option value="stories" ${isStd && t.unit==='stories'?'selected':''}>📱 Stories</option>
-          <option value="posts" ${isStd && t.unit==='posts'?'selected':''}>🖼️ Posts</option>
-          <option value="count" ${isStd && t.unit==='count'?'selected':''}>📦 Deliverables / Jobs Count</option>
-          <option value="hours" ${isStd && t.unit==='hours'?'selected':''}>⏱️ Hours Spent</option>
+          <option value="reels" ${isStd && t.unit === 'reels' ? 'selected' : ''}>🎬 Reels</option>
+          <option value="stories" ${isStd && t.unit === 'stories' ? 'selected' : ''}>📱 Stories</option>
+          <option value="posts" ${isStd && t.unit === 'posts' ? 'selected' : ''}>🖼️ Posts</option>
+          <option value="count" ${isStd && t.unit === 'count' ? 'selected' : ''}>📦 Deliverables / Jobs Count</option>
+          <option value="hours" ${isStd && t.unit === 'hours' ? 'selected' : ''}>⏱️ Hours Spent</option>
           <option value="custom" ${!isStd ? 'selected' : ''}>✏️ Custom / Add Your Own…</option>
         </select>
       </div>
@@ -1463,9 +1542,9 @@ function openTargetModal(t){
     <div class="field" style="margin-bottom:16px">
       <label>Target Frequency / Period *</label>
       <select id="mTgtPeriod">
-        <option value="day" ${t.period==='day'?'selected':''}>Per Day</option>
-        <option value="week" ${t.period==='week'?'selected':''}>Per Week</option>
-        <option value="month" ${t.period==='month'?'selected':''}>Per Month</option>
+        <option value="day" ${t.period === 'day' ? 'selected' : ''}>Per Day</option>
+        <option value="week" ${t.period === 'week' ? 'selected' : ''}>Per Week</option>
+        <option value="month" ${t.period === 'month' ? 'selected' : ''}>Per Month</option>
       </select>
     </div>
 
@@ -1527,48 +1606,48 @@ function openTargetModal(t){
 }
 
 /* ---------------- SALARIES ---------------- */
-async function tabSalaries(c){
+async function tabSalaries(c) {
   const [grades, assignments] = await Promise.all([apiGet('/salary/grades'), apiGet('/salary/assignments')]);
   cache.salaryGrades = grades; cache.salaryAssignments = assignments;
-  const assignMap = {}; assignments.forEach(a=> assignMap[a.personId] = a.gradeId);
+  const assignMap = {}; assignments.forEach(a => assignMap[a.personId] = a.gradeId);
   c.innerHTML = `
     <section class="block">
       <h2>Salary Grades <span class="eyebrow">Admin only</span></h2>
       <div class="banner">No individual's exact salary is ever entered — each person is placed in a grade band, and only the grade label appears anywhere else in the tool.</div>
-      <div class="manage-list">${grades.map(g=>`<div class="manage-item"><div><strong>${escapeHtml(g.label)}</strong><div class="muted">${fmtINR(g.min)} – ${fmtINR(g.max)} / month</div></div>
+      <div class="manage-list">${grades.map(g => `<div class="manage-item"><div><strong>${escapeHtml(g.label)}</strong><div class="muted">${fmtINR(g.min)} – ${fmtINR(g.max)} / month</div></div>
         <div><button class="btn ghost small edit-grade" data-id="${g._id}">Edit</button><button class="btn danger small del-grade" data-id="${g._id}">Remove</button></div></div>`).join('') || '<div style="padding:14px;">No grades yet.</div>'}</div>
       <div style="margin:10px 0 24px;"><button class="btn ghost small" id="addGradeBtn">+ Add Grade</button></div>
       <h3 style="font-size:15px;margin-bottom:8px;">Assign Grades</h3>
       <div class="card"><table><thead><tr><th>Person</th><th>Status</th><th class="num">Grade</th></tr></thead>
-      <tbody>${cache.personnel.map(p=>`<tr><td><strong>${escapeHtml(p.name)}</strong><div class="muted">${escapeHtml(p.duties||'')}</div></td>
+      <tbody>${cache.personnel.map(p => `<tr><td><strong>${escapeHtml(p.name)}</strong><div class="muted">${escapeHtml(p.duties || '')}</div></td>
         <td><span class="badge green">${p.status}</span></td>
-        <td class="num"><select class="grade-select" data-id="${p._id}"><option value="">Not set</option>${grades.map(g=>`<option value="${g._id}" ${assignMap[p._id]===g._id?'selected':''}>${escapeHtml(g.label)}</option>`).join('')}</select></td>
+        <td class="num"><select class="grade-select" data-id="${p._id}"><option value="">Not set</option>${grades.map(g => `<option value="${g._id}" ${assignMap[p._id] === g._id ? 'selected' : ''}>${escapeHtml(g.label)}</option>`).join('')}</select></td>
       </tr>`).join('')}</tbody></table></div>
     </section>`;
-  document.getElementById('addGradeBtn').onclick = ()=> openGradeModal(null);
-  document.querySelectorAll('.edit-grade').forEach(b=> b.onclick = ()=> openGradeModal(grades.find(g=>g._id===b.dataset.id)));
-  document.querySelectorAll('.del-grade').forEach(b=> b.onclick = async ()=>{ if(!confirm('Remove grade?')) return; await apiDelete('/salary/grades/'+b.dataset.id); renderTab(); });
-  document.querySelectorAll('.grade-select').forEach(sel=>{
-    sel.onchange = async ()=>{ await apiPut('/salary/assignments/'+sel.dataset.id, {gradeId: sel.value||null}); flashToast('Saved'); };
+  document.getElementById('addGradeBtn').onclick = () => openGradeModal(null);
+  document.querySelectorAll('.edit-grade').forEach(b => b.onclick = () => openGradeModal(grades.find(g => g._id === b.dataset.id)));
+  document.querySelectorAll('.del-grade').forEach(b => b.onclick = async () => { if (!confirm('Remove grade?')) return; await apiDelete('/salary/grades/' + b.dataset.id); renderTab(); });
+  document.querySelectorAll('.grade-select').forEach(sel => {
+    sel.onchange = async () => { await apiPut('/salary/assignments/' + sel.dataset.id, { gradeId: sel.value || null }); flashToast('Saved'); };
   });
 }
-function openGradeModal(g){
-  const isNew = !g; g = g || {label:'',min:0,max:0};
-  const bg = openModal(`<h3>${isNew?'Add':'Edit'} Grade</h3>
+function openGradeModal(g) {
+  const isNew = !g; g = g || { label: '', min: 0, max: 0 };
+  const bg = openModal(`<h3>${isNew ? 'Add' : 'Edit'} Grade</h3>
     <div class="field"><label>Label</label><input id="gLabel" type="text" value="${escapeHtml(g.label)}"></div>
     <div class="field-row"><div class="field"><label>Range Start (₹)</label><input id="gMin" type="number" value="${g.min}"></div><div class="field"><label>Range End (₹)</label><input id="gMax" type="number" value="${g.max}"></div></div>
     <div class="modal-actions"><button class="btn ghost" id="mCancel">Cancel</button><button class="btn gold" id="mSave">Save</button></div>`);
-  bg.querySelector('#mCancel').onclick = ()=> bg.remove();
-  bg.querySelector('#mSave').onclick = async ()=>{
-    const payload = { label: bg.querySelector('#gLabel').value.trim(), min: Number(bg.querySelector('#gMin').value)||0, max: Number(bg.querySelector('#gMax').value)||0 };
-    if(!payload.label){ flashToast('Label required', true); return; }
-    try{ if(isNew) await apiPost('/salary/grades', payload); else await apiPut('/salary/grades/'+g._id, payload); bg.remove(); renderTab(); }
-    catch(err){ flashToast(err.message, true); }
+  bg.querySelector('#mCancel').onclick = () => bg.remove();
+  bg.querySelector('#mSave').onclick = async () => {
+    const payload = { label: bg.querySelector('#gLabel').value.trim(), min: Number(bg.querySelector('#gMin').value) || 0, max: Number(bg.querySelector('#gMax').value) || 0 };
+    if (!payload.label) { flashToast('Label required', true); return; }
+    try { if (isNew) await apiPost('/salary/grades', payload); else await apiPut('/salary/grades/' + g._id, payload); bg.remove(); renderTab(); }
+    catch (err) { flashToast(err.message, true); }
   };
 }
 
 /* ---------------- MANAGE (Personnel / Clients / Services) ---------------- */
-function tabManage(c){
+function tabManage(c) {
   const statusBadgeMap = {
     'active': 'green',
     'work from home': 'blue',
@@ -1582,9 +1661,9 @@ function tabManage(c){
       <!-- Admin Account Settings Card -->
       <div style="margin-bottom:24px;">
         ${renderAccountSettingsCard({
-          title: 'My Administrator Credentials',
-          subtitle: 'Manage your personal login email, display name, and password'
-        })}
+    title: 'My Administrator Credentials',
+    subtitle: 'Manage your personal login email, display name, and password'
+  })}
       </div>
 
       <!-- Personnel Section -->
@@ -1700,12 +1779,12 @@ function tabManage(c){
   if (addPBtn) addPBtn.onclick = () => openPersonModal(null);
   document.querySelectorAll('.edit-person').forEach(b => b.onclick = () => openPersonModal(cache.personnel.find(p => p._id === b.dataset.id)));
   document.querySelectorAll('.del-person').forEach(b => b.onclick = async () => { if (!confirm('Remove this person?')) return; await apiDelete('/personnel/' + b.dataset.id); await refreshCache(); renderTab(); });
-  
+
   const addCBtn = document.getElementById('addClientBtn');
   if (addCBtn) addCBtn.onclick = () => openClientModal(null);
   document.querySelectorAll('.edit-client').forEach(b => b.onclick = () => openClientModal(cache.clients.find(cl => cl._id === b.dataset.id)));
   document.querySelectorAll('.del-client').forEach(b => b.onclick = async () => { if (!confirm('Remove this client?')) return; await apiDelete('/clients/' + b.dataset.id); await refreshCache(); renderTab(); });
-  
+
   const addSBtn = document.getElementById('addServiceBtn');
   if (addSBtn) addSBtn.onclick = () => openServiceModal(null);
   document.querySelectorAll('.edit-service').forEach(b => b.onclick = () => openServiceModal(cache.services.find(s => s._id === b.dataset.id)));
@@ -1717,19 +1796,19 @@ function tabManage(c){
 
 const tabSettings = tabManage;
 
-function openPersonModal(p){
-  const isNew = !p; p = p || {name:'',duties:'',capacity:48,status:'active',attachments:[]};
+function openPersonModal(p) {
+  const isNew = !p; p = p || { name: '', duties: '', capacity: 48, status: 'active', attachments: [] };
   const bg = openModal(`
-    <h3>${isNew?'Add New':'Edit'} Person</h3>
+    <h3>${isNew ? 'Add New' : 'Edit'} Person</h3>
     <div class="field"><label>Full Name *</label><input id="mName" type="text" value="${escapeHtml(p.name)}" placeholder="e.g. Shatayu Verma"></div>
     <div class="field"><label>Duties / Role</label><input id="mDuties" type="text" value="${escapeHtml(p.duties)}" placeholder="e.g. Lead Designer / Frontend"></div>
     <div class="log-job-row" style="margin-bottom:16px;">
-      <div class="field" style="margin-bottom:0;"><label>Weekly Capacity (hrs)</label><input id="mCapacity" type="number" value="${p.capacity||48}"></div>
+      <div class="field" style="margin-bottom:0;"><label>Weekly Capacity (hrs)</label><input id="mCapacity" type="number" value="${p.capacity || 48}"></div>
       <div class="field" style="margin-bottom:0;"><label>Status</label><select id="mStatus">
-        <option value="active" ${p.status==='active'?'selected':''}>Active</option>
-        <option value="work from home" ${(p.status==='work from home'||p.status==='wfh')?'selected':''}>Work From Home</option>
-        <option value="on leave" ${(p.status==='on leave'||p.status==='pn leave')?'selected':''}>On Leave</option>
-        <option value="inactive" ${p.status==='inactive'?'selected':''}>Inactive</option>
+        <option value="active" ${p.status === 'active' ? 'selected' : ''}>Active</option>
+        <option value="work from home" ${(p.status === 'work from home' || p.status === 'wfh') ? 'selected' : ''}>Work From Home</option>
+        <option value="on leave" ${(p.status === 'on leave' || p.status === 'pn leave') ? 'selected' : ''}>On Leave</option>
+        <option value="inactive" ${p.status === 'inactive' ? 'selected' : ''}>Inactive</option>
       </select></div>
     </div>
     <div style="margin-bottom:16px;">
@@ -1745,29 +1824,29 @@ function openPersonModal(p){
     const payload = {
       name: bg.querySelector('#mName').value.trim(),
       duties: bg.querySelector('#mDuties').value.trim(),
-      capacity: Number(bg.querySelector('#mCapacity').value)||48,
+      capacity: Number(bg.querySelector('#mCapacity').value) || 48,
       status: bg.querySelector('#mStatus').value,
       attachments
     };
-    if(!payload.name){ flashToast('Name is required', true); return; }
-    try{
-      if(isNew) await apiPost('/personnel', payload);
-      else await apiPut('/personnel/'+p._id, payload);
+    if (!payload.name) { flashToast('Name is required', true); return; }
+    try {
+      if (isNew) await apiPost('/personnel', payload);
+      else await apiPut('/personnel/' + p._id, payload);
       await refreshCache();
       flashToast('Person saved! 📁');
       bg.remove();
       renderTab();
     }
-    catch(err){ flashToast(err.message, true); }
+    catch (err) { flashToast(err.message, true); }
   };
 }
 
-function openClientModal(cl){
-  const isNew = !cl; cl = cl || {name:'',notes:'',attachments:[]};
+function openClientModal(cl) {
+  const isNew = !cl; cl = cl || { name: '', notes: '', attachments: [] };
   const bg = openModal(`
-    <h3>${isNew?'Add New':'Edit'} Client</h3>
+    <h3>${isNew ? 'Add New' : 'Edit'} Client</h3>
     <div class="field"><label>Client Name *</label><input id="mCName" type="text" value="${escapeHtml(cl.name)}" placeholder="e.g. Network 18"></div>
-    <div class="field"><label>Notes / Contract Details</label><textarea id="mCNotes" placeholder="Client specific notes, contact terms...">${escapeHtml(cl.notes||'')}</textarea></div>
+    <div class="field"><label>Notes / Contract Details</label><textarea id="mCNotes" placeholder="Client specific notes, contact terms...">${escapeHtml(cl.notes || '')}</textarea></div>
     <div style="margin-bottom:16px;">
       ${renderAttachmentUploader({ id: 'mClientFiles', label: 'Brand Assets & Agreements', subtitle: 'Upload brand guidelines, contracts, briefs or logos' })}
     </div>
@@ -1783,51 +1862,51 @@ function openClientModal(cl){
       notes: bg.querySelector('#mCNotes').value.trim(),
       attachments
     };
-    if(!payload.name){ flashToast('Name is required', true); return; }
-    try{
-      if(isNew) await apiPost('/clients', payload);
-      else await apiPut('/clients/'+cl._id, payload);
+    if (!payload.name) { flashToast('Name is required', true); return; }
+    try {
+      if (isNew) await apiPost('/clients', payload);
+      else await apiPut('/clients/' + cl._id, payload);
       await refreshCache();
       flashToast('Client saved! 📁');
       bg.remove();
       renderTab();
     }
-    catch(err){ flashToast(err.message, true); }
+    catch (err) { flashToast(err.message, true); }
   };
 }
 
-function openServiceModal(s){
-  const isNew = !s; s = s || {name:'',hours:4};
+function openServiceModal(s) {
+  const isNew = !s; s = s || { name: '', hours: 4 };
   const bg = openModal(`
-    <h3>${isNew?'Add New':'Edit'} Service</h3>
+    <h3>${isNew ? 'Add New' : 'Edit'} Service</h3>
     <div class="field"><label>Service Name *</label><input id="mSName" type="text" value="${escapeHtml(s.name)}" placeholder="e.g. UI/UX Design"></div>
-    <div class="field"><label>Reference Effort (hrs)</label><input id="mSHours" type="number" value="${s.hours||4}" min="0"></div>
+    <div class="field"><label>Reference Effort (hrs)</label><input id="mSHours" type="number" value="${s.hours || 4}" min="0"></div>
     <div class="modal-actions"><button class="btn ghost" id="mCancel">Cancel</button><button class="btn gold" id="mSave">Save Service</button></div>
   `);
   bg.querySelector('#mCancel').onclick = () => bg.remove();
   bg.querySelector('#mSave').onclick = async () => {
-    const payload = { name: bg.querySelector('#mSName').value.trim(), hours: Number(bg.querySelector('#mSHours').value)||0 };
-    if(!payload.name){ flashToast('Name is required', true); return; }
-    try{ if(isNew) await apiPost('/services', payload); else await apiPut('/services/'+s._id, payload); await refreshCache(); bg.remove(); renderTab(); }
-    catch(err){ flashToast(err.message, true); }
+    const payload = { name: bg.querySelector('#mSName').value.trim(), hours: Number(bg.querySelector('#mSHours').value) || 0 };
+    if (!payload.name) { flashToast('Name is required', true); return; }
+    try { if (isNew) await apiPost('/services', payload); else await apiPut('/services/' + s._id, payload); await refreshCache(); bg.remove(); renderTab(); }
+    catch (err) { flashToast(err.message, true); }
   };
 }
 
 /* ---------------- USERS (login accounts) ---------------- */
-async function tabUsers(c){
+async function tabUsers(c) {
   const users = await apiGet('/users');
   let currentRoleFilter = 'all';
   let currentSort = 'role';
   let searchQuery = '';
 
-  function renderUserTable(){
+  function renderUserTable() {
     let list = [...users];
 
     // Search filter
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
-      list = list.filter(u => 
-        (u.name && u.name.toLowerCase().includes(q)) || 
+      list = list.filter(u =>
+        (u.name && u.name.toLowerCase().includes(q)) ||
         (u.email && u.email.toLowerCase().includes(q)) ||
         (u.role && u.role.toLowerCase().includes(q))
       );
@@ -1881,16 +1960,16 @@ async function tabUsers(c){
       const isAdm = u.role === 'admin';
       const isAcc = u.role === 'accounts';
       const isEmp = u.role === 'employee';
-      const roleBadge = isSuper 
-        ? `<span class="badge gold" style="font-weight:700">👑 Superadmin</span>` 
+      const roleBadge = isSuper
+        ? `<span class="badge gold" style="font-weight:700">👑 Superadmin</span>`
         : (isAdm
-            ? `<span class="badge gold" style="font-weight:700">🛡️ Admin</span>`
-            : (isAcc 
-                ? `<span class="badge amber" style="font-weight:700">💳 Accounts</span>` 
-                : (isEmp 
-                    ? `<span class="badge blue" style="font-weight:700">💼 Employee</span>` 
-                    : `<span class="badge green" style="font-weight:700">🤝 Client</span>`)));
-      
+          ? `<span class="badge gold" style="font-weight:700">🛡️ Admin</span>`
+          : (isAcc
+            ? `<span class="badge amber" style="font-weight:700">💳 Accounts</span>`
+            : (isEmp
+              ? `<span class="badge blue" style="font-weight:700">💼 Employee</span>`
+              : `<span class="badge green" style="font-weight:700">🤝 Client</span>`)));
+
       const linked = u.personnelId ? escapeHtml(u.personnelId.name) : (u.clientId ? escapeHtml(u.clientId.name) : '<span class="muted">—</span>');
 
       return `
@@ -1901,15 +1980,29 @@ async function tabUsers(c){
           <td><span style="color:var(--text-2);font-size:13px">${escapeHtml(u.email)}</span></td>
           <td>${roleBadge}</td>
           <td>${linked}</td>
-          <td><span class="badge ${u.active?'green':'gray'}">${u.active?'🟢 Active':'⚪ Disabled'}</span></td>
+          <td><span class="badge ${u.active ? 'green' : 'gray'}">${u.active ? '🟢 Active' : '⚪ Disabled'}</span></td>
           <td class="num" style="padding-right:22px;text-align:right;white-space:nowrap">
             <div style="display:inline-flex;gap:6px;align-items:center;justify-content:flex-end">
+              <button class="btn ghost small reset-pw-user" data-id="${u._id}" style="padding:4px 8px;font-size:11.5px" title="Change Password">🔑 Password</button>
               <button class="btn ghost small edit-user" data-id="${u._id}" style="padding:4px 8px;font-size:11.5px">Edit</button>
               <button class="btn danger small del-user" data-id="${u._id}" style="padding:4px 8px;font-size:11.5px">Remove</button>
             </div>
           </td>
         </tr>`;
     }).join('');
+
+    tbody.querySelectorAll('.reset-pw-user').forEach(b => {
+      b.onclick = async () => {
+        const u = users.find(x => x._id === b.dataset.id);
+        if (!u) return;
+        const newPw = prompt(`Enter new password for ${u.name} (${u.email}):`);
+        if (!newPw || !newPw.trim()) return;
+        try {
+          await apiPut('/users/' + u._id, { password: newPw.trim() });
+          flashToast(`Password successfully changed for ${u.name}! 🔑`);
+        } catch (err) { flashToast(err.message, true); }
+      };
+    });
 
     tbody.querySelectorAll('.edit-user').forEach(b => b.onclick = () => openUserModal(users.find(u => u._id === b.dataset.id)));
     tbody.querySelectorAll('.del-user').forEach(b => b.onclick = async () => {
@@ -1923,9 +2016,9 @@ async function tabUsers(c){
   }
 
   const adminCount = users.filter(u => u.role === 'superadmin' || u.role === 'admin').length;
-  const accCount   = users.filter(u => u.role === 'accounts').length;
-  const empCount   = users.filter(u => u.role === 'employee').length;
-  const clientCount= users.filter(u => u.role === 'client').length;
+  const accCount = users.filter(u => u.role === 'accounts').length;
+  const empCount = users.filter(u => u.role === 'employee').length;
+  const clientCount = users.filter(u => u.role === 'client').length;
 
   c.innerHTML = `
     <section class="block">
@@ -2018,50 +2111,51 @@ async function tabUsers(c){
   if (addBtn) addBtn.onclick = () => openUserModal(null);
 }
 
-function openUserModal(u){
-  const isNew = !u; u = u || {name:'',email:'',role:'employee',personnelId:'',clientId:'',active:true};
+function openUserModal(u) {
+  const isNew = !u; u = u || { name: '', email: '', role: 'employee', personnelId: '', clientId: '', active: true };
   const role0 = u.role;
-  const bg = openModal(`<h3>${isNew?'Add':'Edit'} User</h3>
+  const bg = openModal(`<h3>${isNew ? 'Add' : 'Edit'} User</h3>
     <div class="field-row">
       <div class="field"><label>Name</label><input id="uName" type="text" value="${escapeHtml(u.name)}"></div>
       <div class="field"><label>Email</label><input id="uEmail" type="email" value="${escapeHtml(u.email)}"></div>
     </div>
     <div class="field-row">
       <div class="field"><label>Role</label><select id="uRole">
-        <option value="admin" ${role0==='admin'||role0==='superadmin'?'selected':''}>Admin</option>
-        <option value="accounts" ${role0==='accounts'?'selected':''}>Accounts & Finance</option>
-        <option value="employee" ${role0==='employee'?'selected':''}>Employee</option>
-        <option value="client" ${role0==='client'?'selected':''}>Client</option></select></div>
-      <div class="field"><label>Password ${isNew?'':'(leave blank to keep current)'}</label><input id="uPassword" type="password"></div>
+        <option value="superadmin" ${role0 === 'superadmin' ? 'selected' : ''}>👑 Superadmin</option>
+        <option value="admin" ${role0 === 'admin' ? 'selected' : ''}>🛡️ Admin</option>
+        <option value="accounts" ${role0 === 'accounts' ? 'selected' : ''}>💳 Accounts & Finance</option>
+        <option value="employee" ${role0 === 'employee' ? 'selected' : ''}>💼 Employee</option>
+        <option value="client" ${role0 === 'client' ? 'selected' : ''}>🤝 Client</option></select></div>
+      <div class="field"><label>Password ${isNew ? '*' : '(leave blank to keep current)'}</label><input id="uPassword" type="text" placeholder="${isNew ? 'Set initial password' : 'Enter new password to change'}" autocomplete="off"></div>
     </div>
     <div class="field" id="uLinkWrap"></div>
-    <div class="field"><label><input type="checkbox" id="uActive" ${u.active?'checked':''}> Active</label></div>
+    <div class="field"><label><input type="checkbox" id="uActive" ${u.active ? 'checked' : ''}> Active</label></div>
     <div class="modal-actions"><button class="btn ghost" id="mCancel">Cancel</button><button class="btn gold" id="mSave">Save</button></div>`);
-  function renderLink(){
+  function renderLink() {
     const role = bg.querySelector('#uRole').value;
     const wrap = bg.querySelector('#uLinkWrap');
-    if(role==='employee'){
-      wrap.innerHTML = `<label>Linked Personnel</label><select id="uPersonnel"><option value="">Select…</option>${cache.personnel.map(p=>`<option value="${p._id}" ${u.personnelId && (u.personnelId._id||u.personnelId)===p._id?'selected':''}>${escapeHtml(p.name)}</option>`).join('')}</select>`;
-    } else if(role==='client'){
-      wrap.innerHTML = `<label>Linked Client</label><select id="uClient"><option value="">Select…</option>${cache.clients.map(c=>`<option value="${c._id}" ${u.clientId && (u.clientId._id||u.clientId)===c._id?'selected':''}>${escapeHtml(c.name)}</option>`).join('')}</select>`;
+    if (role === 'employee') {
+      wrap.innerHTML = `<label>Linked Personnel</label><select id="uPersonnel"><option value="">Select…</option>${cache.personnel.map(p => `<option value="${p._id}" ${u.personnelId && (u.personnelId._id || u.personnelId) === p._id ? 'selected' : ''}>${escapeHtml(p.name)}</option>`).join('')}</select>`;
+    } else if (role === 'client') {
+      wrap.innerHTML = `<label>Linked Client</label><select id="uClient"><option value="">Select…</option>${cache.clients.map(c => `<option value="${c._id}" ${u.clientId && (u.clientId._id || u.clientId) === c._id ? 'selected' : ''}>${escapeHtml(c.name)}</option>`).join('')}</select>`;
     } else { wrap.innerHTML = ''; }
   }
   bg.querySelector('#uRole').onchange = renderLink; renderLink();
-  bg.querySelector('#mCancel').onclick = ()=> bg.remove();
-  bg.querySelector('#mSave').onclick = async ()=>{
+  bg.querySelector('#mCancel').onclick = () => bg.remove();
+  bg.querySelector('#mSave').onclick = async () => {
     const role = bg.querySelector('#uRole').value;
     const payload = {
       name: bg.querySelector('#uName').value.trim(), email: bg.querySelector('#uEmail').value.trim(), role,
       active: bg.querySelector('#uActive').checked,
-      personnelId: role==='employee' ? (bg.querySelector('#uPersonnel')?.value || null) : null,
-      clientId: role==='client' ? (bg.querySelector('#uClient')?.value || null) : null,
+      personnelId: role === 'employee' ? (bg.querySelector('#uPersonnel')?.value || null) : null,
+      clientId: role === 'client' ? (bg.querySelector('#uClient')?.value || null) : null,
     };
     const pw = bg.querySelector('#uPassword').value;
-    if(pw) payload.password = pw;
-    if(!payload.name || !payload.email){ flashToast('Name and email required', true); return; }
-    if(isNew && !pw){ flashToast('Password required for a new user', true); return; }
-    try{ if(isNew) await apiPost('/users', payload); else await apiPut('/users/'+u._id, payload); bg.remove(); renderTab(); }
-    catch(err){ flashToast(err.message, true); }
+    if (pw) payload.password = pw;
+    if (!payload.name || !payload.email) { flashToast('Name and email required', true); return; }
+    if (isNew && !pw) { flashToast('Password required for a new user', true); return; }
+    try { if (isNew) await apiPost('/users', payload); else await apiPut('/users/' + u._id, payload); bg.remove(); renderTab(); }
+    catch (err) { flashToast(err.message, true); }
   };
 }
 
@@ -2100,7 +2194,7 @@ async function tabDailyTasks(c) {
   return;
 
   const today = new Date();
-  const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+  const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
   const activeDate = adminTaskUi.date; // YYYY-MM-DD or 'all'
 
   // Filter by date
@@ -2268,9 +2362,9 @@ async function tabDailyTasks(c) {
         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
           <!-- Left: Filter Chips -->
           <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
-            <button class="pchip ${adminTaskUi.filter==='all'?'active':''}" data-atf="all">All (${totalTasks})</button>
-            <button class="pchip ${adminTaskUi.filter==='active'?'active':''}" data-atf="active">Pending (${pendingTasks})</button>
-            <button class="pchip ${adminTaskUi.filter==='completed'?'active':''}" data-atf="completed">✓ Completed (${completedTasks})</button>
+            <button class="pchip ${adminTaskUi.filter === 'all' ? 'active' : ''}" data-atf="all">All (${totalTasks})</button>
+            <button class="pchip ${adminTaskUi.filter === 'active' ? 'active' : ''}" data-atf="active">Pending (${pendingTasks})</button>
+            <button class="pchip ${adminTaskUi.filter === 'completed' ? 'active' : ''}" data-atf="completed">✓ Completed (${completedTasks})</button>
           </div>
 
           <!-- Right: Employee Picker & Search -->
@@ -2278,9 +2372,9 @@ async function tabDailyTasks(c) {
             <div style="display:flex;align-items:center;gap:6px">
               <span style="font-size:12px;font-weight:700;color:var(--text-3)">Employee:</span>
               <select id="admTaskPersonFilter" style="font-size:12.5px;padding:6px 12px;border:1px solid var(--border-sm);border-radius:var(--r-md);background:var(--bg-surface);color:var(--text-1);outline:none">
-                <option value="all" ${adminTaskUi.personnelId==='all'?'selected':''}>All Employees (${personnelList.length})</option>
+                <option value="all" ${adminTaskUi.personnelId === 'all' ? 'selected' : ''}>All Employees (${personnelList.length})</option>
                 ${personnelList.map(p => `
-                  <option value="${p._id}" ${adminTaskUi.personnelId===p._id?'selected':''}>${escapeHtml(p.name)} (${p.role || p.department || 'Staff'})</option>
+                  <option value="${p._id}" ${adminTaskUi.personnelId === p._id ? 'selected' : ''}>${escapeHtml(p.name)} (${p.role || p.department || 'Staff'})</option>
                 `).join('')}
               </select>
             </div>
@@ -2310,12 +2404,12 @@ async function tabDailyTasks(c) {
       ` : `
         <div style="display:flex;flex-direction:column;gap:18px">
           ${empGroupList.map(emp => {
-            const empTotal = emp.tasks.length;
-            const empDone = emp.tasks.filter(t => t.status === 'Completed').length;
-            const empPct = empTotal > 0 ? Math.round((empDone / empTotal) * 100) : 0;
-            const empAllDone = empTotal > 0 && empDone === empTotal;
+    const empTotal = emp.tasks.length;
+    const empDone = emp.tasks.filter(t => t.status === 'Completed').length;
+    const empPct = empTotal > 0 ? Math.round((empDone / empTotal) * 100) : 0;
+    const empAllDone = empTotal > 0 && empDone === empTotal;
 
-            return `
+    return `
               <div class="daily-checklist-card">
                 <!-- Employee Header Banner -->
                 <div style="padding:16px 20px;background:var(--bg-surface);border-bottom:1px solid var(--border-sm);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
@@ -2350,9 +2444,9 @@ async function tabDailyTasks(c) {
                 <!-- Employee Checklist Items -->
                 <div>
                   ${emp.tasks.map(t => {
-                    const isDone = t.status === 'Completed';
-                    const taskDate = t.dueDate ? new Date(t.dueDate).toISOString().slice(0, 10) : '';
-                    return `
+      const isDone = t.status === 'Completed';
+      const taskDate = t.dueDate ? new Date(t.dueDate).toISOString().slice(0, 10) : '';
+      return `
                       <div class="daily-item-row ${isDone ? 'completed' : ''}" style="padding:12px 20px">
                         <div style="display:flex;align-items:center;gap:14px;flex:1;min-width:0">
                           <button type="button" class="daily-circle-check ${isDone ? 'checked' : ''}" onclick="adminToggleTask('${t._id}')" title="${isDone ? 'Mark Incomplete' : 'Mark Complete'}">
@@ -2374,11 +2468,11 @@ async function tabDailyTasks(c) {
                         </div>
                       </div>
                     `;
-                  }).join('')}
+    }).join('')}
                 </div>
               </div>
             `;
-          }).join('')}
+  }).join('')}
         </div>
       `}
     </div>
@@ -2496,15 +2590,15 @@ async function tabDailyTasks(c) {
 }
 
 /* ── ADMIN TASK ACTIONS ── */
-window.adminToggleTask = async function(id) {
+window.adminToggleTask = async function (id) {
   try {
     await apiPatch('/tasks/' + id + '/toggle', {});
     flashToast('Task status updated');
     renderTab();
-  } catch(err) { flashToast(err.message, true); }
+  } catch (err) { flashToast(err.message, true); }
 };
 
-window.adminEditTask = async function(id) {
+window.adminEditTask = async function (id) {
   try {
     const tasks = await apiGet('/tasks');
     const t = tasks.find(x => x._id === id);
@@ -2515,15 +2609,15 @@ window.adminEditTask = async function(id) {
       flashToast('Task updated');
       renderTab();
     }
-  } catch(err) { flashToast(err.message, true); }
+  } catch (err) { flashToast(err.message, true); }
 };
 
-window.adminQuickAddTaskForEmp = async function(empId) {
+window.adminQuickAddTaskForEmp = async function (empId) {
   const title = prompt('Enter task for this employee:');
   if (!title || !title.trim()) return;
   try {
     const today = new Date();
-    const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+    const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
     const dueDate = adminTaskUi.date === 'all' ? todayStr : adminTaskUi.date;
     await apiPost('/tasks', {
       title: title.trim(),
@@ -2534,19 +2628,19 @@ window.adminQuickAddTaskForEmp = async function(empId) {
     });
     flashToast('Task assigned to employee! ✍️');
     renderTab();
-  } catch(err) { flashToast(err.message, true); }
+  } catch (err) { flashToast(err.message, true); }
 };
 
-window.adminDeleteTask = async function(id) {
+window.adminDeleteTask = async function (id) {
   if (!confirm('Delete this task?')) return;
   try {
     await apiDelete('/tasks/' + id);
     flashToast('Task deleted');
     renderTab();
-  } catch(err) { flashToast(err.message, true); }
+  } catch (err) { flashToast(err.message, true); }
 };
 
-window.adminClearCompletedTasks = async function(targetPId) {
+window.adminClearCompletedTasks = async function (targetPId) {
   if (!confirm('Delete completed tasks?')) return;
   try {
     const payload = {
@@ -2560,7 +2654,7 @@ window.adminClearCompletedTasks = async function(targetPId) {
     const res = await apiPost('/tasks/clear-completed', payload);
     flashToast(`Completed tasks deleted (${res.deletedCount || 0} removed) 🗑️`);
     renderTab();
-  } catch(err) { flashToast(err.message, true); }
+  } catch (err) { flashToast(err.message, true); }
 };
 
 // Live auto-update without needing manual page refresh

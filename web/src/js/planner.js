@@ -570,7 +570,7 @@ export function initDailyPlanner(container, options = {}) {
     const isCompleted = task.status === 'Completed';
     const isPastDue = isOverdue(task, todayStr);
     const taskDate = task.dateStr || (task.dueDate ? new Date(task.dueDate).toISOString().slice(0, 10) : todayStr);
-    const isDateGone = taskDate < todayStr;
+    const isDateGone = !isSuperadmin && taskDate < todayStr;
     const priClass = `pri-${(task.priority || 'medium').toLowerCase()}`;
     const statusClass = `status-${(task.status || 'pending').toLowerCase().replace(/\s+/g, '-')}`;
 
@@ -1202,7 +1202,7 @@ export function initDailyPlanner(container, options = {}) {
       : (targetDate || state.selectedDate);
 
     const todayStr = getTodayStr();
-    if (initialDate < todayStr) {
+    if (!isSuperadmin && initialDate < todayStr) {
       flashToast('Tasks cannot be added or edited after the date is gone.', true);
       return;
     }
@@ -1293,11 +1293,18 @@ export function initDailyPlanner(container, options = {}) {
             </div>
           ` : ''}
 
-          <div class="ci360-modal-footer">
-            <button type="button" class="ci360-btn-secondary" id="btnCancelModal">Cancel</button>
-            <button type="submit" class="ci360-btn-primary" id="btnSaveTask">
-              ${isEdit ? 'Save Changes' : 'Create Task'}
-            </button>
+          <div class="ci360-modal-footer" style="display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              ${isEdit && (isSuperadmin || initialDate >= todayStr) ? `
+                <button type="button" class="btn danger small" id="btnModalDeleteTask" style="padding:6px 12px;background:#ef4444;color:#fff;border-radius:var(--r-sm);border:none;cursor:pointer;font-weight:700;font-size:12px;">🗑️ Delete Task</button>
+              ` : ''}
+            </div>
+            <div style="display:flex;gap:8px;">
+              <button type="button" class="ci360-btn-secondary" id="btnCancelModal">Cancel</button>
+              <button type="submit" class="ci360-btn-primary" id="btnSaveTask">
+                ${isEdit ? 'Save Changes' : 'Create Task'}
+              </button>
+            </div>
           </div>
         </form>
       </div>
@@ -1307,10 +1314,17 @@ export function initDailyPlanner(container, options = {}) {
     const form = modalBg.querySelector('#taskForm');
     const closeBtn = modalBg.querySelector('#btnModalClose');
     const cancelBtn = modalBg.querySelector('#btnCancelModal');
+    const delTaskBtn = modalBg.querySelector('#btnModalDeleteTask');
 
     const closeModal = () => modalBg.remove();
     if (closeBtn) closeBtn.onclick = closeModal;
     if (cancelBtn) cancelBtn.onclick = closeModal;
+    if (delTaskBtn && existingTask) {
+      delTaskBtn.onclick = async () => {
+        closeModal();
+        await deleteTaskWithConfirm(existingTask._id);
+      };
+    }
 
     form.onsubmit = async (e) => {
       e.preventDefault();

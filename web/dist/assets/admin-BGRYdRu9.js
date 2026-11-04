@@ -1,10 +1,10 @@
-import{l as ie,m as ne}from"./api-D7P-iGMH.js";import{initProposalStudio as le}from"./proposals-C39M-A_v.js";import{i as oe,a as re,b as de}from"./supporttickets-grtpsoCm.js";let P=null,v={personnel:[],clients:[],services:[],salaryGrades:[],salaryAssignments:[]},C=null,g={tab:"dashboard",period:"month",jobsFilter:"all"},p={title:"",clientId:"",serviceIds:[],date:new Date().toISOString().slice(0,10),completion:"",value:"",desc:"",assignments:[{personId:"",percent:100,hours:""},{personId:"",percent:0,hours:""}]};async function ce(){initTheme(),P=requireAuth("superadmin"),P&&(await E(),F())}async function E(){const[t,s,e]=await Promise.all([apiGet("/personnel"),apiGet("/clients"),apiGet("/services")]);v.personnel=t,v.clients=s,v.services=e}function L(){const t=v.personnel.find(a=>/mansi/i.test(a.name)),s=v.personnel.find(a=>/urna/i.test(a.name)),e=[];return t&&e.push({personId:t._id,percent:"",hours:""}),s&&e.push({personId:s._id,percent:"",hours:""}),e.length===0&&e.push({personId:"",percent:"",hours:""}),e}function te(t){const s=v.personnel.find(e=>e._id===t);return s?s.name:"—"}function O(t){const s=v.clients.find(e=>e._id===t);return s?s.name:"—"}const j=[{key:"dashboard",label:"Dashboard",icon:"📊"},{key:"dailytasks",label:"Daily Planner",icon:"📅"},{key:"tickets",label:"Support Tickets",icon:"🎫"},{key:"billing_dashboard",label:"Accounts & Billing",icon:"💳",href:"/accounts"},{key:"proposals",label:"Proposal Studio",icon:"📜"},{key:"teambonding",label:"Team Chat & Lounge",icon:"💬"},{key:"logjob",label:"Log a Job",icon:"➕"},{key:"jobs",label:"All Jobs",icon:"📁"},{key:"byclient",label:"By Client",icon:"💼"},{key:"byperson",label:"By Person",icon:"👥"},{key:"accounts",label:"Client Roster",icon:"🏢"},{key:"targets",label:"Targets",icon:"🎯"},{key:"salaries",label:"Salaries",icon:"💰"},{key:"users",label:"Users",icon:"👤"},{key:"manage",label:"Settings & Manage",icon:"⚙️"}];function F(){const t=document.getElementById("app"),s=j.find(e=>e.key===g.tab)||j[0];t.innerHTML=renderAppShell({user:P,currentRole:"superadmin",activeTab:g.tab,tabs:j,title:s.label,subtitle:"Productivity & Revenue Intelligence"}),bindAppShellEvents(e=>{g.tab=e,F()}),y()}window.ci360NavTab=(t,s={})=>{g.tab=t,g.tabParams=s,F()};async function y(t=!1){const s=document.getElementById("content");if(s){!t&&!s.dataset.loaded&&(s.innerHTML=renderSkeletonCards(4)),s.dataset.loaded="true";try{if(g.tab==="dashboard")await ve(s);else if(g.tab==="dailytasks")await Ie(s);else if(g.tab==="tickets"||g.tab==="supporttickets")await ue(s);else if(g.tab==="proposals")await pe(s);else if(g.tab==="teambonding"||g.tab==="bonding")await me(s);else if(g.tab==="logjob")q(s);else if(g.tab==="jobs")await he(s);else if(g.tab==="byclient")await we(s);else if(g.tab==="byperson")await se(s);else if(g.tab==="accounts")await Se(s);else if(g.tab==="billing_dashboard"){window.location.href="/accounts";return}else g.tab==="targets"?await ke(s):g.tab==="salaries"?await Ae(s):g.tab==="settings"||g.tab==="manage"?Te(s):g.tab==="users"&&await ae(s)}catch(e){s.innerHTML=`<div class="empty"><h3>Something went wrong</h3>${escapeHtml(e.message)}</div>`}}}async function pe(t){t.innerHTML='<div id="proposals-module-root"></div>';const s=t.querySelector("#proposals-module-root");le(s)}async function me(t){t.innerHTML='<div id="teambonding-module-root"></div>';const s=t.querySelector("#teambonding-module-root");de(s,{currentUser:P})}async function ue(t){t.innerHTML='<div id="support-tickets-module-root"></div>';const s=t.querySelector("#support-tickets-module-root"),e=g.tabParams||{};re(s,{userRole:"superadmin",currentUser:P,initialJobId:e.jobId||null})}function J(){return renderPeriodPicker(g.period)}function W(){document.querySelectorAll("[data-period]").forEach(t=>{t.onclick=()=>{g.period=t.dataset.period,y()}})}async function ve(t){C=await apiGet("/dashboard/admin?period="+g.period);const s=C.overview;t.innerHTML=`
+import{l as ie,m as ne}from"./api-D7P-iGMH.js";import{initProposalStudio as le}from"./proposals-C39M-A_v.js";import{i as oe,a as re,b as de}from"./supporttickets-e4WnvjnY.js";let q=null,g={personnel:[],clients:[],services:[],salaryGrades:[],salaryAssignments:[]},I=null,v={tab:"dashboard",period:"month",jobsFilter:"all"},m={title:"",clientId:"",serviceIds:[],date:new Date().toISOString().slice(0,10),completion:"",value:"",desc:"",assignments:[{personId:"",percent:100,hours:""},{personId:"",percent:0,hours:""}]};async function ce(){initTheme(),q=requireAuth("superadmin"),q&&(await E(),J())}async function E(){const[t,s,e]=await Promise.all([apiGet("/personnel"),apiGet("/clients"),apiGet("/services")]);g.personnel=t,g.clients=s,g.services=e}function j(){const t=g.personnel.find(a=>/mansi/i.test(a.name)),s=g.personnel.find(a=>/urna/i.test(a.name)),e=[];return t&&e.push({personId:t._id,percent:"",hours:""}),s&&e.push({personId:s._id,percent:"",hours:""}),e.length===0&&e.push({personId:"",percent:"",hours:""}),e}function se(t){const s=g.personnel.find(e=>e._id===t);return s?s.name:"—"}function W(t){const s=g.clients.find(e=>e._id===t);return s?s.name:"—"}const pe=[{key:"dashboard",label:"Dashboard",icon:"📊"},{key:"dailytasks",label:"Daily Planner",icon:"📅"},{key:"tickets",label:"Support Tickets",icon:"🎫"},{key:"billing_dashboard",label:"Accounts & Billing",icon:"💳",href:"/accounts"},{key:"proposals",label:"Proposal Studio",icon:"📜"},{key:"teambonding",label:"Team Chat & Lounge",icon:"💬"},{key:"logjob",label:"Log a Job",icon:"➕"},{key:"jobs",label:"All Jobs",icon:"📁"},{key:"byclient",label:"By Client",icon:"💼"},{key:"byperson",label:"By Person",icon:"👥"},{key:"accounts",label:"Client Roster",icon:"🏢"},{key:"targets",label:"Targets",icon:"🎯"},{key:"salaries",label:"Salaries",icon:"💰"},{key:"users",label:"Users",icon:"👤"},{key:"manage",label:"Settings & Manage",icon:"⚙️"}];function J(){const t=document.getElementById("app"),s=q?.role==="superadmin",e=pe.filter(i=>!(!s&&(i.key==="salaries"||i.key==="users"))),a=e.find(i=>i.key===v.tab)||e[0];t.innerHTML=renderAppShell({user:q,currentRole:s?"superadmin":"admin",activeTab:v.tab,tabs:e,title:a.label,subtitle:"Productivity & Revenue Intelligence"}),bindAppShellEvents(i=>{v.tab=i,J()}),y()}window.ci360NavTab=(t,s={})=>{v.tab=t,v.tabParams=s,J()};async function y(t=!1){const s=document.getElementById("content");if(!s)return;const e=q?.role==="superadmin";if((v.tab==="salaries"||v.tab==="users")&&!e){v.tab="dashboard",flashToast("Access restricted: Superadmin permission required",!0),J();return}!t&&!s.dataset.loaded&&(s.innerHTML=renderSkeletonCards(4)),s.dataset.loaded="true";try{if(v.tab==="dashboard")await ge(s);else if(v.tab==="dailytasks")await Ee(s);else if(v.tab==="tickets"||v.tab==="supporttickets")await ve(s);else if(v.tab==="proposals")await me(s);else if(v.tab==="teambonding"||v.tab==="bonding")await ue(s);else if(v.tab==="logjob")D(s);else if(v.tab==="jobs")await xe(s);else if(v.tab==="byclient")await Se(s);else if(v.tab==="byperson")await O(s);else if(v.tab==="accounts")await $e(s);else if(v.tab==="billing_dashboard"){window.location.href="/accounts";return}else v.tab==="targets"?await Ae(s):v.tab==="salaries"?await Ce(s):v.tab==="settings"||v.tab==="manage"?Ie(s):v.tab==="users"&&await ae(s)}catch(a){s.innerHTML=`<div class="empty"><h3>Something went wrong</h3>${escapeHtml(a.message)}</div>`}}async function me(t){t.innerHTML='<div id="proposals-module-root"></div>';const s=t.querySelector("#proposals-module-root");le(s)}async function ue(t){t.innerHTML='<div id="teambonding-module-root"></div>';const s=t.querySelector("#teambonding-module-root");de(s,{currentUser:q})}async function ve(t){t.innerHTML='<div id="support-tickets-module-root"></div>';const s=t.querySelector("#support-tickets-module-root"),e=v.tabParams||{};re(s,{userRole:"superadmin",currentUser:q,initialJobId:e.jobId||null})}function V(){return renderPeriodPicker(v.period)}function G(){document.querySelectorAll("[data-period]").forEach(t=>{t.onclick=()=>{v.period=t.dataset.period,y()}})}async function ge(t){I=await apiGet("/dashboard/admin?period="+v.period);const s=I.overview;t.innerHTML=`
     <div class="dash-overview-header">
       <div class="dash-overview-title-wrap">
         <h2 style="font-size:22px;font-weight:700;color:var(--navy-900);margin:0 0 2px 0;">Dashboard Overview</h2>
         <p style="font-size:13px;color:var(--text-3);margin:0;">Real-time workload, capacity, and deliverable performance</p>
       </div>
-      ${J()}
+      ${V()}
     </div>
 
     <section class="block block-kpi-grid">
@@ -69,30 +69,30 @@ import{l as ie,m as ne}from"./api-D7P-iGMH.js";import{initProposalStudio as le}f
 
     <section class="block">
       <h2>Roadmap Signals <span class="eyebrow">Auto-generated</span></h2>
-      ${C.insights.length?C.insights.map(e=>`<div class="insight ${e.type}">${escapeHtml(e.text)}</div>`).join(""):'<div class="empty">Log a few jobs to start seeing workload signals here.</div>'}
+      ${I.insights.length?I.insights.map(e=>`<div class="insight ${e.type}">${escapeHtml(e.text)}</div>`).join(""):'<div class="empty">Log a few jobs to start seeing workload signals here.</div>'}
     </section>
 
     <div class="grid grid-2">
       <section class="block">
         <h2>Work Value by Client</h2>
-        <div class="card">${V(C.clients.slice(0,8).map(e=>[e.name,e.value]))}</div>
+        <div class="card">${Q(I.clients.slice(0,8).map(e=>[e.name,e.value]))}</div>
       </section>
       <section class="block">
         <h2>Work Value by Service</h2>
-        <div class="card">${V(C.services.slice(0,8).map(e=>[e.name,e.value]),!0)}</div>
+        <div class="card">${Q(I.services.slice(0,8).map(e=>[e.name,e.value]),!0)}</div>
       </section>
     </div>
 
     <section class="block">
       <h2>Team Load at a Glance</h2>
-      <div class="card">${C.personnel.filter(e=>e.status!=="inactive").map(ge).join("")||'<div class="empty">No personnel yet.</div>'}</div>
+      <div class="card">${I.personnel.filter(e=>e.status!=="inactive").map(be).join("")||'<div class="empty">No personnel yet.</div>'}</div>
     </section>
-  `,W()}function V(t,s){if(!t.length)return'<div class="empty">No data yet.</div>';const e=Math.max(1,...t.map(a=>a[1]));return t.map(([a,i])=>`
+  `,G()}function Q(t,s){if(!t.length)return'<div class="empty">No data yet.</div>';const e=Math.max(1,...t.map(a=>a[1]));return t.map(([a,i])=>`
     <div class="bar-row">
       <div>${escapeHtml(a)}</div>
       <div class="bar-track"><div class="bar-fill ${s?"gold":""}" style="width:${(i/e*100).toFixed(1)}%"></div></div>
       <div class="num">${fmtINR(i)}</div>
-    </div>`).join("")}function ge(t){const s=Math.min(t.utilization,160);return`
+    </div>`).join("")}function be(t){const s=Math.min(t.utilization,160);return`
     <div style="margin-bottom:16px;">
       <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:3px;">
         <span><strong>${escapeHtml(t.name)}</strong> <span class="muted">${escapeHtml(t.duties||"")}</span></span>
@@ -105,7 +105,7 @@ import{l as ie,m as ne}from"./api-D7P-iGMH.js";import{initProposalStudio as le}f
         <div class="gauge-zone" style="left:90%;width:10%;background:var(--red-bg);"></div>
         <div class="gauge-fill" style="left:${Math.min(s/1.6,99)}%;"></div>
       </div>
-    </div>`}function q(t){(!p.assignments||p.assignments.every(e=>!e.personId))&&(p.assignments=L());const s=p.assignments.reduce((e,a)=>e+(Number(a.percent)||0),0);t.innerHTML=`
+    </div>`}function D(t){(!m.assignments||m.assignments.every(e=>!e.personId))&&(m.assignments=j());const s=m.assignments.reduce((e,a)=>e+(Number(a.percent)||0),0);t.innerHTML=`
     <section class="block">
       <div style="margin-bottom:20px;">
         <h2 style="font-size:20px;font-weight:800;color:var(--text-1);margin-bottom:4px;border:none;padding:0;">Log New Job & Work Deliverable</h2>
@@ -120,7 +120,7 @@ import{l as ie,m as ne}from"./api-D7P-iGMH.js";import{initProposalStudio as le}f
             <div class="select-with-btn">
               <select id="jClient">
                 <option value="">Select client…</option>
-                ${v.clients.map(e=>`<option value="${e._id}" ${e._id===p.clientId?"selected":""}>${escapeHtml(e.name)}</option>`).join("")}
+                ${g.clients.map(e=>`<option value="${e._id}" ${e._id===m.clientId?"selected":""}>${escapeHtml(e.name)}</option>`).join("")}
               </select>
               <button class="btn ghost small" type="button" id="addNewClientBtn">+ New Client</button>
             </div>
@@ -129,11 +129,11 @@ import{l as ie,m as ne}from"./api-D7P-iGMH.js";import{initProposalStudio as le}f
           <div class="log-job-row">
             <div class="field" style="margin-bottom:0;">
               <label>START DATE *</label>
-              <input type="date" id="jDate" value="${p.date||new Date().toISOString().slice(0,10)}">
+              <input type="date" id="jDate" value="${m.date||new Date().toISOString().slice(0,10)}">
             </div>
             <div class="field" style="margin-bottom:0;">
               <label>COMPLETION DATE (OPTIONAL)</label>
-              <input type="date" id="jCompletion" value="${p.completion||""}" placeholder="dd.mm.yyyy">
+              <input type="date" id="jCompletion" value="${m.completion||""}" placeholder="dd.mm.yyyy">
             </div>
           </div>
         </div>
@@ -145,13 +145,13 @@ import{l as ie,m as ne}from"./api-D7P-iGMH.js";import{initProposalStudio as le}f
             <div class="select-with-btn">
               <select id="jService">
                 <option value="">Select service to add…</option>
-                ${v.services.map(e=>`<option value="${e._id}">${escapeHtml(e.name)}</option>`).join("")}
+                ${g.services.map(e=>`<option value="${e._id}">${escapeHtml(e.name)}</option>`).join("")}
               </select>
               <button class="btn ghost small" type="button" id="addNewServiceBtn">+ New Service</button>
             </div>
-            ${p.serviceIds.length?`
+            ${m.serviceIds.length?`
               <div class="selected-services-tags" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;">
-                ${p.serviceIds.map(e=>{const a=v.services.find(i=>i._id===e);return a?`
+                ${m.serviceIds.map(e=>{const a=g.services.find(i=>i._id===e);return a?`
                     <span class="badge blue" style="display:inline-flex;align-items:center;gap:6px;padding:6px 12px;font-size:12px;border-radius:20px;">
                       ${escapeHtml(a.name)}
                       <span class="remove-service-tag" data-id="${a._id}" style="cursor:pointer;font-weight:bold;margin-left:4px;" title="Remove service">✕</span>
@@ -163,12 +163,12 @@ import{l as ie,m as ne}from"./api-D7P-iGMH.js";import{initProposalStudio as le}f
 
           <div class="field" style="margin-bottom:16px;">
             <label>JOB VALUE (₹ ATTRIBUTABLE VALUE)</label>
-            <input type="number" id="jValue" value="${p.value||""}" placeholder="e.g. 25000" min="0">
+            <input type="number" id="jValue" value="${m.value||""}" placeholder="e.g. 25000" min="0">
           </div>
 
           <div class="field" style="margin-bottom:0;">
             <label>DELIVERABLE DESCRIPTION & SPECIFICS</label>
-            <textarea id="jDesc" placeholder="Describe the scope of work, completed artifacts, or client notes..." style="height:90px;resize:vertical;">${escapeHtml(p.desc||"")}</textarea>
+            <textarea id="jDesc" placeholder="Describe the scope of work, completed artifacts, or client notes..." style="height:90px;resize:vertical;">${escapeHtml(m.desc||"")}</textarea>
           </div>
         </div>
 
@@ -182,7 +182,7 @@ import{l as ie,m as ne}from"./api-D7P-iGMH.js";import{initProposalStudio as le}f
               <div></div>
             </div>
             <div id="assignRows">
-              ${p.assignments.map((e,a)=>be(e,a)).join("")}
+              ${m.assignments.map((e,a)=>fe(e,a)).join("")}
             </div>
             <button class="btn ghost small" id="addAssignRow" type="button" style="margin-top:10px;">+ Add Team Member</button>
             <div style="margin-top:14px;">
@@ -205,12 +205,12 @@ import{l as ie,m as ne}from"./api-D7P-iGMH.js";import{initProposalStudio as le}f
         </div>
       </div>
     </section>
-  `,fe()}function be(t,s){return`
+  `,ye()}function fe(t,s){return`
     <div class="person-assign-row" data-idx="${s}">
       <div class="field">
         <select class="a-person">
           <option value="">Select…</option>
-          ${v.personnel.map(e=>`<option value="${e._id}" ${e._id===t.personId?"selected":""}>${escapeHtml(e.name)}${e.duties?` (${escapeHtml(e.duties)})`:""}</option>`).join("")}
+          ${g.personnel.map(e=>`<option value="${e._id}" ${e._id===t.personId?"selected":""}>${escapeHtml(e.name)}${e.duties?` (${escapeHtml(e.duties)})`:""}</option>`).join("")}
         </select>
       </div>
       <div class="field">
@@ -223,7 +223,7 @@ import{l as ie,m as ne}from"./api-D7P-iGMH.js";import{initProposalStudio as le}f
         <button class="btn-remove-person a-remove" type="button" title="Remove person">✕</button>
       </div>
     </div>
-  `}function fe(){const t=document.getElementById("jClient");t&&(t.onchange=d=>p.clientId=d.target.value);const s=document.getElementById("addNewClientBtn");s&&(s.onclick=()=>{const d=openModal(`
+  `}function ye(){const t=document.getElementById("jClient");t&&(t.onchange=c=>m.clientId=c.target.value);const s=document.getElementById("addNewClientBtn");s&&(s.onclick=()=>{const c=openModal(`
         <h3>Add New Client</h3>
         <div class="field">
           <label>Client Name *</label>
@@ -237,7 +237,7 @@ import{l as ie,m as ne}from"./api-D7P-iGMH.js";import{initProposalStudio as le}f
           <button class="btn ghost" id="mCancel">Cancel</button>
           <button class="btn gold" id="mSave">Add Client</button>
         </div>
-      `);d.querySelector("#mCancel").onclick=()=>d.remove(),d.querySelector("#mSave").onclick=async()=>{const b=d.querySelector("#newClientName").value.trim(),o=d.querySelector("#newClientNotes").value.trim();if(!b){flashToast("Client name is required",!0);return}try{const S=await apiPost("/clients",{name:b,notes:o});await E(),p.clientId=S._id,flashToast("Client added"),d.remove(),q(document.getElementById("content"))}catch(S){flashToast(S.message,!0)}}});const e=document.getElementById("jDate");e&&(e.onchange=d=>p.date=d.target.value);const a=document.getElementById("jCompletion");a&&(a.onchange=d=>p.completion=d.target.value);const i=document.getElementById("jService");i&&(i.onchange=d=>{const b=d.target.value;b&&(p.serviceIds.includes(b)||p.serviceIds.push(b),q(document.getElementById("content")))}),document.querySelectorAll(".remove-service-tag").forEach(d=>{d.onclick=b=>{b.stopPropagation();const o=d.dataset.id;p.serviceIds=p.serviceIds.filter(S=>S!==o),q(document.getElementById("content"))}});const n=document.getElementById("addNewServiceBtn");n&&(n.onclick=()=>{const d=openModal(`
+      `);c.querySelector("#mCancel").onclick=()=>c.remove(),c.querySelector("#mSave").onclick=async()=>{const b=c.querySelector("#newClientName").value.trim(),r=c.querySelector("#newClientNotes").value.trim();if(!b){flashToast("Client name is required",!0);return}try{const S=await apiPost("/clients",{name:b,notes:r});await E(),m.clientId=S._id,flashToast("Client added"),c.remove(),D(document.getElementById("content"))}catch(S){flashToast(S.message,!0)}}});const e=document.getElementById("jDate");e&&(e.onchange=c=>m.date=c.target.value);const a=document.getElementById("jCompletion");a&&(a.onchange=c=>m.completion=c.target.value);const i=document.getElementById("jService");i&&(i.onchange=c=>{const b=c.target.value;b&&(m.serviceIds.includes(b)||m.serviceIds.push(b),D(document.getElementById("content")))}),document.querySelectorAll(".remove-service-tag").forEach(c=>{c.onclick=b=>{b.stopPropagation();const r=c.dataset.id;m.serviceIds=m.serviceIds.filter(S=>S!==r),D(document.getElementById("content"))}});const n=document.getElementById("addNewServiceBtn");n&&(n.onclick=()=>{const c=openModal(`
         <h3>Add New Service</h3>
         <div class="field">
           <label>Service Name *</label>
@@ -247,26 +247,26 @@ import{l as ie,m as ne}from"./api-D7P-iGMH.js";import{initProposalStudio as le}f
           <button class="btn ghost" id="mCancel">Cancel</button>
           <button class="btn gold" id="mSave">Add Service</button>
         </div>
-      `);d.querySelector("#mCancel").onclick=()=>d.remove(),d.querySelector("#mSave").onclick=async()=>{const b=d.querySelector("#newServiceName").value.trim();if(!b){flashToast("Service name is required",!0);return}try{const o=await apiPost("/services",{name:b});await E(),p.serviceIds.includes(o._id)||p.serviceIds.push(o._id),flashToast("Service added"),d.remove(),q(document.getElementById("content"))}catch(o){flashToast(o.message,!0)}}});const r=document.getElementById("jDesc");r&&(r.oninput=d=>p.desc=d.target.value);const m=document.getElementById("jValue");m&&(m.oninput=d=>p.value=d.target.value),document.querySelectorAll(".person-assign-row").forEach(d=>{const b=Number(d.dataset.idx),o=d.querySelector(".a-person");o&&(o.onchange=u=>p.assignments[b].personId=u.target.value);const S=d.querySelector(".a-percent");S&&(S.oninput=u=>{p.assignments[b].percent=u.target.value,ye()});const k=d.querySelector(".a-hours");k&&(k.oninput=u=>p.assignments[b].hours=u.target.value);const c=d.querySelector(".a-remove");c&&(c.onclick=()=>{p.assignments.length>1&&(p.assignments.splice(b,1),q(document.getElementById("content")))})});const x=document.getElementById("addAssignRow");x&&(x.onclick=()=>{p.assignments.push({personId:"",percent:0,hours:""}),q(document.getElementById("content"))}),bindAttachmentUploader("jAttachments",{existing:p.attachments||[]});const h=document.getElementById("clearJobBtn");h&&(h.onclick=()=>{p={title:"",assignments:L(),serviceIds:[],clientId:"",date:new Date().toISOString().slice(0,10),completion:"",value:"",desc:"",attachments:[]},setUploaderAttachments("jAttachments",[]),q(document.getElementById("content"))});const f=document.getElementById("saveJobBtn");f&&(f.onclick=async()=>{try{if(typeof Notification<"u"&&Notification.permission==="default")try{await Notification.requestPermission()}catch{}if(!p.clientId){flashToast("Please select a client",!0);return}if(!p.serviceIds||!p.serviceIds.length){flashToast("Please select at least one service",!0);return}const d=p.assignments.filter(u=>u.personId);if(!d.length){flashToast("Please assign at least one person",!0);return}for(const u of d)if(u.hours===""||u.hours==null){flashToast("Enter hours spent for every assigned person",!0);return}const b=v.clients.find(u=>u._id===p.clientId),S=v.services.filter(u=>p.serviceIds.includes(u._id)).map(u=>u.name).join(", "),k=p.title||(b?`${b.name} — ${S||"Deliverable"}`:S||"Untitled Job"),c=getUploaderAttachments("jAttachments");await apiPost("/jobs",{title:k,clientId:p.clientId,serviceIds:p.serviceIds,date:p.date||new Date().toISOString().slice(0,10),completionDate:p.completion||null,value:Number(p.value)||0,description:p.desc||"",assignments:d,attachments:c}),flashToast("Job saved successfully! 📁"),typeof window.ci360FetchNotifications=="function"&&window.ci360FetchNotifications(),p={title:"",assignments:L(),serviceIds:[],clientId:"",date:new Date().toISOString().slice(0,10),completion:"",value:"",desc:"",attachments:[]},g.tab="jobs",y()}catch(d){flashToast(d.message,!0)}})}function ye(){const t=p.assignments.reduce((e,a)=>e+(Number(a.percent)||0),0),s=document.querySelector(".assign-total");s&&(s.textContent=`${t}% of work allocated ${t!==100?"— should total 100%":"✓"}`,s.classList.toggle("warn",t!==100))}async function he(t){let s=await apiGet("/jobs");s.sort((e,a)=>new Date(a.date)-new Date(e.date)),g.jobsFilter==="progress"&&(s=s.filter(e=>!e.completionDate)),g.jobsFilter==="done"&&(s=s.filter(e=>e.completionDate)),t.innerHTML=`
+      `);c.querySelector("#mCancel").onclick=()=>c.remove(),c.querySelector("#mSave").onclick=async()=>{const b=c.querySelector("#newServiceName").value.trim();if(!b){flashToast("Service name is required",!0);return}try{const r=await apiPost("/services",{name:b});await E(),m.serviceIds.includes(r._id)||m.serviceIds.push(r._id),flashToast("Service added"),c.remove(),D(document.getElementById("content"))}catch(r){flashToast(r.message,!0)}}});const o=document.getElementById("jDesc");o&&(o.oninput=c=>m.desc=c.target.value);const u=document.getElementById("jValue");u&&(u.oninput=c=>m.value=c.target.value),document.querySelectorAll(".person-assign-row").forEach(c=>{const b=Number(c.dataset.idx),r=c.querySelector(".a-person");r&&(r.onchange=p=>m.assignments[b].personId=p.target.value);const S=c.querySelector(".a-percent");S&&(S.oninput=p=>{m.assignments[b].percent=p.target.value,he()});const k=c.querySelector(".a-hours");k&&(k.oninput=p=>m.assignments[b].hours=p.target.value);const d=c.querySelector(".a-remove");d&&(d.onclick=()=>{m.assignments.length>1&&(m.assignments.splice(b,1),D(document.getElementById("content")))})});const x=document.getElementById("addAssignRow");x&&(x.onclick=()=>{m.assignments.push({personId:"",percent:0,hours:""}),D(document.getElementById("content"))}),bindAttachmentUploader("jAttachments",{existing:m.attachments||[]});const h=document.getElementById("clearJobBtn");h&&(h.onclick=()=>{m={title:"",assignments:j(),serviceIds:[],clientId:"",date:new Date().toISOString().slice(0,10),completion:"",value:"",desc:"",attachments:[]},setUploaderAttachments("jAttachments",[]),D(document.getElementById("content"))});const f=document.getElementById("saveJobBtn");f&&(f.onclick=async()=>{try{if(typeof Notification<"u"&&Notification.permission==="default")try{await Notification.requestPermission()}catch{}if(!m.clientId){flashToast("Please select a client",!0);return}if(!m.serviceIds||!m.serviceIds.length){flashToast("Please select at least one service",!0);return}const c=m.assignments.filter(p=>p.personId);if(!c.length){flashToast("Please assign at least one person",!0);return}for(const p of c)if(p.hours===""||p.hours==null){flashToast("Enter hours spent for every assigned person",!0);return}const b=g.clients.find(p=>p._id===m.clientId),S=g.services.filter(p=>m.serviceIds.includes(p._id)).map(p=>p.name).join(", "),k=m.title||(b?`${b.name} — ${S||"Deliverable"}`:S||"Untitled Job"),d=getUploaderAttachments("jAttachments");await apiPost("/jobs",{title:k,clientId:m.clientId,serviceIds:m.serviceIds,date:m.date||new Date().toISOString().slice(0,10),completionDate:m.completion||null,value:Number(m.value)||0,description:m.desc||"",assignments:c,attachments:d}),flashToast("Job saved successfully! 📁"),typeof window.ci360FetchNotifications=="function"&&window.ci360FetchNotifications(),m={title:"",assignments:j(),serviceIds:[],clientId:"",date:new Date().toISOString().slice(0,10),completion:"",value:"",desc:"",attachments:[]},v.tab="jobs",y()}catch(c){flashToast(c.message,!0)}})}function he(){const t=m.assignments.reduce((e,a)=>e+(Number(a.percent)||0),0),s=document.querySelector(".assign-total");s&&(s.textContent=`${t}% of work allocated ${t!==100?"— should total 100%":"✓"}`,s.classList.toggle("warn",t!==100))}async function xe(t){let s=await apiGet("/jobs");s.sort((e,a)=>new Date(a.date)-new Date(e.date)),v.jobsFilter==="progress"&&(s=s.filter(e=>!e.completionDate)),v.jobsFilter==="done"&&(s=s.filter(e=>e.completionDate)),t.innerHTML=`
     <section class="block">
       <h2>All Jobs <span class="eyebrow">${s.length} shown</span></h2>
       <div style="margin-bottom:12px;display:flex;gap:6px;">
-        <button class="pchip ${g.jobsFilter==="all"?"active":""}" data-jf="all">All</button>
-        <button class="pchip ${g.jobsFilter==="progress"?"active":""}" data-jf="progress">In Progress</button>
-        <button class="pchip ${g.jobsFilter==="done"?"active":""}" data-jf="done">Completed</button>
+        <button class="pchip ${v.jobsFilter==="all"?"active":""}" data-jf="all">All</button>
+        <button class="pchip ${v.jobsFilter==="progress"?"active":""}" data-jf="progress">In Progress</button>
+        <button class="pchip ${v.jobsFilter==="done"?"active":""}" data-jf="done">Completed</button>
       </div>
       ${s.length===0?'<div class="empty">No jobs logged yet.</div>':`
       <div class="card" style="overflow-x:auto;">
         <table>
           <thead><tr><th>Job Title</th><th>Files &amp; Artifacts</th><th>Start</th><th>Status &amp; Sign-Off</th><th>Client</th><th>Service(s)</th><th>Assigned Personnel</th><th class="num">Hours</th><th style="text-align:right;">Actions</th></tr></thead>
           <tbody>
-          ${s.map(e=>{const a=e.status==="Completed",i=(e.assignments||[]).map(m=>`${escapeHtml(te(m.personId))} (${m.percent}%)`).join(", "),n=(e.attachments||[]).length,r=(e.deliverables||[]).length;return`<tr>
+          ${s.map(e=>{const a=e.status==="Completed",i=(e.assignments||[]).map(u=>`${escapeHtml(se(u.personId))} (${u.percent}%)`).join(", "),n=(e.attachments||[]).length,o=(e.deliverables||[]).length;return`<tr>
               <td><strong>${escapeHtml(e.title||"Untitled Job")}</strong></td>
               <td>
                 <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap">
                   ${n?`<button type="button" class="btn ghost small view-job-files" data-id="${e._id}" title="View ${n} Brief Attachments" style="padding:2px 6px;font-size:11px"><span class="badge blue" style="font-size:10.5px">📎 ${n} Brief</span></button>`:""}
-                  ${r?`<button type="button" class="btn ghost small view-job-files" data-id="${e._id}" title="View ${r} Finished Deliverables" style="padding:2px 6px;font-size:11px"><span class="badge green" style="font-size:10.5px">📦 ${r} Work</span></button>`:""}
-                  ${!n&&!r?'<span class="muted" style="font-size:11px">—</span>':""}
+                  ${o?`<button type="button" class="btn ghost small view-job-files" data-id="${e._id}" title="View ${o} Finished Deliverables" style="padding:2px 6px;font-size:11px"><span class="badge green" style="font-size:10.5px">📦 ${o} Work</span></button>`:""}
+                  ${!n&&!o?'<span class="muted" style="font-size:11px">—</span>':""}
                 </div>
               </td>
               <td>${fmtDate(e.date)}</td>
@@ -280,13 +280,13 @@ import{l as ie,m as ne}from"./api-D7P-iGMH.js";import{initProposalStudio as le}f
                    <button type="button" class="btn gold small admin-resubmit-btn" data-id="${e._id}" data-title="${escapeHtml(e.title||"Job")}" data-reason="${escapeHtml(e.clientApproval?.deniedReason||"")}" data-type="denial" style="margin-top:3px;padding:2px 7px;font-size:10px;font-weight:700">🔁 Resubmit</button>`:""}
                 </div>
               </td>
-              <td>${escapeHtml(O(e.clientId))}</td>
-              <td>${(e.serviceNames||[]).map(m=>`<span class="badge gray">${escapeHtml(m)}</span>`).join(" ")}</td>
+              <td>${escapeHtml(W(e.clientId))}</td>
+              <td>${(e.serviceNames||[]).map(u=>`<span class="badge gray">${escapeHtml(u)}</span>`).join(" ")}</td>
               <td class="assign-cell-click" data-id="${e._id}" style="cursor:pointer;" title="Click to assign or change personnel">
                 ${i||'<span class="muted">Unassigned</span>'}
                 <span style="font-size:11px;color:var(--gold-600);margin-left:4px;">✏️</span>
               </td>
-              <td class="num">${fmtHours((e.assignments||[]).reduce((m,x)=>m+(Number(x.hours)||0),0))}</td>
+              <td class="num">${fmtHours((e.assignments||[]).reduce((u,x)=>u+(Number(x.hours)||0),0))}</td>
               <td style="text-align:right;white-space:nowrap;">
                 <button class="btn ghost small job-ticket-btn" data-id="${e._id}" title="Support Tickets linked to this Job" style="margin-right:4px;padding:3px 8px;font-size:11px;">🎫 Ticket</button>
                 <button class="btn ghost small view-job-files" data-id="${e._id}" style="margin-right:4px;padding:3px 8px;font-size:11px;">📁 Files</button>
@@ -298,7 +298,7 @@ import{l as ie,m as ne}from"./api-D7P-iGMH.js";import{initProposalStudio as le}f
         </table>
       </div>`}
     </section>
-  `,document.querySelectorAll("[data-jf]").forEach(e=>e.onclick=()=>{g.jobsFilter=e.dataset.jf,y()}),document.querySelectorAll(".job-ticket-btn").forEach(e=>{e.onclick=()=>{window.ci360NavTab("tickets",{jobId:e.dataset.id})}}),document.querySelectorAll(".admin-resubmit-btn").forEach(e=>{e.onclick=()=>Ee(e.dataset.id,e.dataset.title,e.dataset.reason,e.dataset.type)}),document.querySelectorAll(".view-job-files").forEach(e=>{e.onclick=()=>{const a=e.dataset.id,i=s.find(x=>x._id===a);if(!i)return;const n=encodeURIComponent(JSON.stringify(i.attachments||[])),r=encodeURIComponent(JSON.stringify(i.deliverables||[])),m=openModal(`
+  `,document.querySelectorAll("[data-jf]").forEach(e=>e.onclick=()=>{v.jobsFilter=e.dataset.jf,y()}),document.querySelectorAll(".job-ticket-btn").forEach(e=>{e.onclick=()=>{window.ci360NavTab("tickets",{jobId:e.dataset.id})}}),document.querySelectorAll(".admin-resubmit-btn").forEach(e=>{e.onclick=()=>qe(e.dataset.id,e.dataset.title,e.dataset.reason,e.dataset.type)}),document.querySelectorAll(".view-job-files").forEach(e=>{e.onclick=()=>{const a=e.dataset.id,i=s.find(x=>x._id===a);if(!i)return;const n=encodeURIComponent(JSON.stringify(i.attachments||[])),o=encodeURIComponent(JSON.stringify(i.deliverables||[])),u=openModal(`
         <div style="margin-bottom:14px;border-bottom:1px solid var(--border-sm);padding-bottom:10px">
           <h3 style="margin-bottom:4px">📁 Job Files &amp; Artifacts</h3>
           <div style="font-size:12.5px;color:var(--text-3)">${escapeHtml(i.title||"Untitled Job")}</div>
@@ -342,7 +342,7 @@ import{l as ie,m as ne}from"./api-D7P-iGMH.js";import{initProposalStudio as le}f
         <div style="margin-bottom:20px">
           <h4 style="font-size:13px;font-weight:700;color:var(--text-1);margin-bottom:8px">📦 Completed Deliverables &amp; Proofs (${(i.deliverables||[]).length})</h4>
           ${i.deliverables&&i.deliverables.length?`
-            <div data-attachments="${r}">
+            <div data-attachments="${o}">
               ${renderAttachmentChips(i.deliverables)}
             </div>
           `:'<div style="font-size:12px;color:var(--text-4);font-style:italic">No completed deliverables attached yet.</div>'}
@@ -373,7 +373,7 @@ import{l as ie,m as ne}from"./api-D7P-iGMH.js";import{initProposalStudio as le}f
         <div class="modal-actions">
           <button class="btn ghost" id="mCloseFiles">Close</button>
         </div>
-      `);bindAttachmentUploader("mDelUpload"),m.querySelector("#mDelSaveBtn").onclick=async()=>{const x=getUploaderAttachments("mDelUpload"),h=m.querySelector("#mDelNote").value.trim(),f=(m.querySelector("#mDelUrl")||{}).value?.trim()||"",d=m.querySelector("#mDelMarkComplete")?.checked??!0,b=x.map(o=>({...o,notes:h}));if(f){let o=f;/^https?:\/\//i.test(o)||(o="https://"+o),b.unshift({name:h?`${h} (Live URL)`:"Live Deliverable URL / Website",url:o,type:"url",size:0,notes:h||"Live URL"})}if(!b.length){flashToast("Please enter a deliverable URL or select files",!0);return}try{await apiPost(`/jobs/${a}/deliverables`,{deliverables:b,markComplete:d}),flashToast(d?"Deliverables added & sent to Client for Approval! 📦🎉":"Deliverables added! 📦"),m.remove(),y()}catch(o){flashToast(o.message,!0)}},m.querySelector("#mCloseFiles").onclick=()=>m.remove()}}),document.querySelectorAll(".edit-job, .assign-cell-click").forEach(e=>{e.onclick=()=>{const a=e.dataset.id,i=s.find(n=>n._id===a);i&&xe(i,()=>y())}}),document.querySelectorAll(".toggle-status-btn").forEach(e=>e.onclick=async()=>{const a=e.dataset.id,i=e.dataset.done==="false",n=s.find(m=>m._id===a);let r=n?n.completionDate:null;i&&!r&&(r=new Date().toISOString().slice(0,10)),await apiPut("/jobs/"+a,{status:i?"Completed":"In Progress",completionDate:r}),flashToast(i?"Job marked as Completed!":"Job marked as In Progress"),y()}),document.querySelectorAll(".del-job").forEach(e=>e.onclick=async()=>{confirm("Delete this job?")&&(await apiDelete("/jobs/"+e.dataset.id),flashToast("Deleted"),y())})}function xe(t,s){let e={title:t.title||"",clientId:t.clientId?t.clientId._id||t.clientId:"",serviceIds:t.serviceIds?t.serviceIds.map(l=>l._id||l):[],date:t.date?new Date(t.date).toISOString().slice(0,10):new Date().toISOString().slice(0,10),completionDate:t.completionDate?new Date(t.completionDate).toISOString().slice(0,10):"",status:t.status||"In Progress",priority:t.priority||"Medium",value:t.value!=null?t.value:"",description:t.description||"",preferredPersonId:t.preferredPersonId?t.preferredPersonId._id||t.preferredPersonId:"",assignments:t.assignments&&t.assignments.length?t.assignments.map(l=>({personId:String(l.personId._id||l.personId),percent:l.percent!=null?l.percent:0,hours:l.hours!=null?l.hours:0})):L()};function a(){return e.serviceIds.length?e.serviceIds.map(l=>{const w=v.services.find($=>String($._id)===String(l));return w?`
+      `);bindAttachmentUploader("mDelUpload"),u.querySelector("#mDelSaveBtn").onclick=async()=>{const x=getUploaderAttachments("mDelUpload"),h=u.querySelector("#mDelNote").value.trim(),f=(u.querySelector("#mDelUrl")||{}).value?.trim()||"",c=u.querySelector("#mDelMarkComplete")?.checked??!0,b=x.map(r=>({...r,notes:h}));if(f){let r=f;/^https?:\/\//i.test(r)||(r="https://"+r),b.unshift({name:h?`${h} (Live URL)`:"Live Deliverable URL / Website",url:r,type:"url",size:0,notes:h||"Live URL"})}if(!b.length){flashToast("Please enter a deliverable URL or select files",!0);return}try{await apiPost(`/jobs/${a}/deliverables`,{deliverables:b,markComplete:c}),flashToast(c?"Deliverables added & sent to Client for Approval! 📦🎉":"Deliverables added! 📦"),u.remove(),y()}catch(r){flashToast(r.message,!0)}},u.querySelector("#mCloseFiles").onclick=()=>u.remove()}}),document.querySelectorAll(".edit-job, .assign-cell-click").forEach(e=>{e.onclick=()=>{const a=e.dataset.id,i=s.find(n=>n._id===a);i&&we(i,()=>y())}}),document.querySelectorAll(".toggle-status-btn").forEach(e=>e.onclick=async()=>{const a=e.dataset.id,i=e.dataset.done==="false",n=s.find(u=>u._id===a);let o=n?n.completionDate:null;i&&!o&&(o=new Date().toISOString().slice(0,10)),await apiPut("/jobs/"+a,{status:i?"Completed":"In Progress",completionDate:o}),flashToast(i?"Job marked as Completed!":"Job marked as In Progress"),y()}),document.querySelectorAll(".del-job").forEach(e=>e.onclick=async()=>{confirm("Delete this job?")&&(await apiDelete("/jobs/"+e.dataset.id),flashToast("Deleted"),y())})}function we(t,s){let e={title:t.title||"",clientId:t.clientId?t.clientId._id||t.clientId:"",serviceIds:t.serviceIds?t.serviceIds.map(l=>l._id||l):[],date:t.date?new Date(t.date).toISOString().slice(0,10):new Date().toISOString().slice(0,10),completionDate:t.completionDate?new Date(t.completionDate).toISOString().slice(0,10):"",status:t.status||"In Progress",priority:t.priority||"Medium",value:t.value!=null?t.value:"",description:t.description||"",preferredPersonId:t.preferredPersonId?t.preferredPersonId._id||t.preferredPersonId:"",assignments:t.assignments&&t.assignments.length?t.assignments.map(l=>({personId:String(l.personId._id||l.personId),percent:l.percent!=null?l.percent:0,hours:l.hours!=null?l.hours:0})):j()};function a(){return e.serviceIds.length?e.serviceIds.map(l=>{const w=g.services.find($=>String($._id)===String(l));return w?`
         <span class="badge blue" style="display:inline-flex;align-items:center;gap:6px;padding:4px 10px;font-size:12px;border-radius:20px;">
           ${escapeHtml(w.name)}
           <span class="m-remove-service" data-id="${w._id}" style="cursor:pointer;font-weight:bold;margin-left:4px;" title="Remove service">✕</span>
@@ -383,7 +383,7 @@ import{l as ie,m as ne}from"./api-D7P-iGMH.js";import{initProposalStudio as le}f
         <div class="field" style="margin-bottom:0;">
           <select class="m-a-person" style="padding:6px 8px;font-size:13px;width:100%;">
             <option value="">Select team member…</option>
-            ${v.personnel.map($=>`<option value="${$._id}" ${String($._id)===String(l.personId)?"selected":""}>${escapeHtml($.name)}${$.duties?` (${escapeHtml($.duties)})`:""}</option>`).join("")}
+            ${g.personnel.map($=>`<option value="${$._id}" ${String($._id)===String(l.personId)?"selected":""}>${escapeHtml($.name)}${$.duties?` (${escapeHtml($.duties)})`:""}</option>`).join("")}
           </select>
         </div>
         <div class="field" style="margin-bottom:0;">
@@ -416,7 +416,7 @@ import{l as ie,m as ne}from"./api-D7P-iGMH.js";import{initProposalStudio as le}f
           <label>CLIENT *</label>
           <select id="mEditClient">
             <option value="">Select client…</option>
-            ${v.clients.map(l=>`<option value="${l._id}" ${String(l._id)===String(e.clientId)?"selected":""}>${escapeHtml(l.name)}</option>`).join("")}
+            ${g.clients.map(l=>`<option value="${l._id}" ${String(l._id)===String(e.clientId)?"selected":""}>${escapeHtml(l.name)}</option>`).join("")}
           </select>
         </div>
         <div class="field" style="margin-bottom:0;">
@@ -443,7 +443,7 @@ import{l as ie,m as ne}from"./api-D7P-iGMH.js";import{initProposalStudio as le}f
         <label>SERVICE(S) DELIVERED *</label>
         <select id="mEditServiceSelect">
           <option value="">Select service to add…</option>
-          ${v.services.map(l=>`<option value="${l._id}">${escapeHtml(l.name)}</option>`).join("")}
+          ${g.services.map(l=>`<option value="${l._id}">${escapeHtml(l.name)}</option>`).join("")}
         </select>
         <div id="mEditServicesTags" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;">
           ${a()}
@@ -505,15 +505,23 @@ import{l as ie,m as ne}from"./api-D7P-iGMH.js";import{initProposalStudio as le}f
         </div>
       </div>
 
-      <div class="modal-actions" style="margin-top:16px;">
-        <button type="button" class="btn ghost" id="mEditCancel">Cancel</button>
-        <button type="button" class="btn gold" id="mEditSave" style="padding:8px 20px;">Save & Update Assignments</button>
+      <div class="modal-actions" style="margin-top:16px;display:flex;justify-content:space-between;align-items:center;">
+        <div>
+          ${q?.role==="superadmin"?`
+            <button type="button" class="btn danger" id="mEditDeleteJob" style="padding:8px 16px;">🗑️ Delete Job</button>
+          `:""}
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button type="button" class="btn ghost" id="mEditCancel">Cancel</button>
+          <button type="button" class="btn gold" id="mEditSave" style="padding:8px 20px;">Save & Update Assignments</button>
+        </div>
       </div>
     </div>
-  `),r=n.querySelector(".modal");r&&(r.style.maxWidth="680px"),bindAttachmentUploader("mEditAttachments",{existing:t.attachments||[]}),bindAttachmentUploader("mEditDeliverables",{existing:t.deliverables||[]});const m=()=>{const l=e.assignments.reduce(($,D)=>$+(Number(D.percent)||0),0),w=n.querySelector("#mAssignTotalInfo");w&&(w.innerHTML=l===100?'<span style="color:var(--green, #10b981);">✓ 100% Allocated</span>':`<span style="color:var(--amber, #f59e0b);">⚠️ ${l}% Allocated (should be 100%)</span>`)},x=()=>{n.querySelectorAll(".m-remove-service").forEach(l=>{l.onclick=()=>{const w=l.dataset.id;e.serviceIds=e.serviceIds.filter($=>String($)!==String(w)),n.querySelector("#mEditServicesTags").innerHTML=a(),x()}})},h=()=>{n.querySelectorAll(".m-person-assign-row").forEach(l=>{const w=Number(l.dataset.idx),$=l.querySelector(".m-a-person");$&&($.onchange=R=>e.assignments[w].personId=R.target.value);const D=l.querySelector(".m-a-percent");D&&(D.oninput=R=>{e.assignments[w].percent=R.target.value,m()});const B=l.querySelector(".m-a-hours");B&&(B.oninput=R=>e.assignments[w].hours=R.target.value);const _=l.querySelector(".m-a-remove");_&&(_.onclick=()=>{e.assignments.length>1?(e.assignments.splice(w,1),n.querySelector("#mEditAssignRows").innerHTML=i(),h(),m()):flashToast("Job must have at least one team member row",!0)})})},f=n.querySelector("#mCloseJobEdit"),d=n.querySelector("#mEditCancel");f&&(f.onclick=()=>n.remove()),d&&(d.onclick=()=>n.remove());const b=n.querySelector("#mEditTitle");b&&(b.oninput=l=>e.title=l.target.value);const o=n.querySelector("#mEditClient");o&&(o.onchange=l=>e.clientId=l.target.value);const S=n.querySelector("#mEditStatus");S&&(S.onchange=l=>e.status=l.target.value);const k=n.querySelector("#mEditDate");k&&(k.onchange=l=>e.date=l.target.value);const c=n.querySelector("#mEditCompletionDate");c&&(c.onchange=l=>e.completionDate=l.target.value);const u=n.querySelector("#mEditPriority");u&&(u.onchange=l=>e.priority=l.target.value);const T=n.querySelector("#mEditValue");T&&(T.oninput=l=>e.value=l.target.value);const I=n.querySelector("#mEditDesc");I&&(I.oninput=l=>e.description=l.target.value);const H=n.querySelector("#mEditServiceSelect");H&&(H.onchange=l=>{const w=l.target.value;w&&!e.serviceIds.map(String).includes(String(w))&&(e.serviceIds.push(w),n.querySelector("#mEditServicesTags").innerHTML=a(),x()),H.value=""}),x(),h(),m();const z=n.querySelector("#mAddAssignRow");z&&(z.onclick=()=>{e.assignments.push({personId:"",percent:0,hours:0}),n.querySelector("#mEditAssignRows").innerHTML=i(),h(),m()});const N=n.querySelector("#mEditSave");N&&(N.onclick=async()=>{try{if(!e.clientId){flashToast("Client is required",!0);return}if(!e.serviceIds||!e.serviceIds.length){flashToast("At least one service is required",!0);return}const l=e.assignments.filter(A=>A.personId&&String(A.personId).trim()!=="");if(!l.length){flashToast("Please select at least one assigned team member",!0);return}for(const A of l)if(A.hours===""||A.hours==null){flashToast("Enter hours spent for every assigned person",!0);return}const w=v.clients.find(A=>String(A._id)===String(e.clientId)),D=v.services.filter(A=>e.serviceIds.map(String).includes(String(A._id))).map(A=>A.name).join(", "),B=e.title||(w?`${w.name} — ${D||"Deliverable"}`:D||"Untitled Job"),_=getUploaderAttachments("mEditAttachments"),R=getUploaderAttachments("mEditDeliverables");await apiPut("/jobs/"+t._id,{title:B,clientId:e.clientId,serviceIds:e.serviceIds,date:e.date,completionDate:e.completionDate||null,status:e.status,priority:e.priority,value:Number(e.value)||0,description:e.description||"",assignments:l,attachments:_,deliverables:R});const qe=l.map(A=>te(A.personId)).join(", ");flashToast("Job updated & saved! 📁"),n.remove(),s&&s()}catch(l){flashToast(l.message,!0)}finally{N.disabled=!1,N.textContent="Save & Update Assignments"}})}async function we(t){C=await apiGet("/dashboard/admin?period="+g.period),t.innerHTML=`${J()}
+  `),o=n.querySelector(".modal");o&&(o.style.maxWidth="680px"),bindAttachmentUploader("mEditAttachments",{existing:t.attachments||[]}),bindAttachmentUploader("mEditDeliverables",{existing:t.deliverables||[]});const u=()=>{const l=e.assignments.reduce(($,R)=>$+(Number(R.percent)||0),0),w=n.querySelector("#mAssignTotalInfo");w&&(w.innerHTML=l===100?'<span style="color:var(--green, #10b981);">✓ 100% Allocated</span>':`<span style="color:var(--amber, #f59e0b);">⚠️ ${l}% Allocated (should be 100%)</span>`)},x=()=>{n.querySelectorAll(".m-remove-service").forEach(l=>{l.onclick=()=>{const w=l.dataset.id;e.serviceIds=e.serviceIds.filter($=>String($)!==String(w)),n.querySelector("#mEditServicesTags").innerHTML=a(),x()}})},h=()=>{n.querySelectorAll(".m-person-assign-row").forEach(l=>{const w=Number(l.dataset.idx),$=l.querySelector(".m-a-person");$&&($.onchange=N=>e.assignments[w].personId=N.target.value);const R=l.querySelector(".m-a-percent");R&&(R.oninput=N=>{e.assignments[w].percent=N.target.value,u()});const B=l.querySelector(".m-a-hours");B&&(B.oninput=N=>e.assignments[w].hours=N.target.value);const L=l.querySelector(".m-a-remove");L&&(L.onclick=()=>{e.assignments.length>1?(e.assignments.splice(w,1),n.querySelector("#mEditAssignRows").innerHTML=i(),h(),u()):flashToast("Job must have at least one team member row",!0)})})},f=n.querySelector("#mCloseJobEdit"),c=n.querySelector("#mEditCancel");f&&(f.onclick=()=>n.remove()),c&&(c.onclick=()=>n.remove());const b=n.querySelector("#mEditDeleteJob");b&&(b.onclick=async()=>{const l=t.title||"this job";if(confirm(`Are you sure you want to delete "${l}"?
+(It will be safely retained in the database archive.)`))try{await apiDelete("/jobs/"+t._id),flashToast("Job deleted"),n.remove(),s&&s()}catch(w){flashToast(w.message,!0)}});const r=n.querySelector("#mEditTitle");r&&(r.oninput=l=>e.title=l.target.value);const S=n.querySelector("#mEditClient");S&&(S.onchange=l=>e.clientId=l.target.value);const k=n.querySelector("#mEditStatus");k&&(k.onchange=l=>e.status=l.target.value);const d=n.querySelector("#mEditDate");d&&(d.onchange=l=>e.date=l.target.value);const p=n.querySelector("#mEditCompletionDate");p&&(p.onchange=l=>e.completionDate=l.target.value);const A=n.querySelector("#mEditPriority");A&&(A.onchange=l=>e.priority=l.target.value);const C=n.querySelector("#mEditValue");C&&(C.oninput=l=>e.value=l.target.value);const U=n.querySelector("#mEditDesc");U&&(U.oninput=l=>e.description=l.target.value);const P=n.querySelector("#mEditServiceSelect");P&&(P.onchange=l=>{const w=l.target.value;w&&!e.serviceIds.map(String).includes(String(w))&&(e.serviceIds.push(w),n.querySelector("#mEditServicesTags").innerHTML=a(),x()),P.value=""}),x(),h(),u();const M=n.querySelector("#mAddAssignRow");M&&(M.onclick=()=>{e.assignments.push({personId:"",percent:0,hours:0}),n.querySelector("#mEditAssignRows").innerHTML=i(),h(),u()});const _=n.querySelector("#mEditSave");_&&(_.onclick=async()=>{try{if(!e.clientId){flashToast("Client is required",!0);return}if(!e.serviceIds||!e.serviceIds.length){flashToast("At least one service is required",!0);return}const l=e.assignments.filter(T=>T.personId&&String(T.personId).trim()!=="");if(!l.length){flashToast("Please select at least one assigned team member",!0);return}for(const T of l)if(T.hours===""||T.hours==null){flashToast("Enter hours spent for every assigned person",!0);return}const w=g.clients.find(T=>String(T._id)===String(e.clientId)),R=g.services.filter(T=>e.serviceIds.map(String).includes(String(T._id))).map(T=>T.name).join(", "),B=e.title||(w?`${w.name} — ${R||"Deliverable"}`:R||"Untitled Job"),L=getUploaderAttachments("mEditAttachments"),N=getUploaderAttachments("mEditDeliverables");await apiPut("/jobs/"+t._id,{title:B,clientId:e.clientId,serviceIds:e.serviceIds,date:e.date,completionDate:e.completionDate||null,status:e.status,priority:e.priority,value:Number(e.value)||0,description:e.description||"",assignments:l,attachments:L,deliverables:N});const De=l.map(T=>se(T.personId)).join(", ");flashToast("Job updated & saved! 📁"),n.remove(),s&&s()}catch(l){flashToast(l.message,!0)}finally{_.disabled=!1,_.textContent="Save & Update Assignments"}})}async function Se(t){I=await apiGet("/dashboard/admin?period="+v.period),t.innerHTML=`${V()}
     <section class="block"><h2>By Client</h2>
       <div class="grid grid-3">
-        ${C.clients.map(s=>`
+        ${I.clients.map(s=>`
           <div class="card">
             <h3 style="font-size:17px;">${escapeHtml(s.name)}</h3>
             <div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span class="muted">Work Value</span><strong>${fmtINR(s.value)}</strong></div>
@@ -522,53 +530,72 @@ import{l as ie,m as ne}from"./api-D7P-iGMH.js";import{initProposalStudio as le}f
             <div style="display:flex;justify-content:space-between;"><span class="muted">People Involved</span><strong>${s.peopleCount}</strong></div>
           </div>`).join("")||'<div class="empty">No clients yet.</div>'}
       </div>
-    </section>`,W()}async function se(t){C=await apiGet("/dashboard/admin?period="+g.period),t.innerHTML=`${J()}
+    </section>`,G()}async function O(t){I=await apiGet("/dashboard/admin?period="+v.period);const s=q?.role==="superadmin";t.innerHTML=`${V()}
     <section class="block"><h2>By Person</h2>
       <div class="card table-card" style="padding:0;overflow:hidden">
         <div class="table-wrapper">
-          <table><thead><tr><th style="padding-left:22px">Person</th><th>Duties</th><th>Status</th><th class="num">Hours</th><th class="num">Utilization</th><th class="num">Jobs</th><th class="num" style="padding-right:22px">Work Credit</th></tr></thead>
-          <tbody>${C.personnel.map(s=>{const e=(s.status||"active").toLowerCase(),a=s.personId||s._id;return`<tr>
-              <td style="padding-left:22px"><strong>${escapeHtml(s.name)}</strong></td><td class="muted">${escapeHtml(s.duties||"")}</td>
+          <table><thead><tr>
+            <th style="padding-left:22px">Person</th>
+            <th>Duties</th>
+            <th>Status</th>
+            <th class="num">Hours</th>
+            <th class="num">Utilization</th>
+            <th class="num">Jobs</th>
+            <th class="num">Work Credit</th>
+            ${s?'<th class="num" style="padding-right:22px;text-align:right">Actions</th>':""}
+          </tr></thead>
+          <tbody>${I.personnel.map(e=>{const a=(e.status||"active").toLowerCase(),i=e.personId||e._id;return`<tr>
+              <td style="padding-left:22px"><strong>${escapeHtml(e.name)}</strong></td><td class="muted">${escapeHtml(e.duties||"")}</td>
               <td>
-                <select class="person-status-sel" data-id="${a}" style="padding:4px 10px;font-size:12.5px;font-weight:700;border-radius:6px;border:1px solid var(--border-sm);background:var(--bg-input);color:var(--text-1);cursor:pointer;">
-                  <option value="active" ${e==="active"?"selected":""}>🟢 Active</option>
-                  <option value="work from home" ${e==="work from home"||e==="wfh"?"selected":""}>🏠 Work From Home</option>
-                  <option value="on leave" ${e==="on leave"||e==="pn leave"?"selected":""}>🏖️ On Leave</option>
+                <select class="person-status-sel" data-id="${i}" style="padding:4px 10px;font-size:12.5px;font-weight:700;border-radius:6px;border:1px solid var(--border-sm);background:var(--bg-input);color:var(--text-1);cursor:pointer;">
+                  <option value="active" ${a==="active"?"selected":""}>🟢 Active</option>
+                  <option value="work from home" ${a==="work from home"||a==="wfh"?"selected":""}>🏠 Work From Home</option>
+                  <option value="on leave" ${a==="on leave"||a==="pn leave"?"selected":""}>🏖️ On Leave</option>
                 </select>
               </td>
-              <td class="num">${fmtHours(s.hours)}</td>
-              <td class="num"><span class="badge ${s.cls}">${s.label}</span> ${s.utilization.toFixed(0)}%</td>
-              <td class="num">${s.jobCount}</td><td class="num" style="padding-right:22px">${fmtINR(s.revenue)}</td>
+              <td class="num">${fmtHours(e.hours)}</td>
+              <td class="num"><span class="badge ${e.cls}">${e.label}</span> ${e.utilization.toFixed(0)}%</td>
+              <td class="num">${e.jobCount}</td>
+              <td class="num">${fmtINR(e.revenue)}</td>
+              ${s?`
+                <td class="num" style="padding-right:22px;text-align:right;white-space:nowrap">
+                  <div style="display:inline-flex;gap:6px;align-items:center;justify-content:flex-end">
+                    <button class="btn ghost small edit-person-direct" data-id="${i}" style="padding:3px 8px;font-size:11.5px">Edit</button>
+                    <button class="btn danger small del-person-direct" data-id="${i}" style="padding:3px 8px;font-size:11.5px">Remove</button>
+                  </div>
+                </td>
+              `:""}
             </tr>`}).join("")}</tbody></table>
         </div>
       </div>
-    </section>`,W(),document.querySelectorAll(".person-status-sel").forEach(s=>{s.onchange=async e=>{const a=s.dataset.id,i=e.target.value;try{await apiPut("/personnel/"+a,{status:i}),await E(),flashToast("Status updated to "+i),se(t)}catch(n){flashToast(n.message,!0)}}})}const U=[["strategy","Strategy"],["cs","CS"],["website","Website"],["design","Design"],["copy","Copy"],["edit","Edit"],["shoot","Shoot"],["seo","SEO"],["smo","SMO"],["qc","QC"]];async function Se(t){const s=await apiGet("/roster");t.innerHTML=`
+    </section>`,G(),document.querySelectorAll(".person-status-sel").forEach(e=>{e.onchange=async a=>{const i=e.dataset.id,n=a.target.value;try{await apiPut("/personnel/"+i,{status:n}),await E(),flashToast("Status updated to "+n),O(t)}catch(o){flashToast(o.message,!0)}}}),document.querySelectorAll(".edit-person-direct").forEach(e=>{e.onclick=()=>{const a=g.personnel.find(i=>String(i._id)===String(e.dataset.id));a&&F(a)}}),document.querySelectorAll(".del-person-direct").forEach(e=>{e.onclick=async()=>{const a=g.personnel.find(n=>String(n._id)===String(e.dataset.id)),i=a?a.name:"this person";if(confirm(`Are you sure you want to remove ${i}?
+(They will be safely retained in the database archive.)`))try{await apiDelete("/personnel/"+e.dataset.id),await E(),flashToast(`${i} removed`),O(t)}catch(n){flashToast(n.message,!0)}}})}const H=[["strategy","Strategy"],["cs","CS"],["website","Website"],["design","Design"],["copy","Copy"],["edit","Edit"],["shoot","Shoot"],["seo","SEO"],["smo","SMO"],["qc","QC"]];async function $e(t){const s=await apiGet("/roster");t.innerHTML=`
     <section class="block">
       <h2>Accounts <span class="eyebrow">${s.length} accounts</span></h2>
       <div class="banner">Who owns which function on each account — separate from the job/hours log.</div>
       <div style="margin-bottom:14px;display:flex;gap:8px;"><button class="btn gold small" id="addAccountBtn">+ Add Account</button></div>
       <div class="card table-card" style="padding:0;overflow:hidden">
         <div class="table-wrapper">
-          <table><thead><tr><th style="padding-left:22px">Client</th><th>Nature</th>${U.map(e=>`<th>${e[1]}</th>`).join("")}<th class="num">Difficulty</th><th class="num" style="padding-right:22px"></th></tr></thead>
+          <table><thead><tr><th style="padding-left:22px">Client</th><th>Nature</th>${H.map(e=>`<th>${e[1]}</th>`).join("")}<th class="num">Difficulty</th><th class="num" style="padding-right:22px"></th></tr></thead>
           <tbody>${s.map(e=>`<tr>
-            <td style="padding-left:22px"><strong>${escapeHtml(O(e.clientId))}</strong></td>
+            <td style="padding-left:22px"><strong>${escapeHtml(W(e.clientId))}</strong></td>
             <td><span class="badge ${e.nature==="Existing"?"green":"blue"}">${e.nature}</span></td>
-            ${U.map(a=>`<td>${escapeHtml(e.roles[a[0]]||"—")}</td>`).join("")}
+            ${H.map(a=>`<td>${escapeHtml(e.roles[a[0]]||"—")}</td>`).join("")}
             <td class="num"><span class="badge ${e.difficulty>=9?"red":e.difficulty>=7?"amber":e.difficulty>=4?"blue":"green"}">${e.difficulty}</span></td>
             <td class="num" style="padding-right:22px"><button class="btn ghost small edit-roster" data-id="${e._id}">Edit</button></td>
           </tr>`).join("")||'<tr><td colspan="13"><div class="empty">No accounts yet.</div></td></tr>'}</tbody></table>
         </div>
       </div>
-    </section>`,document.getElementById("addAccountBtn").onclick=()=>G(null),document.querySelectorAll(".edit-roster").forEach(e=>e.onclick=()=>G(s.find(a=>a._id===e.dataset.id)))}function G(t){const s=!t,e=t||{_id:null,clientId:"",nature:"Existing",roles:{},difficulty:5,comments:""};U.forEach(i=>{e.roles[i[0]]==null&&(e.roles[i[0]]="")});const a=openModal(`
+    </section>`,document.getElementById("addAccountBtn").onclick=()=>Y(null),document.querySelectorAll(".edit-roster").forEach(e=>e.onclick=()=>Y(s.find(a=>a._id===e.dataset.id)))}function Y(t){const s=!t,e=t||{_id:null,clientId:"",nature:"Existing",roles:{},difficulty:5,comments:""};H.forEach(i=>{e.roles[i[0]]==null&&(e.roles[i[0]]="")});const a=openModal(`
     <h3>${s?"Add Account":"Edit Account"}</h3>
     <div class="field-row">
       <div class="field"><label>Client</label>
-        ${s?`<select id="rClient"><option value="">Select…</option>${v.clients.map(i=>`<option value="${i._id}">${escapeHtml(i.name)}</option>`).join("")}</select>`:`<input type="text" value="${escapeHtml(O(e.clientId))}" disabled>`}
+        ${s?`<select id="rClient"><option value="">Select…</option>${g.clients.map(i=>`<option value="${i._id}">${escapeHtml(i.name)}</option>`).join("")}</select>`:`<input type="text" value="${escapeHtml(W(e.clientId))}" disabled>`}
       </div>
       <div class="field"><label>Nature</label><select id="rNature"><option value="Existing" ${e.nature==="Existing"?"selected":""}>Existing</option><option value="Prospect" ${e.nature==="Prospect"?"selected":""}>Prospect</option></select></div>
     </div>
-    <div class="field-row">${U.slice(0,5).map(i=>`<div class="field"><label>${i[1]}</label><input type="text" class="r-role" data-key="${i[0]}" value="${escapeHtml(e.roles[i[0]])}"></div>`).join("")}</div>
-    <div class="field-row">${U.slice(5,10).map(i=>`<div class="field"><label>${i[1]}</label><input type="text" class="r-role" data-key="${i[0]}" value="${escapeHtml(e.roles[i[0]])}"></div>`).join("")}</div>
+    <div class="field-row">${H.slice(0,5).map(i=>`<div class="field"><label>${i[1]}</label><input type="text" class="r-role" data-key="${i[0]}" value="${escapeHtml(e.roles[i[0]])}"></div>`).join("")}</div>
+    <div class="field-row">${H.slice(5,10).map(i=>`<div class="field"><label>${i[1]}</label><input type="text" class="r-role" data-key="${i[0]}" value="${escapeHtml(e.roles[i[0]])}"></div>`).join("")}</div>
     <div class="field-row">
       <div class="field"><label>Difficulty (1-10)</label><input id="rDifficulty" type="number" min="1" max="10" value="${e.difficulty}"></div>
     </div>
@@ -577,7 +604,7 @@ import{l as ie,m as ne}from"./api-D7P-iGMH.js";import{initProposalStudio as le}f
       ${s?"":'<button class="btn danger" id="mDelete" style="margin-right:auto;">Remove</button>'}
       <button class="btn ghost" id="mCancel">Cancel</button>
       <button class="btn gold" id="mSave">Save</button>
-    </div>`);a.querySelector("#mCancel").onclick=()=>a.remove(),s||(a.querySelector("#mDelete").onclick=async()=>{confirm("Remove this account?")&&(await apiDelete("/roster/"+e._id),a.remove(),y())}),a.querySelector("#mSave").onclick=async()=>{const i={};a.querySelectorAll(".r-role").forEach(r=>i[r.dataset.key]=r.value.trim());const n={nature:a.querySelector("#rNature").value,roles:i,difficulty:Number(a.querySelector("#rDifficulty").value)||1,comments:a.querySelector("#rComments").value.trim()};try{if(s){const r=a.querySelector("#rClient").value;if(!r){flashToast("Select a client",!0);return}await apiPost("/roster",Object.assign({clientId:r},n))}else await apiPut("/roster/"+e._id,n);a.remove(),y()}catch(r){flashToast(r.message,!0)}}}function $e(t){if(!t)return"Deliverables";const s={count:"Deliverables",hours:"Hours",reels:"Reels",stories:"Stories",posts:"Posts"};return s[t]?s[t]:t.charAt(0).toUpperCase()+t.slice(1)}async function ke(t){const s=await apiGet("/targets"),e={day:"Daily",week:"Weekly",month:"Monthly"};t.innerHTML=`
+    </div>`);a.querySelector("#mCancel").onclick=()=>a.remove(),s||(a.querySelector("#mDelete").onclick=async()=>{confirm("Remove this account?")&&(await apiDelete("/roster/"+e._id),a.remove(),y())}),a.querySelector("#mSave").onclick=async()=>{const i={};a.querySelectorAll(".r-role").forEach(o=>i[o.dataset.key]=o.value.trim());const n={nature:a.querySelector("#rNature").value,roles:i,difficulty:Number(a.querySelector("#rDifficulty").value)||1,comments:a.querySelector("#rComments").value.trim()};try{if(s){const o=a.querySelector("#rClient").value;if(!o){flashToast("Select a client",!0);return}await apiPost("/roster",Object.assign({clientId:o},n))}else await apiPut("/roster/"+e._id,n);a.remove(),y()}catch(o){flashToast(o.message,!0)}}}function ke(t){if(!t)return"Deliverables";const s={count:"Deliverables",hours:"Hours",reels:"Reels",stories:"Stories",posts:"Posts"};return s[t]?s[t]:t.charAt(0).toUpperCase()+t.slice(1)}async function Ae(t){const s=await apiGet("/targets"),e={day:"Daily",week:"Weekly",month:"Monthly"};t.innerHTML=`
     <section class="block">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
         <div>
@@ -602,21 +629,21 @@ import{l as ie,m as ne}from"./api-D7P-iGMH.js";import{initProposalStudio as le}f
               </tr>
             </thead>
             <tbody>
-              ${s.map(a=>{const i=a.personId?.name||"—",n=a.serviceId?.name||"—",r=$e(a.unit),m=e[a.period]||(a.period?a.period.toUpperCase():"Daily"),x=a.actual||0,h=a.quantity>0?x/a.quantity:0,f=Math.round(h*100),d=h>=1?"green":h>=.6?"amber":"red",b=h>=1?"✓ Met":h>=.6?"Behind":"Off Pace",o=Math.min(f,100);return`
+              ${s.map(a=>{const i=a.personId?.name||"—",n=a.serviceId?.name||"—",o=ke(a.unit),u=e[a.period]||(a.period?a.period.toUpperCase():"Daily"),x=a.actual||0,h=a.quantity>0?x/a.quantity:0,f=Math.round(h*100),c=h>=1?"green":h>=.6?"amber":"red",b=h>=1?"✓ Met":h>=.6?"Behind":"Off Pace",r=Math.min(f,100);return`
                 <tr>
                   <td style="padding-left:22px"><strong>${escapeHtml(i)}</strong></td>
                   <td><span class="badge blue" style="white-space:normal;line-height:1.3;display:inline-block;padding:4px 8px;font-size:12px">${escapeHtml(n)}</span></td>
                   <td><span style="font-size:14px;font-weight:700;color:var(--text-1)">${a.quantity}</span></td>
-                  <td><span class="badge gray">${escapeHtml(r)}</span></td>
-                  <td><span class="badge gray" style="font-weight:600">${m}</span></td>
+                  <td><span class="badge gray">${escapeHtml(o)}</span></td>
+                  <td><span class="badge gray" style="font-weight:600">${u}</span></td>
                   <td>
                     <div style="display:flex;flex-direction:column;gap:4px">
                       <div style="display:flex;justify-content:space-between;align-items:center;font-size:11.5px">
                         <span style="font-weight:700;color:var(--text-1)">${x} / ${a.quantity} <span style="font-weight:500;color:var(--text-3)">(${f}%)</span></span>
-                        <span class="badge ${d}" style="font-size:10px;padding:1px 5px">${b}</span>
+                        <span class="badge ${c}" style="font-size:10px;padding:1px 5px">${b}</span>
                       </div>
                       <div style="height:5px;width:100%;background:var(--bg-surface);border-radius:10px;overflow:hidden;border:1px solid var(--border-xs)">
-                        <div style="width:${o}%;height:100%;background:var(--${d==="green"?"green":"amber"}-500);border-radius:10px;transition:width 0.6s ease"></div>
+                        <div style="width:${r}%;height:100%;background:var(--${c==="green"?"green":"amber"}-500);border-radius:10px;transition:width 0.6s ease"></div>
                       </div>
                     </div>
                   </td>
@@ -632,21 +659,21 @@ import{l as ie,m as ne}from"./api-D7P-iGMH.js";import{initProposalStudio as le}f
         </div>
       </div>
     </section>
-  `,document.getElementById("addAdminTargetBtn").onclick=()=>Q(null),document.querySelectorAll(".edit-target").forEach(a=>{a.onclick=()=>Q(s.find(i=>i._id===a.dataset.id))}),document.querySelectorAll(".del-target").forEach(a=>{a.onclick=async()=>{if(confirm("Remove this target?"))try{await apiDelete("/targets/"+a.dataset.id),flashToast("Target removed"),y()}catch(i){flashToast(i.message,!0)}}})}function Q(t){const s=!t;t=t||{personId:v.personnel[0]?._id,serviceId:v.services[0]?._id,quantity:5,unit:"reels",period:"day"};const e=t.personId?._id||t.personId||"",a=t.serviceId?._id||t.serviceId||"",n=["reels","stories","posts","count","hours"].includes(t.unit),r=openModal(`
+  `,document.getElementById("addAdminTargetBtn").onclick=()=>X(null),document.querySelectorAll(".edit-target").forEach(a=>{a.onclick=()=>X(s.find(i=>i._id===a.dataset.id))}),document.querySelectorAll(".del-target").forEach(a=>{a.onclick=async()=>{if(confirm("Remove this target?"))try{await apiDelete("/targets/"+a.dataset.id),flashToast("Target removed"),y()}catch(i){flashToast(i.message,!0)}}})}function X(t){const s=!t;t=t||{personId:g.personnel[0]?._id,serviceId:g.services[0]?._id,quantity:5,unit:"reels",period:"day"};const e=t.personId?._id||t.personId||"",a=t.serviceId?._id||t.serviceId||"",n=["reels","stories","posts","count","hours"].includes(t.unit),o=openModal(`
     <h3>${s?"Assign New":"Edit"} Target</h3>
     <p style="font-size:12.5px;color:var(--text-3);margin-bottom:16px">Set output goals for reels, stories, posts, hours, or any custom deliverable.</p>
 
     <div class="field" style="margin-bottom:12px">
       <label>Personnel Member *</label>
       <select id="mTgtPerson">
-        ${v.personnel.map(f=>`<option value="${f._id}" ${String(f._id)===String(e)?"selected":""}>${escapeHtml(f.name)}</option>`).join("")}
+        ${g.personnel.map(f=>`<option value="${f._id}" ${String(f._id)===String(e)?"selected":""}>${escapeHtml(f.name)}</option>`).join("")}
       </select>
     </div>
 
     <div class="field" style="margin-bottom:12px">
       <label>Service / Deliverable Type *</label>
       <select id="mTgtService">
-        ${v.services.map(f=>`<option value="${f._id}" ${String(f._id)===String(a)?"selected":""}>${escapeHtml(f.name)}</option>`).join("")}
+        ${g.services.map(f=>`<option value="${f._id}" ${String(f._id)===String(a)?"selected":""}>${escapeHtml(f.name)}</option>`).join("")}
       </select>
     </div>
 
@@ -690,7 +717,7 @@ import{l as ie,m as ne}from"./api-D7P-iGMH.js";import{initProposalStudio as le}f
       <button class="btn ghost" id="mCancel">Cancel</button>
       <button class="btn gold" id="mSave">Save Target</button>
     </div>
-  `);bindAttachmentUploader("mTgtAttachments",{existing:t.attachments||[]});const m=r.querySelector("#mTgtUnit"),x=r.querySelector("#mTgtCustomUnitWrap"),h=r.querySelector("#mTgtCustomUnit");m.onchange=()=>{m.value==="custom"?(x.style.display="flex",h.focus()):x.style.display="none"},r.querySelector("#mCancel").onclick=()=>r.remove(),r.querySelector("#mSave").onclick=async()=>{let f=m.value;f==="custom"&&(f=h.value.trim()||"Deliverables");const d=getUploaderAttachments("mTgtAttachments"),b={personId:r.querySelector("#mTgtPerson").value,serviceId:r.querySelector("#mTgtService").value,quantity:Number(r.querySelector("#mTgtQty").value)||1,unit:f,period:r.querySelector("#mTgtPeriod").value,attachments:d};if(!b.personId||!b.serviceId){flashToast("Person and Service are required",!0);return}try{s?await apiPost("/targets",b):await apiPut("/targets/"+t._id,b),flashToast("Target saved successfully! 🎯"),r.remove(),y()}catch(o){flashToast(o.message,!0)}}}async function Ae(t){const[s,e]=await Promise.all([apiGet("/salary/grades"),apiGet("/salary/assignments")]);v.salaryGrades=s,v.salaryAssignments=e;const a={};e.forEach(i=>a[i.personId]=i.gradeId),t.innerHTML=`
+  `);bindAttachmentUploader("mTgtAttachments",{existing:t.attachments||[]});const u=o.querySelector("#mTgtUnit"),x=o.querySelector("#mTgtCustomUnitWrap"),h=o.querySelector("#mTgtCustomUnit");u.onchange=()=>{u.value==="custom"?(x.style.display="flex",h.focus()):x.style.display="none"},o.querySelector("#mCancel").onclick=()=>o.remove(),o.querySelector("#mSave").onclick=async()=>{let f=u.value;f==="custom"&&(f=h.value.trim()||"Deliverables");const c=getUploaderAttachments("mTgtAttachments"),b={personId:o.querySelector("#mTgtPerson").value,serviceId:o.querySelector("#mTgtService").value,quantity:Number(o.querySelector("#mTgtQty").value)||1,unit:f,period:o.querySelector("#mTgtPeriod").value,attachments:c};if(!b.personId||!b.serviceId){flashToast("Person and Service are required",!0);return}try{s?await apiPost("/targets",b):await apiPut("/targets/"+t._id,b),flashToast("Target saved successfully! 🎯"),o.remove(),y()}catch(r){flashToast(r.message,!0)}}}async function Ce(t){const[s,e]=await Promise.all([apiGet("/salary/grades"),apiGet("/salary/assignments")]);g.salaryGrades=s,g.salaryAssignments=e;const a={};e.forEach(i=>a[i.personId]=i.gradeId),t.innerHTML=`
     <section class="block">
       <h2>Salary Grades <span class="eyebrow">Admin only</span></h2>
       <div class="banner">No individual's exact salary is ever entered — each person is placed in a grade band, and only the grade label appears anywhere else in the tool.</div>
@@ -699,14 +726,14 @@ import{l as ie,m as ne}from"./api-D7P-iGMH.js";import{initProposalStudio as le}f
       <div style="margin:10px 0 24px;"><button class="btn ghost small" id="addGradeBtn">+ Add Grade</button></div>
       <h3 style="font-size:15px;margin-bottom:8px;">Assign Grades</h3>
       <div class="card"><table><thead><tr><th>Person</th><th>Status</th><th class="num">Grade</th></tr></thead>
-      <tbody>${v.personnel.map(i=>`<tr><td><strong>${escapeHtml(i.name)}</strong><div class="muted">${escapeHtml(i.duties||"")}</div></td>
+      <tbody>${g.personnel.map(i=>`<tr><td><strong>${escapeHtml(i.name)}</strong><div class="muted">${escapeHtml(i.duties||"")}</div></td>
         <td><span class="badge green">${i.status}</span></td>
         <td class="num"><select class="grade-select" data-id="${i._id}"><option value="">Not set</option>${s.map(n=>`<option value="${n._id}" ${a[i._id]===n._id?"selected":""}>${escapeHtml(n.label)}</option>`).join("")}</select></td>
       </tr>`).join("")}</tbody></table></div>
-    </section>`,document.getElementById("addGradeBtn").onclick=()=>Y(null),document.querySelectorAll(".edit-grade").forEach(i=>i.onclick=()=>Y(s.find(n=>n._id===i.dataset.id))),document.querySelectorAll(".del-grade").forEach(i=>i.onclick=async()=>{confirm("Remove grade?")&&(await apiDelete("/salary/grades/"+i.dataset.id),y())}),document.querySelectorAll(".grade-select").forEach(i=>{i.onchange=async()=>{await apiPut("/salary/assignments/"+i.dataset.id,{gradeId:i.value||null}),flashToast("Saved")}})}function Y(t){const s=!t;t=t||{label:"",min:0,max:0};const e=openModal(`<h3>${s?"Add":"Edit"} Grade</h3>
+    </section>`,document.getElementById("addGradeBtn").onclick=()=>Z(null),document.querySelectorAll(".edit-grade").forEach(i=>i.onclick=()=>Z(s.find(n=>n._id===i.dataset.id))),document.querySelectorAll(".del-grade").forEach(i=>i.onclick=async()=>{confirm("Remove grade?")&&(await apiDelete("/salary/grades/"+i.dataset.id),y())}),document.querySelectorAll(".grade-select").forEach(i=>{i.onchange=async()=>{await apiPut("/salary/assignments/"+i.dataset.id,{gradeId:i.value||null}),flashToast("Saved")}})}function Z(t){const s=!t;t=t||{label:"",min:0,max:0};const e=openModal(`<h3>${s?"Add":"Edit"} Grade</h3>
     <div class="field"><label>Label</label><input id="gLabel" type="text" value="${escapeHtml(t.label)}"></div>
     <div class="field-row"><div class="field"><label>Range Start (₹)</label><input id="gMin" type="number" value="${t.min}"></div><div class="field"><label>Range End (₹)</label><input id="gMax" type="number" value="${t.max}"></div></div>
-    <div class="modal-actions"><button class="btn ghost" id="mCancel">Cancel</button><button class="btn gold" id="mSave">Save</button></div>`);e.querySelector("#mCancel").onclick=()=>e.remove(),e.querySelector("#mSave").onclick=async()=>{const a={label:e.querySelector("#gLabel").value.trim(),min:Number(e.querySelector("#gMin").value)||0,max:Number(e.querySelector("#gMax").value)||0};if(!a.label){flashToast("Label required",!0);return}try{s?await apiPost("/salary/grades",a):await apiPut("/salary/grades/"+t._id,a),e.remove(),y()}catch(i){flashToast(i.message,!0)}}}function Ce(t){const s={active:"green","work from home":"blue",wfh:"blue","on leave":"amber",inactive:"gray"};t.innerHTML=`
+    <div class="modal-actions"><button class="btn ghost" id="mCancel">Cancel</button><button class="btn gold" id="mSave">Save</button></div>`);e.querySelector("#mCancel").onclick=()=>e.remove(),e.querySelector("#mSave").onclick=async()=>{const a={label:e.querySelector("#gLabel").value.trim(),min:Number(e.querySelector("#gMin").value)||0,max:Number(e.querySelector("#gMax").value)||0};if(!a.label){flashToast("Label required",!0);return}try{s?await apiPost("/salary/grades",a):await apiPut("/salary/grades/"+t._id,a),e.remove(),y()}catch(i){flashToast(i.message,!0)}}}function Te(t){const s={active:"green","work from home":"blue",wfh:"blue","on leave":"amber",inactive:"gray"};t.innerHTML=`
     <section class="block">
       <!-- Admin Account Settings Card -->
       <div style="margin-bottom:24px;">
@@ -717,7 +744,7 @@ import{l as ie,m as ne}from"./api-D7P-iGMH.js";import{initProposalStudio as le}f
       <div class="card" style="margin-bottom:24px">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:12px">
           <div>
-            <h3 style="font-size:16px;font-weight:800;color:var(--text-1);margin:0 0 2px 0">Team Personnel (${v.personnel.length})</h3>
+            <h3 style="font-size:16px;font-weight:800;color:var(--text-1);margin:0 0 2px 0">Team Personnel (${g.personnel.length})</h3>
             <div style="font-size:12px;color:var(--text-3)">Active team members, capacities, and working arrangements</div>
           </div>
           <button class="btn gold small" id="addPersonBtn" type="button">+ Add Person</button>
@@ -734,7 +761,7 @@ import{l as ie,m as ne}from"./api-D7P-iGMH.js";import{initProposalStudio as le}f
               </tr>
             </thead>
             <tbody>
-              ${v.personnel.map(n=>`
+              ${g.personnel.map(n=>`
                 <tr>
                   <td><strong>${escapeHtml(n.name)}</strong></td>
                   <td>${escapeHtml(n.duties||"—")}</td>
@@ -755,7 +782,7 @@ import{l as ie,m as ne}from"./api-D7P-iGMH.js";import{initProposalStudio as le}f
       <div class="card" style="margin-bottom:24px">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:12px">
           <div>
-            <h3 style="font-size:16px;font-weight:800;color:var(--text-1);margin:0 0 2px 0">Client Accounts (${v.clients.length})</h3>
+            <h3 style="font-size:16px;font-weight:800;color:var(--text-1);margin:0 0 2px 0">Client Accounts (${g.clients.length})</h3>
             <div style="font-size:12px;color:var(--text-3)">Corporate clients, account details, and brand specifications</div>
           </div>
           <button class="btn gold small" id="addClientBtn" type="button">+ Add Client</button>
@@ -770,7 +797,7 @@ import{l as ie,m as ne}from"./api-D7P-iGMH.js";import{initProposalStudio as le}f
               </tr>
             </thead>
             <tbody>
-              ${v.clients.map(n=>`
+              ${g.clients.map(n=>`
                 <tr>
                   <td><strong>${escapeHtml(n.name)}</strong></td>
                   <td>${n.notes?escapeHtml(n.notes):'<span class="muted">—</span>'}</td>
@@ -789,7 +816,7 @@ import{l as ie,m as ne}from"./api-D7P-iGMH.js";import{initProposalStudio as le}f
       <div class="card">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:12px">
           <div>
-            <h3 style="font-size:16px;font-weight:800;color:var(--text-1);margin:0 0 2px 0">Service Offerings (${v.services.length})</h3>
+            <h3 style="font-size:16px;font-weight:800;color:var(--text-1);margin:0 0 2px 0">Service Offerings (${g.services.length})</h3>
             <div style="font-size:12px;color:var(--text-3)">Standard deliverable offerings and reference effort hours</div>
           </div>
           <button class="btn gold small" id="addServiceBtn" type="button">+ Add Service</button>
@@ -804,7 +831,7 @@ import{l as ie,m as ne}from"./api-D7P-iGMH.js";import{initProposalStudio as le}f
               </tr>
             </thead>
             <tbody>
-              ${v.services.map(n=>`
+              ${g.services.map(n=>`
                 <tr>
                   <td><strong>${escapeHtml(n.name)}</strong></td>
                   <td class="num"><strong>${n.hours||0} hrs</strong> baseline</td>
@@ -819,7 +846,7 @@ import{l as ie,m as ne}from"./api-D7P-iGMH.js";import{initProposalStudio as le}f
         </div>
       </div>
     </section>
-  `;const e=document.getElementById("addPersonBtn");e&&(e.onclick=()=>X(null)),document.querySelectorAll(".edit-person").forEach(n=>n.onclick=()=>X(v.personnel.find(r=>r._id===n.dataset.id))),document.querySelectorAll(".del-person").forEach(n=>n.onclick=async()=>{confirm("Remove this person?")&&(await apiDelete("/personnel/"+n.dataset.id),await E(),y())});const a=document.getElementById("addClientBtn");a&&(a.onclick=()=>Z(null)),document.querySelectorAll(".edit-client").forEach(n=>n.onclick=()=>Z(v.clients.find(r=>r._id===n.dataset.id))),document.querySelectorAll(".del-client").forEach(n=>n.onclick=async()=>{confirm("Remove this client?")&&(await apiDelete("/clients/"+n.dataset.id),await E(),y())});const i=document.getElementById("addServiceBtn");i&&(i.onclick=()=>K(null)),document.querySelectorAll(".edit-service").forEach(n=>n.onclick=()=>K(v.services.find(r=>r._id===n.dataset.id))),document.querySelectorAll(".del-service").forEach(n=>n.onclick=async()=>{confirm("Remove this service?")&&(await apiDelete("/services/"+n.dataset.id),await E(),y())}),ne(t)}const Te=Ce;function X(t){const s=!t;t=t||{name:"",duties:"",capacity:48,status:"active",attachments:[]};const e=openModal(`
+  `;const e=document.getElementById("addPersonBtn");e&&(e.onclick=()=>F(null)),document.querySelectorAll(".edit-person").forEach(n=>n.onclick=()=>F(g.personnel.find(o=>o._id===n.dataset.id))),document.querySelectorAll(".del-person").forEach(n=>n.onclick=async()=>{confirm("Remove this person?")&&(await apiDelete("/personnel/"+n.dataset.id),await E(),y())});const a=document.getElementById("addClientBtn");a&&(a.onclick=()=>K(null)),document.querySelectorAll(".edit-client").forEach(n=>n.onclick=()=>K(g.clients.find(o=>o._id===n.dataset.id))),document.querySelectorAll(".del-client").forEach(n=>n.onclick=async()=>{confirm("Remove this client?")&&(await apiDelete("/clients/"+n.dataset.id),await E(),y())});const i=document.getElementById("addServiceBtn");i&&(i.onclick=()=>ee(null)),document.querySelectorAll(".edit-service").forEach(n=>n.onclick=()=>ee(g.services.find(o=>o._id===n.dataset.id))),document.querySelectorAll(".del-service").forEach(n=>n.onclick=async()=>{confirm("Remove this service?")&&(await apiDelete("/services/"+n.dataset.id),await E(),y())}),ne(t)}const Ie=Te;function F(t){const s=!t;t=t||{name:"",duties:"",capacity:48,status:"active",attachments:[]};const e=openModal(`
     <h3>${s?"Add New":"Edit"} Person</h3>
     <div class="field"><label>Full Name *</label><input id="mName" type="text" value="${escapeHtml(t.name)}" placeholder="e.g. Shatayu Verma"></div>
     <div class="field"><label>Duties / Role</label><input id="mDuties" type="text" value="${escapeHtml(t.duties)}" placeholder="e.g. Lead Designer / Frontend"></div>
@@ -836,7 +863,7 @@ import{l as ie,m as ne}from"./api-D7P-iGMH.js";import{initProposalStudio as le}f
       ${renderAttachmentUploader({id:"mPersonFiles",label:"Documents & Contracts",subtitle:"Upload resumes, ID proofs, employment contracts or certificates"})}
     </div>
     <div class="modal-actions"><button class="btn ghost" id="mCancel">Cancel</button><button class="btn gold" id="mSave">Save Person</button></div>
-  `);bindAttachmentUploader("mPersonFiles",{existing:t.attachments||[]}),e.querySelector("#mCancel").onclick=()=>e.remove(),e.querySelector("#mSave").onclick=async()=>{const a=getUploaderAttachments("mPersonFiles"),i={name:e.querySelector("#mName").value.trim(),duties:e.querySelector("#mDuties").value.trim(),capacity:Number(e.querySelector("#mCapacity").value)||48,status:e.querySelector("#mStatus").value,attachments:a};if(!i.name){flashToast("Name is required",!0);return}try{s?await apiPost("/personnel",i):await apiPut("/personnel/"+t._id,i),await E(),flashToast("Person saved! 📁"),e.remove(),y()}catch(n){flashToast(n.message,!0)}}}function Z(t){const s=!t;t=t||{name:"",notes:"",attachments:[]};const e=openModal(`
+  `);bindAttachmentUploader("mPersonFiles",{existing:t.attachments||[]}),e.querySelector("#mCancel").onclick=()=>e.remove(),e.querySelector("#mSave").onclick=async()=>{const a=getUploaderAttachments("mPersonFiles"),i={name:e.querySelector("#mName").value.trim(),duties:e.querySelector("#mDuties").value.trim(),capacity:Number(e.querySelector("#mCapacity").value)||48,status:e.querySelector("#mStatus").value,attachments:a};if(!i.name){flashToast("Name is required",!0);return}try{s?await apiPost("/personnel",i):await apiPut("/personnel/"+t._id,i),await E(),flashToast("Person saved! 📁"),e.remove(),y()}catch(n){flashToast(n.message,!0)}}}function K(t){const s=!t;t=t||{name:"",notes:"",attachments:[]};const e=openModal(`
     <h3>${s?"Add New":"Edit"} Client</h3>
     <div class="field"><label>Client Name *</label><input id="mCName" type="text" value="${escapeHtml(t.name)}" placeholder="e.g. Network 18"></div>
     <div class="field"><label>Notes / Contract Details</label><textarea id="mCNotes" placeholder="Client specific notes, contact terms...">${escapeHtml(t.notes||"")}</textarea></div>
@@ -844,27 +871,28 @@ import{l as ie,m as ne}from"./api-D7P-iGMH.js";import{initProposalStudio as le}f
       ${renderAttachmentUploader({id:"mClientFiles",label:"Brand Assets & Agreements",subtitle:"Upload brand guidelines, contracts, briefs or logos"})}
     </div>
     <div class="modal-actions"><button class="btn ghost" id="mCancel">Cancel</button><button class="btn gold" id="mSave">Save Client</button></div>
-  `);bindAttachmentUploader("mClientFiles",{existing:t.attachments||[]}),e.querySelector("#mCancel").onclick=()=>e.remove(),e.querySelector("#mSave").onclick=async()=>{const a=getUploaderAttachments("mClientFiles"),i={name:e.querySelector("#mCName").value.trim(),notes:e.querySelector("#mCNotes").value.trim(),attachments:a};if(!i.name){flashToast("Name is required",!0);return}try{s?await apiPost("/clients",i):await apiPut("/clients/"+t._id,i),await E(),flashToast("Client saved! 📁"),e.remove(),y()}catch(n){flashToast(n.message,!0)}}}function K(t){const s=!t;t=t||{name:"",hours:4};const e=openModal(`
+  `);bindAttachmentUploader("mClientFiles",{existing:t.attachments||[]}),e.querySelector("#mCancel").onclick=()=>e.remove(),e.querySelector("#mSave").onclick=async()=>{const a=getUploaderAttachments("mClientFiles"),i={name:e.querySelector("#mCName").value.trim(),notes:e.querySelector("#mCNotes").value.trim(),attachments:a};if(!i.name){flashToast("Name is required",!0);return}try{s?await apiPost("/clients",i):await apiPut("/clients/"+t._id,i),await E(),flashToast("Client saved! 📁"),e.remove(),y()}catch(n){flashToast(n.message,!0)}}}function ee(t){const s=!t;t=t||{name:"",hours:4};const e=openModal(`
     <h3>${s?"Add New":"Edit"} Service</h3>
     <div class="field"><label>Service Name *</label><input id="mSName" type="text" value="${escapeHtml(t.name)}" placeholder="e.g. UI/UX Design"></div>
     <div class="field"><label>Reference Effort (hrs)</label><input id="mSHours" type="number" value="${t.hours||4}" min="0"></div>
     <div class="modal-actions"><button class="btn ghost" id="mCancel">Cancel</button><button class="btn gold" id="mSave">Save Service</button></div>
-  `);e.querySelector("#mCancel").onclick=()=>e.remove(),e.querySelector("#mSave").onclick=async()=>{const a={name:e.querySelector("#mSName").value.trim(),hours:Number(e.querySelector("#mSHours").value)||0};if(!a.name){flashToast("Name is required",!0);return}try{s?await apiPost("/services",a):await apiPut("/services/"+t._id,a),await E(),e.remove(),y()}catch(i){flashToast(i.message,!0)}}}async function ae(t){const s=await apiGet("/users");let e="all",a="role",i="";function n(){let o=[...s];if(i){const c=i.toLowerCase();o=o.filter(u=>u.name&&u.name.toLowerCase().includes(c)||u.email&&u.email.toLowerCase().includes(c)||u.role&&u.role.toLowerCase().includes(c))}e==="admin"?o=o.filter(c=>c.role==="superadmin"||c.role==="admin"):e==="accounts"?o=o.filter(c=>c.role==="accounts"):e==="employee"?o=o.filter(c=>c.role==="employee"):e==="client"&&(o=o.filter(c=>c.role==="client"));const S={superadmin:1,admin:1,accounts:2,employee:3,client:4};a==="role"?o.sort((c,u)=>{const T=S[c.role]||9,I=S[u.role]||9;return T!==I?T-I:(c.name||"").localeCompare(u.name||"")}):a==="role-desc"?o.sort((c,u)=>{const T=S[c.role]||9,I=S[u.role]||9;return T!==I?I-T:(c.name||"").localeCompare(u.name||"")}):a==="name-asc"?o.sort((c,u)=>(c.name||"").localeCompare(u.name||"")):a==="name-desc"?o.sort((c,u)=>(u.name||"").localeCompare(c.name||"")):a==="status"&&o.sort((c,u)=>(u.active?1:0)-(c.active?1:0));const k=t.querySelector("#userTableBody");if(k){if(o.length===0){k.innerHTML='<tr><td colspan="6"><div class="empty" style="padding:32px 16px">No users found matching the selected filters.</div></td></tr>';return}k.innerHTML=o.map(c=>{const u=c.role==="superadmin",T=c.role==="admin",I=c.role==="accounts",H=c.role==="employee",z=u?'<span class="badge gold" style="font-weight:700">👑 Superadmin</span>':T?'<span class="badge gold" style="font-weight:700">🛡️ Admin</span>':I?'<span class="badge amber" style="font-weight:700">💳 Accounts</span>':H?'<span class="badge blue" style="font-weight:700">💼 Employee</span>':'<span class="badge green" style="font-weight:700">🤝 Client</span>',N=c.personnelId?escapeHtml(c.personnelId.name):c.clientId?escapeHtml(c.clientId.name):'<span class="muted">—</span>';return`
+  `);e.querySelector("#mCancel").onclick=()=>e.remove(),e.querySelector("#mSave").onclick=async()=>{const a={name:e.querySelector("#mSName").value.trim(),hours:Number(e.querySelector("#mSHours").value)||0};if(!a.name){flashToast("Name is required",!0);return}try{s?await apiPost("/services",a):await apiPut("/services/"+t._id,a),await E(),e.remove(),y()}catch(i){flashToast(i.message,!0)}}}async function ae(t){const s=await apiGet("/users");let e="all",a="role",i="";function n(){let r=[...s];if(i){const d=i.toLowerCase();r=r.filter(p=>p.name&&p.name.toLowerCase().includes(d)||p.email&&p.email.toLowerCase().includes(d)||p.role&&p.role.toLowerCase().includes(d))}e==="admin"?r=r.filter(d=>d.role==="superadmin"||d.role==="admin"):e==="accounts"?r=r.filter(d=>d.role==="accounts"):e==="employee"?r=r.filter(d=>d.role==="employee"):e==="client"&&(r=r.filter(d=>d.role==="client"));const S={superadmin:1,admin:1,accounts:2,employee:3,client:4};a==="role"?r.sort((d,p)=>{const A=S[d.role]||9,C=S[p.role]||9;return A!==C?A-C:(d.name||"").localeCompare(p.name||"")}):a==="role-desc"?r.sort((d,p)=>{const A=S[d.role]||9,C=S[p.role]||9;return A!==C?C-A:(d.name||"").localeCompare(p.name||"")}):a==="name-asc"?r.sort((d,p)=>(d.name||"").localeCompare(p.name||"")):a==="name-desc"?r.sort((d,p)=>(p.name||"").localeCompare(d.name||"")):a==="status"&&r.sort((d,p)=>(p.active?1:0)-(d.active?1:0));const k=t.querySelector("#userTableBody");if(k){if(r.length===0){k.innerHTML='<tr><td colspan="6"><div class="empty" style="padding:32px 16px">No users found matching the selected filters.</div></td></tr>';return}k.innerHTML=r.map(d=>{const p=d.role==="superadmin",A=d.role==="admin",C=d.role==="accounts",U=d.role==="employee",P=p?'<span class="badge gold" style="font-weight:700">👑 Superadmin</span>':A?'<span class="badge gold" style="font-weight:700">🛡️ Admin</span>':C?'<span class="badge amber" style="font-weight:700">💳 Accounts</span>':U?'<span class="badge blue" style="font-weight:700">💼 Employee</span>':'<span class="badge green" style="font-weight:700">🤝 Client</span>',M=d.personnelId?escapeHtml(d.personnelId.name):d.clientId?escapeHtml(d.clientId.name):'<span class="muted">—</span>';return`
         <tr>
           <td style="padding-left:22px">
-            <div style="font-weight:700;color:var(--text-1)">${escapeHtml(c.name)}</div>
+            <div style="font-weight:700;color:var(--text-1)">${escapeHtml(d.name)}</div>
           </td>
-          <td><span style="color:var(--text-2);font-size:13px">${escapeHtml(c.email)}</span></td>
-          <td>${z}</td>
-          <td>${N}</td>
-          <td><span class="badge ${c.active?"green":"gray"}">${c.active?"🟢 Active":"⚪ Disabled"}</span></td>
+          <td><span style="color:var(--text-2);font-size:13px">${escapeHtml(d.email)}</span></td>
+          <td>${P}</td>
+          <td>${M}</td>
+          <td><span class="badge ${d.active?"green":"gray"}">${d.active?"🟢 Active":"⚪ Disabled"}</span></td>
           <td class="num" style="padding-right:22px;text-align:right;white-space:nowrap">
             <div style="display:inline-flex;gap:6px;align-items:center;justify-content:flex-end">
-              <button class="btn ghost small edit-user" data-id="${c._id}" style="padding:4px 8px;font-size:11.5px">Edit</button>
-              <button class="btn danger small del-user" data-id="${c._id}" style="padding:4px 8px;font-size:11.5px">Remove</button>
+              <button class="btn ghost small reset-pw-user" data-id="${d._id}" style="padding:4px 8px;font-size:11.5px" title="Change Password">🔑 Password</button>
+              <button class="btn ghost small edit-user" data-id="${d._id}" style="padding:4px 8px;font-size:11.5px">Edit</button>
+              <button class="btn danger small del-user" data-id="${d._id}" style="padding:4px 8px;font-size:11.5px">Remove</button>
             </div>
           </td>
-        </tr>`}).join(""),k.querySelectorAll(".edit-user").forEach(c=>c.onclick=()=>ee(s.find(u=>u._id===c.dataset.id))),k.querySelectorAll(".del-user").forEach(c=>c.onclick=async()=>{if(confirm("Permanently remove this user account?"))try{await apiDelete("/users/"+c.dataset.id),flashToast("User removed"),ae(t)}catch(u){flashToast(u.message,!0)}})}}const r=s.filter(o=>o.role==="superadmin"||o.role==="admin").length,m=s.filter(o=>o.role==="accounts").length,x=s.filter(o=>o.role==="employee").length,h=s.filter(o=>o.role==="client").length;t.innerHTML=`
+        </tr>`}).join(""),k.querySelectorAll(".reset-pw-user").forEach(d=>{d.onclick=async()=>{const p=s.find(C=>C._id===d.dataset.id);if(!p)return;const A=prompt(`Enter new password for ${p.name} (${p.email}):`);if(!(!A||!A.trim()))try{await apiPut("/users/"+p._id,{password:A.trim()}),flashToast(`Password successfully changed for ${p.name}! 🔑`)}catch(C){flashToast(C.message,!0)}}}),k.querySelectorAll(".edit-user").forEach(d=>d.onclick=()=>te(s.find(p=>p._id===d.dataset.id))),k.querySelectorAll(".del-user").forEach(d=>d.onclick=async()=>{if(confirm("Permanently remove this user account?"))try{await apiDelete("/users/"+d.dataset.id),flashToast("User removed"),ae(t)}catch(p){flashToast(p.message,!0)}})}}const o=s.filter(r=>r.role==="superadmin"||r.role==="admin").length,u=s.filter(r=>r.role==="accounts").length,x=s.filter(r=>r.role==="employee").length,h=s.filter(r=>r.role==="client").length;t.innerHTML=`
     <section class="block">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:12px">
         <div>
@@ -879,8 +907,8 @@ import{l as ie,m as ne}from"./api-D7P-iGMH.js";import{initProposalStudio as le}f
         <!-- Filter Tabs -->
         <div style="display:flex;gap:6px;flex-wrap:wrap">
           <button class="pchip active user-role-filter" data-role="all">All (${s.length})</button>
-          <button class="pchip user-role-filter" data-role="admin">👑 Admins (${r})</button>
-          <button class="pchip user-role-filter" data-role="accounts">💳 Accounts (${m})</button>
+          <button class="pchip user-role-filter" data-role="admin">👑 Admins (${o})</button>
+          <button class="pchip user-role-filter" data-role="accounts">💳 Accounts (${u})</button>
           <button class="pchip user-role-filter" data-role="employee">💼 Employees (${x})</button>
           <button class="pchip user-role-filter" data-role="client">🤝 Clients (${h})</button>
         </div>
@@ -919,22 +947,23 @@ import{l as ie,m as ne}from"./api-D7P-iGMH.js";import{initProposalStudio as le}f
           </table>
         </div>
       </div>
-    </section>`,n(),t.querySelectorAll(".user-role-filter").forEach(o=>{o.onclick=()=>{t.querySelectorAll(".user-role-filter").forEach(S=>S.classList.remove("active")),o.classList.add("active"),e=o.dataset.role,n()}});const f=t.querySelector("#userSortSel");f&&(f.onchange=()=>{a=f.value,n()});const d=t.querySelector("#userSearchInp");d&&(d.oninput=()=>{i=d.value.trim(),n()});const b=t.querySelector("#addUserBtn");b&&(b.onclick=()=>ee(null))}function ee(t){const s=!t;t=t||{name:"",email:"",role:"employee",personnelId:"",clientId:"",active:!0};const e=t.role,a=openModal(`<h3>${s?"Add":"Edit"} User</h3>
+    </section>`,n(),t.querySelectorAll(".user-role-filter").forEach(r=>{r.onclick=()=>{t.querySelectorAll(".user-role-filter").forEach(S=>S.classList.remove("active")),r.classList.add("active"),e=r.dataset.role,n()}});const f=t.querySelector("#userSortSel");f&&(f.onchange=()=>{a=f.value,n()});const c=t.querySelector("#userSearchInp");c&&(c.oninput=()=>{i=c.value.trim(),n()});const b=t.querySelector("#addUserBtn");b&&(b.onclick=()=>te(null))}function te(t){const s=!t;t=t||{name:"",email:"",role:"employee",personnelId:"",clientId:"",active:!0};const e=t.role,a=openModal(`<h3>${s?"Add":"Edit"} User</h3>
     <div class="field-row">
       <div class="field"><label>Name</label><input id="uName" type="text" value="${escapeHtml(t.name)}"></div>
       <div class="field"><label>Email</label><input id="uEmail" type="email" value="${escapeHtml(t.email)}"></div>
     </div>
     <div class="field-row">
       <div class="field"><label>Role</label><select id="uRole">
-        <option value="admin" ${e==="admin"||e==="superadmin"?"selected":""}>Admin</option>
-        <option value="accounts" ${e==="accounts"?"selected":""}>Accounts & Finance</option>
-        <option value="employee" ${e==="employee"?"selected":""}>Employee</option>
-        <option value="client" ${e==="client"?"selected":""}>Client</option></select></div>
-      <div class="field"><label>Password ${s?"":"(leave blank to keep current)"}</label><input id="uPassword" type="password"></div>
+        <option value="superadmin" ${e==="superadmin"?"selected":""}>👑 Superadmin</option>
+        <option value="admin" ${e==="admin"?"selected":""}>🛡️ Admin</option>
+        <option value="accounts" ${e==="accounts"?"selected":""}>💳 Accounts & Finance</option>
+        <option value="employee" ${e==="employee"?"selected":""}>💼 Employee</option>
+        <option value="client" ${e==="client"?"selected":""}>🤝 Client</option></select></div>
+      <div class="field"><label>Password ${s?"*":"(leave blank to keep current)"}</label><input id="uPassword" type="text" placeholder="${s?"Set initial password":"Enter new password to change"}" autocomplete="off"></div>
     </div>
     <div class="field" id="uLinkWrap"></div>
     <div class="field"><label><input type="checkbox" id="uActive" ${t.active?"checked":""}> Active</label></div>
-    <div class="modal-actions"><button class="btn ghost" id="mCancel">Cancel</button><button class="btn gold" id="mSave">Save</button></div>`);function i(){const n=a.querySelector("#uRole").value,r=a.querySelector("#uLinkWrap");n==="employee"?r.innerHTML=`<label>Linked Personnel</label><select id="uPersonnel"><option value="">Select…</option>${v.personnel.map(m=>`<option value="${m._id}" ${t.personnelId&&(t.personnelId._id||t.personnelId)===m._id?"selected":""}>${escapeHtml(m.name)}</option>`).join("")}</select>`:n==="client"?r.innerHTML=`<label>Linked Client</label><select id="uClient"><option value="">Select…</option>${v.clients.map(m=>`<option value="${m._id}" ${t.clientId&&(t.clientId._id||t.clientId)===m._id?"selected":""}>${escapeHtml(m.name)}</option>`).join("")}</select>`:r.innerHTML=""}a.querySelector("#uRole").onchange=i,i(),a.querySelector("#mCancel").onclick=()=>a.remove(),a.querySelector("#mSave").onclick=async()=>{const n=a.querySelector("#uRole").value,r={name:a.querySelector("#uName").value.trim(),email:a.querySelector("#uEmail").value.trim(),role:n,active:a.querySelector("#uActive").checked,personnelId:n==="employee"&&a.querySelector("#uPersonnel")?.value||null,clientId:n==="client"&&a.querySelector("#uClient")?.value||null},m=a.querySelector("#uPassword").value;if(m&&(r.password=m),!r.name||!r.email){flashToast("Name and email required",!0);return}if(s&&!m){flashToast("Password required for a new user",!0);return}try{s?await apiPost("/users",r):await apiPut("/users/"+t._id,r),a.remove(),y()}catch(x){flashToast(x.message,!0)}}}let M={date:new Date().toISOString().slice(0,10),personnelId:"all",filter:"all",search:""};async function Ie(t){oe(t,{userRole:"superadmin",currentUser:P})}window.adminToggleTask=async function(t){try{await apiPatch("/tasks/"+t+"/toggle",{}),flashToast("Task status updated"),y()}catch(s){flashToast(s.message,!0)}};window.adminEditTask=async function(t){try{const e=(await apiGet("/tasks")).find(i=>i._id===t);if(!e)return;const a=prompt("Edit task title:",e.title);a!==null&&a.trim()&&(await apiPut("/tasks/"+t,{title:a.trim()}),flashToast("Task updated"),y())}catch(s){flashToast(s.message,!0)}};window.adminQuickAddTaskForEmp=async function(t){const s=prompt("Enter task for this employee:");if(!(!s||!s.trim()))try{const e=new Date,a=`${e.getFullYear()}-${String(e.getMonth()+1).padStart(2,"0")}-${String(e.getDate()).padStart(2,"0")}`,i=M.date==="all"?a:M.date;await apiPost("/tasks",{title:s.trim(),personnelId:t,dueDate:i,priority:"Medium",status:"Todo"}),flashToast("Task assigned to employee! ✍️"),y()}catch(e){flashToast(e.message,!0)}};window.adminDeleteTask=async function(t){if(confirm("Delete this task?"))try{await apiDelete("/tasks/"+t),flashToast("Task deleted"),y()}catch(s){flashToast(s.message,!0)}};window.adminClearCompletedTasks=async function(t){if(confirm("Delete completed tasks?"))try{const s={date:M.date};t&&t!=="all"?s.personnelId=t:M.personnelId&&M.personnelId;const e=await apiPost("/tasks/clear-completed",s);flashToast(`Completed tasks deleted (${e.deletedCount||0} removed) 🗑️`),y()}catch(s){flashToast(s.message,!0)}};window.addEventListener("ci360:dataUpdated",()=>{const t=document.activeElement,s=t&&(t.tagName==="INPUT"||t.tagName==="TEXTAREA"||t.isContentEditable),e=document.querySelector(".modal-bg, .modal-backdrop, #jobModal, .modal");!s&&!e&&g.tab!=="logjob"&&y(!0)});ce();function Ee(t,s,e,a="denial"){const i=a==="revision",n=openModal(`
+    <div class="modal-actions"><button class="btn ghost" id="mCancel">Cancel</button><button class="btn gold" id="mSave">Save</button></div>`);function i(){const n=a.querySelector("#uRole").value,o=a.querySelector("#uLinkWrap");n==="employee"?o.innerHTML=`<label>Linked Personnel</label><select id="uPersonnel"><option value="">Select…</option>${g.personnel.map(u=>`<option value="${u._id}" ${t.personnelId&&(t.personnelId._id||t.personnelId)===u._id?"selected":""}>${escapeHtml(u.name)}</option>`).join("")}</select>`:n==="client"?o.innerHTML=`<label>Linked Client</label><select id="uClient"><option value="">Select…</option>${g.clients.map(u=>`<option value="${u._id}" ${t.clientId&&(t.clientId._id||t.clientId)===u._id?"selected":""}>${escapeHtml(u.name)}</option>`).join("")}</select>`:o.innerHTML=""}a.querySelector("#uRole").onchange=i,i(),a.querySelector("#mCancel").onclick=()=>a.remove(),a.querySelector("#mSave").onclick=async()=>{const n=a.querySelector("#uRole").value,o={name:a.querySelector("#uName").value.trim(),email:a.querySelector("#uEmail").value.trim(),role:n,active:a.querySelector("#uActive").checked,personnelId:n==="employee"&&a.querySelector("#uPersonnel")?.value||null,clientId:n==="client"&&a.querySelector("#uClient")?.value||null},u=a.querySelector("#uPassword").value;if(u&&(o.password=u),!o.name||!o.email){flashToast("Name and email required",!0);return}if(s&&!u){flashToast("Password required for a new user",!0);return}try{s?await apiPost("/users",o):await apiPut("/users/"+t._id,o),a.remove(),y()}catch(x){flashToast(x.message,!0)}}}let z={date:new Date().toISOString().slice(0,10),personnelId:"all",filter:"all",search:""};async function Ee(t){oe(t,{userRole:"superadmin",currentUser:q})}window.adminToggleTask=async function(t){try{await apiPatch("/tasks/"+t+"/toggle",{}),flashToast("Task status updated"),y()}catch(s){flashToast(s.message,!0)}};window.adminEditTask=async function(t){try{const e=(await apiGet("/tasks")).find(i=>i._id===t);if(!e)return;const a=prompt("Edit task title:",e.title);a!==null&&a.trim()&&(await apiPut("/tasks/"+t,{title:a.trim()}),flashToast("Task updated"),y())}catch(s){flashToast(s.message,!0)}};window.adminQuickAddTaskForEmp=async function(t){const s=prompt("Enter task for this employee:");if(!(!s||!s.trim()))try{const e=new Date,a=`${e.getFullYear()}-${String(e.getMonth()+1).padStart(2,"0")}-${String(e.getDate()).padStart(2,"0")}`,i=z.date==="all"?a:z.date;await apiPost("/tasks",{title:s.trim(),personnelId:t,dueDate:i,priority:"Medium",status:"Todo"}),flashToast("Task assigned to employee! ✍️"),y()}catch(e){flashToast(e.message,!0)}};window.adminDeleteTask=async function(t){if(confirm("Delete this task?"))try{await apiDelete("/tasks/"+t),flashToast("Task deleted"),y()}catch(s){flashToast(s.message,!0)}};window.adminClearCompletedTasks=async function(t){if(confirm("Delete completed tasks?"))try{const s={date:z.date};t&&t!=="all"?s.personnelId=t:z.personnelId&&z.personnelId;const e=await apiPost("/tasks/clear-completed",s);flashToast(`Completed tasks deleted (${e.deletedCount||0} removed) 🗑️`),y()}catch(s){flashToast(s.message,!0)}};window.addEventListener("ci360:dataUpdated",()=>{const t=document.activeElement,s=t&&(t.tagName==="INPUT"||t.tagName==="TEXTAREA"||t.isContentEditable),e=document.querySelector(".modal-bg, .modal-backdrop, #jobModal, .modal");!s&&!e&&v.tab!=="logjob"&&y(!0)});ce();function qe(t,s,e,a="denial"){const i=a==="revision",n=openModal(`
     <div style="margin-bottom:14px">
       <div style="font-size:18px;font-weight:800;color:var(--text-1);margin-bottom:4px;display:flex;align-items:center;gap:8px">
         <span>🔁</span> Resubmit Work to Client for Approval
@@ -968,4 +997,4 @@ import{l as ie,m as ne}from"./api-D7P-iGMH.js";import{initProposalStudio as le}f
       <button class="btn ghost" id="mAdmResubCancel">Cancel</button>
       <button class="btn gold" id="mAdmResubConfirm" style="font-weight:700">🔁 Resubmit to Client for Approval</button>
     </div>
-  `);bindAttachmentUploader("mAdmResubUp"),n.querySelector("#mAdmResubCancel").onclick=()=>n.remove(),n.querySelector("#mAdmResubConfirm").onclick=async()=>{const r=n.querySelector("#mAdmResubNotes").value.trim(),m=n.querySelector("#mAdmResubUrl").value.trim(),x=getUploaderAttachments("mAdmResubUp"),h=n.querySelector("#mAdmResubConfirm");h.disabled=!0,h.textContent="Resubmitting…";try{await apiPost(`/jobs/${t}/resubmit`,{notes:r,url:m,deliverables:x}),flashToast("Job resubmitted to client for re-approval! 🔁🎉"),n.remove(),y()}catch(f){flashToast(f.message,!0),h.disabled=!1,h.textContent="🔁 Resubmit to Client for Approval"}}}
+  `);bindAttachmentUploader("mAdmResubUp"),n.querySelector("#mAdmResubCancel").onclick=()=>n.remove(),n.querySelector("#mAdmResubConfirm").onclick=async()=>{const o=n.querySelector("#mAdmResubNotes").value.trim(),u=n.querySelector("#mAdmResubUrl").value.trim(),x=getUploaderAttachments("mAdmResubUp"),h=n.querySelector("#mAdmResubConfirm");h.disabled=!0,h.textContent="Resubmitting…";try{await apiPost(`/jobs/${t}/resubmit`,{notes:o,url:u,deliverables:x}),flashToast("Job resubmitted to client for re-approval! 🔁🎉"),n.remove(),y()}catch(f){flashToast(f.message,!0),h.disabled=!1,h.textContent="🔁 Resubmit to Client for Approval"}}}
