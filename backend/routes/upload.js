@@ -92,15 +92,15 @@ async function authenticateRequest(req) {
 
     const secret = process.env.JWT_SECRET || 'ci360-super-secret-jwt-key-2026';
     const payload = jwt.verify(token, secret);
-    const user = await User.findById(payload.id);
-    if (user && user.active) return user;
+    const user = await User.findById(payload.id).select('name role active').lean();
+    if (user && user.active !== false) return user;
     return null;
   } catch {
     return null;
   }
 }
 
-// Raw binary stream upload handler (supports heavy MP4 videos, 1GB+, 2GB+, without Node memory buffering)
+// Raw binary stream upload handler (ultra-fast, supports any file type: MP4 videos, images, docs up to 1GB+)
 async function streamUploadHandler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -112,28 +112,25 @@ async function streamUploadHandler(req, res) {
   }
 
   try {
-    const rawName = req.query.name || req.headers['x-file-name'] || 'video.mp4';
-    let originalName = 'upload.mp4';
+    const rawName = req.query.name || req.headers['x-file-name'] || 'file.bin';
+    let originalName = 'upload.bin';
     try {
       originalName = decodeURIComponent(rawName);
     } catch {
       originalName = rawName;
     }
 
-    const mimeType = req.query.type || req.headers['x-file-type'] || req.headers['content-type'] || 'video/mp4';
+    const mimeType = req.query.type || req.headers['x-file-type'] || req.headers['content-type'] || 'application/octet-stream';
     const uniqueName = createUniqueFilename(originalName, mimeType);
     const filePath = path.join(uploadsDir, uniqueName);
 
-    const writeStream = fs.createWriteStream(filePath);
-    let bytesReceived = 0;
-
-    req.on('data', (chunk) => {
-      bytesReceived += chunk.length;
-    });
+    // 1MB buffer for high-throughput write performance on local disk and cloud drives
+    const writeStream = fs.createWriteStream(filePath, { highWaterMark: 1024 * 1024 });
 
     req.pipe(writeStream);
 
     writeStream.on('finish', () => {
+      const bytesReceived = writeStream.bytesWritten || 0;
       const fileData = {
         name: originalName,
         filename: uniqueName,

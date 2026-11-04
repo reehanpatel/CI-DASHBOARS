@@ -10,6 +10,14 @@ const AttachmentSchema = new mongoose.Schema({
   uploadedAt: { type: Date, default: Date.now }
 }, { _id: false });
 
+const LinkSchema = new mongoose.Schema({
+  id: { type: String, default: () => new mongoose.Types.ObjectId().toString() },
+  title: { type: String, default: '', trim: true },
+  url: { type: String, required: true, trim: true },
+  addedBy: { type: String, default: 'Staff' },
+  addedAt: { type: Date, default: Date.now }
+}, { _id: false });
+
 const SubtaskSchema = new mongoose.Schema({
   id: { type: String, default: () => new mongoose.Types.ObjectId().toString() },
   title: { type: String, required: true, trim: true },
@@ -131,6 +139,8 @@ const SupportTicketSchema = new mongoose.Schema({
   estimatedHours: { type: Number, default: 0 },
   loggedHours: { type: Number, default: 0 },
 
+  linkUrl: { type: String, default: '', trim: true },
+  links: [LinkSchema],
   attachments: [AttachmentSchema],
   subtasks: [SubtaskSchema],
   linkedTickets: [LinkedTicketSchema],

@@ -441,9 +441,9 @@ export async function initTeamBonding(container, options = {}) {
             <div class="bonding-chat-title">${title}</div>
             <div class="bonding-chat-sub">
               ${isGroup
-                ? `<span>${memberCount} members</span> · <span>${escapeHtml(activeChannel.description || 'Public Lounge')}</span>`
-                : `<span>Direct 1-on-1 Personal Chat</span> · <span class="status-online">🟢 Active</span>`
-              }
+        ? `<span>${memberCount} members</span> · <span>${escapeHtml(activeChannel.description || 'Public Lounge')}</span>`
+        : `<span>Direct 1-on-1 Personal Chat</span> · <span class="status-online">🟢 Active</span>`
+      }
             </div>
           </div>
         </div>
@@ -583,16 +583,16 @@ export async function initTeamBonding(container, options = {}) {
 
                 <div class="game-bubble-status">
                   ${cd.status === 'pending'
-                    ? `<span class="badge amber">⏳ Awaiting Response</span>`
-                    : cd.status === 'active' || cd.status === 'accepted'
-                      ? `<span class="badge green">🟢 Match Active</span>`
-                      : `<span class="badge gray">${escapeHtml(cd.status?.toUpperCase() || 'COMPLETED')}</span>`
-                  }
+            ? `<span class="badge amber">⏳ Awaiting Response</span>`
+            : cd.status === 'active' || cd.status === 'accepted'
+              ? `<span class="badge green">🟢 Match Active</span>`
+              : `<span class="badge gray">${escapeHtml(cd.status?.toUpperCase() || 'COMPLETED')}</span>`
+          }
                 </div>
 
                 <div class="game-bubble-actions">
                   ${cd.status === 'pending' && isRecipient
-                    ? `
+            ? `
                       <button class="game-btn-accept btn-respond-invite" data-invite-id="${inviteId}" data-action="accept">
                         ⚔️ Accept Challenge
                       </button>
@@ -600,19 +600,19 @@ export async function initTeamBonding(container, options = {}) {
                         Decline
                       </button>
                     `
-                    : cd.status === 'pending' && isSender
-                      ? `
+            : cd.status === 'pending' && isSender
+              ? `
                         <div class="game-pending-text">Waiting for opponent to accept...</div>
                         <button class="game-btn-cancel btn-respond-invite" data-invite-id="${inviteId}" data-action="cancel">
                           Cancel
                         </button>
                       `
-                      : `
+              : `
                         <button class="game-btn-play btn-launch-match-from-card" data-invite-id="${inviteId}">
                           🎮 Enter Match Arena
                         </button>
                       `
-                  }
+          }
                 </div>
               </div>
 
@@ -958,7 +958,7 @@ export async function initTeamBonding(container, options = {}) {
               <span class="stat-lbl">Draws</span>
             </div>
             <div class="lounge-stat-card">
-              <span class="stat-num">${myStats.gamesPlayed > 0 ? Math.round(((myStats.wins||0)/myStats.gamesPlayed)*100) : 0}%</span>
+              <span class="stat-num">${myStats.gamesPlayed > 0 ? Math.round(((myStats.wins || 0) / myStats.gamesPlayed) * 100) : 0}%</span>
               <span class="stat-lbl">Win Rate</span>
             </div>
           </div>
@@ -980,9 +980,9 @@ export async function initTeamBonding(container, options = {}) {
                     <div class="game-card-meta">
                       <span class="meta-pill">⏱️ ${g.duration}</span>
                       ${g.id === 'ludo'
-                        ? '<span class="meta-pill">👥 2P, 3P, 4P Royale</span><span class="meta-pill">🎯 4 Pawns / Base</span>'
-                        : '<span class="meta-pill">👥 2 Players</span>'
-                      }
+          ? '<span class="meta-pill">👥 2P, 3P, 4P Royale</span><span class="meta-pill">🎯 4 Pawns / Base</span>'
+          : '<span class="meta-pill">👥 2 Players</span>'
+        }
                     </div>
                   </div>
                   <button class="lounge-card-challenge-btn btn-challenge-game" data-game-id="${g.id}" data-game-title="${escapeHtml(g.name)}">
@@ -1005,8 +1005,8 @@ export async function initTeamBonding(container, options = {}) {
               <!-- Incoming -->
               <h5 class="sub-box-title">Incoming Challenges (${incoming.length})</h5>
               ${incoming.length === 0
-                ? `<div class="box-empty-text">No incoming challenges waiting. Start one with a teammate!</div>`
-                : `
+          ? `<div class="box-empty-text">No incoming challenges waiting. Start one with a teammate!</div>`
+          : `
                   <div class="lounge-invites-list">
                     ${incoming.map(inv => `
                       <div class="lounge-invite-item incoming">
@@ -1029,13 +1029,13 @@ export async function initTeamBonding(container, options = {}) {
                     `).join('')}
                   </div>
                 `
-              }
+        }
 
               <!-- Sent -->
               <h5 class="sub-box-title" style="margin-top: 18px;">Sent Challenges (${sent.length})</h5>
               ${sent.length === 0
-                ? `<div class="box-empty-text">No pending outgoing invitations.</div>`
-                : `
+          ? `<div class="box-empty-text">No pending outgoing invitations.</div>`
+          : `
                   <div class="lounge-invites-list">
                     ${sent.map(inv => `
                       <div class="lounge-invite-item outgoing">
@@ -1056,7 +1056,7 @@ export async function initTeamBonding(container, options = {}) {
                     `).join('')}
                   </div>
                 `
-              }
+        }
             </div>
 
             <!-- Right: Active Matches -->
@@ -1067,15 +1067,15 @@ export async function initTeamBonding(container, options = {}) {
               </div>
 
               ${activeMatches.length === 0
-                ? `<div class="box-empty-text" style="padding: 24px 0">No active matches in progress right now. Accept an invitation or challenge a teammate to begin!</div>`
-                : `
+          ? `<div class="box-empty-text" style="padding: 24px 0">No active matches in progress right now. Accept an invitation or challenge a teammate to begin!</div>`
+          : `
                   <div class="lounge-active-matches-list">
                     ${activeMatches.map(m => {
-                      const isP1 = myId && m.player1.userId.toString() === myId.toString();
-                      const opp = isP1 ? m.player2 : m.player1;
-                      const myTurn = myId && m.currentTurnUserId && m.currentTurnUserId.toString() === myId.toString();
+            const isP1 = myId && m.player1.userId.toString() === myId.toString();
+            const opp = isP1 ? m.player2 : m.player1;
+            const myTurn = myId && m.currentTurnUserId && m.currentTurnUserId.toString() === myId.toString();
 
-                      return `
+            return `
                         <div class="lounge-active-match-card ${myTurn ? 'turn-active' : ''}">
                           <div class="active-match-left">
                             <span class="match-game-icon">${m.gameType === 'chess' ? '♟️' : (m.gameType === 'ludo' ? '🎲' : '❌')}</span>
@@ -1101,10 +1101,10 @@ export async function initTeamBonding(container, options = {}) {
                           </div>
                         </div>
                       `;
-                    }).join('')}
+          }).join('')}
                   </div>
                 `
-              }
+        }
             </div>
           </div>
 
@@ -1127,16 +1127,16 @@ export async function initTeamBonding(container, options = {}) {
             </div>
 
             ${recentMatches.length === 0
-              ? `<div class="box-empty-text">No recently completed matches found.</div>`
-              : `
+          ? `<div class="box-empty-text">No recently completed matches found.</div>`
+          : `
                 <div class="lounge-recent-matches-grid">
                   ${recentMatches.map(m => {
-                    const isP1 = myId && m.player1.userId.toString() === myId.toString();
-                    const opp = isP1 ? m.player2 : m.player1;
-                    const isWinner = myId && m.winnerId && m.winnerId.toString() === myId.toString();
-                    const isDraw = m.status === 'draw';
+            const isP1 = myId && m.player1.userId.toString() === myId.toString();
+            const opp = isP1 ? m.player2 : m.player1;
+            const isWinner = myId && m.winnerId && m.winnerId.toString() === myId.toString();
+            const isDraw = m.status === 'draw';
 
-                    return `
+            return `
                       <div class="recent-match-card">
                         <div class="recent-card-head">
                           <span class="recent-game-title">${escapeHtml(m.gameTitle)}</span>
@@ -1165,10 +1165,10 @@ export async function initTeamBonding(container, options = {}) {
                         </div>
                       </div>
                     `;
-                  }).join('')}
+          }).join('')}
                 </div>
               `
-            }
+        }
           </div>
         </div>
       `;
@@ -1342,9 +1342,9 @@ export async function initTeamBonding(container, options = {}) {
               <div class="flow-step-box">
                 <div class="flow-step-lbl">
                   ${isLudo
-                    ? `Step 3 — Select Colleagues to Play With (${selectedLudoTargetUserIds.length}/${neededLudoOpponents} Selected) *`
-                    : 'Step 2 — Select Employee to Challenge *'
-                  }
+          ? `Step 3 — Select Colleagues to Play With (${selectedLudoTargetUserIds.length}/${neededLudoOpponents} Selected) *`
+          : 'Step 2 — Select Employee to Challenge *'
+        }
                 </div>
                 <div class="emp-search-wrap">
                   <input type="text" id="flow-emp-search" placeholder="🔍 Search employee by name or role..." class="bonding-input" />
@@ -1352,11 +1352,11 @@ export async function initTeamBonding(container, options = {}) {
 
                 <div class="eligible-emp-list" id="eligible-emp-list-wrap">
                   ${eligibleEmployees.map(u => {
-                    const isSelected = isLudo
-                      ? selectedLudoTargetUserIds.includes(u._id.toString())
-                      : selectedTargetUserId === u._id.toString();
+          const isSelected = isLudo
+            ? selectedLudoTargetUserIds.includes(u._id.toString())
+            : selectedTargetUserId === u._id.toString();
 
-                    return `
+          return `
                       <div class="eligible-emp-item ${isSelected ? 'selected' : ''}" data-user-id="${u._id}">
                         <div class="emp-item-avatar">${u.name.slice(0, 1).toUpperCase()}</div>
                         <div class="emp-item-info">
@@ -1368,7 +1368,7 @@ export async function initTeamBonding(container, options = {}) {
                         </button>
                       </div>
                     `;
-                  }).join('')}
+        }).join('')}
                 </div>
               </div>
 
@@ -1399,14 +1399,13 @@ export async function initTeamBonding(container, options = {}) {
                 <div class="confirm-body">
                   <div><strong>Game:</strong> ${isLudo ? `🎲 Ludo (${selectedLudoPlayerCount} Players · 4 Pawns per base)` : (selectedGame === 'chess' ? '♟️ Chess Duel' : '❌ Tic-Tac-Toe Challenge')}</div>
                   ${isLudo ? `
-                    <div><strong>Opponents:</strong> ${
-                      selectedLudoTargetUserIds.length > 0
-                        ? selectedLudoTargetUserIds.map(id => {
-                            const found = eligibleEmployees.find(e => e._id.toString() === id);
-                            return found ? `<strong>${escapeHtml(found.name)}</strong>` : 'Colleague';
-                          }).join(', ')
-                        : '<span style="color:#ef4444">⚠️ Please select ' + neededLudoOpponents + ' colleague(s)</span>'
-                    }</div>
+                    <div><strong>Opponents:</strong> ${selectedLudoTargetUserIds.length > 0
+            ? selectedLudoTargetUserIds.map(id => {
+              const found = eligibleEmployees.find(e => e._id.toString() === id);
+              return found ? `<strong>${escapeHtml(found.name)}</strong>` : 'Colleague';
+            }).join(', ')
+            : '<span style="color:#ef4444">⚠️ Please select ' + neededLudoOpponents + ' colleague(s)</span>'
+          }</div>
                   ` : `
                     <div><strong>Opponent:</strong> ${targetUserObj ? `<strong>${escapeHtml(targetUserObj.name)}</strong> (${escapeHtml(targetUserObj.role)})` : '<span style="color:#ef4444">⚠️ No employee selected yet</span>'}</div>
                   `}
@@ -1624,7 +1623,7 @@ export async function initTeamBonding(container, options = {}) {
 
     function closeMatchModal() {
       if (matchPollInterval) clearInterval(matchPollInterval);
-      
+
       activeMatchModalId = null;
       modalRoot.innerHTML = '';
       if (currentView === 'lounge_games') renderLoungeGamesView(true);
@@ -1645,7 +1644,7 @@ export async function initTeamBonding(container, options = {}) {
         // If turn or status changed, re-render arena board
         if (newTurn !== prevTurn || updated.status !== prevStatus || updated.moves?.length !== match.moves?.length) {
           renderArena();
-          
+
         }
       }
     }, 1500);
@@ -1674,15 +1673,15 @@ export async function initTeamBonding(container, options = {}) {
                   ${match.gameType === 'ludo' && match.gameState?.players ? `
                     <div class="arena-players-vs ludo-players-wrap">
                       ${match.gameState.players.map(p => {
-                        const isMe = p.userId && p.userId.toString() === myId?.toString();
-                        const colorEmoji = { red: '🔴', green: '🟢', yellow: '🟡', blue: '🔵' }[p.color] || '⚪';
-                        const isTurn = (match.gameState?.turnColor || match.turn) === p.color;
-                        return `
+        const isMe = p.userId && p.userId.toString() === myId?.toString();
+        const colorEmoji = { red: '🔴', green: '🟢', yellow: '🟡', blue: '🔵' }[p.color] || '⚪';
+        const isTurn = (match.gameState?.turnColor || match.turn) === p.color;
+        return `
                           <span class="player-tag ${isMe ? 'self' : 'opp'} ${isTurn ? 'turn-active' : ''}">
                             ${colorEmoji} <strong>${escapeHtml(p.name)}</strong> ${isMe ? '(You)' : ''}
                           </span>
                         `;
-                      }).join('<span class="vs-pill">vs</span>')}
+      }).join('<span class="vs-pill">vs</span>')}
                     </div>
                   ` : `
                     <div class="arena-players-vs">
@@ -1697,12 +1696,12 @@ export async function initTeamBonding(container, options = {}) {
               <!-- Live Turn Indicator -->
               <div class="arena-turn-banner ${isEnded ? 'ended' : (isMyTurn ? 'my-turn' : 'opp-turn')}">
                 ${isEnded
-                  ? `<span>🏁 Finished (${escapeHtml(match.winningReason || match.status)})</span>`
-                  : (isMyTurn
-                    ? `<span>⚡ YOUR TURN</span>`
-                    : `<span>⏳ Waiting for ${escapeHtml(opp.name)}...</span>`
-                  )
-                }
+          ? `<span>🏁 Finished (${escapeHtml(match.winningReason || match.status)})</span>`
+          : (isMyTurn
+            ? `<span>⚡ YOUR TURN</span>`
+            : `<span>⏳ Waiting for ${escapeHtml(opp.name)}...</span>`
+          )
+        }
               </div>
             </div>
 
@@ -1710,15 +1709,15 @@ export async function initTeamBonding(container, options = {}) {
             <div class="arena-toolbar">
               <div class="arena-tip-text">
                 ${match.gameType === 'ludo'
-                  ? (isMyTurn
-                      ? (match.gameState?.rolled
-                          ? '👉 Click one of your glowing tokens to advance!'
-                          : '🎲 Your turn! Click ROLL DICE to start your move.')
-                      : '⏳ Opponent is rolling/moving their tokens...')
-                  : (match.gameType === 'tictactoe'
-                      ? (isMyTurn ? '👉 Tap any open cell to place your symbol!' : '⏳ Opponent is deciding their move...')
-                      : (isMyTurn ? '👉 Click your piece, then click a green target dot to move!' : '⏳ Opponent is thinking...'))
-                }
+          ? (isMyTurn
+            ? (match.gameState?.rolled
+              ? '👉 Click one of your glowing tokens to advance!'
+              : '🎲 Your turn! Click ROLL DICE to start your move.')
+            : '⏳ Opponent is rolling/moving their tokens...')
+          : (match.gameType === 'tictactoe'
+            ? (isMyTurn ? '👉 Tap any open cell to place your symbol!' : '⏳ Opponent is deciding their move...')
+            : (isMyTurn ? '👉 Click your piece, then click a green target dot to move!' : '⏳ Opponent is thinking...'))
+        }
               </div>
               <div class="arena-action-btns">
                 ${!isEnded ? `
@@ -1782,7 +1781,7 @@ export async function initTeamBonding(container, options = {}) {
         P: '♙', R: '♖', N: '♘', B: '♗', Q: '♕', K: '♔'
       };
 
-      const files = isWhite ? ['a','b','c','d','e','f','g','h'] : ['h','g','f','e','d','c','b','a'];
+      const files = isWhite ? ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'] : ['h', 'g', 'f', 'e', 'd', 'c', 'b', 'a'];
       const ranks = isWhite ? [8, 7, 6, 5, 4, 3, 2, 1] : [1, 2, 3, 4, 5, 6, 7, 8];
 
       let boardHtml = `<div class="chess-board-grid">`;
@@ -1830,13 +1829,13 @@ export async function initTeamBonding(container, options = {}) {
         <div class="ttt-court">
           <div class="ttt-board-grid">
             ${board.map((cell, idx) => {
-              const isWinCell = winningCells.includes(idx);
-              return `
+        const isWinCell = winningCells.includes(idx);
+        return `
                 <div class="ttt-cell ${cell ? 'filled' : 'empty'} ${isWinCell ? 'win-cell' : ''}" data-cell-idx="${idx}">
                   ${cell === 'X' ? '<span class="ttt-x">✕</span>' : (cell === 'O' ? '<span class="ttt-o">◯</span>' : '')}
                 </div>
               `;
-            }).join('')}
+      }).join('')}
           </div>
         </div>
       `;
@@ -1889,10 +1888,10 @@ export async function initTeamBonding(container, options = {}) {
       ];
 
       // 5-step Home Stretches
-      const redHomeStretch = [ [7, 1], [7, 2], [7, 3], [7, 4], [7, 5] ];
-      const greenHomeStretch = [ [1, 7], [2, 7], [3, 7], [4, 7], [5, 7] ];
-      const yellowHomeStretch = [ [7, 13], [7, 12], [7, 11], [7, 10], [7, 9] ];
-      const blueHomeStretch = [ [13, 7], [12, 7], [11, 7], [10, 7], [9, 7] ];
+      const redHomeStretch = [[7, 1], [7, 2], [7, 3], [7, 4], [7, 5]];
+      const greenHomeStretch = [[1, 7], [2, 7], [3, 7], [4, 7], [5, 7]];
+      const yellowHomeStretch = [[7, 13], [7, 12], [7, 11], [7, 10], [7, 9]];
+      const blueHomeStretch = [[13, 7], [12, 7], [11, 7], [10, 7], [9, 7]];
 
       const safeSquares = [0, 8, 13, 21, 26, 34, 39, 47];
 
@@ -2115,11 +2114,11 @@ export async function initTeamBonding(container, options = {}) {
                 <span class="home-crown">🏆</span>
                 <div class="home-finished-tokens">
                   ${[
-                    ...tokensRed.filter(t => t.step === 56).map(t => ({ col: 'red', id: t.id })),
-                    ...tokensGreen.filter(t => t.step === 56).map(t => ({ col: 'green', id: t.id })),
-                    ...tokensYellow.filter(t => t.step === 56).map(t => ({ col: 'yellow', id: t.id })),
-                    ...tokensBlue.filter(t => t.step === 56).map(t => ({ col: 'blue', id: t.id }))
-                  ].map(t => `
+          ...tokensRed.filter(t => t.step === 56).map(t => ({ col: 'red', id: t.id })),
+          ...tokensGreen.filter(t => t.step === 56).map(t => ({ col: 'green', id: t.id })),
+          ...tokensYellow.filter(t => t.step === 56).map(t => ({ col: 'yellow', id: t.id })),
+          ...tokensBlue.filter(t => t.step === 56).map(t => ({ col: 'blue', id: t.id }))
+        ].map(t => `
                     <div class="tok-home-champion ${t.col}" title="${t.col.toUpperCase()} Pawn ${t.id + 1} Reached Home! 👑">
                       <span class="champ-crown">👑</span>
                       <span class="champ-num">${t.id + 1}</span>
@@ -2146,14 +2145,14 @@ export async function initTeamBonding(container, options = {}) {
                 ${renderDicePips(displayDice)}
               </div>
               <div class="ludo-dice-action-badge">
-                ${canClickRoll 
-                  ? `<span class="badge-click-roll">🎲 TAP TO ROLL</span>` 
-                  : (rolled 
-                      ? `<span class="badge-rolled-val">${turnColorEmoji} Rolled ${displayDice}</span>` 
-                      : (state.lastRoll 
-                          ? `<span class="badge-last-roll">${turnColorEmoji} Rolled ${state.lastRoll}</span>` 
-                          : `<span class="badge-waiting">Ready</span>`))
-                }
+                ${canClickRoll
+          ? `<span class="badge-click-roll">🎲 TAP TO ROLL</span>`
+          : (rolled
+            ? `<span class="badge-rolled-val">${turnColorEmoji} Rolled ${displayDice}</span>`
+            : (state.lastRoll
+              ? `<span class="badge-last-roll">${turnColorEmoji} Rolled ${state.lastRoll}</span>`
+              : `<span class="badge-waiting">Ready</span>`))
+        }
               </div>
             </div>
 
@@ -2163,28 +2162,28 @@ export async function initTeamBonding(container, options = {}) {
                 <span class="ludo-turn-player-tag">
                   <strong>${turnColorEmoji} ${turnPlName}</strong> (${currentTurnColor.toUpperCase()})
                 </span>
-                ${isMyCurrentTurn 
-                  ? `<span class="badge green" style="font-size:10px;padding:2px 6px;">YOUR TURN</span>` 
-                  : `<span class="badge blue" style="font-size:10px;padding:2px 6px;">OPPONENT'S TURN</span>`
-                }
+                ${isMyCurrentTurn
+          ? `<span class="badge green" style="font-size:10px;padding:2px 6px;">YOUR TURN</span>`
+          : `<span class="badge blue" style="font-size:10px;padding:2px 6px;">OPPONENT'S TURN</span>`
+        }
               </div>
 
               <div class="ludo-guidance-message ${isMyCurrentTurn && rolled ? 'highlight' : ''}">
                 ${isMyCurrentTurn && !rolled && match.status === 'active'
-                  ? '👉 It is your turn! <strong>Click the dice</strong> to roll!'
-                  : (isMyCurrentTurn && rolled && match.status === 'active'
-                    ? (movableTokens.length > 0
-                      ? (movableTokens.length === 1
-                        ? `🎲 Rolled <strong>${displayDice}</strong>! Auto-advancing single pawn...`
-                        : `🎲 Rolled <strong>${displayDice}</strong>! Tap your <strong>glowing pawn</strong> to move!`)
-                      : `🎲 Rolled <strong>${displayDice}</strong>. No legal moves possible — turn passing...`)
-                    : (match.status === 'active'
-                      ? (rolled || state.lastRoll
-                        ? `🎲 ${turnColorEmoji} <strong>${turnPlName}</strong> rolled <strong>${displayDice}</strong>!`
-                        : `⏳ Waiting for <strong>${turnPlName}</strong> to roll the dice...`)
-                      : '🏁 Match Concluded')
-                  )
-                }
+          ? '👉 It is your turn! <strong>Click the dice</strong> to roll!'
+          : (isMyCurrentTurn && rolled && match.status === 'active'
+            ? (movableTokens.length > 0
+              ? (movableTokens.length === 1
+                ? `🎲 Rolled <strong>${displayDice}</strong>! Auto-advancing single pawn...`
+                : `🎲 Rolled <strong>${displayDice}</strong>! Tap your <strong>glowing pawn</strong> to move!`)
+              : `🎲 Rolled <strong>${displayDice}</strong>. No legal moves possible — turn passing...`)
+            : (match.status === 'active'
+              ? (rolled || state.lastRoll
+                ? `🎲 ${turnColorEmoji} <strong>${turnPlName}</strong> rolled <strong>${displayDice}</strong>!`
+                : `⏳ Waiting for <strong>${turnPlName}</strong> to roll the dice...`)
+              : '🏁 Match Concluded')
+          )
+        }
               </div>
 
               <div class="ludo-last-action-caption">
@@ -2522,12 +2521,12 @@ export async function initTeamBonding(container, options = {}) {
               <label class="bonding-form-label">Current Members (${currentMembers.length}):</label>
               <div class="bonding-members-list">
                 ${currentMembers.map(m => {
-                  const myId = currentUser?._id || currentUser?.id;
-                  const isMe = myId && m.userId && m.userId.toString() === myId.toString();
-                  const isCreator = activeChannel.createdBy && activeChannel.createdBy.userId && String(activeChannel.createdBy.userId) === String(myId);
-                  const isSuperadmin = (userRole === 'superadmin' || currentUser?.role === 'superadmin');
-                  const canDeleteGroup = isCreator || isSuperadmin;
-                  return `
+      const myId = currentUser?._id || currentUser?.id;
+      const isMe = myId && m.userId && m.userId.toString() === myId.toString();
+      const isCreator = activeChannel.createdBy && activeChannel.createdBy.userId && String(activeChannel.createdBy.userId) === String(myId);
+      const isSuperadmin = (userRole === 'superadmin' || currentUser?.role === 'superadmin');
+      const canDeleteGroup = isCreator || isSuperadmin;
+      return `
                     <div class="bonding-member-item">
                       <div class="bonding-member-left">
                         <div class="bonding-member-avatar">${(m.name || 'U').slice(0, 1).toUpperCase()}</div>
@@ -2549,17 +2548,17 @@ export async function initTeamBonding(container, options = {}) {
                       </div>
                     </div>
                   `;
-                }).join('')}
+    }).join('')}
               </div>
             </div>
 
             ${(() => {
-              const myId = currentUser?._id || currentUser?.id;
-              const isCreator = activeChannel.createdBy && activeChannel.createdBy.userId && String(activeChannel.createdBy.userId) === String(myId);
-              const isSuperadmin = (userRole === 'superadmin' || currentUser?.role === 'superadmin');
-              const canDeleteGroup = isCreator || isSuperadmin;
+        const myId = currentUser?._id || currentUser?.id;
+        const isCreator = activeChannel.createdBy && activeChannel.createdBy.userId && String(activeChannel.createdBy.userId) === String(myId);
+        const isSuperadmin = (userRole === 'superadmin' || currentUser?.role === 'superadmin');
+        const canDeleteGroup = isCreator || isSuperadmin;
 
-              return canDeleteGroup ? `
+        return canDeleteGroup ? `
                 <!-- Delete Group Option in Modal (Creator only) -->
                 <div class="bonding-danger-zone">
                   <div class="danger-zone-text">
@@ -2582,7 +2581,7 @@ export async function initTeamBonding(container, options = {}) {
                   </button>
                 </div>
               `;
-            })()}
+      })()}
           </div>
         </div>
       </div>

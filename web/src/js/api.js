@@ -2681,8 +2681,8 @@ export function uploadSingleFileDirectly(file, onProgress) {
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
     const token = (typeof getToken === 'function') ? getToken() : (localStorage.getItem('ci360_token') || '');
-    const encodedName = encodeURIComponent(file.name || 'upload.mp4');
-    const mimeType = file.type || (file.name && file.name.match(/\.(mp4|mov|webm)$/i) ? 'video/mp4' : 'application/octet-stream');
+    const encodedName = encodeURIComponent(file.name || 'file.bin');
+    const mimeType = file.type || 'application/octet-stream';
     const base = (API_BASE ? API_BASE.replace(/\/+$/, '') : '/api');
     const tokenParam = token ? `&token=${encodeURIComponent(token)}` : '';
     const url = `${base}/upload/stream?name=${encodedName}&type=${encodeURIComponent(mimeType)}${tokenParam}`;
@@ -2698,7 +2698,7 @@ export function uploadSingleFileDirectly(file, onProgress) {
     if (xhr.upload) {
       xhr.upload.onprogress = (evt) => {
         if (evt.lengthComputable && typeof onProgress === 'function') {
-          const percent = Math.round((evt.loaded / evt.total) * 100);
+          const percent = Math.min(99, Math.round((evt.loaded / evt.total) * 100));
           onProgress(percent, evt.loaded, evt.total);
         }
       };
@@ -2708,6 +2708,7 @@ export function uploadSingleFileDirectly(file, onProgress) {
       if (xhr.status >= 200 && xhr.status < 300) {
         try {
           const res = JSON.parse(xhr.responseText);
+          if (typeof onProgress === 'function') onProgress(100, file.size, file.size);
           resolve(res.file || (res.files && res.files[0]));
         } catch (e) {
           reject(new Error('Failed to parse upload response'));
@@ -2729,42 +2730,68 @@ export function uploadSingleFileDirectly(file, onProgress) {
   });
 }
 
-export async function uploadFilesToServer(fileList, onProgress) {
+// Parallel fast multi-file uploader (up to 3 parallel streams for instantaneous uploads)
+export async function uploadMultipleFilesFast(fileList, onProgress) {
   const files = Array.from(fileList || []);
   if (!files.length) return [];
 
-  const results = [];
-  for (let i = 0; i < files.length; i++) {
-    const file = files[i];
-    try {
-      const res = await uploadSingleFileDirectly(file, (percent, loaded, total) => {
-        if (typeof onProgress === 'function') {
-          onProgress(percent, loaded, total, file, i, files.length);
-        }
-      });
-      if (res) results.push(res);
-    } catch (err) {
-      console.warn('Direct stream upload failed, attempting fallback for', file.name, err);
-      if (file.size < 15 * 1024 * 1024) {
-        const fallback = await new Promise(res => {
-          const reader = new FileReader();
-          reader.onload = () => res({
-            name: file.name,
-            url: reader.result,
-            size: file.size,
-            type: file.type || 'application/octet-stream',
-            uploadedAt: new Date()
-          });
-          reader.onerror = () => res(null);
-          reader.readAsDataURL(file);
+  const results = new Array(files.length);
+  const progressMap = {};
+  for (let i = 0; i < files.length; i++) progressMap[i] = 0;
+
+  let activeIndex = 0;
+  const concurrency = 3;
+
+  async function worker() {
+    while (activeIndex < files.length) {
+      const idx = activeIndex++;
+      const file = files[idx];
+
+      try {
+        const res = await uploadSingleFileDirectly(file, (percent, loaded, total) => {
+          progressMap[idx] = percent;
+          if (typeof onProgress === 'function') {
+            const sum = Object.values(progressMap).reduce((a, b) => a + b, 0);
+            const overall = Math.round(sum / files.length);
+            onProgress(overall, loaded, total, file, idx, files.length);
+          }
         });
-        if (fallback) results.push(fallback);
-      } else {
-        throw err;
+        results[idx] = res;
+      } catch (err) {
+        console.warn('Fast upload error for', file.name, err);
+        // Fallback for smaller files
+        if (file.size < 10 * 1024 * 1024) {
+          const fallback = await new Promise(res => {
+            const reader = new FileReader();
+            reader.onload = () => res({
+              name: file.name,
+              url: reader.result,
+              size: file.size,
+              type: file.type || 'application/octet-stream',
+              uploadedAt: new Date()
+            });
+            reader.onerror = () => res(null);
+            reader.readAsDataURL(file);
+          });
+          results[idx] = fallback;
+        } else {
+          throw err;
+        }
       }
     }
   }
-  return results;
+
+  const pool = [];
+  for (let c = 0; c < Math.min(concurrency, files.length); c++) {
+    pool.push(worker());
+  }
+  await Promise.all(pool);
+
+  return results.filter(Boolean);
+}
+
+export async function uploadFilesToServer(fileList, onProgress) {
+  return uploadMultipleFilesFast(fileList, onProgress);
 }
 export function renderAttachmentUploader({
   id = 'uploader',
@@ -3584,7 +3611,7 @@ Object.assign(window, {
   getTheme, setTheme,
   initServiceWorker, playNotificationChime, triggerPhoneVibration,
   requestNotificationPermission, triggerSystemNotification,
-  fmtFileSize, formatFileSize, uploadSingleFileDirectly, getFileCategory, isImageAttachment, openFilePreviewModal,
+  fmtFileSize, formatFileSize, uploadSingleFileDirectly, uploadMultipleFilesFast, getFileCategory, isImageAttachment, openFilePreviewModal,
   renderAttachmentChips, uploadFilesToServer, renderAttachmentUploader,
   bindAttachmentUploader, getUploaderAttachments, setUploaderAttachments,
   renderRoleSwitcher, bindRoleSwitcher, renderNotificationBell, initNotificationBell,

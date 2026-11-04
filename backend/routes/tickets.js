@@ -414,6 +414,8 @@ router.post('/', async (req, res) => {
       assigneeIds,
       dueDate,
       jobId,
+      linkUrl = '',
+      links = [],
       attachments = []
     } = req.body;
 
@@ -524,6 +526,14 @@ router.post('/', async (req, res) => {
       dueDate: dueDate ? new Date(dueDate) : null,
       estimatedHours: Number(req.body.estimatedHours) || 0,
       loggedHours: 0,
+      linkUrl: (linkUrl || '').trim(),
+      links: Array.isArray(links) ? links.map(l => ({
+        id: l.id || new mongoose.Types.ObjectId().toString(),
+        title: (l.title || '').trim(),
+        url: (l.url || '').trim(),
+        addedBy: req.user.name || 'Staff',
+        addedAt: new Date()
+      })).filter(l => Boolean(l.url)) : [],
       attachments: attachments.map(att => ({
         id: att.id || new mongoose.Types.ObjectId().toString(),
         name: att.name || 'Attachment',
@@ -659,7 +669,9 @@ router.patch('/:id', async (req, res) => {
       assigneeId,
       assigneeIds,
       estimatedHours,
-      jobId
+      jobId,
+      linkUrl,
+      links
     } = req.body;
 
     const changes = [];
@@ -674,6 +686,22 @@ router.patch('/:id', async (req, res) => {
     if (description !== undefined && description !== ticket.description) {
       changes.push({ field: 'description', from: '...', to: 'Updated description' });
       ticket.description = description;
+    }
+
+    // External URL / Link
+    if (linkUrl !== undefined && linkUrl.trim() !== (ticket.linkUrl || '')) {
+      changes.push({ field: 'linkUrl', from: ticket.linkUrl || 'None', to: linkUrl.trim() || 'None' });
+      ticket.linkUrl = linkUrl.trim();
+    }
+
+    if (links !== undefined && Array.isArray(links)) {
+      ticket.links = links.map(l => ({
+        id: l.id || new mongoose.Types.ObjectId().toString(),
+        title: (l.title || '').trim(),
+        url: (l.url || '').trim(),
+        addedBy: l.addedBy || req.user.name || 'Staff',
+        addedAt: l.addedAt || new Date()
+      })).filter(l => Boolean(l.url));
     }
 
     // Priority
@@ -1325,6 +1353,97 @@ router.delete('/:id/attachments/:attachmentId', async (req, res) => {
     ticket.attachments = ticket.attachments.filter(a => a.id !== req.params.attachmentId);
     await ticket.save();
 
+    const updated = await SupportTicket.findById(ticket._id).populate('jobId', 'title').lean();
+    res.json(updated);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   POST /api/tickets/:id/links - Add external URL link
+   ───────────────────────────────────────────────────────────────────────────── */
+router.post('/:id/links', async (req, res) => {
+  try {
+    const { url, title } = req.body;
+    if (!url || !url.trim()) {
+      return res.status(400).json({ error: 'URL is required' });
+    }
+
+    const ticket = await SupportTicket.findById(req.params.id);
+    if (!ticket) return res.status(404).json({ error: 'Ticket not found' });
+
+    if (!canAccessTicket(ticket, req.user)) {
+      return res.status(403).json({ error: 'Access denied: You can only update tickets assigned to you or created by you.' });
+    }
+
+    const cleanUrl = url.trim();
+    const cleanTitle = (title || '').trim();
+
+    ticket.links = ticket.links || [];
+    const newLink = {
+      id: new mongoose.Types.ObjectId().toString(),
+      title: cleanTitle,
+      url: cleanUrl,
+      addedBy: req.user.name || 'Staff',
+      addedAt: new Date()
+    };
+    ticket.links.push(newLink);
+
+    // Also update primary linkUrl if empty
+    if (!ticket.linkUrl) {
+      ticket.linkUrl = cleanUrl;
+    }
+
+    ticket.history.push({
+      id: new mongoose.Types.ObjectId().toString(),
+      userId: req.user._id,
+      userName: req.user.name,
+      field: 'link',
+      from: '',
+      to: `Added link: ${cleanTitle || cleanUrl}`,
+      timestamp: new Date()
+    });
+
+    await ticket.save();
+    const updated = await SupportTicket.findById(ticket._id).populate('jobId', 'title').lean();
+    res.status(201).json(updated);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   DELETE /api/tickets/:id/links/:linkId - Delete external URL link
+   ───────────────────────────────────────────────────────────────────────────── */
+router.delete('/:id/links/:linkId', async (req, res) => {
+  try {
+    const ticket = await SupportTicket.findById(req.params.id);
+    if (!ticket) return res.status(404).json({ error: 'Ticket not found' });
+
+    if (!canAccessTicket(ticket, req.user)) {
+      return res.status(403).json({ error: 'Access denied: You can only update tickets assigned to you or created by you.' });
+    }
+
+    const removedLink = (ticket.links || []).find(l => l.id === req.params.linkId);
+    ticket.links = (ticket.links || []).filter(l => l.id !== req.params.linkId);
+
+    // If primary linkUrl matched removed link, reset or point to next
+    if (removedLink && ticket.linkUrl === removedLink.url) {
+      ticket.linkUrl = ticket.links.length > 0 ? ticket.links[0].url : '';
+    }
+
+    ticket.history.push({
+      id: new mongoose.Types.ObjectId().toString(),
+      userId: req.user._id,
+      userName: req.user.name,
+      field: 'link',
+      from: removedLink ? (removedLink.title || removedLink.url) : 'Link',
+      to: 'Removed link',
+      timestamp: new Date()
+    });
+
+    await ticket.save();
     const updated = await SupportTicket.findById(ticket._id).populate('jobId', 'title').lean();
     res.json(updated);
   } catch (err) {

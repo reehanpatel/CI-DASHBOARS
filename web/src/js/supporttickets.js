@@ -17,8 +17,19 @@ import {
   timeAgo,
   fmtFileSize,
   uploadSingleFileDirectly,
+  uploadMultipleFilesFast,
   openFilePreviewModal
 } from './api.js';
+
+// Convert links in text to clickable hyperlinks
+function renderTextWithLinks(text) {
+  if (!text) return '';
+  const escaped = escapeHtml(text);
+  const urlRegex = /(https?:\/\/[^\s<]+[^<.,:;"')\]\s])/g;
+  return escaped.replace(urlRegex, (url) => {
+    return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="jira-inline-link">${url} ↗</a>`;
+  });
+}
 
 const STATUS_COLUMNS = [
   { key: 'To Do', label: 'To Do', badgeClass: 'todo' },
@@ -457,6 +468,14 @@ export async function initSupportTickets(container, options = {}) {
           </div>
         ` : ''}
 
+        ${(t.linkUrl || (t.links && t.links.length > 0)) ? `
+          <div style="margin: 4px 0 2px 0;">
+            <a href="${escapeHtml(t.linkUrl || t.links[0]?.url)}" target="_blank" rel="noopener noreferrer" class="jira-card-link-badge" onclick="event.stopPropagation();" title="Open URL: ${escapeHtml(t.linkUrl || t.links[0]?.url)}">
+              🔗 ${(t.links && t.links[0]?.title) ? escapeHtml(t.links[0].title) : 'External Link'} ↗
+            </a>
+          </div>
+        ` : ''}
+
         <div class="jira-card-bottom">
           <div class="jira-card-id-row">
             <span class="jira-pri-icon" title="Priority: ${pri.label}">${pri.icon}</span>
@@ -816,17 +835,82 @@ export async function initSupportTickets(container, options = {}) {
                   </div>
                 ` : `
                   <div class="jira-desc-wrap" id="view-detail-desc">
-                    ${t.description ? escapeHtml(t.description) : '<span style="color:#64748b;font-style:italic;">No description provided. Click "Edit" to add details.</span>'}
+                    ${t.description ? renderTextWithLinks(t.description) : '<span style="color:#64748b;font-style:italic;">No description provided. Click "Edit" to add details.</span>'}
                   </div>
                 `}
               </div>
 
-              <!-- Attachments Section (MP4 & heavy files up to 1GB supported) -->
+              <!-- Reference & External URLs (Figma, Loom, Live App, Docs) -->
+              <div class="jira-section-block">
+                <div class="jira-sec-title">
+                  <span>🔗 Reference &amp; External Links (${(t.links || []).length + (t.linkUrl && !(t.links || []).some(l => l.url === t.linkUrl) ? 1 : 0)})</span>
+                  <button type="button" class="btn-jira-secondary" id="btn-toggle-add-link" style="font-size:11px;padding:4px 9px;">
+                    + Add Link
+                  </button>
+                </div>
+
+                <div id="add-link-form" style="display:none;background:#162032;border:1px solid #293952;border-radius:8px;padding:12px;margin-bottom:10px;">
+                  <div style="display:flex;flex-direction:column;gap:8px;">
+                    <input type="url" id="inp-new-link-url" class="jira-form-input" placeholder="Paste link URL (e.g. https://figma.com/..., https://loom.com/..., live website)..." />
+                    <input type="text" id="inp-new-link-title" class="jira-form-input" placeholder="Link label / description (Optional, e.g. Figma UI, Loom Video, Live App)..." />
+                    <div style="display:flex;gap:8px;justify-content:flex-end;">
+                      <button type="button" class="btn-jira-secondary" id="btn-cancel-new-link" style="font-size:12px;padding:6px 12px;">Cancel</button>
+                      <button type="button" class="btn-jira-primary" id="btn-save-new-link" style="font-size:12px;padding:6px 12px;">Save Link 🔗</button>
+                    </div>
+                  </div>
+                </div>
+
+                ${(t.links && t.links.length > 0) || t.linkUrl ? `
+                  <div class="jira-links-list" style="display:flex;flex-direction:column;gap:8px;">
+                    ${t.linkUrl && !(t.links || []).some(l => l.url === t.linkUrl) ? `
+                      <div class="jira-link-card" style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 12px;background:#162032;border:1px solid #223048;border-radius:8px;">
+                        <div style="display:flex;align-items:center;gap:8px;min-width:0;flex:1;">
+                          <span style="font-size:16px;">🔗</span>
+                          <div style="min-width:0;flex:1;">
+                            <a href="${escapeHtml(t.linkUrl)}" target="_blank" rel="noopener noreferrer" class="jira-link-anchor" style="font-size:12.5px;font-weight:700;color:#38bdf8;text-decoration:none;display:inline-flex;align-items:center;gap:4px;word-break:break-all;">
+                              ${escapeHtml(t.linkUrl)} <span>↗</span>
+                            </a>
+                            <div style="font-size:11px;color:#94a3b8;">Primary Reference Link</div>
+                          </div>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:6px;">
+                          <button type="button" class="btn-jira-secondary btn-copy-link" data-url="${escapeHtml(t.linkUrl)}" style="font-size:11px;padding:3px 8px;">Copy</button>
+                          <a href="${escapeHtml(t.linkUrl)}" target="_blank" rel="noopener noreferrer" class="btn-jira-primary" style="font-size:11px;padding:3px 9px;text-decoration:none;">Open ↗</a>
+                        </div>
+                      </div>
+                    ` : ''}
+                    ${(t.links || []).map(lnk => `
+                      <div class="jira-link-card" style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 12px;background:#162032;border:1px solid #223048;border-radius:8px;">
+                        <div style="display:flex;align-items:center;gap:8px;min-width:0;flex:1;">
+                          <span style="font-size:16px;">🔗</span>
+                          <div style="min-width:0;flex:1;">
+                            <a href="${escapeHtml(lnk.url)}" target="_blank" rel="noopener noreferrer" class="jira-link-anchor" style="font-size:12.5px;font-weight:700;color:#38bdf8;text-decoration:none;display:inline-flex;align-items:center;gap:4px;word-break:break-all;">
+                              ${escapeHtml(lnk.title || lnk.url)} <span>↗</span>
+                            </a>
+                            <div style="font-size:11px;color:#94a3b8;">
+                              ${lnk.title ? `<span style="word-break:break-all;">${escapeHtml(lnk.url)}</span> · ` : ''}Added by ${escapeHtml(lnk.addedBy || 'Staff')}
+                            </div>
+                          </div>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:6px;">
+                          <button type="button" class="btn-jira-secondary btn-copy-link" data-url="${escapeHtml(lnk.url)}" style="font-size:11px;padding:3px 8px;">Copy</button>
+                          <a href="${escapeHtml(lnk.url)}" target="_blank" rel="noopener noreferrer" class="btn-jira-primary" style="font-size:11px;padding:3px 9px;text-decoration:none;">Open ↗</a>
+                          <button type="button" class="jira-att-del btn-del-link" data-link-id="${lnk.id}" title="Remove Link">&times;</button>
+                        </div>
+                      </div>
+                    `).join('')}
+                  </div>
+                ` : `
+                  <div style="color:#64748b;font-size:12px;font-style:italic;">No reference links added yet. Click "+ Add Link" to attach Figma, Loom, Live App, or Drive links.</div>
+                `}
+              </div>
+
+              <!-- Attachments Section (Fast streaming - any file format up to 1GB) -->
               <div class="jira-section-block">
                 <div class="jira-sec-title">
                   <span>Attachments (${attachments.length})</span>
                   <label class="btn-jira-secondary" style="font-size:11px;padding:4px 9px;cursor:pointer;display:inline-flex;align-items:center;gap:4px;">
-                    <span>📎 Upload Any File / MP4 Video (Up to 1GB)</span>
+                    <span>📎 Upload Any File / Video (Up to 1GB)</span>
                     <input type="file" id="inp-detail-att-upload" multiple style="display:none;" />
                   </label>
                 </div>
@@ -1023,7 +1107,7 @@ export async function initSupportTickets(container, options = {}) {
                             <span class="jira-comment-author">${escapeHtml(c.userName)} <span style="font-size:10px;color:#94a3b8;font-weight:400;">(${escapeHtml(c.userRole)})</span></span>
                             <span class="jira-comment-time">${timeAgo(c.createdAt)}</span>
                           </div>
-                          <div class="jira-comment-body">${escapeHtml(c.content)}</div>
+                          <div class="jira-comment-body">${renderTextWithLinks(c.content)}</div>
                         </div>
                       </div>
                     `).join('')}
@@ -1600,7 +1684,89 @@ export async function initSupportTickets(container, options = {}) {
       };
     }
 
-    // Attachments upload (direct binary streaming - supports MP4 videos up to 1GB+)
+    // Reference & External Link Controls
+    const btnToggleUrlLink = modalRoot.querySelector('#btn-toggle-add-link');
+    const urlLinkForm = modalRoot.querySelector('#add-link-form');
+    const btnCancelUrlLink = modalRoot.querySelector('#btn-cancel-new-link');
+    const btnSaveUrlLink = modalRoot.querySelector('#btn-save-new-link');
+    const inpUrlLinkVal = modalRoot.querySelector('#inp-new-link-url');
+    const inpUrlLinkTitle = modalRoot.querySelector('#inp-new-link-title');
+
+    if (btnToggleUrlLink && urlLinkForm) {
+      btnToggleUrlLink.onclick = () => {
+        const isHidden = urlLinkForm.style.display === 'none';
+        urlLinkForm.style.display = isHidden ? 'block' : 'none';
+        if (isHidden && inpUrlLinkVal) inpUrlLinkVal.focus();
+      };
+    }
+
+    if (btnCancelUrlLink && urlLinkForm) {
+      btnCancelUrlLink.onclick = () => {
+        urlLinkForm.style.display = 'none';
+        if (inpUrlLinkVal) inpUrlLinkVal.value = '';
+        if (inpUrlLinkTitle) inpUrlLinkTitle.value = '';
+      };
+    }
+
+    if (btnSaveUrlLink && inpUrlLinkVal) {
+      btnSaveUrlLink.onclick = async () => {
+        const url = inpUrlLinkVal.value.trim();
+        const title = inpUrlLinkTitle?.value.trim() || '';
+        if (!url) {
+          flashToast('Please enter a valid URL link', true);
+          return;
+        }
+        try {
+          btnSaveUrlLink.disabled = true;
+          btnSaveUrlLink.textContent = 'Saving...';
+          const updated = await apiPost(`/tickets/${activeModalTicket._id}/links`, { url, title });
+          activeModalTicket = updated;
+          renderTicketDetailModal();
+          await reloadBoard();
+          flashToast('Reference link added! 🔗', false);
+        } catch (err) {
+          flashToast(err.message || 'Failed to save link', true);
+          btnSaveUrlLink.disabled = false;
+          btnSaveUrlLink.textContent = 'Save Link 🔗';
+        }
+      };
+    }
+
+    // Copy link buttons
+    modalRoot.querySelectorAll('.btn-copy-link').forEach(btn => {
+      btn.onclick = () => {
+        const u = btn.dataset.url;
+        if (u) {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(u).then(() => {
+              flashToast('Link copied to clipboard! 📋');
+            }).catch(() => {
+              flashToast('Link: ' + u);
+            });
+          } else {
+            flashToast('Link: ' + u);
+          }
+        }
+      };
+    });
+
+    // Delete link buttons
+    modalRoot.querySelectorAll('.btn-del-link').forEach(btn => {
+      btn.onclick = async () => {
+        const linkId = btn.dataset.linkId;
+        try {
+          const updated = await apiDelete(`/tickets/${activeModalTicket._id}/links/${linkId}`);
+          activeModalTicket = updated;
+          renderTicketDetailModal();
+          await reloadBoard();
+          flashToast('Link removed');
+        } catch (err) {
+          flashToast(err.message || 'Failed to remove link', true);
+        }
+      };
+    });
+
+    // Attachments upload (ultra-fast parallel streaming - supports all formats up to 1GB)
     const attUploadInp = modalRoot.querySelector('#inp-detail-att-upload');
     const attProgressBox = modalRoot.querySelector('#detail-att-upload-progress');
 
@@ -1609,57 +1775,46 @@ export async function initSupportTickets(container, options = {}) {
         const files = Array.from(e.target.files);
         if (!files.length) return;
 
-        const uploadedMeta = [];
-        if (attProgressBox) attProgressBox.style.display = 'block';
-
-        for (let i = 0; i < files.length; i++) {
-          const file = files[i];
-
-          if (attProgressBox) {
-            attProgressBox.innerHTML = `
-              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;font-size:11.5px;color:#cbd5e1;">
-                <span>Uploading <strong>${escapeHtml(file.name)}</strong> (${fmtFileSize(file.size)})...</span>
-                <span id="att-prog-pct" style="font-weight:700;color:#38bdf8;">0%</span>
-              </div>
-              <div style="width:100%;height:4px;background:#334155;border-radius:2px;overflow:hidden;">
-                <div id="att-prog-bar" style="width:0%;height:100%;background:#38bdf8;transition:width 0.15s ease;"></div>
-              </div>
-            `;
-          }
-
-          try {
-            const res = await uploadSingleFileDirectly(file, (percent) => {
-              const pctEl = modalRoot.querySelector('#att-prog-pct');
-              const barEl = modalRoot.querySelector('#att-prog-bar');
-              if (pctEl) pctEl.textContent = `${percent}%`;
-              if (barEl) barEl.style.width = `${percent}%`;
-            });
-
-            if (res) {
-              uploadedMeta.push({
-                name: res.name || file.name,
-                url: res.url,
-                size: res.size || file.size,
-                type: res.type || file.type || 'video/mp4'
-              });
-            }
-          } catch (upErr) {
-            console.error('Upload error for file:', file.name, upErr);
-            flashToast(`Upload failed for ${file.name}: ${upErr.message}`, true);
-          }
+        if (attProgressBox) {
+          attProgressBox.style.display = 'block';
+          attProgressBox.innerHTML = `
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;font-size:11.5px;color:#cbd5e1;">
+              <span>Fast uploading <strong>${files.length} file(s)</strong> in parallel...</span>
+              <span id="att-prog-pct" style="font-weight:700;color:#38bdf8;">0%</span>
+            </div>
+            <div style="width:100%;height:4px;background:#334155;border-radius:2px;overflow:hidden;">
+              <div id="att-prog-bar" style="width:0%;height:100%;background:linear-gradient(90deg, #38bdf8, #0ea5e9);transition:width 0.15s ease;"></div>
+            </div>
+          `;
         }
 
-        if (attProgressBox) attProgressBox.style.display = 'none';
+        try {
+          const uploadResults = await uploadMultipleFilesFast(files, (overallPercent) => {
+            const pctEl = modalRoot.querySelector('#att-prog-pct');
+            const barEl = modalRoot.querySelector('#att-prog-bar');
+            if (pctEl) pctEl.textContent = `${overallPercent}%`;
+            if (barEl) barEl.style.width = `${overallPercent}%`;
+          });
 
-        if (uploadedMeta.length) {
-          try {
+          const uploadedMeta = uploadResults.map(res => ({
+            name: res.name,
+            url: res.url,
+            size: res.size || 0,
+            type: res.type || 'application/octet-stream'
+          }));
+
+          if (uploadedMeta.length) {
             const updated = await apiPost(`/tickets/${activeModalTicket._id}/attachments`, { attachments: uploadedMeta });
             activeModalTicket = updated;
             renderTicketDetailModal();
-            flashToast(`Successfully attached ${uploadedMeta.length} file(s)! 🎥`, false);
-          } catch (err) {
-            flashToast(err.message || 'Failed to attach file(s)', true);
+            flashToast(`Successfully attached ${uploadedMeta.length} file(s)! 📎`, false);
           }
+        } catch (upErr) {
+          console.error('Upload error:', upErr);
+          flashToast(`Upload failed: ${upErr.message}`, true);
+        } finally {
+          if (attProgressBox) attProgressBox.style.display = 'none';
+          attUploadInp.value = '';
         }
       };
     }
@@ -1939,16 +2094,22 @@ export async function initSupportTickets(container, options = {}) {
               </div>
             </div>
 
-            <!-- Attachments & MP4 Video Uploader (Up to 1GB) -->
+            <!-- External Reference URL / Link -->
+            <div class="jira-form-group">
+              <label class="jira-form-label">🔗 External Reference Link / URL (Optional)</label>
+              <input type="url" id="create-ticket-url" class="jira-form-input" placeholder="e.g. https://figma.com/..., https://loom.com/..., live website URL, Google Drive..." />
+            </div>
+
+            <!-- Attachments & Fast File Uploader (Up to 1GB) -->
             <div class="jira-form-group" style="margin-top:14px;">
               <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-                <label class="jira-form-label" style="margin:0;">Attachments &amp; MP4 Videos (Up to 1GB)</label>
+                <label class="jira-form-label" style="margin:0;">Attachments &amp; Files (All formats up to 1GB)</label>
                 <span id="create-att-count" style="font-size:11px;color:#94a3b8;">0 files attached</span>
               </div>
               <label class="jira-att-dropzone" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:14px;border:1px dashed #334155;border-radius:8px;background:#0b1120;cursor:pointer;transition:border-color 0.2s;">
-                <div style="font-size:18px;">🎥 📁</div>
-                <div style="font-size:12px;font-weight:600;color:#e2e8f0;">Click or drag &amp; drop MP4 videos, recordings or files here</div>
-                <div style="font-size:10.5px;color:#64748b;">Supports MP4, MOV, WebM, screenshots, PDFs, logs (Heavy files up to 1GB supported)</div>
+                <div style="font-size:18px;">📁 ⚡</div>
+                <div style="font-size:12px;font-weight:600;color:#e2e8f0;">Click or drag &amp; drop files or videos here</div>
+                <div style="font-size:10.5px;color:#64748b;">Fast parallel uploading: MP4, MOV, WebM, images, PDFs, archives (Up to 1GB supported)</div>
                 <input type="file" id="inp-create-ticket-att" multiple style="display:none;" />
               </label>
               <div id="create-att-progress" style="display:none;margin-top:8px;"></div>
@@ -2032,45 +2193,42 @@ export async function initSupportTickets(container, options = {}) {
         const files = Array.from(e.target.files);
         if (!files.length) return;
 
-        if (attProgEl) attProgEl.style.display = 'block';
-
-        for (const file of files) {
-          if (attProgEl) {
-            attProgEl.innerHTML = `
-              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;font-size:11.5px;color:#cbd5e1;">
-                <span>Uploading <strong>${escapeHtml(file.name)}</strong> (${fmtFileSize(file.size)})...</span>
-                <span id="create-prog-pct" style="font-weight:700;color:#38bdf8;">0%</span>
-              </div>
-              <div style="width:100%;height:4px;background:#334155;border-radius:2px;overflow:hidden;">
-                <div id="create-prog-bar" style="width:0%;height:100%;background:#38bdf8;transition:width 0.15s ease;"></div>
-              </div>
-            `;
-          }
-
-          try {
-            const res = await uploadSingleFileDirectly(file, (percent) => {
-              const pctEl = modalRoot.querySelector('#create-prog-pct');
-              const barEl = modalRoot.querySelector('#create-prog-bar');
-              if (pctEl) pctEl.textContent = `${percent}%`;
-              if (barEl) barEl.style.width = `${percent}%`;
-            });
-
-            if (res) {
-              pendingAttachments.push({
-                name: res.name || file.name,
-                url: res.url,
-                size: res.size || file.size,
-                type: res.type || file.type || 'video/mp4'
-              });
-              renderPendingAtts();
-            }
-          } catch (err) {
-            flashToast(`Failed to upload ${file.name}: ${err.message}`, true);
-          }
+        if (attProgEl) {
+          attProgEl.style.display = 'block';
+          attProgEl.innerHTML = `
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;font-size:11.5px;color:#cbd5e1;">
+              <span>Fast uploading <strong>${files.length} file(s)</strong> in parallel...</span>
+              <span id="create-prog-pct" style="font-weight:700;color:#38bdf8;">0%</span>
+            </div>
+            <div style="width:100%;height:4px;background:#334155;border-radius:2px;overflow:hidden;">
+              <div id="create-prog-bar" style="width:0%;height:100%;background:linear-gradient(90deg, #38bdf8, #0ea5e9);transition:width 0.15s ease;"></div>
+            </div>
+          `;
         }
 
-        if (attProgEl) attProgEl.style.display = 'none';
-        inpCreateAtt.value = '';
+        try {
+          const uploadResults = await uploadMultipleFilesFast(files, (overallPercent) => {
+            const pctEl = modalRoot.querySelector('#create-prog-pct');
+            const barEl = modalRoot.querySelector('#create-prog-bar');
+            if (pctEl) pctEl.textContent = `${overallPercent}%`;
+            if (barEl) barEl.style.width = `${overallPercent}%`;
+          });
+
+          uploadResults.forEach(res => {
+            pendingAttachments.push({
+              name: res.name,
+              url: res.url,
+              size: res.size || 0,
+              type: res.type || 'application/octet-stream'
+            });
+          });
+          renderPendingAtts();
+        } catch (err) {
+          flashToast(`Failed to upload files: ${err.message}`, true);
+        } finally {
+          if (attProgEl) attProgEl.style.display = 'none';
+          inpCreateAtt.value = '';
+        }
       };
     }
 
@@ -2098,6 +2256,7 @@ export async function initSupportTickets(container, options = {}) {
         const assigneeIds = assigneeCheckboxes.map(cb => cb.value);
         const dueDate = modalRoot.querySelector('#create-ticket-duedate')?.value || null;
         const jobId = modalRoot.querySelector('#create-ticket-job')?.value || null;
+        const linkUrl = modalRoot.querySelector('#create-ticket-url')?.value.trim() || '';
 
         if (!title) {
           flashToast('Ticket summary / title is required', true);
@@ -2117,6 +2276,7 @@ export async function initSupportTickets(container, options = {}) {
             assigneeId: assigneeIds[0] || null,
             dueDate,
             jobId,
+            linkUrl,
             attachments: pendingAttachments
           });
 
