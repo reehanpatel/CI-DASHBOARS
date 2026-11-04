@@ -293,6 +293,15 @@ router.get('/', async (req, res) => {
       } catch(e){}
     }
 
+    // Auto-clean any generic ticket status change / moved notifications
+    // (Only keep created, under review, and completed/resolved)
+    try {
+      await Notification.deleteMany({
+        userId,
+        type: 'ticket_status_changed'
+      });
+    } catch(e){}
+
     const notifications = await Notification.find({ userId, dismissed: { $ne: true } })
       .sort({ createdAt: -1 })
       .limit(50);

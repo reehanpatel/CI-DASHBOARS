@@ -161,6 +161,11 @@ async function createNotificationForTarget({ type, title, message, target, actor
 async function createNotificationForTicket({ type, title, message, ticket, actorId, actorName }) {
   try {
     if (!ticket) return;
+    // User requirement: Do not keep notification when ticket is moved,
+    // only keep when it is under review, created, or moved to completed.
+    if (type === 'ticket_status_changed') {
+      return;
+    }
     const targetUserIds = new Set();
 
     // 1. All Super Admins & Admins

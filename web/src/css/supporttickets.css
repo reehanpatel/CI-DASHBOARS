@@ -139,7 +139,8 @@
   transition: all 0.15s ease;
 }
 
-.jira-stat-card:hover, .jira-stat-card.active {
+.jira-stat-card:hover,
+.jira-stat-card.active {
   border-color: #38bdf8;
   background: #243248;
 }
@@ -158,12 +159,31 @@
   letter-spacing: 0.4px;
 }
 
-.jira-stat-card.critical .jira-stat-val { color: #ef4444; }
-.jira-stat-card.overdue .jira-stat-val { color: #f59e0b; }
-.jira-stat-card.content .jira-stat-val, .jira-stat-card.in-progress .jira-stat-val { color: #38bdf8; }
-.jira-stat-card.design .jira-stat-val { color: #a855f7; }
-.jira-stat-card.review .jira-stat-val { color: #eab308; }
-.jira-stat-card.ready .jira-stat-val, .jira-stat-card.resolved .jira-stat-val { color: #10b981; }
+.jira-stat-card.critical .jira-stat-val {
+  color: #ef4444;
+}
+
+.jira-stat-card.overdue .jira-stat-val {
+  color: #f59e0b;
+}
+
+.jira-stat-card.content .jira-stat-val,
+.jira-stat-card.in-progress .jira-stat-val {
+  color: #38bdf8;
+}
+
+.jira-stat-card.design .jira-stat-val {
+  color: #a855f7;
+}
+
+.jira-stat-card.review .jira-stat-val {
+  color: #eab308;
+}
+
+.jira-stat-card.ready .jira-stat-val,
+.jira-stat-card.resolved .jira-stat-val {
+  color: #10b981;
+}
 
 /* ── Filter Bar (Single Row, Never Wrapping) ── */
 .jira-filter-bar {
@@ -263,7 +283,8 @@
   box-sizing: border-box;
 }
 
-.jira-pill-filter.active, .jira-pill-filter:hover {
+.jira-pill-filter.active,
+.jira-pill-filter:hover {
   background: rgba(56, 189, 248, 0.15);
   border-color: #38bdf8;
   color: #38bdf8;
@@ -440,13 +461,47 @@
   letter-spacing: 0.3px;
 }
 
-.jira-category-pill.bug { background: rgba(239, 68, 68, 0.18); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
-.jira-category-pill.feature { background: rgba(168, 85, 247, 0.18); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); }
-.jira-category-pill.task { background: rgba(59, 130, 246, 0.18); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
-.jira-category-pill.internal { background: rgba(245, 158, 11, 0.18); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
-.jira-category-pill.infrastructure { background: rgba(20, 184, 166, 0.18); color: #2dd4bf; border: 1px solid rgba(20, 184, 166, 0.3); }
-.jira-category-pill.client-request { background: rgba(236, 72, 153, 0.18); color: #f472b6; border: 1px solid rgba(236, 72, 153, 0.3); }
-.jira-category-pill.general { background: rgba(148, 163, 184, 0.18); color: #cbd5e1; border: 1px solid rgba(148, 163, 184, 0.3); }
+.jira-category-pill.bug {
+  background: rgba(239, 68, 68, 0.18);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.jira-category-pill.feature {
+  background: rgba(168, 85, 247, 0.18);
+  color: #c084fc;
+  border: 1px solid rgba(168, 85, 247, 0.3);
+}
+
+.jira-category-pill.task {
+  background: rgba(59, 130, 246, 0.18);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.jira-category-pill.internal {
+  background: rgba(245, 158, 11, 0.18);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.jira-category-pill.infrastructure {
+  background: rgba(20, 184, 166, 0.18);
+  color: #2dd4bf;
+  border: 1px solid rgba(20, 184, 166, 0.3);
+}
+
+.jira-category-pill.client-request {
+  background: rgba(236, 72, 153, 0.18);
+  color: #f472b6;
+  border: 1px solid rgba(236, 72, 153, 0.3);
+}
+
+.jira-category-pill.general {
+  background: rgba(148, 163, 184, 0.18);
+  color: #cbd5e1;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+}
 
 .jira-due-pill {
   font-size: 10px;
@@ -707,8 +762,13 @@
 }
 
 @keyframes jiraFadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 .jira-modal-card {
@@ -821,7 +881,8 @@
   box-sizing: border-box;
 }
 
-.jira-editable-title:hover, .jira-editable-title:focus {
+.jira-editable-title:hover,
+.jira-editable-title:focus {
   background: #1e293b;
   border-color: #38bdf8;
 }
@@ -1065,27 +1126,35 @@
   border-bottom-color: #38bdf8;
 }
 
-.jira-comments-feed, .jira-history-feed, .jira-worklog-feed {
+.jira-comments-feed,
+.jira-history-feed,
+.jira-worklog-feed {
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
-.jira-comment-item, .jira-history-item, .jira-worklog-item {
+.jira-comment-item,
+.jira-history-item,
+.jira-worklog-item {
   display: flex;
   gap: 10px;
   padding: 8px 0;
   border-bottom: 1px solid rgba(51, 65, 85, 0.4);
 }
 
-.jira-comment-main, .jira-history-main, .jira-worklog-main {
+.jira-comment-main,
+.jira-history-main,
+.jira-worklog-main {
   display: flex;
   flex-direction: column;
   gap: 4px;
   flex: 1;
 }
 
-.jira-comment-head, .jira-history-head, .jira-worklog-head {
+.jira-comment-head,
+.jira-history-head,
+.jira-worklog-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1207,7 +1276,8 @@
   color: #cbd5e1;
 }
 
-.jira-form-input, .jira-form-textarea {
+.jira-form-input,
+.jira-form-textarea {
   width: 100%;
   background: #1e293b;
   border: 1px solid #334155;
@@ -1219,7 +1289,8 @@
   box-sizing: border-box;
 }
 
-.jira-form-input:focus, .jira-form-textarea:focus {
+.jira-form-input:focus,
+.jira-form-textarea:focus {
   border-color: #38bdf8;
 }
 
@@ -1233,6 +1304,7 @@
   gap: 10px;
   flex-shrink: 0;
 }
+
 /* ==========================================================================
    SUPPORT TICKETS — COMPREHENSIVE LIGHT THEME STYLES
    ========================================================================== */

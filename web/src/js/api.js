@@ -624,6 +624,10 @@ export function showInAppPopupAlert({ id, title, message, type, time, actionText
     icon = '✅'; priority = 'success'; defaultActionText = 'View Planner'; defaultNavTab = 'dailytasks';
   } else if(t.includes('task')){
     icon = '📅'; priority = 'info'; defaultActionText = 'Open Planner'; defaultNavTab = 'dailytasks';
+  } else if(t.includes('ticket_under_review') || (t.includes('ticket') && m.includes('under review'))){
+    icon = '🔍'; priority = 'warning'; defaultActionText = 'Review Ticket'; defaultNavTab = 'tickets';
+  } else if(t.includes('ticket_resolved') || t.includes('ticket_completed') || (t.includes('ticket') && m.includes('completed'))){
+    icon = '✅'; priority = 'success'; defaultActionText = 'View Ticket'; defaultNavTab = 'tickets';
   } else if(t.includes('ticket')){
     icon = '🎫'; priority = 'info'; defaultActionText = 'View Ticket'; defaultNavTab = 'tickets';
   } else if(t.includes('target')){
@@ -886,6 +890,8 @@ export function getNotifIcon(type){
   if(type.startsWith('target')) return '🎯';
   if(type.startsWith('job_due')) return '⏳';
   if(type.startsWith('job')) return '📋';
+  if(type.startsWith('ticket_under_review')) return '🔍';
+  if(type.startsWith('ticket_resolved') || type.startsWith('ticket_completed')) return '✅';
   if(type.startsWith('ticket')) return '🎫';
   if(type.startsWith('status')) return '🔄';
   if(type.startsWith('test')) return '🧪';

@@ -607,15 +607,25 @@ router.patch('/:id/status', async (req, res) => {
 
     await ticket.save();
 
-    // Notify
-    createNotificationForTicket({
-      type: (status === 'Ready to Leave' || status === 'Resolved') ? 'ticket_resolved' : 'ticket_status_changed',
-      title: `🎫 [${ticket.ticketId}] Status: ${status}`,
-      message: `${req.user.name} moved ticket ${ticket.ticketId} from "${oldStatus}" to "${status}".`,
-      ticket,
-      actorId: req.user._id,
-      actorName: req.user.name
-    }).catch(e => console.warn('Status change notification error:', e.message));
+    // User requirement: Do not keep notification when a ticket is moved,
+    // ONLY keep when it is under review, created, or moved to completed.
+    const isUnderReview = status === 'Under Review';
+    const isCompleted = status === 'Ready to Leave' || status === 'Resolved' || status === 'Closed';
+
+    if (isUnderReview || isCompleted) {
+      createNotificationForTicket({
+        type: isCompleted ? 'ticket_resolved' : 'ticket_under_review',
+        title: isCompleted
+          ? `✅ [${ticket.ticketId}] Completed: ${ticket.title}`
+          : `🔍 [${ticket.ticketId}] Under Review: ${ticket.title}`,
+        message: isCompleted
+          ? `${req.user.name} moved ticket ${ticket.ticketId} to completed (${status}).`
+          : `${req.user.name} moved ticket ${ticket.ticketId} to Under Review.`,
+        ticket,
+        actorId: req.user._id,
+        actorName: req.user.name
+      }).catch(e => console.warn('Status change notification error:', e.message));
+    }
 
     const updated = await SupportTicket.findById(ticket._id)
       .populate('jobId', 'title')
