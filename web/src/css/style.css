@@ -1385,10 +1385,25 @@ textarea {
 /* ── APP CONTENT ───────────────────────────────────────────── */
 .app-content {
   flex: 1;
-  padding: 0px;
-  max-width: 1360px;
-  width: 100%;
-  margin: 0 auto;
+  padding: 20px !important;
+  margin: 0 71px !important;
+  max-width: none !important;
+  width: auto !important;
+  box-sizing: border-box !important;
+}
+
+@media (max-width: 992px) {
+  .app-content {
+    margin: 0 32px !important;
+    padding: 20px !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .app-content {
+    margin: 0 16px !important;
+    padding: 16px !important;
+  }
 }
 
 /* Section block */
@@ -1440,7 +1455,7 @@ textarea {
   background: var(--bg-card);
   border: 1px solid var(--border-sm);
   border-radius: var(--r-md);
-  padding: 22px 24px;
+  padding: 20px;
   box-shadow: var(--shadow-xs);
   transition: box-shadow var(--t-fast), border-color var(--t-fast);
 }
@@ -1454,7 +1469,7 @@ textarea {
 .card.kpi {
   display: flex;
   flex-direction: column;
-  padding: 20px 22px;
+  padding: 20px;
   position: relative;
   overflow: hidden;
 }
@@ -2882,7 +2897,8 @@ html:not([data-theme="dark"]) textarea {
   }
 
   .app-content {
-    padding: 12px 14px !important;
+    padding: 16px !important;
+    margin: 0 16px !important;
   }
 
   .app-topbar {
