@@ -37,6 +37,13 @@ ci360/
         └── js/          # Frontend logic (api, admin, employee, client)
 ```
 
+## Documentation & User Manuals
+
+Complete system documentation and user manuals are located in [`docs/`](docs/):
+- **[System Architecture & Developer Documentation](docs/SYSTEM_DOCUMENTATION.md)** — Exhaustive overview of all 21 Mongoose models, 18 API route families, role-based access control (RBAC), multi-player state machines, sync polling, and deployment configuration.
+- **[End-User Manual & Operating Guide](docs/USER_MANUAL.md)** — Step-by-step operational workflows for Super Admins, Admins, Employees, and Clients across all 10 software modules, UI keyboard shortcuts, error handling, and FAQ.
+- **[Team Bonding & Real-Time Multiplayer Games Manual](docs/TEAM_BONDING_AND_GAMES_MANUAL.md)** — Detailed rules, mechanics, turn engines, and guide for Ludo, Chess, Connect Four, and Tic-Tac-Toe.
+
 ## Prerequisites
 
 - Node.js 18+

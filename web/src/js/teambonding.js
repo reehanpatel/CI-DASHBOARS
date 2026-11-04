@@ -2067,23 +2067,32 @@ export async function initTeamBonding(container, options = {}) {
         }
       }
 
-      function renderDicePips(val) {
+      function renderDiceSvg(val) {
         const v = Math.max(1, Math.min(6, Number(val) || 1));
-        const pipMap = {
-          1: [5],
-          2: [1, 9],
-          3: [1, 5, 9],
-          4: [1, 3, 7, 9],
-          5: [1, 3, 5, 7, 9],
-          6: [1, 4, 7, 3, 6, 9]
+        const pipCoords = {
+          1: [[30, 30, 7.5, '#ef4444']],
+          2: [[16, 16, 5.5, '#1e293b'], [44, 44, 5.5, '#1e293b']],
+          3: [[16, 16, 5.5, '#1e293b'], [30, 30, 5.5, '#1e293b'], [44, 44, 5.5, '#1e293b']],
+          4: [[16, 16, 5.5, '#1e293b'], [44, 16, 5.5, '#1e293b'], [16, 44, 5.5, '#1e293b'], [44, 44, 5.5, '#1e293b']],
+          5: [[16, 16, 5.5, '#1e293b'], [44, 16, 5.5, '#1e293b'], [30, 30, 5.5, '#1e293b'], [16, 44, 5.5, '#1e293b'], [44, 44, 5.5, '#1e293b']],
+          6: [[16, 16, 5.5, '#1e293b'], [44, 16, 5.5, '#1e293b'], [16, 30, 5.5, '#1e293b'], [44, 30, 5.5, '#1e293b'], [16, 44, 5.5, '#1e293b'], [44, 44, 5.5, '#1e293b']]
         };
-        const active = new Set(pipMap[v] || [5]);
-        let dots = '';
-        for (let i = 1; i <= 9; i++) {
-          const isFilled = active.has(i);
-          dots += `<span class="ludo-pip ${isFilled ? 'ludo-pip-filled' : 'ludo-pip-empty'}" data-pip="${i}"></span>`;
-        }
-        return `<div class="ludo-dice-face face-${v}" role="img" aria-label="Dice face ${v}">${dots}</div>`;
+        const pips = pipCoords[v] || pipCoords[6];
+        const pipsSvg = pips.map(([cx, cy, r, fill]) => `
+          <g>
+            <circle cx="${cx}" cy="${cy + 1.2}" r="${r}" fill="#94a3b8" opacity="0.5"/>
+            <circle cx="${cx}" cy="${cy}" r="${r}" fill="${fill}"/>
+            <circle cx="${cx - r * 0.3}" cy="${cy - r * 0.3}" r="${r * 0.35}" fill="#ffffff" opacity="0.6"/>
+          </g>
+        `).join('');
+
+        return `
+          <svg viewBox="0 0 60 60" width="52" height="52" class="ludo-dice-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Dice face ${v}">
+            <g class="die-pips-layer">
+              ${pipsSvg}
+            </g>
+          </svg>
+        `;
       }
 
       function renderYardHtml(col, titleText, isActive, playerInfo, tokensList) {
@@ -2205,7 +2214,7 @@ export async function initTeamBonding(container, options = {}) {
                 tabindex="${canClickRoll ? '0' : '-1'}"
                 title="${canClickRoll ? 'Click Dice to Roll!' : (isMyCurrentTurn ? 'Choose a pawn to move' : `${turnPlName}'s turn`)}"
               >
-                ${renderDicePips(displayDice)}
+                ${renderDiceSvg(displayDice)}
               </div>
               <div class="ludo-dice-action-badge">
                 ${canClickRoll
@@ -2223,7 +2232,7 @@ export async function initTeamBonding(container, options = {}) {
               <div class="ludo-turn-indicator-bar">
                 <span class="ludo-turn-dot ${currentTurnColor}"></span>
                 <span class="ludo-turn-player-tag">
-                  <strong>${turnColorEmoji} ${turnPlName}</strong> (${currentTurnColor.toUpperCase()})
+                  <strong>${turnPlName}</strong> (${currentTurnColor.toUpperCase()})
                 </span>
                 ${isMyCurrentTurn
           ? `<span class="badge green" style="font-size:10px;padding:2px 6px;">YOUR TURN</span>`
@@ -5846,6 +5855,15 @@ function injectBondingStyles() {
       50% { transform: scale(0.88) rotate(240deg) translateY(4px); }
       75% { transform: scale(1.12) rotate(320deg) translateY(-2px); }
       100% { transform: scale(1) rotate(360deg) translateY(0); }
+    }
+
+    .ludo-dice-svg {
+      display: block !important;
+      width: 52px !important;
+      height: 52px !important;
+      pointer-events: none !important;
+      user-select: none !important;
+      filter: drop-shadow(0 1px 1px rgba(0,0,0,0.08));
     }
 
     .ludo-dice-face {

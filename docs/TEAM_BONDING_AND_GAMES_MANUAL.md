@@ -157,3 +157,4 @@ The application layout conforms to a strict, standardized spacing hierarchy:
    - Every move request to `/api/bonding/matches/:id/move` verifies the user's JWT token. Players cannot move opponent pieces, roll out of turn, or submit unauthorized moves.
 3. **Data Sanitization**:
    - All messages, player tags, and game moves are HTML-escaped to prevent cross-site scripting (XSS).
+

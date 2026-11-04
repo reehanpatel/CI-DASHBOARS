@@ -7155,6 +7155,15 @@ html:not([data-theme="dark"]) textarea {
   100% { transform: scale(1) rotate(360deg) translateY(0); }
 }
 
+.ludo-dice-svg {
+  display: block !important;
+  width: 52px !important;
+  height: 52px !important;
+  pointer-events: none !important;
+  user-select: none !important;
+  filter: drop-shadow(0 1px 1px rgba(0,0,0,0.08));
+}
+
 .ludo-dice-face {
   width: 48px !important;
   height: 48px !important;
