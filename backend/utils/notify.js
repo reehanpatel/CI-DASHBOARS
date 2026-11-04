@@ -335,11 +335,90 @@ async function createNotificationForInvoice({ type, title, message, invoice, act
   }
 }
 
+async function createNotificationForChatMessage({ channel, message, sender }) {
+  try {
+    if (!channel || !message || !sender) return;
+    const senderIdStr = sender._id ? sender._id.toString() : (sender.userId ? sender.userId.toString() : '');
+
+    // Target all members of the channel except the sender
+    const recipientIds = (channel.members || [])
+      .map(m => m.userId ? m.userId.toString() : '')
+      .filter(id => id && id !== senderIdStr);
+
+    if (!recipientIds.length) return;
+
+    const isDirect = channel.type === 'direct';
+    const nTitle = isDirect
+      ? `💬 Message from ${sender.name || 'Teammate'}`
+      : `💬 ${sender.name || 'Teammate'} in #${channel.name}`;
+
+    const contentSnippet = (message.content || 'Sent a message').trim().slice(0, 120);
+    const nMessage = `"${contentSnippet}"`;
+
+    const docs = recipientIds.map(uId => ({
+      userId: uId,
+      type: 'chat_message',
+      title: nTitle,
+      message: nMessage,
+      channelId: channel._id,
+      read: false
+    }));
+
+    const deduplicatedDocs = await filterDuplicateNotifications(docs, 'channelId', channel._id);
+    if (deduplicatedDocs.length) {
+      await Notification.insertMany(deduplicatedDocs);
+      sendPushToUsers(recipientIds, {
+        title: nTitle,
+        message: nMessage,
+        type: 'chat_message',
+        url: '/employee'
+      }).catch(e => console.warn('Push error:', e.message));
+    }
+    recordSyncUpdate('chat');
+  } catch (err) {
+    console.error('Error creating chat notification:', err.message);
+  }
+}
+
+async function createNotificationForGameChallenge({ title, message, targetUserId, channelId, invitationId, gameType }) {
+  try {
+    if (!targetUserId) return;
+    const nTitle = title || '🎮 Game Challenge Received!';
+    const nMessage = message || 'You received a new game challenge! Click to view.';
+
+    const doc = {
+      userId: targetUserId,
+      type: 'game_challenge',
+      title: nTitle,
+      message: nMessage,
+      channelId: channelId || null,
+      invitationId: invitationId || null,
+      read: false
+    };
+
+    const deduplicatedDocs = await filterDuplicateNotifications([doc], 'invitationId', invitationId);
+    if (deduplicatedDocs.length) {
+      await Notification.insertMany(deduplicatedDocs);
+      sendPushToUsers([targetUserId], {
+        title: nTitle,
+        message: nMessage,
+        type: 'game_challenge',
+        url: '/employee'
+      }).catch(e => console.warn('Push error:', e.message));
+    }
+    recordSyncUpdate('games');
+  } catch (err) {
+    console.error('Error creating game challenge notification:', err.message);
+  }
+}
+
 module.exports = { 
   createNotificationsForJob, 
   createNotificationForTarget, 
   createNotificationForTicket,
   createNotificationForTask,
   createNotificationForInvoice,
+  createNotificationForChatMessage,
+  createNotificationForGameChallenge,
   recordSyncUpdate
 };

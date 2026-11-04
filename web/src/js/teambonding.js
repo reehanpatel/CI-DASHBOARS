@@ -258,9 +258,15 @@ export async function initTeamBonding(container, options = {}) {
     if (groups.length === 0) {
       groupList.innerHTML = `<div class="bonding-empty-text">No group lounges yet. Click + New Group to start one!</div>`;
     } else {
+      const myId = currentUser?._id || currentUser?.id;
+      const isSuperadmin = (userRole === 'superadmin' || currentUser?.role === 'superadmin');
+
       groupList.innerHTML = groups.map(g => {
         const isActive = activeChannel && activeChannel._id === g._id;
         const unreadCount = 0;
+        const isCreator = g.createdBy && g.createdBy.userId && String(g.createdBy.userId) === String(myId);
+        const canDelete = isCreator || isSuperadmin;
+
         return `
           <div class="bonding-channel-item ${isActive ? 'active' : ''}" data-channel-id="${g._id}">
             <div class="bonding-channel-icon">${g.avatar || '👥'}</div>
@@ -269,12 +275,22 @@ export async function initTeamBonding(container, options = {}) {
               <div class="bonding-channel-preview">${escapeHtml(g.lastMessage?.content || 'No messages yet')}</div>
             </div>
             ${unreadCount > 0 ? `<div class="bonding-unread-badge">${unreadCount}</div>` : ''}
-            <button class="bonding-channel-del-btn" data-channel-id="${g._id}" title="Delete Group">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="3 6 5 6 21 6"></polyline>
-                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-              </svg>
-            </button>
+            ${canDelete ? `
+              <button class="bonding-channel-del-btn" data-channel-id="${g._id}" title="Delete Group (Creator only)">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="3 6 5 6 21 6"></polyline>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                </svg>
+              </button>
+            ` : `
+              <button class="bonding-channel-leave-btn" data-channel-id="${g._id}" title="Leave Group">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                  <polyline points="16 17 21 12 16 7"></polyline>
+                  <line x1="21" y1="12" x2="9" y2="12"></line>
+                </svg>
+              </button>
+            `}
           </div>
         `;
       }).join('');
@@ -313,7 +329,7 @@ export async function initTeamBonding(container, options = {}) {
     const items = container.querySelectorAll('.bonding-channel-item');
     items.forEach(item => {
       item.onclick = async (e) => {
-        if (e.target.closest('.bonding-channel-del-btn')) return;
+        if (e.target.closest('.bonding-channel-del-btn') || e.target.closest('.bonding-channel-leave-btn')) return;
         const id = item.dataset.channelId;
         const target = channels.find(c => c._id === id);
         if (target) {
@@ -326,7 +342,34 @@ export async function initTeamBonding(container, options = {}) {
       };
     });
 
-    // Delete conversation from sidebar
+    // Leave group from sidebar
+    container.querySelectorAll('.bonding-channel-leave-btn').forEach(btn => {
+      btn.onclick = async (e) => {
+        e.stopPropagation();
+        const chanId = btn.dataset.channelId;
+        const target = channels.find(c => c._id === chanId);
+        const groupName = target?.name || 'this group';
+        if (!confirm(`Are you sure you want to leave the group "${groupName}"?`)) return;
+
+        try {
+          btn.disabled = true;
+          await apiPost(`/bonding/channels/${chanId}/leave`, {});
+          flashToast(`You left "${groupName}"`, 'info');
+          channels = channels.filter(c => c._id !== chanId);
+          if (activeChannel && activeChannel._id === chanId) {
+            activeChannel = channels.find(c => c.type === 'group') || channels[0] || null;
+            renderChatPanel();
+            if (activeChannel) await loadMessages(activeChannel._id);
+          }
+          renderSidebarChannels();
+        } catch (err) {
+          flashToast(err.message || 'Failed to leave group', 'error');
+          btn.disabled = false;
+        }
+      };
+    });
+
+    // Delete conversation from sidebar (Creator only)
     container.querySelectorAll('.bonding-channel-del-btn').forEach(btn => {
       btn.onclick = async (e) => {
         e.stopPropagation();
@@ -386,6 +429,10 @@ export async function initTeamBonding(container, options = {}) {
       ? (activeChannel.members || []).find(m => m.userId?.toString() !== myId?.toString())
       : null;
 
+    const isCreator = activeChannel.createdBy && activeChannel.createdBy.userId && String(activeChannel.createdBy.userId) === String(myId);
+    const isSuperadmin = (userRole === 'superadmin' || currentUser?.role === 'superadmin');
+    const canDeleteGroup = isCreator || isSuperadmin;
+
     chatPanel.innerHTML = `
       <div class="bonding-chat-header">
         <div class="bonding-chat-header-info">
@@ -416,9 +463,15 @@ export async function initTeamBonding(container, options = {}) {
             <button class="bonding-header-btn" id="btn-manage-members">
               <span>👥</span> <span>Members (${memberCount})</span>
             </button>
-            <button class="bonding-header-btn danger" id="btn-delete-group" title="Delete this group">
-              <span>🗑️</span> <span>Delete Group</span>
-            </button>
+            ${canDeleteGroup ? `
+              <button class="bonding-header-btn danger" id="btn-delete-group" title="Delete this group (Creator only)">
+                <span>🗑️</span> <span>Delete Group</span>
+              </button>
+            ` : `
+              <button class="bonding-header-btn danger" id="btn-leave-group" title="Leave this group">
+                <span>🚪</span> <span>Leave Group</span>
+              </button>
+            `}
           ` : `
             <button class="bonding-header-btn danger" id="btn-delete-direct" title="Delete 1-on-1 Chat">
               <span>🗑️</span> <span>Delete Chat</span>
@@ -633,9 +686,13 @@ export async function initTeamBonding(container, options = {}) {
     const btnMembers = container.querySelector('#btn-manage-members');
     if (btnMembers) btnMembers.onclick = openManageMembersModal;
 
-    // Delete Group
+    // Delete Group (Creator / Superadmin only)
     const btnDelete = container.querySelector('#btn-delete-group');
     if (btnDelete) btnDelete.onclick = confirmDeleteGroup;
+
+    // Leave Group (Members)
+    const btnLeave = container.querySelector('#btn-leave-group');
+    if (btnLeave) btnLeave.onclick = confirmLeaveGroup;
 
     // Delete 1-on-1 Direct Chat
     const btnDeleteDirect = container.querySelector('#btn-delete-direct');
@@ -2368,6 +2425,9 @@ export async function initTeamBonding(container, options = {}) {
                 ${currentMembers.map(m => {
                   const myId = currentUser?._id || currentUser?.id;
                   const isMe = myId && m.userId && m.userId.toString() === myId.toString();
+                  const isCreator = activeChannel.createdBy && activeChannel.createdBy.userId && String(activeChannel.createdBy.userId) === String(myId);
+                  const isSuperadmin = (userRole === 'superadmin' || currentUser?.role === 'superadmin');
+                  const canDeleteGroup = isCreator || isSuperadmin;
                   return `
                     <div class="bonding-member-item">
                       <div class="bonding-member-left">
@@ -2378,9 +2438,15 @@ export async function initTeamBonding(container, options = {}) {
                         </div>
                       </div>
                       <div class="bonding-member-actions">
-                        <button class="bonding-btn-danger btn-remove-member" data-user-id="${m.userId}" data-name="${escapeHtml(m.name)}">
-                          ${isMe ? 'Leave Group' : 'Remove'}
-                        </button>
+                        ${isMe ? `
+                          <button class="bonding-btn-danger btn-leave-group-action" data-user-id="${m.userId}">
+                            🚪 Leave Group
+                          </button>
+                        ` : (canDeleteGroup ? `
+                          <button class="bonding-btn-danger btn-remove-member" data-user-id="${m.userId}" data-name="${escapeHtml(m.name)}">
+                            Remove
+                          </button>
+                        ` : '')}
                       </div>
                     </div>
                   `;
@@ -2388,16 +2454,36 @@ export async function initTeamBonding(container, options = {}) {
               </div>
             </div>
 
-            <!-- Delete Group Option in Modal -->
-            <div class="bonding-danger-zone">
-              <div class="danger-zone-text">
-                <strong>Delete Group</strong>
-                <span>Permanently delete this group lounge and remove all its messages.</span>
-              </div>
-              <button class="bonding-btn-danger" id="btn-modal-delete-group">
-                Delete Group
-              </button>
-            </div>
+            ${(() => {
+              const myId = currentUser?._id || currentUser?.id;
+              const isCreator = activeChannel.createdBy && activeChannel.createdBy.userId && String(activeChannel.createdBy.userId) === String(myId);
+              const isSuperadmin = (userRole === 'superadmin' || currentUser?.role === 'superadmin');
+              const canDeleteGroup = isCreator || isSuperadmin;
+
+              return canDeleteGroup ? `
+                <!-- Delete Group Option in Modal (Creator only) -->
+                <div class="bonding-danger-zone">
+                  <div class="danger-zone-text">
+                    <strong>Delete Group</strong>
+                    <span>Permanently delete this group lounge and remove all its messages.</span>
+                  </div>
+                  <button class="bonding-btn-danger" id="btn-modal-delete-group">
+                    Delete Group
+                  </button>
+                </div>
+              ` : `
+                <!-- Leave Group Option in Modal (Members) -->
+                <div class="bonding-danger-zone">
+                  <div class="danger-zone-text">
+                    <strong>Leave Group</strong>
+                    <span>Exit this group lounge. You can rejoin if invited again.</span>
+                  </div>
+                  <button class="bonding-btn-danger" id="btn-modal-leave-group">
+                    🚪 Leave Group
+                  </button>
+                </div>
+              `;
+            })()}
           </div>
         </div>
       </div>
@@ -2412,6 +2498,21 @@ export async function initTeamBonding(container, options = {}) {
         confirmDeleteGroup();
       };
     }
+
+    const modalLeaveBtn = modalRoot.querySelector('#btn-modal-leave-group');
+    if (modalLeaveBtn) {
+      modalLeaveBtn.onclick = () => {
+        modalRoot.innerHTML = '';
+        confirmLeaveGroup();
+      };
+    }
+
+    modalRoot.querySelectorAll('.btn-leave-group-action').forEach(b => {
+      b.onclick = () => {
+        modalRoot.innerHTML = '';
+        confirmLeaveGroup();
+      };
+    });
 
     const addBtn = modalRoot.querySelector('#btn-submit-add-member');
     if (addBtn) {
@@ -2467,6 +2568,30 @@ export async function initTeamBonding(container, options = {}) {
         }
       };
     });
+  }
+
+  async function confirmLeaveGroup() {
+    if (!activeChannel || activeChannel.type === 'direct') return;
+
+    const groupName = activeChannel.name;
+    const confirmed = confirm(`Are you sure you want to leave the group "${groupName}"?`);
+    if (!confirmed) return;
+
+    try {
+      await apiPost(`/bonding/channels/${activeChannel._id}/leave`, {});
+      flashToast(`You left "${groupName}"`, 'info');
+
+      channels = await apiGet('/bonding/channels').catch(() => []);
+      activeChannel = channels.find(c => c.type === 'group') || channels[0] || null;
+      renderSidebarChannels();
+      renderChatPanel();
+
+      if (activeChannel) {
+        await loadMessages(activeChannel._id);
+      }
+    } catch (err) {
+      flashToast(err.message || 'Failed to leave group', 'error');
+    }
   }
 
   async function confirmDeleteGroup() {

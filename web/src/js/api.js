@@ -573,6 +573,11 @@ if (typeof window !== 'undefined') {
 }
 
 /* ── IN-APP POPUP NOTIFICATIONS & OVERDUE INVOICE MODAL ──────── */
+export function cleanNotificationTitle(title) {
+  if (!title) return '';
+  return String(title).replace(/^[\p{Extended_Pictographic}\u2000-\u3300\uD800-\uDFFF\uFE00-\uFE0F\s]+/u, '').trim() || title;
+}
+
 export function getOrCreateFloatingAlertContainer() {
   if (typeof document === 'undefined') return null;
   let container = document.getElementById('ci360FloatingContainer');
@@ -604,7 +609,11 @@ export function showInAppPopupAlert({ id, title, message, type, time, actionText
   const t = (type || '').toLowerCase();
   const m = (message || '').toLowerCase();
 
-  if (t.includes('invoice_overdue')) {
+  if (t.includes('chat_message') || t.includes('chat') || t.includes('message')) {
+    icon = '💬'; priority = 'info'; defaultActionText = 'Open Chat'; defaultNavTab = 'teambonding';
+  } else if (t.includes('game_challenge') || t.includes('game') || t.includes('invitation') || t.includes('challenge')) {
+    icon = '🎮'; priority = 'warning'; defaultActionText = 'View Game'; defaultNavTab = 'teambonding';
+  } else if (t.includes('invoice_overdue')) {
     icon = '🚨'; priority = 'critical'; defaultActionText = 'View Invoice'; defaultNavTab = 'billing';
   } else if (t.includes('invoice_paid') || t.includes('payment')) {
     icon = '💳'; priority = 'success'; defaultActionText = 'View Billing'; defaultNavTab = 'billing';
@@ -636,9 +645,9 @@ export function showInAppPopupAlert({ id, title, message, type, time, actionText
 
   const finalActionText = actionText || defaultActionText;
 
-  // Prevent double icons if title already starts with icon
-  let cleanTitle = (title || 'Notification').trim();
-  if (cleanTitle.startsWith(icon)) {
+  // Prevent double icons: strip any leading emoji from title
+  let cleanTitle = cleanNotificationTitle(title || 'Notification');
+  if (icon && cleanTitle.startsWith(icon)) {
     cleanTitle = cleanTitle.slice(icon.length).trim();
   }
 
@@ -873,6 +882,7 @@ export function renderNotificationBell() {
           <button type="button" class="notif-filter-btn" data-filter="target">🎯 Targets</button>
           <button type="button" class="notif-filter-btn" data-filter="job">📋 Jobs</button>
           <button type="button" class="notif-filter-btn" data-filter="ticket">🎫 Tickets</button>
+          <button type="button" class="notif-filter-btn" data-filter="chat">💬 Chat</button>
         </div>
         <div class="notif-list" id="notifList">
           <div class="empty" style="padding:24px 16px;font-size:12.5px;">Loading notifications…</div>
@@ -883,6 +893,8 @@ export function renderNotificationBell() {
 
 export function getNotifIcon(type) {
   if (!type) return '🔔';
+  if (type.startsWith('chat') || type.startsWith('message')) return '💬';
+  if (type.startsWith('game') || type.startsWith('invitation') || type.startsWith('challenge')) return '🎮';
   if (type.startsWith('task_completed')) return '🎉';
   if (type.startsWith('task_due')) return '⚡';
   if (type.startsWith('task')) return '✅';
@@ -936,6 +948,16 @@ export function openNotificationModal(n) {
     badgeClass = 'blue';
     targetTab = isEmployee ? 'myjobs' : 'jobs';
     actionBtnText = isEmployee ? 'Open in My Jobs 📋' : 'View Job 📁';
+  } else if (type.includes('chat') || type.includes('bonding_message') || type.includes('message')) {
+    badgeLabel = 'Team Chat';
+    badgeClass = 'blue';
+    targetTab = 'teambonding';
+    actionBtnText = 'Open Chat & Lounge 💬';
+  } else if (type.includes('game') || type.includes('challenge') || type.includes('invitation')) {
+    badgeLabel = 'Game Challenge';
+    badgeClass = 'purple';
+    targetTab = 'teambonding';
+    actionBtnText = 'Enter Game Lounge 🎮';
   } else if (type.includes('task')) {
     badgeLabel = 'Daily Planner';
     badgeClass = 'green';
@@ -979,7 +1001,7 @@ export function openNotificationModal(n) {
       </div>
 
       <h3 style="font-size:16.5px;font-weight:800;color:var(--text-1);margin:0 0 12px 0;line-height:1.35;letter-spacing:-0.3px">
-        ${escapeHtml(title)}
+        ${escapeHtml(cleanNotificationTitle(title))}
       </h3>
 
       <div style="background:var(--bg-elevated);border:1px solid var(--border-xs);border-radius:var(--r-md);padding:14px 16px;margin-bottom:16px;font-size:13.5px;color:var(--text-2);line-height:1.6;white-space:pre-wrap;word-break:break-word">
@@ -1103,6 +1125,7 @@ export function initNotificationBell() {
     else if (currentFilter === 'target') filtered = allNotifs.filter(n => (n.type || '').includes('target'));
     else if (currentFilter === 'job') filtered = allNotifs.filter(n => (n.type || '').includes('job'));
     else if (currentFilter === 'ticket') filtered = allNotifs.filter(n => (n.type || '').includes('ticket'));
+    else if (currentFilter === 'chat') filtered = allNotifs.filter(n => (n.type || '').includes('chat') || (n.type || '').includes('game') || (n.type || '').includes('bonding'));
 
     if (filtered.length === 0) {
       list.innerHTML = `<div class="empty" style="padding:28px 16px;font-size:12.5px;color:var(--text-4)">No ${currentFilter === 'all' ? '' : currentFilter + ' '}notifications</div>`;
@@ -1116,7 +1139,7 @@ export function initNotificationBell() {
           <div class="notif-icon">${icon}</div>
           <div style="flex:1;min-width:0">
             <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:2px">
-              <span style="font-weight:700;font-size:12.5px;color:var(--text-1);line-height:1.3">${escapeHtml(n.title)}</span>
+              <span style="font-weight:700;font-size:12.5px;color:var(--text-1);line-height:1.3">${escapeHtml(cleanNotificationTitle(n.title))}</span>
               <span style="font-size:10.5px;color:var(--text-4);white-space:nowrap">${timeAgo(n.createdAt)}</span>
             </div>
             <div style="font-size:12px;color:var(--text-3);line-height:1.4">${escapeHtml(n.message)}</div>
@@ -1157,6 +1180,8 @@ export function initNotificationBell() {
             window.ci360NavTab('tickets');
           } else if (type && type.includes('target') && typeof window.ci360NavTab === 'function') {
             window.ci360NavTab('targets');
+          } else if (type && (type.includes('chat') || type.includes('game') || type.includes('bonding')) && typeof window.ci360NavTab === 'function') {
+            window.ci360NavTab('teambonding');
           }
         }
       };

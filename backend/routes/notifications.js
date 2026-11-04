@@ -187,7 +187,7 @@ router.get('/', async (req, res) => {
         await DailyAlertLog.create({ userId, alertType: 'job_due', date: todayStr }).catch(() => {});
 
         const count = dueTodayJobsList.length;
-        const title = count === 1 ? '⏳ Job Due Today' : `⏳ ${count} Jobs Due Today`;
+        const title = count === 1 ? 'Job Due Today' : `${count} Jobs Due Today`;
         const names = dueTodayJobsList.map(j => `"${j.title || 'Untitled Job'}"`).slice(0, 3).join(', ');
         const extra = count > 3 ? ` and ${count - 3} more` : '';
         const message = count === 1 ? `Job ${names} is due today.` : `You have ${count} jobs due today: ${names}${extra}.`;
@@ -203,7 +203,7 @@ router.get('/', async (req, res) => {
       }
     }
 
-    // Auto-clean ALL legacy/duplicate job_due notifications so user only sees at most 1 in list
+    // Auto-clean ALL legacy/duplicate job_due notifications and identical notifications so user never sees clutter
     try {
       const allJobDueNotifs = await Notification.find({
         userId,
@@ -216,6 +216,22 @@ router.get('/', async (req, res) => {
       if (allJobDueNotifs.length > 1) {
         const duplicateIds = allJobDueNotifs.slice(1).map(n => n._id);
         await Notification.deleteMany({ _id: { $in: duplicateIds } });
+      }
+
+      // Deduplicate any repeated notifications with identical type, title, and message
+      const allUserNotifs = await Notification.find({ userId }).sort({ createdAt: -1 });
+      const seenSig = new Set();
+      const duplicateIdsToDelete = [];
+      for (const n of allUserNotifs) {
+        const sig = `${n.type || ''}_${(n.title || '').trim()}_${(n.message || '').trim()}`;
+        if (seenSig.has(sig)) {
+          duplicateIdsToDelete.push(n._id);
+        } else {
+          seenSig.add(sig);
+        }
+      }
+      if (duplicateIdsToDelete.length > 0) {
+        await Notification.deleteMany({ _id: { $in: duplicateIdsToDelete } });
       }
     } catch(e){}
 

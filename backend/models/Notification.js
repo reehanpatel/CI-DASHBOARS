@@ -12,6 +12,9 @@ const NotificationSchema = new mongoose.Schema({
   targetId: { type: mongoose.Schema.Types.ObjectId, ref: 'Target', default: null },
   taskId: { type: mongoose.Schema.Types.ObjectId, ref: 'Task', default: null },
   invoiceId: { type: mongoose.Schema.Types.ObjectId, ref: 'Invoice', default: null },
+  channelId: { type: mongoose.Schema.Types.ObjectId, ref: 'BondingChannel', default: null },
+  invitationId: { type: mongoose.Schema.Types.ObjectId, ref: 'GameInvitation', default: null },
+  matchId: { type: mongoose.Schema.Types.ObjectId, ref: 'GameMatch', default: null },
   read: { type: Boolean, default: false },
   dismissed: { type: Boolean, default: false },
   attachments: [{

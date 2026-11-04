@@ -1,4 +1,4 @@
-import{c as Me,h as $,e as x,n as Ge,j as Ve,o as Ot,k as Wt,g as ke,p as Ft,t as ea,u as ua}from"./api-D7P-iGMH.js";const ga={displayName:"Daily Planner",weekStartsOn:1,timezone:"Asia/Kolkata",defaultPriority:"Medium",density:"comfortable",soundEnabled:!0};function ka(){try{const i=localStorage.getItem("ci360_planner_settings");if(i)return Object.assign({},ga,JSON.parse(i))}catch{}return Object.assign({},ga)}function wa(i){try{localStorage.setItem("ci360_planner_settings",JSON.stringify(i))}catch{}}function at(){const i=new Date,t=i.getFullYear(),e=String(i.getMonth()+1).padStart(2,"0"),d=String(i.getDate()).padStart(2,"0");return`${t}-${e}-${d}`}function Ut(i,t){const e=new Date(i+"T00:00:00");e.setDate(e.getDate()+t);const d=e.getFullYear(),c=String(e.getMonth()+1).padStart(2,"0"),s=String(e.getDate()).padStart(2,"0");return`${d}-${c}-${s}`}function wt(i){return i?new Date(i+"T00:00:00").toLocaleDateString("en-US",{weekday:"long",year:"numeric",month:"long",day:"numeric"}):"—"}function bt(i){return i?new Date(i+"T00:00:00").toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"}):"—"}function ba(i){return i?new Date(i+"T00:00:00").toLocaleDateString("en-US",{weekday:"short"}):""}function ta(i,t=1){const e=new Date(i+"T00:00:00"),d=e.getDay(),c=(d<t?7:0)+d-t,s=new Date(e);s.setDate(e.getDate()-c);const f=[];for(let n=0;n<7;n++){const q=new Date(s);q.setDate(s.getDate()+n);const R=q.getFullYear(),S=String(q.getMonth()+1).padStart(2,"0"),j=String(q.getDate()).padStart(2,"0");f.push(`${R}-${S}-${j}`)}return f}function $a(){try{const i=window.AudioContext||window.webkitAudioContext;if(!i)return;const t=new i,e=t.currentTime,d=t.createOscillator(),c=t.createGain();d.type="sine",d.frequency.setValueAtTime(523.25,e),d.frequency.exponentialRampToValueAtTime(783.99,e+.15),c.gain.setValueAtTime(.2,e),c.gain.exponentialRampToValueAtTime(.001,e+.35),d.connect(c),c.connect(t.destination),d.start(e),d.stop(e+.35)}catch{}}function Ja(i,t={}){const{userRole:e="employee",currentUser:d=null,onNavigate:c=null}=t,s=e==="superadmin"||e==="admin";let f=ka(),n={selectedDate:at(),viewMode:"daily",filterStatus:"all",searchQuery:"",selectedCategory:"all",selectedPersonnelId:"all",tasks:[],personnelList:[],loading:!1};Sa(),q();async function q(){n.loading=!0,R();try{const b=[Me("/tasks")];s&&b.push(Me("/personnel").catch(()=>[]));const[T,I]=await Promise.all(b);n.tasks=Array.isArray(T)?T:[],I&&(n.personnelList=Array.isArray(I)?I:[])}catch(b){$("Failed to load planner tasks: "+b.message,!0)}finally{n.loading=!1,B()}}function R(){i.innerHTML=`
+import{c as Pe,h as k,e as x,n as Ge,j as Ye,o as Nt,k as Gt,g as ye,p as Ot,t as ea,u as ua}from"./api-BBWJCWLb.js";const ga={displayName:"Daily Planner",weekStartsOn:1,timezone:"Asia/Kolkata",defaultPriority:"Medium",density:"comfortable",soundEnabled:!0};function ka(){try{const n=localStorage.getItem("ci360_planner_settings");if(n)return Object.assign({},ga,JSON.parse(n))}catch{}return Object.assign({},ga)}function wa(n){try{localStorage.setItem("ci360_planner_settings",JSON.stringify(n))}catch{}}function at(){const n=new Date,t=n.getFullYear(),e=String(n.getMonth()+1).padStart(2,"0"),l=String(n.getDate()).padStart(2,"0");return`${t}-${e}-${l}`}function Ft(n,t){const e=new Date(n+"T00:00:00");e.setDate(e.getDate()+t);const l=e.getFullYear(),d=String(e.getMonth()+1).padStart(2,"0"),r=String(e.getDate()).padStart(2,"0");return`${l}-${d}-${r}`}function kt(n){return n?new Date(n+"T00:00:00").toLocaleDateString("en-US",{weekday:"long",year:"numeric",month:"long",day:"numeric"}):"—"}function ut(n){return n?new Date(n+"T00:00:00").toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"}):"—"}function ba(n){return n?new Date(n+"T00:00:00").toLocaleDateString("en-US",{weekday:"short"}):""}function ta(n,t=1){const e=new Date(n+"T00:00:00"),l=e.getDay(),d=(l<t?7:0)+l-t,r=new Date(e);r.setDate(e.getDate()-d);const f=[];for(let o=0;o<7;o++){const L=new Date(r);L.setDate(r.getDate()+o);const B=L.getFullYear(),S=String(L.getMonth()+1).padStart(2,"0"),T=String(L.getDate()).padStart(2,"0");f.push(`${B}-${S}-${T}`)}return f}function $a(){try{const n=window.AudioContext||window.webkitAudioContext;if(!n)return;const t=new n,e=t.currentTime,l=t.createOscillator(),d=t.createGain();l.type="sine",l.frequency.setValueAtTime(523.25,e),l.frequency.exponentialRampToValueAtTime(783.99,e+.15),d.gain.setValueAtTime(.2,e),d.gain.exponentialRampToValueAtTime(.001,e+.35),l.connect(d),d.connect(t.destination),l.start(e),l.stop(e+.35)}catch{}}function Ja(n,t={}){const{userRole:e="employee",currentUser:l=null,onNavigate:d=null}=t,r=e==="superadmin"||e==="admin";let f=ka(),o={selectedDate:at(),viewMode:"daily",filterStatus:"all",searchQuery:"",selectedCategory:"all",selectedPersonnelId:"all",tasks:[],personnelList:[],loading:!1};Sa(),L();async function L(){o.loading=!0,B();try{const b=[Pe("/tasks")];r&&b.push(Pe("/personnel").catch(()=>[]));const[_,j]=await Promise.all(b);o.tasks=Array.isArray(_)?_:[],j&&(o.personnelList=Array.isArray(j)?j:[])}catch(b){k("Failed to load planner tasks: "+b.message,!0)}finally{o.loading=!1,N()}}function B(){n.innerHTML=`
       <div class="ci360-planner-wrap">
         <div class="ci360-planner-skeleton" style="padding:24px;background:var(--bg-card);border-radius:var(--r-lg);border:1px solid var(--border-sm)">
           <div style="height:32px;width:240px;background:var(--border-xs);border-radius:6px;margin-bottom:12px;animation:pulse 1.5s infinite"></div>
@@ -12,7 +12,7 @@ import{c as Me,h as $,e as x,n as Ge,j as Ve,o as Ot,k as Wt,g as ke,p as Ft,t a
           <div style="height:200px;background:var(--border-xs);border-radius:12px"></div>
         </div>
       </div>
-    `}function S(b){return n.tasks.filter(T=>{if(T.isDeleted===!0)return!1;if(s&&n.selectedPersonnelId!=="all"){const a=T.personnelId?._id||T.personnelId;if(String(a)!==String(n.selectedPersonnelId))return!1}const I=T.dateStr||(T.dueDate?new Date(T.dueDate).toISOString().slice(0,10):"");return I?I===b:b===at()})}function j(b,T){if(b.status==="Completed")return!1;const I=b.dateStr||(b.dueDate?new Date(b.dueDate).toISOString().slice(0,10):"");return I?I<T:!1}function P(b,T){const I=b.length,a=b.filter(G=>G.status==="Completed").length,r=b.filter(G=>G.status==="In Progress").length,_=b.filter(G=>G.status==="Pending"||G.status==="Todo").length,A=b.filter(G=>j(G,T)).length,V=I>0?Math.round(a/I*100):0;return{total:I,completed:a,inProgress:r,pending:_,overdue:A,percent:V}}function B(){const b=at(),T=n.selectedDate===b,I=S(n.selectedDate),a=P(I,b);i.innerHTML=`
+    `}function S(b){return o.tasks.filter(_=>{if(_.isDeleted===!0)return!1;if(r&&o.selectedPersonnelId!=="all"){const i=_.personnelId?._id||_.personnelId;if(String(i)!==String(o.selectedPersonnelId))return!1}const j=_.dateStr||(_.dueDate?new Date(_.dueDate).toISOString().slice(0,10):"");return j?j===b:b===at()})}function T(b,_){if(b.status==="Completed")return!1;const j=b.dateStr||(b.dueDate?new Date(b.dueDate).toISOString().slice(0,10):"");return j?j<_:!1}function P(b,_){const j=b.length,i=b.filter(W=>W.status==="Completed").length,s=b.filter(W=>W.status==="In Progress").length,C=b.filter(W=>W.status==="Pending"||W.status==="Todo").length,I=b.filter(W=>T(W,_)).length,K=j>0?Math.round(i/j*100):0;return{total:j,completed:i,inProgress:s,pending:C,overdue:I,percent:K}}function N(){const b=at(),_=o.selectedDate===b,j=S(o.selectedDate),i=P(j,b);n.innerHTML=`
       <div class="ci360-planner-wrap ${f.density==="compact"?"is-compact":""}">
         
         <!-- Planner Main Header -->
@@ -21,7 +21,7 @@ import{c as Me,h as $,e as x,n as Ge,j as Ve,o as Ot,k as Wt,g as ke,p as Ft,t a
             <div class="ci360-planner-title-group">
               <div class="ci360-planner-eyebrow">
                 <span class="ci360-planner-tag-badge">Dayfolio System</span>
-                <span class="ci360-planner-date-indicator">${bt(n.selectedDate)}</span>
+                <span class="ci360-planner-date-indicator">${ut(o.selectedDate)}</span>
               </div>
               <h1 class="ci360-planner-heading">${x(f.displayName||"Daily Planner")}</h1>
               <p class="ci360-planner-subheading">Plan your day. Track your progress.</p>
@@ -31,13 +31,13 @@ import{c as Me,h as $,e as x,n as Ge,j as Ve,o as Ot,k as Wt,g as ke,p as Ft,t a
           <div class="ci360-planner-header-actions">
             <!-- View Mode Switcher -->
             <div class="ci360-view-switcher" role="tablist">
-              <button type="button" class="ci360-switch-btn ${n.viewMode==="daily"?"active":""}" id="btnViewDaily" title="Daily View">
+              <button type="button" class="ci360-switch-btn ${o.viewMode==="daily"?"active":""}" id="btnViewDaily" title="Daily View">
                 <span>📅 Daily</span>
               </button>
-              <button type="button" class="ci360-switch-btn ${n.viewMode==="weekly"?"active":""}" id="btnViewWeekly" title="Weekly View">
+              <button type="button" class="ci360-switch-btn ${o.viewMode==="weekly"?"active":""}" id="btnViewWeekly" title="Weekly View">
                 <span>🗓️ Weekly</span>
               </button>
-              <button type="button" class="ci360-switch-btn ${n.viewMode==="report"?"active":""}" id="btnViewReport" title="Weekly Analytics & Report">
+              <button type="button" class="ci360-switch-btn ${o.viewMode==="report"?"active":""}" id="btnViewReport" title="Weekly Analytics & Report">
                 <span>📊 Report</span>
               </button>
             </div>
@@ -104,28 +104,28 @@ import{c as Me,h as $,e as x,n as Ge,j as Ve,o as Ot,k as Wt,g as ke,p as Ft,t a
 
             <div class="ci360-date-picker-badge" id="datePickerBadge">
               <span class="calendar-icon">📅</span>
-              <span class="date-text" id="displayDateLabel">${wt(n.selectedDate)}</span>
-              <input type="date" class="ci360-hidden-date-input" id="hiddenDateInput" value="${n.selectedDate}">
+              <span class="date-text" id="displayDateLabel">${kt(o.selectedDate)}</span>
+              <input type="date" class="ci360-hidden-date-input" id="hiddenDateInput" value="${o.selectedDate}">
             </div>
 
             <button type="button" class="ci360-nav-arrow" id="btnNextDay" title="Next Day">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="9 18 15 12 9 6"/></svg>
             </button>
 
-            <button type="button" class="ci360-today-btn ${T?"is-current":""}" id="btnJumpToday">
+            <button type="button" class="ci360-today-btn ${_?"is-current":""}" id="btnJumpToday">
               Today
             </button>
           </div>
 
           <!-- Superadmin Team Filter -->
-          ${s?`
+          ${r?`
             <div class="ci360-team-filter-wrap">
               <label for="admTeamSelect" class="ci360-label-inline">Team:</label>
               <select id="admTeamSelect" class="ci360-select-inline">
-                <option value="all" ${n.selectedPersonnelId==="all"?"selected":""}>All Team Members</option>
-                ${n.personnelList.map(r=>`
-                  <option value="${r._id}" ${n.selectedPersonnelId===String(r._id)?"selected":""}>
-                    ${x(r.name)} (${x(r.department||r.role||"Team")})
+                <option value="all" ${o.selectedPersonnelId==="all"?"selected":""}>All Team Members</option>
+                ${o.personnelList.map(s=>`
+                  <option value="${s._id}" ${o.selectedPersonnelId===String(s._id)?"selected":""}>
+                    ${x(s.name)} (${x(s.department||s.role||"Team")})
                   </option>
                 `).join("")}
               </select>
@@ -137,13 +137,13 @@ import{c as Me,h as $,e as x,n as Ge,j as Ve,o as Ot,k as Wt,g as ke,p as Ft,t a
         <section class="ci360-progress-summary-card">
           <div class="ci360-summary-main">
             <div class="ci360-ring-stat">
-              <div class="ci360-circular-progress" style="--val: ${a.percent};">
+              <div class="ci360-circular-progress" style="--val: ${i.percent};">
                 <svg viewBox="0 0 36 36" class="ci360-circular-svg">
                   <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                  <path class="circle-fill" stroke-dasharray="${a.percent}, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                  <path class="circle-fill" stroke-dasharray="${i.percent}, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
                 </svg>
                 <div class="ring-text">
-                  <span class="ring-num">${a.percent}%</span>
+                  <span class="ring-num">${i.percent}%</span>
                   <span class="ring-label">Done</span>
                 </div>
               </div>
@@ -151,24 +151,24 @@ import{c as Me,h as $,e as x,n as Ge,j as Ve,o as Ot,k as Wt,g as ke,p as Ft,t a
 
             <div class="ci360-summary-kpis">
               <div class="kpi-box total">
-                <span class="kpi-num">${a.total}</span>
+                <span class="kpi-num">${i.total}</span>
                 <span class="kpi-label">Total Tasks</span>
               </div>
               <div class="kpi-box completed">
-                <span class="kpi-num">${a.completed}</span>
+                <span class="kpi-num">${i.completed}</span>
                 <span class="kpi-label">Completed</span>
               </div>
               <div class="kpi-box in-progress">
-                <span class="kpi-num">${a.inProgress}</span>
+                <span class="kpi-num">${i.inProgress}</span>
                 <span class="kpi-label">In Progress</span>
               </div>
               <div class="kpi-box pending">
-                <span class="kpi-num">${a.pending}</span>
+                <span class="kpi-num">${i.pending}</span>
                 <span class="kpi-label">Pending</span>
               </div>
-              ${a.overdue>0?`
+              ${i.overdue>0?`
                 <div class="kpi-box overdue">
-                  <span class="kpi-num">${a.overdue}</span>
+                  <span class="kpi-num">${i.overdue}</span>
                   <span class="kpi-label">Overdue</span>
                 </div>
               `:""}
@@ -177,17 +177,17 @@ import{c as Me,h as $,e as x,n as Ge,j as Ve,o as Ot,k as Wt,g as ke,p as Ft,t a
 
           <!-- Progress Bar Ribbon -->
           <div class="ci360-linear-progress-wrap">
-            <div class="ci360-linear-bar" style="width: ${a.percent}%"></div>
+            <div class="ci360-linear-bar" style="width: ${i.percent}%"></div>
           </div>
         </section>
 
         <!-- View Content Area (Daily, Weekly, or Report) -->
         <main class="ci360-planner-content" id="plannerContentArea">
-          ${ce(I,a)}
+          ${ue(j,i)}
         </main>
 
       </div>
-    `,we(),ct()}function ce(b,T){return n.viewMode==="weekly"?dt():n.viewMode==="report"?vt():me(b,T)}function me(b,T){const I=at();let a=b;if(n.filterStatus==="pending"?a=a.filter(r=>r.status==="Pending"||r.status==="Todo"):n.filterStatus==="in_progress"?a=a.filter(r=>r.status==="In Progress"):n.filterStatus==="completed"?a=a.filter(r=>r.status==="Completed"):n.filterStatus==="overdue"&&(a=a.filter(r=>j(r,I))),n.searchQuery){const r=n.searchQuery.toLowerCase();a=a.filter(_=>(_.title||"").toLowerCase().includes(r)||(_.description||"").toLowerCase().includes(r)||(_.category||"").toLowerCase().includes(r))}return a.sort((r,_)=>{if(r.status==="Completed"&&_.status!=="Completed")return 1;if(r.status!=="Completed"&&_.status==="Completed")return-1;const A={Urgent:0,High:1,Medium:2,Low:3};return(A[r.priority]||2)-(A[_.priority]||2)}),`
+    `,we(),dt()}function ue(b,_){return o.viewMode==="weekly"?lt():o.viewMode==="report"?mt():he(b,_)}function he(b,_){const j=at();let i=b;if(o.filterStatus==="pending"?i=i.filter(s=>s.status==="Pending"||s.status==="Todo"):o.filterStatus==="in_progress"?i=i.filter(s=>s.status==="In Progress"):o.filterStatus==="completed"?i=i.filter(s=>s.status==="Completed"):o.filterStatus==="overdue"&&(i=i.filter(s=>T(s,j))),o.searchQuery){const s=o.searchQuery.toLowerCase();i=i.filter(C=>(C.title||"").toLowerCase().includes(s)||(C.description||"").toLowerCase().includes(s)||(C.category||"").toLowerCase().includes(s))}return i.sort((s,C)=>{if(s.status==="Completed"&&C.status!=="Completed")return 1;if(s.status!=="Completed"&&C.status==="Completed")return-1;const I={Urgent:0,High:1,Medium:2,Low:3};return(I[s.priority]||2)-(I[C.priority]||2)}),`
       <div class="ci360-today-focus-section">
         
         <!-- Section Header with Search & Filter Chips -->
@@ -197,40 +197,40 @@ import{c as Me,h as $,e as x,n as Ge,j as Ve,o as Ot,k as Wt,g as ke,p as Ft,t a
               <span class="accent-dot"></span>
               Today's Focus
             </h2>
-            <span class="ci360-task-count-badge">${a.length} ${a.length===1?"task":"tasks"}</span>
+            <span class="ci360-task-count-badge">${i.length} ${i.length===1?"task":"tasks"}</span>
           </div>
 
           <div class="ci360-focus-controls">
             <!-- Filter Pills -->
             <div class="ci360-filter-pills">
-              <button type="button" class="filter-pill ${n.filterStatus==="all"?"active":""}" data-f="all">All (${T.total})</button>
-              <button type="button" class="filter-pill ${n.filterStatus==="pending"?"active":""}" data-f="pending">Pending (${T.pending})</button>
-              <button type="button" class="filter-pill ${n.filterStatus==="in_progress"?"active":""}" data-f="in_progress">In Progress (${T.inProgress})</button>
-              <button type="button" class="filter-pill ${n.filterStatus==="completed"?"active":""}" data-f="completed">Completed (${T.completed})</button>
-              ${T.overdue>0?`
-                <button type="button" class="filter-pill overdue ${n.filterStatus==="overdue"?"active":""}" data-f="overdue">Overdue (${T.overdue})</button>
+              <button type="button" class="filter-pill ${o.filterStatus==="all"?"active":""}" data-f="all">All (${_.total})</button>
+              <button type="button" class="filter-pill ${o.filterStatus==="pending"?"active":""}" data-f="pending">Pending (${_.pending})</button>
+              <button type="button" class="filter-pill ${o.filterStatus==="in_progress"?"active":""}" data-f="in_progress">In Progress (${_.inProgress})</button>
+              <button type="button" class="filter-pill ${o.filterStatus==="completed"?"active":""}" data-f="completed">Completed (${_.completed})</button>
+              ${_.overdue>0?`
+                <button type="button" class="filter-pill overdue ${o.filterStatus==="overdue"?"active":""}" data-f="overdue">Overdue (${_.overdue})</button>
               `:""}
             </div>
 
             <!-- Search Bar -->
             <div class="ci360-search-box">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-              <input type="text" id="plannerTaskSearchInp" placeholder="Search tasks..." value="${x(n.searchQuery)}">
-              ${n.searchQuery?'<button type="button" id="btnClearSearch" class="clear-search-btn">×</button>':""}
+              <input type="text" id="plannerTaskSearchInp" placeholder="Search tasks..." value="${x(o.searchQuery)}">
+              ${o.searchQuery?'<button type="button" id="btnClearSearch" class="clear-search-btn">×</button>':""}
             </div>
           </div>
         </div>
 
         <!-- Inline Quick-Add Card / Past Date Locked Banner -->
-        ${n.selectedDate<I?`
+        ${o.selectedDate<j?`
           <div class="ci360-past-date-banner" style="display:flex;align-items:center;gap:10px;padding:12px 18px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.22);border-radius:10px;font-size:12.5px;color:#f87171;margin-bottom:16px;box-sizing:border-box;">
             <span style="font-size:16px;">🔒</span>
-            <span><strong>Date Passed:</strong> Tasks cannot be added or edited for <strong>${wt(n.selectedDate)}</strong> because this date has already passed.</span>
+            <span><strong>Date Passed:</strong> Tasks cannot be added or edited for <strong>${kt(o.selectedDate)}</strong> because this date has already passed.</span>
           </div>
         `:`
           <div class="ci360-quick-add-bar">
             <div class="ci360-quick-add-input-wrap">
-              <input type="text" id="quickAddTitleInp" class="ci360-quick-input" placeholder="Add a focus task for ${bt(n.selectedDate)}... (Press Enter to save)">
+              <input type="text" id="quickAddTitleInp" class="ci360-quick-input" placeholder="Add a focus task for ${ut(o.selectedDate)}... (Press Enter to save)">
             </div>
 
             <div class="ci360-quick-add-meta">
@@ -259,9 +259,9 @@ import{c as Me,h as $,e as x,n as Ge,j as Ve,o as Ot,k as Wt,g as ke,p as Ft,t a
 
         <!-- Task List or Empty State -->
         <div class="ci360-tasks-container">
-          ${a.length===0?qe():`
+          ${i.length===0?qe():`
             <div class="ci360-task-list">
-              ${a.map(r=>Ye(r,I)).join("")}
+              ${i.map(s=>Je(s,j)).join("")}
             </div>
           `}
         </div>
@@ -270,7 +270,7 @@ import{c as Me,h as $,e as x,n as Ge,j as Ve,o as Ot,k as Wt,g as ke,p as Ft,t a
     `}function qe(){return`
       <div class="ci360-empty-focus-state">
         <div class="empty-icon-wrap">✨</div>
-        <h3>No tasks found for ${bt(n.selectedDate)}</h3>
+        <h3>No tasks found for ${ut(o.selectedDate)}</h3>
         <p>Your schedule is clean and ready. Add your first priority task above or import your daily agenda.</p>
         <div style="display:flex;gap:10px;justify-content:center;margin-top:14px">
           <button type="button" class="ci360-btn-primary" onclick="document.getElementById('quickAddTitleInp')?.focus()">
@@ -281,11 +281,11 @@ import{c as Me,h as $,e as x,n as Ge,j as Ve,o as Ot,k as Wt,g as ke,p as Ft,t a
           </button>
         </div>
       </div>
-    `}function Ye(b,T){const I=b.status==="Completed",a=j(b,T),r=b.dateStr||(b.dueDate?new Date(b.dueDate).toISOString().slice(0,10):T),_=!s&&r<T,A=`pri-${(b.priority||"medium").toLowerCase()}`,V=`status-${(b.status||"pending").toLowerCase().replace(/\s+/g,"-")}`;return`
-      <div class="ci360-task-card ${I?"is-completed":""} ${a?"is-overdue":""}" data-id="${b._id}">
+    `}function Je(b,_){const j=b.status==="Completed",i=T(b,_),s=b.dateStr||(b.dueDate?new Date(b.dueDate).toISOString().slice(0,10):_),C=!r&&s<_,I=`pri-${(b.priority||"medium").toLowerCase()}`,K=`status-${(b.status||"pending").toLowerCase().replace(/\s+/g,"-")}`;return`
+      <div class="ci360-task-card ${j?"is-completed":""} ${i?"is-overdue":""}" data-id="${b._id}">
         
         <!-- Completion Checkbox -->
-        <button type="button" class="ci360-task-check ${I?"checked":""}" data-action="toggle" data-id="${b._id}" title="${I?"Reopen task":"Mark as done"}">
+        <button type="button" class="ci360-task-check ${j?"checked":""}" data-action="toggle" data-id="${b._id}" title="${j?"Reopen task":"Mark as done"}">
           <svg class="check-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
             <polyline points="20 6 9 17 4 12"/>
           </svg>
@@ -304,13 +304,13 @@ import{c as Me,h as $,e as x,n as Ge,j as Ve,o as Ot,k as Wt,g as ke,p as Ft,t a
           <!-- Metadata Badges -->
           <div class="ci360-task-badges">
             <!-- Priority Badge -->
-            <span class="ci360-badge ${A}">
+            <span class="ci360-badge ${I}">
               <span class="badge-dot"></span>
               ${x(b.priority||"Medium")}
             </span>
 
             <!-- Status Badge -->
-            <span class="ci360-badge ${V}">
+            <span class="ci360-badge ${K}">
               ${x(b.status||"Pending")}
             </span>
 
@@ -331,14 +331,14 @@ import{c as Me,h as $,e as x,n as Ge,j as Ve,o as Ot,k as Wt,g as ke,p as Ft,t a
             `:""}
 
             <!-- Overdue Warning -->
-            ${a?`
+            ${i?`
               <span class="ci360-badge overdue-badge">
                 ⚠️ Past Due
               </span>
             `:""}
 
             <!-- Superadmin assigned employee name -->
-            ${s&&(b.personnelId?.name||b.userId?.name)?`
+            ${r&&(b.personnelId?.name||b.userId?.name)?`
               <span class="ci360-badge personnel-badge">
                 👤 ${x(b.personnelId?.name||b.userId?.name)}
               </span>
@@ -348,7 +348,7 @@ import{c as Me,h as $,e as x,n as Ge,j as Ve,o as Ot,k as Wt,g as ke,p as Ft,t a
 
         <!-- Task Actions Menu -->
         <div class="ci360-task-actions">
-          ${_?`
+          ${C?`
             <span class="task-action-btn" title="Locked: Tasks cannot be edited after the date has passed" style="opacity:0.45;cursor:not-allowed;display:flex;align-items:center;justify-content:center;font-size:13px;">🔒</span>
           `:`
             <button type="button" class="task-action-btn edit" data-action="edit" data-id="${b._id}" title="Edit task">
@@ -361,14 +361,14 @@ import{c as Me,h as $,e as x,n as Ge,j as Ve,o as Ot,k as Wt,g as ke,p as Ft,t a
         </div>
 
       </div>
-    `}function dt(){const b=ta(n.selectedDate,f.weekStartsOn),T=bt(b[0]),I=bt(b[6]),a=at();return`
+    `}function lt(){const b=ta(o.selectedDate,f.weekStartsOn),_=ut(b[0]),j=ut(b[6]),i=at();return`
       <div class="ci360-weekly-planner-section">
         
         <!-- Week Navigator Banner -->
         <div class="ci360-week-banner">
           <div class="week-title-wrap">
             <h2 class="week-title">Weekly Schedule</h2>
-            <span class="week-range-text">${T} – ${I}</span>
+            <span class="week-range-text">${_} – ${j}</span>
           </div>
 
           <div class="week-controls">
@@ -380,29 +380,29 @@ import{c as Me,h as $,e as x,n as Ge,j as Ve,o as Ot,k as Wt,g as ke,p as Ft,t a
 
         <!-- 7-Day Grid -->
         <div class="ci360-week-grid">
-          ${b.map(r=>{const _=r===a,A=r===n.selectedDate,V=S(r),G=P(V,a);return`
-              <div class="ci360-day-column ${_?"is-today":""} ${A?"is-selected":""}" data-date="${r}">
+          ${b.map(s=>{const C=s===i,I=s===o.selectedDate,K=S(s),W=P(K,i);return`
+              <div class="ci360-day-column ${C?"is-today":""} ${I?"is-selected":""}" data-date="${s}">
                 
                 <!-- Column Header -->
-                <div class="day-col-header" data-date="${r}">
-                  <div class="day-name">${ba(r)}</div>
-                  <div class="day-number">${new Date(r+"T00:00:00").getDate()}</div>
-                  ${_?'<span class="today-pill">Today</span>':""}
+                <div class="day-col-header" data-date="${s}">
+                  <div class="day-name">${ba(s)}</div>
+                  <div class="day-number">${new Date(s+"T00:00:00").getDate()}</div>
+                  ${C?'<span class="today-pill">Today</span>':""}
                 </div>
 
                 <!-- Daily Progress Bar -->
                 <div class="day-col-stats">
-                  <span class="stat-text">${G.completed}/${G.total} done</span>
+                  <span class="stat-text">${W.completed}/${W.total} done</span>
                   <div class="mini-bar-wrap">
-                    <div class="mini-bar" style="width: ${G.percent}%"></div>
+                    <div class="mini-bar" style="width: ${W.percent}%"></div>
                   </div>
                 </div>
 
                 <!-- Tasks Column Body -->
                 <div class="day-col-tasks">
-                  ${V.length===0?`
+                  ${K.length===0?`
                     <div class="day-empty">No tasks</div>
-                  `:V.map(M=>`
+                  `:K.map(M=>`
                     <div class="ci360-mini-task-card ${M.status==="Completed"?"done":""}" data-id="${M._id}">
                       <button type="button" class="mini-check ${M.status==="Completed"?"checked":""}" data-action="toggle" data-id="${M._id}">
                         ✓
@@ -419,7 +419,7 @@ import{c as Me,h as $,e as x,n as Ge,j as Ve,o as Ot,k as Wt,g as ke,p as Ft,t a
                 </div>
 
                 <!-- Quick Add for Day Button -->
-                <button type="button" class="day-col-add-btn" data-action="add-day" data-date="${r}">
+                <button type="button" class="day-col-add-btn" data-action="add-day" data-date="${s}">
                   + Add Task
                 </button>
 
@@ -428,13 +428,13 @@ import{c as Me,h as $,e as x,n as Ge,j as Ve,o as Ot,k as Wt,g as ke,p as Ft,t a
         </div>
 
       </div>
-    `}function vt(){const b=ta(n.selectedDate,f.weekStartsOn),T=wt(b[0]),I=wt(b[6]),a=at(),r=n.tasks.filter(U=>{if(U.isDeleted===!0)return!1;const F=U.dateStr||(U.dueDate?new Date(U.dueDate).toISOString().slice(0,10):"");return b.includes(F)}),_=r.length,A=r.filter(U=>U.status==="Completed").length,V=r.filter(U=>U.status==="In Progress").length,G=_>0?Math.round(A/_*100):0,M={Urgent:0,High:0,Medium:0,Low:0};return r.forEach(U=>{const F=U.priority||"Medium";M[F]!==void 0&&M[F]++}),`
+    `}function mt(){const b=ta(o.selectedDate,f.weekStartsOn),_=kt(b[0]),j=kt(b[6]),i=at(),s=o.tasks.filter(F=>{if(F.isDeleted===!0)return!1;const H=F.dateStr||(F.dueDate?new Date(F.dueDate).toISOString().slice(0,10):"");return b.includes(H)}),C=s.length,I=s.filter(F=>F.status==="Completed").length,K=s.filter(F=>F.status==="In Progress").length,W=C>0?Math.round(I/C*100):0,M={Urgent:0,High:0,Medium:0,Low:0};return s.forEach(F=>{const H=F.priority||"Medium";M[H]!==void 0&&M[H]++}),`
       <div class="ci360-report-section">
         
         <div class="ci360-report-banner">
           <div>
             <h2 style="font-size:22px;margin:0 0 4px">Weekly Productivity Report</h2>
-            <div style="font-size:13px;color:var(--text-3)">Week Period: ${T} – ${I}</div>
+            <div style="font-size:13px;color:var(--text-3)">Week Period: ${_} – ${j}</div>
           </div>
 
           <div style="display:flex;gap:10px">
@@ -448,19 +448,19 @@ import{c as Me,h as $,e as x,n as Ge,j as Ve,o as Ot,k as Wt,g as ke,p as Ft,t a
         <div class="ci360-report-kpis">
           <div class="card kpi">
             <span class="label">Total Weekly Tasks</span>
-            <span class="value" style="font-size:28px">${_}</span>
+            <span class="value" style="font-size:28px">${C}</span>
           </div>
           <div class="card kpi">
             <span class="label">Completed Tasks</span>
-            <span class="value" style="font-size:28px;color:var(--green-500)">${A}</span>
+            <span class="value" style="font-size:28px;color:var(--green-500)">${I}</span>
           </div>
           <div class="card kpi">
             <span class="label">In Progress</span>
-            <span class="value" style="font-size:28px;color:var(--amber-500)">${V}</span>
+            <span class="value" style="font-size:28px;color:var(--amber-500)">${K}</span>
           </div>
           <div class="card kpi">
             <span class="label">Weekly Completion</span>
-            <span class="value" style="font-size:28px;color:var(--brand-600)">${G}%</span>
+            <span class="value" style="font-size:28px;color:var(--brand-600)">${W}%</span>
           </div>
         </div>
 
@@ -480,10 +480,10 @@ import{c as Me,h as $,e as x,n as Ge,j as Ve,o as Ot,k as Wt,g as ke,p as Ft,t a
                 </tr>
               </thead>
               <tbody>
-                ${b.map(U=>{const F=S(U),v=P(F,a);return`
+                ${b.map(F=>{const H=S(F),v=P(H,i);return`
                     <tr>
-                      <td><strong>${ba(U)}</strong></td>
-                      <td>${bt(U)}</td>
+                      <td><strong>${ba(F)}</strong></td>
+                      <td>${ut(F)}</td>
                       <td>${v.total}</td>
                       <td style="color:var(--green-500);font-weight:600">${v.completed}</td>
                       <td>${v.pending+v.inProgress}</td>
@@ -526,11 +526,11 @@ import{c as Me,h as $,e as x,n as Ge,j as Ve,o as Ot,k as Wt,g as ke,p as Ft,t a
         </div>
 
       </div>
-    `}function we(){const b=document.getElementById("btnViewDaily"),T=document.getElementById("btnViewWeekly"),I=document.getElementById("btnViewReport");b&&(b.onclick=()=>{n.viewMode="daily",B()}),T&&(T.onclick=()=>{n.viewMode="weekly",B()}),I&&(I.onclick=()=>{n.viewMode="report",B()});const a=document.getElementById("btnPrevDay"),r=document.getElementById("btnNextDay"),_=document.getElementById("btnJumpToday"),A=document.getElementById("hiddenDateInput"),V=document.getElementById("datePickerBadge");a&&(a.onclick=()=>{n.selectedDate=Ut(n.selectedDate,-1),B()}),r&&(r.onclick=()=>{n.selectedDate=Ut(n.selectedDate,1),B()}),_&&(_.onclick=()=>{n.selectedDate=at(),B()}),V&&A&&(V.onclick=()=>{try{typeof A.showPicker=="function"?A.showPicker():A.focus()}catch{A.focus()}},A.onchange=l=>{l.target.value&&(n.selectedDate=l.target.value,B())});const G=document.getElementById("admTeamSelect");G&&(G.onchange=l=>{n.selectedPersonnelId=l.target.value,B()});const M=document.getElementById("btnOpenAddTaskModal");M&&(M.onclick=()=>_e());const U=document.getElementById("btnPlannerActionsMenu"),F=document.getElementById("plannerActionsDropdown");U&&F&&(U.onclick=l=>{l.stopPropagation(),F.classList.toggle("hidden")},document.addEventListener("click",l=>{!F.contains(l.target)&&l.target!==U&&F.classList.add("hidden")}));const v=document.getElementById("btnActionImport");v&&(v.onclick=()=>{F?.classList.add("hidden"),it()});const H=document.getElementById("btnActionExportPng");H&&(H.onclick=()=>{F?.classList.add("hidden"),nt()});const X=document.getElementById("btnActionExportPdf");X&&(X.onclick=()=>{F?.classList.add("hidden"),de()});const p=document.getElementById("btnActionBackup");p&&(p.onclick=()=>{F?.classList.add("hidden"),et()});const u=document.getElementById("btnActionSettings");u&&(u.onclick=()=>{F?.classList.add("hidden"),be()})}function ct(b){if(n.viewMode==="daily"){document.querySelectorAll(".filter-pill").forEach(M=>{M.onclick=()=>{n.filterStatus=M.dataset.f,B()}});const T=document.getElementById("plannerTaskSearchInp");T&&(T.oninput=M=>{n.searchQuery=M.target.value,B()});const I=document.getElementById("btnClearSearch");I&&(I.onclick=()=>{n.searchQuery="",B()});const a=document.getElementById("quickAddTitleInp"),r=document.getElementById("quickAddPriority"),_=document.getElementById("quickAddCategory"),A=document.getElementById("btnQuickAddSubmit"),V=async()=>{const M=(a?.value||"").trim();if(!M){$("Please enter a task title",!0),a?.focus();return}try{const U={title:M,dateStr:n.selectedDate,priority:r?.value||f.defaultPriority,category:_?.value||"General",status:"Pending"};s&&n.selectedPersonnelId!=="all"&&(U.personnelId=n.selectedPersonnelId);const F=await ke("/tasks",U);n.tasks.unshift(F),$("Task added to today's focus! ✨"),a&&(a.value="",a.focus()),B()}catch(U){$(U.message,!0)}};A&&(A.onclick=V),a&&(a.onkeydown=M=>{M.key==="Enter"&&V()});const G=document.getElementById("btnEmptyStateImport");G&&(G.onclick=()=>it())}if(n.viewMode==="weekly"){const T=document.getElementById("btnPrevWeek"),I=document.getElementById("btnNextWeek"),a=document.getElementById("btnThisWeek");T&&(T.onclick=()=>{n.selectedDate=Ut(n.selectedDate,-7),B()}),I&&(I.onclick=()=>{n.selectedDate=Ut(n.selectedDate,7),B()}),a&&(a.onclick=()=>{n.selectedDate=at(),B()}),document.querySelectorAll(".day-col-header").forEach(r=>{r.onclick=()=>{n.selectedDate=r.dataset.date,n.viewMode="daily",B()}}),document.querySelectorAll('[data-action="add-day"]').forEach(r=>{r.onclick=()=>{_e(null,r.dataset.date)}})}if(n.viewMode==="report"){const T=document.getElementById("btnDownloadWeeklyPdf");T&&(T.onclick=de)}i.querySelectorAll('[data-action="toggle"]').forEach(T=>{T.onclick=async I=>{I.stopPropagation();const a=T.dataset.id;await Fe(a)}}),i.querySelectorAll('[data-action="edit"]').forEach(T=>{T.onclick=I=>{I.stopPropagation();const a=T.dataset.id,r=n.tasks.find(_=>_._id===a);r&&_e(r)}}),i.querySelectorAll('[data-action="delete"]').forEach(T=>{T.onclick=async I=>{I.stopPropagation();const a=T.dataset.id;await pt(a)}})}async function Fe(b){const T=n.tasks.find(a=>a._id===b);if(!T)return;const I=T.status!=="Completed";try{const a=await Ge(`/tasks/${b}/toggle`,{}),r=n.tasks.findIndex(_=>_._id===b);r!==-1&&(n.tasks[r]=a),I?(f.soundEnabled&&$a(),$("Task marked as completed! 🎉")):$("Task reopened as pending."),B()}catch(a){$(a.message,!0)}}async function pt(b){const T=n.tasks.find(I=>I._id===b);if(T&&confirm(`Are you sure you want to remove "${T.title}" from your planner?
-(It will be safely retained in the database archive.)`))try{await Ve(`/tasks/${b}`),n.tasks=n.tasks.filter(I=>I._id!==b),$("Task removed from planner (safely stored in database archive)"),B()}catch(I){$(I.message,!0)}}function _e(b=null,T=null){const I=!!b,a=b?b.dateStr||(b.dueDate?new Date(b.dueDate).toISOString().slice(0,10):n.selectedDate):T||n.selectedDate,r=at();if(!s&&a<r){$("Tasks cannot be added or edited after the date is gone.",!0);return}const _=`
+    `}function we(){const b=document.getElementById("btnViewDaily"),_=document.getElementById("btnViewWeekly"),j=document.getElementById("btnViewReport");b&&(b.onclick=()=>{o.viewMode="daily",N()}),_&&(_.onclick=()=>{o.viewMode="weekly",N()}),j&&(j.onclick=()=>{o.viewMode="report",N()});const i=document.getElementById("btnPrevDay"),s=document.getElementById("btnNextDay"),C=document.getElementById("btnJumpToday"),I=document.getElementById("hiddenDateInput"),K=document.getElementById("datePickerBadge");i&&(i.onclick=()=>{o.selectedDate=Ft(o.selectedDate,-1),N()}),s&&(s.onclick=()=>{o.selectedDate=Ft(o.selectedDate,1),N()}),C&&(C.onclick=()=>{o.selectedDate=at(),N()}),K&&I&&(K.onclick=()=>{try{typeof I.showPicker=="function"?I.showPicker():I.focus()}catch{I.focus()}},I.onchange=c=>{c.target.value&&(o.selectedDate=c.target.value,N())});const W=document.getElementById("admTeamSelect");W&&(W.onchange=c=>{o.selectedPersonnelId=c.target.value,N()});const M=document.getElementById("btnOpenAddTaskModal");M&&(M.onclick=()=>_e());const F=document.getElementById("btnPlannerActionsMenu"),H=document.getElementById("plannerActionsDropdown");F&&H&&(F.onclick=c=>{c.stopPropagation(),H.classList.toggle("hidden")},document.addEventListener("click",c=>{!H.contains(c.target)&&c.target!==F&&H.classList.add("hidden")}));const v=document.getElementById("btnActionImport");v&&(v.onclick=()=>{H?.classList.add("hidden"),it()});const U=document.getElementById("btnActionExportPng");U&&(U.onclick=()=>{H?.classList.add("hidden"),nt()});const ee=document.getElementById("btnActionExportPdf");ee&&(ee.onclick=()=>{H?.classList.add("hidden"),pe()});const te=document.getElementById("btnActionBackup");te&&(te.onclick=()=>{H?.classList.add("hidden"),tt()});const p=document.getElementById("btnActionSettings");p&&(p.onclick=()=>{H?.classList.add("hidden"),fe()})}function dt(b){if(o.viewMode==="daily"){document.querySelectorAll(".filter-pill").forEach(M=>{M.onclick=()=>{o.filterStatus=M.dataset.f,N()}});const _=document.getElementById("plannerTaskSearchInp");_&&(_.oninput=M=>{o.searchQuery=M.target.value,N()});const j=document.getElementById("btnClearSearch");j&&(j.onclick=()=>{o.searchQuery="",N()});const i=document.getElementById("quickAddTitleInp"),s=document.getElementById("quickAddPriority"),C=document.getElementById("quickAddCategory"),I=document.getElementById("btnQuickAddSubmit"),K=async()=>{const M=(i?.value||"").trim();if(!M){k("Please enter a task title",!0),i?.focus();return}try{const F={title:M,dateStr:o.selectedDate,priority:s?.value||f.defaultPriority,category:C?.value||"General",status:"Pending"};r&&o.selectedPersonnelId!=="all"&&(F.personnelId=o.selectedPersonnelId);const H=await ye("/tasks",F);o.tasks.unshift(H),k("Task added to today's focus! ✨"),i&&(i.value="",i.focus()),N()}catch(F){k(F.message,!0)}};I&&(I.onclick=K),i&&(i.onkeydown=M=>{M.key==="Enter"&&K()});const W=document.getElementById("btnEmptyStateImport");W&&(W.onclick=()=>it())}if(o.viewMode==="weekly"){const _=document.getElementById("btnPrevWeek"),j=document.getElementById("btnNextWeek"),i=document.getElementById("btnThisWeek");_&&(_.onclick=()=>{o.selectedDate=Ft(o.selectedDate,-7),N()}),j&&(j.onclick=()=>{o.selectedDate=Ft(o.selectedDate,7),N()}),i&&(i.onclick=()=>{o.selectedDate=at(),N()}),document.querySelectorAll(".day-col-header").forEach(s=>{s.onclick=()=>{o.selectedDate=s.dataset.date,o.viewMode="daily",N()}}),document.querySelectorAll('[data-action="add-day"]').forEach(s=>{s.onclick=()=>{_e(null,s.dataset.date)}})}if(o.viewMode==="report"){const _=document.getElementById("btnDownloadWeeklyPdf");_&&(_.onclick=pe)}n.querySelectorAll('[data-action="toggle"]').forEach(_=>{_.onclick=async j=>{j.stopPropagation();const i=_.dataset.id;await ze(i)}}),n.querySelectorAll('[data-action="edit"]').forEach(_=>{_.onclick=j=>{j.stopPropagation();const i=_.dataset.id,s=o.tasks.find(C=>C._id===i);s&&_e(s)}}),n.querySelectorAll('[data-action="delete"]').forEach(_=>{_.onclick=async j=>{j.stopPropagation();const i=_.dataset.id;await ct(i)}})}async function ze(b){const _=o.tasks.find(i=>i._id===b);if(!_)return;const j=_.status!=="Completed";try{const i=await Ge(`/tasks/${b}/toggle`,{}),s=o.tasks.findIndex(C=>C._id===b);s!==-1&&(o.tasks[s]=i),j?(f.soundEnabled&&$a(),k("Task marked as completed! 🎉")):k("Task reopened as pending."),N()}catch(i){k(i.message,!0)}}async function ct(b){const _=o.tasks.find(j=>j._id===b);if(_&&confirm(`Are you sure you want to remove "${_.title}" from your planner?
+(It will be safely retained in the database archive.)`))try{await Ye(`/tasks/${b}`),o.tasks=o.tasks.filter(j=>j._id!==b),k("Task removed from planner (safely stored in database archive)"),N()}catch(j){k(j.message,!0)}}function _e(b=null,_=null){const j=!!b,i=b?b.dateStr||(b.dueDate?new Date(b.dueDate).toISOString().slice(0,10):o.selectedDate):_||o.selectedDate,s=at();if(!r&&i<s){k("Tasks cannot be added or edited after the date is gone.",!0);return}const C=`
       <div class="ci360-planner-modal">
         <div class="ci360-modal-header">
-          <h3>${I?"Edit Task":"Add New Task"}</h3>
+          <h3>${j?"Edit Task":"Add New Task"}</h3>
           <button type="button" class="ci360-modal-close" id="btnModalClose">×</button>
         </div>
 
@@ -551,7 +551,7 @@ import{c as Me,h as $,e as x,n as Ge,j as Ve,o as Ot,k as Wt,g as ke,p as Ft,t a
           <div class="form-row">
             <div class="form-group flex-1">
               <label for="taskDate" class="required">Assigned Date</label>
-              <input type="date" id="taskDate" class="input" value="${a}" required>
+              <input type="date" id="taskDate" class="input" value="${i}" required>
             </div>
             <div class="form-group flex-1">
               <label for="taskStartTime">Start Time</label>
@@ -600,32 +600,32 @@ import{c as Me,h as $,e as x,n as Ge,j as Ve,o as Ot,k as Wt,g as ke,p as Ft,t a
           </div>
 
           <!-- Superadmin Assign To -->
-          ${s?`
+          ${r?`
             <div class="form-group">
               <label for="taskAssignee">Assign To</label>
               <select id="taskAssignee" class="input">
                 <option value="all" ${!b||b?.assignAll?"selected":""}>Assign to All Active Team Members</option>
-                ${n.personnelList.map(v=>{const H=b?.personnelId?._id===v._id||b?.personnelId===v._id;return`<option value="${v._id}" ${H?"selected":""}>${x(v.name)} (${x(v.department||v.role||"Member")})</option>`}).join("")}
+                ${o.personnelList.map(v=>{const U=b?.personnelId?._id===v._id||b?.personnelId===v._id;return`<option value="${v._id}" ${U?"selected":""}>${x(v.name)} (${x(v.department||v.role||"Member")})</option>`}).join("")}
               </select>
             </div>
           `:""}
 
           <div class="ci360-modal-footer" style="display:flex;justify-content:space-between;align-items:center;">
             <div>
-              ${I&&(s||a>=r)?`
+              ${j&&(r||i>=s)?`
                 <button type="button" class="btn danger small" id="btnModalDeleteTask" style="padding:6px 12px;background:#ef4444;color:#fff;border-radius:var(--r-sm);border:none;cursor:pointer;font-weight:700;font-size:12px;">🗑️ Delete Task</button>
               `:""}
             </div>
             <div style="display:flex;gap:8px;">
               <button type="button" class="ci360-btn-secondary" id="btnCancelModal">Cancel</button>
               <button type="submit" class="ci360-btn-primary" id="btnSaveTask">
-                ${I?"Save Changes":"Create Task"}
+                ${j?"Save Changes":"Create Task"}
               </button>
             </div>
           </div>
         </form>
       </div>
-    `,A=Ot(_),V=A.querySelector("#taskForm"),G=A.querySelector("#btnModalClose"),M=A.querySelector("#btnCancelModal"),U=A.querySelector("#btnModalDeleteTask"),F=()=>A.remove();G&&(G.onclick=F),M&&(M.onclick=F),U&&b&&(U.onclick=async()=>{F(),await pt(b._id)}),V.onsubmit=async v=>{v.preventDefault();const H=A.querySelector("#taskTitle").value.trim(),X=A.querySelector("#taskDesc").value.trim(),p=A.querySelector("#taskDate").value,u=A.querySelector("#taskStartTime").value.trim(),l=A.querySelector("#taskDueTime").value.trim(),o=A.querySelector("#taskPriority").value,m=A.querySelector("#taskStatus").value,w=A.querySelector("#taskCategory").value.trim()||"General";if(!H){$("Task title is required",!0);return}const C={title:H,description:X,dateStr:p,startTime:u,dueTime:l,priority:o,status:m,category:w};if(s){const L=A.querySelector("#taskAssignee")?.value;L==="all"?(C.assignAll=!0,C.personnelId="all"):L&&(C.personnelId=L)}const N=A.querySelector("#btnSaveTask");N.disabled=!0,N.textContent="Saving...";try{if(I){const L=await Wt(`/tasks/${b._id}`,C),te=n.tasks.findIndex(E=>E._id===b._id);te!==-1&&(n.tasks[te]=L),$("Task updated successfully! ✍️")}else{const L=await ke("/tasks",C);Array.isArray(L.tasks)?L.tasks.forEach(te=>n.tasks.unshift(te)):n.tasks.unshift(L),$("Task created successfully! ✨")}F(),B()}catch(L){$(L.message,!0),N.disabled=!1,N.textContent=I?"Save Changes":"Create Task"}}}function it(){let b=[];const T=`
+    `,I=Nt(C),K=I.querySelector("#taskForm"),W=I.querySelector("#btnModalClose"),M=I.querySelector("#btnCancelModal"),F=I.querySelector("#btnModalDeleteTask"),H=()=>I.remove();W&&(W.onclick=H),M&&(M.onclick=H),F&&b&&(F.onclick=async()=>{H(),await ct(b._id)}),K.onsubmit=async v=>{v.preventDefault();const U=I.querySelector("#taskTitle").value.trim(),ee=I.querySelector("#taskDesc").value.trim(),te=I.querySelector("#taskDate").value,p=I.querySelector("#taskStartTime").value.trim(),c=I.querySelector("#taskDueTime").value.trim(),a=I.querySelector("#taskPriority").value,m=I.querySelector("#taskStatus").value,g=I.querySelector("#taskCategory").value.trim()||"General";if(!U){k("Task title is required",!0);return}const A={title:U,description:ee,dateStr:te,startTime:p,dueTime:c,priority:a,status:m,category:g};if(r){const D=I.querySelector("#taskAssignee")?.value;D==="all"?(A.assignAll=!0,A.personnelId="all"):D&&(A.personnelId=D)}const y=I.querySelector("#btnSaveTask");y.disabled=!0,y.textContent="Saving...";try{if(j){const D=await Gt(`/tasks/${b._id}`,A),se=o.tasks.findIndex(R=>R._id===b._id);se!==-1&&(o.tasks[se]=D),k("Task updated successfully! ✍️")}else{const D=await ye("/tasks",A);Array.isArray(D.tasks)?D.tasks.forEach(se=>o.tasks.unshift(se)):o.tasks.unshift(D),k("Task created successfully! ✨")}H(),N()}catch(D){k(D.message,!0),y.disabled=!1,y.textContent=j?"Save Changes":"Create Task"}}}function it(){let b=[];const _=`
       <div class="ci360-planner-modal import-modal" style="max-width:680px">
         <div class="ci360-modal-header">
           <div>
@@ -640,7 +640,7 @@ import{c as Me,h as $,e as x,n as Ge,j as Ve,o as Ot,k as Wt,g as ke,p as Ft,t a
           <div class="form-row">
             <div class="form-group flex-1">
               <label for="importTargetDate" class="required">Target Date for Tasks</label>
-              <input type="date" id="importTargetDate" class="input" value="${n.selectedDate}">
+              <input type="date" id="importTargetDate" class="input" value="${o.selectedDate}">
             </div>
 
             <div class="form-group flex-1">
@@ -697,18 +697,18 @@ import{c as Me,h as $,e as x,n as Ge,j as Ve,o as Ot,k as Wt,g as ke,p as Ft,t a
 
         </div>
       </div>
-    `,I=Ot(T),a=()=>I.remove();I.querySelector("#btnImportClose").onclick=a,I.querySelector("#btnCancelImport").onclick=a;const r=I.querySelector("#importTextarea"),_=I.querySelector("#importFileInput"),A=I.querySelector("#importDropzone"),V=I.querySelector("#previewListArea"),G=I.querySelector("#previewCountLabel"),M=I.querySelector("#btnConfirmImport"),U=I.querySelector("#importFileInfo");function F(H){if(!H)return[];const X=H.split(/\r?\n/),p=[];for(let u of X)u=u.trim(),u&&(u=u.replace(/^-\s*\[\s*[xX ]?\s*\]\s*/,""),u=u.replace(/^[-*•]\s+/,""),u=u.replace(/^\d+[\.\)]\s+/,""),u=u.trim(),u&&p.push(u));return p}function v(){const H=r.value,X=F(H),p=I.querySelector("#importTargetDate").value,u=S(p),l=new Set(u.map(o=>(o.title||"").trim().toLowerCase()));b=[];for(const o of X){const m=l.has(o.toLowerCase());b.push({title:o,isDuplicate:m})}if(G.textContent=`Preview (${b.length} ${b.length===1?"task":"tasks"} found)`,M.disabled=b.length===0,M.textContent=`Import ${b.length} ${b.length===1?"Task":"Tasks"}`,b.length===0){V.innerHTML='<div style="padding:16px;text-align:center;color:var(--text-4);font-size:12px">No tasks found. Paste text above to preview.</div>';return}V.innerHTML=b.map((o,m)=>`
-        <div class="preview-item ${o.isDuplicate?"is-duplicate":""}">
+    `,j=Nt(_),i=()=>j.remove();j.querySelector("#btnImportClose").onclick=i,j.querySelector("#btnCancelImport").onclick=i;const s=j.querySelector("#importTextarea"),C=j.querySelector("#importFileInput"),I=j.querySelector("#importDropzone"),K=j.querySelector("#previewListArea"),W=j.querySelector("#previewCountLabel"),M=j.querySelector("#btnConfirmImport"),F=j.querySelector("#importFileInfo");function H(U){if(!U)return[];const ee=U.split(/\r?\n/),te=[];for(let p of ee)p=p.trim(),p&&(p=p.replace(/^-\s*\[\s*[xX ]?\s*\]\s*/,""),p=p.replace(/^[-*•]\s+/,""),p=p.replace(/^\d+[\.\)]\s+/,""),p=p.trim(),p&&te.push(p));return te}function v(){const U=s.value,ee=H(U),te=j.querySelector("#importTargetDate").value,p=S(te),c=new Set(p.map(a=>(a.title||"").trim().toLowerCase()));b=[];for(const a of ee){const m=c.has(a.toLowerCase());b.push({title:a,isDuplicate:m})}if(W.textContent=`Preview (${b.length} ${b.length===1?"task":"tasks"} found)`,M.disabled=b.length===0,M.textContent=`Import ${b.length} ${b.length===1?"Task":"Tasks"}`,b.length===0){K.innerHTML='<div style="padding:16px;text-align:center;color:var(--text-4);font-size:12px">No tasks found. Paste text above to preview.</div>';return}K.innerHTML=b.map((a,m)=>`
+        <div class="preview-item ${a.isDuplicate?"is-duplicate":""}">
           <span class="preview-index">${m+1}.</span>
-          <span class="preview-title">${x(o.title)}</span>
-          ${o.isDuplicate?'<span class="badge overdue-badge" style="font-size:10px">Already on this date</span>':""}
+          <span class="preview-title">${x(a.title)}</span>
+          ${a.isDuplicate?'<span class="badge overdue-badge" style="font-size:10px">Already on this date</span>':""}
         </div>
-      `).join("")}r.oninput=v,A.onclick=()=>_.click(),_.onchange=H=>{const X=H.target.files[0];if(!X)return;U.textContent=`File selected: ${X.name} (${Math.round(X.size/1024)} KB)`;const p=new FileReader;p.onload=u=>{r.value=u.target.result,v()},p.readAsText(X)},A.ondragover=H=>{H.preventDefault(),A.classList.add("dragover")},A.ondragleave=()=>A.classList.remove("dragover"),A.ondrop=H=>{H.preventDefault(),A.classList.remove("dragover");const X=H.dataTransfer.files[0];if(X&&(X.type==="text/plain"||X.name.endsWith(".txt"))){U.textContent=`File dropped: ${X.name}`;const p=new FileReader;p.onload=u=>{r.value=u.target.result,v()},p.readAsText(X)}else $("Please drop a valid .txt plain-text file",!0)},M.onclick=async()=>{if(b.length===0)return;M.disabled=!0,M.textContent="Importing...";const H=I.querySelector("#importTargetDate").value,X=I.querySelector("#importPriority").value,p=I.querySelector("#importCategory").value.trim()||"General",u={date:H,tasks:b.map(l=>({title:l.title,priority:X,category:p,status:"Pending"}))};s&&n.selectedPersonnelId!=="all"&&(u.personnelId=n.selectedPersonnelId);try{const l=await ke("/tasks/bulk-import",u);Array.isArray(l.tasks)&&l.tasks.forEach(o=>n.tasks.unshift(o)),$(`Imported ${l.importedCount} tasks successfully! (${l.skippedCount} skipped duplicates)`),a(),n.selectedDate=H,B()}catch(l){$(l.message,!0),M.disabled=!1,M.textContent="Retry Import"}}}async function nt(){const b=S(n.selectedDate),T=P(b,at()),I=wt(n.selectedDate),a=2,r=800,_=160,A=90,V=65,G=70,M=Math.max(120,b.length*V),U=_+A+M+G,F=document.createElement("canvas");F.width=r*a,F.height=U*a;const v=F.getContext("2d");v.scale(a,a);const H=document.documentElement.getAttribute("data-theme")==="dark",X=H?"#0F172A":"#F8FAFC",p=H?"#1E293B":"#FFFFFF",u=H?"#334155":"#E2E8F0",l=H?"#F8FAFC":"#0F172A",o=H?"#94A3B8":"#475569",m="#4F46E5",w="#10B981",C="#F59E0B";v.fillStyle=X,v.fillRect(0,0,r,U),v.fillStyle=p,je(v,24,20,r-48,_-30,16),v.fill(),v.strokeStyle=u,v.lineWidth=1,v.stroke(),v.fillStyle=m,v.font="bold 12px Inter, sans-serif",v.fillText("CI360 INTELLIGENCE SUITE · DAILY PLANNER",44,52),v.fillStyle=l,v.font='bold 22px "Plus Jakarta Sans", Inter, sans-serif',v.fillText(I,44,86),v.fillStyle=o,v.font="13px Inter, sans-serif",v.fillText(`Planned focus list · ${T.completed} of ${T.total} tasks completed (${T.percent}%)`,44,114);const N=_+6;v.fillStyle=p,je(v,24,N,r-48,A-16,12),v.fill(),v.stroke();const L=[{label:"TOTAL TASKS",val:String(T.total),color:l},{label:"COMPLETED",val:String(T.completed),color:w},{label:"IN PROGRESS",val:String(T.inProgress),color:C},{label:"PENDING",val:String(T.pending),color:o},{label:"PROGRESS",val:`${T.percent}%`,color:m}],te=(r-48)/L.length;L.forEach((J,Q)=>{const W=24+Q*te+20;v.fillStyle=J.color,v.font="bold 20px Inter, sans-serif",v.fillText(J.val,W,N+36),v.fillStyle=o,v.font="10px Inter, sans-serif",v.fillText(J.label,W,N+54)});const E=N+A;v.fillStyle=p,je(v,24,E,r-48,M+10,16),v.fill(),v.stroke(),b.length===0?(v.fillStyle=o,v.font="14px Inter, sans-serif",v.textAlign="center",v.fillText("No scheduled tasks recorded for this date.",r/2,E+60),v.textAlign="left"):b.forEach((J,Q)=>{const W=E+16+Q*V,Y=J.status==="Completed";v.beginPath(),v.arc(48,W+14,10,0,Math.PI*2),Y?(v.fillStyle=w,v.fill(),v.strokeStyle="#FFFFFF",v.lineWidth=2,v.beginPath(),v.moveTo(44,W+14),v.lineTo(47,W+17),v.lineTo(52,W+11),v.stroke()):(v.strokeStyle=u,v.lineWidth=2,v.stroke()),v.fillStyle=Y?o:l,v.font=`${Y?"normal":"500"} 14px Inter, sans-serif`;const ae=J.title.length>55?J.title.slice(0,52)+"...":J.title;if(v.fillText(ae,70,W+18),Y){const le=v.measureText(ae);v.strokeStyle=o,v.lineWidth=1.2,v.beginPath(),v.moveTo(70,W+14),v.lineTo(70+le.width,W+14),v.stroke()}const re=J.priority||"Medium";let pe="#E2E8F0",ye="#334155";re==="Urgent"?(pe="#FEE2E2",ye="#DC2626"):re==="High"?(pe="#FEF3C7",ye="#D97706"):re==="Low"&&(pe="#ECFDF5",ye="#059669"),v.fillStyle=pe,je(v,r-150,W+4,60,20,10),v.fill(),v.fillStyle=ye,v.font="bold 10px Inter, sans-serif",v.fillText(re,r-138,W+18);const Se=J.dueTime?`🕒 ${J.dueTime}`:J.category||"General";v.fillStyle=o,v.font="11px Inter, sans-serif",v.fillText(Se,70,W+34),Q<b.length-1&&(v.strokeStyle=u,v.lineWidth=.6,v.beginPath(),v.moveTo(40,W+48),v.lineTo(r-40,W+48),v.stroke())});const ue=U-35;v.fillStyle=o,v.font="11px Inter, sans-serif",v.fillText(`Generated by CI360 Productivity Suite · Dayfolio Native Module · ${new Date().toLocaleDateString()}`,44,ue);try{const J=F.toDataURL("image/png"),Q=document.createElement("a");Q.href=J,Q.download=`ci360-daily-planner-${n.selectedDate}.png`,document.body.appendChild(Q),Q.click(),Q.remove(),$("Daily Planner image exported! 🖼️")}catch(J){$("Failed to export image: "+J.message,!0)}}function je(b,T,I,a,r,_){b.beginPath(),b.moveTo(T+_,I),b.lineTo(T+a-_,I),b.quadraticCurveTo(T+a,I,T+a,I+_),b.lineTo(T+a,I+r-_),b.quadraticCurveTo(T+a,I+r,T+a-_,I+r),b.lineTo(T+_,I+r),b.quadraticCurveTo(T,I+r,T,I+r-_),b.lineTo(T,I+_),b.quadraticCurveTo(T,I,T+_,I),b.closePath()}function de(){const b=ta(n.selectedDate,f.weekStartsOn),T=wt(b[0]),I=wt(b[6]);at();const a=n.tasks.filter(M=>{if(M.isDeleted===!0)return!1;const U=M.dateStr||(M.dueDate?new Date(M.dueDate).toISOString().slice(0,10):"");return b.includes(U)}),r=a.length,_=a.filter(M=>M.status==="Completed").length,A=r>0?Math.round(_/r*100):0,V=window.open("","_blank");if(!V){$("Pop-up blocked. Please allow pop-ups to print the PDF report.",!0);return}const G=`
+      `).join("")}s.oninput=v,I.onclick=()=>C.click(),C.onchange=U=>{const ee=U.target.files[0];if(!ee)return;F.textContent=`File selected: ${ee.name} (${Math.round(ee.size/1024)} KB)`;const te=new FileReader;te.onload=p=>{s.value=p.target.result,v()},te.readAsText(ee)},I.ondragover=U=>{U.preventDefault(),I.classList.add("dragover")},I.ondragleave=()=>I.classList.remove("dragover"),I.ondrop=U=>{U.preventDefault(),I.classList.remove("dragover");const ee=U.dataTransfer.files[0];if(ee&&(ee.type==="text/plain"||ee.name.endsWith(".txt"))){F.textContent=`File dropped: ${ee.name}`;const te=new FileReader;te.onload=p=>{s.value=p.target.result,v()},te.readAsText(ee)}else k("Please drop a valid .txt plain-text file",!0)},M.onclick=async()=>{if(b.length===0)return;M.disabled=!0,M.textContent="Importing...";const U=j.querySelector("#importTargetDate").value,ee=j.querySelector("#importPriority").value,te=j.querySelector("#importCategory").value.trim()||"General",p={date:U,tasks:b.map(c=>({title:c.title,priority:ee,category:te,status:"Pending"}))};r&&o.selectedPersonnelId!=="all"&&(p.personnelId=o.selectedPersonnelId);try{const c=await ye("/tasks/bulk-import",p);Array.isArray(c.tasks)&&c.tasks.forEach(a=>o.tasks.unshift(a)),k(`Imported ${c.importedCount} tasks successfully! (${c.skippedCount} skipped duplicates)`),i(),o.selectedDate=U,N()}catch(c){k(c.message,!0),M.disabled=!1,M.textContent="Retry Import"}}}async function nt(){const b=S(o.selectedDate),_=P(b,at()),j=kt(o.selectedDate),i=2,s=800,C=160,I=90,K=65,W=70,M=Math.max(120,b.length*K),F=C+I+M+W,H=document.createElement("canvas");H.width=s*i,H.height=F*i;const v=H.getContext("2d");v.scale(i,i);const U=document.documentElement.getAttribute("data-theme")==="dark",ee=U?"#0F172A":"#F8FAFC",te=U?"#1E293B":"#FFFFFF",p=U?"#334155":"#E2E8F0",c=U?"#F8FAFC":"#0F172A",a=U?"#94A3B8":"#475569",m="#4F46E5",g="#10B981",A="#F59E0B";v.fillStyle=ee,v.fillRect(0,0,s,F),v.fillStyle=te,Ae(v,24,20,s-48,C-30,16),v.fill(),v.strokeStyle=p,v.lineWidth=1,v.stroke(),v.fillStyle=m,v.font="bold 12px Inter, sans-serif",v.fillText("CI360 INTELLIGENCE SUITE · DAILY PLANNER",44,52),v.fillStyle=c,v.font='bold 22px "Plus Jakarta Sans", Inter, sans-serif',v.fillText(j,44,86),v.fillStyle=a,v.font="13px Inter, sans-serif",v.fillText(`Planned focus list · ${_.completed} of ${_.total} tasks completed (${_.percent}%)`,44,114);const y=C+6;v.fillStyle=te,Ae(v,24,y,s-48,I-16,12),v.fill(),v.stroke();const D=[{label:"TOTAL TASKS",val:String(_.total),color:c},{label:"COMPLETED",val:String(_.completed),color:g},{label:"IN PROGRESS",val:String(_.inProgress),color:A},{label:"PENDING",val:String(_.pending),color:a},{label:"PROGRESS",val:`${_.percent}%`,color:m}],se=(s-48)/D.length;D.forEach((ae,V)=>{const J=24+V*se+20;v.fillStyle=ae.color,v.font="bold 20px Inter, sans-serif",v.fillText(ae.val,J,y+36),v.fillStyle=a,v.font="10px Inter, sans-serif",v.fillText(ae.label,J,y+54)});const R=y+I;v.fillStyle=te,Ae(v,24,R,s-48,M+10,16),v.fill(),v.stroke(),b.length===0?(v.fillStyle=a,v.font="14px Inter, sans-serif",v.textAlign="center",v.fillText("No scheduled tasks recorded for this date.",s/2,R+60),v.textAlign="left"):b.forEach((ae,V)=>{const J=R+16+V*K,Q=ae.status==="Completed";v.beginPath(),v.arc(48,J+14,10,0,Math.PI*2),Q?(v.fillStyle=g,v.fill(),v.strokeStyle="#FFFFFF",v.lineWidth=2,v.beginPath(),v.moveTo(44,J+14),v.lineTo(47,J+17),v.lineTo(52,J+11),v.stroke()):(v.strokeStyle=p,v.lineWidth=2,v.stroke()),v.fillStyle=Q?a:c,v.font=`${Q?"normal":"500"} 14px Inter, sans-serif`;const Y=ae.title.length>55?ae.title.slice(0,52)+"...":ae.title;if(v.fillText(Y,70,J+18),Q){const De=v.measureText(Y);v.strokeStyle=a,v.lineWidth=1.2,v.beginPath(),v.moveTo(70,J+14),v.lineTo(70+De.width,J+14),v.stroke()}const ie=ae.priority||"Medium";let re="#E2E8F0",be="#334155";ie==="Urgent"?(re="#FEE2E2",be="#DC2626"):ie==="High"?(re="#FEF3C7",be="#D97706"):ie==="Low"&&(re="#ECFDF5",be="#059669"),v.fillStyle=re,Ae(v,s-150,J+4,60,20,10),v.fill(),v.fillStyle=be,v.font="bold 10px Inter, sans-serif",v.fillText(ie,s-138,J+18);const $e=ae.dueTime?`🕒 ${ae.dueTime}`:ae.category||"General";v.fillStyle=a,v.font="11px Inter, sans-serif",v.fillText($e,70,J+34),V<b.length-1&&(v.strokeStyle=p,v.lineWidth=.6,v.beginPath(),v.moveTo(40,J+48),v.lineTo(s-40,J+48),v.stroke())});const q=F-35;v.fillStyle=a,v.font="11px Inter, sans-serif",v.fillText(`Generated by CI360 Productivity Suite · Dayfolio Native Module · ${new Date().toLocaleDateString()}`,44,q);try{const ae=H.toDataURL("image/png"),V=document.createElement("a");V.href=ae,V.download=`ci360-daily-planner-${o.selectedDate}.png`,document.body.appendChild(V),V.click(),V.remove(),k("Daily Planner image exported! 🖼️")}catch(ae){k("Failed to export image: "+ae.message,!0)}}function Ae(b,_,j,i,s,C){b.beginPath(),b.moveTo(_+C,j),b.lineTo(_+i-C,j),b.quadraticCurveTo(_+i,j,_+i,j+C),b.lineTo(_+i,j+s-C),b.quadraticCurveTo(_+i,j+s,_+i-C,j+s),b.lineTo(_+C,j+s),b.quadraticCurveTo(_,j+s,_,j+s-C),b.lineTo(_,j+C),b.quadraticCurveTo(_,j,_+C,j),b.closePath()}function pe(){const b=ta(o.selectedDate,f.weekStartsOn),_=kt(b[0]),j=kt(b[6]);at();const i=o.tasks.filter(M=>{if(M.isDeleted===!0)return!1;const F=M.dateStr||(M.dueDate?new Date(M.dueDate).toISOString().slice(0,10):"");return b.includes(F)}),s=i.length,C=i.filter(M=>M.status==="Completed").length,I=s>0?Math.round(C/s*100):0,K=window.open("","_blank");if(!K){k("Pop-up blocked. Please allow pop-ups to print the PDF report.",!0);return}const W=`
       <!DOCTYPE html>
       <html>
       <head>
         <meta charset="utf-8">
-        <title>Weekly Planner Report — ${T}</title>
+        <title>Weekly Planner Report — ${_}</title>
         <style>
           @page { size: A4 portrait; margin: 15mm; }
           body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color: #1e293b; line-height: 1.4; padding: 10px; }
@@ -741,7 +741,7 @@ import{c as Me,h as $,e as x,n as Ge,j as Ve,o as Ot,k as Wt,g as ke,p as Ft,t a
           <div>
             <div class="brand">CI360 Intelligence Suite · Productivity Report</div>
             <h1>Weekly Planner Report</h1>
-            <div class="period">${T} – ${I}</div>
+            <div class="period">${_} – ${j}</div>
           </div>
           <div style="text-align:right">
             <button class="no-print" onclick="window.print()" style="padding:8px 16px;background:#4f46e5;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:600">Print / Save as PDF</button>
@@ -751,19 +751,19 @@ import{c as Me,h as $,e as x,n as Ge,j as Ve,o as Ot,k as Wt,g as ke,p as Ft,t a
         <div class="kpis">
           <div class="kpi">
             <div class="kpi-label">Total Tasks</div>
-            <div class="kpi-num">${r}</div>
+            <div class="kpi-num">${s}</div>
           </div>
           <div class="kpi">
             <div class="kpi-label">Completed</div>
-            <div class="kpi-num" style="color:#10b981">${_}</div>
+            <div class="kpi-num" style="color:#10b981">${C}</div>
           </div>
           <div class="kpi">
             <div class="kpi-label">Pending / Active</div>
-            <div class="kpi-num">${r-_}</div>
+            <div class="kpi-num">${s-C}</div>
           </div>
           <div class="kpi">
             <div class="kpi-label">Completion Rate</div>
-            <div class="kpi-num" style="color:#4f46e5">${A}%</div>
+            <div class="kpi-num" style="color:#4f46e5">${I}%</div>
           </div>
         </div>
 
@@ -780,14 +780,14 @@ import{c as Me,h as $,e as x,n as Ge,j as Ve,o as Ot,k as Wt,g as ke,p as Ft,t a
             </tr>
           </thead>
           <tbody>
-            ${b.map(M=>{const U=S(M);return U.length===0?`<tr><td><strong>${bt(M)}</strong></td><td colspan="5" style="color:#94a3b8">No scheduled tasks</td></tr>`:U.map(F=>`
+            ${b.map(M=>{const F=S(M);return F.length===0?`<tr><td><strong>${ut(M)}</strong></td><td colspan="5" style="color:#94a3b8">No scheduled tasks</td></tr>`:F.map(H=>`
                 <tr>
-                  <td><strong>${bt(M)}</strong></td>
-                  <td>${x(F.title)}</td>
-                  <td><span class="badge badge-${(F.priority||"medium").toLowerCase().slice(0,3)}">${F.priority||"Medium"}</span></td>
-                  <td>${x(F.category||"General")}</td>
-                  <td>${F.dueTime||F.startTime||"—"}</td>
-                  <td class="${F.status==="Completed"?"done":""}">${F.status||"Pending"}</td>
+                  <td><strong>${ut(M)}</strong></td>
+                  <td>${x(H.title)}</td>
+                  <td><span class="badge badge-${(H.priority||"medium").toLowerCase().slice(0,3)}">${H.priority||"Medium"}</span></td>
+                  <td>${x(H.category||"General")}</td>
+                  <td>${H.dueTime||H.startTime||"—"}</td>
+                  <td class="${H.status==="Completed"?"done":""}">${H.status||"Pending"}</td>
                 </tr>
               `).join("")}).join("")}
           </tbody>
@@ -804,7 +804,7 @@ import{c as Me,h as $,e as x,n as Ge,j as Ve,o as Ot,k as Wt,g as ke,p as Ft,t a
         <\/script>
       </body>
       </html>
-    `;V.document.write(G),V.document.close(),$("Weekly PDF report generated for printing! 📄")}function et(){const T=Ot(`
+    `;K.document.write(W),K.document.close(),k("Weekly PDF report generated for printing! 📄")}function tt(){const _=Nt(`
       <div class="ci360-planner-modal" style="max-width:560px">
         <div class="ci360-modal-header">
           <h3>Backup & Restore Planner</h3>
@@ -856,7 +856,7 @@ import{c as Me,h as $,e as x,n as Ge,j as Ve,o as Ot,k as Wt,g as ke,p as Ft,t a
 
         </div>
       </div>
-    `),I=()=>T.remove();T.querySelector("#btnBackupClose").onclick=I;const a=T.querySelector("#btnDownloadBackupJson");a.onclick=async()=>{a.disabled=!0,a.textContent="Generating backup...";try{const M=await Me("/tasks/backup"),U=new Blob([JSON.stringify(M,null,2)],{type:"application/json"}),F=URL.createObjectURL(U),v=document.createElement("a");v.href=F,v.download=`ci360-planner-backup-${at()}.json`,document.body.appendChild(v),v.click(),v.remove(),$("Planner backup downloaded successfully! 💾")}catch(M){$("Backup export failed: "+M.message,!0)}finally{a.disabled=!1,a.textContent="Download JSON Backup"}};const r=T.querySelector("#restoreFileInput"),_=T.querySelector("#restorePreviewArea"),A=T.querySelector("#restoreCountText"),V=T.querySelector("#btnExecuteRestore");let G=null;r.onchange=M=>{const U=M.target.files[0];if(!U)return;const F=new FileReader;F.onload=v=>{try{const H=JSON.parse(v.target.result),X=Array.isArray(H.tasks)?H.tasks:Array.isArray(H)?H:null;if(!X||X.length===0){$("Invalid backup file: No tasks found",!0);return}G=X,_.style.display="block",A.textContent=`Valid backup: ${X.length} tasks ready to restore.`,V.disabled=!1}catch(H){$("Error parsing JSON backup file: "+H.message,!0),_.style.display="none",V.disabled=!0}},F.readAsText(U)},V.onclick=async()=>{if(!G||G.length===0)return;V.disabled=!0,V.textContent="Restoring...";const M=T.querySelector('input[name="restoreMode"]:checked')?.value||"merge";try{const U=await ke("/tasks/restore",{tasks:G,mode:M});$(`Restored ${U.restoredCount} tasks! (${U.skippedCount} skipped) ✨`),I(),await q()}catch(U){$("Restore failed: "+U.message,!0),V.disabled=!1,V.textContent="Retry Restore"}}}function be(){const b=`
+    `),j=()=>_.remove();_.querySelector("#btnBackupClose").onclick=j;const i=_.querySelector("#btnDownloadBackupJson");i.onclick=async()=>{i.disabled=!0,i.textContent="Generating backup...";try{const M=await Pe("/tasks/backup"),F=new Blob([JSON.stringify(M,null,2)],{type:"application/json"}),H=URL.createObjectURL(F),v=document.createElement("a");v.href=H,v.download=`ci360-planner-backup-${at()}.json`,document.body.appendChild(v),v.click(),v.remove(),k("Planner backup downloaded successfully! 💾")}catch(M){k("Backup export failed: "+M.message,!0)}finally{i.disabled=!1,i.textContent="Download JSON Backup"}};const s=_.querySelector("#restoreFileInput"),C=_.querySelector("#restorePreviewArea"),I=_.querySelector("#restoreCountText"),K=_.querySelector("#btnExecuteRestore");let W=null;s.onchange=M=>{const F=M.target.files[0];if(!F)return;const H=new FileReader;H.onload=v=>{try{const U=JSON.parse(v.target.result),ee=Array.isArray(U.tasks)?U.tasks:Array.isArray(U)?U:null;if(!ee||ee.length===0){k("Invalid backup file: No tasks found",!0);return}W=ee,C.style.display="block",I.textContent=`Valid backup: ${ee.length} tasks ready to restore.`,K.disabled=!1}catch(U){k("Error parsing JSON backup file: "+U.message,!0),C.style.display="none",K.disabled=!0}},H.readAsText(F)},K.onclick=async()=>{if(!W||W.length===0)return;K.disabled=!0,K.textContent="Restoring...";const M=_.querySelector('input[name="restoreMode"]:checked')?.value||"merge";try{const F=await ye("/tasks/restore",{tasks:W,mode:M});k(`Restored ${F.restoredCount} tasks! (${F.skippedCount} skipped) ✨`),j(),await L()}catch(F){k("Restore failed: "+F.message,!0),K.disabled=!1,K.textContent="Retry Restore"}}}function fe(){const b=`
       <div class="ci360-planner-modal" style="max-width:520px">
         <div class="ci360-modal-header">
           <h3>Planner Preferences</h3>
@@ -917,7 +917,7 @@ import{c as Me,h as $,e as x,n as Ge,j as Ve,o as Ot,k as Wt,g as ke,p as Ft,t a
           </div>
         </form>
       </div>
-    `,T=Ot(b),I=()=>T.remove();T.querySelector("#btnSettingsClose").onclick=I,T.querySelector("#btnCancelSettings").onclick=I,T.querySelector("#settingsForm").onsubmit=a=>{a.preventDefault(),f.displayName=T.querySelector("#setDisplayName").value.trim()||"Daily Planner",f.weekStartsOn=Number(T.querySelector("#setWeekStart").value),f.defaultPriority=T.querySelector("#setDefaultPriority").value,f.density=T.querySelector("#setDensity").value,f.soundEnabled=T.querySelector("#setSound").checked,wa(f),$("Planner preferences saved! ⚙️"),I(),B()}}}function Sa(){if(document.getElementById("ci360-planner-styles"))return;const i=document.createElement("style");i.id="ci360-planner-styles",i.textContent=`
+    `,_=Nt(b),j=()=>_.remove();_.querySelector("#btnSettingsClose").onclick=j,_.querySelector("#btnCancelSettings").onclick=j,_.querySelector("#settingsForm").onsubmit=i=>{i.preventDefault(),f.displayName=_.querySelector("#setDisplayName").value.trim()||"Daily Planner",f.weekStartsOn=Number(_.querySelector("#setWeekStart").value),f.defaultPriority=_.querySelector("#setDefaultPriority").value,f.density=_.querySelector("#setDensity").value,f.soundEnabled=_.querySelector("#setSound").checked,wa(f),k("Planner preferences saved! ⚙️"),j(),N()}}}function Sa(){if(document.getElementById("ci360-planner-styles"))return;const n=document.createElement("style");n.id="ci360-planner-styles",n.textContent=`
     /* CI360 Dayfolio Planner Module Styles */
     .ci360-planner-wrap {
       max-width: 1040px;
@@ -2088,14 +2088,14 @@ import{c as Me,h as $,e as x,n as Ge,j as Ve,o as Ot,k as Wt,g as ke,p as Ft,t a
       padding: 6px 12px;
       min-width: 80px;
     }
-  `,document.head.appendChild(i)}function Ca(i){return i!==null?{comment:i,variations:[]}:{variations:[]}}function _a(i,t,e,d,c){const s={move:i,variations:c};return t&&(s.suffix=t),e&&(s.nag=e),d!==null&&(s.comment=d),s}function Ta(...i){const[t,...e]=i;let d=t;for(const c of e)c!==null&&(d.variations=[c,...c.variations],c.variations=[],d=c);return t}function ja(i,t){if(t.marker&&t.marker.comment){let e=t.root;for(;;){const d=e.variations[0];if(!d){e.comment=t.marker.comment;break}e=d}}return{headers:i,root:t.root,result:(t.marker&&t.marker.result)??void 0}}function Ia(i,t){function e(){this.constructor=i}e.prototype=t.prototype,i.prototype=new e}function It(i,t,e,d){var c=Error.call(this,i);return Object.setPrototypeOf&&Object.setPrototypeOf(c,It.prototype),c.expected=t,c.found=e,c.location=d,c.name="SyntaxError",c}Ia(It,Error);function aa(i,t,e){return e=e||" ",i.length>t?i:(t-=i.length,e+=e.repeat(t),i+e.slice(0,t))}It.prototype.format=function(i){var t="Error: "+this.message;if(this.location){var e=null,d;for(d=0;d<i.length;d++)if(i[d].source===this.location.source){e=i[d].text.split(/\r\n|\n|\r/g);break}var c=this.location.start,s=this.location.source&&typeof this.location.source.offset=="function"?this.location.source.offset(c):c,f=this.location.source+":"+s.line+":"+s.column;if(e){var n=this.location.end,q=aa("",s.line.toString().length," "),R=e[c.line-1],S=c.line===n.line?n.column:R.length+1,j=S-c.column||1;t+=`
+  `,document.head.appendChild(n)}function Ca(n){return n!==null?{comment:n,variations:[]}:{variations:[]}}function _a(n,t,e,l,d){const r={move:n,variations:d};return t&&(r.suffix=t),e&&(r.nag=e),l!==null&&(r.comment=l),r}function Ta(...n){const[t,...e]=n;let l=t;for(const d of e)d!==null&&(l.variations=[d,...d.variations],d.variations=[],l=d);return t}function ja(n,t){if(t.marker&&t.marker.comment){let e=t.root;for(;;){const l=e.variations[0];if(!l){e.comment=t.marker.comment;break}e=l}}return{headers:n,root:t.root,result:(t.marker&&t.marker.result)??void 0}}function Ia(n,t){function e(){this.constructor=n}e.prototype=t.prototype,n.prototype=new e}function jt(n,t,e,l){var d=Error.call(this,n);return Object.setPrototypeOf&&Object.setPrototypeOf(d,jt.prototype),d.expected=t,d.found=e,d.location=l,d.name="SyntaxError",d}Ia(jt,Error);function aa(n,t,e){return e=e||" ",n.length>t?n:(t-=n.length,e+=e.repeat(t),n+e.slice(0,t))}jt.prototype.format=function(n){var t="Error: "+this.message;if(this.location){var e=null,l;for(l=0;l<n.length;l++)if(n[l].source===this.location.source){e=n[l].text.split(/\r\n|\n|\r/g);break}var d=this.location.start,r=this.location.source&&typeof this.location.source.offset=="function"?this.location.source.offset(d):d,f=this.location.source+":"+r.line+":"+r.column;if(e){var o=this.location.end,L=aa("",r.line.toString().length," "),B=e[d.line-1],S=d.line===o.line?o.column:B.length+1,T=S-d.column||1;t+=`
  --> `+f+`
-`+q+` |
-`+s.line+" | "+R+`
-`+q+" | "+aa("",c.column-1," ")+aa("",j,"^")}else t+=`
- at `+f}return t};It.buildMessage=function(i,t){var e={literal:function(R){return'"'+c(R.text)+'"'},class:function(R){var S=R.parts.map(function(j){return Array.isArray(j)?s(j[0])+"-"+s(j[1]):s(j)});return"["+(R.inverted?"^":"")+S.join("")+"]"},any:function(){return"any character"},end:function(){return"end of input"},other:function(R){return R.description}};function d(R){return R.charCodeAt(0).toString(16).toUpperCase()}function c(R){return R.replace(/\\/g,"\\\\").replace(/"/g,'\\"').replace(/\0/g,"\\0").replace(/\t/g,"\\t").replace(/\n/g,"\\n").replace(/\r/g,"\\r").replace(/[\x00-\x0F]/g,function(S){return"\\x0"+d(S)}).replace(/[\x10-\x1F\x7F-\x9F]/g,function(S){return"\\x"+d(S)})}function s(R){return R.replace(/\\/g,"\\\\").replace(/\]/g,"\\]").replace(/\^/g,"\\^").replace(/-/g,"\\-").replace(/\0/g,"\\0").replace(/\t/g,"\\t").replace(/\n/g,"\\n").replace(/\r/g,"\\r").replace(/[\x00-\x0F]/g,function(S){return"\\x0"+d(S)}).replace(/[\x10-\x1F\x7F-\x9F]/g,function(S){return"\\x"+d(S)})}function f(R){return e[R.type](R)}function n(R){var S=R.map(f),j,P;if(S.sort(),S.length>0){for(j=1,P=1;j<S.length;j++)S[j-1]!==S[j]&&(S[P]=S[j],P++);S.length=P}switch(S.length){case 1:return S[0];case 2:return S[0]+" or "+S[1];default:return S.slice(0,-1).join(", ")+", or "+S[S.length-1]}}function q(R){return R?'"'+c(R)+'"':"end of input"}return"Expected "+n(i)+" but "+q(t)+" found."};function Aa(i,t){t=t!==void 0?t:{};var e={},d=t.grammarSource,c={pgn:Lt},s=Lt,f="[",n='"',q="]",R=".",S="O-O-O",j="O-O",P="0-0-0",B="0-0",ce="$",me="{",qe="}",Ye=";",dt="(",vt=")",we="1-0",ct="0-1",Fe="1/2-1/2",pt="*",_e=/^[a-zA-Z]/,it=/^[^"]/,nt=/^[0-9]/,je=/^[.]/,de=/^[a-zA-Z1-8\-=]/,et=/^[+#]/,be=/^[!?]/,b=/^[^}]/,T=/^[^\r\n]/,I=/^[ \t\r\n]/,a=Ke("tag pair"),r=Ce("[",!1),_=Ce('"',!1),A=Ce("]",!1),V=Ke("tag name"),G=Qe([["a","z"],["A","Z"]],!1,!1),M=Ke("tag value"),U=Qe(['"'],!0,!1),F=Ke("move number"),v=Qe([["0","9"]],!1,!1),H=Ce(".",!1),X=Qe(["."],!1,!1),p=Ke("standard algebraic notation"),u=Ce("O-O-O",!1),l=Ce("O-O",!1),o=Ce("0-0-0",!1),m=Ce("0-0",!1),w=Qe([["a","z"],["A","Z"],["1","8"],"-","="],!1,!1),C=Qe(["+","#"],!1,!1),N=Ke("suffix annotation"),L=Qe(["!","?"],!1,!1),te=Ke("NAG"),E=Ce("$",!1),ue=Ke("brace comment"),J=Ce("{",!1),Q=Qe(["}"],!0,!1),W=Ce("}",!1),Y=Ke("rest of line comment"),ae=Ce(";",!1),re=Qe(["\r",`
-`],!0,!1),pe=Ke("variation"),ye=Ce("(",!1),Se=Ce(")",!1),le=Ke("game termination marker"),he=Ce("1-0",!1),De=Ce("0-1",!1),Ie=Ce("1/2-1/2",!1),$e=Ce("*",!1),Be=Ke("whitespace"),Ne=Qe([" ","	","\r",`
-`],!1,!1),Ue=function(g,y){return ja(g,y)},Ee=function(g){return Object.fromEntries(g)},z=function(g,y){return[g,y]},K=function(g,y){return{root:g,marker:y}},ge=function(g,y){return Ta(Ca(g),...y.flat())},Le=function(g,y,k,ie,ne){return _a(g,y,k,ie,ne)},xe=function(g){return g},Je=function(g){return g.replace(/[\r\n]+/g," ")},_t=function(g){return g.trim()},Tt=function(g){return g},ut=function(g,y){return{result:g,comment:y}},h=t.peg$currPos|0,rt=[{line:1,column:1}],We=h,xt=t.peg$maxFailExpected||[],O=t.peg$silentFails|0,gt;if(t.startRule){if(!(t.startRule in c))throw new Error(`Can't start parsing from rule "`+t.startRule+'".');s=c[t.startRule]}function Ce(g,y){return{type:"literal",text:g,ignoreCase:y}}function Qe(g,y,k){return{type:"class",parts:g,inverted:y,ignoreCase:k}}function Jt(){return{type:"end"}}function Ke(g){return{type:"other",description:g}}function yt(g){var y=rt[g],k;if(y)return y;if(g>=rt.length)k=rt.length-1;else for(k=g;!rt[--k];);for(y=rt[k],y={line:y.line,column:y.column};k<g;)i.charCodeAt(k)===10?(y.line++,y.column=1):y.column++,k++;return rt[g]=y,y}function qt(g,y,k){var ie=yt(g),ne=yt(y),ve={source:d,start:{offset:g,line:ie.line,column:ie.column},end:{offset:y,line:ne.line,column:ne.column}};return ve}function Z(g){h<We||(h>We&&(We=h,xt=[]),xt.push(g))}function Qt(g,y,k){return new It(It.buildMessage(g,y),g,y,k)}function Lt(){var g,y,k;return g=h,y=D(),k=Xe(),g=Ue(y,k),g}function D(){var g,y,k;for(g=h,y=[],k=ee();k!==e;)y.push(k),k=ee();return k=He(),g=Ee(y),g}function ee(){var g,y,k,ie,ne,ve,kt;return O++,g=h,He(),i.charCodeAt(h)===91?(y=f,h++):(y=e,O===0&&Z(r)),y!==e?(He(),k=fe(),k!==e?(He(),i.charCodeAt(h)===34?(ie=n,h++):(ie=e,O===0&&Z(_)),ie!==e?(ne=ze(),i.charCodeAt(h)===34?(ve=n,h++):(ve=e,O===0&&Z(_)),ve!==e?(He(),i.charCodeAt(h)===93?(kt=q,h++):(kt=e,O===0&&Z(A)),kt!==e?g=z(k,ne):(h=g,g=e)):(h=g,g=e)):(h=g,g=e)):(h=g,g=e)):(h=g,g=e),O--,g===e&&O===0&&Z(a),g}function fe(){var g,y,k;if(O++,g=h,y=[],k=i.charAt(h),_e.test(k)?h++:(k=e,O===0&&Z(G)),k!==e)for(;k!==e;)y.push(k),k=i.charAt(h),_e.test(k)?h++:(k=e,O===0&&Z(G));else y=e;return y!==e?g=i.substring(g,h):g=y,O--,g===e&&(y=e,O===0&&Z(V)),g}function ze(){var g,y,k;for(O++,g=h,y=[],k=i.charAt(h),it.test(k)?h++:(k=e,O===0&&Z(U));k!==e;)y.push(k),k=i.charAt(h),it.test(k)?h++:(k=e,O===0&&Z(U));return g=i.substring(g,h),O--,y=e,O===0&&Z(M),g}function Xe(){var g,y,k;return g=h,y=st(),He(),k=lt(),k===e&&(k=null),He(),g=K(y,k),g}function st(){var g,y,k,ie;for(g=h,y=At(),y===e&&(y=null),k=[],ie=ot();ie!==e;)k.push(ie),ie=ot();return g=ge(y,k),g}function ot(){var g,y,k,ie,ne,ve,kt,Nt;if(g=h,He(),jt(),He(),y=zt(),y!==e){for(k=Xt(),k===e&&(k=null),ie=[],ne=Rt();ne!==e;)ie.push(ne),ne=Rt();for(ne=He(),ve=At(),ve===e&&(ve=null),kt=[],Nt=Bt();Nt!==e;)kt.push(Nt),Nt=Bt();g=Le(y,k,ie,ve,kt)}else h=g,g=e;return g}function jt(){var g,y,k,ie,ne,ve;for(O++,g=h,y=[],k=i.charAt(h),nt.test(k)?h++:(k=e,O===0&&Z(v));k!==e;)y.push(k),k=i.charAt(h),nt.test(k)?h++:(k=e,O===0&&Z(v));if(i.charCodeAt(h)===46?(k=R,h++):(k=e,O===0&&Z(H)),k!==e){for(ie=He(),ne=[],ve=i.charAt(h),je.test(ve)?h++:(ve=e,O===0&&Z(X));ve!==e;)ne.push(ve),ve=i.charAt(h),je.test(ve)?h++:(ve=e,O===0&&Z(X));y=[y,k,ie,ne],g=y}else h=g,g=e;return O--,g===e&&(y=e,O===0&&Z(F)),g}function zt(){var g,y,k,ie,ne,ve;if(O++,g=h,y=h,i.substr(h,5)===S?(k=S,h+=5):(k=e,O===0&&Z(u)),k===e&&(i.substr(h,3)===j?(k=j,h+=3):(k=e,O===0&&Z(l)),k===e&&(i.substr(h,5)===P?(k=P,h+=5):(k=e,O===0&&Z(o)),k===e&&(i.substr(h,3)===B?(k=B,h+=3):(k=e,O===0&&Z(m)),k===e))))if(k=h,ie=i.charAt(h),_e.test(ie)?h++:(ie=e,O===0&&Z(G)),ie!==e){if(ne=[],ve=i.charAt(h),de.test(ve)?h++:(ve=e,O===0&&Z(w)),ve!==e)for(;ve!==e;)ne.push(ve),ve=i.charAt(h),de.test(ve)?h++:(ve=e,O===0&&Z(w));else ne=e;ne!==e?(ie=[ie,ne],k=ie):(h=k,k=e)}else h=k,k=e;return k!==e?(ie=i.charAt(h),et.test(ie)?h++:(ie=e,O===0&&Z(C)),ie===e&&(ie=null),k=[k,ie],y=k):(h=y,y=e),y!==e?g=i.substring(g,h):g=y,O--,g===e&&(y=e,O===0&&Z(p)),g}function Xt(){var g,y,k;for(O++,g=h,y=[],k=i.charAt(h),be.test(k)?h++:(k=e,O===0&&Z(L));k!==e;)y.push(k),y.length>=2?k=e:(k=i.charAt(h),be.test(k)?h++:(k=e,O===0&&Z(L)));return y.length<1?(h=g,g=e):g=y,O--,g===e&&(y=e,O===0&&Z(N)),g}function Rt(){var g,y,k,ie,ne;if(O++,g=h,He(),i.charCodeAt(h)===36?(y=ce,h++):(y=e,O===0&&Z(E)),y!==e){if(k=h,ie=[],ne=i.charAt(h),nt.test(ne)?h++:(ne=e,O===0&&Z(v)),ne!==e)for(;ne!==e;)ie.push(ne),ne=i.charAt(h),nt.test(ne)?h++:(ne=e,O===0&&Z(v));else ie=e;ie!==e?k=i.substring(k,h):k=ie,k!==e?g=xe(k):(h=g,g=e)}else h=g,g=e;return O--,g===e&&O===0&&Z(te),g}function At(){var g;return g=Zt(),g===e&&(g=tt()),g}function Zt(){var g,y,k,ie,ne;if(O++,g=h,i.charCodeAt(h)===123?(y=me,h++):(y=e,O===0&&Z(J)),y!==e){for(k=h,ie=[],ne=i.charAt(h),b.test(ne)?h++:(ne=e,O===0&&Z(Q));ne!==e;)ie.push(ne),ne=i.charAt(h),b.test(ne)?h++:(ne=e,O===0&&Z(Q));k=i.substring(k,h),i.charCodeAt(h)===125?(ie=qe,h++):(ie=e,O===0&&Z(W)),ie!==e?g=Je(k):(h=g,g=e)}else h=g,g=e;return O--,g===e&&(y=e,O===0&&Z(ue)),g}function tt(){var g,y,k,ie,ne;if(O++,g=h,i.charCodeAt(h)===59?(y=Ye,h++):(y=e,O===0&&Z(ae)),y!==e){for(k=h,ie=[],ne=i.charAt(h),T.test(ne)?h++:(ne=e,O===0&&Z(re));ne!==e;)ie.push(ne),ne=i.charAt(h),T.test(ne)?h++:(ne=e,O===0&&Z(re));k=i.substring(k,h),g=_t(k)}else h=g,g=e;return O--,g===e&&(y=e,O===0&&Z(Y)),g}function Bt(){var g,y,k,ie;return O++,g=h,He(),i.charCodeAt(h)===40?(y=dt,h++):(y=e,O===0&&Z(ye)),y!==e?(k=st(),k!==e?(He(),i.charCodeAt(h)===41?(ie=vt,h++):(ie=e,O===0&&Z(Se)),ie!==e?g=Tt(k):(h=g,g=e)):(h=g,g=e)):(h=g,g=e),O--,g===e&&O===0&&Z(pe),g}function lt(){var g,y,k;return O++,g=h,i.substr(h,3)===we?(y=we,h+=3):(y=e,O===0&&Z(he)),y===e&&(i.substr(h,3)===ct?(y=ct,h+=3):(y=e,O===0&&Z(De)),y===e&&(i.substr(h,7)===Fe?(y=Fe,h+=7):(y=e,O===0&&Z(Ie)),y===e&&(i.charCodeAt(h)===42?(y=pt,h++):(y=e,O===0&&Z($e))))),y!==e?(He(),k=At(),k===e&&(k=null),g=ut(y,k)):(h=g,g=e),O--,g===e&&(y=e,O===0&&Z(le)),g}function He(){var g,y;for(O++,g=[],y=i.charAt(h),I.test(y)?h++:(y=e,O===0&&Z(Ne));y!==e;)g.push(y),y=i.charAt(h),I.test(y)?h++:(y=e,O===0&&Z(Ne));return O--,y=e,O===0&&Z(Be),g}if(gt=s(),t.peg$library)return{peg$result:gt,peg$currPos:h,peg$FAILED:e,peg$maxFailExpected:xt,peg$maxFailPos:We};if(gt!==e&&h===i.length)return gt;throw gt!==e&&h<i.length&&Z(Jt()),Qt(xt,We<i.length?i.charAt(We):null,We<i.length?qt(We,We+1):qt(We,We))}/**
+`+L+` |
+`+r.line+" | "+B+`
+`+L+" | "+aa("",d.column-1," ")+aa("",T,"^")}else t+=`
+ at `+f}return t};jt.buildMessage=function(n,t){var e={literal:function(B){return'"'+d(B.text)+'"'},class:function(B){var S=B.parts.map(function(T){return Array.isArray(T)?r(T[0])+"-"+r(T[1]):r(T)});return"["+(B.inverted?"^":"")+S.join("")+"]"},any:function(){return"any character"},end:function(){return"end of input"},other:function(B){return B.description}};function l(B){return B.charCodeAt(0).toString(16).toUpperCase()}function d(B){return B.replace(/\\/g,"\\\\").replace(/"/g,'\\"').replace(/\0/g,"\\0").replace(/\t/g,"\\t").replace(/\n/g,"\\n").replace(/\r/g,"\\r").replace(/[\x00-\x0F]/g,function(S){return"\\x0"+l(S)}).replace(/[\x10-\x1F\x7F-\x9F]/g,function(S){return"\\x"+l(S)})}function r(B){return B.replace(/\\/g,"\\\\").replace(/\]/g,"\\]").replace(/\^/g,"\\^").replace(/-/g,"\\-").replace(/\0/g,"\\0").replace(/\t/g,"\\t").replace(/\n/g,"\\n").replace(/\r/g,"\\r").replace(/[\x00-\x0F]/g,function(S){return"\\x0"+l(S)}).replace(/[\x10-\x1F\x7F-\x9F]/g,function(S){return"\\x"+l(S)})}function f(B){return e[B.type](B)}function o(B){var S=B.map(f),T,P;if(S.sort(),S.length>0){for(T=1,P=1;T<S.length;T++)S[T-1]!==S[T]&&(S[P]=S[T],P++);S.length=P}switch(S.length){case 1:return S[0];case 2:return S[0]+" or "+S[1];default:return S.slice(0,-1).join(", ")+", or "+S[S.length-1]}}function L(B){return B?'"'+d(B)+'"':"end of input"}return"Expected "+o(n)+" but "+L(t)+" found."};function Aa(n,t){t=t!==void 0?t:{};var e={},l=t.grammarSource,d={pgn:qt},r=qt,f="[",o='"',L="]",B=".",S="O-O-O",T="O-O",P="0-0-0",N="0-0",ue="$",he="{",qe="}",Je=";",lt="(",mt=")",we="1-0",dt="0-1",ze="1/2-1/2",ct="*",_e=/^[a-zA-Z]/,it=/^[^"]/,nt=/^[0-9]/,Ae=/^[.]/,pe=/^[a-zA-Z1-8\-=]/,tt=/^[+#]/,fe=/^[!?]/,b=/^[^}]/,_=/^[^\r\n]/,j=/^[ \t\r\n]/,i=Ke("tag pair"),s=je("[",!1),C=je('"',!1),I=je("]",!1),K=Ke("tag name"),W=Xe([["a","z"],["A","Z"]],!1,!1),M=Ke("tag value"),F=Xe(['"'],!0,!1),H=Ke("move number"),v=Xe([["0","9"]],!1,!1),U=je(".",!1),ee=Xe(["."],!1,!1),te=Ke("standard algebraic notation"),p=je("O-O-O",!1),c=je("O-O",!1),a=je("0-0-0",!1),m=je("0-0",!1),g=Xe([["a","z"],["A","Z"],["1","8"],"-","="],!1,!1),A=Xe(["+","#"],!1,!1),y=Ke("suffix annotation"),D=Xe(["!","?"],!1,!1),se=Ke("NAG"),R=je("$",!1),q=Ke("brace comment"),ae=je("{",!1),V=Xe(["}"],!0,!1),J=je("}",!1),Q=Ke("rest of line comment"),Y=je(";",!1),ie=Xe(["\r",`
+`],!0,!1),re=Ke("variation"),be=je("(",!1),$e=je(")",!1),De=Ke("game termination marker"),ce=je("1-0",!1),ve=je("0-1",!1),Te=je("1/2-1/2",!1),Oe=je("*",!1),Se=Ke("whitespace"),We=Xe([" ","	","\r",`
+`],!1,!1),Ue=function(u,w){return ja(u,w)},Me=function(u){return Object.fromEntries(u)},z=function(u,w){return[u,w]},G=function(u,w){return{root:u,marker:w}},ge=function(u,w){return Ta(Ca(u),...w.flat())},Re=function(u,w,$,ne,oe){return _a(u,w,$,ne,oe)},ke=function(u){return u},Qe=function(u){return u.replace(/[\r\n]+/g," ")},ht=function(u){return u.trim()},Ct=function(u){return u},_t=function(u,w){return{result:u,comment:w}},h=t.peg$currPos|0,rt=[{line:1,column:1}],Fe=h,vt=t.peg$maxFailExpected||[],O=t.peg$silentFails|0,pt;if(t.startRule){if(!(t.startRule in d))throw new Error(`Can't start parsing from rule "`+t.startRule+'".');r=d[t.startRule]}function je(u,w){return{type:"literal",text:u,ignoreCase:w}}function Xe(u,w,$){return{type:"class",parts:u,inverted:w,ignoreCase:$}}function Mt(){return{type:"end"}}function Ke(u){return{type:"other",description:u}}function Lt(u){var w=rt[u],$;if(w)return w;if(u>=rt.length)$=rt.length-1;else for($=u;!rt[--$];);for(w=rt[$],w={line:w.line,column:w.column};$<u;)n.charCodeAt($)===10?(w.line++,w.column=1):w.column++,$++;return rt[u]=w,w}function xt(u,w,$){var ne=Lt(u),oe=Lt(w),xe={source:l,start:{offset:u,line:ne.line,column:ne.column},end:{offset:w,line:oe.line,column:oe.column}};return xe}function X(u){h<Fe||(h>Fe&&(Fe=h,vt=[]),vt.push(u))}function Yt(u,w,$){return new jt(jt.buildMessage(u,w),u,w,$)}function qt(){var u,w,$;return u=h,w=Jt(),$=Be(),u=Ue(w,$),u}function Jt(){var u,w,$;for(u=h,w=[],$=E();$!==e;)w.push($),$=E();return $=Ce(),u=Me(w),u}function E(){var u,w,$,ne,oe,xe,yt;return O++,u=h,Ce(),n.charCodeAt(h)===91?(w=f,h++):(w=e,O===0&&X(s)),w!==e?(Ce(),$=Z(),$!==e?(Ce(),n.charCodeAt(h)===34?(ne=o,h++):(ne=e,O===0&&X(C)),ne!==e?(oe=me(),n.charCodeAt(h)===34?(xe=o,h++):(xe=e,O===0&&X(C)),xe!==e?(Ce(),n.charCodeAt(h)===93?(yt=L,h++):(yt=e,O===0&&X(I)),yt!==e?u=z($,oe):(h=u,u=e)):(h=u,u=e)):(h=u,u=e)):(h=u,u=e)):(h=u,u=e),O--,u===e&&O===0&&X(i),u}function Z(){var u,w,$;if(O++,u=h,w=[],$=n.charAt(h),_e.test($)?h++:($=e,O===0&&X(W)),$!==e)for(;$!==e;)w.push($),$=n.charAt(h),_e.test($)?h++:($=e,O===0&&X(W));else w=e;return w!==e?u=n.substring(u,h):u=w,O--,u===e&&(w=e,O===0&&X(K)),u}function me(){var u,w,$;for(O++,u=h,w=[],$=n.charAt(h),it.test($)?h++:($=e,O===0&&X(F));$!==e;)w.push($),$=n.charAt(h),it.test($)?h++:($=e,O===0&&X(F));return u=n.substring(u,h),O--,w=e,O===0&&X(M),u}function Be(){var u,w,$;return u=h,w=Ve(),Ce(),$=Zt(),$===e&&($=null),Ce(),u=G(w,$),u}function Ve(){var u,w,$,ne;for(u=h,w=It(),w===e&&(w=null),$=[],ne=ot();ne!==e;)$.push(ne),ne=ot();return u=ge(w,$),u}function ot(){var u,w,$,ne,oe,xe,yt,Bt;if(u=h,Ce(),st(),Ce(),w=Tt(),w!==e){for($=zt(),$===e&&($=null),ne=[],oe=Rt();oe!==e;)ne.push(oe),oe=Rt();for(oe=Ce(),xe=It(),xe===e&&(xe=null),yt=[],Bt=Ze();Bt!==e;)yt.push(Bt),Bt=Ze();u=Re(w,$,ne,xe,yt)}else h=u,u=e;return u}function st(){var u,w,$,ne,oe,xe;for(O++,u=h,w=[],$=n.charAt(h),nt.test($)?h++:($=e,O===0&&X(v));$!==e;)w.push($),$=n.charAt(h),nt.test($)?h++:($=e,O===0&&X(v));if(n.charCodeAt(h)===46?($=B,h++):($=e,O===0&&X(U)),$!==e){for(ne=Ce(),oe=[],xe=n.charAt(h),Ae.test(xe)?h++:(xe=e,O===0&&X(ee));xe!==e;)oe.push(xe),xe=n.charAt(h),Ae.test(xe)?h++:(xe=e,O===0&&X(ee));w=[w,$,ne,oe],u=w}else h=u,u=e;return O--,u===e&&(w=e,O===0&&X(H)),u}function Tt(){var u,w,$,ne,oe,xe;if(O++,u=h,w=h,n.substr(h,5)===S?($=S,h+=5):($=e,O===0&&X(p)),$===e&&(n.substr(h,3)===T?($=T,h+=3):($=e,O===0&&X(c)),$===e&&(n.substr(h,5)===P?($=P,h+=5):($=e,O===0&&X(a)),$===e&&(n.substr(h,3)===N?($=N,h+=3):($=e,O===0&&X(m)),$===e))))if($=h,ne=n.charAt(h),_e.test(ne)?h++:(ne=e,O===0&&X(W)),ne!==e){if(oe=[],xe=n.charAt(h),pe.test(xe)?h++:(xe=e,O===0&&X(g)),xe!==e)for(;xe!==e;)oe.push(xe),xe=n.charAt(h),pe.test(xe)?h++:(xe=e,O===0&&X(g));else oe=e;oe!==e?(ne=[ne,oe],$=ne):(h=$,$=e)}else h=$,$=e;return $!==e?(ne=n.charAt(h),tt.test(ne)?h++:(ne=e,O===0&&X(A)),ne===e&&(ne=null),$=[$,ne],w=$):(h=w,w=e),w!==e?u=n.substring(u,h):u=w,O--,u===e&&(w=e,O===0&&X(te)),u}function zt(){var u,w,$;for(O++,u=h,w=[],$=n.charAt(h),fe.test($)?h++:($=e,O===0&&X(D));$!==e;)w.push($),w.length>=2?$=e:($=n.charAt(h),fe.test($)?h++:($=e,O===0&&X(D)));return w.length<1?(h=u,u=e):u=w,O--,u===e&&(w=e,O===0&&X(y)),u}function Rt(){var u,w,$,ne,oe;if(O++,u=h,Ce(),n.charCodeAt(h)===36?(w=ue,h++):(w=e,O===0&&X(R)),w!==e){if($=h,ne=[],oe=n.charAt(h),nt.test(oe)?h++:(oe=e,O===0&&X(v)),oe!==e)for(;oe!==e;)ne.push(oe),oe=n.charAt(h),nt.test(oe)?h++:(oe=e,O===0&&X(v));else ne=e;ne!==e?$=n.substring($,h):$=ne,$!==e?u=ke($):(h=u,u=e)}else h=u,u=e;return O--,u===e&&O===0&&X(se),u}function It(){var u;return u=Qt(),u===e&&(u=Xt()),u}function Qt(){var u,w,$,ne,oe;if(O++,u=h,n.charCodeAt(h)===123?(w=he,h++):(w=e,O===0&&X(ae)),w!==e){for($=h,ne=[],oe=n.charAt(h),b.test(oe)?h++:(oe=e,O===0&&X(V));oe!==e;)ne.push(oe),oe=n.charAt(h),b.test(oe)?h++:(oe=e,O===0&&X(V));$=n.substring($,h),n.charCodeAt(h)===125?(ne=qe,h++):(ne=e,O===0&&X(J)),ne!==e?u=Qe($):(h=u,u=e)}else h=u,u=e;return O--,u===e&&(w=e,O===0&&X(q)),u}function Xt(){var u,w,$,ne,oe;if(O++,u=h,n.charCodeAt(h)===59?(w=Je,h++):(w=e,O===0&&X(Y)),w!==e){for($=h,ne=[],oe=n.charAt(h),_.test(oe)?h++:(oe=e,O===0&&X(ie));oe!==e;)ne.push(oe),oe=n.charAt(h),_.test(oe)?h++:(oe=e,O===0&&X(ie));$=n.substring($,h),u=ht($)}else h=u,u=e;return O--,u===e&&(w=e,O===0&&X(Q)),u}function Ze(){var u,w,$,ne;return O++,u=h,Ce(),n.charCodeAt(h)===40?(w=lt,h++):(w=e,O===0&&X(be)),w!==e?($=Ve(),$!==e?(Ce(),n.charCodeAt(h)===41?(ne=mt,h++):(ne=e,O===0&&X($e)),ne!==e?u=Ct($):(h=u,u=e)):(h=u,u=e)):(h=u,u=e),O--,u===e&&O===0&&X(re),u}function Zt(){var u,w,$;return O++,u=h,n.substr(h,3)===we?(w=we,h+=3):(w=e,O===0&&X(ce)),w===e&&(n.substr(h,3)===dt?(w=dt,h+=3):(w=e,O===0&&X(ve)),w===e&&(n.substr(h,7)===ze?(w=ze,h+=7):(w=e,O===0&&X(Te)),w===e&&(n.charCodeAt(h)===42?(w=ct,h++):(w=e,O===0&&X(Oe))))),w!==e?(Ce(),$=It(),$===e&&($=null),u=_t(w,$)):(h=u,u=e),O--,u===e&&(w=e,O===0&&X(De)),u}function Ce(){var u,w;for(O++,u=[],w=n.charAt(h),j.test(w)?h++:(w=e,O===0&&X(We));w!==e;)u.push(w),w=n.charAt(h),j.test(w)?h++:(w=e,O===0&&X(We));return O--,w=e,O===0&&X(Se),u}if(pt=r(),t.peg$library)return{peg$result:pt,peg$currPos:h,peg$FAILED:e,peg$maxFailExpected:vt,peg$maxFailPos:Fe};if(pt!==e&&h===n.length)return pt;throw pt!==e&&h<n.length&&X(Mt()),Yt(vt,Fe<n.length?n.charAt(Fe):null,Fe<n.length?xt(Fe,Fe+1):xt(Fe,Fe))}/**
  * @license
  * Copyright (c) 2025, Jeff Hlywa (jhlywa@gmail.com)
  * All rights reserved.
@@ -2120,14 +2120,14 @@ import{c as Me,h as $,e as x,n as Ge,j as Ve,o as Ot,k as Wt,g as ke,p as Ft,t a
  * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
- */const Kt=0xffffffffffffffffn;function ia(i,t){return(i<<t|i>>64n-t)&0xffffffffffffffffn}function fa(i,t){return i*t&Kt}function Da(i){return function(){let t=BigInt(i&Kt),e=BigInt(i>>64n&Kt);const d=fa(ia(fa(t,5n),7n),9n);return e^=t,t=(ia(t,24n)^e^e<<16n)&Kt,e=ia(e,37n),i=e<<64n|t,d}}const Yt=Da(0xa187eb39cdcaed8f31c4b365b102e01en),Ea=Array.from({length:2},()=>Array.from({length:6},()=>Array.from({length:128},()=>Yt()))),Pa=Array.from({length:8},()=>Yt()),Ma=Array.from({length:16},()=>Yt()),na=Yt(),Oe="w",Ze="b",Te="p",ca="n",Vt="b",Pt="r",ht="q",Ae="k",ra="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";class Ht{color;from;to;piece;captured;promotion;flags;san;lan;before;after;constructor(t,e){const{color:d,piece:c,from:s,to:f,flags:n,captured:q,promotion:R}=e,S=Pe(s),j=Pe(f);this.color=d,this.piece=c,this.from=S,this.to=j,this.san=t._moveToSan(e,t._moves({legal:!0})),this.lan=S+j,this.before=t.fen(),t._makeMove(e),this.after=t.fen(),t._undoMove(),this.flags="";for(const P in se)se[P]&n&&(this.flags+=$t[P]);q&&(this.captured=q),R&&(this.promotion=R,this.lan+=R)}isCapture(){return this.flags.indexOf($t.CAPTURE)>-1}isPromotion(){return this.flags.indexOf($t.PROMOTION)>-1}isEnPassant(){return this.flags.indexOf($t.EP_CAPTURE)>-1}isKingsideCastle(){return this.flags.indexOf($t.KSIDE_CASTLE)>-1}isQueensideCastle(){return this.flags.indexOf($t.QSIDE_CASTLE)>-1}isBigPawn(){return this.flags.indexOf($t.BIG_PAWN)>-1}}const Re=-1,$t={NORMAL:"n",CAPTURE:"c",BIG_PAWN:"b",EP_CAPTURE:"e",PROMOTION:"p",KSIDE_CASTLE:"k",QSIDE_CASTLE:"q",NULL_MOVE:"-"},se={NORMAL:1,CAPTURE:2,BIG_PAWN:4,EP_CAPTURE:8,PROMOTION:16,KSIDE_CASTLE:32,QSIDE_CASTLE:64,NULL_MOVE:128},pa={Event:"?",Site:"?",Date:"????.??.??",Round:"?",White:"?",Black:"?",Result:"*"},qa={WhiteTitle:null,BlackTitle:null,WhiteElo:null,BlackElo:null,WhiteUSCF:null,BlackUSCF:null,WhiteNA:null,BlackNA:null,WhiteType:null,BlackType:null,EventDate:null,EventSponsor:null,Section:null,Stage:null,Board:null,Opening:null,Variation:null,SubVariation:null,ECO:null,NIC:null,Time:null,UTCTime:null,UTCDate:null,TimeControl:null,SetUp:null,FEN:null,Termination:null,Annotator:null,Mode:null,PlyCount:null},La={...pa,...qa},oe={a8:0,b8:1,c8:2,d8:3,e8:4,f8:5,g8:6,h8:7,a7:16,b7:17,c7:18,d7:19,e7:20,f7:21,g7:22,h7:23,a6:32,b6:33,c6:34,d6:35,e6:36,f6:37,g6:38,h6:39,a5:48,b5:49,c5:50,d5:51,e5:52,f5:53,g5:54,h5:55,a4:64,b4:65,c4:66,d4:67,e4:68,f4:69,g4:70,h4:71,a3:80,b3:81,c3:82,d3:83,e3:84,f3:85,g3:86,h3:87,a2:96,b2:97,c2:98,d2:99,e2:100,f2:101,g2:102,h2:103,a1:112,b1:113,c1:114,d1:115,e1:116,f1:117,g1:118,h1:119},oa={b:[16,32,17,15],w:[-16,-32,-17,-15]},ma={n:[-18,-33,-31,-14,18,33,31,14],b:[-17,-15,17,15],r:[-16,1,16,-1],q:[-17,-16,-15,1,17,16,15,-1],k:[-17,-16,-15,1,17,16,15,-1]},za=[20,0,0,0,0,0,0,24,0,0,0,0,0,0,20,0,0,20,0,0,0,0,0,24,0,0,0,0,0,20,0,0,0,0,20,0,0,0,0,24,0,0,0,0,20,0,0,0,0,0,0,20,0,0,0,24,0,0,0,20,0,0,0,0,0,0,0,0,20,0,0,24,0,0,20,0,0,0,0,0,0,0,0,0,0,20,2,24,2,20,0,0,0,0,0,0,0,0,0,0,0,2,53,56,53,2,0,0,0,0,0,0,24,24,24,24,24,24,56,0,56,24,24,24,24,24,24,0,0,0,0,0,0,2,53,56,53,2,0,0,0,0,0,0,0,0,0,0,0,20,2,24,2,20,0,0,0,0,0,0,0,0,0,0,20,0,0,24,0,0,20,0,0,0,0,0,0,0,0,20,0,0,0,24,0,0,0,20,0,0,0,0,0,0,20,0,0,0,0,24,0,0,0,0,20,0,0,0,0,20,0,0,0,0,0,24,0,0,0,0,0,20,0,0,20,0,0,0,0,0,0,24,0,0,0,0,0,0,20],Ra=[17,0,0,0,0,0,0,16,0,0,0,0,0,0,15,0,0,17,0,0,0,0,0,16,0,0,0,0,0,15,0,0,0,0,17,0,0,0,0,16,0,0,0,0,15,0,0,0,0,0,0,17,0,0,0,16,0,0,0,15,0,0,0,0,0,0,0,0,17,0,0,16,0,0,15,0,0,0,0,0,0,0,0,0,0,17,0,16,0,15,0,0,0,0,0,0,0,0,0,0,0,0,17,16,15,0,0,0,0,0,0,0,1,1,1,1,1,1,1,0,-1,-1,-1,-1,-1,-1,-1,0,0,0,0,0,0,0,-15,-16,-17,0,0,0,0,0,0,0,0,0,0,0,0,-15,0,-16,0,-17,0,0,0,0,0,0,0,0,0,0,-15,0,0,-16,0,0,-17,0,0,0,0,0,0,0,0,-15,0,0,0,-16,0,0,0,-17,0,0,0,0,0,0,-15,0,0,0,0,-16,0,0,0,0,-17,0,0,0,0,-15,0,0,0,0,0,-16,0,0,0,0,0,-17,0,0,-15,0,0,0,0,0,0,-16,0,0,0,0,0,0,-17],Ba={p:1,n:2,b:4,r:8,q:16,k:32},Na="pnbrqkPNBRQK",ha=[ca,Vt,Pt,ht],Oa=7,Fa=6,Ua=1,Ha=0,Gt={[Ae]:se.KSIDE_CASTLE,[ht]:se.QSIDE_CASTLE},ft={w:[{square:oe.a1,flag:se.QSIDE_CASTLE},{square:oe.h1,flag:se.KSIDE_CASTLE}],b:[{square:oe.a8,flag:se.QSIDE_CASTLE},{square:oe.h8,flag:se.KSIDE_CASTLE}]},Ga={b:Ua,w:Fa},sa="--";function Ct(i){return i>>4}function Mt(i){return i&15}function ya(i){return"0123456789".indexOf(i)!==-1}function Pe(i){const t=Mt(i),e=Ct(i);return"abcdefgh".substring(t,t+1)+"87654321".substring(e,e+1)}function Dt(i){return i===Oe?Ze:Oe}function Wa(i){const t=i.split(/\s+/);if(t.length!==6)return{ok:!1,error:"Invalid FEN: must contain six space-delimited fields"};const e=parseInt(t[5],10);if(isNaN(e)||e<=0)return{ok:!1,error:"Invalid FEN: move number must be a positive integer"};const d=parseInt(t[4],10);if(isNaN(d)||d<0)return{ok:!1,error:"Invalid FEN: half move counter number must be a non-negative integer"};if(!/^(-|[abcdefgh][36])$/.test(t[3]))return{ok:!1,error:"Invalid FEN: en-passant square is invalid"};if(/[^kKqQ-]/.test(t[2]))return{ok:!1,error:"Invalid FEN: castling availability is invalid"};if(!/^(w|b)$/.test(t[1]))return{ok:!1,error:"Invalid FEN: side-to-move is invalid"};const c=t[0].split("/");if(c.length!==8)return{ok:!1,error:"Invalid FEN: piece data does not contain 8 '/'-delimited rows"};for(let f=0;f<c.length;f++){let n=0,q=!1;for(let R=0;R<c[f].length;R++)if(ya(c[f][R])){if(q)return{ok:!1,error:"Invalid FEN: piece data is invalid (consecutive number)"};n+=parseInt(c[f][R],10),q=!0}else{if(!/^[prnbqkPRNBQK]$/.test(c[f][R]))return{ok:!1,error:"Invalid FEN: piece data is invalid (invalid piece)"};n+=1,q=!1}if(n!==8)return{ok:!1,error:"Invalid FEN: piece data is invalid (too many squares in rank)"}}if(t[3][1]=="3"&&t[1]=="w"||t[3][1]=="6"&&t[1]=="b")return{ok:!1,error:"Invalid FEN: illegal en-passant square"};const s=[{color:"white",regex:/K/g},{color:"black",regex:/k/g}];for(const{color:f,regex:n}of s){if(!n.test(t[0]))return{ok:!1,error:`Invalid FEN: missing ${f} king`};if((t[0].match(n)||[]).length>1)return{ok:!1,error:`Invalid FEN: too many ${f} kings`}}return Array.from(c[0]+c[7]).some(f=>f.toUpperCase()==="P")?{ok:!1,error:"Invalid FEN: some pawns are on the edge rows"}:{ok:!0}}function Ka(i,t){const e=i.from,d=i.to,c=i.piece;let s=0,f=0,n=0;for(let q=0,R=t.length;q<R;q++){const S=t[q].from,j=t[q].to,P=t[q].piece;c===P&&e!==S&&d===j&&(s++,Ct(e)===Ct(S)&&f++,Mt(e)===Mt(S)&&n++)}return s>0?f>0&&n>0?Pe(e):n>0?Pe(e).charAt(1):Pe(e).charAt(0):""}function mt(i,t,e,d,c,s=void 0,f=se.NORMAL){const n=Ct(d);if(c===Te&&(n===Oa||n===Ha))for(let q=0;q<ha.length;q++){const R=ha[q];i.push({color:t,from:e,to:d,piece:c,captured:s,promotion:R,flags:f|se.PROMOTION})}else i.push({color:t,from:e,to:d,piece:c,captured:s,flags:f})}function va(i){let t=i.charAt(0);return t>="a"&&t<="h"?i.match(/[a-h]\d.*[a-h]\d/)?void 0:Te:(t=t.toLowerCase(),t==="o"?Ae:t)}function la(i){return i.replace(/=/,"").replace(/[+#]?[?!]*$/,"")}class xa{_board=new Array(128);_turn=Oe;_header={};_kings={w:Re,b:Re};_epSquare=-1;_halfMoves=0;_moveNumber=0;_history=[];_comments={};_castling={w:0,b:0};_hash=0n;_positionCount=new Map;constructor(t=ra,{skipValidation:e=!1}={}){this.load(t,{skipValidation:e})}clear({preserveHeaders:t=!1}={}){this._board=new Array(128),this._kings={w:Re,b:Re},this._turn=Oe,this._castling={w:0,b:0},this._epSquare=Re,this._halfMoves=0,this._moveNumber=1,this._history=[],this._comments={},this._header=t?this._header:{...La},this._hash=this._computeHash(),this._positionCount=new Map,this._header.SetUp=null,this._header.FEN=null}load(t,{skipValidation:e=!1,preserveHeaders:d=!1}={}){let c=t.split(/\s+/);if(c.length>=2&&c.length<6){const n=["-","-","0","1"];t=c.concat(n.slice(-(6-c.length))).join(" ")}if(c=t.split(/\s+/),!e){const{ok:n,error:q}=Wa(t);if(!n)throw new Error(q)}const s=c[0];let f=0;this.clear({preserveHeaders:d});for(let n=0;n<s.length;n++){const q=s.charAt(n);if(q==="/")f+=8;else if(ya(q))f+=parseInt(q,10);else{const R=q<"a"?Oe:Ze;this._put({type:q.toLowerCase(),color:R},Pe(f)),f++}}this._turn=c[1],c[2].indexOf("K")>-1&&(this._castling.w|=se.KSIDE_CASTLE),c[2].indexOf("Q")>-1&&(this._castling.w|=se.QSIDE_CASTLE),c[2].indexOf("k")>-1&&(this._castling.b|=se.KSIDE_CASTLE),c[2].indexOf("q")>-1&&(this._castling.b|=se.QSIDE_CASTLE),this._epSquare=c[3]==="-"?Re:oe[c[3]],this._halfMoves=parseInt(c[4],10),this._moveNumber=parseInt(c[5],10),this._hash=this._computeHash(),this._updateSetup(t),this._incPositionCount()}fen({forceEnpassantSquare:t=!1}={}){let e=0,d="";for(let f=oe.a8;f<=oe.h1;f++){if(this._board[f]){e>0&&(d+=e,e=0);const{color:n,type:q}=this._board[f];d+=n===Oe?q.toUpperCase():q.toLowerCase()}else e++;f+1&136&&(e>0&&(d+=e),f!==oe.h1&&(d+="/"),e=0,f+=8)}let c="";this._castling[Oe]&se.KSIDE_CASTLE&&(c+="K"),this._castling[Oe]&se.QSIDE_CASTLE&&(c+="Q"),this._castling[Ze]&se.KSIDE_CASTLE&&(c+="k"),this._castling[Ze]&se.QSIDE_CASTLE&&(c+="q"),c=c||"-";let s="-";if(this._epSquare!==Re)if(t)s=Pe(this._epSquare);else{const f=this._epSquare+(this._turn===Oe?16:-16),n=[f+1,f-1];for(const q of n){if(q&136)continue;const R=this._turn;if(this._board[q]?.color===R&&this._board[q]?.type===Te){this._makeMove({color:R,from:q,to:this._epSquare,piece:Te,captured:Te,flags:se.EP_CAPTURE});const S=!this._isKingAttacked(R);if(this._undoMove(),S){s=Pe(this._epSquare);break}}}}return[d,this._turn,c,s,this._halfMoves,this._moveNumber].join(" ")}_pieceKey(t){if(!this._board[t])return 0n;const{color:e,type:d}=this._board[t],c={w:0,b:1}[e],s={p:0,n:1,b:2,r:3,q:4,k:5}[d];return Ea[c][s][t]}_epKey(){return this._epSquare===Re?0n:Pa[this._epSquare&7]}_castlingKey(){const t=this._castling.w>>5|this._castling.b>>3;return Ma[t]}_computeHash(){let t=0n;for(let e=oe.a8;e<=oe.h1;e++){if(e&136){e+=7;continue}this._board[e]&&(t^=this._pieceKey(e))}return t^=this._epKey(),t^=this._castlingKey(),this._turn==="b"&&(t^=na),t}_updateSetup(t){this._history.length>0||(t!==ra?(this._header.SetUp="1",this._header.FEN=t):(this._header.SetUp=null,this._header.FEN=null))}reset(){this.load(ra)}get(t){return this._board[oe[t]]}findPiece(t){const e=[];for(let d=oe.a8;d<=oe.h1;d++){if(d&136){d+=7;continue}!this._board[d]||this._board[d]?.color!==t.color||this._board[d].color===t.color&&this._board[d].type===t.type&&e.push(Pe(d))}return e}put({type:t,color:e},d){return this._put({type:t,color:e},d)?(this._updateCastlingRights(),this._updateEnPassantSquare(),this._updateSetup(this.fen()),!0):!1}_set(t,e){this._hash^=this._pieceKey(t),this._board[t]=e,this._hash^=this._pieceKey(t)}_put({type:t,color:e},d){if(Na.indexOf(t.toLowerCase())===-1||!(d in oe))return!1;const c=oe[d];if(t==Ae&&!(this._kings[e]==Re||this._kings[e]==c))return!1;const s=this._board[c];return s&&s.type===Ae&&(this._kings[s.color]=Re),this._set(c,{type:t,color:e}),t===Ae&&(this._kings[e]=c),!0}_clear(t){this._hash^=this._pieceKey(t),delete this._board[t]}remove(t){const e=this.get(t);return this._clear(oe[t]),e&&e.type===Ae&&(this._kings[e.color]=Re),this._updateCastlingRights(),this._updateEnPassantSquare(),this._updateSetup(this.fen()),e}_updateCastlingRights(){this._hash^=this._castlingKey();const t=this._board[oe.e1]?.type===Ae&&this._board[oe.e1]?.color===Oe,e=this._board[oe.e8]?.type===Ae&&this._board[oe.e8]?.color===Ze;(!t||this._board[oe.a1]?.type!==Pt||this._board[oe.a1]?.color!==Oe)&&(this._castling.w&=-65),(!t||this._board[oe.h1]?.type!==Pt||this._board[oe.h1]?.color!==Oe)&&(this._castling.w&=-33),(!e||this._board[oe.a8]?.type!==Pt||this._board[oe.a8]?.color!==Ze)&&(this._castling.b&=-65),(!e||this._board[oe.h8]?.type!==Pt||this._board[oe.h8]?.color!==Ze)&&(this._castling.b&=-33),this._hash^=this._castlingKey()}_updateEnPassantSquare(){if(this._epSquare===Re)return;const t=this._epSquare+(this._turn===Oe?-16:16),e=this._epSquare+(this._turn===Oe?16:-16),d=[e+1,e-1];if(this._board[t]!==null||this._board[this._epSquare]!==null||this._board[e]?.color!==Dt(this._turn)||this._board[e]?.type!==Te){this._hash^=this._epKey(),this._epSquare=Re;return}const c=s=>!(s&136)&&this._board[s]?.color===this._turn&&this._board[s]?.type===Te;d.some(c)||(this._hash^=this._epKey(),this._epSquare=Re)}_attacked(t,e,d){const c=[];for(let s=oe.a8;s<=oe.h1;s++){if(s&136){s+=7;continue}if(this._board[s]===void 0||this._board[s].color!==t)continue;const f=this._board[s],n=s-e;if(n===0)continue;const q=n+119;if(za[q]&Ba[f.type]){if(f.type===Te){if(n>0&&f.color===Oe||n<=0&&f.color===Ze)if(d)c.push(Pe(s));else return!0;continue}if(f.type==="n"||f.type==="k")if(d){c.push(Pe(s));continue}else return!0;const R=Ra[q];let S=s+R,j=!1;for(;S!==e;){if(this._board[S]!=null){j=!0;break}S+=R}if(!j)if(d){c.push(Pe(s));continue}else return!0}}return d?c:!1}attackers(t,e){return e?this._attacked(e,oe[t],!0):this._attacked(this._turn,oe[t],!0)}_isKingAttacked(t){const e=this._kings[t];return e===-1?!1:this._attacked(Dt(t),e)}hash(){return this._hash.toString(16)}isAttacked(t,e){return this._attacked(e,oe[t])}isCheck(){return this._isKingAttacked(this._turn)}inCheck(){return this.isCheck()}isCheckmate(){return this.isCheck()&&this._moves().length===0}isStalemate(){return!this.isCheck()&&this._moves().length===0}isInsufficientMaterial(){const t={b:0,n:0,r:0,q:0,k:0,p:0},e=[];let d=0,c=0;for(let s=oe.a8;s<=oe.h1;s++){if(c=(c+1)%2,s&136){s+=7;continue}const f=this._board[s];f&&(t[f.type]=f.type in t?t[f.type]+1:1,f.type===Vt&&e.push(c),d++)}if(d===2)return!0;if(d===3&&(t[Vt]===1||t[ca]===1))return!0;if(d===t[Vt]+2){let s=0;const f=e.length;for(let n=0;n<f;n++)s+=e[n];if(s===0||s===f)return!0}return!1}isThreefoldRepetition(){return this._getPositionCount(this._hash)>=3}isDrawByFiftyMoves(){return this._halfMoves>=100}isDraw(){return this.isDrawByFiftyMoves()||this.isStalemate()||this.isInsufficientMaterial()||this.isThreefoldRepetition()}isGameOver(){return this.isCheckmate()||this.isDraw()}moves({verbose:t=!1,square:e=void 0,piece:d=void 0}={}){const c=this._moves({square:e,piece:d});return t?c.map(s=>new Ht(this,s)):c.map(s=>this._moveToSan(s,c))}_moves({legal:t=!0,piece:e=void 0,square:d=void 0}={}){const c=d?d.toLowerCase():void 0,s=e?.toLowerCase(),f=[],n=this._turn,q=Dt(n);let R=oe.a8,S=oe.h1,j=!1;if(c)if(c in oe)R=S=oe[c],j=!0;else return[];for(let B=R;B<=S;B++){if(B&136){B+=7;continue}if(!this._board[B]||this._board[B].color===q)continue;const{type:ce}=this._board[B];let me;if(ce===Te){if(s&&s!==ce)continue;me=B+oa[n][0],this._board[me]||(mt(f,n,B,me,Te),me=B+oa[n][1],Ga[n]===Ct(B)&&!this._board[me]&&mt(f,n,B,me,Te,void 0,se.BIG_PAWN));for(let qe=2;qe<4;qe++)me=B+oa[n][qe],!(me&136)&&(this._board[me]?.color===q?mt(f,n,B,me,Te,this._board[me].type,se.CAPTURE):me===this._epSquare&&mt(f,n,B,me,Te,Te,se.EP_CAPTURE))}else{if(s&&s!==ce)continue;for(let qe=0,Ye=ma[ce].length;qe<Ye;qe++){const dt=ma[ce][qe];for(me=B;me+=dt,!(me&136);){if(!this._board[me])mt(f,n,B,me,ce);else{if(this._board[me].color===n)break;mt(f,n,B,me,ce,this._board[me].type,se.CAPTURE);break}if(ce===ca||ce===Ae)break}}}}if((s===void 0||s===Ae)&&(!j||S===this._kings[n])){if(this._castling[n]&se.KSIDE_CASTLE){const B=this._kings[n],ce=B+2;!this._board[B+1]&&!this._board[ce]&&!this._attacked(q,this._kings[n])&&!this._attacked(q,B+1)&&!this._attacked(q,ce)&&mt(f,n,this._kings[n],ce,Ae,void 0,se.KSIDE_CASTLE)}if(this._castling[n]&se.QSIDE_CASTLE){const B=this._kings[n],ce=B-2;!this._board[B-1]&&!this._board[B-2]&&!this._board[B-3]&&!this._attacked(q,this._kings[n])&&!this._attacked(q,B-1)&&!this._attacked(q,ce)&&mt(f,n,this._kings[n],ce,Ae,void 0,se.QSIDE_CASTLE)}}if(!t||this._kings[n]===-1)return f;const P=[];for(let B=0,ce=f.length;B<ce;B++)this._makeMove(f[B]),this._isKingAttacked(n)||P.push(f[B]),this._undoMove();return P}move(t,{strict:e=!1}={}){let d=null;if(typeof t=="string")d=this._moveFromSan(t,e);else if(t===null)d=this._moveFromSan(sa,e);else if(typeof t=="object"){const s=this._moves();for(let f=0,n=s.length;f<n;f++)if(t.from===Pe(s[f].from)&&t.to===Pe(s[f].to)&&(!("promotion"in s[f])||t.promotion===s[f].promotion)){d=s[f];break}}if(!d)throw typeof t=="string"?new Error(`Invalid move: ${t}`):new Error(`Invalid move: ${JSON.stringify(t)}`);if(this.isCheck()&&d.flags&se.NULL_MOVE)throw new Error("Null move not allowed when in check");const c=new Ht(this,d);return this._makeMove(d),this._incPositionCount(),c}_push(t){this._history.push({move:t,kings:{b:this._kings.b,w:this._kings.w},turn:this._turn,castling:{b:this._castling.b,w:this._castling.w},epSquare:this._epSquare,halfMoves:this._halfMoves,moveNumber:this._moveNumber})}_movePiece(t,e){this._hash^=this._pieceKey(t),this._board[e]=this._board[t],delete this._board[t],this._hash^=this._pieceKey(e)}_makeMove(t){const e=this._turn,d=Dt(e);if(this._push(t),t.flags&se.NULL_MOVE){e===Ze&&this._moveNumber++,this._halfMoves++,this._turn=d,this._epSquare=Re;return}if(this._hash^=this._epKey(),this._hash^=this._castlingKey(),t.captured&&(this._hash^=this._pieceKey(t.to)),this._movePiece(t.from,t.to),t.flags&se.EP_CAPTURE&&(this._turn===Ze?this._clear(t.to-16):this._clear(t.to+16)),t.promotion&&(this._clear(t.to),this._set(t.to,{type:t.promotion,color:e})),this._board[t.to].type===Ae){if(this._kings[e]=t.to,t.flags&se.KSIDE_CASTLE){const c=t.to-1,s=t.to+1;this._movePiece(s,c)}else if(t.flags&se.QSIDE_CASTLE){const c=t.to+1,s=t.to-2;this._movePiece(s,c)}this._castling[e]=0}if(this._castling[e]){for(let c=0,s=ft[e].length;c<s;c++)if(t.from===ft[e][c].square&&this._castling[e]&ft[e][c].flag){this._castling[e]^=ft[e][c].flag;break}}if(this._castling[d]){for(let c=0,s=ft[d].length;c<s;c++)if(t.to===ft[d][c].square&&this._castling[d]&ft[d][c].flag){this._castling[d]^=ft[d][c].flag;break}}if(this._hash^=this._castlingKey(),t.flags&se.BIG_PAWN){let c;e===Ze?c=t.to-16:c=t.to+16,!(t.to-1&136)&&this._board[t.to-1]?.type===Te&&this._board[t.to-1]?.color===d||!(t.to+1&136)&&this._board[t.to+1]?.type===Te&&this._board[t.to+1]?.color===d?(this._epSquare=c,this._hash^=this._epKey()):this._epSquare=Re}else this._epSquare=Re;t.piece===Te?this._halfMoves=0:t.flags&(se.CAPTURE|se.EP_CAPTURE)?this._halfMoves=0:this._halfMoves++,e===Ze&&this._moveNumber++,this._turn=d,this._hash^=na}undo(){const t=this._hash,e=this._undoMove();if(e){const d=new Ht(this,e);return this._decPositionCount(t),d}return null}_undoMove(){const t=this._history.pop();if(t===void 0)return null;this._hash^=this._epKey(),this._hash^=this._castlingKey();const e=t.move;this._kings=t.kings,this._turn=t.turn,this._castling=t.castling,this._epSquare=t.epSquare,this._halfMoves=t.halfMoves,this._moveNumber=t.moveNumber,this._hash^=this._epKey(),this._hash^=this._castlingKey(),this._hash^=na;const d=this._turn,c=Dt(d);if(e.flags&se.NULL_MOVE)return e;if(this._movePiece(e.to,e.from),e.piece&&(this._clear(e.from),this._set(e.from,{type:e.piece,color:d})),e.captured)if(e.flags&se.EP_CAPTURE){let s;d===Ze?s=e.to-16:s=e.to+16,this._set(s,{type:Te,color:c})}else this._set(e.to,{type:e.captured,color:c});if(e.flags&(se.KSIDE_CASTLE|se.QSIDE_CASTLE)){let s,f;e.flags&se.KSIDE_CASTLE?(s=e.to+1,f=e.to-1):(s=e.to-2,f=e.to+1),this._movePiece(f,s)}return e}pgn({newline:t=`
-`,maxWidth:e=0}={}){const d=[];let c=!1;for(const P in this._header)this._header[P]&&d.push(`[${P} "${this._header[P]}"]`+t),c=!0;c&&this._history.length&&d.push(t);const s=P=>{const B=this._comments[this.fen()];if(typeof B<"u"){const ce=P.length>0?" ":"";P=`${P}${ce}{${B}}`}return P},f=[];for(;this._history.length>0;)f.push(this._undoMove());const n=[];let q="";for(f.length===0&&n.push(s(""));f.length>0;){q=s(q);const P=f.pop();if(!P)break;if(!this._history.length&&P.color==="b"){const B=`${this._moveNumber}. ...`;q=q?`${q} ${B}`:B}else P.color==="w"&&(q.length&&n.push(q),q=this._moveNumber+".");q=q+" "+this._moveToSan(P,this._moves({legal:!0})),this._makeMove(P)}if(q.length&&n.push(s(q)),n.push(this._header.Result||"*"),e===0)return d.join("")+n.join(" ");const R=function(){return d.length>0&&d[d.length-1]===" "?(d.pop(),!0):!1},S=function(P,B){for(const ce of B.split(" "))if(ce){if(P+ce.length>e){for(;R();)P--;d.push(t),P=0}d.push(ce),P+=ce.length,d.push(" "),P++}return R()&&P--,P};let j=0;for(let P=0;P<n.length;P++){if(j+n[P].length>e&&n[P].includes("{")){j=S(j,n[P]);continue}j+n[P].length>e&&P!==0?(d[d.length-1]===" "&&d.pop(),d.push(t),j=0):P!==0&&(d.push(" "),j++),d.push(n[P]),j+=n[P].length}return d.join("")}header(...t){for(let e=0;e<t.length;e+=2)typeof t[e]=="string"&&typeof t[e+1]=="string"&&(this._header[t[e]]=t[e+1]);return this._header}setHeader(t,e){return this._header[t]=e??pa[t]??null,this.getHeaders()}removeHeader(t){return t in this._header?(this._header[t]=pa[t]||null,!0):!1}getHeaders(){const t={};for(const[e,d]of Object.entries(this._header))d!==null&&(t[e]=d);return t}loadPgn(t,{strict:e=!1,newlineChar:d=`\r?
-`}={}){d!==`\r?
-`&&(t=t.replace(new RegExp(d,"g"),`
-`));const c=Aa(t);this.reset();const s=c.headers;let f="";for(const R in s)R.toLowerCase()==="fen"&&(f=s[R]),this.header(R,s[R]);if(!e)f&&this.load(f,{preserveHeaders:!0});else if(s.SetUp==="1"){if(!("FEN"in s))throw new Error("Invalid PGN: FEN tag must be supplied with SetUp tag");this.load(s.FEN,{preserveHeaders:!0})}let n=c.root;for(;n;){if(n.move){const R=this._moveFromSan(n.move,e);if(R==null)throw new Error(`Invalid move in PGN: ${n.move}`);this._makeMove(R),this._incPositionCount()}n.comment!==void 0&&(this._comments[this.fen()]=n.comment),n=n.variations[0]}const q=c.result;q&&Object.keys(this._header).length&&this._header.Result!==q&&this.setHeader("Result",q)}_moveToSan(t,e){let d="";if(t.flags&se.KSIDE_CASTLE)d="O-O";else if(t.flags&se.QSIDE_CASTLE)d="O-O-O";else{if(t.flags&se.NULL_MOVE)return sa;if(t.piece!==Te){const c=Ka(t,e);d+=t.piece.toUpperCase()+c}t.flags&(se.CAPTURE|se.EP_CAPTURE)&&(t.piece===Te&&(d+=Pe(t.from)[0]),d+="x"),d+=Pe(t.to),t.promotion&&(d+="="+t.promotion.toUpperCase())}return this._makeMove(t),this.isCheck()&&(this.isCheckmate()?d+="#":d+="+"),this._undoMove(),d}_moveFromSan(t,e=!1){let d=la(t);if(e||(d==="0-0"?d="O-O":d==="0-0-0"&&(d="O-O-O")),d==sa)return{color:this._turn,from:0,to:0,piece:"k",flags:se.NULL_MOVE};let c=va(d),s=this._moves({legal:!0,piece:c});for(let P=0,B=s.length;P<B;P++)if(d===la(this._moveToSan(s[P],s)))return s[P];if(e)return null;let f,n,q,R,S,j=!1;if(n=d.match(/([pnbrqkPNBRQK])?([a-h][1-8])x?-?([a-h][1-8])([qrbnQRBN])?/),n?(f=n[1],q=n[2],R=n[3],S=n[4],q.length==1&&(j=!0)):(n=d.match(/([pnbrqkPNBRQK])?([a-h]?[1-8]?)x?-?([a-h][1-8])([qrbnQRBN])?/),n&&(f=n[1],q=n[2],R=n[3],S=n[4],q.length==1&&(j=!0))),c=va(d),s=this._moves({legal:!0,piece:f||c}),!R)return null;for(let P=0,B=s.length;P<B;P++)if(q){if((!f||f.toLowerCase()==s[P].piece)&&oe[q]==s[P].from&&oe[R]==s[P].to&&(!S||S.toLowerCase()==s[P].promotion))return s[P];if(j){const ce=Pe(s[P].from);if((!f||f.toLowerCase()==s[P].piece)&&oe[R]==s[P].to&&(q==ce[0]||q==ce[1])&&(!S||S.toLowerCase()==s[P].promotion))return s[P]}}else if(d===la(this._moveToSan(s[P],s)).replace("x",""))return s[P];return null}ascii(){let t=`   +------------------------+
-`;for(let e=oe.a8;e<=oe.h1;e++){if(Mt(e)===0&&(t+=" "+"87654321"[Ct(e)]+" |"),this._board[e]){const d=this._board[e].type,s=this._board[e].color===Oe?d.toUpperCase():d.toLowerCase();t+=" "+s+" "}else t+=" . ";e+1&136&&(t+=`|
+ */const Wt=0xffffffffffffffffn;function ia(n,t){return(n<<t|n>>64n-t)&0xffffffffffffffffn}function fa(n,t){return n*t&Wt}function Da(n){return function(){let t=BigInt(n&Wt),e=BigInt(n>>64n&Wt);const l=fa(ia(fa(t,5n),7n),9n);return e^=t,t=(ia(t,24n)^e^e<<16n)&Wt,e=ia(e,37n),n=e<<64n|t,l}}const Vt=Da(0xa187eb39cdcaed8f31c4b365b102e01en),Ea=Array.from({length:2},()=>Array.from({length:6},()=>Array.from({length:128},()=>Vt()))),Pa=Array.from({length:8},()=>Vt()),Ma=Array.from({length:16},()=>Vt()),na=Vt(),He="w",et="b",Ie="p",ca="n",Kt="b",Et="r",ft="q",Ee="k",ra="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";class Ht{color;from;to;piece;captured;promotion;flags;san;lan;before;after;constructor(t,e){const{color:l,piece:d,from:r,to:f,flags:o,captured:L,promotion:B}=e,S=Le(r),T=Le(f);this.color=l,this.piece=d,this.from=S,this.to=T,this.san=t._moveToSan(e,t._moves({legal:!0})),this.lan=S+T,this.before=t.fen(),t._makeMove(e),this.after=t.fen(),t._undoMove(),this.flags="";for(const P in de)de[P]&o&&(this.flags+=wt[P]);L&&(this.captured=L),B&&(this.promotion=B,this.lan+=B)}isCapture(){return this.flags.indexOf(wt.CAPTURE)>-1}isPromotion(){return this.flags.indexOf(wt.PROMOTION)>-1}isEnPassant(){return this.flags.indexOf(wt.EP_CAPTURE)>-1}isKingsideCastle(){return this.flags.indexOf(wt.KSIDE_CASTLE)>-1}isQueensideCastle(){return this.flags.indexOf(wt.QSIDE_CASTLE)>-1}isBigPawn(){return this.flags.indexOf(wt.BIG_PAWN)>-1}}const Ne=-1,wt={NORMAL:"n",CAPTURE:"c",BIG_PAWN:"b",EP_CAPTURE:"e",PROMOTION:"p",KSIDE_CASTLE:"k",QSIDE_CASTLE:"q",NULL_MOVE:"-"},de={NORMAL:1,CAPTURE:2,BIG_PAWN:4,EP_CAPTURE:8,PROMOTION:16,KSIDE_CASTLE:32,QSIDE_CASTLE:64,NULL_MOVE:128},pa={Event:"?",Site:"?",Date:"????.??.??",Round:"?",White:"?",Black:"?",Result:"*"},La={WhiteTitle:null,BlackTitle:null,WhiteElo:null,BlackElo:null,WhiteUSCF:null,BlackUSCF:null,WhiteNA:null,BlackNA:null,WhiteType:null,BlackType:null,EventDate:null,EventSponsor:null,Section:null,Stage:null,Board:null,Opening:null,Variation:null,SubVariation:null,ECO:null,NIC:null,Time:null,UTCTime:null,UTCDate:null,TimeControl:null,SetUp:null,FEN:null,Termination:null,Annotator:null,Mode:null,PlyCount:null},qa={...pa,...La},le={a8:0,b8:1,c8:2,d8:3,e8:4,f8:5,g8:6,h8:7,a7:16,b7:17,c7:18,d7:19,e7:20,f7:21,g7:22,h7:23,a6:32,b6:33,c6:34,d6:35,e6:36,f6:37,g6:38,h6:39,a5:48,b5:49,c5:50,d5:51,e5:52,f5:53,g5:54,h5:55,a4:64,b4:65,c4:66,d4:67,e4:68,f4:69,g4:70,h4:71,a3:80,b3:81,c3:82,d3:83,e3:84,f3:85,g3:86,h3:87,a2:96,b2:97,c2:98,d2:99,e2:100,f2:101,g2:102,h2:103,a1:112,b1:113,c1:114,d1:115,e1:116,f1:117,g1:118,h1:119},oa={b:[16,32,17,15],w:[-16,-32,-17,-15]},ma={n:[-18,-33,-31,-14,18,33,31,14],b:[-17,-15,17,15],r:[-16,1,16,-1],q:[-17,-16,-15,1,17,16,15,-1],k:[-17,-16,-15,1,17,16,15,-1]},za=[20,0,0,0,0,0,0,24,0,0,0,0,0,0,20,0,0,20,0,0,0,0,0,24,0,0,0,0,0,20,0,0,0,0,20,0,0,0,0,24,0,0,0,0,20,0,0,0,0,0,0,20,0,0,0,24,0,0,0,20,0,0,0,0,0,0,0,0,20,0,0,24,0,0,20,0,0,0,0,0,0,0,0,0,0,20,2,24,2,20,0,0,0,0,0,0,0,0,0,0,0,2,53,56,53,2,0,0,0,0,0,0,24,24,24,24,24,24,56,0,56,24,24,24,24,24,24,0,0,0,0,0,0,2,53,56,53,2,0,0,0,0,0,0,0,0,0,0,0,20,2,24,2,20,0,0,0,0,0,0,0,0,0,0,20,0,0,24,0,0,20,0,0,0,0,0,0,0,0,20,0,0,0,24,0,0,0,20,0,0,0,0,0,0,20,0,0,0,0,24,0,0,0,0,20,0,0,0,0,20,0,0,0,0,0,24,0,0,0,0,0,20,0,0,20,0,0,0,0,0,0,24,0,0,0,0,0,0,20],Ra=[17,0,0,0,0,0,0,16,0,0,0,0,0,0,15,0,0,17,0,0,0,0,0,16,0,0,0,0,0,15,0,0,0,0,17,0,0,0,0,16,0,0,0,0,15,0,0,0,0,0,0,17,0,0,0,16,0,0,0,15,0,0,0,0,0,0,0,0,17,0,0,16,0,0,15,0,0,0,0,0,0,0,0,0,0,17,0,16,0,15,0,0,0,0,0,0,0,0,0,0,0,0,17,16,15,0,0,0,0,0,0,0,1,1,1,1,1,1,1,0,-1,-1,-1,-1,-1,-1,-1,0,0,0,0,0,0,0,-15,-16,-17,0,0,0,0,0,0,0,0,0,0,0,0,-15,0,-16,0,-17,0,0,0,0,0,0,0,0,0,0,-15,0,0,-16,0,0,-17,0,0,0,0,0,0,0,0,-15,0,0,0,-16,0,0,0,-17,0,0,0,0,0,0,-15,0,0,0,0,-16,0,0,0,0,-17,0,0,0,0,-15,0,0,0,0,0,-16,0,0,0,0,0,-17,0,0,-15,0,0,0,0,0,0,-16,0,0,0,0,0,0,-17],Ba={p:1,n:2,b:4,r:8,q:16,k:32},Na="pnbrqkPNBRQK",ha=[ca,Kt,Et,ft],Oa=7,Fa=6,Ha=1,Ua=0,Ut={[Ee]:de.KSIDE_CASTLE,[ft]:de.QSIDE_CASTLE},gt={w:[{square:le.a1,flag:de.QSIDE_CASTLE},{square:le.h1,flag:de.KSIDE_CASTLE}],b:[{square:le.a8,flag:de.QSIDE_CASTLE},{square:le.h8,flag:de.KSIDE_CASTLE}]},Ga={b:Ha,w:Fa},sa="--";function St(n){return n>>4}function Pt(n){return n&15}function ya(n){return"0123456789".indexOf(n)!==-1}function Le(n){const t=Pt(n),e=St(n);return"abcdefgh".substring(t,t+1)+"87654321".substring(e,e+1)}function At(n){return n===He?et:He}function Wa(n){const t=n.split(/\s+/);if(t.length!==6)return{ok:!1,error:"Invalid FEN: must contain six space-delimited fields"};const e=parseInt(t[5],10);if(isNaN(e)||e<=0)return{ok:!1,error:"Invalid FEN: move number must be a positive integer"};const l=parseInt(t[4],10);if(isNaN(l)||l<0)return{ok:!1,error:"Invalid FEN: half move counter number must be a non-negative integer"};if(!/^(-|[abcdefgh][36])$/.test(t[3]))return{ok:!1,error:"Invalid FEN: en-passant square is invalid"};if(/[^kKqQ-]/.test(t[2]))return{ok:!1,error:"Invalid FEN: castling availability is invalid"};if(!/^(w|b)$/.test(t[1]))return{ok:!1,error:"Invalid FEN: side-to-move is invalid"};const d=t[0].split("/");if(d.length!==8)return{ok:!1,error:"Invalid FEN: piece data does not contain 8 '/'-delimited rows"};for(let f=0;f<d.length;f++){let o=0,L=!1;for(let B=0;B<d[f].length;B++)if(ya(d[f][B])){if(L)return{ok:!1,error:"Invalid FEN: piece data is invalid (consecutive number)"};o+=parseInt(d[f][B],10),L=!0}else{if(!/^[prnbqkPRNBQK]$/.test(d[f][B]))return{ok:!1,error:"Invalid FEN: piece data is invalid (invalid piece)"};o+=1,L=!1}if(o!==8)return{ok:!1,error:"Invalid FEN: piece data is invalid (too many squares in rank)"}}if(t[3][1]=="3"&&t[1]=="w"||t[3][1]=="6"&&t[1]=="b")return{ok:!1,error:"Invalid FEN: illegal en-passant square"};const r=[{color:"white",regex:/K/g},{color:"black",regex:/k/g}];for(const{color:f,regex:o}of r){if(!o.test(t[0]))return{ok:!1,error:`Invalid FEN: missing ${f} king`};if((t[0].match(o)||[]).length>1)return{ok:!1,error:`Invalid FEN: too many ${f} kings`}}return Array.from(d[0]+d[7]).some(f=>f.toUpperCase()==="P")?{ok:!1,error:"Invalid FEN: some pawns are on the edge rows"}:{ok:!0}}function Ka(n,t){const e=n.from,l=n.to,d=n.piece;let r=0,f=0,o=0;for(let L=0,B=t.length;L<B;L++){const S=t[L].from,T=t[L].to,P=t[L].piece;d===P&&e!==S&&l===T&&(r++,St(e)===St(S)&&f++,Pt(e)===Pt(S)&&o++)}return r>0?f>0&&o>0?Le(e):o>0?Le(e).charAt(1):Le(e).charAt(0):""}function bt(n,t,e,l,d,r=void 0,f=de.NORMAL){const o=St(l);if(d===Ie&&(o===Oa||o===Ua))for(let L=0;L<ha.length;L++){const B=ha[L];n.push({color:t,from:e,to:l,piece:d,captured:r,promotion:B,flags:f|de.PROMOTION})}else n.push({color:t,from:e,to:l,piece:d,captured:r,flags:f})}function va(n){let t=n.charAt(0);return t>="a"&&t<="h"?n.match(/[a-h]\d.*[a-h]\d/)?void 0:Ie:(t=t.toLowerCase(),t==="o"?Ee:t)}function la(n){return n.replace(/=/,"").replace(/[+#]?[?!]*$/,"")}class xa{_board=new Array(128);_turn=He;_header={};_kings={w:Ne,b:Ne};_epSquare=-1;_halfMoves=0;_moveNumber=0;_history=[];_comments={};_castling={w:0,b:0};_hash=0n;_positionCount=new Map;constructor(t=ra,{skipValidation:e=!1}={}){this.load(t,{skipValidation:e})}clear({preserveHeaders:t=!1}={}){this._board=new Array(128),this._kings={w:Ne,b:Ne},this._turn=He,this._castling={w:0,b:0},this._epSquare=Ne,this._halfMoves=0,this._moveNumber=1,this._history=[],this._comments={},this._header=t?this._header:{...qa},this._hash=this._computeHash(),this._positionCount=new Map,this._header.SetUp=null,this._header.FEN=null}load(t,{skipValidation:e=!1,preserveHeaders:l=!1}={}){let d=t.split(/\s+/);if(d.length>=2&&d.length<6){const o=["-","-","0","1"];t=d.concat(o.slice(-(6-d.length))).join(" ")}if(d=t.split(/\s+/),!e){const{ok:o,error:L}=Wa(t);if(!o)throw new Error(L)}const r=d[0];let f=0;this.clear({preserveHeaders:l});for(let o=0;o<r.length;o++){const L=r.charAt(o);if(L==="/")f+=8;else if(ya(L))f+=parseInt(L,10);else{const B=L<"a"?He:et;this._put({type:L.toLowerCase(),color:B},Le(f)),f++}}this._turn=d[1],d[2].indexOf("K")>-1&&(this._castling.w|=de.KSIDE_CASTLE),d[2].indexOf("Q")>-1&&(this._castling.w|=de.QSIDE_CASTLE),d[2].indexOf("k")>-1&&(this._castling.b|=de.KSIDE_CASTLE),d[2].indexOf("q")>-1&&(this._castling.b|=de.QSIDE_CASTLE),this._epSquare=d[3]==="-"?Ne:le[d[3]],this._halfMoves=parseInt(d[4],10),this._moveNumber=parseInt(d[5],10),this._hash=this._computeHash(),this._updateSetup(t),this._incPositionCount()}fen({forceEnpassantSquare:t=!1}={}){let e=0,l="";for(let f=le.a8;f<=le.h1;f++){if(this._board[f]){e>0&&(l+=e,e=0);const{color:o,type:L}=this._board[f];l+=o===He?L.toUpperCase():L.toLowerCase()}else e++;f+1&136&&(e>0&&(l+=e),f!==le.h1&&(l+="/"),e=0,f+=8)}let d="";this._castling[He]&de.KSIDE_CASTLE&&(d+="K"),this._castling[He]&de.QSIDE_CASTLE&&(d+="Q"),this._castling[et]&de.KSIDE_CASTLE&&(d+="k"),this._castling[et]&de.QSIDE_CASTLE&&(d+="q"),d=d||"-";let r="-";if(this._epSquare!==Ne)if(t)r=Le(this._epSquare);else{const f=this._epSquare+(this._turn===He?16:-16),o=[f+1,f-1];for(const L of o){if(L&136)continue;const B=this._turn;if(this._board[L]?.color===B&&this._board[L]?.type===Ie){this._makeMove({color:B,from:L,to:this._epSquare,piece:Ie,captured:Ie,flags:de.EP_CAPTURE});const S=!this._isKingAttacked(B);if(this._undoMove(),S){r=Le(this._epSquare);break}}}}return[l,this._turn,d,r,this._halfMoves,this._moveNumber].join(" ")}_pieceKey(t){if(!this._board[t])return 0n;const{color:e,type:l}=this._board[t],d={w:0,b:1}[e],r={p:0,n:1,b:2,r:3,q:4,k:5}[l];return Ea[d][r][t]}_epKey(){return this._epSquare===Ne?0n:Pa[this._epSquare&7]}_castlingKey(){const t=this._castling.w>>5|this._castling.b>>3;return Ma[t]}_computeHash(){let t=0n;for(let e=le.a8;e<=le.h1;e++){if(e&136){e+=7;continue}this._board[e]&&(t^=this._pieceKey(e))}return t^=this._epKey(),t^=this._castlingKey(),this._turn==="b"&&(t^=na),t}_updateSetup(t){this._history.length>0||(t!==ra?(this._header.SetUp="1",this._header.FEN=t):(this._header.SetUp=null,this._header.FEN=null))}reset(){this.load(ra)}get(t){return this._board[le[t]]}findPiece(t){const e=[];for(let l=le.a8;l<=le.h1;l++){if(l&136){l+=7;continue}!this._board[l]||this._board[l]?.color!==t.color||this._board[l].color===t.color&&this._board[l].type===t.type&&e.push(Le(l))}return e}put({type:t,color:e},l){return this._put({type:t,color:e},l)?(this._updateCastlingRights(),this._updateEnPassantSquare(),this._updateSetup(this.fen()),!0):!1}_set(t,e){this._hash^=this._pieceKey(t),this._board[t]=e,this._hash^=this._pieceKey(t)}_put({type:t,color:e},l){if(Na.indexOf(t.toLowerCase())===-1||!(l in le))return!1;const d=le[l];if(t==Ee&&!(this._kings[e]==Ne||this._kings[e]==d))return!1;const r=this._board[d];return r&&r.type===Ee&&(this._kings[r.color]=Ne),this._set(d,{type:t,color:e}),t===Ee&&(this._kings[e]=d),!0}_clear(t){this._hash^=this._pieceKey(t),delete this._board[t]}remove(t){const e=this.get(t);return this._clear(le[t]),e&&e.type===Ee&&(this._kings[e.color]=Ne),this._updateCastlingRights(),this._updateEnPassantSquare(),this._updateSetup(this.fen()),e}_updateCastlingRights(){this._hash^=this._castlingKey();const t=this._board[le.e1]?.type===Ee&&this._board[le.e1]?.color===He,e=this._board[le.e8]?.type===Ee&&this._board[le.e8]?.color===et;(!t||this._board[le.a1]?.type!==Et||this._board[le.a1]?.color!==He)&&(this._castling.w&=-65),(!t||this._board[le.h1]?.type!==Et||this._board[le.h1]?.color!==He)&&(this._castling.w&=-33),(!e||this._board[le.a8]?.type!==Et||this._board[le.a8]?.color!==et)&&(this._castling.b&=-65),(!e||this._board[le.h8]?.type!==Et||this._board[le.h8]?.color!==et)&&(this._castling.b&=-33),this._hash^=this._castlingKey()}_updateEnPassantSquare(){if(this._epSquare===Ne)return;const t=this._epSquare+(this._turn===He?-16:16),e=this._epSquare+(this._turn===He?16:-16),l=[e+1,e-1];if(this._board[t]!==null||this._board[this._epSquare]!==null||this._board[e]?.color!==At(this._turn)||this._board[e]?.type!==Ie){this._hash^=this._epKey(),this._epSquare=Ne;return}const d=r=>!(r&136)&&this._board[r]?.color===this._turn&&this._board[r]?.type===Ie;l.some(d)||(this._hash^=this._epKey(),this._epSquare=Ne)}_attacked(t,e,l){const d=[];for(let r=le.a8;r<=le.h1;r++){if(r&136){r+=7;continue}if(this._board[r]===void 0||this._board[r].color!==t)continue;const f=this._board[r],o=r-e;if(o===0)continue;const L=o+119;if(za[L]&Ba[f.type]){if(f.type===Ie){if(o>0&&f.color===He||o<=0&&f.color===et)if(l)d.push(Le(r));else return!0;continue}if(f.type==="n"||f.type==="k")if(l){d.push(Le(r));continue}else return!0;const B=Ra[L];let S=r+B,T=!1;for(;S!==e;){if(this._board[S]!=null){T=!0;break}S+=B}if(!T)if(l){d.push(Le(r));continue}else return!0}}return l?d:!1}attackers(t,e){return e?this._attacked(e,le[t],!0):this._attacked(this._turn,le[t],!0)}_isKingAttacked(t){const e=this._kings[t];return e===-1?!1:this._attacked(At(t),e)}hash(){return this._hash.toString(16)}isAttacked(t,e){return this._attacked(e,le[t])}isCheck(){return this._isKingAttacked(this._turn)}inCheck(){return this.isCheck()}isCheckmate(){return this.isCheck()&&this._moves().length===0}isStalemate(){return!this.isCheck()&&this._moves().length===0}isInsufficientMaterial(){const t={b:0,n:0,r:0,q:0,k:0,p:0},e=[];let l=0,d=0;for(let r=le.a8;r<=le.h1;r++){if(d=(d+1)%2,r&136){r+=7;continue}const f=this._board[r];f&&(t[f.type]=f.type in t?t[f.type]+1:1,f.type===Kt&&e.push(d),l++)}if(l===2)return!0;if(l===3&&(t[Kt]===1||t[ca]===1))return!0;if(l===t[Kt]+2){let r=0;const f=e.length;for(let o=0;o<f;o++)r+=e[o];if(r===0||r===f)return!0}return!1}isThreefoldRepetition(){return this._getPositionCount(this._hash)>=3}isDrawByFiftyMoves(){return this._halfMoves>=100}isDraw(){return this.isDrawByFiftyMoves()||this.isStalemate()||this.isInsufficientMaterial()||this.isThreefoldRepetition()}isGameOver(){return this.isCheckmate()||this.isDraw()}moves({verbose:t=!1,square:e=void 0,piece:l=void 0}={}){const d=this._moves({square:e,piece:l});return t?d.map(r=>new Ht(this,r)):d.map(r=>this._moveToSan(r,d))}_moves({legal:t=!0,piece:e=void 0,square:l=void 0}={}){const d=l?l.toLowerCase():void 0,r=e?.toLowerCase(),f=[],o=this._turn,L=At(o);let B=le.a8,S=le.h1,T=!1;if(d)if(d in le)B=S=le[d],T=!0;else return[];for(let N=B;N<=S;N++){if(N&136){N+=7;continue}if(!this._board[N]||this._board[N].color===L)continue;const{type:ue}=this._board[N];let he;if(ue===Ie){if(r&&r!==ue)continue;he=N+oa[o][0],this._board[he]||(bt(f,o,N,he,Ie),he=N+oa[o][1],Ga[o]===St(N)&&!this._board[he]&&bt(f,o,N,he,Ie,void 0,de.BIG_PAWN));for(let qe=2;qe<4;qe++)he=N+oa[o][qe],!(he&136)&&(this._board[he]?.color===L?bt(f,o,N,he,Ie,this._board[he].type,de.CAPTURE):he===this._epSquare&&bt(f,o,N,he,Ie,Ie,de.EP_CAPTURE))}else{if(r&&r!==ue)continue;for(let qe=0,Je=ma[ue].length;qe<Je;qe++){const lt=ma[ue][qe];for(he=N;he+=lt,!(he&136);){if(!this._board[he])bt(f,o,N,he,ue);else{if(this._board[he].color===o)break;bt(f,o,N,he,ue,this._board[he].type,de.CAPTURE);break}if(ue===ca||ue===Ee)break}}}}if((r===void 0||r===Ee)&&(!T||S===this._kings[o])){if(this._castling[o]&de.KSIDE_CASTLE){const N=this._kings[o],ue=N+2;!this._board[N+1]&&!this._board[ue]&&!this._attacked(L,this._kings[o])&&!this._attacked(L,N+1)&&!this._attacked(L,ue)&&bt(f,o,this._kings[o],ue,Ee,void 0,de.KSIDE_CASTLE)}if(this._castling[o]&de.QSIDE_CASTLE){const N=this._kings[o],ue=N-2;!this._board[N-1]&&!this._board[N-2]&&!this._board[N-3]&&!this._attacked(L,this._kings[o])&&!this._attacked(L,N-1)&&!this._attacked(L,ue)&&bt(f,o,this._kings[o],ue,Ee,void 0,de.QSIDE_CASTLE)}}if(!t||this._kings[o]===-1)return f;const P=[];for(let N=0,ue=f.length;N<ue;N++)this._makeMove(f[N]),this._isKingAttacked(o)||P.push(f[N]),this._undoMove();return P}move(t,{strict:e=!1}={}){let l=null;if(typeof t=="string")l=this._moveFromSan(t,e);else if(t===null)l=this._moveFromSan(sa,e);else if(typeof t=="object"){const r=this._moves();for(let f=0,o=r.length;f<o;f++)if(t.from===Le(r[f].from)&&t.to===Le(r[f].to)&&(!("promotion"in r[f])||t.promotion===r[f].promotion)){l=r[f];break}}if(!l)throw typeof t=="string"?new Error(`Invalid move: ${t}`):new Error(`Invalid move: ${JSON.stringify(t)}`);if(this.isCheck()&&l.flags&de.NULL_MOVE)throw new Error("Null move not allowed when in check");const d=new Ht(this,l);return this._makeMove(l),this._incPositionCount(),d}_push(t){this._history.push({move:t,kings:{b:this._kings.b,w:this._kings.w},turn:this._turn,castling:{b:this._castling.b,w:this._castling.w},epSquare:this._epSquare,halfMoves:this._halfMoves,moveNumber:this._moveNumber})}_movePiece(t,e){this._hash^=this._pieceKey(t),this._board[e]=this._board[t],delete this._board[t],this._hash^=this._pieceKey(e)}_makeMove(t){const e=this._turn,l=At(e);if(this._push(t),t.flags&de.NULL_MOVE){e===et&&this._moveNumber++,this._halfMoves++,this._turn=l,this._epSquare=Ne;return}if(this._hash^=this._epKey(),this._hash^=this._castlingKey(),t.captured&&(this._hash^=this._pieceKey(t.to)),this._movePiece(t.from,t.to),t.flags&de.EP_CAPTURE&&(this._turn===et?this._clear(t.to-16):this._clear(t.to+16)),t.promotion&&(this._clear(t.to),this._set(t.to,{type:t.promotion,color:e})),this._board[t.to].type===Ee){if(this._kings[e]=t.to,t.flags&de.KSIDE_CASTLE){const d=t.to-1,r=t.to+1;this._movePiece(r,d)}else if(t.flags&de.QSIDE_CASTLE){const d=t.to+1,r=t.to-2;this._movePiece(r,d)}this._castling[e]=0}if(this._castling[e]){for(let d=0,r=gt[e].length;d<r;d++)if(t.from===gt[e][d].square&&this._castling[e]&gt[e][d].flag){this._castling[e]^=gt[e][d].flag;break}}if(this._castling[l]){for(let d=0,r=gt[l].length;d<r;d++)if(t.to===gt[l][d].square&&this._castling[l]&gt[l][d].flag){this._castling[l]^=gt[l][d].flag;break}}if(this._hash^=this._castlingKey(),t.flags&de.BIG_PAWN){let d;e===et?d=t.to-16:d=t.to+16,!(t.to-1&136)&&this._board[t.to-1]?.type===Ie&&this._board[t.to-1]?.color===l||!(t.to+1&136)&&this._board[t.to+1]?.type===Ie&&this._board[t.to+1]?.color===l?(this._epSquare=d,this._hash^=this._epKey()):this._epSquare=Ne}else this._epSquare=Ne;t.piece===Ie?this._halfMoves=0:t.flags&(de.CAPTURE|de.EP_CAPTURE)?this._halfMoves=0:this._halfMoves++,e===et&&this._moveNumber++,this._turn=l,this._hash^=na}undo(){const t=this._hash,e=this._undoMove();if(e){const l=new Ht(this,e);return this._decPositionCount(t),l}return null}_undoMove(){const t=this._history.pop();if(t===void 0)return null;this._hash^=this._epKey(),this._hash^=this._castlingKey();const e=t.move;this._kings=t.kings,this._turn=t.turn,this._castling=t.castling,this._epSquare=t.epSquare,this._halfMoves=t.halfMoves,this._moveNumber=t.moveNumber,this._hash^=this._epKey(),this._hash^=this._castlingKey(),this._hash^=na;const l=this._turn,d=At(l);if(e.flags&de.NULL_MOVE)return e;if(this._movePiece(e.to,e.from),e.piece&&(this._clear(e.from),this._set(e.from,{type:e.piece,color:l})),e.captured)if(e.flags&de.EP_CAPTURE){let r;l===et?r=e.to-16:r=e.to+16,this._set(r,{type:Ie,color:d})}else this._set(e.to,{type:e.captured,color:d});if(e.flags&(de.KSIDE_CASTLE|de.QSIDE_CASTLE)){let r,f;e.flags&de.KSIDE_CASTLE?(r=e.to+1,f=e.to-1):(r=e.to-2,f=e.to+1),this._movePiece(f,r)}return e}pgn({newline:t=`
+`,maxWidth:e=0}={}){const l=[];let d=!1;for(const P in this._header)this._header[P]&&l.push(`[${P} "${this._header[P]}"]`+t),d=!0;d&&this._history.length&&l.push(t);const r=P=>{const N=this._comments[this.fen()];if(typeof N<"u"){const ue=P.length>0?" ":"";P=`${P}${ue}{${N}}`}return P},f=[];for(;this._history.length>0;)f.push(this._undoMove());const o=[];let L="";for(f.length===0&&o.push(r(""));f.length>0;){L=r(L);const P=f.pop();if(!P)break;if(!this._history.length&&P.color==="b"){const N=`${this._moveNumber}. ...`;L=L?`${L} ${N}`:N}else P.color==="w"&&(L.length&&o.push(L),L=this._moveNumber+".");L=L+" "+this._moveToSan(P,this._moves({legal:!0})),this._makeMove(P)}if(L.length&&o.push(r(L)),o.push(this._header.Result||"*"),e===0)return l.join("")+o.join(" ");const B=function(){return l.length>0&&l[l.length-1]===" "?(l.pop(),!0):!1},S=function(P,N){for(const ue of N.split(" "))if(ue){if(P+ue.length>e){for(;B();)P--;l.push(t),P=0}l.push(ue),P+=ue.length,l.push(" "),P++}return B()&&P--,P};let T=0;for(let P=0;P<o.length;P++){if(T+o[P].length>e&&o[P].includes("{")){T=S(T,o[P]);continue}T+o[P].length>e&&P!==0?(l[l.length-1]===" "&&l.pop(),l.push(t),T=0):P!==0&&(l.push(" "),T++),l.push(o[P]),T+=o[P].length}return l.join("")}header(...t){for(let e=0;e<t.length;e+=2)typeof t[e]=="string"&&typeof t[e+1]=="string"&&(this._header[t[e]]=t[e+1]);return this._header}setHeader(t,e){return this._header[t]=e??pa[t]??null,this.getHeaders()}removeHeader(t){return t in this._header?(this._header[t]=pa[t]||null,!0):!1}getHeaders(){const t={};for(const[e,l]of Object.entries(this._header))l!==null&&(t[e]=l);return t}loadPgn(t,{strict:e=!1,newlineChar:l=`\r?
+`}={}){l!==`\r?
+`&&(t=t.replace(new RegExp(l,"g"),`
+`));const d=Aa(t);this.reset();const r=d.headers;let f="";for(const B in r)B.toLowerCase()==="fen"&&(f=r[B]),this.header(B,r[B]);if(!e)f&&this.load(f,{preserveHeaders:!0});else if(r.SetUp==="1"){if(!("FEN"in r))throw new Error("Invalid PGN: FEN tag must be supplied with SetUp tag");this.load(r.FEN,{preserveHeaders:!0})}let o=d.root;for(;o;){if(o.move){const B=this._moveFromSan(o.move,e);if(B==null)throw new Error(`Invalid move in PGN: ${o.move}`);this._makeMove(B),this._incPositionCount()}o.comment!==void 0&&(this._comments[this.fen()]=o.comment),o=o.variations[0]}const L=d.result;L&&Object.keys(this._header).length&&this._header.Result!==L&&this.setHeader("Result",L)}_moveToSan(t,e){let l="";if(t.flags&de.KSIDE_CASTLE)l="O-O";else if(t.flags&de.QSIDE_CASTLE)l="O-O-O";else{if(t.flags&de.NULL_MOVE)return sa;if(t.piece!==Ie){const d=Ka(t,e);l+=t.piece.toUpperCase()+d}t.flags&(de.CAPTURE|de.EP_CAPTURE)&&(t.piece===Ie&&(l+=Le(t.from)[0]),l+="x"),l+=Le(t.to),t.promotion&&(l+="="+t.promotion.toUpperCase())}return this._makeMove(t),this.isCheck()&&(this.isCheckmate()?l+="#":l+="+"),this._undoMove(),l}_moveFromSan(t,e=!1){let l=la(t);if(e||(l==="0-0"?l="O-O":l==="0-0-0"&&(l="O-O-O")),l==sa)return{color:this._turn,from:0,to:0,piece:"k",flags:de.NULL_MOVE};let d=va(l),r=this._moves({legal:!0,piece:d});for(let P=0,N=r.length;P<N;P++)if(l===la(this._moveToSan(r[P],r)))return r[P];if(e)return null;let f,o,L,B,S,T=!1;if(o=l.match(/([pnbrqkPNBRQK])?([a-h][1-8])x?-?([a-h][1-8])([qrbnQRBN])?/),o?(f=o[1],L=o[2],B=o[3],S=o[4],L.length==1&&(T=!0)):(o=l.match(/([pnbrqkPNBRQK])?([a-h]?[1-8]?)x?-?([a-h][1-8])([qrbnQRBN])?/),o&&(f=o[1],L=o[2],B=o[3],S=o[4],L.length==1&&(T=!0))),d=va(l),r=this._moves({legal:!0,piece:f||d}),!B)return null;for(let P=0,N=r.length;P<N;P++)if(L){if((!f||f.toLowerCase()==r[P].piece)&&le[L]==r[P].from&&le[B]==r[P].to&&(!S||S.toLowerCase()==r[P].promotion))return r[P];if(T){const ue=Le(r[P].from);if((!f||f.toLowerCase()==r[P].piece)&&le[B]==r[P].to&&(L==ue[0]||L==ue[1])&&(!S||S.toLowerCase()==r[P].promotion))return r[P]}}else if(l===la(this._moveToSan(r[P],r)).replace("x",""))return r[P];return null}ascii(){let t=`   +------------------------+
+`;for(let e=le.a8;e<=le.h1;e++){if(Pt(e)===0&&(t+=" "+"87654321"[St(e)]+" |"),this._board[e]){const l=this._board[e].type,r=this._board[e].color===He?l.toUpperCase():l.toLowerCase();t+=" "+r+" "}else t+=" . ";e+1&136&&(t+=`|
 `,e+=8)}return t+=`   +------------------------+
-`,t+="     a  b  c  d  e  f  g  h",t}perft(t){const e=this._moves({legal:!1});let d=0;const c=this._turn;for(let s=0,f=e.length;s<f;s++)this._makeMove(e[s]),this._isKingAttacked(c)||(t-1>0?d+=this.perft(t-1):d++),this._undoMove();return d}setTurn(t){return this._turn==t?!1:(this.move("--"),!0)}turn(){return this._turn}board(){const t=[];let e=[];for(let d=oe.a8;d<=oe.h1;d++)this._board[d]==null?e.push(null):e.push({square:Pe(d),type:this._board[d].type,color:this._board[d].color}),d+1&136&&(t.push(e),e=[],d+=8);return t}squareColor(t){if(t in oe){const e=oe[t];return(Ct(e)+Mt(e))%2===0?"light":"dark"}return null}history({verbose:t=!1}={}){const e=[],d=[];for(;this._history.length>0;)e.push(this._undoMove());for(;;){const c=e.pop();if(!c)break;t?d.push(new Ht(this,c)):d.push(this._moveToSan(c,this._moves())),this._makeMove(c)}return d}_getPositionCount(t){return this._positionCount.get(t)??0}_incPositionCount(){this._positionCount.set(this._hash,(this._positionCount.get(this._hash)??0)+1)}_decPositionCount(t){const e=this._positionCount.get(t)??0;e===1?this._positionCount.delete(t):this._positionCount.set(t,e-1)}_pruneComments(){const t=[],e={},d=c=>{c in this._comments&&(e[c]=this._comments[c])};for(;this._history.length>0;)t.push(this._undoMove());for(d(this.fen());;){const c=t.pop();if(!c)break;this._makeMove(c),d(this.fen())}this._comments=e}getComment(){return this._comments[this.fen()]}setComment(t){this._comments[this.fen()]=t.replace("{","[").replace("}","]")}deleteComment(){return this.removeComment()}removeComment(){const t=this._comments[this.fen()];return delete this._comments[this.fen()],t}getComments(){return this._pruneComments(),Object.keys(this._comments).map(t=>({fen:t,comment:this._comments[t]}))}deleteComments(){return this.removeComments()}removeComments(){return this._pruneComments(),Object.keys(this._comments).map(t=>{const e=this._comments[t];return delete this._comments[t],{fen:t,comment:e}})}setCastlingRights(t,e){for(const c of[Ae,ht])e[c]!==void 0&&(e[c]?this._castling[t]|=Gt[c]:this._castling[t]&=~Gt[c]);this._updateCastlingRights();const d=this.getCastlingRights(t);return(e[Ae]===void 0||e[Ae]===d[Ae])&&(e[ht]===void 0||e[ht]===d[ht])}getCastlingRights(t){return{[Ae]:(this._castling[t]&Gt[Ae])!==0,[ht]:(this._castling[t]&Gt[ht])!==0}}moveNumber(){return this._moveNumber}}async function Qa(i,t={}){const e=t.currentUser||{};let d="chat",c=[],s=null,f=[],n=[],q=null,R=null,S=!1,j=null,P=null;i.innerHTML=`
+`,t+="     a  b  c  d  e  f  g  h",t}perft(t){const e=this._moves({legal:!1});let l=0;const d=this._turn;for(let r=0,f=e.length;r<f;r++)this._makeMove(e[r]),this._isKingAttacked(d)||(t-1>0?l+=this.perft(t-1):l++),this._undoMove();return l}setTurn(t){return this._turn==t?!1:(this.move("--"),!0)}turn(){return this._turn}board(){const t=[];let e=[];for(let l=le.a8;l<=le.h1;l++)this._board[l]==null?e.push(null):e.push({square:Le(l),type:this._board[l].type,color:this._board[l].color}),l+1&136&&(t.push(e),e=[],l+=8);return t}squareColor(t){if(t in le){const e=le[t];return(St(e)+Pt(e))%2===0?"light":"dark"}return null}history({verbose:t=!1}={}){const e=[],l=[];for(;this._history.length>0;)e.push(this._undoMove());for(;;){const d=e.pop();if(!d)break;t?l.push(new Ht(this,d)):l.push(this._moveToSan(d,this._moves())),this._makeMove(d)}return l}_getPositionCount(t){return this._positionCount.get(t)??0}_incPositionCount(){this._positionCount.set(this._hash,(this._positionCount.get(this._hash)??0)+1)}_decPositionCount(t){const e=this._positionCount.get(t)??0;e===1?this._positionCount.delete(t):this._positionCount.set(t,e-1)}_pruneComments(){const t=[],e={},l=d=>{d in this._comments&&(e[d]=this._comments[d])};for(;this._history.length>0;)t.push(this._undoMove());for(l(this.fen());;){const d=t.pop();if(!d)break;this._makeMove(d),l(this.fen())}this._comments=e}getComment(){return this._comments[this.fen()]}setComment(t){this._comments[this.fen()]=t.replace("{","[").replace("}","]")}deleteComment(){return this.removeComment()}removeComment(){const t=this._comments[this.fen()];return delete this._comments[this.fen()],t}getComments(){return this._pruneComments(),Object.keys(this._comments).map(t=>({fen:t,comment:this._comments[t]}))}deleteComments(){return this.removeComments()}removeComments(){return this._pruneComments(),Object.keys(this._comments).map(t=>{const e=this._comments[t];return delete this._comments[t],{fen:t,comment:e}})}setCastlingRights(t,e){for(const d of[Ee,ft])e[d]!==void 0&&(e[d]?this._castling[t]|=Ut[d]:this._castling[t]&=~Ut[d]);this._updateCastlingRights();const l=this.getCastlingRights(t);return(e[Ee]===void 0||e[Ee]===l[Ee])&&(e[ft]===void 0||e[ft]===l[ft])}getCastlingRights(t){return{[Ee]:(this._castling[t]&Ut[Ee])!==0,[ft]:(this._castling[t]&Ut[ft])!==0}}moveNumber(){return this._moveNumber}}async function Qa(n,t={}){const e=t.currentUser||{};let l="chat",d=[],r=null,f=[],o=[],L=null,B=null,S=!1,T=null,P=null;n.innerHTML=`
     <div class="bonding-wrap" id="bonding-app-root">
       <!-- Top Navigation & Header Bar -->
       <div class="bonding-nav-bar">
@@ -2207,49 +2207,59 @@ import{c as Me,h as $,e as x,n as Ge,j as Ve,o as Ot,k as Wt,g as ke,p as Ft,t a
 
     <!-- Modals container -->
     <div id="bonding-modals-root"></div>
-  `,Va(),await vt(),_e();const B=i.querySelector("#tab-nav-chat"),ce=i.querySelector("#tab-nav-lounge"),me=i.querySelector("#bonding-chat-main-wrap"),qe=i.querySelector("#bonding-lounge-main-wrap");B?.addEventListener("click",()=>{d="chat",B.classList.add("active"),ce.classList.remove("active"),me.style.display="grid",qe.style.display="none",_e()}),ce?.addEventListener("click",async()=>{d="lounge_games",ce.classList.add("active"),B.classList.remove("active"),me.style.display="none",qe.style.display="block",await r()}),i.querySelector("#btn-top-new-chat")?.addEventListener("click",F),i.querySelector("#btn-top-new-group")?.addEventListener("click",v),i.querySelector("#btn-top-challenge")?.addEventListener("click",()=>A());const Ye=i.querySelector("#bonding-search-input");Ye&&Ye.addEventListener("input",p=>{const u=p.target.value.toLowerCase().trim();i.querySelectorAll(".bonding-channel-item").forEach(o=>{const m=o.textContent.toLowerCase();o.style.display=m.includes(u)?"flex":"none"})}),ct(),new MutationObserver((p,u)=>{document.body.contains(i)||(R&&clearInterval(R),P&&clearInterval(P),u.disconnect())}).observe(document.body,{childList:!0,subtree:!0});async function vt(){try{const[p,u]=await Promise.all([Me("/bonding/channels").catch(()=>[]),Me("/bonding/colleagues").catch(()=>[])]);c=p,f=u,!s&&c.length>0&&(s=c.find(l=>l.name.includes("Lounge"))||c[0]),Fe(),s&&await we(s._id)}catch(p){console.error("Failed to load bonding data",p)}}async function we(p,u=!1){if(p)try{n=await Me(`/bonding/channels/${p}/messages`),u?I():a()}catch(l){console.error("Failed to load messages",l)}}function ct(){R&&clearInterval(R),R=setInterval(async()=>{try{if(!document.body.contains(i)){clearInterval(R);return}d==="chat"&&s?await we(s._id,!0):d==="lounge_games"&&await r(!0)}catch{}},3e3)}function Fe(){const p=i.querySelector("#bonding-group-list"),u=i.querySelector("#bonding-direct-list");if(!p||!u)return;const l=c.filter(m=>m.type==="group"),o=c.filter(m=>m.type==="direct");l.length===0?p.innerHTML='<div class="bonding-empty-text">No group lounges yet. Click + New Group to start one!</div>':p.innerHTML=l.map(m=>`
-          <div class="bonding-channel-item ${s&&s._id===m._id?"active":""}" data-channel-id="${m._id}">
-            <div class="bonding-channel-icon">${m.avatar||"👥"}</div>
+  `,Va(),await mt(),_e();const N=n.querySelector("#tab-nav-chat"),ue=n.querySelector("#tab-nav-lounge"),he=n.querySelector("#bonding-chat-main-wrap"),qe=n.querySelector("#bonding-lounge-main-wrap");N?.addEventListener("click",()=>{l="chat",N.classList.add("active"),ue.classList.remove("active"),he.style.display="grid",qe.style.display="none",_e()}),ue?.addEventListener("click",async()=>{l="lounge_games",ue.classList.add("active"),N.classList.remove("active"),he.style.display="none",qe.style.display="block",await s()}),n.querySelector("#btn-top-new-chat")?.addEventListener("click",v),n.querySelector("#btn-top-new-group")?.addEventListener("click",U),n.querySelector("#btn-top-challenge")?.addEventListener("click",()=>I());const Je=n.querySelector("#bonding-search-input");Je&&Je.addEventListener("input",p=>{const c=p.target.value.toLowerCase().trim();n.querySelectorAll(".bonding-channel-item").forEach(m=>{const g=m.textContent.toLowerCase();m.style.display=g.includes(c)?"flex":"none"})}),dt(),new MutationObserver((p,c)=>{document.body.contains(n)||(B&&clearInterval(B),P&&clearInterval(P),c.disconnect())}).observe(document.body,{childList:!0,subtree:!0});async function mt(){try{const[p,c]=await Promise.all([Pe("/bonding/channels").catch(()=>[]),Pe("/bonding/colleagues").catch(()=>[])]);d=p,f=c,!r&&d.length>0&&(r=d.find(a=>a.name.includes("Lounge"))||d[0]),ze(),r&&await we(r._id)}catch(p){console.error("Failed to load bonding data",p)}}async function we(p,c=!1){if(p)try{o=await Pe(`/bonding/channels/${p}/messages`),c?j():i()}catch(a){console.error("Failed to load messages",a)}}function dt(){B&&clearInterval(B),B=setInterval(async()=>{try{if(!document.body.contains(n)){clearInterval(B);return}l==="chat"&&r?await we(r._id,!0):l==="lounge_games"&&await s(!0)}catch{}},3e3)}function ze(){const p=n.querySelector("#bonding-group-list"),c=n.querySelector("#bonding-direct-list");if(!p||!c)return;const a=d.filter(g=>g.type==="group"),m=d.filter(g=>g.type==="direct");if(a.length===0)p.innerHTML='<div class="bonding-empty-text">No group lounges yet. Click + New Group to start one!</div>';else{const g=e?._id||e?.id,A=userRole==="superadmin"||e?.role==="superadmin";p.innerHTML=a.map(y=>{const D=r&&r._id===y._id,R=y.createdBy&&y.createdBy.userId&&String(y.createdBy.userId)===String(g)||A;return`
+          <div class="bonding-channel-item ${D?"active":""}" data-channel-id="${y._id}">
+            <div class="bonding-channel-icon">${y.avatar||"👥"}</div>
             <div class="bonding-channel-info">
-              <div class="bonding-channel-name">${x(m.name)}</div>
-              <div class="bonding-channel-preview">${x(m.lastMessage?.content||"No messages yet")}</div>
+              <div class="bonding-channel-name">${x(y.name)}</div>
+              <div class="bonding-channel-preview">${x(y.lastMessage?.content||"No messages yet")}</div>
             </div>
             
-            <button class="bonding-channel-del-btn" data-channel-id="${m._id}" title="Delete Group">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="3 6 5 6 21 6"></polyline>
-                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-              </svg>
-            </button>
+            ${R?`
+              <button class="bonding-channel-del-btn" data-channel-id="${y._id}" title="Delete Group (Creator only)">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="3 6 5 6 21 6"></polyline>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                </svg>
+              </button>
+            `:`
+              <button class="bonding-channel-leave-btn" data-channel-id="${y._id}" title="Leave Group">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                  <polyline points="16 17 21 12 16 7"></polyline>
+                  <line x1="21" y1="12" x2="9" y2="12"></line>
+                </svg>
+              </button>
+            `}
           </div>
-        `).join(""),o.length===0?u.innerHTML='<div class="bonding-empty-text">No direct messages yet. Click + New Chat to start a conversation!</div>':u.innerHTML=o.map(m=>{const w=s&&s._id===m._id,C=m.displayName||m.name||"Colleague",N=C.slice(0,1).toUpperCase();return`
-          <div class="bonding-channel-item ${w?"active":""}" data-channel-id="${m._id}">
-            <div class="bonding-channel-avatar">${N}</div>
+        `}).join("")}m.length===0?c.innerHTML='<div class="bonding-empty-text">No direct messages yet. Click + New Chat to start a conversation!</div>':c.innerHTML=m.map(g=>{const A=r&&r._id===g._id,y=g.displayName||g.name||"Colleague",D=y.slice(0,1).toUpperCase();return`
+          <div class="bonding-channel-item ${A?"active":""}" data-channel-id="${g._id}">
+            <div class="bonding-channel-avatar">${D}</div>
             <div class="bonding-channel-info">
-              <div class="bonding-channel-name">${x(C)}</div>
-              <div class="bonding-channel-preview">${x(m.lastMessage?.content||"Say hello...")}</div>
+              <div class="bonding-channel-name">${x(y)}</div>
+              <div class="bonding-channel-preview">${x(g.lastMessage?.content||"Say hello...")}</div>
             </div>
-            <button class="bonding-channel-del-btn" data-channel-id="${m._id}" title="Delete 1-on-1 Chat">
+            <button class="bonding-channel-del-btn" data-channel-id="${g._id}" title="Delete 1-on-1 Chat">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <polyline points="3 6 5 6 21 6"></polyline>
                 <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
               </svg>
             </button>
           </div>
-        `}).join(""),pt()}function pt(){const p=i.querySelectorAll(".bonding-channel-item");p.forEach(u=>{u.onclick=async l=>{if(l.target.closest(".bonding-channel-del-btn"))return;const o=u.dataset.channelId,m=c.find(w=>w._id===o);m&&(s=m,p.forEach(w=>w.classList.remove("active")),u.classList.add("active"),_e(),await we(m._id))}}),i.querySelectorAll(".bonding-channel-del-btn").forEach(u=>{u.onclick=async l=>{l.stopPropagation();const o=u.dataset.channelId,m=c.find(N=>N._id===o),w=m&&m.type==="direct",C=w?"this 1-on-1 chat":`the group "${m?.name||""}"`;if(confirm(`Are you sure you want to delete ${C}? All messages will be permanently removed.`))try{u.disabled=!0,await Ve(`/bonding/channels/${o}`),$(w?"1-on-1 chat deleted":"Group deleted","success"),c=c.filter(N=>N._id!==o),s&&s._id===o&&(s=c[0]||null,_e(),s&&await we(s._id)),Fe()}catch(N){$(N.message||"Failed to delete conversation","error"),u.disabled=!1}}}),i.querySelector("#btn-create-group")?.addEventListener("click",v),i.querySelector("#btn-new-direct-chat")?.addEventListener("click",F)}function _e(){const p=i.querySelector("#bonding-chat-panel");if(!p)return;if(!s){p.innerHTML=`
+        `}).join(""),ct()}function ct(){const p=n.querySelectorAll(".bonding-channel-item");p.forEach(c=>{c.onclick=async a=>{if(a.target.closest(".bonding-channel-del-btn")||a.target.closest(".bonding-channel-leave-btn"))return;const m=c.dataset.channelId,g=d.find(A=>A._id===m);g&&(r=g,p.forEach(A=>A.classList.remove("active")),c.classList.add("active"),_e(),await we(g._id))}}),n.querySelectorAll(".bonding-channel-leave-btn").forEach(c=>{c.onclick=async a=>{a.stopPropagation();const m=c.dataset.channelId,A=d.find(y=>y._id===m)?.name||"this group";if(confirm(`Are you sure you want to leave the group "${A}"?`))try{c.disabled=!0,await ye(`/bonding/channels/${m}/leave`,{}),k(`You left "${A}"`,"info"),d=d.filter(y=>y._id!==m),r&&r._id===m&&(r=d.find(y=>y.type==="group")||d[0]||null,_e(),r&&await we(r._id)),ze()}catch(y){k(y.message||"Failed to leave group","error"),c.disabled=!1}}}),n.querySelectorAll(".bonding-channel-del-btn").forEach(c=>{c.onclick=async a=>{a.stopPropagation();const m=c.dataset.channelId,g=d.find(D=>D._id===m),A=g&&g.type==="direct",y=A?"this 1-on-1 chat":`the group "${g?.name||""}"`;if(confirm(`Are you sure you want to delete ${y}? All messages will be permanently removed.`))try{c.disabled=!0,await Ye(`/bonding/channels/${m}`),k(A?"1-on-1 chat deleted":"Group deleted","success"),d=d.filter(D=>D._id!==m),r&&r._id===m&&(r=d[0]||null,_e(),r&&await we(r._id)),ze()}catch(D){k(D.message||"Failed to delete conversation","error"),c.disabled=!1}}}),n.querySelector("#btn-create-group")?.addEventListener("click",U),n.querySelector("#btn-new-direct-chat")?.addEventListener("click",v)}function _e(){const p=n.querySelector("#bonding-chat-panel");if(!p)return;if(!r){p.innerHTML=`
         <div class="bonding-empty-feed">
           <div class="bonding-empty-icon">💬</div>
           <h4>Select a Conversation</h4>
           <p>Choose a group lounge or direct message on the left to start chatting with your colleagues.</p>
         </div>
-      `;return}const u=x(s.displayName||s.name),l=(s.members||[]).length,o=s.type==="group",m=e?._id||e?.id,w=o?null:(s.members||[]).find(C=>C.userId?.toString()!==m?.toString());p.innerHTML=`
+      `;return}const c=x(r.displayName||r.name),a=(r.members||[]).length,m=r.type==="group",g=e?._id||e?.id,A=m?null:(r.members||[]).find(R=>R.userId?.toString()!==g?.toString()),y=r.createdBy&&r.createdBy.userId&&String(r.createdBy.userId)===String(g),D=userRole==="superadmin"||e?.role==="superadmin",se=y||D;p.innerHTML=`
       <div class="bonding-chat-header">
         <div class="bonding-chat-header-info">
-          <div class="bonding-chat-header-avatar">${o?s.avatar||"👥":"👤"}</div>
+          <div class="bonding-chat-header-avatar">${m?r.avatar||"👥":"👤"}</div>
           <div>
-            <div class="bonding-chat-title">${u}</div>
+            <div class="bonding-chat-title">${c}</div>
             <div class="bonding-chat-sub">
-              ${o?`<span>${l} members</span> · <span>${x(s.description||"Public Lounge")}</span>`:'<span>Direct 1-on-1 Personal Chat</span> · <span class="status-online">🟢 Active</span>'}
+              ${m?`<span>${a} members</span> · <span>${x(r.description||"Public Lounge")}</span>`:'<span>Direct 1-on-1 Personal Chat</span> · <span class="status-online">🟢 Active</span>'}
             </div>
           </div>
         </div>
@@ -2265,13 +2275,19 @@ import{c as Me,h as $,e as x,n as Ge,j as Ve,o as Ot,k as Wt,g as ke,p as Ft,t a
             <span>🧹</span> <span>Clear Chat</span>
           </button>
 
-          ${o?`
+          ${m?`
             <button class="bonding-header-btn" id="btn-manage-members">
-              <span>👥</span> <span>Members (${l})</span>
+              <span>👥</span> <span>Members (${a})</span>
             </button>
-            <button class="bonding-header-btn danger" id="btn-delete-group" title="Delete this group">
-              <span>🗑️</span> <span>Delete Group</span>
-            </button>
+            ${se?`
+              <button class="bonding-header-btn danger" id="btn-delete-group" title="Delete this group (Creator only)">
+                <span>🗑️</span> <span>Delete Group</span>
+              </button>
+            `:`
+              <button class="bonding-header-btn danger" id="btn-leave-group" title="Leave this group">
+                <span>🚪</span> <span>Leave Group</span>
+              </button>
+            `}
           `:`
             <button class="bonding-header-btn danger" id="btn-delete-direct" title="Delete 1-on-1 Chat">
               <span>🗑️</span> <span>Delete Chat</span>
@@ -2305,27 +2321,27 @@ import{c as Me,h as $,e as x,n as Ge,j as Ve,o as Ot,k as Wt,g as ke,p as Ft,t a
           </svg>
         </button>
       </div>
-    `,je(w),de(w),et(),T()}function it(){if(!n||n.length===0)return`
+    `,Ae(A),pe(A),tt(),_()}function it(){if(!o||o.length===0)return`
         <div class="bonding-empty-feed">
           <div class="bonding-empty-icon">👋</div>
           <h4>No messages yet</h4>
           <p>Be the first to say hello or challenge a colleague to a multiplayer game!</p>
         </div>
-      `;const p=e?._id||e?.id;return n.map(u=>{const l=u.sender&&u.sender.userId&&p&&u.sender.userId.toString()===p.toString();if(u.type==="system")return`
-          <div class="bonding-msg-system" data-msg-id="${u._id}">
-            <span>ℹ️</span> <span>${x(u.content)}</span>
-            <button class="bonding-msg-del-btn mini" data-msg-id="${u._id}" title="Delete Message">&times;</button>
+      `;const p=e?._id||e?.id;return o.map(c=>{const a=c.sender&&c.sender.userId&&p&&c.sender.userId.toString()===p.toString();if(c.type==="system")return`
+          <div class="bonding-msg-system" data-msg-id="${c._id}">
+            <span>ℹ️</span> <span>${x(c.content)}</span>
+            <button class="bonding-msg-del-btn mini" data-msg-id="${c._id}" title="Delete Message">&times;</button>
           </div>
-        `;if(u.type==="challenge"&&u.challengeData){const C=u.challengeData,N=C.gameTitle||"Game Challenge",L=C.gameType||"chess",te=L==="chess"?"♟️":L==="ludo"?"🎲":"❌",E=C.gameState?.invitationId,ue=C.targetUserId?.toString(),J=u.sender?.userId?.toString(),Q=p&&ue===p.toString(),W=p&&J===p.toString();return`
-          <div class="bonding-msg-row ${l?"self":"other"}" data-msg-id="${u._id}">
-            <div class="bonding-msg-avatar" title="${x(u.sender?.name||"Teammate")}">
-              ${(u.sender?.name||"U").slice(0,1).toUpperCase()}
+        `;if(c.type==="challenge"&&c.challengeData){const y=c.challengeData,D=y.gameTitle||"Game Challenge",se=y.gameType||"chess",R=se==="chess"?"♟️":se==="ludo"?"🎲":"❌",q=y.gameState?.invitationId,ae=y.targetUserId?.toString(),V=c.sender?.userId?.toString(),J=p&&ae===p.toString(),Q=p&&V===p.toString();return`
+          <div class="bonding-msg-row ${a?"self":"other"}" data-msg-id="${c._id}">
+            <div class="bonding-msg-avatar" title="${x(c.sender?.name||"Teammate")}">
+              ${(c.sender?.name||"U").slice(0,1).toUpperCase()}
             </div>
             <div class="bonding-msg-bubble-wrap">
               <div class="bonding-msg-meta">
-                <span class="bonding-msg-sender">${x(u.sender?.name||"Teammate")}</span>
-                <span class="bonding-msg-time">${X(u.createdAt)}</span>
-                <button class="bonding-msg-del-btn" data-msg-id="${u._id}" title="Delete Challenge Message">
+                <span class="bonding-msg-sender">${x(c.sender?.name||"Teammate")}</span>
+                <span class="bonding-msg-time">${te(c.createdAt)}</span>
+                <button class="bonding-msg-del-btn" data-msg-id="${c._id}" title="Delete Challenge Message">
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <polyline points="3 6 5 6 21 6"></polyline>
                     <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -2336,49 +2352,49 @@ import{c as Me,h as $,e as x,n as Ge,j as Ve,o as Ot,k as Wt,g as ke,p as Ft,t a
               <!-- Interactive Game Card -->
               <div class="bonding-game-card-bubble">
                 <div class="game-bubble-top">
-                  <div class="game-bubble-icon">${te}</div>
+                  <div class="game-bubble-icon">${R}</div>
                   <div class="game-bubble-details">
-                    <h4 class="game-bubble-title">${x(N)}</h4>
-                    <p class="game-bubble-desc">${x(u.content)}</p>
+                    <h4 class="game-bubble-title">${x(D)}</h4>
+                    <p class="game-bubble-desc">${x(c.content)}</p>
                   </div>
                 </div>
 
                 <div class="game-bubble-status">
-                  ${C.status==="pending"?'<span class="badge amber">⏳ Awaiting Response</span>':C.status==="active"||C.status==="accepted"?'<span class="badge green">🟢 Match Active</span>':`<span class="badge gray">${x(C.status?.toUpperCase()||"COMPLETED")}</span>`}
+                  ${y.status==="pending"?'<span class="badge amber">⏳ Awaiting Response</span>':y.status==="active"||y.status==="accepted"?'<span class="badge green">🟢 Match Active</span>':`<span class="badge gray">${x(y.status?.toUpperCase()||"COMPLETED")}</span>`}
                 </div>
 
                 <div class="game-bubble-actions">
-                  ${C.status==="pending"&&Q?`
-                      <button class="game-btn-accept btn-respond-invite" data-invite-id="${E}" data-action="accept">
+                  ${y.status==="pending"&&J?`
+                      <button class="game-btn-accept btn-respond-invite" data-invite-id="${q}" data-action="accept">
                         ⚔️ Accept Challenge
                       </button>
-                      <button class="game-btn-decline btn-respond-invite" data-invite-id="${E}" data-action="decline">
+                      <button class="game-btn-decline btn-respond-invite" data-invite-id="${q}" data-action="decline">
                         Decline
                       </button>
-                    `:C.status==="pending"&&W?`
+                    `:y.status==="pending"&&Q?`
                         <div class="game-pending-text">Waiting for opponent to accept...</div>
-                        <button class="game-btn-cancel btn-respond-invite" data-invite-id="${E}" data-action="cancel">
+                        <button class="game-btn-cancel btn-respond-invite" data-invite-id="${q}" data-action="cancel">
                           Cancel
                         </button>
                       `:`
-                        <button class="game-btn-play btn-launch-match-from-card" data-invite-id="${E}">
+                        <button class="game-btn-play btn-launch-match-from-card" data-invite-id="${q}">
                           🎮 Enter Match Arena
                         </button>
                       `}
                 </div>
               </div>
 
-              ${nt(u)}
+              ${nt(c)}
             </div>
           </div>
-        `}const o=x(u.sender?.name||"Teammate"),m=X(u.createdAt),w=nt(u);return`
-        <div class="bonding-msg-row ${l?"self":"other"}" data-msg-id="${u._id}">
-          <div class="bonding-msg-avatar" title="${o}">${o.slice(0,1).toUpperCase()}</div>
+        `}const m=x(c.sender?.name||"Teammate"),g=te(c.createdAt),A=nt(c);return`
+        <div class="bonding-msg-row ${a?"self":"other"}" data-msg-id="${c._id}">
+          <div class="bonding-msg-avatar" title="${m}">${m.slice(0,1).toUpperCase()}</div>
           <div class="bonding-msg-bubble-wrap">
             <div class="bonding-msg-meta">
-              <span class="bonding-msg-sender">${o}</span>
-              <span class="bonding-msg-time">${m}</span>
-              <button class="bonding-msg-del-btn" data-msg-id="${u._id}" title="Delete Message">
+              <span class="bonding-msg-sender">${m}</span>
+              <span class="bonding-msg-time">${g}</span>
+              <button class="bonding-msg-del-btn" data-msg-id="${c._id}" title="Delete Message">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <polyline points="3 6 5 6 21 6"></polyline>
                   <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -2386,44 +2402,44 @@ import{c as Me,h as $,e as x,n as Ge,j as Ve,o as Ot,k as Wt,g as ke,p as Ft,t a
               </button>
             </div>
             <div class="bonding-msg-bubble">
-              ${x(u.content).replace(/\n/g,"<br/>")}
+              ${x(c.content).replace(/\n/g,"<br/>")}
             </div>
-            ${w}
+            ${A}
           </div>
         </div>
       `}).join("")}function nt(p){return`
       <div class="bonding-reactions-row">
-        ${(p.reactions||[]).map(o=>{const m=e?._id||e?.id;return`
-        <button class="bonding-rxn-tag ${(o.users||[]).some(C=>C.toString()===m?.toString())?"active":""}" data-msg-id="${p._id}" data-emoji="${o.emoji}">
-          <span>${o.emoji}</span> <span>${o.users?o.users.length:1}</span>
+        ${(p.reactions||[]).map(m=>{const g=e?._id||e?.id;return`
+        <button class="bonding-rxn-tag ${(m.users||[]).some(y=>y.toString()===g?.toString())?"active":""}" data-msg-id="${p._id}" data-emoji="${m.emoji}">
+          <span>${m.emoji}</span> <span>${m.users?m.users.length:1}</span>
         </button>
       `}).join("")}
         <button class="bonding-add-rxn-btn" data-msg-id="${p._id}" title="Add reaction">
           <span>+😀</span>
         </button>
       </div>
-    `}function je(p){const u=i.querySelector("#btn-chat-challenge");u&&(u.onclick=()=>{p?A(null,p.userId||p._id):A()});const l=i.querySelector("#btn-manage-members");l&&(l.onclick=M);const o=i.querySelector("#btn-delete-group");o&&(o.onclick=U);const m=i.querySelector("#btn-delete-direct");m&&(m.onclick=async()=>{if(s&&confirm("Are you sure you want to delete this 1-on-1 chat? All messages will be permanently removed."))try{m.disabled=!0,await Ve(`/bonding/channels/${s._id}`),$("1-on-1 chat deleted successfully","success");const C=s._id;c=c.filter(N=>N._id!==C),s=c[0]||null,Fe(),_e(),s&&await we(s._id)}catch(C){$(C.message||"Could not delete 1-on-1 chat","error"),m.disabled=!1}});const w=i.querySelector("#btn-clear-chat");w&&(w.onclick=async()=>{if(s&&confirm("Are you sure you want to clear all messages in this conversation?"))try{w.disabled=!0,await Ve(`/bonding/channels/${s._id}/messages`),$("Chat messages cleared","success"),n=[],a()}catch(C){$(C.message||"Could not clear chat messages","error")}finally{w.disabled=!1}})}function de(p){const u=i.querySelector("#bonding-message-input"),l=i.querySelector("#btn-send-message"),o=i.querySelector("#btn-quick-emoji"),m=i.querySelector("#btn-input-challenge");u&&u.addEventListener("keydown",w=>{w.key==="Enter"&&!w.shiftKey&&(w.preventDefault(),be())}),l&&(l.onclick=be),m&&(m.onclick=()=>{p?A(null,p.userId||p._id):A()}),o&&(o.onclick=()=>{if(!u)return;const w=["👍","🎉","🔥","💪","🚀","❤️","😂","👏","✨"],C=w[Math.floor(Math.random()*w.length)];u.value+=(u.value?" ":"")+C,u.focus()})}function et(){i.querySelectorAll(".btn-respond-invite").forEach(o=>{o.onclick=async()=>{const m=o.dataset.inviteId,w=o.dataset.action;await V(m,w)}}),i.querySelectorAll(".btn-launch-match-from-card").forEach(o=>{o.onclick=async()=>{const m=o.dataset.inviteId;try{o.disabled=!0;const w=await Me("/bonding/invitations"),C=(w.incoming||[]).concat(w.sent||[]).find(N=>N._id===m);C&&C.matchId?G(C.matchId):$("Match has not started yet or has expired","warning")}catch(w){$(w.message||"Could not load match","error")}finally{o.disabled=!1}}}),i.querySelectorAll(".bonding-msg-del-btn").forEach(o=>{o.onclick=async m=>{m.stopPropagation();const w=o.dataset.msgId;if(confirm("Are you sure you want to delete this message?"))try{o.disabled=!0,await Ve(`/bonding/messages/${w}`),n=n.filter(C=>C._id!==w),I(),$("Message deleted","success")}catch(C){$(C.message||"Failed to delete message","error"),o.disabled=!1}}}),i.querySelectorAll(".bonding-rxn-tag").forEach(o=>{o.onclick=async()=>{const m=o.dataset.msgId,w=o.dataset.emoji;await b(m,w)}}),i.querySelectorAll(".bonding-add-rxn-btn").forEach(o=>{o.onclick=m=>{const w=o.dataset.msgId;H(m.currentTarget,async C=>{await b(w,C)})}})}async function be(){const p=i.querySelector("#bonding-message-input");if(!p||!s||S)return;const u=p.value.trim();if(u)try{S=!0,p.value="";const l=await ke(`/bonding/channels/${s._id}/messages`,{content:u,type:"text"});n.push(l),a(),T()}catch(l){$(l.message||"Failed to send message","error")}finally{S=!1,p.focus()}}async function b(p,u){try{const l=await ke(`/bonding/messages/${p}/react`,{emoji:u}),o=n.find(m=>m._id===p);o&&(o.reactions=l,I())}catch(l){$(l.message||"Failed to react","error")}}function T(){const p=i.querySelector("#bonding-messages-feed");p&&(p.scrollTop=p.scrollHeight)}function I(){const p=i.querySelector("#bonding-messages-feed");if(!p)return;const u=p.scrollHeight-p.scrollTop<=p.clientHeight+80;p.innerHTML=it(),et(),u&&T()}function a(){const p=i.querySelector("#bonding-messages-feed");p&&(p.innerHTML=it(),et())}async function r(p=!1){const u=i.querySelector("#bonding-lounge-main-wrap");if(u){p||(u.innerHTML='<div class="bonding-loading-text" style="padding:40px;text-align:center">Loading Games Arena & Live Matches...</div>');try{const l=await Me("/bonding/games/overview");q=l;const o=l.myStats||{},m=l.availableGames||[],w=l.incomingChallenges||[],C=l.sentChallenges||[],N=l.activeMatches||[],L=l.recentMatches||[],te=e?._id||e?.id;u.innerHTML=`
+    `}function Ae(p){const c=n.querySelector("#btn-chat-challenge");c&&(c.onclick=()=>{p?I(null,p.userId||p._id):I()});const a=n.querySelector("#btn-manage-members");a&&(a.onclick=M);const m=n.querySelector("#btn-delete-group");m&&(m.onclick=H);const g=n.querySelector("#btn-leave-group");g&&(g.onclick=F);const A=n.querySelector("#btn-delete-direct");A&&(A.onclick=async()=>{if(r&&confirm("Are you sure you want to delete this 1-on-1 chat? All messages will be permanently removed."))try{A.disabled=!0,await Ye(`/bonding/channels/${r._id}`),k("1-on-1 chat deleted successfully","success");const D=r._id;d=d.filter(se=>se._id!==D),r=d[0]||null,ze(),_e(),r&&await we(r._id)}catch(D){k(D.message||"Could not delete 1-on-1 chat","error"),A.disabled=!1}});const y=n.querySelector("#btn-clear-chat");y&&(y.onclick=async()=>{if(r&&confirm("Are you sure you want to clear all messages in this conversation?"))try{y.disabled=!0,await Ye(`/bonding/channels/${r._id}/messages`),k("Chat messages cleared","success"),o=[],i()}catch(D){k(D.message||"Could not clear chat messages","error")}finally{y.disabled=!1}})}function pe(p){const c=n.querySelector("#bonding-message-input"),a=n.querySelector("#btn-send-message"),m=n.querySelector("#btn-quick-emoji"),g=n.querySelector("#btn-input-challenge");c&&c.addEventListener("keydown",A=>{A.key==="Enter"&&!A.shiftKey&&(A.preventDefault(),fe())}),a&&(a.onclick=fe),g&&(g.onclick=()=>{p?I(null,p.userId||p._id):I()}),m&&(m.onclick=()=>{if(!c)return;const A=["👍","🎉","🔥","💪","🚀","❤️","😂","👏","✨"],y=A[Math.floor(Math.random()*A.length)];c.value+=(c.value?" ":"")+y,c.focus()})}function tt(){n.querySelectorAll(".btn-respond-invite").forEach(m=>{m.onclick=async()=>{const g=m.dataset.inviteId,A=m.dataset.action;await K(g,A)}}),n.querySelectorAll(".btn-launch-match-from-card").forEach(m=>{m.onclick=async()=>{const g=m.dataset.inviteId;try{m.disabled=!0;const A=await Pe("/bonding/invitations"),y=(A.incoming||[]).concat(A.sent||[]).find(D=>D._id===g);y&&y.matchId?W(y.matchId):k("Match has not started yet or has expired","warning")}catch(A){k(A.message||"Could not load match","error")}finally{m.disabled=!1}}}),n.querySelectorAll(".bonding-msg-del-btn").forEach(m=>{m.onclick=async g=>{g.stopPropagation();const A=m.dataset.msgId;if(confirm("Are you sure you want to delete this message?"))try{m.disabled=!0,await Ye(`/bonding/messages/${A}`),o=o.filter(y=>y._id!==A),j(),k("Message deleted","success")}catch(y){k(y.message||"Failed to delete message","error"),m.disabled=!1}}}),n.querySelectorAll(".bonding-rxn-tag").forEach(m=>{m.onclick=async()=>{const g=m.dataset.msgId,A=m.dataset.emoji;await b(g,A)}}),n.querySelectorAll(".bonding-add-rxn-btn").forEach(m=>{m.onclick=g=>{const A=m.dataset.msgId;ee(g.currentTarget,async y=>{await b(A,y)})}})}async function fe(){const p=n.querySelector("#bonding-message-input");if(!p||!r||S)return;const c=p.value.trim();if(c)try{S=!0,p.value="";const a=await ye(`/bonding/channels/${r._id}/messages`,{content:c,type:"text"});o.push(a),i(),_()}catch(a){k(a.message||"Failed to send message","error")}finally{S=!1,p.focus()}}async function b(p,c){try{const a=await ye(`/bonding/messages/${p}/react`,{emoji:c}),m=o.find(g=>g._id===p);m&&(m.reactions=a,j())}catch(a){k(a.message||"Failed to react","error")}}function _(){const p=n.querySelector("#bonding-messages-feed");p&&(p.scrollTop=p.scrollHeight)}function j(){const p=n.querySelector("#bonding-messages-feed");if(!p)return;const c=p.scrollHeight-p.scrollTop<=p.clientHeight+80;p.innerHTML=it(),tt(),c&&_()}function i(){const p=n.querySelector("#bonding-messages-feed");p&&(p.innerHTML=it(),tt())}async function s(p=!1){const c=n.querySelector("#bonding-lounge-main-wrap");if(c){p||(c.innerHTML='<div class="bonding-loading-text" style="padding:40px;text-align:center">Loading Games Arena & Live Matches...</div>');try{const a=await Pe("/bonding/games/overview");L=a;const m=a.myStats||{},g=a.availableGames||[],A=a.incomingChallenges||[],y=a.sentChallenges||[],D=a.activeMatches||[],se=a.recentMatches||[],R=e?._id||e?.id;c.innerHTML=`
         <div class="lounge-container">
           <!-- Top Stats Ribbon -->
           <div class="lounge-stats-ribbon">
             <div class="lounge-stat-card">
-              <span class="stat-num">${o.gamesPlayed||0}</span>
+              <span class="stat-num">${m.gamesPlayed||0}</span>
               <span class="stat-lbl">Matches Played</span>
             </div>
             <div class="lounge-stat-card highlight">
-              <span class="stat-num">${o.wins||0}</span>
+              <span class="stat-num">${m.wins||0}</span>
               <span class="stat-lbl">Victories 🏆</span>
             </div>
             <div class="lounge-stat-card">
-              <span class="stat-num">${o.losses||0}</span>
+              <span class="stat-num">${m.losses||0}</span>
               <span class="stat-lbl">Losses</span>
             </div>
             <div class="lounge-stat-card">
-              <span class="stat-num">${o.draws||0}</span>
+              <span class="stat-num">${m.draws||0}</span>
               <span class="stat-lbl">Draws</span>
             </div>
             <div class="lounge-stat-card">
-              <span class="stat-num">${o.gamesPlayed>0?Math.round((o.wins||0)/o.gamesPlayed*100):0}%</span>
+              <span class="stat-num">${m.gamesPlayed>0?Math.round((m.wins||0)/m.gamesPlayed*100):0}%</span>
               <span class="stat-lbl">Win Rate</span>
             </div>
           </div>
@@ -2436,19 +2452,19 @@ import{c as Me,h as $,e as x,n as Ge,j as Ve,o as Ot,k as Wt,g as ke,p as Ft,t a
             </div>
 
             <div class="lounge-games-grid">
-              ${m.map(E=>`
-                <div class="lounge-game-card" data-game-id="${E.id}">
-                  <div class="game-card-icon">${E.icon}</div>
+              ${g.map(q=>`
+                <div class="lounge-game-card" data-game-id="${q.id}">
+                  <div class="game-card-icon">${q.icon}</div>
                   <div class="game-card-content">
-                    <h4 class="game-card-title">${x(E.name)}</h4>
-                    <p class="game-card-desc">${x(E.desc)}</p>
+                    <h4 class="game-card-title">${x(q.name)}</h4>
+                    <p class="game-card-desc">${x(q.desc)}</p>
                     <div class="game-card-meta">
-                      <span class="meta-pill">⏱️ ${E.duration}</span>
-                      ${E.id==="ludo"?'<span class="meta-pill">👥 2P, 3P, 4P Royale</span><span class="meta-pill">🎯 4 Pawns / Base</span>':'<span class="meta-pill">👥 2 Players</span>'}
+                      <span class="meta-pill">⏱️ ${q.duration}</span>
+                      ${q.id==="ludo"?'<span class="meta-pill">👥 2P, 3P, 4P Royale</span><span class="meta-pill">🎯 4 Pawns / Base</span>':'<span class="meta-pill">👥 2 Players</span>'}
                     </div>
                   </div>
-                  <button class="lounge-card-challenge-btn btn-challenge-game" data-game-id="${E.id}" data-game-title="${x(E.name)}">
-                    ${E.id==="ludo"?"⚔️ Play Ludo (2P, 3P, 4P)":"⚔️ Challenge Employee"}
+                  <button class="lounge-card-challenge-btn btn-challenge-game" data-game-id="${q.id}" data-game-title="${x(q.name)}">
+                    ${q.id==="ludo"?"⚔️ Play Ludo (2P, 3P, 4P)":"⚔️ Challenge Employee"}
                   </button>
                 </div>
               `).join("")}
@@ -2461,27 +2477,27 @@ import{c as Me,h as $,e as x,n as Ge,j as Ve,o as Ot,k as Wt,g as ke,p as Ft,t a
             <div class="lounge-card-box">
               <div class="lounge-box-title">
                 <span>📬 Game Invitations</span>
-                <span class="badge blue">${w.length+C.length} Total</span>
+                <span class="badge blue">${A.length+y.length} Total</span>
               </div>
 
               <!-- Incoming -->
-              <h5 class="sub-box-title">Incoming Challenges (${w.length})</h5>
-              ${w.length===0?'<div class="box-empty-text">No incoming challenges waiting. Start one with a teammate!</div>':`
+              <h5 class="sub-box-title">Incoming Challenges (${A.length})</h5>
+              ${A.length===0?'<div class="box-empty-text">No incoming challenges waiting. Start one with a teammate!</div>':`
                   <div class="lounge-invites-list">
-                    ${w.map(E=>`
+                    ${A.map(q=>`
                       <div class="lounge-invite-item incoming">
                         <div class="invite-left">
-                          <div class="invite-avatar">${(E.sender.name||"U").slice(0,1).toUpperCase()}</div>
+                          <div class="invite-avatar">${(q.sender.name||"U").slice(0,1).toUpperCase()}</div>
                           <div class="invite-info">
-                            <span class="invite-title">${x(E.gameTitle)}</span>
-                            <span class="invite-sender">from <strong>${x(E.sender.name)}</strong> (${x(E.sender.role)})</span>
+                            <span class="invite-title">${x(q.gameTitle)}</span>
+                            <span class="invite-sender">from <strong>${x(q.sender.name)}</strong> (${x(q.sender.role)})</span>
                           </div>
                         </div>
                         <div class="invite-actions">
-                          <button class="btn-invite-accept btn-respond-invite" data-invite-id="${E._id}" data-action="accept">
+                          <button class="btn-invite-accept btn-respond-invite" data-invite-id="${q._id}" data-action="accept">
                             Accept ⚔️
                           </button>
-                          <button class="btn-invite-decline btn-respond-invite" data-invite-id="${E._id}" data-action="decline">
+                          <button class="btn-invite-decline btn-respond-invite" data-invite-id="${q._id}" data-action="decline">
                             Decline
                           </button>
                         </div>
@@ -2491,21 +2507,21 @@ import{c as Me,h as $,e as x,n as Ge,j as Ve,o as Ot,k as Wt,g as ke,p as Ft,t a
                 `}
 
               <!-- Sent -->
-              <h5 class="sub-box-title" style="margin-top: 18px;">Sent Challenges (${C.length})</h5>
-              ${C.length===0?'<div class="box-empty-text">No pending outgoing invitations.</div>':`
+              <h5 class="sub-box-title" style="margin-top: 18px;">Sent Challenges (${y.length})</h5>
+              ${y.length===0?'<div class="box-empty-text">No pending outgoing invitations.</div>':`
                   <div class="lounge-invites-list">
-                    ${C.map(E=>`
+                    ${y.map(q=>`
                       <div class="lounge-invite-item outgoing">
                         <div class="invite-left">
-                          <div class="invite-avatar">${(E.recipient.name||"U").slice(0,1).toUpperCase()}</div>
+                          <div class="invite-avatar">${(q.recipient.name||"U").slice(0,1).toUpperCase()}</div>
                           <div class="invite-info">
-                            <span class="invite-title">${x(E.gameTitle)}</span>
-                            <span class="invite-sender">sent to <strong>${x(E.recipient.name)}</strong></span>
+                            <span class="invite-title">${x(q.gameTitle)}</span>
+                            <span class="invite-sender">sent to <strong>${x(q.recipient.name)}</strong></span>
                           </div>
                         </div>
                         <div class="invite-actions">
                           <span class="badge amber">Pending</span>
-                          <button class="btn-invite-cancel btn-respond-invite" data-invite-id="${E._id}" data-action="cancel">
+                          <button class="btn-invite-cancel btn-respond-invite" data-invite-id="${q._id}" data-action="cancel">
                             Cancel
                           </button>
                         </div>
@@ -2519,29 +2535,29 @@ import{c as Me,h as $,e as x,n as Ge,j as Ve,o as Ot,k as Wt,g as ke,p as Ft,t a
             <div class="lounge-card-box">
               <div class="lounge-box-title">
                 <span>⚡ Active Multiplayer Matches</span>
-                <span class="badge green">${N.length} Live</span>
+                <span class="badge green">${D.length} Live</span>
               </div>
 
-              ${N.length===0?'<div class="box-empty-text" style="padding: 24px 0">No active matches in progress right now. Accept an invitation or challenge a teammate to begin!</div>':`
+              ${D.length===0?'<div class="box-empty-text" style="padding: 24px 0">No active matches in progress right now. Accept an invitation or challenge a teammate to begin!</div>':`
                   <div class="lounge-active-matches-list">
-                    ${N.map(E=>{const J=te&&E.player1.userId.toString()===te.toString()?E.player2:E.player1,Q=te&&E.currentTurnUserId&&E.currentTurnUserId.toString()===te.toString();return`
-                        <div class="lounge-active-match-card ${Q?"turn-active":""}">
+                    ${D.map(q=>{const V=R&&q.player1.userId.toString()===R.toString()?q.player2:q.player1,J=R&&q.currentTurnUserId&&q.currentTurnUserId.toString()===R.toString();return`
+                        <div class="lounge-active-match-card ${J?"turn-active":""}">
                           <div class="active-match-left">
-                            <span class="match-game-icon">${E.gameType==="chess"?"♟️":E.gameType==="ludo"?"🎲":"❌"}</span>
+                            <span class="match-game-icon">${q.gameType==="chess"?"♟️":q.gameType==="ludo"?"🎲":"❌"}</span>
                             <div>
-                              <div class="match-game-title">${x(E.gameTitle)}</div>
-                              <div class="match-opp-text">Opponent: <strong>${x(J.name)}</strong> (${x(J.role)})</div>
+                              <div class="match-game-title">${x(q.gameTitle)}</div>
+                              <div class="match-opp-text">Opponent: <strong>${x(V.name)}</strong> (${x(V.role)})</div>
                             </div>
                           </div>
 
                           <div class="active-match-right">
-                            <span class="match-turn-tag ${Q?"my-turn":"wait"}">
-                              ${Q?"⚡ Your Turn!":"⏳ Opponent Turn"}
+                            <span class="match-turn-tag ${J?"my-turn":"wait"}">
+                              ${J?"⚡ Your Turn!":"⏳ Opponent Turn"}
                             </span>
-                            <button class="btn-resume-match" data-match-id="${E._id}">
+                            <button class="btn-resume-match" data-match-id="${q._id}">
                               Resume Match 🎮
                             </button>
-                            <button class="btn-delete-match" data-match-id="${E._id}" title="Delete Match">
+                            <button class="btn-delete-match" data-match-id="${q._id}" title="Delete Match">
                               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <polyline points="3 6 5 6 21 6"></polyline>
                                 <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -2562,7 +2578,7 @@ import{c as Me,h as $,e as x,n as Ge,j as Ve,o as Ot,k as Wt,g as ke,p as Ft,t a
                 <h3>📜 Recent Completed Matches</h3>
                 <p>Audit results, rematch recent opponents, or review match outcomes.</p>
               </div>
-              ${L.length>0?`
+              ${se.length>0?`
                 <button class="btn-clear-matches" id="btn-clear-matches" title="Clear all completed matches">
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <polyline points="3 6 5 6 21 6"></polyline>
@@ -2573,14 +2589,14 @@ import{c as Me,h as $,e as x,n as Ge,j as Ve,o as Ot,k as Wt,g as ke,p as Ft,t a
               `:""}
             </div>
 
-            ${L.length===0?'<div class="box-empty-text">No recently completed matches found.</div>':`
+            ${se.length===0?'<div class="box-empty-text">No recently completed matches found.</div>':`
                 <div class="lounge-recent-matches-grid">
-                  ${L.map(E=>{const J=te&&E.player1.userId.toString()===te.toString()?E.player2:E.player1,Q=te&&E.winnerId&&E.winnerId.toString()===te.toString(),W=E.status==="draw";return`
+                  ${se.map(q=>{const V=R&&q.player1.userId.toString()===R.toString()?q.player2:q.player1,J=R&&q.winnerId&&q.winnerId.toString()===R.toString(),Q=q.status==="draw";return`
                       <div class="recent-match-card">
                         <div class="recent-card-head">
-                          <span class="recent-game-title">${x(E.gameTitle)}</span>
-                          <span class="recent-date">${X(E.completedAt||E.updatedAt)}</span>
-                          <button class="btn-delete-match mini" data-match-id="${E._id}" title="Delete Match Record">
+                          <span class="recent-game-title">${x(q.gameTitle)}</span>
+                          <span class="recent-date">${te(q.completedAt||q.updatedAt)}</span>
+                          <button class="btn-delete-match mini" data-match-id="${q._id}" title="Delete Match Record">
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                               <polyline points="3 6 5 6 21 6"></polyline>
                               <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -2588,17 +2604,17 @@ import{c as Me,h as $,e as x,n as Ge,j as Ve,o as Ot,k as Wt,g as ke,p as Ft,t a
                           </button>
                         </div>
                         <div class="recent-card-body">
-                          <div>Opponent: <strong>${x(J.name)}</strong></div>
-                          <div class="recent-outcome ${Q?"win":W?"draw":"loss"}">
-                            ${Q?"🏆 VICTORY":W?"🤝 DRAW":"DEFEAT"}
-                            <span style="font-size:11px;font-weight:normal;color:var(--text-3)">(${x(E.winningReason||E.status)})</span>
+                          <div>Opponent: <strong>${x(V.name)}</strong></div>
+                          <div class="recent-outcome ${J?"win":Q?"draw":"loss"}">
+                            ${J?"🏆 VICTORY":Q?"🤝 DRAW":"DEFEAT"}
+                            <span style="font-size:11px;font-weight:normal;color:var(--text-3)">(${x(q.winningReason||q.status)})</span>
                           </div>
                         </div>
                         <div style="display:flex;gap:8px;margin-top:4px;">
-                          <button class="btn-recent-rematch" data-match-id="${E._id}" style="flex:1;">
+                          <button class="btn-recent-rematch" data-match-id="${q._id}" style="flex:1;">
                             🔄 Rematch
                           </button>
-                          <button class="btn-delete-match text-btn" data-match-id="${E._id}" title="Delete Match Record">
+                          <button class="btn-delete-match text-btn" data-match-id="${q._id}" title="Delete Match Record">
                             Delete
                           </button>
                         </div>
@@ -2608,17 +2624,17 @@ import{c as Me,h as $,e as x,n as Ge,j as Ve,o as Ot,k as Wt,g as ke,p as Ft,t a
               `}
           </div>
         </div>
-      `,_()}catch(l){u.innerHTML=`
+      `,C()}catch(a){c.innerHTML=`
         <div class="bonding-empty-feed">
           <div class="bonding-empty-icon">⚠️</div>
           <h4>Failed to load Games Arena</h4>
-          <p>${x(l.message)}</p>
+          <p>${x(a.message)}</p>
         </div>
-      `}}}function _(){i.querySelectorAll(".btn-challenge-game").forEach(u=>{u.onclick=()=>{const l=u.dataset.gameId;A(l)}}),i.querySelectorAll(".btn-respond-invite").forEach(u=>{u.onclick=async()=>{const l=u.dataset.inviteId,o=u.dataset.action;await V(l,o),await r()}}),i.querySelectorAll(".btn-resume-match").forEach(u=>{u.onclick=()=>{const l=u.dataset.matchId;G(l)}}),i.querySelectorAll(".btn-recent-rematch").forEach(u=>{u.onclick=async()=>{const l=u.dataset.matchId;try{u.disabled=!0;const o=await ke(`/bonding/matches/${l}/action`,{action:"rematch"});o.match&&($("Rematch created! Opening arena ⚔️","success"),G(o.match._id))}catch(o){$(o.message||"Could not start rematch","error")}finally{u.disabled=!1}}}),i.querySelectorAll(".btn-delete-match").forEach(u=>{u.onclick=async l=>{l.stopPropagation();const o=u.dataset.matchId;if(confirm("Are you sure you want to delete this match record?"))try{u.disabled=!0,await Ve(`/bonding/matches/${o}`),$("Match deleted successfully","success"),await r()}catch(m){$(m.message||"Failed to delete match","error")}finally{u.disabled=!1}}});const p=i.querySelector("#btn-clear-matches");p&&(p.onclick=async()=>{if(confirm("Are you sure you want to delete all completed matches in history?"))try{p.disabled=!0,await Ve("/bonding/matches?filter=completed"),$("Completed matches history cleared","success"),await r()}catch(u){$(u.message||"Failed to clear matches","error")}finally{p.disabled=!1}})}function A(p=null,u=null){const l=i.querySelector("#bonding-modals-root"),o=e?._id||e?.id,m=new Set(["employee","admin","superadmin"]),w=f.filter(Q=>!Q.isSelf&&Q._id.toString()!==o?.toString()&&m.has(Q.role));let C=p||"chess",N=u?u.toString():null,L=2,te=N?[N]:[],E="none";function ue(){const Q=w.find(re=>re._id.toString()===N),W=C==="ludo",Y=L-1,ae=te.length===Y;l.innerHTML=`
+      `}}}function C(){n.querySelectorAll(".btn-challenge-game").forEach(c=>{c.onclick=()=>{const a=c.dataset.gameId;I(a)}}),n.querySelectorAll(".btn-respond-invite").forEach(c=>{c.onclick=async()=>{const a=c.dataset.inviteId,m=c.dataset.action;await K(a,m),await s()}}),n.querySelectorAll(".btn-resume-match").forEach(c=>{c.onclick=()=>{const a=c.dataset.matchId;W(a)}}),n.querySelectorAll(".btn-recent-rematch").forEach(c=>{c.onclick=async()=>{const a=c.dataset.matchId;try{c.disabled=!0;const m=await ye(`/bonding/matches/${a}/action`,{action:"rematch"});m.match&&(k("Rematch created! Opening arena ⚔️","success"),W(m.match._id))}catch(m){k(m.message||"Could not start rematch","error")}finally{c.disabled=!1}}}),n.querySelectorAll(".btn-delete-match").forEach(c=>{c.onclick=async a=>{a.stopPropagation();const m=c.dataset.matchId;if(confirm("Are you sure you want to delete this match record?"))try{c.disabled=!0,await Ye(`/bonding/matches/${m}`),k("Match deleted successfully","success"),await s()}catch(g){k(g.message||"Failed to delete match","error")}finally{c.disabled=!1}}});const p=n.querySelector("#btn-clear-matches");p&&(p.onclick=async()=>{if(confirm("Are you sure you want to delete all completed matches in history?"))try{p.disabled=!0,await Ye("/bonding/matches?filter=completed"),k("Completed matches history cleared","success"),await s()}catch(c){k(c.message||"Failed to clear matches","error")}finally{p.disabled=!1}})}function I(p=null,c=null){const a=n.querySelector("#bonding-modals-root"),m=e?._id||e?.id,g=new Set(["employee","admin","superadmin"]),A=f.filter(J=>!J.isSelf&&J._id.toString()!==m?.toString()&&g.has(J.role));let y=p||"chess",D=c?c.toString():null,se=2,R=D?[D]:[],q="none";function ae(){const J=A.find(re=>re._id.toString()===D),Q=y==="ludo",Y=se-1,ie=R.length===Y;a.innerHTML=`
         <div class="bonding-modal-backdrop">
           <div class="bonding-modal-card challenge-flow-modal">
             <div class="bonding-modal-header">
-              <h3>⚔️ ${W?"Play Ludo (2P, 3P, 4P)":"Multiplayer Game Challenge"}</h3>
+              <h3>⚔️ ${Q?"Play Ludo (2P, 3P, 4P)":"Multiplayer Game Challenge"}</h3>
               <button class="bonding-modal-close">&times;</button>
             </div>
 
@@ -2627,30 +2643,30 @@ import{c as Me,h as $,e as x,n as Ge,j as Ve,o as Ot,k as Wt,g as ke,p as Ft,t a
               <div class="flow-step-box">
                 <div class="flow-step-lbl">Step 1 — Choose Game</div>
                 <div class="game-select-pills">
-                  <button class="game-pill-btn ${C==="chess"?"active":""}" data-game="chess">
+                  <button class="game-pill-btn ${y==="chess"?"active":""}" data-game="chess">
                     <span>♟️</span> <span>Chess Duel</span>
                   </button>
-                  <button class="game-pill-btn ${C==="tictactoe"?"active":""}" data-game="tictactoe">
+                  <button class="game-pill-btn ${y==="tictactoe"?"active":""}" data-game="tictactoe">
                     <span>❌</span> <span>Tic-Tac-Toe</span>
                   </button>
-                  <button class="game-pill-btn ${C==="ludo"?"active":""}" data-game="ludo">
+                  <button class="game-pill-btn ${y==="ludo"?"active":""}" data-game="ludo">
                     <span>🎲</span> <span>Ludo Royale</span>
                   </button>
                 </div>
               </div>
 
               <!-- LUDO SPECIAL: Step 2 Player Count Selector (2P, 3P, 4P) -->
-              ${W?`
+              ${Q?`
                 <div class="flow-step-box">
                   <div class="flow-step-lbl">Step 2 — Select Player Mode</div>
                   <div class="ludo-mode-pills">
-                    <button class="ludo-mode-btn ${L===2?"active":""}" data-count="2">
+                    <button class="ludo-mode-btn ${se===2?"active":""}" data-count="2">
                       👥 2P Duel (1v1)
                     </button>
-                    <button class="ludo-mode-btn ${L===3?"active":""}" data-count="3">
+                    <button class="ludo-mode-btn ${se===3?"active":""}" data-count="3">
                       ⚔️ 3P Battle (3 Players)
                     </button>
-                    <button class="ludo-mode-btn ${L===4?"active":""}" data-count="4">
+                    <button class="ludo-mode-btn ${se===4?"active":""}" data-count="4">
                       👑 4P Royale (4 Players)
                     </button>
                   </div>
@@ -2660,22 +2676,22 @@ import{c as Me,h as $,e as x,n as Ge,j as Ve,o as Ot,k as Wt,g as ke,p as Ft,t a
               <!-- Step: Opponent Selection -->
               <div class="flow-step-box">
                 <div class="flow-step-lbl">
-                  ${W?`Step 3 — Select Colleagues to Play With (${te.length}/${Y} Selected) *`:"Step 2 — Select Employee to Challenge *"}
+                  ${Q?`Step 3 — Select Colleagues to Play With (${R.length}/${Y} Selected) *`:"Step 2 — Select Employee to Challenge *"}
                 </div>
                 <div class="emp-search-wrap">
                   <input type="text" id="flow-emp-search" placeholder="🔍 Search employee by name or role..." class="bonding-input" />
                 </div>
 
                 <div class="eligible-emp-list" id="eligible-emp-list-wrap">
-                  ${w.map(re=>{const pe=W?te.includes(re._id.toString()):N===re._id.toString();return`
-                      <div class="eligible-emp-item ${pe?"selected":""}" data-user-id="${re._id}">
+                  ${A.map(re=>{const be=Q?R.includes(re._id.toString()):D===re._id.toString();return`
+                      <div class="eligible-emp-item ${be?"selected":""}" data-user-id="${re._id}">
                         <div class="emp-item-avatar">${re.name.slice(0,1).toUpperCase()}</div>
                         <div class="emp-item-info">
                           <span class="emp-item-name">${x(re.name)}</span>
                           <span class="emp-item-role">${x(re.role==="superadmin"?"Superadmin":re.role==="admin"?"Admin":"Employee")} · ${x(re.email||"")}</span>
                         </div>
-                        <button class="btn-select-opponent ${pe?"active":""}">
-                          ${pe?"Selected ✓":"Select"}
+                        <button class="btn-select-opponent ${be?"active":""}">
+                          ${be?"Selected ✓":"Select"}
                         </button>
                       </div>
                     `}).join("")}
@@ -2683,20 +2699,20 @@ import{c as Me,h as $,e as x,n as Ge,j as Ve,o as Ot,k as Wt,g as ke,p as Ft,t a
               </div>
 
               <!-- Step for Chess timers -->
-              ${C==="chess"?`
+              ${y==="chess"?`
                 <div class="flow-step-box">
                   <div class="flow-step-lbl">Step 3 — Time Control Options</div>
                   <div class="timer-opts-row">
-                    <label class="timer-radio-lbl ${E==="none"?"active":""}">
-                      <input type="radio" name="timerMode" value="none" ${E==="none"?"checked":""} />
+                    <label class="timer-radio-lbl ${q==="none"?"active":""}">
+                      <input type="radio" name="timerMode" value="none" ${q==="none"?"checked":""} />
                       <span>Untimed Match (Casual Turn-Based)</span>
                     </label>
-                    <label class="timer-radio-lbl ${E==="3m"?"active":""}">
-                      <input type="radio" name="timerMode" value="3m" ${E==="3m"?"checked":""} />
+                    <label class="timer-radio-lbl ${q==="3m"?"active":""}">
+                      <input type="radio" name="timerMode" value="3m" ${q==="3m"?"checked":""} />
                       <span>⚡ 3-Minute Blitz</span>
                     </label>
-                    <label class="timer-radio-lbl ${E==="5m"?"active":""}">
-                      <input type="radio" name="timerMode" value="5m" ${E==="5m"?"checked":""} />
+                    <label class="timer-radio-lbl ${q==="5m"?"active":""}">
+                      <input type="radio" name="timerMode" value="5m" ${q==="5m"?"checked":""} />
                       <span>⏱️ 5-Minute Rapid</span>
                     </label>
                   </div>
@@ -2707,26 +2723,26 @@ import{c as Me,h as $,e as x,n as Ge,j as Ve,o as Ot,k as Wt,g as ke,p as Ft,t a
               <div class="flow-confirmation-card">
                 <div class="confirm-head">Match Summary:</div>
                 <div class="confirm-body">
-                  <div><strong>Game:</strong> ${W?`🎲 Ludo (${L} Players · 4 Pawns per base)`:C==="chess"?"♟️ Chess Duel":"❌ Tic-Tac-Toe Challenge"}</div>
-                  ${W?`
-                    <div><strong>Opponents:</strong> ${te.length>0?te.map(re=>{const pe=w.find(ye=>ye._id.toString()===re);return pe?`<strong>${x(pe.name)}</strong>`:"Colleague"}).join(", "):'<span style="color:#ef4444">⚠️ Please select '+Y+" colleague(s)</span>"}</div>
+                  <div><strong>Game:</strong> ${Q?`🎲 Ludo (${se} Players · 4 Pawns per base)`:y==="chess"?"♟️ Chess Duel":"❌ Tic-Tac-Toe Challenge"}</div>
+                  ${Q?`
+                    <div><strong>Opponents:</strong> ${R.length>0?R.map(re=>{const be=A.find($e=>$e._id.toString()===re);return be?`<strong>${x(be.name)}</strong>`:"Colleague"}).join(", "):'<span style="color:#ef4444">⚠️ Please select '+Y+" colleague(s)</span>"}</div>
                   `:`
-                    <div><strong>Opponent:</strong> ${Q?`<strong>${x(Q.name)}</strong> (${x(Q.role)})`:'<span style="color:#ef4444">⚠️ No employee selected yet</span>'}</div>
+                    <div><strong>Opponent:</strong> ${J?`<strong>${x(J.name)}</strong> (${x(J.role)})`:'<span style="color:#ef4444">⚠️ No employee selected yet</span>'}</div>
                   `}
-                  ${C==="chess"?`<div><strong>Time Control:</strong> ${E==="none"?"Untimed":E}</div>`:""}
+                  ${y==="chess"?`<div><strong>Time Control:</strong> ${q==="none"?"Untimed":q}</div>`:""}
                 </div>
               </div>
             </div>
 
             <div class="bonding-modal-footer">
               <button class="bonding-btn-secondary" id="btn-cancel-challenge-flow">Cancel</button>
-              <button class="bonding-btn-primary" id="btn-submit-challenge-flow" ${(W?!ae:!N)?"disabled":""}>
-                ${W?`Start ${L}P Ludo Match 🎲`:"Send Challenge 🚀"}
+              <button class="bonding-btn-primary" id="btn-submit-challenge-flow" ${(Q?!ie:!D)?"disabled":""}>
+                ${Q?`Start ${se}P Ludo Match 🎲`:"Send Challenge 🚀"}
               </button>
             </div>
           </div>
         </div>
-      `,J()}function J(){l.querySelector(".bonding-modal-close").onclick=()=>{l.innerHTML=""},l.querySelector("#btn-cancel-challenge-flow").onclick=()=>{l.innerHTML=""},l.querySelectorAll(".game-pill-btn").forEach(Y=>{Y.onclick=()=>{C=Y.dataset.game,ue()}}),l.querySelectorAll(".ludo-mode-btn").forEach(Y=>{Y.onclick=()=>{L=Number(Y.dataset.count),te=te.slice(0,L-1),ue()}});const Q=l.querySelector("#flow-emp-search");Q&&(Q.oninput=Y=>{const ae=Y.target.value.toLowerCase().trim();l.querySelectorAll(".eligible-emp-item").forEach(re=>{const pe=re.textContent.toLowerCase();re.style.display=pe.includes(ae)?"flex":"none"})}),l.querySelectorAll(".eligible-emp-item").forEach(Y=>{Y.onclick=()=>{const ae=Y.dataset.userId;if(C==="ludo"){const re=L-1;te.includes(ae)?te=te.filter(pe=>pe!==ae):te.length<re?te.push(ae):te[re-1]=ae}else N=ae;ue()}}),l.querySelectorAll('input[name="timerMode"]').forEach(Y=>{Y.onchange=ae=>{E=ae.target.value,ue()}});const W=l.querySelector("#btn-submit-challenge-flow");W&&(W.onclick=async()=>{if(C==="ludo"){const Y=L-1;if(te.length<Y){$(`Please select ${Y} colleague(s) to play with`,"warning");return}try{W.disabled=!0,W.textContent="Launching Match...";const ae=await ke("/bonding/matches/instant-ludo",{playerCount:L,targetUserIds:te});l.innerHTML="",$(`Ludo match started (${L} Players)! 🎲`,"success"),ae&&ae._id&&G(ae._id)}catch(ae){$(ae.message||"Failed to start Ludo match","error"),W.disabled=!1,W.textContent=`Start ${L}P Ludo Match 🎲`}return}if(!N){$("Please select an employee to challenge","warning");return}try{W.disabled=!0,W.textContent="Sending Challenge...",await ke("/bonding/invitations",{gameType:C,targetUserId:N,matchSettings:{timerMode:E},channelId:s?._id||null}),$("Game challenge delivered! Awaiting acceptance ⚔️","success"),l.innerHTML="",s&&await we(s._id),d==="lounge_games"&&await r()}catch(Y){$(Y.message||"Could not send challenge","error"),W.disabled=!1,W.textContent="Send Challenge 🚀"}})}ue()}async function V(p,u){if(!(!p||!u))try{const l=await Wt(`/bonding/invitations/${p}/respond`,{action:u});u==="accept"?($("Challenge accepted! Entering match arena ⚔️","success"),l.match&&G(l.match._id)):u==="decline"?$("Challenge declined","info"):u==="cancel"&&$("Challenge cancelled","info"),s&&await we(s._id),d==="lounge_games"&&await r()}catch(l){$(l.message||"Action failed","error")}}async function G(p){if(!p)return;j=p,P&&clearInterval(P);const u=i.querySelector("#bonding-modals-root");let l=null,o=null,m=[];async function w(){try{return l=await Me(`/bonding/matches/${p}`),l}catch(J){return $(J.message||"Could not load match","error"),C(),null}}if(l=await w(),!l)return;function C(){P&&clearInterval(P),j=null,u.innerHTML="",d==="lounge_games"&&r(!0),s&&we(s._id,!0)}P=setInterval(async()=>{if(!j||j!==p){clearInterval(P);return}const J=l?.currentTurnUserId?.toString(),Q=l?.status,W=await w();W&&(W.currentTurnUserId?.toString()!==J||W.status!==Q||W.moves?.length!==l.moves?.length)&&N()},1500);function N(){if(!l)return;const J=e?._id||e?.id,Q=J&&l.player1.userId.toString()===J.toString(),W=Q?l.player1:l.player2,Y=Q?l.player2:l.player1,ae=J&&l.currentTurnUserId&&l.currentTurnUserId.toString()===J.toString(),re=l.status!=="active";u.innerHTML=`
+      `,V()}function V(){a.querySelector(".bonding-modal-close").onclick=()=>{a.innerHTML=""},a.querySelector("#btn-cancel-challenge-flow").onclick=()=>{a.innerHTML=""},a.querySelectorAll(".game-pill-btn").forEach(Y=>{Y.onclick=()=>{y=Y.dataset.game,ae()}}),a.querySelectorAll(".ludo-mode-btn").forEach(Y=>{Y.onclick=()=>{se=Number(Y.dataset.count),R=R.slice(0,se-1),ae()}});const J=a.querySelector("#flow-emp-search");J&&(J.oninput=Y=>{const ie=Y.target.value.toLowerCase().trim();a.querySelectorAll(".eligible-emp-item").forEach(re=>{const be=re.textContent.toLowerCase();re.style.display=be.includes(ie)?"flex":"none"})}),a.querySelectorAll(".eligible-emp-item").forEach(Y=>{Y.onclick=()=>{const ie=Y.dataset.userId;if(y==="ludo"){const re=se-1;R.includes(ie)?R=R.filter(be=>be!==ie):R.length<re?R.push(ie):R[re-1]=ie}else D=ie;ae()}}),a.querySelectorAll('input[name="timerMode"]').forEach(Y=>{Y.onchange=ie=>{q=ie.target.value,ae()}});const Q=a.querySelector("#btn-submit-challenge-flow");Q&&(Q.onclick=async()=>{if(y==="ludo"){const Y=se-1;if(R.length<Y){k(`Please select ${Y} colleague(s) to play with`,"warning");return}try{Q.disabled=!0,Q.textContent="Launching Match...";const ie=await ye("/bonding/matches/instant-ludo",{playerCount:se,targetUserIds:R});a.innerHTML="",k(`Ludo match started (${se} Players)! 🎲`,"success"),ie&&ie._id&&W(ie._id)}catch(ie){k(ie.message||"Failed to start Ludo match","error"),Q.disabled=!1,Q.textContent=`Start ${se}P Ludo Match 🎲`}return}if(!D){k("Please select an employee to challenge","warning");return}try{Q.disabled=!0,Q.textContent="Sending Challenge...",await ye("/bonding/invitations",{gameType:y,targetUserId:D,matchSettings:{timerMode:q},channelId:r?._id||null}),k("Game challenge delivered! Awaiting acceptance ⚔️","success"),a.innerHTML="",r&&await we(r._id),l==="lounge_games"&&await s()}catch(Y){k(Y.message||"Could not send challenge","error"),Q.disabled=!1,Q.textContent="Send Challenge 🚀"}})}ae()}async function K(p,c){if(!(!p||!c))try{const a=await Gt(`/bonding/invitations/${p}/respond`,{action:c});c==="accept"?(k("Challenge accepted! Entering match arena ⚔️","success"),a.match&&W(a.match._id)):c==="decline"?k("Challenge declined","info"):c==="cancel"&&k("Challenge cancelled","info"),r&&await we(r._id),l==="lounge_games"&&await s()}catch(a){k(a.message||"Action failed","error")}}async function W(p){if(!p)return;T=p,P&&clearInterval(P);const c=n.querySelector("#bonding-modals-root");let a=null,m=null,g=[];async function A(){try{return a=await Pe(`/bonding/matches/${p}`),a}catch(V){return k(V.message||"Could not load match","error"),y(),null}}if(a=await A(),!a)return;function y(){P&&clearInterval(P),T=null,c.innerHTML="",l==="lounge_games"&&s(!0),r&&we(r._id,!0)}P=setInterval(async()=>{if(!T||T!==p){clearInterval(P);return}const V=a?.currentTurnUserId?.toString(),J=a?.status,Q=await A();Q&&(Q.currentTurnUserId?.toString()!==V||Q.status!==J||Q.moves?.length!==a.moves?.length)&&D()},1500);function D(){if(!a)return;const V=e?._id||e?.id,J=V&&a.player1.userId.toString()===V.toString(),Q=J?a.player1:a.player2,Y=J?a.player2:a.player1,ie=V&&a.currentTurnUserId&&a.currentTurnUserId.toString()===V.toString(),re=a.status!=="active";c.innerHTML=`
         <div class="bonding-modal-backdrop">
           <div class="bonding-modal-card game-arena-modal">
             <!-- Dedicated Top-Right Close Button -->
@@ -2735,37 +2751,37 @@ import{c as Me,h as $,e as x,n as Ge,j as Ve,o as Ot,k as Wt,g as ke,p as Ft,t a
             <!-- Arena Header Bar -->
             <div class="arena-header">
               <div class="arena-title-wrap">
-                <span class="arena-icon">${l.gameType==="ludo"?"🎲":l.gameType==="chess"?"♟️":"❌"}</span>
+                <span class="arena-icon">${a.gameType==="ludo"?"🎲":a.gameType==="chess"?"♟️":"❌"}</span>
                 <div>
-                  <h3 class="arena-title">${x(l.gameTitle)}</h3>
-                  ${l.gameType==="ludo"&&l.gameState?.players?`
+                  <h3 class="arena-title">${x(a.gameTitle)}</h3>
+                  ${a.gameType==="ludo"&&a.gameState?.players?`
                     <div class="arena-players-vs ludo-players-wrap">
-                      ${l.gameState.players.map(pe=>{const ye=pe.userId&&pe.userId.toString()===J?.toString(),Se={red:"🔴",green:"🟢",yellow:"🟡",blue:"🔵"}[pe.color]||"⚪",le=(l.gameState?.turnColor||l.turn)===pe.color;return`
-                          <span class="player-tag ${ye?"self":"opp"} ${le?"turn-active":""}">
-                            ${Se} <strong>${x(pe.name)}</strong> ${ye?"(You)":""}
+                      ${a.gameState.players.map(be=>{const $e=be.userId&&be.userId.toString()===V?.toString(),De={red:"🔴",green:"🟢",yellow:"🟡",blue:"🔵"}[be.color]||"⚪",ce=(a.gameState?.turnColor||a.turn)===be.color;return`
+                          <span class="player-tag ${$e?"self":"opp"} ${ce?"turn-active":""}">
+                            ${De} <strong>${x(be.name)}</strong> ${$e?"(You)":""}
                           </span>
                         `}).join('<span class="vs-pill">vs</span>')}
                     </div>
                   `:`
                     <div class="arena-players-vs">
-                      <span class="player-tag self">${x(W.name)} (You · <strong>${l.gameType==="ludo"?W.assignedRole==="red"?"🔴 Red":"🟢 Green":l.gameType==="tictactoe"?W.assignedRole==="X"?"✕":"◯":W.assignedRole}</strong>)</span>
+                      <span class="player-tag self">${x(Q.name)} (You · <strong>${a.gameType==="ludo"?Q.assignedRole==="red"?"🔴 Red":"🟢 Green":a.gameType==="tictactoe"?Q.assignedRole==="X"?"✕":"◯":Q.assignedRole}</strong>)</span>
                       <span class="vs-pill">VS</span>
-                      <span class="player-tag opp">${x(Y.name)} (<strong>${l.gameType==="ludo"?Y.assignedRole==="red"?"🔴 Red":"🟢 Green":l.gameType==="tictactoe"?Y.assignedRole==="X"?"✕":"◯":Y.assignedRole}</strong>)</span>
+                      <span class="player-tag opp">${x(Y.name)} (<strong>${a.gameType==="ludo"?Y.assignedRole==="red"?"🔴 Red":"🟢 Green":a.gameType==="tictactoe"?Y.assignedRole==="X"?"✕":"◯":Y.assignedRole}</strong>)</span>
                     </div>
                   `}
                 </div>
               </div>
 
               <!-- Live Turn Indicator -->
-              <div class="arena-turn-banner ${re?"ended":ae?"my-turn":"opp-turn"}">
-                ${re?`<span>🏁 Finished (${x(l.winningReason||l.status)})</span>`:ae?"<span>⚡ YOUR TURN</span>":`<span>⏳ Waiting for ${x(Y.name)}...</span>`}
+              <div class="arena-turn-banner ${re?"ended":ie?"my-turn":"opp-turn"}">
+                ${re?`<span>🏁 Finished (${x(a.winningReason||a.status)})</span>`:ie?"<span>⚡ YOUR TURN</span>":`<span>⏳ Waiting for ${x(Y.name)}...</span>`}
               </div>
             </div>
 
             <!-- Sub-Toolbar with Quick Instructions & Draw/Resign Actions -->
             <div class="arena-toolbar">
               <div class="arena-tip-text">
-                ${l.gameType==="ludo"?ae?l.gameState?.rolled?"👉 Click one of your glowing tokens to advance!":"🎲 Your turn! Click ROLL DICE to start your move.":"⏳ Opponent is rolling/moving their tokens...":l.gameType==="tictactoe"?ae?"👉 Tap any open cell to place your symbol!":"⏳ Opponent is deciding their move...":ae?"👉 Click your piece, then click a green target dot to move!":"⏳ Opponent is thinking..."}
+                ${a.gameType==="ludo"?ie?a.gameState?.rolled?"👉 Click one of your glowing tokens to advance!":"🎲 Your turn! Click ROLL DICE to start your move.":"⏳ Opponent is rolling/moving their tokens...":a.gameType==="tictactoe"?ie?"👉 Tap any open cell to place your symbol!":"⏳ Opponent is deciding their move...":ie?"👉 Click your piece, then click a green target dot to move!":"⏳ Opponent is thinking..."}
               </div>
               <div class="arena-action-btns">
                 ${re?"":`
@@ -2777,7 +2793,7 @@ import{c as Me,h as $,e as x,n as Ge,j as Ve,o as Ot,k as Wt,g as ke,p as Ft,t a
             </div>
 
             <!-- Draw Offer Notification -->
-            ${l.drawOfferedBy&&l.drawOfferedBy.toString()!==J?.toString()&&!re?`
+            ${a.drawOfferedBy&&a.drawOfferedBy.toString()!==V?.toString()&&!re?`
               <div class="arena-draw-offer-banner">
                 <span>🤝 ${x(Y.name)} has offered a draw. Accept?</span>
                 <button class="btn-accept-draw" id="btn-confirm-accept-draw">Accept Draw</button>
@@ -2787,18 +2803,18 @@ import{c as Me,h as $,e as x,n as Ge,j as Ve,o as Ot,k as Wt,g as ke,p as Ft,t a
 
             <!-- Arena Main Playing Board -->
             <div class="arena-board-wrap">
-              ${l.gameType==="chess"?L(Q):""}
-              ${l.gameType==="tictactoe"?te():""}
-              ${l.gameType==="ludo"?E(Q):""}
+              ${a.gameType==="chess"?se(J):""}
+              ${a.gameType==="tictactoe"?R():""}
+              ${a.gameType==="ludo"?q(J):""}
             </div>
 
             <!-- Match Result Banner (When finished) -->
             ${re?`
               <div class="arena-game-over-banner">
-                <div class="game-over-icon">${l.winnerId&&l.winnerId.toString()===J?.toString()?"🏆":l.status==="draw"?"🤝":"🎖️"}</div>
+                <div class="game-over-icon">${a.winnerId&&a.winnerId.toString()===V?.toString()?"🏆":a.status==="draw"?"🤝":"🎖️"}</div>
                 <div class="game-over-text">
-                  <h4>${l.winnerId&&l.winnerId.toString()===J?.toString()?"VICTORY!":l.status==="draw"?"STALEMATE / DRAW":`${x(l.winnerName)} Wins!`}</h4>
-                  <p>Reason: ${x(l.winningReason||"Match concluded")}</p>
+                  <h4>${a.winnerId&&a.winnerId.toString()===V?.toString()?"VICTORY!":a.status==="draw"?"STALEMATE / DRAW":`${x(a.winnerName)} Wins!`}</h4>
+                  <p>Reason: ${x(a.winningReason||"Match concluded")}</p>
                 </div>
                 <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
                   <button class="btn-arena-rematch" id="btn-arena-rematch-action">
@@ -2812,80 +2828,80 @@ import{c as Me,h as $,e as x,n as Ge,j as Ve,o as Ot,k as Wt,g as ke,p as Ft,t a
             `:""}
           </div>
         </div>
-      `,ue(ae,Q,W)}function L(J){const Q=l.gameState?.fen||"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",W=new xa(Q),Y=J?l.player1.assignedRole==="white":l.player2.assignedRole==="white",ae={p:"♟",r:"♜",n:"♞",b:"♝",q:"♛",k:"♚",P:"♙",R:"♖",N:"♘",B:"♗",Q:"♕",K:"♔"},re=Y?["a","b","c","d","e","f","g","h"]:["h","g","f","e","d","c","b","a"],pe=Y?[8,7,6,5,4,3,2,1]:[1,2,3,4,5,6,7,8];let ye='<div class="chess-board-grid">';for(const he of pe)for(const De of re){const Ie=`${De}${he}`,$e=W.get(Ie),Be=(De.charCodeAt(0)-97+he)%2!==0,Ne=o===Ie,Ue=m.includes(Ie),Ee=$e?$e.color==="w"?ae[$e.type.toUpperCase()]:ae[$e.type]:"";ye+=`
-            <div class="chess-sq ${Be?"light":"dark"} ${Ne?"selected":""} ${Ue?"legal-dot":""}" data-square="${Ie}">
-              ${Ee?`<span class="chess-piece ${$e.color==="w"?"white-piece":"black-piece"}">${Ee}</span>`:""}
+      `,ae(ie,J,Q)}function se(V){const J=a.gameState?.fen||"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",Q=new xa(J),Y=V?a.player1.assignedRole==="white":a.player2.assignedRole==="white",ie={p:"♟",r:"♜",n:"♞",b:"♝",q:"♛",k:"♚",P:"♙",R:"♖",N:"♘",B:"♗",Q:"♕",K:"♔"},re=Y?["a","b","c","d","e","f","g","h"]:["h","g","f","e","d","c","b","a"],be=Y?[8,7,6,5,4,3,2,1]:[1,2,3,4,5,6,7,8];let $e='<div class="chess-board-grid">';for(const ve of be)for(const Te of re){const Oe=`${Te}${ve}`,Se=Q.get(Oe),We=(Te.charCodeAt(0)-97+ve)%2!==0,Ue=m===Oe,Me=g.includes(Oe),z=Se?Se.color==="w"?ie[Se.type.toUpperCase()]:ie[Se.type]:"";$e+=`
+            <div class="chess-sq ${We?"light":"dark"} ${Ue?"selected":""} ${Me?"legal-dot":""}" data-square="${Oe}">
+              ${z?`<span class="chess-piece ${Se.color==="w"?"white-piece":"black-piece"}">${z}</span>`:""}
             </div>
-          `}ye+="</div>";const le=(l.moves||[]).map(he=>`
-        <span class="chess-move-token">${he.moveNum}. ${he.moveData?.san||""}</span>
+          `}$e+="</div>";const ce=(a.moves||[]).map(ve=>`
+        <span class="chess-move-token">${ve.moveNum}. ${ve.moveData?.san||""}</span>
       `).join(" ");return`
         <div class="chess-arena-layout">
-          ${ye}
+          ${$e}
           <div class="chess-sidebar-notation">
             <div class="notation-head">Move Notation</div>
-            <div class="notation-feed">${le||'<span class="muted">No moves yet</span>'}</div>
+            <div class="notation-feed">${ce||'<span class="muted">No moves yet</span>'}</div>
           </div>
         </div>
-      `}function te(){const J=l.gameState?.board||Array(9).fill(null),Q=l.winningCells||[];return`
+      `}function R(){const V=a.gameState?.board||Array(9).fill(null),J=a.winningCells||[];return`
         <div class="ttt-court">
           <div class="ttt-board-grid">
-            ${J.map((W,Y)=>{const ae=Q.includes(Y);return`
-                <div class="ttt-cell ${W?"filled":"empty"} ${ae?"win-cell":""}" data-cell-idx="${Y}">
-                  ${W==="X"?'<span class="ttt-x">✕</span>':W==="O"?'<span class="ttt-o">◯</span>':""}
+            ${V.map((Q,Y)=>{const ie=J.includes(Y);return`
+                <div class="ttt-cell ${Q?"filled":"empty"} ${ie?"win-cell":""}" data-cell-idx="${Y}">
+                  ${Q==="X"?'<span class="ttt-x">✕</span>':Q==="O"?'<span class="ttt-o">◯</span>':""}
                 </div>
               `}).join("")}
           </div>
         </div>
-      `}function E(J,Q,W){const Y=l.gameState||{},ae=Y.activeColors||["red","green"],re=Y.players||[{...l.player1,color:"red",assignedRole:"red",isBot:!1},{...l.player2,color:"green",assignedRole:"green",isBot:!1}],pe=Y.tokens||{},ye=D=>{const ee=pe[D]||(D==="red"?Y.p1Tokens:D==="green"?Y.p2Tokens:[])||[];return Array.from({length:4},(fe,ze)=>ee[ze]||{id:ze,step:-1})},Se=ye("red"),le=ye("green"),he=ye("yellow"),De=ye("blue"),Ie=e?._id||e?.id,Be=(re.find(D=>D.userId&&D.userId.toString()===Ie?.toString())||re[0])?.color||(J?"red":"green"),Ne=Y.turnColor||l.turn||"red",Ue=Be===Ne&&l.status==="active",Ee=!!Y.rolled,z=Y.dice,K=[[6,1],[6,2],[6,3],[6,4],[6,5],[5,6],[4,6],[3,6],[2,6],[1,6],[0,6],[0,7],[0,8],[1,8],[2,8],[3,8],[4,8],[5,8],[6,9],[6,10],[6,11],[6,12],[6,13],[6,14],[7,14],[8,14],[8,13],[8,12],[8,11],[8,10],[8,9],[9,8],[10,8],[11,8],[12,8],[13,8],[14,8],[14,7],[14,6],[13,6],[12,6],[11,6],[10,6],[9,6],[8,5],[8,4],[8,3],[8,2],[8,1],[8,0],[7,0],[6,0]],ge=[[7,1],[7,2],[7,3],[7,4],[7,5]],Le=[[1,7],[2,7],[3,7],[4,7],[5,7]],xe=[[7,13],[7,12],[7,11],[7,10],[7,9]],Je=[[13,7],[12,7],[11,7],[10,7],[9,7]],_t=[0,8,13,21,26,34,39,47];function Tt(D,ee){return ee<0?null:ee>=56?D==="red"?[7,6]:D==="green"?[6,7]:D==="yellow"?[7,8]:[8,7]:D==="red"?ee<=50?K[ee]:ge[ee-51]:D==="green"?ee<=50?K[(13+ee)%52]:Le[ee-51]:D==="yellow"?ee<=50?K[(26+ee)%52]:xe[ee-51]:ee<=50?K[(39+ee)%52]:Je[ee-51]}function ut(D,ee){return D!==Be||!Ue||!Ee||!z||l.status!=="active"?!1:ee.step===-1?z===6:ee.step>=0&&ee.step+z<=56}const h={},rt=(D,ee)=>{ee.forEach(fe=>{if(fe.step>=0&&fe.step<56){const ze=Tt(D,fe.step);if(ze){const Xe=ze[0]+","+ze[1];(h[Xe]=h[Xe]||[]).push({color:D,id:fe.id,step:fe.step,movable:ut(D,fe)})}}})};ae.includes("red")&&rt("red",Se),ae.includes("green")&&rt("green",le),ae.includes("yellow")&&rt("yellow",he),ae.includes("blue")&&rt("blue",De);const We={};K.forEach(([D,ee],fe)=>{We[D+","+ee]=fe});const xt={};ge.forEach(([D,ee],fe)=>{xt[D+","+ee]=fe+1});const O={};Le.forEach(([D,ee],fe)=>{O[D+","+ee]=fe+1});const gt={};xe.forEach(([D,ee],fe)=>{gt[D+","+ee]=fe+1});const Ce={};Je.forEach(([D,ee],fe)=>{Ce[D+","+ee]=fe+1});const Qe=[];for(let D=0;D<15;D++)for(let ee=0;ee<15;ee++){if(D<6&&ee<6||D<6&&ee>8||D>8&&ee<6||D>8&&ee>8||D>=6&&D<=8&&ee>=6&&ee<=8)continue;const fe=D+","+ee,ze=We[fe],Xe=ze!==void 0&&_t.includes(ze),st=D===6&&ee===1,ot=D===1&&ee===8,jt=D===8&&ee===13,zt=D===13&&ee===6,Xt=xt[fe],Rt=O[fe],At=gt[fe],Zt=Ce[fe];let tt="ludo-cell";st?tt+=" cell-red-start":ot?tt+=" cell-green-start":jt?tt+=" cell-yellow-start":zt?tt+=" cell-blue-start":Xt?tt+=" cell-red-stretch":Rt?tt+=" cell-green-stretch":At?tt+=" cell-yellow-stretch":Zt?tt+=" cell-blue-stretch":Xe&&(tt+=" cell-safe-star");const Bt=h[fe]||[];Qe.push(`
-            <div class="${tt}" style="grid-row:${D+1};grid-column:${ee+1}" data-pos="${fe}">
-              ${Xe?'<span class="cell-star-glyph">⭐</span>':""}
-              ${st||ot||jt||zt?'<span class="cell-arrow-glyph">➔</span>':""}
-              ${Bt.map(lt=>`
-                <div class="ludo-token token-${lt.color} ${lt.movable?"movable":""}" data-token-id="${lt.id}" data-color="${lt.color}" title="${lt.color.toUpperCase()} Pawn ${lt.id+1}">
-                  <span>${lt.id+1}</span>
+      `}function q(V,J,Q){const Y=a.gameState||{},ie=Y.activeColors||["red","green"],re=Y.players||[{...a.player1,color:"red",assignedRole:"red",isBot:!1},{...a.player2,color:"green",assignedRole:"green",isBot:!1}],be=Y.tokens||{},$e=E=>{const Z=be[E]||(E==="red"?Y.p1Tokens:E==="green"?Y.p2Tokens:[])||[];return Array.from({length:4},(me,Be)=>Z[Be]||{id:Be,step:-1})},De=$e("red"),ce=$e("green"),ve=$e("yellow"),Te=$e("blue"),Oe=e?._id||e?.id,We=(re.find(E=>E.userId&&E.userId.toString()===Oe?.toString())||re[0])?.color||(V?"red":"green"),Ue=Y.turnColor||a.turn||"red",Me=We===Ue&&a.status==="active",z=!!Y.rolled,G=Y.dice,ge=[[6,1],[6,2],[6,3],[6,4],[6,5],[5,6],[4,6],[3,6],[2,6],[1,6],[0,6],[0,7],[0,8],[1,8],[2,8],[3,8],[4,8],[5,8],[6,9],[6,10],[6,11],[6,12],[6,13],[6,14],[7,14],[8,14],[8,13],[8,12],[8,11],[8,10],[8,9],[9,8],[10,8],[11,8],[12,8],[13,8],[14,8],[14,7],[14,6],[13,6],[12,6],[11,6],[10,6],[9,6],[8,5],[8,4],[8,3],[8,2],[8,1],[8,0],[7,0],[6,0]],Re=[[7,1],[7,2],[7,3],[7,4],[7,5]],ke=[[1,7],[2,7],[3,7],[4,7],[5,7]],Qe=[[7,13],[7,12],[7,11],[7,10],[7,9]],ht=[[13,7],[12,7],[11,7],[10,7],[9,7]],Ct=[0,8,13,21,26,34,39,47];function _t(E,Z){return Z<0?null:Z>=56?E==="red"?[7,6]:E==="green"?[6,7]:E==="yellow"?[7,8]:[8,7]:E==="red"?Z<=50?ge[Z]:Re[Z-51]:E==="green"?Z<=50?ge[(13+Z)%52]:ke[Z-51]:E==="yellow"?Z<=50?ge[(26+Z)%52]:Qe[Z-51]:Z<=50?ge[(39+Z)%52]:ht[Z-51]}function h(E,Z){return E!==We||!Me||!z||!G||a.status!=="active"?!1:Z.step===-1?G===6:Z.step>=0&&Z.step+G<=56}const rt={},Fe=(E,Z)=>{Z.forEach(me=>{if(me.step>=0&&me.step<56){const Be=_t(E,me.step);if(Be){const Ve=Be[0]+","+Be[1];(rt[Ve]=rt[Ve]||[]).push({color:E,id:me.id,step:me.step,movable:h(E,me)})}}})};ie.includes("red")&&Fe("red",De),ie.includes("green")&&Fe("green",ce),ie.includes("yellow")&&Fe("yellow",ve),ie.includes("blue")&&Fe("blue",Te);const vt={};ge.forEach(([E,Z],me)=>{vt[E+","+Z]=me});const O={};Re.forEach(([E,Z],me)=>{O[E+","+Z]=me+1});const pt={};ke.forEach(([E,Z],me)=>{pt[E+","+Z]=me+1});const je={};Qe.forEach(([E,Z],me)=>{je[E+","+Z]=me+1});const Xe={};ht.forEach(([E,Z],me)=>{Xe[E+","+Z]=me+1});const Mt=[];for(let E=0;E<15;E++)for(let Z=0;Z<15;Z++){if(E<6&&Z<6||E<6&&Z>8||E>8&&Z<6||E>8&&Z>8||E>=6&&E<=8&&Z>=6&&Z<=8)continue;const me=E+","+Z,Be=vt[me],Ve=Be!==void 0&&Ct.includes(Be),ot=E===6&&Z===1,st=E===1&&Z===8,Tt=E===8&&Z===13,zt=E===13&&Z===6,Rt=O[me],It=pt[me],Qt=je[me],Xt=Xe[me];let Ze="ludo-cell";ot?Ze+=" cell-red-start":st?Ze+=" cell-green-start":Tt?Ze+=" cell-yellow-start":zt?Ze+=" cell-blue-start":Rt?Ze+=" cell-red-stretch":It?Ze+=" cell-green-stretch":Qt?Ze+=" cell-yellow-stretch":Xt?Ze+=" cell-blue-stretch":Ve&&(Ze+=" cell-safe-star");const Zt=rt[me]||[];Mt.push(`
+            <div class="${Ze}" style="grid-row:${E+1};grid-column:${Z+1}" data-pos="${me}">
+              ${Ve?'<span class="cell-star-glyph">⭐</span>':""}
+              ${ot||st||Tt||zt?'<span class="cell-arrow-glyph">➔</span>':""}
+              ${Zt.map(Ce=>`
+                <div class="ludo-token token-${Ce.color} ${Ce.movable?"movable":""}" data-token-id="${Ce.id}" data-color="${Ce.color}" title="${Ce.color.toUpperCase()} Pawn ${Ce.id+1}">
+                  <span>${Ce.id+1}</span>
                 </div>
               `).join("")}
             </div>
-          `)}const Jt=["","⚀","⚁","⚂","⚃","⚄","⚅"];function Ke(D){return!D||D.step===-1?"Base":D.step===56?"🏁 Home!":D.step>50?`H${D.step-50}`:`S${D.step}`}function yt(D,ee,fe,ze,Xe){const st=`${D}-yard`;return fe?`
-          <div class="ludo-yard ${st} ${Ne===D?"yard-active-turn":""}">
+          `)}const Ke=["","⚀","⚁","⚂","⚃","⚄","⚅"];function Lt(E){return!E||E.step===-1?"Base":E.step===56?"🏁 Home!":E.step>50?`H${E.step-50}`:`S${E.step}`}function xt(E,Z,me,Be,Ve){const ot=`${E}-yard`;return me?`
+          <div class="ludo-yard ${ot} ${Ue===E?"yard-active-turn":""}">
             <div class="yard-box">
               <div class="yard-title">
-                <span>${ee}</span>
-                ${ze?`<small class="yard-player-lbl">${x(ze.name)}${ze.isBot?" 🤖":""}</small>`:""}
+                <span>${Z}</span>
+                ${Be?`<small class="yard-player-lbl">${x(Be.name)}${Be.isBot?" 🤖":""}</small>`:""}
               </div>
               <div class="yard-slots">
-                ${Xe.map((ot,jt)=>`
+                ${Ve.map((st,Tt)=>`
                   <div class="yard-token-slot">
-                    ${ot.step===-1?`
-                      <div class="ludo-token token-${D} ${ut(D,ot)?"movable":""}" data-token-id="${ot.id}" data-color="${D}" title="${D.toUpperCase()} Pawn ${ot.id+1}">
-                        <span>${ot.id+1}</span>
+                    ${st.step===-1?`
+                      <div class="ludo-token token-${E} ${h(E,st)?"movable":""}" data-token-id="${st.id}" data-color="${E}" title="${E.toUpperCase()} Pawn ${st.id+1}">
+                        <span>${st.id+1}</span>
                       </div>
-                    `:`<span class="slot-empty">${jt+1}</span>`}
+                    `:`<span class="slot-empty">${Tt+1}</span>`}
                   </div>
                 `).join("")}
               </div>
             </div>
           </div>
         `:`
-            <div class="ludo-yard ${st}">
+            <div class="ludo-yard ${ot}">
               <div class="yard-box decorative">
-                <div class="yard-title">${ee} (Inactive)</div>
+                <div class="yard-title">${Z} (Inactive)</div>
               </div>
             </div>
-          `}const qt=re.find(D=>D.color==="red"),Z=re.find(D=>D.color==="green"),Qt=re.find(D=>D.color==="yellow"),Lt=re.find(D=>D.color==="blue");return`
+          `}const X=re.find(E=>E.color==="red"),Yt=re.find(E=>E.color==="green"),qt=re.find(E=>E.color==="yellow"),Jt=re.find(E=>E.color==="blue");return`
         <div class="ludo-arena-layout">
           <div class="ludo-board-grid">
             <!-- 1. Red Base Yard (Top-Left 6x6) -->
-            ${yt("red","🔴 Red Base",ae.includes("red"),qt,Se)}
+            ${xt("red","🔴 Red Base",ie.includes("red"),X,De)}
 
             <!-- 2. Green Base Yard (Top-Right 6x6) -->
-            ${yt("green","🟢 Green Base",ae.includes("green"),Z,le)}
+            ${xt("green","🟢 Green Base",ie.includes("green"),Yt,ce)}
 
             <!-- 3. Blue Base Yard (Bottom-Left 6x6) -->
-            ${yt("blue","🔵 Blue Base",ae.includes("blue"),Lt,De)}
+            ${xt("blue","🔵 Blue Base",ie.includes("blue"),Jt,Te)}
 
             <!-- 4. Yellow Base Yard (Bottom-Right 6x6) -->
-            ${yt("yellow","🟡 Yellow Base",ae.includes("yellow"),Qt,he)}
+            ${xt("yellow","🟡 Yellow Base",ie.includes("yellow"),qt,ve)}
 
             <!-- 5. Center Home Victory Zone (3x3) -->
             <div class="ludo-center-home">
@@ -2896,37 +2912,37 @@ import{c as Me,h as $,e as x,n as Ge,j as Ve,o as Ot,k as Wt,g as ke,p as Ft,t a
               <div class="home-center-core">
                 <span class="home-crown">🏆</span>
                 <div class="home-finished-tokens">
-                  ${Se.filter(D=>D.step===56).map(D=>`<span class="tok-finished red" title="Red Pawn ${D.id+1} Home">🔴${D.id+1}</span>`).join("")}
-                  ${le.filter(D=>D.step===56).map(D=>`<span class="tok-finished green" title="Green Pawn ${D.id+1} Home">🟢${D.id+1}</span>`).join("")}
-                  ${he.filter(D=>D.step===56).map(D=>`<span class="tok-finished yellow" title="Yellow Pawn ${D.id+1} Home">🟡${D.id+1}</span>`).join("")}
-                  ${De.filter(D=>D.step===56).map(D=>`<span class="tok-finished blue" title="Blue Pawn ${D.id+1} Home">🔵${D.id+1}</span>`).join("")}
+                  ${De.filter(E=>E.step===56).map(E=>`<span class="tok-finished red" title="Red Pawn ${E.id+1} Home">🔴${E.id+1}</span>`).join("")}
+                  ${ce.filter(E=>E.step===56).map(E=>`<span class="tok-finished green" title="Green Pawn ${E.id+1} Home">🟢${E.id+1}</span>`).join("")}
+                  ${ve.filter(E=>E.step===56).map(E=>`<span class="tok-finished yellow" title="Yellow Pawn ${E.id+1} Home">🟡${E.id+1}</span>`).join("")}
+                  ${Te.filter(E=>E.step===56).map(E=>`<span class="tok-finished blue" title="Blue Pawn ${E.id+1} Home">🔵${E.id+1}</span>`).join("")}
                 </div>
               </div>
             </div>
 
             <!-- 6. All Track Cells -->
-            ${Qe.join("")}
+            ${Mt.join("")}
           </div>
 
           <!-- Ludo Action & Dice Roller Console -->
           <div class="ludo-console">
             <div class="ludo-dice-box">
-              <div class="ludo-dice-visual ${Ee?"rolled":""}">
-                ${z?`<span class="dice-glyph">${Jt[z]}</span>`:"🎲"}
+              <div class="ludo-dice-visual ${z?"rolled":""}">
+                ${G?`<span class="dice-glyph">${Ke[G]}</span>`:"🎲"}
               </div>
-              ${z?`<span class="dice-num-lbl">Rolled ${z}</span>`:'<span class="dice-num-lbl">Ready</span>'}
+              ${G?`<span class="dice-num-lbl">Rolled ${G}</span>`:'<span class="dice-num-lbl">Ready</span>'}
             </div>
 
             <div class="ludo-controls-box">
-              ${Ue&&!Ee&&l.status==="active"?`
+              ${Me&&!z&&a.status==="active"?`
                 <button class="btn-ludo-roll pulse" id="btn-ludo-roll">🎲 Roll Dice</button>
-              `:Ue&&Ee&&l.status==="active"?`
+              `:Me&&z&&a.status==="active"?`
                 <div class="ludo-prompt-text highlight">
-                  ${ye(Be).some(D=>ut(Be,D))?"👉 Tap your <strong>glowing pawn</strong> to advance!":"No moves possible with this roll. Turn passing..."}
+                  ${$e(We).some(E=>h(We,E))?"👉 Tap your <strong>glowing pawn</strong> to advance!":"No moves possible with this roll. Turn passing..."}
                 </div>
               `:`
                 <div class="ludo-prompt-text">
-                  ${l.status==="active"?`⏳ Waiting for ${x(re.find(D=>D.color===Ne)?.name||"opponent")} (${Ne.toUpperCase()})...`:"🏁 Match Concluded"}
+                  ${a.status==="active"?`⏳ Waiting for ${x(re.find(E=>E.color===Ue)?.name||"opponent")} (${Ue.toUpperCase()})...`:"🏁 Match Concluded"}
                 </div>
               `}
 
@@ -2938,19 +2954,19 @@ import{c as Me,h as $,e as x,n as Ge,j as Ve,o as Ot,k as Wt,g as ke,p as Ft,t a
 
           <!-- Token Progress Strip for all active players -->
           <div class="ludo-progress-strip">
-            ${ae.map(D=>{const ee=re.find(Xe=>Xe.color===D),fe=ye(D),ze={red:"🔴",green:"🟢",yellow:"🟡",blue:"🔵"}[D];return`
-                <div class="progress-pill ${D} ${Ne===D?"active-turn":""}">
-                  <strong>${ze} ${ee?x(ee.name):D.toUpperCase()}:</strong>
-                  ${fe.map((Xe,st)=>`P${st+1}: ${Ke(Xe)}`).join(" · ")}
+            ${ie.map(E=>{const Z=re.find(Ve=>Ve.color===E),me=$e(E),Be={red:"🔴",green:"🟢",yellow:"🟡",blue:"🔵"}[E];return`
+                <div class="progress-pill ${E} ${Ue===E?"active-turn":""}">
+                  <strong>${Be} ${Z?x(Z.name):E.toUpperCase()}:</strong>
+                  ${me.map((Ve,ot)=>`P${ot+1}: ${Lt(Ve)}`).join(" · ")}
                 </div>
               `}).join("")}
           </div>
         </div>
-      `}function ue(J,Q,W){u.querySelector("#btn-close-arena").onclick=C;const Y=u.querySelector("#btn-arena-resign");Y&&(Y.onclick=async()=>{if(confirm("Are you sure you want to resign this match?"))try{Y.disabled=!0,await ke(`/bonding/matches/${p}/action`,{action:"resign"}),await w(),N()}catch(le){$(le.message||"Resign failed","error"),Y.disabled=!1}});const ae=u.querySelector("#btn-arena-draw");ae&&(ae.onclick=async()=>{try{await ke(`/bonding/matches/${p}/action`,{action:"offer_draw"}),$("Draw offer sent to opponent","info"),await w(),N()}catch(le){$(le.message||"Draw offer failed","error")}});const re=u.querySelector("#btn-confirm-accept-draw");re&&(re.onclick=async()=>{try{await ke(`/bonding/matches/${p}/action`,{action:"accept_draw"}),$("Draw agreed!","info"),await w(),N()}catch(le){$(le.message,"error")}});const pe=u.querySelector("#btn-confirm-decline-draw");pe&&(pe.onclick=async()=>{try{await ke(`/bonding/matches/${p}/action`,{action:"decline_draw"}),await w(),N()}catch(le){$(le.message,"error")}}),[u.querySelector("#btn-arena-delete-match"),u.querySelector("#btn-arena-delete-match-ended")].filter(Boolean).forEach(le=>{le.onclick=async()=>{if(confirm("Are you sure you want to permanently delete this match?"))try{le.disabled=!0,await Ve(`/bonding/matches/${p}`),$("Match deleted","success"),C(),d==="lounge_games"&&await r()}catch(he){$(he.message||"Failed to delete match","error"),le.disabled=!1}}});const Se=u.querySelector("#btn-arena-rematch-action");if(Se&&(Se.onclick=async()=>{try{Se.disabled=!0,Se.textContent="Creating Rematch...";const le=await ke(`/bonding/matches/${p}/action`,{action:"rematch"});le.match&&($("Rematch created! New match live ⚔️","success"),P&&clearInterval(P),G(le.match._id))}catch(le){$(le.message||"Rematch failed","error"),Se.disabled=!1,Se.textContent="🔄 Request Rematch"}}),l.gameType==="chess"&&J&&l.status==="active"){const le=l.gameState?.fen||"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",he=new xa(le),De=W.assignedRole==="white"?"w":"b";u.querySelectorAll(".chess-sq").forEach(Ie=>{Ie.onclick=async()=>{const $e=Ie.dataset.square;if(o){if(o===$e){o=null,m=[],N();return}if(m.includes($e)){const Ne=he.get(o);let Ue;Ne&&Ne.type==="p"&&($e.endsWith("8")||$e.endsWith("1"))&&(Ue=prompt("Pawn Promotion! Choose: q (Queen), r (Rook), b (Bishop), n (Knight)","q")||"q");try{const Ee={from:o,to:$e,promotion:Ue?Ue.toLowerCase():void 0};o=null,m=[],l=await ke(`/bonding/matches/${p}/move`,{move:Ee}),N()}catch(Ee){$(Ee.message||"Illegal chess move","error"),o=null,m=[],N()}return}}const Be=he.get($e);Be&&Be.color===De?(o=$e,m=he.moves({square:$e,verbose:!0}).map(Ue=>Ue.to),N()):(o=null,m=[],N())}})}if(l.gameType==="tictactoe"&&J&&l.status==="active"&&u.querySelectorAll(".ttt-cell.empty").forEach(le=>{le.onclick=async()=>{const he=le.dataset.cellIdx;try{le.style.opacity="0.5",l=await ke(`/bonding/matches/${p}/move`,{cellIndex:Number(he)}),N()}catch(De){$(De.message||"Invalid move","error")}}}),l.gameType==="ludo"&&l.status==="active"){const le=u.querySelector("#btn-ludo-roll");le&&J&&(le.onclick=async()=>{try{le.disabled=!0,le.textContent="Rolling 🎲...",l=await ke(`/bonding/matches/${p}/move`,{action:"roll"}),N()}catch(he){$(he.message||"Failed to roll","error"),le.disabled=!1,le.textContent="🎲 Roll Dice"}}),J&&u.querySelectorAll(".ludo-token.movable").forEach(he=>{he.onclick=async De=>{De.stopPropagation();const Ie=he.dataset.tokenId;try{he.style.opacity="0.5",l=await ke(`/bonding/matches/${p}/move`,{action:"move",tokenId:Number(Ie)}),N()}catch($e){$($e.message||"Invalid token move","error"),he.style.opacity="1"}}})}}N()}function M(){if(!s||s.type==="direct")return;const p=i.querySelector("#bonding-modals-root"),u=L=>L==="employee"||L==="admin"||L==="superadmin",l=s.members||[],o=new Set(l.map(L=>L.userId?.toString())),m=f.filter(L=>u(L.role)&&!o.has(L._id.toString()));p.innerHTML=`
+      `}function ae(V,J,Q){c.querySelector("#btn-close-arena").onclick=y;const Y=c.querySelector("#btn-arena-resign");Y&&(Y.onclick=async()=>{if(confirm("Are you sure you want to resign this match?"))try{Y.disabled=!0,await ye(`/bonding/matches/${p}/action`,{action:"resign"}),await A(),D()}catch(ce){k(ce.message||"Resign failed","error"),Y.disabled=!1}});const ie=c.querySelector("#btn-arena-draw");ie&&(ie.onclick=async()=>{try{await ye(`/bonding/matches/${p}/action`,{action:"offer_draw"}),k("Draw offer sent to opponent","info"),await A(),D()}catch(ce){k(ce.message||"Draw offer failed","error")}});const re=c.querySelector("#btn-confirm-accept-draw");re&&(re.onclick=async()=>{try{await ye(`/bonding/matches/${p}/action`,{action:"accept_draw"}),k("Draw agreed!","info"),await A(),D()}catch(ce){k(ce.message,"error")}});const be=c.querySelector("#btn-confirm-decline-draw");be&&(be.onclick=async()=>{try{await ye(`/bonding/matches/${p}/action`,{action:"decline_draw"}),await A(),D()}catch(ce){k(ce.message,"error")}}),[c.querySelector("#btn-arena-delete-match"),c.querySelector("#btn-arena-delete-match-ended")].filter(Boolean).forEach(ce=>{ce.onclick=async()=>{if(confirm("Are you sure you want to permanently delete this match?"))try{ce.disabled=!0,await Ye(`/bonding/matches/${p}`),k("Match deleted","success"),y(),l==="lounge_games"&&await s()}catch(ve){k(ve.message||"Failed to delete match","error"),ce.disabled=!1}}});const De=c.querySelector("#btn-arena-rematch-action");if(De&&(De.onclick=async()=>{try{De.disabled=!0,De.textContent="Creating Rematch...";const ce=await ye(`/bonding/matches/${p}/action`,{action:"rematch"});ce.match&&(k("Rematch created! New match live ⚔️","success"),P&&clearInterval(P),W(ce.match._id))}catch(ce){k(ce.message||"Rematch failed","error"),De.disabled=!1,De.textContent="🔄 Request Rematch"}}),a.gameType==="chess"&&V&&a.status==="active"){const ce=a.gameState?.fen||"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",ve=new xa(ce),Te=Q.assignedRole==="white"?"w":"b";c.querySelectorAll(".chess-sq").forEach(Oe=>{Oe.onclick=async()=>{const Se=Oe.dataset.square;if(m){if(m===Se){m=null,g=[],D();return}if(g.includes(Se)){const Ue=ve.get(m);let Me;Ue&&Ue.type==="p"&&(Se.endsWith("8")||Se.endsWith("1"))&&(Me=prompt("Pawn Promotion! Choose: q (Queen), r (Rook), b (Bishop), n (Knight)","q")||"q");try{const z={from:m,to:Se,promotion:Me?Me.toLowerCase():void 0};m=null,g=[],a=await ye(`/bonding/matches/${p}/move`,{move:z}),D()}catch(z){k(z.message||"Illegal chess move","error"),m=null,g=[],D()}return}}const We=ve.get(Se);We&&We.color===Te?(m=Se,g=ve.moves({square:Se,verbose:!0}).map(Me=>Me.to),D()):(m=null,g=[],D())}})}if(a.gameType==="tictactoe"&&V&&a.status==="active"&&c.querySelectorAll(".ttt-cell.empty").forEach(ce=>{ce.onclick=async()=>{const ve=ce.dataset.cellIdx;try{ce.style.opacity="0.5",a=await ye(`/bonding/matches/${p}/move`,{cellIndex:Number(ve)}),D()}catch(Te){k(Te.message||"Invalid move","error")}}}),a.gameType==="ludo"&&a.status==="active"){const ce=c.querySelector("#btn-ludo-roll");ce&&V&&(ce.onclick=async()=>{try{ce.disabled=!0,ce.textContent="Rolling 🎲...",a=await ye(`/bonding/matches/${p}/move`,{action:"roll"}),D()}catch(ve){k(ve.message||"Failed to roll","error"),ce.disabled=!1,ce.textContent="🎲 Roll Dice"}}),V&&c.querySelectorAll(".ludo-token.movable").forEach(ve=>{ve.onclick=async Te=>{Te.stopPropagation();const Oe=ve.dataset.tokenId;try{ve.style.opacity="0.5",a=await ye(`/bonding/matches/${p}/move`,{action:"move",tokenId:Number(Oe)}),D()}catch(Se){k(Se.message||"Invalid token move","error"),ve.style.opacity="1"}}})}}D()}function M(){if(!r||r.type==="direct")return;const p=n.querySelector("#bonding-modals-root"),c=R=>R==="employee"||R==="admin"||R==="superadmin",a=r.members||[],m=new Set(a.map(R=>R.userId?.toString())),g=f.filter(R=>c(R.role)&&!m.has(R._id.toString()));p.innerHTML=`
       <div class="bonding-modal-backdrop">
         <div class="bonding-modal-card">
           <div class="bonding-modal-header">
-            <h3>👥 Group Members · ${x(s.name)}</h3>
+            <h3>👥 Group Members · ${x(r.name)}</h3>
             <button class="bonding-modal-close">&times;</button>
           </div>
 
@@ -2961,56 +2977,75 @@ import{c as Me,h as $,e as x,n as Ge,j as Ve,o as Ot,k as Wt,g as ke,p as Ft,t a
               <div class="bonding-add-member-row">
                 <select id="sel-add-colleague" class="bonding-select">
                   <option value="">Select an employee or admin to add...</option>
-                  ${m.map(L=>`
-                    <option value="${L._id}">${x(L.name)} (${x(L.role==="superadmin"?"Superadmin":L.role==="admin"?"Admin":"Employee")})</option>
+                  ${g.map(R=>`
+                    <option value="${R._id}">${x(R.name)} (${x(R.role==="superadmin"?"Superadmin":R.role==="admin"?"Admin":"Employee")})</option>
                   `).join("")}
                 </select>
-                <button class="bonding-btn-primary" id="btn-submit-add-member" ${m.length===0?"disabled":""}>
+                <button class="bonding-btn-primary" id="btn-submit-add-member" ${g.length===0?"disabled":""}>
                   Add to Group
                 </button>
               </div>
-              ${m.length===0?'<div class="bonding-hint-text">All active employees and administrators are already members of this group!</div>':""}
+              ${g.length===0?'<div class="bonding-hint-text">All active employees and administrators are already members of this group!</div>':""}
             </div>
 
             <!-- Current Members List -->
             <div class="bonding-form-section" style="margin-top: 20px;">
-              <label class="bonding-form-label">Current Members (${l.length}):</label>
+              <label class="bonding-form-label">Current Members (${a.length}):</label>
               <div class="bonding-members-list">
-                ${l.map(L=>{const te=e?._id||e?.id,E=te&&L.userId&&L.userId.toString()===te.toString();return`
+                ${a.map(R=>{const q=e?._id||e?.id,ae=q&&R.userId&&R.userId.toString()===q.toString(),V=r.createdBy&&r.createdBy.userId&&String(r.createdBy.userId)===String(q),J=userRole==="superadmin"||e?.role==="superadmin",Q=V||J;return`
                     <div class="bonding-member-item">
                       <div class="bonding-member-left">
-                        <div class="bonding-member-avatar">${(L.name||"U").slice(0,1).toUpperCase()}</div>
+                        <div class="bonding-member-avatar">${(R.name||"U").slice(0,1).toUpperCase()}</div>
                         <div class="bonding-member-info">
-                          <span class="bonding-member-name">${x(L.name)} ${E?'<span class="you-badge">(You)</span>':""}</span>
-                          <span class="bonding-member-role">${x(L.role||"Member")}</span>
+                          <span class="bonding-member-name">${x(R.name)} ${ae?'<span class="you-badge">(You)</span>':""}</span>
+                          <span class="bonding-member-role">${x(R.role||"Member")}</span>
                         </div>
                       </div>
                       <div class="bonding-member-actions">
-                        <button class="bonding-btn-danger btn-remove-member" data-user-id="${L.userId}" data-name="${x(L.name)}">
-                          ${E?"Leave Group":"Remove"}
-                        </button>
+                        ${ae?`
+                          <button class="bonding-btn-danger btn-leave-group-action" data-user-id="${R.userId}">
+                            🚪 Leave Group
+                          </button>
+                        `:Q?`
+                          <button class="bonding-btn-danger btn-remove-member" data-user-id="${R.userId}" data-name="${x(R.name)}">
+                            Remove
+                          </button>
+                        `:""}
                       </div>
                     </div>
                   `}).join("")}
               </div>
             </div>
 
-            <!-- Delete Group Option in Modal -->
-            <div class="bonding-danger-zone">
-              <div class="danger-zone-text">
-                <strong>Delete Group</strong>
-                <span>Permanently delete this group lounge and remove all its messages.</span>
-              </div>
-              <button class="bonding-btn-danger" id="btn-modal-delete-group">
-                Delete Group
-              </button>
-            </div>
+            ${(()=>{const R=e?._id||e?.id,q=r.createdBy&&r.createdBy.userId&&String(r.createdBy.userId)===String(R),ae=userRole==="superadmin"||e?.role==="superadmin";return q||ae?`
+                <!-- Delete Group Option in Modal (Creator only) -->
+                <div class="bonding-danger-zone">
+                  <div class="danger-zone-text">
+                    <strong>Delete Group</strong>
+                    <span>Permanently delete this group lounge and remove all its messages.</span>
+                  </div>
+                  <button class="bonding-btn-danger" id="btn-modal-delete-group">
+                    Delete Group
+                  </button>
+                </div>
+              `:`
+                <!-- Leave Group Option in Modal (Members) -->
+                <div class="bonding-danger-zone">
+                  <div class="danger-zone-text">
+                    <strong>Leave Group</strong>
+                    <span>Exit this group lounge. You can rejoin if invited again.</span>
+                  </div>
+                  <button class="bonding-btn-danger" id="btn-modal-leave-group">
+                    🚪 Leave Group
+                  </button>
+                </div>
+              `})()}
           </div>
         </div>
       </div>
-    `,p.querySelector(".bonding-modal-close").onclick=()=>{p.innerHTML=""};const w=p.querySelector("#btn-modal-delete-group");w&&(w.onclick=()=>{p.innerHTML="",U()});const C=p.querySelector("#btn-submit-add-member");C&&(C.onclick=async()=>{const te=p.querySelector("#sel-add-colleague").value;if(!te){$("Please select a colleague to add","warning");return}try{C.disabled=!0,C.textContent="Adding...";const E=await Wt(`/bonding/channels/${s._id}/members`,{action:"add",userIds:[te]});$("Colleague added to group! 🎉","success"),s=E.channel,p.innerHTML="",await we(s._id),_e()}catch(E){$(E.message||"Failed to add member","error"),C.disabled=!1,C.textContent="Add to Group"}}),p.querySelectorAll(".btn-remove-member").forEach(L=>{L.onclick=async()=>{const te=L.dataset.userId,E=L.dataset.name;if(confirm(`Are you sure you want to remove ${E} from this group?`))try{L.disabled=!0;const ue=await Wt(`/bonding/channels/${s._id}/members`,{action:"remove",userId:te});$(`${E} removed from group`,"info"),s=ue.channel,p.innerHTML="",await we(s._id),_e()}catch(ue){$(ue.message||"Failed to remove member","error"),L.disabled=!1}}})}async function U(){if(!s||s.type==="direct")return;const p=s.name;if(confirm(`Are you sure you want to delete the group "${p}"?
+    `,p.querySelector(".bonding-modal-close").onclick=()=>{p.innerHTML=""};const A=p.querySelector("#btn-modal-delete-group");A&&(A.onclick=()=>{p.innerHTML="",H()});const y=p.querySelector("#btn-modal-leave-group");y&&(y.onclick=()=>{p.innerHTML="",F()}),p.querySelectorAll(".btn-leave-group-action").forEach(R=>{R.onclick=()=>{p.innerHTML="",F()}});const D=p.querySelector("#btn-submit-add-member");D&&(D.onclick=async()=>{const q=p.querySelector("#sel-add-colleague").value;if(!q){k("Please select a colleague to add","warning");return}try{D.disabled=!0,D.textContent="Adding...";const ae=await Gt(`/bonding/channels/${r._id}/members`,{action:"add",userIds:[q]});k("Colleague added to group! 🎉","success"),r=ae.channel,p.innerHTML="",await we(r._id),_e()}catch(ae){k(ae.message||"Failed to add member","error"),D.disabled=!1,D.textContent="Add to Group"}}),p.querySelectorAll(".btn-remove-member").forEach(R=>{R.onclick=async()=>{const q=R.dataset.userId,ae=R.dataset.name;if(confirm(`Are you sure you want to remove ${ae} from this group?`))try{R.disabled=!0;const V=await Gt(`/bonding/channels/${r._id}/members`,{action:"remove",userId:q});k(`${ae} removed from group`,"info"),r=V.channel,p.innerHTML="",await we(r._id),_e()}catch(V){k(V.message||"Failed to remove member","error"),R.disabled=!1}}})}async function F(){if(!r||r.type==="direct")return;const p=r.name;if(confirm(`Are you sure you want to leave the group "${p}"?`))try{await ye(`/bonding/channels/${r._id}/leave`,{}),k(`You left "${p}"`,"info"),d=await Pe("/bonding/channels").catch(()=>[]),r=d.find(a=>a.type==="group")||d[0]||null,ze(),_e(),r&&await we(r._id)}catch(a){k(a.message||"Failed to leave group","error")}}async function H(){if(!r||r.type==="direct")return;const p=r.name;if(confirm(`Are you sure you want to delete the group "${p}"?
 
-All messages in this lounge will be deleted.`))try{await Ve(`/bonding/channels/${s._id}`),$(`Group "${p}" deleted successfully`,"success"),c=await Me("/bonding/channels").catch(()=>[]),s=c.find(l=>l.type==="group")||c[0]||null,Fe(),_e(),s&&await we(s._id)}catch(l){$(l.message||"Failed to delete group","error")}}function F(){const p=i.querySelector("#bonding-modals-root"),u=m=>m==="employee"||m==="admin"||m==="superadmin",l=f.filter(m=>!m.isSelf&&u(m.role));p.innerHTML=`
+All messages in this lounge will be deleted.`))try{await Ye(`/bonding/channels/${r._id}`),k(`Group "${p}" deleted successfully`,"success"),d=await Pe("/bonding/channels").catch(()=>[]),r=d.find(a=>a.type==="group")||d[0]||null,ze(),_e(),r&&await we(r._id)}catch(a){k(a.message||"Failed to delete group","error")}}function v(){const p=n.querySelector("#bonding-modals-root"),c=g=>g==="employee"||g==="admin"||g==="superadmin",a=f.filter(g=>!g.isSelf&&c(g.role));p.innerHTML=`
       <div class="bonding-modal-backdrop">
         <div class="bonding-modal-card">
           <div class="bonding-modal-header">
@@ -3020,12 +3055,12 @@ All messages in this lounge will be deleted.`))try{await Ve(`/bonding/channels/$
           <div class="bonding-modal-body">
             <p class="bonding-hint-text">Choose any employee or administrator to start a 1-on-1 private conversation.</p>
             <div class="bonding-user-pick-list">
-              ${l.map(m=>`
-                <div class="bonding-user-pick-item" data-user-id="${m._id}" data-name="${x(m.name)}">
-                  <div class="bonding-member-avatar">${m.name.slice(0,1).toUpperCase()}</div>
+              ${a.map(g=>`
+                <div class="bonding-user-pick-item" data-user-id="${g._id}" data-name="${x(g.name)}">
+                  <div class="bonding-member-avatar">${g.name.slice(0,1).toUpperCase()}</div>
                   <div class="bonding-user-pick-info">
-                    <span class="user-pick-name">${x(m.name)}</span>
-                    <span class="user-pick-role">${x(m.role==="superadmin"?"Superadmin":m.role==="admin"?"Admin":"Employee")} · ${x(m.email||"")}</span>
+                    <span class="user-pick-name">${x(g.name)}</span>
+                    <span class="user-pick-role">${x(g.role==="superadmin"?"Superadmin":g.role==="admin"?"Admin":"Employee")} · ${x(g.email||"")}</span>
                   </div>
                   <button class="bonding-btn-primary">Chat Now</button>
                 </div>
@@ -3034,7 +3069,7 @@ All messages in this lounge will be deleted.`))try{await Ve(`/bonding/channels/$
           </div>
         </div>
       </div>
-    `,p.querySelector(".bonding-modal-close").onclick=()=>{p.innerHTML=""},p.querySelectorAll(".bonding-user-pick-item").forEach(m=>{m.onclick=async()=>{const w=m.dataset.userId;try{const C=await ke("/bonding/channels",{type:"direct",targetUserId:w});p.innerHTML="",c=await Me("/bonding/channels"),s=c.find(N=>N._id===C._id)||C,Fe(),_e(),await we(s._id)}catch(C){$(C.message||"Failed to open personal chat","error")}}})}function v(){const p=i.querySelector("#bonding-modals-root"),u=C=>C==="employee"||C==="admin"||C==="superadmin",l=f.filter(C=>!C.isSelf&&u(C.role));p.innerHTML=`
+    `,p.querySelector(".bonding-modal-close").onclick=()=>{p.innerHTML=""},p.querySelectorAll(".bonding-user-pick-item").forEach(g=>{g.onclick=async()=>{const A=g.dataset.userId;try{const y=await ye("/bonding/channels",{type:"direct",targetUserId:A});p.innerHTML="",d=await Pe("/bonding/channels"),r=d.find(D=>D._id===y._id)||y,ze(),_e(),await we(r._id)}catch(y){k(y.message||"Failed to open personal chat","error")}}})}function U(){const p=n.querySelector("#bonding-modals-root"),c=y=>y==="employee"||y==="admin"||y==="superadmin",a=f.filter(y=>!y.isSelf&&c(y.role));p.innerHTML=`
       <div class="bonding-modal-backdrop">
         <div class="bonding-modal-card">
           <div class="bonding-modal-header">
@@ -3069,10 +3104,10 @@ All messages in this lounge will be deleted.`))try{await Ve(`/bonding/channels/$
             <div class="bonding-form-section">
               <label class="bonding-form-label">Add Initial Members (Employees & Admins only)</label>
               <div class="bonding-member-checkboxes">
-                ${l.map(C=>`
+                ${a.map(y=>`
                   <label class="bonding-check-label">
-                    <input type="checkbox" class="new-group-member-chk" value="${C._id}" />
-                    <span>${x(C.name)} (${x(C.role==="superadmin"?"Superadmin":C.role==="admin"?"Admin":"Employee")})</span>
+                    <input type="checkbox" class="new-group-member-chk" value="${y._id}" />
+                    <span>${x(y.name)} (${x(y.role==="superadmin"?"Superadmin":y.role==="admin"?"Admin":"Employee")})</span>
                   </label>
                 `).join("")}
               </div>
@@ -3085,7 +3120,7 @@ All messages in this lounge will be deleted.`))try{await Ve(`/bonding/channels/$
           </div>
         </div>
       </div>
-    `,p.querySelector(".bonding-modal-close").onclick=()=>{p.innerHTML=""},p.querySelector("#btn-cancel-create-grp").onclick=()=>{p.innerHTML=""};let o="👥";const m=p.querySelectorAll(".avatar-opt");m.forEach(C=>{C.onclick=()=>{m.forEach(N=>N.classList.remove("active")),C.classList.add("active"),o=C.textContent.trim()}});const w=p.querySelector("#btn-confirm-create-grp");w.onclick=async()=>{const C=p.querySelector("#new-group-name"),N=p.querySelector("#new-group-desc"),L=C.value.trim();if(!L){$("Please enter a group name","warning"),C.focus();return}const te=p.querySelectorAll(".new-group-member-chk:checked"),E=Array.from(te).map(ue=>ue.value);try{w.disabled=!0,w.textContent="Creating...";const ue=await ke("/bonding/channels",{type:"group",name:L,description:N.value.trim(),avatar:o,memberIds:E});$(`Group "${L}" created! 🎉`,"success"),p.innerHTML="",c=await Me("/bonding/channels"),s=c.find(J=>J._id===ue._id)||ue,Fe(),_e(),await we(s._id)}catch(ue){$(ue.message||"Failed to create group","error"),w.disabled=!1,w.textContent="Create Group 🎉"}}}function H(p,u){const l=document.querySelector(".bonding-emoji-popup");l&&l.remove();const o=["👍","❤️","🔥","😂","🎉","👏","🎯","✨","🙌","💯","🚀","💡"],m=document.createElement("div");m.className="bonding-emoji-popup",m.innerHTML=o.map(N=>`<button class="emoji-opt-btn" data-e="${N}">${N}</button>`).join("");const w=p.getBoundingClientRect();m.style.top=`${w.bottom+window.scrollY+6}px`,m.style.left=`${w.left+window.scrollX}px`,document.body.appendChild(m),m.querySelectorAll(".emoji-opt-btn").forEach(N=>{N.onclick=L=>{L.stopPropagation(),u(N.dataset.e),m.remove()}});const C=N=>{m.contains(N.target)||(m.remove(),document.removeEventListener("click",C))};setTimeout(()=>document.addEventListener("click",C),10)}function X(p){if(!p)return"";try{return new Date(p).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})}catch{return""}}}function Va(){const i=document.getElementById("ci360-bonding-styles");i&&i.remove();const t=document.createElement("style");t.id="ci360-bonding-styles",t.textContent=`
+    `,p.querySelector(".bonding-modal-close").onclick=()=>{p.innerHTML=""},p.querySelector("#btn-cancel-create-grp").onclick=()=>{p.innerHTML=""};let m="👥";const g=p.querySelectorAll(".avatar-opt");g.forEach(y=>{y.onclick=()=>{g.forEach(D=>D.classList.remove("active")),y.classList.add("active"),m=y.textContent.trim()}});const A=p.querySelector("#btn-confirm-create-grp");A.onclick=async()=>{const y=p.querySelector("#new-group-name"),D=p.querySelector("#new-group-desc"),se=y.value.trim();if(!se){k("Please enter a group name","warning"),y.focus();return}const R=p.querySelectorAll(".new-group-member-chk:checked"),q=Array.from(R).map(ae=>ae.value);try{A.disabled=!0,A.textContent="Creating...";const ae=await ye("/bonding/channels",{type:"group",name:se,description:D.value.trim(),avatar:m,memberIds:q});k(`Group "${se}" created! 🎉`,"success"),p.innerHTML="",d=await Pe("/bonding/channels"),r=d.find(V=>V._id===ae._id)||ae,ze(),_e(),await we(r._id)}catch(ae){k(ae.message||"Failed to create group","error"),A.disabled=!1,A.textContent="Create Group 🎉"}}}function ee(p,c){const a=document.querySelector(".bonding-emoji-popup");a&&a.remove();const m=["👍","❤️","🔥","😂","🎉","👏","🎯","✨","🙌","💯","🚀","💡"],g=document.createElement("div");g.className="bonding-emoji-popup",g.innerHTML=m.map(D=>`<button class="emoji-opt-btn" data-e="${D}">${D}</button>`).join("");const A=p.getBoundingClientRect();g.style.top=`${A.bottom+window.scrollY+6}px`,g.style.left=`${A.left+window.scrollX}px`,document.body.appendChild(g),g.querySelectorAll(".emoji-opt-btn").forEach(D=>{D.onclick=se=>{se.stopPropagation(),c(D.dataset.e),g.remove()}});const y=D=>{g.contains(D.target)||(g.remove(),document.removeEventListener("click",y))};setTimeout(()=>document.addEventListener("click",y),10)}function te(p){if(!p)return"";try{return new Date(p).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})}catch{return""}}}function Va(){const n=document.getElementById("ci360-bonding-styles");n&&n.remove();const t=document.createElement("style");t.id="ci360-bonding-styles",t.textContent=`
     /* Root Wrap */
     .bonding-wrap {
       display: flex;
@@ -6378,21 +6413,21 @@ All messages in this lounge will be deleted.`))try{await Ve(`/bonding/channels/$
     [data-theme="dark"] .emoji-opt-btn:hover {
       background: #2a374f;
     }
-  `,document.head.appendChild(t)}const da=[{key:"To Do",label:"To Do",badgeClass:"todo"},{key:"Content",label:"Content",badgeClass:"content"},{key:"Design",label:"Design",badgeClass:"design"},{key:"Under Review",label:"Under Review",badgeClass:"review"},{key:"Ready to Leave",label:"Ready to Leave",badgeClass:"ready"}],St=[{key:"Task",label:"Task",icon:"📝",slug:"task"},{key:"Bug",label:"Bug",icon:"🐛",slug:"bug"},{key:"Feature",label:"Feature",icon:"✨",slug:"feature"},{key:"Internal",label:"Internal",icon:"🏢",slug:"internal"},{key:"Infrastructure",label:"Infrastructure",icon:"⚙️",slug:"infrastructure"},{key:"Client Request",label:"Client Request",icon:"💼",slug:"client-request"},{key:"General",label:"General",icon:"📌",slug:"general"}],Et=[{key:"Critical",label:"Critical",icon:"🔴 ⬆⬆",color:"#ef4444"},{key:"High",label:"High",icon:"🟠 ⬆",color:"#f97316"},{key:"Medium",label:"Medium",icon:"🟡 〓",color:"#eab308"},{key:"Low",label:"Low",icon:"🟢 ⬇",color:"#22c55e"}];async function Xa(i,t={}){const{userRole:e="employee",currentUser:d=null,initialTicketId:c=null}=t,s=e==="superadmin"||e==="admin";if(e==="client"||d&&d.role==="client"){i.innerHTML=`
+  `,document.head.appendChild(t)}const da=[{key:"To Do",label:"To Do",badgeClass:"todo"},{key:"Content",label:"Content",badgeClass:"content"},{key:"Design",label:"Design",badgeClass:"design"},{key:"Under Review",label:"Under Review",badgeClass:"review"},{key:"Ready to Leave",label:"Ready to Leave",badgeClass:"ready"}],$t=[{key:"Task",label:"Task",icon:"📝",slug:"task"},{key:"Bug",label:"Bug",icon:"🐛",slug:"bug"},{key:"Feature",label:"Feature",icon:"✨",slug:"feature"},{key:"Internal",label:"Internal",icon:"🏢",slug:"internal"},{key:"Infrastructure",label:"Infrastructure",icon:"⚙️",slug:"infrastructure"},{key:"Client Request",label:"Client Request",icon:"💼",slug:"client-request"},{key:"General",label:"General",icon:"📌",slug:"general"}],Dt=[{key:"Critical",label:"Critical",icon:"🔴 ⬆⬆",color:"#ef4444"},{key:"High",label:"High",icon:"🟠 ⬆",color:"#f97316"},{key:"Medium",label:"Medium",icon:"🟡 〓",color:"#eab308"},{key:"Low",label:"Low",icon:"🟢 ⬇",color:"#22c55e"}];async function Xa(n,t={}){const{userRole:e="employee",currentUser:l=null,initialTicketId:d=null}=t,r=e==="superadmin"||e==="admin";if(e==="client"||l&&l.role==="client"){n.innerHTML=`
       <div style="padding:40px;text-align:center;color:#ef4444;font-size:16px;font-weight:700;">
         ⛔ Access Denied: Support Tickets are internal to company staff only.
       </div>
-    `;return}let f=[],n={},q=[],R=[],S={search:"",status:"all",priority:"all",category:"all",assigneeId:"all",reporterId:"all",scope:"all",jobId:t.initialJobId||"all",myIssuesOnly:!1},j=null,P="comments",B=!1;i.innerHTML=`
+    `;return}let f=[],o={},L=[],B=[],S={search:"",status:"all",priority:"all",category:"all",assigneeId:"all",reporterId:"all",scope:"all",jobId:t.initialJobId||"all",myIssuesOnly:!1},T=null,P="comments",N=!1;n.innerHTML=`
     <div class="jira-module-wrap">
       <!-- Top Header Toolbar -->
       <div class="jira-header-bar">
         <div class="jira-header-left">
           <div class="jira-breadcrumb">
             <span class="jira-project-icon">CI</span>
-            <span>CI360 / SUPPORT / ${s?"ALL TICKETS (ADMIN)":"MY ASSIGNED TICKETS"}</span>
+            <span>CI360 / SUPPORT / ${r?"ALL TICKETS (ADMIN)":"MY ASSIGNED TICKETS"}</span>
           </div>
           <div class="jira-title-row">
-            <h2 class="jira-main-title">🎫 ${s?"Support Tickets Board":"Support Tickets"}</h2>
+            <h2 class="jira-main-title">🎫 ${r?"Support Tickets Board":"Support Tickets"}</h2>
           </div>
         </div>
         <div class="jira-header-actions">
@@ -6428,7 +6463,7 @@ All messages in this lounge will be deleted.`))try{await Ve(`/bonding/channels/$
 
           <select id="jira-filter-category" class="jira-filter-select">
             <option value="all">Category: All</option>
-            ${St.map(a=>`<option value="${a.key}">${a.icon} ${a.label}</option>`).join("")}
+            ${$t.map(i=>`<option value="${i.key}">${i.icon} ${i.label}</option>`).join("")}
           </select>
 
           <select id="jira-filter-job" class="jira-filter-select">
@@ -6458,147 +6493,147 @@ All messages in this lounge will be deleted.`))try{await Ve(`/bonding/channels/$
       <!-- Modal Injection Root -->
       <div id="jira-modals-root"></div>
     </div>
-  `,await Promise.all([Ye(),qe(),dt(),vt()]),we(),Fe(),ct(),nt(),c&&et(c);const ce=setInterval(()=>{if(!document.contains(i)){clearInterval(ce);return}!(i.querySelector(".dragging")||i.querySelector("input:focus")||i.querySelector("textarea:focus"))&&!j&&de()},12e3),me=()=>{document.contains(i)&&!j&&de()};window.addEventListener("focus",me);async function qe(){try{const a=new URLSearchParams;S.search&&a.set("search",S.search),S.priority!=="all"&&a.set("priority",S.priority),S.category!=="all"&&a.set("category",S.category),S.assigneeId!=="all"&&a.set("assigneeId",S.assigneeId),S.jobId&&S.jobId!=="all"&&a.set("jobId",S.jobId),S.reporterId&&S.reporterId!=="all"&&a.set("reporterId",S.reporterId),S.scope==="created"&&a.set("reporterId",d?._id||d?.id),S.scope==="assigned"&&a.set("assigneeId",d?._id||d?.id),S.myIssuesOnly&&a.set("myIssuesOnly","true");const r=await Me("/tickets?"+a.toString());f=Array.isArray(r)?r:[]}catch(a){$(a.message||"Failed to load tickets",!0),f=[]}}async function Ye(){try{n=await Me("/tickets/stats")}catch(a){console.warn("Could not fetch ticket stats:",a)}}async function dt(){try{let a;try{a=await Me("/tickets/staff")}catch{a=await Me("/users")}q=(a||[]).filter(r=>r.active!==!1&&r.role!=="client")}catch(a){console.warn("Could not fetch employees:",a),q=[]}}async function vt(){try{const a=await Me("/jobs?limit=250");R=Array.isArray(a)?a:a?.jobs||[]}catch(a){console.warn("Could not fetch jobs:",a)}}function we(){const a=i.querySelector("#jira-stats-root");a&&(a.innerHTML=`
+  `,await Promise.all([Je(),qe(),lt(),mt()]),we(),ze(),dt(),nt(),d&&tt(d);const ue=setInterval(()=>{if(!document.contains(n)){clearInterval(ue);return}!(n.querySelector(".dragging")||n.querySelector("input:focus")||n.querySelector("textarea:focus"))&&!T&&pe()},12e3),he=()=>{document.contains(n)&&!T&&pe()};window.addEventListener("focus",he);async function qe(){try{const i=new URLSearchParams;S.search&&i.set("search",S.search),S.priority!=="all"&&i.set("priority",S.priority),S.category!=="all"&&i.set("category",S.category),S.assigneeId!=="all"&&i.set("assigneeId",S.assigneeId),S.jobId&&S.jobId!=="all"&&i.set("jobId",S.jobId),S.reporterId&&S.reporterId!=="all"&&i.set("reporterId",S.reporterId),S.scope==="created"&&i.set("reporterId",l?._id||l?.id),S.scope==="assigned"&&i.set("assigneeId",l?._id||l?.id),S.myIssuesOnly&&i.set("myIssuesOnly","true");const s=await Pe("/tickets?"+i.toString());f=Array.isArray(s)?s:[]}catch(i){k(i.message||"Failed to load tickets",!0),f=[]}}async function Je(){try{o=await Pe("/tickets/stats")}catch(i){console.warn("Could not fetch ticket stats:",i)}}async function lt(){try{let i;try{i=await Pe("/tickets/staff")}catch{i=await Pe("/users")}L=(i||[]).filter(s=>s.active!==!1&&s.role!=="client")}catch(i){console.warn("Could not fetch employees:",i),L=[]}}async function mt(){try{const i=await Pe("/jobs?limit=250");B=Array.isArray(i)?i:i?.jobs||[]}catch(i){console.warn("Could not fetch jobs:",i)}}function we(){const i=n.querySelector("#jira-stats-root");i&&(i.innerHTML=`
       <div class="jira-stat-card ${S.status==="all"&&!S.myIssuesOnly?"active":""}" data-stat-filter="all">
-        <span class="jira-stat-val">${n.total||0}</span>
+        <span class="jira-stat-val">${o.total||0}</span>
         <span class="jira-stat-lbl">Total Tickets</span>
       </div>
       <div class="jira-stat-card ${S.status==="To Do"?"active":""}" data-stat-filter="To Do">
-        <span class="jira-stat-val">${n.toDo||0}</span>
+        <span class="jira-stat-val">${o.toDo||0}</span>
         <span class="jira-stat-lbl">To Do</span>
       </div>
       <div class="jira-stat-card content ${S.status==="Content"?"active":""}" data-stat-filter="Content">
-        <span class="jira-stat-val">${n.content??(n.inProgress||0)}</span>
+        <span class="jira-stat-val">${o.content??(o.inProgress||0)}</span>
         <span class="jira-stat-lbl">Content</span>
       </div>
       <div class="jira-stat-card design ${S.status==="Design"?"active":""}" data-stat-filter="Design">
-        <span class="jira-stat-val">${n.design||0}</span>
+        <span class="jira-stat-val">${o.design||0}</span>
         <span class="jira-stat-lbl">Design</span>
       </div>
       <div class="jira-stat-card review ${S.status==="Under Review"?"active":""}" data-stat-filter="Under Review">
-        <span class="jira-stat-val">${n.underReview||0}</span>
+        <span class="jira-stat-val">${o.underReview||0}</span>
         <span class="jira-stat-lbl">Under Review</span>
       </div>
       <div class="jira-stat-card ready ${S.status==="Ready to Leave"?"active":""}" data-stat-filter="Ready to Leave">
-        <span class="jira-stat-val">${n.readyToLeave??(n.resolved||n.closed||0)}</span>
+        <span class="jira-stat-val">${o.readyToLeave??(o.resolved||o.closed||0)}</span>
         <span class="jira-stat-lbl">Ready to Leave</span>
       </div>
       <div class="jira-stat-card critical" data-stat-filter="critical">
-        <span class="jira-stat-val">${n.critical||0}</span>
+        <span class="jira-stat-val">${o.critical||0}</span>
         <span class="jira-stat-lbl">Critical 🔴</span>
       </div>
       <div class="jira-stat-card overdue" data-stat-filter="overdue">
-        <span class="jira-stat-val">${n.overdue||0}</span>
+        <span class="jira-stat-val">${o.overdue||0}</span>
         <span class="jira-stat-lbl">Overdue ⚠️</span>
       </div>
-    `,a.querySelectorAll(".jira-stat-card").forEach(r=>{r.onclick=async()=>{const _=r.dataset.statFilter;_==="all"?(S.status="all",S.priority="all"):_==="critical"?(S.priority="Critical",S.status="all"):(S.status=_,S.priority="all"),await de()}}))}function ct(){const a=i.querySelector("#jira-filter-assignee");a&&(a.innerHTML=`
+    `,i.querySelectorAll(".jira-stat-card").forEach(s=>{s.onclick=async()=>{const C=s.dataset.statFilter;C==="all"?(S.status="all",S.priority="all"):C==="critical"?(S.priority="Critical",S.status="all"):(S.status=C,S.priority="all"),await pe()}}))}function dt(){const i=n.querySelector("#jira-filter-assignee");i&&(i.innerHTML=`
         <option value="all">Assignee: All</option>
         <option value="unassigned">Unassigned</option>
-        ${q.map(_=>`
-          <option value="${_._id}" ${S.assigneeId===_._id.toString()?"selected":""}>
-            ${x(_.name)} (${x(_.role)})
+        ${L.map(C=>`
+          <option value="${C._id}" ${S.assigneeId===C._id.toString()?"selected":""}>
+            ${x(C.name)} (${x(C.role)})
           </option>
         `).join("")}
-      `);const r=i.querySelector("#jira-filter-job");r&&(r.innerHTML=`
+      `);const s=n.querySelector("#jira-filter-job");s&&(s.innerHTML=`
         <option value="all">Linked Job: All</option>
-        ${R.map(_=>`
-          <option value="${_._id}" ${S.jobId===_._id.toString()?"selected":""}>
-            📁 ${x(_.title||"Untitled Job")}
+        ${B.map(C=>`
+          <option value="${C._id}" ${S.jobId===C._id.toString()?"selected":""}>
+            📁 ${x(C.title||"Untitled Job")}
           </option>
         `).join("")}
-      `)}function Fe(){const a=i.querySelector("#jira-board-columns-root");if(!a)return;const r={};da.forEach(_=>{r[_.key]=[]}),f.forEach(_=>{let A=_.status||"To Do";A==="In Progress"?A="Content":A==="Resolved"?A="Under Review":A==="Closed"&&(A="Ready to Leave"),r[A]||(r[A]=[]),r[A].push(_)}),a.innerHTML=da.map(_=>{const A=r[_.key]||[];return`
-        <div class="jira-board-column" data-status="${_.key}">
+      `)}function ze(){const i=n.querySelector("#jira-board-columns-root");if(!i)return;const s={};da.forEach(C=>{s[C.key]=[]}),f.forEach(C=>{let I=C.status||"To Do";I==="In Progress"?I="Content":I==="Resolved"?I="Under Review":I==="Closed"&&(I="Ready to Leave"),s[I]||(s[I]=[]),s[I].push(C)}),i.innerHTML=da.map(C=>{const I=s[C.key]||[];return`
+        <div class="jira-board-column" data-status="${C.key}">
           <div class="jira-column-header">
             <div class="jira-col-title-wrap">
-              <span class="jira-col-title">${x(_.label)}</span>
-              <span class="jira-col-badge">${A.length}</span>
+              <span class="jira-col-title">${x(C.label)}</span>
+              <span class="jira-col-badge">${I.length}</span>
             </div>
           </div>
-          <div class="jira-cards-list" data-column-status="${_.key}">
-            ${A.length===0?`
+          <div class="jira-cards-list" data-column-status="${C.key}">
+            ${I.length===0?`
               <div style="padding:18px 6px;text-align:center;color:#475569;font-size:11px;font-style:italic;">
                 No tickets
               </div>
-            `:A.map(V=>pt(V)).join("")}
+            `:I.map(K=>ct(K)).join("")}
           </div>
         </div>
-      `}).join(""),_e(),it()}function pt(a){const r=St.find(H=>H.key===a.category)||St[0],_=Et.find(H=>H.key===a.priority)||Et[2],A=a.dueDate&&new Date(a.dueDate)<new Date&&a.status!=="Ready to Leave"&&a.status!=="Closed",V=(a.subtasks||[]).filter(H=>H.completed).length,G=(a.subtasks||[]).length,M=Array.isArray(a.assignees)&&a.assignees.length>0?a.assignees:a.assignee&&a.assignee.userId?[a.assignee]:[],U=d?._id||d?.id,F=a.reporter&&a.reporter.userId&&String(a.reporter.userId)===String(U);let v="";if(M.length===0)v='<div class="jira-avatar unassigned" title="Unassigned">?</div>';else{const H=M.slice(0,3),X=M.length-3;v=`
+      `}).join(""),_e(),it()}function ct(i){const s=$t.find(U=>U.key===i.category)||$t[0],C=Dt.find(U=>U.key===i.priority)||Dt[2],I=i.dueDate&&new Date(i.dueDate)<new Date&&i.status!=="Ready to Leave"&&i.status!=="Closed",K=(i.subtasks||[]).filter(U=>U.completed).length,W=(i.subtasks||[]).length,M=Array.isArray(i.assignees)&&i.assignees.length>0?i.assignees:i.assignee&&i.assignee.userId?[i.assignee]:[],F=l?._id||l?.id,H=i.reporter&&i.reporter.userId&&String(i.reporter.userId)===String(F);let v="";if(M.length===0)v='<div class="jira-avatar unassigned" title="Unassigned">?</div>';else{const U=M.slice(0,3),ee=M.length-3;v=`
         <div class="jira-avatar-group">
-          ${H.map(p=>`
-            <div class="jira-avatar" title="Assignee: ${x(p.name||"Member")} (${x(p.role||"")})">
-              ${(p.avatar||p.name?.slice(0,1)||"U").toUpperCase()}
+          ${U.map(te=>`
+            <div class="jira-avatar" title="Assignee: ${x(te.name||"Member")} (${x(te.role||"")})">
+              ${(te.avatar||te.name?.slice(0,1)||"U").toUpperCase()}
             </div>
           `).join("")}
-          ${X>0?`
-            <div class="jira-avatar extra-count" title="${X} more assignees: ${x(M.slice(3).map(p=>p.name).join(", "))}">
-              +${X}
+          ${ee>0?`
+            <div class="jira-avatar extra-count" title="${ee} more assignees: ${x(M.slice(3).map(te=>te.name).join(", "))}">
+              +${ee}
             </div>
           `:""}
         </div>
       `}return`
-      <div class="jira-card" draggable="true" data-ticket-id="${a._id}">
+      <div class="jira-card" draggable="true" data-ticket-id="${i._id}">
         <div class="jira-card-top">
           <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
-            <span class="jira-category-pill ${r.slug}">
-              ${r.icon} ${r.label}
+            <span class="jira-category-pill ${s.slug}">
+              ${s.icon} ${s.label}
             </span>
-            ${F?`
+            ${H?`
               <span class="jira-reporter-tag" title="You created this ticket">
                 ✍️ By You
               </span>
             `:""}
-            ${a.dueDate?`
-              <span class="jira-due-pill ${A?"overdue":""}" title="Due Date">
-                ${A?"⚠️ ":"📅 "}
-                ${new Date(a.dueDate).toISOString().slice(0,10)}
+            ${i.dueDate?`
+              <span class="jira-due-pill ${I?"overdue":""}" title="Due Date">
+                ${I?"⚠️ ":"📅 "}
+                ${new Date(i.dueDate).toISOString().slice(0,10)}
               </span>
             `:""}
           </div>
-          <button type="button" class="jira-card-quick-del btn-delete-card-ticket" data-ticket-id="${a._id}" data-ticket-num="${x(a.ticketId)}" title="Delete Ticket">
+          <button type="button" class="jira-card-quick-del btn-delete-card-ticket" data-ticket-id="${i._id}" data-ticket-num="${x(i.ticketId)}" title="Delete Ticket">
             🗑️
           </button>
         </div>
 
-        <div class="jira-card-title" title="${x(a.title)}">
-          ${x(a.title)}
+        <div class="jira-card-title" title="${x(i.title)}">
+          ${x(i.title)}
         </div>
 
-        ${a.jobTitle||a.jobId&&a.jobId.title?`
-          <div class="jira-card-job-link" title="Linked Internal Job: ${x(a.jobTitle||a.jobId.title)}">
-            📁 ${x(a.jobTitle||a.jobId.title)}
+        ${i.jobTitle||i.jobId&&i.jobId.title?`
+          <div class="jira-card-job-link" title="Linked Internal Job: ${x(i.jobTitle||i.jobId.title)}">
+            📁 ${x(i.jobTitle||i.jobId.title)}
           </div>
         `:""}
 
         <div class="jira-card-bottom">
           <div class="jira-card-id-row">
-            <span class="jira-pri-icon" title="Priority: ${_.label}">${_.icon}</span>
-            <span class="jira-ticket-id">${x(a.ticketId)}</span>
+            <span class="jira-pri-icon" title="Priority: ${C.label}">${C.icon}</span>
+            <span class="jira-ticket-id">${x(i.ticketId)}</span>
           </div>
 
           <div class="jira-card-assignee-row">
-            ${G>0?`
-              <span class="jira-subtask-badge" title="${V} of ${G} subtasks completed">
-                ☑ ${V}/${G}
+            ${W>0?`
+              <span class="jira-subtask-badge" title="${K} of ${W} subtasks completed">
+                ☑ ${K}/${W}
               </span>
             `:""}
             ${v}
           </div>
         </div>
       </div>
-    `}function _e(){const a=i.querySelectorAll(".jira-card"),r=i.querySelectorAll(".jira-board-column");a.forEach(_=>{_.ondragstart=A=>{A.dataTransfer.setData("text/plain",_.dataset.ticketId),_.classList.add("dragging")},_.ondragend=()=>{_.classList.remove("dragging")}}),r.forEach(_=>{_.ondragover=A=>{A.preventDefault(),_.classList.add("drag-over")},_.ondragleave=()=>{_.classList.remove("drag-over")},_.ondrop=async A=>{A.preventDefault(),_.classList.remove("drag-over");const V=A.dataTransfer.getData("text/plain"),G=_.dataset.status;if(!V||!G)return;const M=f.find(F=>F._id.toString()===V);if(!M||M.status===G)return;const U=M.status;M.status=G,Fe();try{const F=await Ge(`/tickets/${V}/status`,{status:G});$(`Moved ${F.ticketId} to ${G}`,!1),await de()}catch(F){$(F.message||"Status update failed",!0),M.status=U,await de()}}})}function it(){i.querySelectorAll(".btn-delete-card-ticket").forEach(a=>{a.onclick=async r=>{r.stopPropagation(),r.preventDefault();const _=a.dataset.ticketId,A=a.dataset.ticketNum||"ticket";if(confirm(`Are you sure you want to permanently delete ticket ${A}?`)){a.disabled=!0;try{await Ve(`/tickets/${_}`),$(`Ticket ${A} deleted`,!1),await de()}catch(V){$(V.message||"Failed to delete ticket",!0),a.disabled=!1}}}}),i.querySelectorAll(".jira-card").forEach(a=>{a.onclick=r=>{if(r.target.tagName==="A"||r.target.closest(".btn-delete-card-ticket"))return;const _=a.dataset.ticketId;et(_)}})}function nt(){const a=i.querySelector("#btn-jira-refresh");a&&(a.onclick=async()=>{await de(),$("Board updated",!1)});const r=i.querySelector("#btn-jira-create-ticket");r&&(r.onclick=()=>{I()});const _=i.querySelector("#jira-search-input");let A=null;_&&(_.oninput=l=>{clearTimeout(A),A=setTimeout(async()=>{S.search=l.target.value.trim(),je(),await de()},300)});const V=i.querySelector("#jira-filter-priority");V&&(V.onchange=async l=>{S.priority=l.target.value,je(),await de()});const G=i.querySelector("#jira-filter-category");G&&(G.onchange=async l=>{S.category=l.target.value,je(),await de()});const M=i.querySelector("#jira-filter-job");M&&(M.onchange=async l=>{S.jobId=l.target.value,je(),await de()});const U=i.querySelector("#jira-filter-assignee");U&&(U.onchange=async l=>{S.assigneeId=l.target.value,je(),await de()});const F=i.querySelector("#jira-pill-my-issues");F&&(F.onclick=async()=>{S.myIssuesOnly=!S.myIssuesOnly,F.classList.toggle("active",S.myIssuesOnly),je(),await de()});const v=i.querySelector("#jira-pill-scope-all"),H=i.querySelector("#jira-pill-scope-assigned"),X=i.querySelector("#jira-pill-scope-created"),p=async l=>{S.scope=l,v&&v.classList.toggle("active",l==="all"),H&&H.classList.toggle("active",l==="assigned"),X&&X.classList.toggle("active",l==="created"),je(),await de()};v&&(v.onclick=()=>p("all")),H&&(H.onclick=()=>p("assigned")),X&&(X.onclick=()=>p("created"));const u=i.querySelector("#jira-clear-filters");u&&(u.onclick=async()=>{S={search:"",status:"all",priority:"all",category:"all",assigneeId:"all",reporterId:"all",scope:"all",jobId:"all",myIssuesOnly:!1},_&&(_.value=""),V&&(V.value="all"),G&&(G.value="all");const l=i.querySelector("#jira-filter-job");l&&(l.value="all"),U&&(U.value="all"),F&&F.classList.remove("active"),v&&v.classList.add("active"),H&&H.classList.remove("active"),X&&X.classList.remove("active"),je(),await de()})}function je(){const a=i.querySelector("#jira-clear-filters");if(!a)return;const r=S.search||S.priority!=="all"||S.category!=="all"||S.jobId&&S.jobId!=="all"||S.assigneeId!=="all"||S.myIssuesOnly||S.scope&&S.scope!=="all";a.style.display=r?"inline":"none"}async function de(){await qe(),Fe()}async function et(a){const r=i.querySelector("#jira-modals-root");if(r){r.innerHTML=`
+    `}function _e(){const i=n.querySelectorAll(".jira-card"),s=n.querySelectorAll(".jira-board-column");i.forEach(C=>{C.ondragstart=I=>{I.dataTransfer.setData("text/plain",C.dataset.ticketId),C.classList.add("dragging")},C.ondragend=()=>{C.classList.remove("dragging")}}),s.forEach(C=>{C.ondragover=I=>{I.preventDefault(),C.classList.add("drag-over")},C.ondragleave=()=>{C.classList.remove("drag-over")},C.ondrop=async I=>{I.preventDefault(),C.classList.remove("drag-over");const K=I.dataTransfer.getData("text/plain"),W=C.dataset.status;if(!K||!W)return;const M=f.find(H=>H._id.toString()===K);if(!M||M.status===W)return;const F=M.status;M.status=W,ze();try{const H=await Ge(`/tickets/${K}/status`,{status:W});k(`Moved ${H.ticketId} to ${W}`,!1),await pe()}catch(H){k(H.message||"Status update failed",!0),M.status=F,await pe()}}})}function it(){n.querySelectorAll(".btn-delete-card-ticket").forEach(i=>{i.onclick=async s=>{s.stopPropagation(),s.preventDefault();const C=i.dataset.ticketId,I=i.dataset.ticketNum||"ticket";if(confirm(`Are you sure you want to permanently delete ticket ${I}?`)){i.disabled=!0;try{await Ye(`/tickets/${C}`),k(`Ticket ${I} deleted`,!1),await pe()}catch(K){k(K.message||"Failed to delete ticket",!0),i.disabled=!1}}}}),n.querySelectorAll(".jira-card").forEach(i=>{i.onclick=s=>{if(s.target.tagName==="A"||s.target.closest(".btn-delete-card-ticket"))return;const C=i.dataset.ticketId;tt(C)}})}function nt(){const i=n.querySelector("#btn-jira-refresh");i&&(i.onclick=async()=>{await pe(),k("Board updated",!1)});const s=n.querySelector("#btn-jira-create-ticket");s&&(s.onclick=()=>{j()});const C=n.querySelector("#jira-search-input");let I=null;C&&(C.oninput=c=>{clearTimeout(I),I=setTimeout(async()=>{S.search=c.target.value.trim(),Ae(),await pe()},300)});const K=n.querySelector("#jira-filter-priority");K&&(K.onchange=async c=>{S.priority=c.target.value,Ae(),await pe()});const W=n.querySelector("#jira-filter-category");W&&(W.onchange=async c=>{S.category=c.target.value,Ae(),await pe()});const M=n.querySelector("#jira-filter-job");M&&(M.onchange=async c=>{S.jobId=c.target.value,Ae(),await pe()});const F=n.querySelector("#jira-filter-assignee");F&&(F.onchange=async c=>{S.assigneeId=c.target.value,Ae(),await pe()});const H=n.querySelector("#jira-pill-my-issues");H&&(H.onclick=async()=>{S.myIssuesOnly=!S.myIssuesOnly,H.classList.toggle("active",S.myIssuesOnly),Ae(),await pe()});const v=n.querySelector("#jira-pill-scope-all"),U=n.querySelector("#jira-pill-scope-assigned"),ee=n.querySelector("#jira-pill-scope-created"),te=async c=>{S.scope=c,v&&v.classList.toggle("active",c==="all"),U&&U.classList.toggle("active",c==="assigned"),ee&&ee.classList.toggle("active",c==="created"),Ae(),await pe()};v&&(v.onclick=()=>te("all")),U&&(U.onclick=()=>te("assigned")),ee&&(ee.onclick=()=>te("created"));const p=n.querySelector("#jira-clear-filters");p&&(p.onclick=async()=>{S={search:"",status:"all",priority:"all",category:"all",assigneeId:"all",reporterId:"all",scope:"all",jobId:"all",myIssuesOnly:!1},C&&(C.value=""),K&&(K.value="all"),W&&(W.value="all");const c=n.querySelector("#jira-filter-job");c&&(c.value="all"),F&&(F.value="all"),H&&H.classList.remove("active"),v&&v.classList.add("active"),U&&U.classList.remove("active"),ee&&ee.classList.remove("active"),Ae(),await pe()})}function Ae(){const i=n.querySelector("#jira-clear-filters");if(!i)return;const s=S.search||S.priority!=="all"||S.category!=="all"||S.jobId&&S.jobId!=="all"||S.assigneeId!=="all"||S.myIssuesOnly||S.scope&&S.scope!=="all";i.style.display=s?"inline":"none"}async function pe(){await qe(),ze()}async function tt(i){const s=n.querySelector("#jira-modals-root");if(s){s.innerHTML=`
       <div class="jira-modal-backdrop">
         <div class="jira-modal-card" style="align-items:center;justify-content:center;">
           <div style="color:#94a3b8;font-size:15px;font-weight:600;">Loading Issue Details...</div>
         </div>
       </div>
-    `;try{j=await Me(`/tickets/${a}`)}catch(_){$(_.message||"Could not load ticket",!0),r.innerHTML="";return}be()}}function be(){const a=i.querySelector("#jira-modals-root");if(!a||!j)return;const r=j,_=St.find(o=>o.key===r.category)||St[0];Et.find(o=>o.key===r.priority)||Et[2];const A=r.subtasks||[],V=A.filter(o=>o.completed).length,G=A.length>0?Math.round(V/A.length*100):0,M=r.attachments||[],U=r.comments||[],F=(r.history||[]).slice().reverse(),v=r.workLogs||[],H=r.linkedTickets||[],X=d?._id||d?.id;r.reporter&&r.reporter.userId&&String(r.reporter.userId)===String(X)||r.userId&&(String(r.userId),String(X));const p=Array.isArray(r.assignees)&&r.assignees.length>0?r.assignees:r.assignee&&r.assignee.userId?[r.assignee]:[];p.some(o=>o&&o.userId&&String(o.userId)===String(X));const u=r.jobId?._id?r.jobId._id.toString():r.jobId?r.jobId.toString():"",l=r.jobTitle||r.jobId&&r.jobId.title||"";a.innerHTML=`
+    `;try{T=await Pe(`/tickets/${i}`)}catch(C){k(C.message||"Could not load ticket",!0),s.innerHTML="";return}fe()}}function fe(){const i=n.querySelector("#jira-modals-root");if(!i||!T)return;const s=T,C=$t.find(a=>a.key===s.category)||$t[0];Dt.find(a=>a.key===s.priority)||Dt[2];const I=s.subtasks||[],K=I.filter(a=>a.completed).length,W=I.length>0?Math.round(K/I.length*100):0,M=s.attachments||[],F=s.comments||[],H=(s.history||[]).slice().reverse(),v=s.workLogs||[],U=s.linkedTickets||[],ee=l?._id||l?.id;s.reporter&&s.reporter.userId&&String(s.reporter.userId)===String(ee)||s.userId&&(String(s.userId),String(ee));const te=Array.isArray(s.assignees)&&s.assignees.length>0?s.assignees:s.assignee&&s.assignee.userId?[s.assignee]:[];te.some(a=>a&&a.userId&&String(a.userId)===String(ee));const p=s.jobId?._id?s.jobId._id.toString():s.jobId?s.jobId.toString():"",c=s.jobTitle||s.jobId&&s.jobId.title||"";i.innerHTML=`
       <div class="jira-modal-backdrop" id="jira-detail-backdrop">
         <div class="jira-modal-card">
           <!-- Top Bar -->
           <div class="jira-modal-header">
             <div class="jira-modal-title-row">
-              <span class="jira-category-pill ${_.slug}">${_.icon} ${_.label}</span>
-              <span class="jira-ticket-id" style="font-size:13px;color:#38bdf8;">${x(r.ticketId)}</span>
+              <span class="jira-category-pill ${C.slug}">${C.icon} ${C.label}</span>
+              <span class="jira-ticket-id" style="font-size:13px;color:#38bdf8;">${x(s.ticketId)}</span>
             </div>
             <button class="jira-modal-close" id="btn-close-jira-modal" title="Close (Esc)">&times;</button>
           </div>
@@ -6609,7 +6644,7 @@ All messages in this lounge will be deleted.`))try{await Ve(`/bonding/channels/$
             <div class="jira-detail-main">
               <!-- Issue Title Header -->
               <div class="jira-issue-header-wrap">
-                <input type="text" class="jira-editable-title" id="inp-detail-title" value="${x(r.title)}" title="Click to edit title" />
+                <input type="text" class="jira-editable-title" id="inp-detail-title" value="${x(s.title)}" title="Click to edit title" />
               </div>
 
               <!-- Description Section -->
@@ -6617,25 +6652,25 @@ All messages in this lounge will be deleted.`))try{await Ve(`/bonding/channels/$
                 <div class="jira-sec-title">
                   <span>Description</span>
                   <button type="button" class="jira-tool-btn" id="btn-toggle-desc-edit">
-                    ${B?"Cancel":"✏️ Edit"}
+                    ${N?"Cancel":"✏️ Edit"}
                   </button>
                 </div>
 
-                ${B?`
+                ${N?`
                   <div class="jira-editor-toolbar">
                     <button type="button" class="jira-tool-btn" data-fmt="bold"><strong>B</strong></button>
                     <button type="button" class="jira-tool-btn" data-fmt="italic"><em>I</em></button>
                     <button type="button" class="jira-tool-btn" data-fmt="bullet">• List</button>
                     <button type="button" class="jira-tool-btn" data-fmt="code">&lt;/&gt;</button>
                   </div>
-                  <textarea id="inp-detail-desc" class="jira-desc-editor" rows="6">${x(r.description||"")}</textarea>
+                  <textarea id="inp-detail-desc" class="jira-desc-editor" rows="6">${x(s.description||"")}</textarea>
                   <div style="display:flex;gap:8px;margin-top:6px;">
                     <button class="btn-jira-primary" id="btn-save-desc">Save Description</button>
                     <button class="btn-jira-secondary" id="btn-cancel-desc">Cancel</button>
                   </div>
                 `:`
                   <div class="jira-desc-wrap" id="view-detail-desc">
-                    ${r.description?x(r.description):'<span style="color:#64748b;font-style:italic;">No description provided. Click "Edit" to add details.</span>'}
+                    ${s.description?x(s.description):'<span style="color:#64748b;font-style:italic;">No description provided. Click "Edit" to add details.</span>'}
                   </div>
                 `}
               </div>
@@ -6656,32 +6691,32 @@ All messages in this lounge will be deleted.`))try{await Ve(`/bonding/channels/$
                   <div style="color:#64748b;font-size:12px;font-style:italic;">No attachments yet. Upload MP4 videos (up to 1GB), screen recordings, screenshots, or logs.</div>
                 `:`
                   <div class="jira-attachments-grid">
-                    ${M.map(o=>{const m=o.type&&o.type.includes("video")||o.name&&o.name.match(/\.(mp4|mov|webm|avi|mkv)$/i)||o.url&&o.url.match(/\.(mp4|mov|webm|avi|mkv)$/i);return`
+                    ${M.map(a=>{const m=a.type&&a.type.includes("video")||a.name&&a.name.match(/\.(mp4|mov|webm|avi|mkv)$/i)||a.url&&a.url.match(/\.(mp4|mov|webm|avi|mkv)$/i);return`
                         <div class="jira-att-card ${m?"is-video":""}" style="${m?"grid-column: 1 / -1; display:flex; flex-direction:column; gap:6px;":""}">
                           <div style="display:flex;align-items:center;justify-content:space-between;width:100%;gap:8px;">
                             <div class="jira-att-left">
                               <span style="font-size:${m?"16px":"13px"};">${m?"🎬":"📎"}</span>
                               <div style="display:flex;flex-direction:column;min-width:0;">
-                                <a href="${o.url}" target="_blank" rel="noopener noreferrer" class="jira-att-name" title="${x(o.name)}">
-                                  ${x(o.name)}
+                                <a href="${a.url}" target="_blank" rel="noopener noreferrer" class="jira-att-name" title="${x(a.name)}">
+                                  ${x(a.name)}
                                 </a>
-                                <span style="font-size:10.5px;color:#94a3b8;">${Ft(o.size)} ${m?"• MP4 Video":""}</span>
+                                <span style="font-size:10.5px;color:#94a3b8;">${Ot(a.size)} ${m?"• MP4 Video":""}</span>
                               </div>
                             </div>
                             <div style="display:flex;align-items:center;gap:6px;">
                               ${m?`
-                                <button type="button" class="btn-play-att-video" data-slot="video-slot-${o.id}" style="background:#0284c7;color:#fff;border:none;border-radius:4px;padding:3px 9px;font-size:11px;font-weight:600;cursor:pointer;">
+                                <button type="button" class="btn-play-att-video" data-slot="video-slot-${a.id}" style="background:#0284c7;color:#fff;border:none;border-radius:4px;padding:3px 9px;font-size:11px;font-weight:600;cursor:pointer;">
                                   ▶ Play Video
                                 </button>
                               `:""}
-                              <a href="${o.url}" download="${x(o.name)}" class="btn-jira-secondary" style="font-size:11px;padding:3px 7px;text-decoration:none;" title="Download">⬇</a>
-                              <button type="button" class="jira-att-del btn-del-att" data-att-id="${o.id}" title="Delete file">&times;</button>
+                              <a href="${a.url}" download="${x(a.name)}" class="btn-jira-secondary" style="font-size:11px;padding:3px 7px;text-decoration:none;" title="Download">⬇</a>
+                              <button type="button" class="jira-att-del btn-del-att" data-att-id="${a.id}" title="Delete file">&times;</button>
                             </div>
                           </div>
                           ${m?`
-                            <div class="jira-video-slot" id="video-slot-${o.id}" style="display:none;margin-top:6px;width:100%;">
+                            <div class="jira-video-slot" id="video-slot-${a.id}" style="display:none;margin-top:6px;width:100%;">
                               <video controls preload="metadata" style="width:100%;max-height:360px;border-radius:6px;background:#000;">
-                                <source src="${o.url}" type="${o.type||"video/mp4"}">
+                                <source src="${a.url}" type="${a.type||"video/mp4"}">
                                 Your browser does not support HTML5 video streaming.
                               </video>
                             </div>
@@ -6695,22 +6730,22 @@ All messages in this lounge will be deleted.`))try{await Ve(`/bonding/channels/$
               <!-- Subtasks Section -->
               <div class="jira-section-block">
                 <div class="jira-sec-title">
-                  <span>Subtasks (${V}/${A.length})</span>
-                  <span style="font-size:11px;color:#10b981;font-weight:700;">${G}% Done</span>
+                  <span>Subtasks (${K}/${I.length})</span>
+                  <span style="font-size:11px;color:#10b981;font-weight:700;">${W}% Done</span>
                 </div>
 
                 <div class="jira-subtask-progress">
-                  <div class="jira-subtask-bar" style="width:${G}%"></div>
+                  <div class="jira-subtask-bar" style="width:${W}%"></div>
                 </div>
 
                 <div class="jira-subtask-list">
-                  ${A.map(o=>`
+                  ${I.map(a=>`
                     <div class="jira-subtask-item">
                       <div class="jira-subtask-left">
-                        <input type="checkbox" class="jira-subtask-cb cb-subtask-toggle" data-subtask-id="${o.id}" ${o.completed?"checked":""} />
-                        <span class="jira-subtask-title ${o.completed?"done":""}">${x(o.title)}</span>
+                        <input type="checkbox" class="jira-subtask-cb cb-subtask-toggle" data-subtask-id="${a.id}" ${a.completed?"checked":""} />
+                        <span class="jira-subtask-title ${a.completed?"done":""}">${x(a.title)}</span>
                       </div>
-                      <button type="button" class="jira-att-del btn-del-subtask" data-subtask-id="${o.id}" title="Remove subtask">&times;</button>
+                      <button type="button" class="jira-att-del btn-del-subtask" data-subtask-id="${a.id}" title="Remove subtask">&times;</button>
                     </div>
                   `).join("")}
                 </div>
@@ -6724,26 +6759,26 @@ All messages in this lounge will be deleted.`))try{await Ve(`/bonding/channels/$
               <!-- Linked Work Items Section -->
               <div class="jira-section-block">
                 <div class="jira-sec-title">
-                  <span>Linked Work Items (${H.length})</span>
+                  <span>Linked Work Items (${U.length})</span>
                   <button type="button" class="btn-jira-secondary" id="btn-open-link-dialog" style="font-size:11px;padding:4px 8px;">
                     🔗 Link Issue
                   </button>
                 </div>
 
-                ${H.length===0?`
+                ${U.length===0?`
                   <div style="color:#64748b;font-size:12px;font-style:italic;">No linked issues.</div>
                 `:`
                   <div style="display:flex;flex-direction:column;gap:6px;">
-                    ${H.map(o=>`
+                    ${U.map(a=>`
                       <div class="jira-subtask-item">
                         <div style="display:flex;align-items:center;gap:8px;">
-                          <span style="font-size:11px;color:#94a3b8;font-weight:700;text-transform:uppercase;">${x(o.relationship)}</span>
-                          <span class="jira-ticket-id" style="color:#38bdf8;">${x(o.ticketId)}</span>
-                          <span style="font-size:12.5px;color:#f1f5f9;">${x(o.title)}</span>
+                          <span style="font-size:11px;color:#94a3b8;font-weight:700;text-transform:uppercase;">${x(a.relationship)}</span>
+                          <span class="jira-ticket-id" style="color:#38bdf8;">${x(a.ticketId)}</span>
+                          <span style="font-size:12.5px;color:#f1f5f9;">${x(a.title)}</span>
                         </div>
                         <div style="display:flex;align-items:center;gap:6px;">
-                          <span class="jira-col-badge">${x(o.status||"Open")}</span>
-                          <button type="button" class="jira-att-del btn-del-link" data-link-id="${o.id}" title="Remove link">&times;</button>
+                          <span class="jira-col-badge">${x(a.status||"Open")}</span>
+                          <button type="button" class="jira-att-del btn-del-link" data-link-id="${a.id}" title="Remove link">&times;</button>
                         </div>
                       </div>
                     `).join("")}
@@ -6770,16 +6805,16 @@ All messages in this lounge will be deleted.`))try{await Ve(`/bonding/channels/$
                 <div class="jira-sec-title">
                   <span style="display:flex;align-items:center;gap:6px;">📁 Linked Internal Job</span>
                   <button type="button" class="jira-tool-btn" id="btn-toggle-job-link">
-                    ${l?"✏️ Change Job":"+ Link a Job"}
+                    ${c?"✏️ Change Job":"+ Link a Job"}
                   </button>
                 </div>
-                ${l?`
+                ${c?`
                   <div class="jira-linked-job-card">
                     <div style="display:flex;align-items:center;gap:10px;">
                       <span style="font-size:22px;">📁</span>
                       <div>
-                        <div style="font-weight:700;color:#f8fafc;font-size:13px;">${x(l)}</div>
-                        <div style="font-size:11px;color:#38bdf8;">CI360 Job ID: ${x(u)}</div>
+                        <div style="font-weight:700;color:#f8fafc;font-size:13px;">${x(c)}</div>
+                        <div style="font-size:11px;color:#38bdf8;">CI360 Job ID: ${x(p)}</div>
                       </div>
                     </div>
                     <button type="button" class="jira-tool-btn" id="btn-unlink-job" style="color:#ef4444;border-color:rgba(239,68,68,0.3);" title="Remove job link">
@@ -6797,9 +6832,9 @@ All messages in this lounge will be deleted.`))try{await Ve(`/bonding/channels/$
                   <div style="display:flex;gap:8px;flex-wrap:wrap;">
                     <select id="inp-modal-job-select" class="jira-select-field" style="flex:1;min-width:220px;">
                       <option value="">-- Select a Job --</option>
-                      ${R.map(o=>`
-                        <option value="${o._id}" ${u===o._id.toString()?"selected":""}>
-                          📁 ${x(o.title||"Untitled Job")}
+                      ${B.map(a=>`
+                        <option value="${a._id}" ${p===a._id.toString()?"selected":""}>
+                          📁 ${x(a.title||"Untitled Job")}
                         </option>
                       `).join("")}
                     </select>
@@ -6814,10 +6849,10 @@ All messages in this lounge will be deleted.`))try{await Ve(`/bonding/channels/$
                 <div class="jira-sec-title">Activity</div>
                 <div class="jira-activity-tabs">
                   <button type="button" class="jira-act-tab ${P==="comments"?"active":""}" data-act-tab="comments">
-                    Comments (${U.length})
+                    Comments (${F.length})
                   </button>
                   <button type="button" class="jira-act-tab ${P==="history"?"active":""}" data-act-tab="history">
-                    History (${F.length})
+                    History (${H.length})
                   </button>
                   <button type="button" class="jira-act-tab ${P==="worklog"?"active":""}" data-act-tab="worklog">
                     Work Log (${v.length})
@@ -6827,17 +6862,17 @@ All messages in this lounge will be deleted.`))try{await Ve(`/bonding/channels/$
                 <!-- A. Comments Tab -->
                 ${P==="comments"?`
                   <div class="jira-comments-feed">
-                    ${U.map(o=>`
+                    ${F.map(a=>`
                       <div class="jira-comment-item">
                         <div class="jira-avatar" style="background:#2563eb;">
-                          ${(o.userName||"U").slice(0,1).toUpperCase()}
+                          ${(a.userName||"U").slice(0,1).toUpperCase()}
                         </div>
                         <div class="jira-comment-main">
                           <div class="jira-comment-head">
-                            <span class="jira-comment-author">${x(o.userName)} <span style="font-size:10px;color:#94a3b8;font-weight:400;">(${x(o.userRole)})</span></span>
-                            <span class="jira-comment-time">${ea(o.createdAt)}</span>
+                            <span class="jira-comment-author">${x(a.userName)} <span style="font-size:10px;color:#94a3b8;font-weight:400;">(${x(a.userRole)})</span></span>
+                            <span class="jira-comment-time">${ea(a.createdAt)}</span>
                           </div>
-                          <div class="jira-comment-body">${x(o.content)}</div>
+                          <div class="jira-comment-body">${x(a.content)}</div>
                         </div>
                       </div>
                     `).join("")}
@@ -6845,7 +6880,7 @@ All messages in this lounge will be deleted.`))try{await Ve(`/bonding/channels/$
                     <!-- Add Comment Composer -->
                     <div class="jira-comment-composer">
                       <div class="jira-avatar" style="background:#3b82f6;">
-                        ${(d?.name||"U").slice(0,1).toUpperCase()}
+                        ${(l?.name||"U").slice(0,1).toUpperCase()}
                       </div>
                       <div style="flex:1;display:flex;flex-direction:column;gap:6px;">
                         <textarea id="inp-new-comment" class="jira-comment-textarea" rows="2" placeholder="Add an internal comment..."></textarea>
@@ -6860,22 +6895,22 @@ All messages in this lounge will be deleted.`))try{await Ve(`/bonding/channels/$
                 <!-- B. History Tab -->
                 ${P==="history"?`
                   <div class="jira-history-feed">
-                    ${F.length===0?`
+                    ${H.length===0?`
                       <div style="color:#64748b;font-size:12px;font-style:italic;">No recorded history.</div>
-                    `:F.map(o=>`
+                    `:H.map(a=>`
                       <div class="jira-history-item">
                         <div class="jira-avatar unassigned" style="width:20px;height:20px;font-size:9px;">
-                          ${(o.userName||"S").slice(0,1).toUpperCase()}
+                          ${(a.userName||"S").slice(0,1).toUpperCase()}
                         </div>
                         <div class="jira-history-main">
                           <div class="jira-history-head">
-                            <span style="font-weight:600;color:#f1f5f9;font-size:12px;">${x(o.userName)}</span>
-                            <span class="jira-comment-time">${ea(o.timestamp)}</span>
+                            <span style="font-weight:600;color:#f1f5f9;font-size:12px;">${x(a.userName)}</span>
+                            <span class="jira-comment-time">${ea(a.timestamp)}</span>
                           </div>
                           <div style="font-size:12px;color:#94a3b8;">
-                            Changed <strong style="color:#cbd5e1;">${x(o.field)}</strong>:
-                            ${o.from?`<span style="text-decoration:line-through;color:#ef4444;">${x(o.from)}</span> ➔ `:""}
-                            <span style="color:#10b981;font-weight:600;">${x(o.to)}</span>
+                            Changed <strong style="color:#cbd5e1;">${x(a.field)}</strong>:
+                            ${a.from?`<span style="text-decoration:line-through;color:#ef4444;">${x(a.from)}</span> ➔ `:""}
+                            <span style="color:#10b981;font-weight:600;">${x(a.to)}</span>
                           </div>
                         </div>
                       </div>
@@ -6887,7 +6922,7 @@ All messages in this lounge will be deleted.`))try{await Ve(`/bonding/channels/$
                 ${P==="worklog"?`
                   <div class="jira-worklog-feed">
                     <div style="display:flex;justify-content:space-between;align-items:center;">
-                      <span style="font-size:12px;color:#94a3b8;">Total Logged: <strong>${r.loggedHours||0} hrs</strong></span>
+                      <span style="font-size:12px;color:#94a3b8;">Total Logged: <strong>${s.loggedHours||0} hrs</strong></span>
                       <button class="btn-jira-secondary" id="btn-open-worklog-dialog" style="font-size:11px;padding:4px 8px;">
                         ⏱️ Log Work
                       </button>
@@ -6906,17 +6941,17 @@ All messages in this lounge will be deleted.`))try{await Ve(`/bonding/channels/$
 
                     ${v.length===0?`
                       <div style="color:#64748b;font-size:12px;font-style:italic;">No work logged yet.</div>
-                    `:v.map(o=>`
+                    `:v.map(a=>`
                       <div class="jira-worklog-item">
                         <div class="jira-avatar" style="background:#10b981;width:20px;height:20px;font-size:9px;">
-                          ${(o.userName||"U").slice(0,1).toUpperCase()}
+                          ${(a.userName||"U").slice(0,1).toUpperCase()}
                         </div>
                         <div class="jira-worklog-main">
                           <div class="jira-worklog-head">
-                            <span style="font-weight:600;color:#f1f5f9;font-size:12px;">${x(o.userName)} logged <strong style="color:#38bdf8;">${x(o.timeSpent)}</strong></span>
-                            <span class="jira-comment-time">${ea(o.loggedAt)}</span>
+                            <span style="font-weight:600;color:#f1f5f9;font-size:12px;">${x(a.userName)} logged <strong style="color:#38bdf8;">${x(a.timeSpent)}</strong></span>
+                            <span class="jira-comment-time">${ea(a.loggedAt)}</span>
                           </div>
-                          ${o.description?`<div style="font-size:12px;color:#cbd5e1;">${x(o.description)}</div>`:""}
+                          ${a.description?`<div style="font-size:12px;color:#cbd5e1;">${x(a.description)}</div>`:""}
                         </div>
                       </div>
                     `).join("")}
@@ -6931,9 +6966,9 @@ All messages in this lounge will be deleted.`))try{await Ve(`/bonding/channels/$
               <div class="jira-side-field">
                 <span class="jira-side-lbl">Status</span>
                 <select id="sel-detail-status" class="jira-select-field">
-                  ${da.map(o=>{let m=r.status||"To Do";return m==="In Progress"?m="Content":m==="Resolved"?m="Under Review":m==="Closed"&&(m="Ready to Leave"),`
-                      <option value="${o.key}" ${m===o.key?"selected":""}>
-                        ${o.label}
+                  ${da.map(a=>{let m=s.status||"To Do";return m==="In Progress"?m="Content":m==="Resolved"?m="Under Review":m==="Closed"&&(m="Ready to Leave"),`
+                      <option value="${a.key}" ${m===a.key?"selected":""}>
+                        ${a.label}
                       </option>
                     `}).join("")}
                 </select>
@@ -6943,9 +6978,9 @@ All messages in this lounge will be deleted.`))try{await Ve(`/bonding/channels/$
               <div class="jira-side-field">
                 <span class="jira-side-lbl">Priority</span>
                 <select id="sel-detail-priority" class="jira-select-field">
-                  ${Et.map(o=>`
-                    <option value="${o.key}" ${r.priority===o.key?"selected":""}>
-                      ${o.icon} ${o.label}
+                  ${Dt.map(a=>`
+                    <option value="${a.key}" ${s.priority===a.key?"selected":""}>
+                      ${a.icon} ${a.label}
                     </option>
                   `).join("")}
                 </select>
@@ -6954,7 +6989,7 @@ All messages in this lounge will be deleted.`))try{await Ve(`/bonding/channels/$
               <!-- Assignees (Multi-Employee Team Assignment) -->
               <div class="jira-side-field">
                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
-                  <span class="jira-side-lbl" style="margin-bottom:0;">Assigned Personnel (${p.length})</span>
+                  <span class="jira-side-lbl" style="margin-bottom:0;">Assigned Personnel (${te.length})</span>
                   
                     <button type="button" class="jira-tool-btn" id="btn-toggle-assignee-picker" style="font-size:11px;padding:2px 7px;">
                       ✏️ Assign / Change
@@ -6963,16 +6998,16 @@ All messages in this lounge will be deleted.`))try{await Ve(`/bonding/channels/$
                 </div>
 
                 <div class="jira-assigned-chips-wrap">
-                  ${p.length===0?`
+                  ${te.length===0?`
                     <span style="font-size:12px;color:#64748b;font-style:italic;">Unassigned</span>
-                  `:p.map(o=>`
+                  `:te.map(a=>`
                     <div class="jira-assignee-chip">
                       <div class="jira-avatar" style="width:20px;height:20px;font-size:10px;">
-                        ${(o.avatar||o.name?.slice(0,1)||"U").toUpperCase()}
+                        ${(a.avatar||a.name?.slice(0,1)||"U").toUpperCase()}
                       </div>
-                      <span class="jira-assignee-chip-name" title="${x(o.name)}">${x(o.name)}</span>
+                      <span class="jira-assignee-chip-name" title="${x(a.name)}">${x(a.name)}</span>
                       ${`
-                        <button type="button" class="jira-assignee-chip-remove btn-remove-assignee" data-user-id="${o.userId}" title="Remove ${x(o.name)}">&times;</button>
+                        <button type="button" class="jira-assignee-chip-remove btn-remove-assignee" data-user-id="${a.userId}" title="Remove ${x(a.name)}">&times;</button>
                       `}
                     </div>
                   `).join("")}
@@ -6985,12 +7020,12 @@ All messages in this lounge will be deleted.`))try{await Ve(`/bonding/channels/$
                     <button type="button" id="btn-close-detail-assignee-box" style="background:none;border:none;color:#94a3b8;cursor:pointer;font-size:13px;">✕</button>
                   </div>
                   <div class="jira-emp-checklist" style="max-height:160px;overflow-y:auto;display:flex;flex-direction:column;gap:4px;">
-                    ${q.map(o=>{const m=p.some(w=>w&&w.userId&&String(w.userId)===String(o._id));return`
+                    ${L.map(a=>{const m=te.some(g=>g&&g.userId&&String(g.userId)===String(a._id));return`
                         <label class="jira-emp-check-item ${m?"selected":""}">
-                          <input type="checkbox" class="chk-detail-emp" value="${o._id}" ${m?"checked":""} />
-                          <div class="jira-avatar" style="width:18px;height:18px;font-size:9px;">${(o.name||"U").slice(0,1).toUpperCase()}</div>
+                          <input type="checkbox" class="chk-detail-emp" value="${a._id}" ${m?"checked":""} />
+                          <div class="jira-avatar" style="width:18px;height:18px;font-size:9px;">${(a.name||"U").slice(0,1).toUpperCase()}</div>
                           <span style="font-size:12px;color:#f1f5f9;flex:1;">
-                            ${x(o.name)} <span style="font-size:10.5px;color:#94a3b8;">(${x(o.role)})</span>
+                            ${x(a.name)} <span style="font-size:10.5px;color:#94a3b8;">(${x(a.role)})</span>
                           </span>
                         </label>
                       `}).join("")}
@@ -7008,11 +7043,11 @@ All messages in this lounge will be deleted.`))try{await Ve(`/bonding/channels/$
                 <span class="jira-side-lbl">Reporter</span>
                 <div style="display:flex;align-items:center;gap:8px;margin-top:2px;">
                   <div class="jira-avatar" style="background:#2563eb;">
-                    ${(r.reporter?.name||"U").slice(0,1).toUpperCase()}
+                    ${(s.reporter?.name||"U").slice(0,1).toUpperCase()}
                   </div>
                   <div>
-                    <div style="font-size:12.5px;font-weight:600;color:#f8fafc;">${x(r.reporter?.name||"Staff")}</div>
-                    <div style="font-size:11px;color:#94a3b8;">${x(r.reporter?.role||"employee")}</div>
+                    <div style="font-size:12.5px;font-weight:600;color:#f8fafc;">${x(s.reporter?.name||"Staff")}</div>
+                    <div style="font-size:11px;color:#94a3b8;">${x(s.reporter?.role||"employee")}</div>
                   </div>
                 </div>
               </div>
@@ -7021,9 +7056,9 @@ All messages in this lounge will be deleted.`))try{await Ve(`/bonding/channels/$
               <div class="jira-side-field">
                 <span class="jira-side-lbl">Category</span>
                 <select id="sel-detail-category" class="jira-select-field">
-                  ${St.map(o=>`
-                    <option value="${o.key}" ${r.category===o.key?"selected":""}>
-                      ${o.icon} ${o.label}
+                  ${$t.map(a=>`
+                    <option value="${a.key}" ${s.category===a.key?"selected":""}>
+                      ${a.icon} ${a.label}
                     </option>
                   `).join("")}
                 </select>
@@ -7032,7 +7067,7 @@ All messages in this lounge will be deleted.`))try{await Ve(`/bonding/channels/$
               <!-- Due Date -->
               <div class="jira-side-field">
                 <span class="jira-side-lbl">Due Date</span>
-                <input type="date" id="inp-detail-duedate" class="jira-date-field" value="${r.dueDate?new Date(r.dueDate).toISOString().slice(0,10):""}" />
+                <input type="date" id="inp-detail-duedate" class="jira-date-field" value="${s.dueDate?new Date(s.dueDate).toISOString().slice(0,10):""}" />
               </div>
 
               <!-- Linked Job / Project -->
@@ -7040,9 +7075,9 @@ All messages in this lounge will be deleted.`))try{await Ve(`/bonding/channels/$
                 <span class="jira-side-lbl">Linked Internal Project / Job</span>
                 <select id="sel-detail-job" class="jira-select-field">
                   <option value="">None (Workspace General)</option>
-                  ${R.map(o=>`
-                    <option value="${o._id}" ${u===o._id.toString()?"selected":""}>
-                      📁 ${x(o.title||"Untitled Job")}
+                  ${B.map(a=>`
+                    <option value="${a._id}" ${p===a._id.toString()?"selected":""}>
+                      📁 ${x(a.title||"Untitled Job")}
                     </option>
                   `).join("")}
                 </select>
@@ -7052,16 +7087,16 @@ All messages in this lounge will be deleted.`))try{await Ve(`/bonding/channels/$
               <div class="jira-side-field">
                 <span class="jira-side-lbl">Time Tracking</span>
                 <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:#cbd5e1;">
-                  <span>Logged: <strong>${r.loggedHours||0}h</strong></span>
-                  <span>/ Est: <input type="number" id="inp-detail-esthours" value="${r.estimatedHours||0}" style="width:45px;background:#1e293b;border:1px solid #334155;color:#f8fafc;padding:2px 4px;border-radius:4px;font-size:12px;" />h</span>
+                  <span>Logged: <strong>${s.loggedHours||0}h</strong></span>
+                  <span>/ Est: <input type="number" id="inp-detail-esthours" value="${s.estimatedHours||0}" style="width:45px;background:#1e293b;border:1px solid #334155;color:#f8fafc;padding:2px 4px;border-radius:4px;font-size:12px;" />h</span>
                 </div>
               </div>
 
               <!-- Timestamps -->
               <div style="padding-top:14px;border-top:1px solid #243248;display:flex;flex-direction:column;gap:4px;font-size:11px;color:#64748b;">
-                <div>Created: ${new Date(r.createdAt).toLocaleString()}</div>
-                <div>Updated: ${new Date(r.updatedAt).toLocaleString()}</div>
-                ${r.resolvedAt?`<div style="color:#10b981;">Resolved: ${new Date(r.resolvedAt).toLocaleString()}</div>`:""}
+                <div>Created: ${new Date(s.createdAt).toLocaleString()}</div>
+                <div>Updated: ${new Date(s.updatedAt).toLocaleString()}</div>
+                ${s.resolvedAt?`<div style="color:#10b981;">Resolved: ${new Date(s.resolvedAt).toLocaleString()}</div>`:""}
               </div>
 
               <!-- Actions (Delete) -->
@@ -7076,15 +7111,15 @@ All messages in this lounge will be deleted.`))try{await Ve(`/bonding/channels/$
           </div>
         </div>
       </div>
-    `,b()}function b(){const a=i.querySelector("#jira-modals-root");if(!a||!j)return;const r=a.querySelector("#btn-close-jira-modal");r&&(r.onclick=T);const _=a.querySelector("#jira-detail-backdrop");_&&(_.onclick=z=>{z.target===_&&T()});const A=a.querySelector("#inp-detail-title");A&&(A.onchange=async()=>{const z=A.value.trim();if(z)try{j=await Ge(`/tickets/${j._id}`,{title:z}),await de()}catch(K){$(K.message||"Failed to update title",!0)}});const V=a.querySelector("#btn-toggle-desc-edit");V&&(V.onclick=()=>{B=!B,be()});const G=a.querySelector("#btn-cancel-desc");G&&(G.onclick=()=>{B=!1,be()});const M=a.querySelector("#btn-save-desc");M&&(M.onclick=async()=>{const z=a.querySelector("#inp-detail-desc")?.value;try{j=await Ge(`/tickets/${j._id}`,{description:z}),B=!1,be(),await de(),$("Description saved",!1)}catch(K){$(K.message||"Failed to save description",!0)}});const U=a.querySelector("#sel-detail-status");U&&(U.onchange=async z=>{try{const K=await Ge(`/tickets/${j._id}/status`,{status:z.target.value});j=K,be(),await Ye(),we(),await de(),$(`Status changed to ${K.status}`,!1)}catch(K){$(K.message||"Status change failed",!0)}});const F=a.querySelector("#sel-detail-priority");F&&(F.onchange=async z=>{try{j=await Ge(`/tickets/${j._id}`,{priority:z.target.value}),be(),await de()}catch(K){$(K.message,!0)}});const v=a.querySelector("#btn-toggle-assignee-picker"),H=a.querySelector("#jira-detail-assignee-box"),X=a.querySelector("#btn-close-detail-assignee-box"),p=a.querySelector("#btn-save-detail-assignees");v&&H&&(v.onclick=()=>{const z=H.style.display==="none";H.style.display=z?"block":"none"}),X&&H&&(X.onclick=()=>{H.style.display="none"}),a.querySelectorAll(".chk-detail-emp").forEach(z=>{z.onchange=()=>{z.closest(".jira-emp-check-item")?.classList.toggle("selected",z.checked)}}),p&&(p.onclick=async()=>{const z=Array.from(a.querySelectorAll(".chk-detail-emp:checked")).map(K=>K.value);try{p.disabled=!0,j=await Ge(`/tickets/${j._id}`,{assigneeIds:z}),be(),await de(),$("Assignees updated!",!1)}catch(K){$(K.message,!0),p.disabled=!1}}),a.querySelectorAll(".btn-remove-assignee").forEach(z=>{z.onclick=async()=>{const K=z.dataset.userId,Le=(Array.isArray(j.assignees)&&j.assignees.length>0?j.assignees:j.assignee?.userId?[j.assignee]:[]).filter(xe=>xe&&xe.userId&&String(xe.userId)!==String(K)).map(xe=>String(xe.userId));try{j=await Ge(`/tickets/${j._id}`,{assigneeIds:Le}),be(),await de(),$("Assignee removed",!1)}catch(xe){$(xe.message,!0)}}});const u=a.querySelector("#sel-detail-category");u&&(u.onchange=async z=>{try{j=await Ge(`/tickets/${j._id}`,{category:z.target.value}),be(),await de()}catch(K){$(K.message,!0)}});const l=a.querySelector("#inp-detail-duedate");l&&(l.onchange=async z=>{try{j=await Ge(`/tickets/${j._id}`,{dueDate:z.target.value||null}),be(),await de()}catch(K){$(K.message,!0)}});const o=a.querySelector("#sel-detail-job");o&&(o.onchange=async z=>{try{j=await Ge(`/tickets/${j._id}`,{jobId:z.target.value||null}),be(),await de(),$(z.target.value?"Job linked to ticket! 📁":"Job unlinked",!1)}catch(K){$(K.message,!0)}});const m=a.querySelector("#btn-toggle-job-link"),w=a.querySelector("#jira-job-link-box");m&&w&&(m.onclick=()=>{w.style.display=w.style.display==="none"?"block":"none"});const C=a.querySelector("#btn-cancel-job-link");C&&w&&(C.onclick=()=>{w.style.display="none"});const N=a.querySelector("#btn-save-job-link");N&&(N.onclick=async()=>{const z=a.querySelector("#inp-modal-job-select")?.value||null;try{j=await Ge(`/tickets/${j._id}`,{jobId:z}),be(),await de(),$(z?"Job linked to ticket! 📁":"Job unlinked",!1)}catch(K){$(K.message,!0)}});const L=a.querySelector("#btn-unlink-job");L&&(L.onclick=async()=>{if(confirm("Unlink this job from the support ticket?"))try{j=await Ge(`/tickets/${j._id}`,{jobId:null}),be(),await de(),$("Job unlinked",!1)}catch(z){$(z.message,!0)}});const te=a.querySelector("#inp-detail-esthours");te&&(te.onchange=async z=>{try{j=await Ge(`/tickets/${j._id}`,{estimatedHours:Number(z.target.value)||0})}catch(K){$(K.message,!0)}}),a.querySelectorAll(".cb-subtask-toggle").forEach(z=>{z.onchange=async()=>{const K=z.dataset.subtaskId;try{j=await Ge(`/tickets/${j._id}/subtasks/${K}`,{completed:z.checked}),be(),await de()}catch(ge){$(ge.message,!0)}}}),a.querySelectorAll(".btn-del-subtask").forEach(z=>{z.onclick=async()=>{const K=z.dataset.subtaskId;try{j=await Ve(`/tickets/${j._id}/subtasks/${K}`),be(),await de()}catch(ge){$(ge.message,!0)}}});const E=a.querySelector("#inp-new-subtask"),ue=a.querySelector("#btn-add-subtask"),J=async()=>{const z=E?.value.trim();if(z)try{j=await ke(`/tickets/${j._id}/subtasks`,{title:z}),be(),await de()}catch(K){$(K.message,!0)}};ue&&(ue.onclick=J),E&&(E.onkeydown=z=>{z.key==="Enter"&&(z.preventDefault(),J())});const Q=a.querySelector("#inp-detail-att-upload"),W=a.querySelector("#detail-att-upload-progress");Q&&(Q.onchange=async z=>{const K=Array.from(z.target.files);if(!K.length)return;const ge=[];W&&(W.style.display="block");for(let Le=0;Le<K.length;Le++){const xe=K[Le];W&&(W.innerHTML=`
+    `,b()}function b(){const i=n.querySelector("#jira-modals-root");if(!i||!T)return;const s=i.querySelector("#btn-close-jira-modal");s&&(s.onclick=_);const C=i.querySelector("#jira-detail-backdrop");C&&(C.onclick=z=>{z.target===C&&_()});const I=i.querySelector("#inp-detail-title");I&&(I.onchange=async()=>{const z=I.value.trim();if(z)try{T=await Ge(`/tickets/${T._id}`,{title:z}),await pe()}catch(G){k(G.message||"Failed to update title",!0)}});const K=i.querySelector("#btn-toggle-desc-edit");K&&(K.onclick=()=>{N=!N,fe()});const W=i.querySelector("#btn-cancel-desc");W&&(W.onclick=()=>{N=!1,fe()});const M=i.querySelector("#btn-save-desc");M&&(M.onclick=async()=>{const z=i.querySelector("#inp-detail-desc")?.value;try{T=await Ge(`/tickets/${T._id}`,{description:z}),N=!1,fe(),await pe(),k("Description saved",!1)}catch(G){k(G.message||"Failed to save description",!0)}});const F=i.querySelector("#sel-detail-status");F&&(F.onchange=async z=>{try{const G=await Ge(`/tickets/${T._id}/status`,{status:z.target.value});T=G,fe(),await Je(),we(),await pe(),k(`Status changed to ${G.status}`,!1)}catch(G){k(G.message||"Status change failed",!0)}});const H=i.querySelector("#sel-detail-priority");H&&(H.onchange=async z=>{try{T=await Ge(`/tickets/${T._id}`,{priority:z.target.value}),fe(),await pe()}catch(G){k(G.message,!0)}});const v=i.querySelector("#btn-toggle-assignee-picker"),U=i.querySelector("#jira-detail-assignee-box"),ee=i.querySelector("#btn-close-detail-assignee-box"),te=i.querySelector("#btn-save-detail-assignees");v&&U&&(v.onclick=()=>{const z=U.style.display==="none";U.style.display=z?"block":"none"}),ee&&U&&(ee.onclick=()=>{U.style.display="none"}),i.querySelectorAll(".chk-detail-emp").forEach(z=>{z.onchange=()=>{z.closest(".jira-emp-check-item")?.classList.toggle("selected",z.checked)}}),te&&(te.onclick=async()=>{const z=Array.from(i.querySelectorAll(".chk-detail-emp:checked")).map(G=>G.value);try{te.disabled=!0,T=await Ge(`/tickets/${T._id}`,{assigneeIds:z}),fe(),await pe(),k("Assignees updated!",!1)}catch(G){k(G.message,!0),te.disabled=!1}}),i.querySelectorAll(".btn-remove-assignee").forEach(z=>{z.onclick=async()=>{const G=z.dataset.userId,Re=(Array.isArray(T.assignees)&&T.assignees.length>0?T.assignees:T.assignee?.userId?[T.assignee]:[]).filter(ke=>ke&&ke.userId&&String(ke.userId)!==String(G)).map(ke=>String(ke.userId));try{T=await Ge(`/tickets/${T._id}`,{assigneeIds:Re}),fe(),await pe(),k("Assignee removed",!1)}catch(ke){k(ke.message,!0)}}});const p=i.querySelector("#sel-detail-category");p&&(p.onchange=async z=>{try{T=await Ge(`/tickets/${T._id}`,{category:z.target.value}),fe(),await pe()}catch(G){k(G.message,!0)}});const c=i.querySelector("#inp-detail-duedate");c&&(c.onchange=async z=>{try{T=await Ge(`/tickets/${T._id}`,{dueDate:z.target.value||null}),fe(),await pe()}catch(G){k(G.message,!0)}});const a=i.querySelector("#sel-detail-job");a&&(a.onchange=async z=>{try{T=await Ge(`/tickets/${T._id}`,{jobId:z.target.value||null}),fe(),await pe(),k(z.target.value?"Job linked to ticket! 📁":"Job unlinked",!1)}catch(G){k(G.message,!0)}});const m=i.querySelector("#btn-toggle-job-link"),g=i.querySelector("#jira-job-link-box");m&&g&&(m.onclick=()=>{g.style.display=g.style.display==="none"?"block":"none"});const A=i.querySelector("#btn-cancel-job-link");A&&g&&(A.onclick=()=>{g.style.display="none"});const y=i.querySelector("#btn-save-job-link");y&&(y.onclick=async()=>{const z=i.querySelector("#inp-modal-job-select")?.value||null;try{T=await Ge(`/tickets/${T._id}`,{jobId:z}),fe(),await pe(),k(z?"Job linked to ticket! 📁":"Job unlinked",!1)}catch(G){k(G.message,!0)}});const D=i.querySelector("#btn-unlink-job");D&&(D.onclick=async()=>{if(confirm("Unlink this job from the support ticket?"))try{T=await Ge(`/tickets/${T._id}`,{jobId:null}),fe(),await pe(),k("Job unlinked",!1)}catch(z){k(z.message,!0)}});const se=i.querySelector("#inp-detail-esthours");se&&(se.onchange=async z=>{try{T=await Ge(`/tickets/${T._id}`,{estimatedHours:Number(z.target.value)||0})}catch(G){k(G.message,!0)}}),i.querySelectorAll(".cb-subtask-toggle").forEach(z=>{z.onchange=async()=>{const G=z.dataset.subtaskId;try{T=await Ge(`/tickets/${T._id}/subtasks/${G}`,{completed:z.checked}),fe(),await pe()}catch(ge){k(ge.message,!0)}}}),i.querySelectorAll(".btn-del-subtask").forEach(z=>{z.onclick=async()=>{const G=z.dataset.subtaskId;try{T=await Ye(`/tickets/${T._id}/subtasks/${G}`),fe(),await pe()}catch(ge){k(ge.message,!0)}}});const R=i.querySelector("#inp-new-subtask"),q=i.querySelector("#btn-add-subtask"),ae=async()=>{const z=R?.value.trim();if(z)try{T=await ye(`/tickets/${T._id}/subtasks`,{title:z}),fe(),await pe()}catch(G){k(G.message,!0)}};q&&(q.onclick=ae),R&&(R.onkeydown=z=>{z.key==="Enter"&&(z.preventDefault(),ae())});const V=i.querySelector("#inp-detail-att-upload"),J=i.querySelector("#detail-att-upload-progress");V&&(V.onchange=async z=>{const G=Array.from(z.target.files);if(!G.length)return;const ge=[];J&&(J.style.display="block");for(let Re=0;Re<G.length;Re++){const ke=G[Re];J&&(J.innerHTML=`
               <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;font-size:11.5px;color:#cbd5e1;">
-                <span>Uploading <strong>${x(xe.name)}</strong> (${Ft(xe.size)})...</span>
+                <span>Uploading <strong>${x(ke.name)}</strong> (${Ot(ke.size)})...</span>
                 <span id="att-prog-pct" style="font-weight:700;color:#38bdf8;">0%</span>
               </div>
               <div style="width:100%;height:4px;background:#334155;border-radius:2px;overflow:hidden;">
                 <div id="att-prog-bar" style="width:0%;height:100%;background:#38bdf8;transition:width 0.15s ease;"></div>
               </div>
-            `);try{const Je=await ua(xe,_t=>{const Tt=a.querySelector("#att-prog-pct"),ut=a.querySelector("#att-prog-bar");Tt&&(Tt.textContent=`${_t}%`),ut&&(ut.style.width=`${_t}%`)});Je&&ge.push({name:Je.name||xe.name,url:Je.url,size:Je.size||xe.size,type:Je.type||xe.type||"video/mp4"})}catch(Je){console.error("Upload error for file:",xe.name,Je),$(`Upload failed for ${xe.name}: ${Je.message}`,!0)}}if(W&&(W.style.display="none"),ge.length)try{j=await ke(`/tickets/${j._id}/attachments`,{attachments:ge}),be(),$(`Successfully attached ${ge.length} file(s)! 🎥`,!1)}catch(Le){$(Le.message||"Failed to attach file(s)",!0)}}),a.querySelectorAll(".btn-play-att-video").forEach(z=>{z.onclick=()=>{const K=z.dataset.slot,ge=a.querySelector("#"+K);if(ge){const Le=ge.style.display==="none";ge.style.display=Le?"block":"none",z.textContent=Le?"⏸ Close Video":"▶ Play Video";const xe=ge.querySelector("video");xe&&Le?xe.play().catch(()=>{}):xe&&xe.pause()}}}),a.querySelectorAll(".btn-del-att").forEach(z=>{z.onclick=async()=>{const K=z.dataset.attId;try{j=await Ve(`/tickets/${j._id}/attachments/${K}`),be()}catch(ge){$(ge.message,!0)}}}),a.querySelectorAll(".jira-act-tab").forEach(z=>{z.onclick=()=>{P=z.dataset.actTab,be()}});const Y=a.querySelector("#inp-new-comment"),ae=a.querySelector("#btn-submit-comment");ae&&Y&&(ae.onclick=async()=>{const z=Y.value.trim();if(z)try{ae.disabled=!0,ae.textContent="Saving...",j=await ke(`/tickets/${j._id}/comments`,{content:z}),be(),$("Comment added",!1)}catch(K){$(K.message||"Failed to add comment",!0)}finally{ae.disabled=!1}});const re=a.querySelector("#btn-open-link-dialog"),pe=a.querySelector("#jira-link-box"),ye=a.querySelector("#btn-cancel-link"),Se=a.querySelector("#btn-submit-link"),le=a.querySelector("#inp-link-target"),he=a.querySelector("#sel-link-rel");re&&pe&&(re.onclick=()=>{pe.style.display="block"}),ye&&pe&&(ye.onclick=()=>{pe.style.display="none"}),Se&&pe&&(Se.onclick=async()=>{const z=le?.value.trim(),K=he?.value||"relates to";if(z)try{Se.disabled=!0,j=await ke(`/tickets/${j._id}/links`,{targetTicketId:z,relationship:K}),be(),$(`Linked with ${z}`,!1)}catch(ge){$(ge.message||"Failed to link ticket",!0)}finally{Se.disabled=!1}}),a.querySelectorAll(".btn-del-link").forEach(z=>{z.onclick=async()=>{const K=z.dataset.linkId;try{j=await Ve(`/tickets/${j._id}/links/${K}`),be()}catch(ge){$(ge.message,!0)}}});const De=a.querySelector("#btn-open-worklog-dialog"),Ie=a.querySelector("#jira-worklog-box"),$e=a.querySelector("#btn-cancel-worklog"),Be=a.querySelector("#btn-submit-worklog"),Ne=a.querySelector("#inp-worklog-time"),Ue=a.querySelector("#inp-worklog-desc");De&&Ie&&(De.onclick=()=>{Ie.style.display="block"}),$e&&Ie&&($e.onclick=()=>{Ie.style.display="none"}),Be&&Ie&&(Be.onclick=async()=>{const z=Ne?.value.trim(),K=Ue?.value.trim();if(!z){$("Enter time spent (e.g. 2h 30m)",!0);return}try{Be.disabled=!0,j=await ke(`/tickets/${j._id}/worklogs`,{timeSpent:z,description:K}),be(),$("Work logged",!1)}catch(ge){$(ge.message||"Failed to log work",!0)}finally{Be.disabled=!1}});const Ee=a.querySelector("#btn-delete-ticket");Ee&&(Ee.onclick=async()=>{if(confirm(`Are you sure you want to permanently delete ticket ${j.ticketId}?`))try{Ee.disabled=!0,await Ve(`/tickets/${j._id}`),$(`Ticket ${j.ticketId} deleted`,!1),T(),await Ye(),we(),await de()}catch(z){$(z.message||"Failed to delete ticket",!0),Ee.disabled=!1}})}function T(){j=null,B=!1;const a=i.querySelector("#jira-modals-root");a&&(a.innerHTML="")}function I(a=null){const r=i.querySelector("#jira-modals-root");if(!r)return;const _=a||(S.jobId&&S.jobId!=="all"?S.jobId:null);r.innerHTML=`
+            `);try{const Qe=await ua(ke,ht=>{const Ct=i.querySelector("#att-prog-pct"),_t=i.querySelector("#att-prog-bar");Ct&&(Ct.textContent=`${ht}%`),_t&&(_t.style.width=`${ht}%`)});Qe&&ge.push({name:Qe.name||ke.name,url:Qe.url,size:Qe.size||ke.size,type:Qe.type||ke.type||"video/mp4"})}catch(Qe){console.error("Upload error for file:",ke.name,Qe),k(`Upload failed for ${ke.name}: ${Qe.message}`,!0)}}if(J&&(J.style.display="none"),ge.length)try{T=await ye(`/tickets/${T._id}/attachments`,{attachments:ge}),fe(),k(`Successfully attached ${ge.length} file(s)! 🎥`,!1)}catch(Re){k(Re.message||"Failed to attach file(s)",!0)}}),i.querySelectorAll(".btn-play-att-video").forEach(z=>{z.onclick=()=>{const G=z.dataset.slot,ge=i.querySelector("#"+G);if(ge){const Re=ge.style.display==="none";ge.style.display=Re?"block":"none",z.textContent=Re?"⏸ Close Video":"▶ Play Video";const ke=ge.querySelector("video");ke&&Re?ke.play().catch(()=>{}):ke&&ke.pause()}}}),i.querySelectorAll(".btn-del-att").forEach(z=>{z.onclick=async()=>{const G=z.dataset.attId;try{T=await Ye(`/tickets/${T._id}/attachments/${G}`),fe()}catch(ge){k(ge.message,!0)}}}),i.querySelectorAll(".jira-act-tab").forEach(z=>{z.onclick=()=>{P=z.dataset.actTab,fe()}});const Q=i.querySelector("#inp-new-comment"),Y=i.querySelector("#btn-submit-comment");Y&&Q&&(Y.onclick=async()=>{const z=Q.value.trim();if(z)try{Y.disabled=!0,Y.textContent="Saving...",T=await ye(`/tickets/${T._id}/comments`,{content:z}),fe(),k("Comment added",!1)}catch(G){k(G.message||"Failed to add comment",!0)}finally{Y.disabled=!1}});const ie=i.querySelector("#btn-open-link-dialog"),re=i.querySelector("#jira-link-box"),be=i.querySelector("#btn-cancel-link"),$e=i.querySelector("#btn-submit-link"),De=i.querySelector("#inp-link-target"),ce=i.querySelector("#sel-link-rel");ie&&re&&(ie.onclick=()=>{re.style.display="block"}),be&&re&&(be.onclick=()=>{re.style.display="none"}),$e&&re&&($e.onclick=async()=>{const z=De?.value.trim(),G=ce?.value||"relates to";if(z)try{$e.disabled=!0,T=await ye(`/tickets/${T._id}/links`,{targetTicketId:z,relationship:G}),fe(),k(`Linked with ${z}`,!1)}catch(ge){k(ge.message||"Failed to link ticket",!0)}finally{$e.disabled=!1}}),i.querySelectorAll(".btn-del-link").forEach(z=>{z.onclick=async()=>{const G=z.dataset.linkId;try{T=await Ye(`/tickets/${T._id}/links/${G}`),fe()}catch(ge){k(ge.message,!0)}}});const ve=i.querySelector("#btn-open-worklog-dialog"),Te=i.querySelector("#jira-worklog-box"),Oe=i.querySelector("#btn-cancel-worklog"),Se=i.querySelector("#btn-submit-worklog"),We=i.querySelector("#inp-worklog-time"),Ue=i.querySelector("#inp-worklog-desc");ve&&Te&&(ve.onclick=()=>{Te.style.display="block"}),Oe&&Te&&(Oe.onclick=()=>{Te.style.display="none"}),Se&&Te&&(Se.onclick=async()=>{const z=We?.value.trim(),G=Ue?.value.trim();if(!z){k("Enter time spent (e.g. 2h 30m)",!0);return}try{Se.disabled=!0,T=await ye(`/tickets/${T._id}/worklogs`,{timeSpent:z,description:G}),fe(),k("Work logged",!1)}catch(ge){k(ge.message||"Failed to log work",!0)}finally{Se.disabled=!1}});const Me=i.querySelector("#btn-delete-ticket");Me&&(Me.onclick=async()=>{if(confirm(`Are you sure you want to permanently delete ticket ${T.ticketId}?`))try{Me.disabled=!0,await Ye(`/tickets/${T._id}`),k(`Ticket ${T.ticketId} deleted`,!1),_(),await Je(),we(),await pe()}catch(z){k(z.message||"Failed to delete ticket",!0),Me.disabled=!1}})}function _(){T=null,N=!1;const i=n.querySelector("#jira-modals-root");i&&(i.innerHTML="")}function j(i=null){const s=n.querySelector("#jira-modals-root");if(!s)return;const C=i||(S.jobId&&S.jobId!=="all"?S.jobId:null);s.innerHTML=`
       <div class="jira-modal-backdrop" id="jira-create-backdrop">
         <div class="jira-modal-card" style="max-width:680px;height:auto;max-height:92vh;">
           <div class="jira-modal-header">
@@ -7099,7 +7134,7 @@ All messages in this lounge will be deleted.`))try{await Ve(`/bonding/channels/$
               <div class="jira-form-group">
                 <label class="jira-form-label">Issue Type / Category *</label>
                 <select id="create-ticket-cat" class="jira-select-field">
-                  ${St.map(w=>`<option value="${w.key}">${w.icon} ${w.label}</option>`).join("")}
+                  ${$t.map(g=>`<option value="${g.key}">${g.icon} ${g.label}</option>`).join("")}
                 </select>
               </div>
 
@@ -7139,14 +7174,14 @@ All messages in this lounge will be deleted.`))try{await Ve(`/bonding/channels/$
 
               <div class="jira-emp-checklist-box">
                 <div class="jira-emp-checklist" id="create-emp-checklist">
-                  ${q.map(w=>{const C=d&&String(d._id||d.id)===String(w._id);return`
-                      <label class="jira-emp-check-item ${C?"selected":""}">
-                        <input type="checkbox" class="chk-create-emp" value="${w._id}" ${C?"checked":""} />
+                  ${L.map(g=>{const A=l&&String(l._id||l.id)===String(g._id);return`
+                      <label class="jira-emp-check-item ${A?"selected":""}">
+                        <input type="checkbox" class="chk-create-emp" value="${g._id}" ${A?"checked":""} />
                         <div class="jira-avatar" style="width:20px;height:20px;font-size:10px;">
-                          ${(w.name||"U").slice(0,1).toUpperCase()}
+                          ${(g.name||"U").slice(0,1).toUpperCase()}
                         </div>
                         <span style="font-size:12px;color:#f1f5f9;flex:1;">
-                          ${x(w.name)} <span style="font-size:10.5px;color:#94a3b8;">(${x(w.role)})${C?" — (You)":""}</span>
+                          ${x(g.name)} <span style="font-size:10.5px;color:#94a3b8;">(${x(g.role)})${A?" — (You)":""}</span>
                         </span>
                       </label>
                     `}).join("")}
@@ -7167,9 +7202,9 @@ All messages in this lounge will be deleted.`))try{await Ve(`/bonding/channels/$
                 <label class="jira-form-label">Related Job / Internal Project (Optional)</label>
                 <select id="create-ticket-job" class="jira-select-field">
                   <option value="">None (General Workspace Issue)</option>
-                  ${R.map(w=>`
-                    <option value="${w._id}" ${_&&String(_)===String(w._id)?"selected":""}>
-                      📁 ${x(w.title||"Untitled Job")}
+                  ${B.map(g=>`
+                    <option value="${g._id}" ${C&&String(C)===String(g._id)?"selected":""}>
+                      📁 ${x(g.title||"Untitled Job")}
                     </option>
                   `).join("")}
                 </select>
@@ -7199,23 +7234,23 @@ All messages in this lounge will be deleted.`))try{await Ve(`/bonding/channels/$
           </div>
         </div>
       </div>
-    `;const A=()=>{r.querySelectorAll(".jira-emp-check-item").forEach(w=>{const C=w.querySelector(".chk-create-emp");w.classList.toggle("selected",!!C?.checked)})};r.querySelectorAll(".chk-create-emp").forEach(w=>{w.onchange=A});const V=r.querySelector("#btn-create-assign-self");V&&d&&(V.onclick=()=>{const w=String(d._id||d.id);r.querySelectorAll(".chk-create-emp").forEach(C=>{C.value===w&&(C.checked=!0)}),A()});const G=r.querySelector("#btn-create-clear-assign");G&&(G.onclick=()=>{r.querySelectorAll(".chk-create-emp").forEach(w=>{w.checked=!1}),A()});const M=[],U=r.querySelector("#inp-create-ticket-att"),F=r.querySelector("#create-att-list"),v=r.querySelector("#create-att-count"),H=r.querySelector("#create-att-progress"),X=()=>{v&&(v.textContent=`${M.length} file(s) attached`),F&&(F.innerHTML=M.map((w,C)=>{const N=w.type&&w.type.includes("video")||w.name&&w.name.match(/\.(mp4|mov|webm|avi|mkv)$/i);return`
+    `;const I=()=>{s.querySelectorAll(".jira-emp-check-item").forEach(g=>{const A=g.querySelector(".chk-create-emp");g.classList.toggle("selected",!!A?.checked)})};s.querySelectorAll(".chk-create-emp").forEach(g=>{g.onchange=I});const K=s.querySelector("#btn-create-assign-self");K&&l&&(K.onclick=()=>{const g=String(l._id||l.id);s.querySelectorAll(".chk-create-emp").forEach(A=>{A.value===g&&(A.checked=!0)}),I()});const W=s.querySelector("#btn-create-clear-assign");W&&(W.onclick=()=>{s.querySelectorAll(".chk-create-emp").forEach(g=>{g.checked=!1}),I()});const M=[],F=s.querySelector("#inp-create-ticket-att"),H=s.querySelector("#create-att-list"),v=s.querySelector("#create-att-count"),U=s.querySelector("#create-att-progress"),ee=()=>{v&&(v.textContent=`${M.length} file(s) attached`),H&&(H.innerHTML=M.map((g,A)=>{const y=g.type&&g.type.includes("video")||g.name&&g.name.match(/\.(mp4|mov|webm|avi|mkv)$/i);return`
           <div class="jira-att-card">
             <div class="jira-att-left">
-              <span>${N?"🎬":"📎"}</span>
+              <span>${y?"🎬":"📎"}</span>
               <div style="display:flex;flex-direction:column;min-width:0;">
-                <span class="jira-att-name" title="${x(w.name)}">${x(w.name)}</span>
-                <span style="font-size:10px;color:#94a3b8;">${Ft(w.size)} ${N?"• MP4":""}</span>
+                <span class="jira-att-name" title="${x(g.name)}">${x(g.name)}</span>
+                <span style="font-size:10px;color:#94a3b8;">${Ot(g.size)} ${y?"• MP4":""}</span>
               </div>
             </div>
-            <button type="button" class="jira-att-del btn-del-pending-att" data-idx="${C}" title="Remove">&times;</button>
+            <button type="button" class="jira-att-del btn-del-pending-att" data-idx="${A}" title="Remove">&times;</button>
           </div>
-        `}).join(""),F.querySelectorAll(".btn-del-pending-att").forEach(w=>{w.onclick=()=>{M.splice(Number(w.dataset.idx),1),X()}}))};U&&(U.onchange=async w=>{const C=Array.from(w.target.files);if(C.length){H&&(H.style.display="block");for(const N of C){H&&(H.innerHTML=`
+        `}).join(""),H.querySelectorAll(".btn-del-pending-att").forEach(g=>{g.onclick=()=>{M.splice(Number(g.dataset.idx),1),ee()}}))};F&&(F.onchange=async g=>{const A=Array.from(g.target.files);if(A.length){U&&(U.style.display="block");for(const y of A){U&&(U.innerHTML=`
               <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;font-size:11.5px;color:#cbd5e1;">
-                <span>Uploading <strong>${x(N.name)}</strong> (${Ft(N.size)})...</span>
+                <span>Uploading <strong>${x(y.name)}</strong> (${Ot(y.size)})...</span>
                 <span id="create-prog-pct" style="font-weight:700;color:#38bdf8;">0%</span>
               </div>
               <div style="width:100%;height:4px;background:#334155;border-radius:2px;overflow:hidden;">
                 <div id="create-prog-bar" style="width:0%;height:100%;background:#38bdf8;transition:width 0.15s ease;"></div>
               </div>
-            `);try{const L=await ua(N,te=>{const E=r.querySelector("#create-prog-pct"),ue=r.querySelector("#create-prog-bar");E&&(E.textContent=`${te}%`),ue&&(ue.style.width=`${te}%`)});L&&(M.push({name:L.name||N.name,url:L.url,size:L.size||N.size,type:L.type||N.type||"video/mp4"}),X())}catch(L){$(`Failed to upload ${N.name}: ${L.message}`,!0)}}H&&(H.style.display="none"),U.value=""}});const p=()=>{r.innerHTML=""},u=r.querySelector("#btn-close-create-modal");u&&(u.onclick=p);const l=r.querySelector("#btn-cancel-create-ticket");l&&(l.onclick=p);const o=r.querySelector("#jira-create-backdrop");o&&(o.onclick=w=>{w.target===o&&p()});const m=r.querySelector("#btn-submit-create-ticket");m&&(m.onclick=async()=>{const w=r.querySelector("#create-ticket-title")?.value.trim(),C=r.querySelector("#create-ticket-desc")?.value.trim(),N=r.querySelector("#create-ticket-cat")?.value||"Task",L=r.querySelector("#create-ticket-pri")?.value||"Medium",E=Array.from(r.querySelectorAll(".chk-create-emp:checked")).map(Q=>Q.value),ue=r.querySelector("#create-ticket-duedate")?.value||null,J=r.querySelector("#create-ticket-job")?.value||null;if(!w){$("Ticket summary / title is required",!0);return}try{m.disabled=!0,m.textContent="Creating...";const Q=await ke("/tickets",{title:w,description:C,category:N,priority:L,assigneeIds:E,assigneeId:E[0]||null,dueDate:ue,jobId:J,attachments:M});$(`Ticket ${Q.ticketId} created! 🎫`,!1),p(),await Ye(),we(),await de(),et(Q._id)}catch(Q){$(Q.message||"Could not create ticket",!0),m.disabled=!1,m.textContent="Create Ticket 🚀"}})}i._openCreateTicketModal=I,i._openTicketDetailModal=et,i._setJobFilter=async a=>{S.jobId=a||"all";const r=i.querySelector("#jira-filter-job");r&&(r.value=S.jobId),je(),await de()}}export{Xa as a,Qa as b,Ja as i};
+            `);try{const D=await ua(y,se=>{const R=s.querySelector("#create-prog-pct"),q=s.querySelector("#create-prog-bar");R&&(R.textContent=`${se}%`),q&&(q.style.width=`${se}%`)});D&&(M.push({name:D.name||y.name,url:D.url,size:D.size||y.size,type:D.type||y.type||"video/mp4"}),ee())}catch(D){k(`Failed to upload ${y.name}: ${D.message}`,!0)}}U&&(U.style.display="none"),F.value=""}});const te=()=>{s.innerHTML=""},p=s.querySelector("#btn-close-create-modal");p&&(p.onclick=te);const c=s.querySelector("#btn-cancel-create-ticket");c&&(c.onclick=te);const a=s.querySelector("#jira-create-backdrop");a&&(a.onclick=g=>{g.target===a&&te()});const m=s.querySelector("#btn-submit-create-ticket");m&&(m.onclick=async()=>{const g=s.querySelector("#create-ticket-title")?.value.trim(),A=s.querySelector("#create-ticket-desc")?.value.trim(),y=s.querySelector("#create-ticket-cat")?.value||"Task",D=s.querySelector("#create-ticket-pri")?.value||"Medium",R=Array.from(s.querySelectorAll(".chk-create-emp:checked")).map(V=>V.value),q=s.querySelector("#create-ticket-duedate")?.value||null,ae=s.querySelector("#create-ticket-job")?.value||null;if(!g){k("Ticket summary / title is required",!0);return}try{m.disabled=!0,m.textContent="Creating...";const V=await ye("/tickets",{title:g,description:A,category:y,priority:D,assigneeIds:R,assigneeId:R[0]||null,dueDate:q,jobId:ae,attachments:M});k(`Ticket ${V.ticketId} created! 🎫`,!1),te(),await Je(),we(),await pe(),tt(V._id)}catch(V){k(V.message||"Could not create ticket",!0),m.disabled=!1,m.textContent="Create Ticket 🚀"}})}n._openCreateTicketModal=j,n._openTicketDetailModal=tt,n._setJobFilter=async i=>{S.jobId=i||"all";const s=n.querySelector("#jira-filter-job");s&&(s.value=S.jobId),Ae(),await pe()}}export{Xa as a,Qa as b,Ja as i};

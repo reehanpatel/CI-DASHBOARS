@@ -92,7 +92,7 @@ async function checkAndDispatchOverduePush() {
         await DailyAlertLog.create({ userId: uId, alertType: 'job_due', date: todayStr }).catch(() => {});
 
         const count = dueList.length;
-        const title = count === 1 ? '⏳ Job Due Today' : `⏳ ${count} Jobs Due Today`;
+        const title = count === 1 ? 'Job Due Today' : `${count} Jobs Due Today`;
         const names = dueList.map(j => `"${j.title || 'Untitled Job'}"`).slice(0, 3).join(', ');
         const extra = count > 3 ? ` and ${count - 3} more` : '';
         const message = count === 1 ? `Job ${names} is due today.` : `You have ${count} jobs due today: ${names}${extra}.`;

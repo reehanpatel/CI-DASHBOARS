@@ -2027,7 +2027,7 @@ var require_notifications = __commonJS({
               await Notification.create({
                 userId,
                 type: "job_due",
-                title: jobDateStr < todayStr ? "\u26A0\uFE0F Overdue Job" : "\u23F3 Job Due Today",
+                title: jobDateStr < todayStr ? "Overdue Job" : "Job Due Today",
                 message: `Job "${j.title || "Untitled Job"}" is ${jobDateStr < todayStr ? "overdue" : "due today"}.`,
                 jobId: j._id,
                 read: false

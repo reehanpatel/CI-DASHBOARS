@@ -8,6 +8,7 @@ const GameMatch = mongoose.models.GameMatch || require('../models/GameMatch');
 const User = mongoose.models.User || require('../models/User');
 const { Chess } = require('chess.js');
 const { verifyToken } = require('../middleware/auth');
+const { createNotificationForChatMessage, createNotificationForGameChallenge } = require('../utils/notify');
 
 const router = express.Router();
 router.use(verifyToken);
@@ -401,6 +402,7 @@ router.put('/channels/:id/members', async (req, res) => {
 });
 
 // DELETE /api/bonding/channels/:id - Delete a group channel or 1-on-1 direct chat
+// In group chat, ONLY the person who created the group (or superadmin) can delete it
 router.delete('/channels/:id', async (req, res) => {
   try {
     const channel = await BondingChannel.findById(req.params.id);
@@ -408,10 +410,17 @@ router.delete('/channels/:id', async (req, res) => {
 
     const myId = req.user._id.toString();
     const isMember = channel.members && channel.members.some(m => m.userId && m.userId.toString() === myId);
-    const isAdmin = ['admin', 'superadmin'].includes(req.user.role);
+    const isCreator = channel.createdBy && channel.createdBy.userId && channel.createdBy.userId.toString() === myId;
+    const isSuperadmin = req.user.role === 'superadmin';
 
-    if (!isMember && !isAdmin) {
-      return res.status(403).json({ error: 'Not authorized to delete this conversation' });
+    if (channel.type === 'group') {
+      if (!isCreator && !isSuperadmin) {
+        return res.status(403).json({ error: 'Only the person who made this group can delete it' });
+      }
+    } else {
+      if (!isMember && !isSuperadmin) {
+        return res.status(403).json({ error: 'Not authorized to delete this conversation' });
+      }
     }
 
     // Permanently remove channel, its messages, and any invitations / matches tied to it
@@ -421,6 +430,53 @@ router.delete('/channels/:id', async (req, res) => {
     await GameMatch.deleteMany({ channelId: channel._id });
 
     res.json({ message: 'Conversation deleted successfully', channelId: channel._id, type: channel.type });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/bonding/channels/:id/leave - Leave a group chat
+router.post('/channels/:id/leave', async (req, res) => {
+  try {
+    const channel = await BondingChannel.findById(req.params.id);
+    if (!channel) return res.status(404).json({ error: 'Group not found' });
+    if (channel.type === 'direct') {
+      return res.status(400).json({ error: 'Cannot leave a 1-on-1 direct chat' });
+    }
+
+    const myId = req.user._id.toString();
+    const memberIndex = (channel.members || []).findIndex(m => m.userId && m.userId.toString() === myId);
+    if (memberIndex === -1) {
+      return res.status(400).json({ error: 'You are not a member of this group' });
+    }
+
+    // Remove the current user from group members
+    channel.members.splice(memberIndex, 1);
+
+    const notice = `${req.user.name} left the group.`;
+    channel.lastMessage = {
+      content: notice,
+      senderName: 'System',
+      sentAt: new Date(),
+      type: 'system'
+    };
+
+    await channel.save();
+
+    const sysMsg = new BondingMessage({
+      channelId: channel._id,
+      sender: {
+        userId: req.user._id,
+        name: req.user.name,
+        role: req.user.role,
+        email: req.user.email
+      },
+      type: 'system',
+      content: notice
+    });
+    await sysMsg.save();
+
+    res.json({ message: 'You have left the group successfully', channelId: channel._id });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -531,6 +587,38 @@ router.post('/channels/:id/messages', async (req, res) => {
 
     await msg.save();
     await channel.save();
+
+    // Trigger Notification for recipient(s)
+    if (type === 'challenge') {
+      if (challengeData && challengeData.targetUserId) {
+        createNotificationForGameChallenge({
+          title: `🎮 ${challengeData.gameTitle || 'Game Challenge'} from ${req.user.name}!`,
+          message: `${req.user.name} challenged you to ${challengeData.gameTitle || 'a game'} in #${channel.name}!`,
+          targetUserId: challengeData.targetUserId,
+          channelId: channel._id,
+          gameType: challengeData.gameType
+        }).catch(err => console.error('Challenge notif error:', err.message));
+      } else {
+        // Open group challenge: notify members of group
+        for (const m of (channel.members || [])) {
+          if (m.userId && m.userId.toString() !== req.user._id.toString()) {
+            createNotificationForGameChallenge({
+              title: `🎮 New ${challengeData?.gameTitle || 'Game Challenge'} in #${channel.name}!`,
+              message: `${req.user.name} launched a ${challengeData?.gameTitle || 'challenge'} for the team!`,
+              targetUserId: m.userId,
+              channelId: channel._id,
+              gameType: challengeData?.gameType
+            }).catch(err => console.error('Group challenge notif error:', err.message));
+          }
+        }
+      }
+    } else {
+      createNotificationForChatMessage({
+        channel,
+        message: msg,
+        sender: req.user
+      }).catch(err => console.error('Chat notif error:', err.message));
+    }
 
     res.status(201).json(msg);
   } catch (err) {
@@ -1248,6 +1336,16 @@ router.post('/invitations', async (req, res) => {
       });
     }
 
+    // Trigger Notification for the challenged colleague
+    createNotificationForGameChallenge({
+      title: `🎮 ${gameTitle} Challenge from ${req.user.name}!`,
+      message: `${req.user.name} challenged you to a game of ${gameTitle}! Accept the challenge to play.`,
+      targetUserId: targetUser._id,
+      channelId: activeChannelId,
+      invitationId: invitation._id,
+      gameType
+    }).catch(err => console.error('Challenge invite notif error:', err.message));
+
     res.status(201).json({ success: true, invitation });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -1437,6 +1535,16 @@ router.put('/invitations/:id/respond', async (req, res) => {
         });
         await acceptNotice.save();
       }
+
+      // Notify the challenger that their challenge was accepted
+      createNotificationForGameChallenge({
+        title: `🎮 Challenge Accepted by ${req.user.name}!`,
+        message: `${req.user.name} accepted your ${invitation.gameTitle} challenge! Enter the match arena to play.`,
+        targetUserId: invitation.sender.userId,
+        channelId: invitation.channelId,
+        invitationId: invitation._id,
+        gameType: invitation.gameType
+      }).catch(err => console.error('Challenge accepted notif error:', err.message));
 
       return res.json({ success: true, invitation, match });
     }
