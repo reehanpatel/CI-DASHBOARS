@@ -6,9 +6,10 @@ const BondingScore = mongoose.models.BondingScore || require('../models/BondingS
 const GameInvitation = mongoose.models.GameInvitation || require('../models/GameInvitation');
 const GameMatch = mongoose.models.GameMatch || require('../models/GameMatch');
 const User = mongoose.models.User || require('../models/User');
+const Notification = mongoose.models.Notification || require('../models/Notification');
 const { Chess } = require('chess.js');
 const { verifyToken } = require('../middleware/auth');
-const { createNotificationForChatMessage, createNotificationForGameChallenge } = require('../utils/notify');
+const { createNotificationForChatMessage, createNotificationForGameChallenge, recordSyncUpdate } = require('../utils/notify');
 
 const router = express.Router();
 router.use(verifyToken);
