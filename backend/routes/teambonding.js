@@ -1202,13 +1202,75 @@ router.post('/matches/instant-ludo', async (req, res) => {
 
     await match.save();
 
-    // Notify all challenged opponents so they immediately see the live game
+    // Notify all challenged opponents via their personal direct chat and notifications
     for (const pl of playersList.slice(1)) {
       if (pl.userId && pl.userId.toString() !== req.user._id.toString()) {
+        let directChan = await BondingChannel.findOne({
+          type: 'direct',
+          isArchived: { $ne: true },
+          $and: [
+            { 'members.userId': req.user._id },
+            { 'members.userId': pl.userId }
+          ]
+        });
+
+        if (!directChan) {
+          const targetUser = await User.findById(pl.userId);
+          if (targetUser) {
+            directChan = new BondingChannel({
+              name: `${req.user.name} & ${targetUser.name}`,
+              type: 'direct',
+              avatar: '💬',
+              createdBy: { userId: req.user._id, name: req.user.name },
+              members: [
+                { userId: req.user._id, name: req.user.name, role: req.user.role, email: req.user.email },
+                { userId: targetUser._id, name: targetUser.name, role: targetUser.role, email: targetUser.email }
+              ]
+            });
+            await directChan.save();
+          }
+        }
+
+        if (directChan) {
+          const cardMsg = new BondingMessage({
+            channelId: directChan._id,
+            sender: {
+              userId: req.user._id,
+              name: req.user.name,
+              role: req.user.role,
+              email: req.user.email
+            },
+            type: 'challenge',
+            content: `🎲 ${req.user.name} challenged you to a ${numPlayers}P Ludo match!`,
+            challengeData: {
+              gameType: 'ludo',
+              gameTitle: `Ludo (${numPlayers}P Match)`,
+              status: 'active',
+              targetUserId: pl.userId,
+              targetUserName: pl.name,
+              gameState: {
+                matchId: match._id
+              }
+            }
+          });
+          await cardMsg.save();
+
+          await BondingChannel.findByIdAndUpdate(directChan._id, {
+            lastMessage: {
+              content: `🎲 Ludo ${numPlayers}P match started!`,
+              senderName: req.user.name,
+              senderId: req.user._id,
+              sentAt: new Date(),
+              type: 'challenge'
+            }
+          });
+        }
+
         createNotificationForGameChallenge({
           title: '🎮 Ludo Match Started!',
           message: `${req.user.name} challenged you to a ${numPlayers}P Ludo match! Tap to enter arena.`,
           targetUserId: pl.userId,
+          channelId: directChan?._id || null,
           gameType: 'ludo'
         }).catch(() => {});
       }
@@ -1269,39 +1331,36 @@ router.post('/invitations', async (req, res) => {
     };
     const gameTitle = titleMap[gameType] || 'Game Challenge';
 
-    // Find or create direct chat channel between the two employees if channelId not provided
-    let activeChannelId = channelId;
-    if (!activeChannelId) {
-      let directChan = await BondingChannel.findOne({
-        type: 'direct',
-        isArchived: { $ne: true },
-        $and: [
-          { 'members.userId': req.user._id },
-          { 'members.userId': targetUser._id }
-        ]
-      });
+    // Challenges MUST ALWAYS be delivered to the personal 1-on-1 direct chat, NEVER into group chats
+    let directChan = await BondingChannel.findOne({
+      type: 'direct',
+      isArchived: { $ne: true },
+      $and: [
+        { 'members.userId': req.user._id },
+        { 'members.userId': targetUser._id }
+      ]
+    });
 
-      if (!directChan) {
-        directChan = new BondingChannel({
-          name: `${req.user.name} & ${targetUser.name}`,
-          type: 'direct',
-          avatar: '💬',
-          createdBy: { userId: req.user._id, name: req.user.name },
-          members: [
-            { userId: req.user._id, name: req.user.name, role: req.user.role, email: req.user.email },
-            { userId: targetUser._id, name: targetUser.name, role: targetUser.role, email: targetUser.email }
-          ],
-          lastMessage: {
-            content: `🎮 ${req.user.name} sent a ${gameTitle} challenge!`,
-            senderName: req.user.name,
-            sentAt: new Date(),
-            type: 'challenge'
-          }
-        });
-        await directChan.save();
-      }
-      activeChannelId = directChan._id;
+    if (!directChan) {
+      directChan = new BondingChannel({
+        name: `${req.user.name} & ${targetUser.name}`,
+        type: 'direct',
+        avatar: '💬',
+        createdBy: { userId: req.user._id, name: req.user.name },
+        members: [
+          { userId: req.user._id, name: req.user.name, role: req.user.role, email: req.user.email },
+          { userId: targetUser._id, name: targetUser.name, role: targetUser.role, email: targetUser.email }
+        ],
+        lastMessage: {
+          content: `🎮 ${req.user.name} sent a ${gameTitle} challenge!`,
+          senderName: req.user.name,
+          sentAt: new Date(),
+          type: 'challenge'
+        }
+      });
+      await directChan.save();
     }
+    const activeChannelId = directChan._id;
 
     // Create the invitation
     const invitation = new GameInvitation({

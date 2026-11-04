@@ -1551,13 +1551,17 @@ export async function initTeamBonding(container, options = {}) {
               gameType: selectedGame,
               targetUserId: selectedTargetUserId,
               matchSettings: { timerMode: selectedTimerMode },
-              channelId: activeChannel?._id || null
+              channelId: null // Always deliver strictly to personal 1-on-1 direct chat
             });
 
-            flashToast('Game challenge delivered! Awaiting acceptance ⚔️', 'success');
+            flashToast('Game challenge delivered to personal chat! Awaiting acceptance ⚔️', 'success');
             modalRoot.innerHTML = '';
 
-            if (activeChannel) {
+            await loadChannels();
+            const directChan = channels.find(c => c.type === 'direct' && c.members?.some(m => (m.userId || m._id)?.toString() === selectedTargetUserId));
+            if (directChan) {
+              selectChannel(directChan);
+            } else if (activeChannel) {
               await loadMessages(activeChannel._id);
             }
             if (currentView === 'lounge_games') {
