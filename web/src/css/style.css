@@ -1384,12 +1384,12 @@ textarea {
 
 /* ── APP CONTENT ───────────────────────────────────────────── */
 .app-content {
-  flex: 1;
-  padding: 20px !important;
-  margin: 0 71px !important;
-  max-width: none !important;
-  width: auto !important;
-  box-sizing: border-box !important;
+    max-width: none !important;
+    width: auto !important;
+    box-sizing: border-box !important;
+    flex: 1 1 0%;
+    padding: 20px !important;
+    margin: 0px 71px !important;
 }
 
 @media (max-width: 992px) {
