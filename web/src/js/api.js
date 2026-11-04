@@ -2982,10 +2982,10 @@ export function bindAttachmentUploader(id, options = {}) {
     };
 
     input.onchange = async () => {
-      if (input.files && input.files.length) {
-        const fileList = input.files;
-        input.value = '';
-        await handleFilesUpload(fileList);
+      const selectedFiles = Array.from(input.files || []);
+      input.value = '';
+      if (selectedFiles.length > 0) {
+        await handleFilesUpload(selectedFiles);
       }
     };
   }

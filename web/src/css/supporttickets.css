@@ -896,7 +896,34 @@
 .jira-detail-body {
   display: flex;
   flex: 1;
+  width: 100%;
   overflow: hidden;
+}
+
+.jira-detail-main {
+  flex: 1 1 0%;
+  min-width: 0;
+  padding: 24px 28px;
+  overflow-y: auto;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.jira-detail-sidebar {
+  width: 340px;
+  min-width: 340px;
+  max-width: 340px;
+  background: #131c2e;
+  border-left: 1px solid #243248;
+  padding: 24px 20px;
+  overflow-y: auto;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  flex-shrink: 0;
 }
 
 @media (max-width: 860px) {
@@ -1631,6 +1658,11 @@
 
 [data-theme="light"] .jira-detail-left {
   border-right-color: #e2e8f0;
+}
+
+[data-theme="light"] .jira-detail-sidebar {
+  background: #f8fafc;
+  border-left-color: #e2e8f0;
 }
 
 [data-theme="light"] .jira-sec-title {

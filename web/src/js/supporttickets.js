@@ -453,9 +453,11 @@ export async function initSupportTickets(container, options = {}) {
               </span>
             ` : ''}
           </div>
-          <button type="button" class="jira-card-quick-del btn-delete-card-ticket" data-ticket-id="${t._id}" data-ticket-num="${escapeHtml(t.ticketId)}" title="Delete Ticket">
-            🗑️
-          </button>
+          ${isReporter ? `
+            <button type="button" class="jira-card-quick-del btn-delete-card-ticket" data-ticket-id="${t._id}" data-ticket-num="${escapeHtml(t.ticketId)}" title="Delete Ticket (Creator Only)">
+              🗑️
+            </button>
+          ` : ''}
         </div>
 
         <div class="jira-card-title" title="${escapeHtml(t.title)}">
@@ -909,10 +911,10 @@ export async function initSupportTickets(container, options = {}) {
               <div class="jira-section-block">
                 <div class="jira-sec-title">
                   <span>Attachments (${attachments.length})</span>
-                  <label class="btn-jira-secondary" style="font-size:11px;padding:4px 9px;cursor:pointer;display:inline-flex;align-items:center;gap:4px;">
+                  <button type="button" class="btn-jira-secondary" id="btn-trigger-detail-upload" style="font-size:11px;padding:4px 9px;cursor:pointer;display:inline-flex;align-items:center;gap:4px;">
                     <span>📎 Upload Any File / Video (Up to 1GB)</span>
-                    <input type="file" id="inp-detail-att-upload" multiple style="display:none;" />
-                  </label>
+                  </button>
+                  <input type="file" id="inp-detail-att-upload" multiple style="display:none;" />
                 </div>
 
                 <div id="detail-att-upload-progress" style="display:none;margin-top:8px;"></div>
@@ -1343,8 +1345,8 @@ export async function initSupportTickets(container, options = {}) {
                 ${t.resolvedAt ? `<div style="color:#10b981;">Resolved: ${new Date(t.resolvedAt).toLocaleString()}</div>` : ''}
               </div>
 
-              <!-- Actions (Delete) -->
-              ${canManageTicket ? `
+              <!-- Actions (Delete - ONLY original creator / reporter) -->
+              ${isReporter ? `
                 <div style="padding-top:10px;">
                   <button type="button" class="jira-tool-btn" id="btn-delete-ticket" style="color:#ef4444;border-color:rgba(239,68,68,0.4);width:100%;padding:6px;">
                     🗑️ Delete Ticket
@@ -1767,12 +1769,21 @@ export async function initSupportTickets(container, options = {}) {
     });
 
     // Attachments upload (ultra-fast parallel streaming - supports all formats up to 1GB)
+    const btnTriggerDetail = modalRoot.querySelector('#btn-trigger-detail-upload');
     const attUploadInp = modalRoot.querySelector('#inp-detail-att-upload');
     const attProgressBox = modalRoot.querySelector('#detail-att-upload-progress');
 
+    if (btnTriggerDetail && attUploadInp) {
+      btnTriggerDetail.onclick = (e) => {
+        e.preventDefault();
+        attUploadInp.click();
+      };
+    }
+
     if (attUploadInp) {
-      attUploadInp.onchange = async (e) => {
-        const files = Array.from(e.target.files);
+      attUploadInp.onchange = async () => {
+        const files = Array.from(attUploadInp.files || []);
+        attUploadInp.value = '';
         if (!files.length) return;
 
         if (attProgressBox) {
@@ -1814,7 +1825,6 @@ export async function initSupportTickets(container, options = {}) {
           flashToast(`Upload failed: ${upErr.message}`, true);
         } finally {
           if (attProgressBox) attProgressBox.style.display = 'none';
-          attUploadInp.value = '';
         }
       };
     }
@@ -2189,8 +2199,9 @@ export async function initSupportTickets(container, options = {}) {
     };
 
     if (inpCreateAtt) {
-      inpCreateAtt.onchange = async (e) => {
-        const files = Array.from(e.target.files);
+      inpCreateAtt.onchange = async () => {
+        const files = Array.from(inpCreateAtt.files || []);
+        inpCreateAtt.value = '';
         if (!files.length) return;
 
         if (attProgEl) {

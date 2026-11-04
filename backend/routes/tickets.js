@@ -1452,16 +1452,21 @@ router.delete('/:id/links/:linkId', async (req, res) => {
 });
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   DELETE /api/tickets/:id - Delete ticket (Admin or original Reporter)
+   DELETE /api/tickets/:id - Delete ticket (ONLY Creator / Reporter)
    ───────────────────────────────────────────────────────────────────────────── */
 router.delete('/:id', async (req, res) => {
   try {
     const ticket = await SupportTicket.findById(req.params.id);
     if (!ticket) return res.status(404).json({ error: 'Ticket not found' });
 
-    // Admins, assigned employees, or original creators can delete the ticket
-    if (!canAccessTicket(ticket, req.user)) {
-      return res.status(403).json({ error: 'Not allowed to delete this ticket' });
+    // Strictly enforce: Only the person who created the ticket may delete it
+    const creatorUserId = ticket.reporter?.userId
+      ? String(ticket.reporter.userId)
+      : (ticket.userId ? String(ticket.userId) : null);
+    const requestingUserId = String(req.user._id);
+
+    if (!creatorUserId || creatorUserId !== requestingUserId) {
+      return res.status(403).json({ error: 'Permission denied: Only the person who created this ticket can delete it.' });
     }
 
     await ticket.deleteOne();
