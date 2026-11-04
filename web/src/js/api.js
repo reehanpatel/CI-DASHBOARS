@@ -1628,7 +1628,11 @@ export function renderAppShell({ user, currentRole, activeTab, tabs, title, subt
         </div>
         <nav class="sidebar-nav" role="navigation" aria-label="Main navigation">
           <div class="nav-group-label">Navigation</div>
-          ${tabs.map(t=>`
+          ${tabs.map(t=> t.href ? `
+            <a href="${t.href}" class="sidebar-item ${activeTab===t.key?'active':''}" data-tab="${t.key}" aria-current="${activeTab===t.key?'page':'false'}" style="text-decoration:none;">
+              <span class="icon">${t.icon||'📌'}</span>
+              <span>${t.label}</span>
+            </a>` : `
             <button type="button" class="sidebar-item ${activeTab===t.key?'active':''}" data-tab="${t.key}" aria-current="${activeTab===t.key?'page':'false'}">
               <span class="icon">${t.icon||'📌'}</span>
               <span>${t.label}</span>
@@ -1873,12 +1877,15 @@ export function renderAppShell({ user, currentRole, activeTab, tabs, title, subt
               <button type="button" class="mms-close-btn" id="mmsCloseBtn" aria-label="Close menu">✕</button>
             </div>
             <div class="mms-grid">
-              ${tabs.map(t => `
+              ${tabs.map(t => t.href ? `
+                <a href="${t.href}" class="mms-card ${activeTab===t.key?'active':''}" data-tab="${t.key}" style="text-decoration:none;">
+                  <span class="mms-card-icon">${t.icon || '📌'}</span>
+                  <span class="mms-card-label">${escapeHtml(t.label)}</span>
+                </a>` : `
                 <button type="button" class="mms-card ${activeTab===t.key?'active':''}" data-tab="${t.key}">
                   <span class="mms-card-icon">${t.icon || '📌'}</span>
                   <span class="mms-card-label">${escapeHtml(t.label)}</span>
-                </button>
-              `).join('')}
+                </button>`).join('')}
             </div>
             <div class="mms-quick-actions">
               <button type="button" class="btn ghost small mms-action-btn" id="mmsToggleThemeBtn">
@@ -1977,6 +1984,7 @@ export function bindAppShellEvents(onTabChange){
   document.querySelectorAll('.mms-card').forEach(card => {
     card.onclick = () => {
       closeMoreSheet();
+      if(card.tagName === 'A') return;
       if(onTabChange) onTabChange(card.dataset.tab);
     };
   });
@@ -2133,6 +2141,7 @@ export function bindAppShellEvents(onTabChange){
   document.querySelectorAll('.sidebar-item').forEach(btn=>{
     btn.onclick = ()=>{
       closeSidebar();
+      if(btn.tagName === 'A') return;
       if(onTabChange) onTabChange(btn.dataset.tab);
     };
   });

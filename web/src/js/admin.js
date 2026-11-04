@@ -43,6 +43,7 @@ const ADMIN_TABS = [
   { key: 'dashboard', label: 'Dashboard', icon: '📊' },
   { key: 'dailytasks', label: 'Daily Planner', icon: '📅' },
   { key: 'tickets', label: 'Support Tickets', icon: '🎫' },
+  { key: 'billing_dashboard', label: 'Accounts & Billing', icon: '💳', href: '/accounts' },
   { key: 'proposals', label: 'Proposal Studio', icon: '📜' },
   { key: 'teambonding', label: 'Team Chat & Lounge', icon: '💬' },
   { key: 'logjob', label: 'Log a Job', icon: '➕' },
@@ -50,7 +51,6 @@ const ADMIN_TABS = [
   { key: 'byclient', label: 'By Client', icon: '💼' },
   { key: 'byperson', label: 'By Person', icon: '👥' },
   { key: 'accounts', label: 'Client Roster', icon: '🏢' },
-  { key: 'billing_dashboard', label: 'Accounts Dashboard', icon: '💳' },
   { key: 'targets', label: 'Targets', icon: '🎯' },
   { key: 'salaries', label: 'Salaries', icon: '💰' },
   { key: 'users', label: 'Users', icon: '👤' },
@@ -207,23 +207,6 @@ async function tabDashboard(c){
         </div>
       </div>
     </section>
-
-    <!-- Accounts & Billing Quick Link -->
-    <div class="card" style="background:linear-gradient(135deg, rgba(79, 70, 229, 0.08) 0%, rgba(245, 158, 11, 0.08) 100%);border:1px solid rgba(99, 102, 241, 0.25);margin-bottom:16px;padding:20px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px">
-      <div style="display:flex;align-items:center;gap:14px">
-        <div style="width:44px;height:44px;background:var(--brand-500);color:#FFFFFF;border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">
-          💳
-        </div>
-        <div>
-          <h3 style="font-size:16px;font-weight:800;color:var(--text-1);margin:0 0 3px 0">Accounts & Billing Dashboard</h3>
-          <p style="font-size:12.5px;color:var(--text-3);margin:0">Manage client billing schedules, generate tax invoices, track payment receipts, and monitor outstanding pending amounts.</p>
-        </div>
-      </div>
-      <a href="/accounts" class="btn gold" style="text-decoration:none;display:inline-flex;align-items:center;gap:8px">
-        <span>Open Accounts Dashboard →</span>
-      </a>
-    </div>
-
 
     <section class="block">
       <h2>Roadmap Signals <span class="eyebrow">Auto-generated</span></h2>
