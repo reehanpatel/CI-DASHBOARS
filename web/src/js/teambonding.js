@@ -2070,15 +2070,16 @@ export async function initTeamBonding(container, options = {}) {
           2: [1, 9],
           3: [1, 5, 9],
           4: [1, 3, 7, 9],
-          5: [1, 3, 7, 9, 5],
+          5: [1, 3, 5, 7, 9],
           6: [1, 4, 7, 3, 6, 9]
         };
         const active = new Set(pipMap[v] || [5]);
         let dots = '';
         for (let i = 1; i <= 9; i++) {
-          dots += `<span class="ludo-pip ${active.has(i) ? 'filled' : 'empty'}"></span>`;
+          const isFilled = active.has(i);
+          dots += `<span class="ludo-pip ${isFilled ? 'ludo-pip-filled' : 'ludo-pip-empty'}" data-pip="${i}"></span>`;
         }
-        return `<div class="ludo-dice-face face-${v}">${dots}</div>`;
+        return `<div class="ludo-dice-face face-${v}" role="img" aria-label="Dice face ${v}">${dots}</div>`;
       }
 
       function renderYardHtml(col, titleText, isActive, playerInfo, tokensList) {
@@ -2204,7 +2205,7 @@ export async function initTeamBonding(container, options = {}) {
               </div>
               <div class="ludo-dice-action-badge">
                 ${canClickRoll
-          ? `<span class="badge-click-roll">🎲 TAP TO ROLL</span>`
+          ? `<button class="badge-click-roll btn-dice-roll-badge" id="btn-interactive-ludo-dice-badge" type="button" title="Tap to Roll">🎲 TAP TO ROLL</button>`
           : (rolled
             ? `<span class="badge-rolled-val">${turnColorEmoji} Rolled ${displayDice}</span>`
             : (state.lastRoll
@@ -2456,13 +2457,17 @@ export async function initTeamBonding(container, options = {}) {
             : ((state.players || []).find(p => p.userId?.toString() === myId?.toString())?.color || 'red'));
         const isMyTurnNow = isMyTurn && currentTurnColor === myColor;
 
-        // Click on the 3D dice to roll (instead of a text button)
+        // Click on the 3D dice or roll badge to roll
         const diceBtn = modalRoot.querySelector('#btn-interactive-ludo-dice');
-        if (diceBtn && isMyTurnNow && !rolled) {
+        const diceBadge = modalRoot.querySelector('#btn-interactive-ludo-dice-badge');
+        if (isMyTurnNow && !rolled) {
           const triggerDiceRoll = async () => {
-            if (diceBtn.dataset.rolling === 'true') return;
-            diceBtn.dataset.rolling = 'true';
-            diceBtn.classList.add('rolling');
+            if (diceBtn && diceBtn.dataset.rolling === 'true') return;
+            if (diceBtn) {
+              diceBtn.dataset.rolling = 'true';
+              diceBtn.classList.add('rolling');
+            }
+            if (diceBadge) diceBadge.disabled = true;
             try {
               const updated = await apiPost(`/bonding/matches/${matchId}/move`, { action: 'roll' });
               match = updated;
@@ -2470,17 +2475,25 @@ export async function initTeamBonding(container, options = {}) {
               renderArena();
             } catch (err) {
               flashToast(err.message || 'Failed to roll', 'error');
-              diceBtn.classList.remove('rolling');
-              delete diceBtn.dataset.rolling;
+              if (diceBtn) {
+                diceBtn.classList.remove('rolling');
+                delete diceBtn.dataset.rolling;
+              }
+              if (diceBadge) diceBadge.disabled = false;
             }
           };
-          diceBtn.onclick = triggerDiceRoll;
-          diceBtn.onkeydown = (e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              e.preventDefault();
-              triggerDiceRoll();
-            }
-          };
+          if (diceBtn) {
+            diceBtn.onclick = triggerDiceRoll;
+            diceBtn.onkeydown = (e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                triggerDiceRoll();
+              }
+            };
+          }
+          if (diceBadge) {
+            diceBadge.onclick = triggerDiceRoll;
+          }
         }
 
         // Automatic pawn movement when only 1 pawn is movable
@@ -5743,96 +5756,145 @@ function injectBondingStyles() {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
       flex-shrink: 0;
     }
 
     .ludo-3d-dice {
-      width: 58px;
-      height: 58px;
-      background: #ffffff;
-      border-radius: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25), inset 0 -3px 0 #cbd5e1;
-      border: 2.5px solid #cbd5e1;
+      position: relative;
+      width: 64px;
+      height: 64px;
+      background: linear-gradient(145deg, #ffffff 0%, #f8fafc 55%, #e2e8f0 100%) !important;
+      border-radius: 14px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      box-shadow: 0 6px 0 #cbd5e1, 0 10px 20px rgba(0, 0, 0, 0.25), inset 0 2px 2px rgba(255, 255, 255, 0.95), inset 0 -2px 4px rgba(0, 0, 0, 0.08) !important;
+      border: 3px solid #cbd5e1 !important;
       cursor: default;
-      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease, border-color 0.2s ease;
+      transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.18s ease, border-color 0.2s ease;
       user-select: none;
+      box-sizing: border-box !important;
+    }
+
+    [data-theme="dark"] .ludo-3d-dice {
+      background: linear-gradient(145deg, #ffffff 0%, #f1f5f9 60%, #cbd5e1 100%) !important;
+      box-shadow: 0 6px 0 #94a3b8, 0 12px 24px rgba(0, 0, 0, 0.55), inset 0 2px 2px rgba(255, 255, 255, 0.95), inset 0 -2px 4px rgba(0, 0, 0, 0.1) !important;
     }
 
     .ludo-3d-dice.clickable {
-      cursor: pointer;
+      cursor: pointer !important;
     }
 
     .ludo-3d-dice.clickable:hover {
-      transform: translateY(-2px) scale(1.06);
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 9px 0 #cbd5e1, 0 14px 26px rgba(0, 0, 0, 0.3), inset 0 2px 2px rgba(255, 255, 255, 0.95) !important;
     }
 
     .ludo-3d-dice.clickable:active {
-      transform: translateY(1px) scale(0.96);
+      transform: translateY(3px) scale(0.97);
+      box-shadow: 0 2px 0 #cbd5e1, 0 4px 10px rgba(0, 0, 0, 0.2), inset 0 1px 1px rgba(255, 255, 255, 0.8) !important;
     }
 
     .ludo-3d-dice.pulse-roll {
-      animation: diceGlowPulse 1.2s infinite alternate;
+      animation: diceGlowPulse 1.1s infinite alternate cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    .ludo-3d-dice.border-red { border-color: #ef4444; }
-    .ludo-3d-dice.border-green { border-color: #10b981; }
-    .ludo-3d-dice.border-yellow { border-color: #f59e0b; }
-    .ludo-3d-dice.border-blue { border-color: #3b82f6; }
+    .ludo-3d-dice.border-red {
+      border-color: #ef4444 !important;
+      box-shadow: 0 6px 0 #dc2626, 0 10px 22px rgba(239, 68, 68, 0.35), inset 0 2px 2px rgba(255, 255, 255, 0.95) !important;
+    }
+    .ludo-3d-dice.border-green {
+      border-color: #10b981 !important;
+      box-shadow: 0 6px 0 #059669, 0 10px 22px rgba(16, 185, 129, 0.35), inset 0 2px 2px rgba(255, 255, 255, 0.95) !important;
+    }
+    .ludo-3d-dice.border-yellow {
+      border-color: #f59e0b !important;
+      box-shadow: 0 6px 0 #d97706, 0 10px 22px rgba(245, 158, 11, 0.35), inset 0 2px 2px rgba(255, 255, 255, 0.95) !important;
+    }
+    .ludo-3d-dice.border-blue {
+      border-color: #3b82f6 !important;
+      box-shadow: 0 6px 0 #2563eb, 0 10px 22px rgba(59, 130, 246, 0.35), inset 0 2px 2px rgba(255, 255, 255, 0.95) !important;
+    }
 
     @keyframes diceGlowPulse {
-      0% { box-shadow: 0 4px 12px rgba(0,0,0,0.25), 0 0 4px rgba(59, 130, 246, 0.4); }
-      100% { box-shadow: 0 6px 20px rgba(0,0,0,0.35), 0 0 16px rgba(59, 130, 246, 0.85); transform: scale(1.04); }
+      0% {
+        transform: translateY(0) scale(1);
+        filter: drop-shadow(0 0 3px rgba(59, 130, 246, 0.3));
+      }
+      50% {
+        transform: translateY(-4px) scale(1.06) rotate(-2deg);
+        filter: drop-shadow(0 0 14px rgba(59, 130, 246, 0.8));
+      }
+      100% {
+        transform: translateY(0) scale(1) rotate(2deg);
+        filter: drop-shadow(0 0 3px rgba(59, 130, 246, 0.3));
+      }
     }
 
     .ludo-3d-dice.rolling {
-      animation: diceRollingSpin 0.45s cubic-bezier(0.25, 1, 0.5, 1);
+      animation: diceRollingSpin 0.55s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
 
     @keyframes diceRollingSpin {
-      0% { transform: rotate(0deg) scale(0.9); }
-      50% { transform: rotate(180deg) scale(1.15); }
-      100% { transform: rotate(360deg) scale(1); }
+      0% { transform: scale(1) rotate(0deg); }
+      25% { transform: scale(1.2) rotate(120deg) translateY(-8px); }
+      50% { transform: scale(0.88) rotate(240deg) translateY(4px); }
+      75% { transform: scale(1.12) rotate(320deg) translateY(-2px); }
+      100% { transform: scale(1) rotate(360deg) translateY(0); }
     }
 
     .ludo-dice-face {
-      width: 44px;
-      height: 44px;
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      grid-template-rows: repeat(3, 1fr);
-      gap: 3px;
-      padding: 3px;
-      box-sizing: border-box;
+      width: 48px !important;
+      height: 48px !important;
+      display: grid !important;
+      grid-template-columns: repeat(3, 1fr) !important;
+      grid-template-rows: repeat(3, 1fr) !important;
+      gap: 3px !important;
+      padding: 3px !important;
+      box-sizing: border-box !important;
     }
 
     .ludo-pip {
-      width: 9px;
-      height: 9px;
-      border-radius: 50%;
-      margin: auto;
+      display: block !important;
+      width: 10px !important;
+      height: 10px !important;
+      border-radius: 50% !important;
+      margin: auto !important;
+      padding: 0 !important;
+      box-sizing: border-box !important;
+      line-height: 0 !important;
+      font-size: 0 !important;
     }
 
-    .ludo-pip.filled {
-      background: #1e293b;
-      box-shadow: inset 0 1px 2px rgba(0,0,0,0.5);
+    .ludo-pip.ludo-pip-empty {
+      visibility: hidden !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
+      background: transparent !important;
+      box-shadow: none !important;
+      padding: 0 !important;
+      margin: auto !important;
+      width: 10px !important;
+      height: 10px !important;
     }
 
-    .ludo-pip.empty {
-      visibility: hidden;
+    .ludo-pip.ludo-pip-filled {
+      visibility: visible !important;
+      opacity: 1 !important;
+      background: radial-gradient(circle at 35% 35%, #334155, #0f172a) !important;
+      box-shadow: inset 0 2px 3px rgba(0,0,0,0.85), 0 1px 1px rgba(255,255,255,0.9) !important;
     }
 
-    .ludo-dice-face.face-1 .ludo-pip.filled {
-      background: #dc2626;
-      width: 14px;
-      height: 14px;
+    .ludo-dice-face.face-1 .ludo-pip.ludo-pip-filled {
+      background: radial-gradient(circle at 35% 35%, #ef4444, #b91c1c) !important;
+      width: 16px !important;
+      height: 16px !important;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.5), 0 1px 2px rgba(255,255,255,0.8), 0 0 8px rgba(239, 68, 68, 0.45) !important;
     }
 
     .ludo-dice-action-badge {
-      font-size: 10px;
+      font-size: 10.5px;
       font-weight: 800;
       letter-spacing: 0.3px;
       text-transform: uppercase;
@@ -5841,32 +5903,56 @@ function injectBondingStyles() {
     }
 
     .badge-click-roll {
-      color: #3b82f6;
-      background: rgba(59, 130, 246, 0.12);
-      padding: 2px 7px;
-      border-radius: 6px;
-      border: 1px solid rgba(59, 130, 246, 0.3);
-      animation: badgePulse 1.2s infinite alternate;
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 5px !important;
+      color: #ffffff !important;
+      background: linear-gradient(135deg, #3b82f6, #2563eb) !important;
+      padding: 4px 11px !important;
+      border-radius: 8px !important;
+      border: 1px solid rgba(255, 255, 255, 0.25) !important;
+      box-shadow: 0 3px 8px rgba(37, 99, 235, 0.35) !important;
+      cursor: pointer !important;
+      font-size: 10.5px !important;
+      font-weight: 800 !important;
+      animation: badgePulse 1.2s infinite alternate !important;
+      transition: transform 0.15s ease, box-shadow 0.15s ease !important;
+    }
+
+    .badge-click-roll:hover {
+      transform: translateY(-1px) scale(1.05) !important;
+      box-shadow: 0 5px 12px rgba(37, 99, 235, 0.5) !important;
+    }
+
+    .badge-click-roll:active {
+      transform: translateY(1px) scale(0.97) !important;
     }
 
     @keyframes badgePulse {
-      from { opacity: 0.85; }
-      to { opacity: 1; transform: scale(1.03); }
+      from { transform: scale(0.98); opacity: 0.92; }
+      to { transform: scale(1.03); opacity: 1; }
     }
 
     .badge-rolled-val {
-      color: #10b981;
-      background: rgba(16, 185, 129, 0.12);
-      padding: 2px 7px;
-      border-radius: 6px;
-      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: #047857 !important;
+      background: rgba(16, 185, 129, 0.16) !important;
+      padding: 4px 10px !important;
+      border-radius: 8px !important;
+      border: 1px solid rgba(16, 185, 129, 0.35) !important;
+      font-weight: 800 !important;
+    }
+
+    [data-theme="dark"] .badge-rolled-val {
+      color: #34d399 !important;
+      background: rgba(16, 185, 129, 0.2) !important;
     }
 
     .badge-last-roll {
-      color: var(--text-2, #64748b);
-      background: var(--bg-card, #e2e8f0);
-      padding: 2px 7px;
-      border-radius: 6px;
+      color: var(--text-2, #64748b) !important;
+      background: var(--bg-card, #e2e8f0) !important;
+      padding: 3px 8px !important;
+      border-radius: 6px !important;
+      border: 1px solid rgba(100, 116, 139, 0.25) !important;
     }
 
     .badge-waiting {
