@@ -765,15 +765,6 @@ export function initDailyPlanner(container, options = {}) {
               </span>
             ` : ''}
 
-            <!-- Time Display -->
-            ${(task.startTime || task.dueTime) ? `
-              <span class="ci360-badge time-badge">
-                🕒 ${task.startTime ? escapeHtml(task.startTime) : ''}
-                   ${task.startTime && task.dueTime ? '–' : ''}
-                   ${task.dueTime ? escapeHtml(task.dueTime) : ''}
-              </span>
-            ` : ''}
-
             <!-- Overdue Warning -->
             ${isPastDue ? `
               <span class="ci360-badge overdue-badge">
@@ -1447,7 +1438,7 @@ export function initDailyPlanner(container, options = {}) {
             <textarea id="taskDesc" class="input" rows="3" placeholder="Key deliverables, context, or checklist details...">${escapeHtml(existingTask?.description || '')}</textarea>
           </div>
 
-          <!-- Date & Time Row -->
+          <!-- Date Row -->
           <div class="form-row">
             <div class="form-group flex-1">
               <label for="taskDate">Assigned Date</label>
@@ -1457,14 +1448,6 @@ export function initDailyPlanner(container, options = {}) {
               <label for="taskCompletionDate">Completion Date</label>
               <input type="date" id="taskCompletionDate" class="input" value="${existingTask?.completionDateStr || existingTask?.dateStr || ''}" ${isEdit ? '' : `min="${todayStr}"`} placeholder="Defaults to that day">
               <small style="color:var(--text-3);font-size:11px;">If left blank, will default to that day (${initialDate})</small>
-            </div>
-            <div class="form-group flex-1">
-              <label for="taskStartTime">Start Time</label>
-              <input type="time" id="taskStartTime" class="input" value="${existingTask?.startTime || ''}">
-            </div>
-            <div class="form-group flex-1">
-              <label for="taskDueTime">Due Time</label>
-              <input type="time" id="taskDueTime" class="input" value="${existingTask?.dueTime || ''}">
             </div>
           </div>
 
@@ -1560,8 +1543,6 @@ export function initDailyPlanner(container, options = {}) {
       const compDateInput = modalBg.querySelector('#taskCompletionDate')?.value?.trim();
       // If no completion date is added, default to that day (assignedDate or state.selectedDate)
       const finalCompletionDate = compDateInput || assignedDate || state.selectedDate;
-      const startTime = modalBg.querySelector('#taskStartTime').value.trim();
-      const dueTime = modalBg.querySelector('#taskDueTime').value.trim();
       const priority = modalBg.querySelector('#taskPriority').value;
       const status = modalBg.querySelector('#taskStatus').value;
       const category = modalBg.querySelector('#taskCategory').value.trim() || 'General';
@@ -1583,8 +1564,8 @@ export function initDailyPlanner(container, options = {}) {
         completionDate: finalCompletionDate,
         completionDateStr: finalCompletionDate,
         dueDate: finalCompletionDate,
-        startTime,
-        dueTime,
+        startTime: '',
+        dueTime: '',
         priority,
         status,
         category

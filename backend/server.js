@@ -65,6 +65,7 @@ var require_User = __commonJS({
       // Link a client login to their Client record
       clientId: { type: mongoose.Schema.Types.ObjectId, ref: "Client", default: null },
       active: { type: Boolean, default: true },
+      customModules: { type: mongoose.Schema.Types.Mixed, default: {} },
       isDeleted: { type: Boolean, default: false },
       deletedAt: { type: Date, default: null },
       deletedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
@@ -339,7 +340,7 @@ var require_users = __commonJS({
     });
     router.put("/:id", async (req, res) => {
       try {
-        const { name, email, password, role, personnelId, clientId, active } = req.body;
+        const { name, email, password, role, personnelId, clientId, active, customModules } = req.body;
         const user = await User.findById(req.params.id);
         if (!user) return res.status(404).json({ error: "User not found" });
         if (name != null) user.name = name;
@@ -353,6 +354,7 @@ var require_users = __commonJS({
         if (personnelId !== void 0) user.personnelId = role === "employee" || user.role === "employee" ? personnelId : null;
         if (clientId !== void 0) user.clientId = role === "client" || user.role === "client" ? clientId : null;
         if (active != null) user.active = active;
+        if (customModules !== void 0) user.customModules = customModules || {};
         if (password) user.passwordHash = await bcrypt.hash(password, 10);
         await user.save();
         const clean = user.toObject();
@@ -360,6 +362,21 @@ var require_users = __commonJS({
         res.json(clean);
       } catch (err) {
         res.status(500).json({ error: "Could not update user", detail: err.message });
+      }
+    });
+
+    router.put("/:id/modules", async (req, res) => {
+      try {
+        const { customModules } = req.body;
+        const user = await User.findById(req.params.id);
+        if (!user) return res.status(404).json({ error: "User not found" });
+        user.customModules = customModules || {};
+        await user.save();
+        const clean = user.toObject();
+        delete clean.passwordHash;
+        res.json({ success: true, user: clean });
+      } catch (err) {
+        res.status(500).json({ error: "Could not update user module permissions", detail: err.message });
       }
     });
 
@@ -2352,8 +2369,8 @@ app.use("/uploads", express.static(uploadsPath, { acceptRanges: true, maxAge: "7
 app.use("/api/uploads", express.static(uploadsPath, { acceptRanges: true, maxAge: "7d" }));
 
 app.use("/api/auth", require_auth2());
-app.use("/api/users", require_users());
-app.use("/api/personnel", require_personnel());
+app.use("/api/users", require("./routes/users"));
+app.use("/api/personnel", require("./routes/personnel"));
 app.use("/api/clients", require_clients());
 app.use("/api/services", require_services());
 app.use("/api/jobs", require_jobs());

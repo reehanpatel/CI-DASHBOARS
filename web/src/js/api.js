@@ -1618,7 +1618,12 @@ export async function resetSidebarNavConfig() {
 }
 
 export async function saveUserModulePermissions(userId, customModules) {
-  const res = await apiPut(`/users/${userId}/modules`, { customModules });
+  let res;
+  try {
+    res = await apiPut(`/users/${userId}/modules`, { customModules });
+  } catch (err) {
+    res = await apiPut(`/users/${userId}`, { customModules });
+  }
   const currentUser = getUser();
   if (currentUser && (currentUser.id === userId || currentUser._id === userId)) {
     currentUser.customModules = customModules;

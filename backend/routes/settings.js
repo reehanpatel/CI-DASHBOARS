@@ -125,8 +125,8 @@ router.get('/navigation', async (req, res) => {
 // Superadmin only: save custom sidebar navigation visibility
 router.put('/navigation', async (req, res) => {
   try {
-    if (!req.user || req.user.role !== 'superadmin') {
-      return res.status(403).json({ error: 'Superadmin privileges required to customize dashboard navigation' });
+    if (!req.user || (req.user.role !== 'superadmin' && req.user.role !== 'admin')) {
+      return res.status(403).json({ error: 'Administrative privileges required to customize dashboard navigation' });
     }
 
     const { config } = req.body;
@@ -162,8 +162,8 @@ router.put('/navigation', async (req, res) => {
 // Superadmin only: restore all dashboard sidebars to default visibility
 router.post('/navigation/reset', async (req, res) => {
   try {
-    if (!req.user || req.user.role !== 'superadmin') {
-      return res.status(403).json({ error: 'Superadmin privileges required to reset navigation' });
+    if (!req.user || (req.user.role !== 'superadmin' && req.user.role !== 'admin')) {
+      return res.status(403).json({ error: 'Administrative privileges required to reset navigation' });
     }
 
     await SystemSetting.findOneAndDelete({ key: 'sidebar_nav_config' });
