@@ -2220,14 +2220,32 @@ function ensurePlannerStyles() {
   style.id = 'ci360-planner-styles';
   style.textContent = `
     /* CI360 Dayfolio Planner Module Styles */
+    .ci360-planner-wrap,
+    .ci360-planner-wrap * {
+      box-sizing: border-box !important;
+    }
+
     .ci360-planner-wrap {
       width: 100% !important;
-      max-width: none !important;
+      max-width: 100% !important;
       margin: 0 !important;
-      padding: 0 0 60px;
+      padding: 0 0 60px !important;
       box-sizing: border-box !important;
       font-family: var(--font-sans);
       color: var(--text-1);
+    }
+
+    .ci360-planner-content,
+    .ci360-today-focus-section,
+    .ci360-tasks-container,
+    .ci360-task-list,
+    .ci360-quick-add-bar,
+    .ci360-progress-summary-card,
+    .ci360-planner-nav-strip,
+    .ci360-planner-header {
+      width: 100% !important;
+      max-width: 100% !important;
+      box-sizing: border-box !important;
     }
 
     /* Header */

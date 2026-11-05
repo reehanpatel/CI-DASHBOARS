@@ -541,16 +541,28 @@ export async function initSupportTickets(container, options = {}) {
 
         // Optimistic UI update
         const prevStatus = ticket.status;
+        const prevAssignees = ticket.assignees ? [...ticket.assignees] : [];
+        const prevAssignee = ticket.assignee ? { ...ticket.assignee } : null;
         ticket.status = targetStatus;
+        if (targetStatus === 'Under Review') {
+          const johnOpt = { name: 'John', role: 'Staff', email: 'john@ci360.local', avatar: 'J' };
+          ticket.assignee = johnOpt;
+          ticket.assignees = [johnOpt];
+        }
         renderBoard();
 
         try {
           const updated = await apiPatch(`/tickets/${ticketDocId}/status`, { status: targetStatus });
-          flashToast(`Moved ${updated.ticketId} to ${targetStatus}`, false);
+          const toastMsg = targetStatus === 'Under Review'
+            ? `Moved ${updated.ticketId} to Under Review (Default assigned to John)`
+            : `Moved ${updated.ticketId} to ${targetStatus}`;
+          flashToast(toastMsg, false);
           await reloadBoard();
         } catch (err) {
           flashToast(err.message || 'Status update failed', true);
           ticket.status = prevStatus;
+          ticket.assignees = prevAssignees;
+          ticket.assignee = prevAssignee;
           await reloadBoard();
         }
       };
@@ -1443,7 +1455,10 @@ export async function initSupportTickets(container, options = {}) {
           await fetchStats();
           renderStats();
           await reloadBoard();
-          flashToast(`Status changed to ${updated.status}`, false);
+          const toastMsg = updated.status === 'Under Review'
+            ? `Status changed to Under Review (Default assigned to John)`
+            : `Status changed to ${updated.status}`;
+          flashToast(toastMsg, false);
         } catch (err) {
           flashToast(err.message || 'Status change failed', true);
         }

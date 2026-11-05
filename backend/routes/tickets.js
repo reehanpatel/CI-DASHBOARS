@@ -57,6 +57,64 @@ function canAccessTicket(ticket, user) {
   return false;
 }
 
+// Helper: Default assign ticket to John when entering "Under Review"
+async function assignJohnIfUnderReview(ticket, actorUser) {
+  try {
+    let johnUser = await User.findOne({
+      $or: [
+        { email: /^john@/i },
+        { name: new RegExp('^john$', 'i') },
+        { name: new RegExp('john', 'i') }
+      ],
+      active: { $ne: false }
+    });
+
+    if (!johnUser) {
+      const johnPersonnel = await Personnel.findOne({
+        name: new RegExp('john', 'i')
+      });
+      if (johnPersonnel) {
+        johnUser = await User.findOne({ personnelId: johnPersonnel._id, active: { $ne: false } });
+      }
+    }
+
+    const johnName = johnUser ? johnUser.name : 'John';
+    const johnEmail = johnUser ? (johnUser.email || 'john@ci360.local') : 'john@ci360.local';
+    const johnRole = johnUser ? (johnUser.role || 'employee') : 'employee';
+    const johnId = johnUser ? johnUser._id : null;
+
+    const johnAssignee = {
+      userId: johnId,
+      name: johnName,
+      role: johnRole,
+      email: johnEmail,
+      avatar: (johnName || 'J').slice(0, 1).toUpperCase()
+    };
+
+    const oldAssigneeNames = (Array.isArray(ticket.assignees) && ticket.assignees.length > 0)
+      ? ticket.assignees.map(a => a.name).join(', ')
+      : (ticket.assignee && ticket.assignee.name ? ticket.assignee.name : 'Unassigned');
+
+    ticket.assignee = johnAssignee;
+    ticket.assignees = [johnAssignee];
+
+    ticket.history.push({
+      id: new mongoose.Types.ObjectId().toString(),
+      userId: actorUser ? actorUser._id : null,
+      userName: actorUser ? actorUser.name : 'System',
+      field: 'assignees',
+      from: oldAssigneeNames,
+      to: `${johnName} (Default assigned on Under Review)`,
+      timestamp: new Date()
+    });
+
+    return true;
+  } catch (err) {
+    console.warn('Auto-assign to John error:', err.message);
+    return false;
+  }
+}
+
 // Helper: Generate next sequential unique Ticket ID (e.g. SUP-001)
 async function generateUniqueTicketId() {
   const latestTickets = await SupportTicket.find({ ticketId: /^SUP-\d+$/ })
@@ -416,7 +474,8 @@ router.post('/', async (req, res) => {
       jobId,
       linkUrl = '',
       links = [],
-      attachments = []
+      attachments = [],
+      status = 'To Do'
     } = req.body;
 
     const ticketTitle = (title || subject || '').trim();
@@ -516,7 +575,7 @@ router.post('/', async (req, res) => {
       title: ticketTitle,
       description: ticketDesc,
       category,
-      status: 'To Do',
+      status: status || 'To Do',
       priority,
       reporter,
       assignee: primaryAssignee,
@@ -549,6 +608,10 @@ router.post('/', async (req, res) => {
       history,
       workLogs: []
     });
+
+    if (newTicket.status === 'Under Review' && assignees.length === 0) {
+      await assignJohnIfUnderReview(newTicket, req.user);
+    }
 
     await newTicket.save();
 
@@ -602,6 +665,11 @@ router.patch('/:id/status', async (req, res) => {
     }
     if ((status === 'Ready to Leave' || status === 'Closed') && !ticket.closedAt) {
       ticket.closedAt = new Date();
+    }
+
+    // Default assign to John when tickets go to Under Review
+    if (status === 'Under Review') {
+      await assignJohnIfUnderReview(ticket, req.user);
     }
 
     // Record history
@@ -663,6 +731,7 @@ router.patch('/:id', async (req, res) => {
     const {
       title,
       description,
+      status,
       priority,
       category,
       dueDate,
@@ -675,6 +744,18 @@ router.patch('/:id', async (req, res) => {
     } = req.body;
 
     const changes = [];
+
+    // Status
+    if (status && status !== ticket.status) {
+      changes.push({ field: 'status', from: ticket.status, to: status });
+      ticket.status = status;
+      if (status === 'Closed' || status === 'Resolved') {
+        ticket.closedAt = new Date();
+      }
+      if (status === 'Under Review' && assigneeIds === undefined && assigneeId === undefined) {
+        await assignJohnIfUnderReview(ticket, req.user);
+      }
+    }
 
     // Title
     if (title && title.trim() && title.trim() !== ticket.title) {
