@@ -2,7 +2,7 @@ import { initProposalStudio } from './proposals.js';
 import { initDailyPlanner } from './planner.js';
 import { initTeamBonding } from './teambonding.js';
 import { initSupportTickets } from './supporttickets.js';
-import { renderAccountSettingsCard, bindAccountSettingsCard } from './api.js';
+import { renderAccountSettingsCard, bindAccountSettingsCard, fetchSidebarNavConfig, filterTabsForDashboard } from './api.js';
 
 let user = null;
 let cache = { personnel: [], clients: [], services: [] };
@@ -13,7 +13,8 @@ async function boot(){
   user = requireAuth('employee');
   if(!user) return;
   const [personnel, clients, services] = await Promise.all([
-    apiGet('/personnel'), apiGet('/clients'), apiGet('/services')
+    apiGet('/personnel'), apiGet('/clients'), apiGet('/services'),
+    fetchSidebarNavConfig().catch(() => {})
   ]);
   cache.personnel = personnel; cache.clients = clients; cache.services = services;
   render();
@@ -42,14 +43,18 @@ function getEmployeeTabs() {
 
 function render(){
   const app = document.getElementById('app');
-  const tabs = getEmployeeTabs();
+  const allTabs = getEmployeeTabs();
+  const tabs = filterTabsForDashboard('employee', allTabs, false);
   const activeTabObj = tabs.find(t=>t.key===ui.tab) || tabs[0];
+  if (!tabs.some(t => t.key === ui.tab)) {
+    ui.tab = activeTabObj ? activeTabObj.key : 'dashboard';
+  }
   app.innerHTML = renderAppShell({
     user,
     currentRole: 'employee',
     activeTab: ui.tab,
     tabs: tabs,
-    title: activeTabObj.label,
+    title: activeTabObj ? activeTabObj.label : 'Overview Dashboard',
     subtitle: isLeadManager() ? 'Lead Workspace · Mansi & Urna Management' : 'Employee Workspace & Productivity Dashboard'
   });
   bindAppShellEvents((newTab)=>{ 

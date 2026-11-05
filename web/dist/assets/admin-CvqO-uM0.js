@@ -1,10 +1,10 @@
-import{l as ie,m as ne}from"./api-DJ1Zya1A.js";import{initProposalStudio as le}from"./proposals-Diaaop5r.js";import{i as oe,a as re,b as de}from"./supporttickets-DPdXbq-T.js";let D=null,g={personnel:[],clients:[],services:[],salaryGrades:[],salaryAssignments:[]},E=null,v={tab:"dashboard",period:"month",jobsFilter:"all"},m={title:"",clientId:"",serviceIds:[],date:new Date().toISOString().slice(0,10),completion:"",value:"",desc:"",assignments:[{personId:"",percent:100,hours:""},{personId:"",percent:0,hours:""}]};async function ce(){initTheme(),D=requireAuth("superadmin"),D&&(await q(),J())}async function q(){const[t,s,e]=await Promise.all([apiGet("/personnel"),apiGet("/clients"),apiGet("/services")]);g.personnel=t,g.clients=s,g.services=e}function j(){const t=g.personnel.find(a=>/mansi/i.test(a.name)),s=g.personnel.find(a=>/urna/i.test(a.name)),e=[];return t&&e.push({personId:t._id,percent:"",hours:""}),s&&e.push({personId:s._id,percent:"",hours:""}),e.length===0&&e.push({personId:"",percent:"",hours:""}),e}function se(t){const s=g.personnel.find(e=>e._id===t);return s?s.name:"—"}function W(t){const s=g.clients.find(e=>e._id===t);return s?s.name:"—"}const pe=[{key:"dashboard",label:"Dashboard",icon:"📊"},{key:"dailytasks",label:"Daily Planner",icon:"📅"},{key:"tickets",label:"Support Tickets",icon:"🎫"},{key:"billing_dashboard",label:"Accounts & Billing",icon:"💳",href:"/accounts"},{key:"proposals",label:"Proposal Studio",icon:"📜"},{key:"teambonding",label:"Team Chat & Lounge",icon:"💬"},{key:"logjob",label:"Log a Job",icon:"➕"},{key:"jobs",label:"All Jobs",icon:"📁"},{key:"byclient",label:"By Client",icon:"💼"},{key:"byperson",label:"By Person",icon:"👥"},{key:"accounts",label:"Client Roster",icon:"🏢"},{key:"targets",label:"Targets",icon:"🎯"},{key:"salaries",label:"Salaries",icon:"💰"},{key:"users",label:"Users",icon:"👤"},{key:"manage",label:"Settings & Manage",icon:"⚙️"}];function J(){const t=document.getElementById("app"),s=D?.role==="superadmin",e=pe.filter(i=>!(!s&&(i.key==="salaries"||i.key==="users"))),a=e.find(i=>i.key===v.tab)||e[0];t.innerHTML=renderAppShell({user:D,currentRole:s?"superadmin":"admin",activeTab:v.tab,tabs:e,title:a.label,subtitle:"Productivity & Revenue Intelligence"}),bindAppShellEvents(i=>{v.tab=i,J()}),y()}window.ci360NavTab=(t,s={})=>{v.tab=t,v.tabParams=s,J()};async function y(t=!1){const s=document.getElementById("content");if(!s)return;const e=D?.role==="superadmin";if((v.tab==="salaries"||v.tab==="users")&&!e){v.tab="dashboard",flashToast("Access restricted: Superadmin permission required",!0),J();return}!t&&!s.dataset.loaded&&(s.innerHTML=renderSkeletonCards(4)),s.dataset.loaded="true";try{if(v.tab==="dashboard")await ge(s);else if(v.tab==="dailytasks")await Ee(s);else if(v.tab==="tickets"||v.tab==="supporttickets")await ve(s);else if(v.tab==="proposals")await me(s);else if(v.tab==="teambonding"||v.tab==="bonding")await ue(s);else if(v.tab==="logjob")R(s);else if(v.tab==="jobs")await xe(s);else if(v.tab==="byclient")await Se(s);else if(v.tab==="byperson")await O(s);else if(v.tab==="accounts")await $e(s);else if(v.tab==="billing_dashboard"){window.location.href="/accounts";return}else v.tab==="targets"?await Ae(s):v.tab==="salaries"?await Ce(s):v.tab==="settings"||v.tab==="manage"?Ie(s):v.tab==="users"&&await ae(s)}catch(a){s.innerHTML=`<div class="empty"><h3>Something went wrong</h3>${escapeHtml(a.message)}</div>`}}async function me(t){t.innerHTML='<div id="proposals-module-root"></div>';const s=t.querySelector("#proposals-module-root");le(s)}async function ue(t){t.innerHTML='<div id="teambonding-module-root"></div>';const s=t.querySelector("#teambonding-module-root");de(s,{userRole:D?.role||"admin",currentUser:D})}async function ve(t){t.innerHTML='<div id="support-tickets-module-root"></div>';const s=t.querySelector("#support-tickets-module-root"),e=v.tabParams||{};re(s,{userRole:"superadmin",currentUser:D,initialJobId:e.jobId||null})}function V(){return renderPeriodPicker(v.period)}function G(){document.querySelectorAll("[data-period]").forEach(t=>{t.onclick=()=>{v.period=t.dataset.period,y()}})}async function ge(t){E=await apiGet("/dashboard/admin?period="+v.period);const s=E.overview;t.innerHTML=`
+import{f as ce,d as pe,n as me,o as ue,s as ve,q as ge,D as be,t as fe}from"./api-Bgw38Yen.js";import{initProposalStudio as ye}from"./proposals-C9KlTfTR.js";import{i as he,a as xe,b as we}from"./supporttickets-CL8s90l5.js";let T=null,y={personnel:[],clients:[],services:[],salaryGrades:[],salaryAssignments:[]},D=null,g={tab:"dashboard",period:"month",jobsFilter:"all"},v={title:"",clientId:"",serviceIds:[],date:new Date().toISOString().slice(0,10),completion:"",value:"",desc:"",assignments:[{personId:"",percent:100,hours:""},{personId:"",percent:0,hours:""}]},N="admin",M="",W=null;async function Se(){initTheme(),T=requireAuth("superadmin"),T&&(await Promise.all([q(),pe().catch(()=>{})]),U())}async function q(){const[t,s,e]=await Promise.all([apiGet("/personnel"),apiGet("/clients"),apiGet("/services")]);y.personnel=t,y.clients=s,y.services=e}function V(){const t=y.personnel.find(a=>/mansi/i.test(a.name)),s=y.personnel.find(a=>/urna/i.test(a.name)),e=[];return t&&e.push({personId:t._id,percent:"",hours:""}),s&&e.push({personId:s._id,percent:"",hours:""}),e.length===0&&e.push({personId:"",percent:"",hours:""}),e}function re(t){const s=y.personnel.find(e=>e._id===t);return s?s.name:"—"}function Z(t){const s=y.clients.find(e=>e._id===t);return s?s.name:"—"}const $e=[{key:"dashboard",label:"Dashboard",icon:"📊"},{key:"dailytasks",label:"Daily Planner",icon:"📅"},{key:"tickets",label:"Support Tickets",icon:"🎫"},{key:"billing_dashboard",label:"Accounts & Billing",icon:"💳",href:"/accounts"},{key:"proposals",label:"Proposal Studio",icon:"📜"},{key:"teambonding",label:"Team Chat & Lounge",icon:"💬"},{key:"logjob",label:"Log a Job",icon:"➕"},{key:"jobs",label:"All Jobs",icon:"📁"},{key:"byclient",label:"By Client",icon:"💼"},{key:"byperson",label:"By Person",icon:"👥"},{key:"accounts",label:"Client Roster",icon:"🏢"},{key:"targets",label:"Targets",icon:"🎯"},{key:"salaries",label:"Salaries",icon:"💰"},{key:"users",label:"Users",icon:"👤"},{key:"manage",label:"Settings & Manage",icon:"⚙️"}];function U(){const t=document.getElementById("app"),s=T?.role==="superadmin",e=ce("admin",$e,s),a=e.find(i=>i.key===g.tab)||e[0];e.some(i=>i.key===g.tab)||(g.tab=a?a.key:"dashboard"),t.innerHTML=renderAppShell({user:T,currentRole:s?"superadmin":"admin",activeTab:g.tab,tabs:e,title:a.label,subtitle:"Productivity & Revenue Intelligence"}),bindAppShellEvents(i=>{g.tab=i,U()}),x()}window.ci360NavTab=(t,s={})=>{g.tab=t,g.tabParams=s,U()};async function x(t=!1){const s=document.getElementById("content");if(!s)return;const e=T?.role==="superadmin";if((g.tab==="salaries"||g.tab==="users")&&!e){g.tab="dashboard",flashToast("Access restricted: Superadmin permission required",!0),U();return}!t&&!s.dataset.loaded&&(s.innerHTML=renderSkeletonCards(4)),s.dataset.loaded="true";try{if(g.tab==="dashboard")await Ie(s);else if(g.tab==="dailytasks")await Oe(s);else if(g.tab==="tickets"||g.tab==="supporttickets")await Ce(s);else if(g.tab==="proposals")await ke(s);else if(g.tab==="teambonding"||g.tab==="bonding")await Ae(s);else if(g.tab==="logjob")R(s);else if(g.tab==="jobs")await Ne(s);else if(g.tab==="byclient")await Pe(s);else if(g.tab==="byperson")await Y(s);else if(g.tab==="accounts")await He(s);else if(g.tab==="billing_dashboard"){window.location.href="/accounts";return}else g.tab==="targets"?await Be(s):g.tab==="salaries"?await Me(s):g.tab==="settings"||g.tab==="manage"?je(s):g.tab==="users"&&await de(s)}catch(a){s.innerHTML=`<div class="empty"><h3>Something went wrong</h3>${escapeHtml(a.message)}</div>`}}async function ke(t){t.innerHTML='<div id="proposals-module-root"></div>';const s=t.querySelector("#proposals-module-root");ye(s)}async function Ae(t){t.innerHTML='<div id="teambonding-module-root"></div>';const s=t.querySelector("#teambonding-module-root");we(s,{userRole:T?.role||"admin",currentUser:T})}async function Ce(t){t.innerHTML='<div id="support-tickets-module-root"></div>';const s=t.querySelector("#support-tickets-module-root"),e=g.tabParams||{};xe(s,{userRole:"superadmin",currentUser:T,initialJobId:e.jobId||null})}function K(){return renderPeriodPicker(g.period)}function ee(){document.querySelectorAll("[data-period]").forEach(t=>{t.onclick=()=>{g.period=t.dataset.period,x()}})}async function Ie(t){D=await apiGet("/dashboard/admin?period="+g.period);const s=D.overview;t.innerHTML=`
     <div class="dash-overview-header">
       <div class="dash-overview-title-wrap">
         <h2 style="font-size:22px;font-weight:700;color:var(--navy-900);margin:0 0 2px 0;">Dashboard Overview</h2>
         <p style="font-size:13px;color:var(--text-3);margin:0;">Real-time workload, capacity, and deliverable performance</p>
       </div>
-      ${V()}
+      ${K()}
     </div>
 
     <section class="block block-kpi-grid">
@@ -69,30 +69,30 @@ import{l as ie,m as ne}from"./api-DJ1Zya1A.js";import{initProposalStudio as le}f
 
     <section class="block">
       <h2>Roadmap Signals <span class="eyebrow">Auto-generated</span></h2>
-      ${E.insights.length?E.insights.map(e=>`<div class="insight ${e.type}">${escapeHtml(e.text)}</div>`).join(""):'<div class="empty">Log a few jobs to start seeing workload signals here.</div>'}
+      ${D.insights.length?D.insights.map(e=>`<div class="insight ${e.type}">${escapeHtml(e.text)}</div>`).join(""):'<div class="empty">Log a few jobs to start seeing workload signals here.</div>'}
     </section>
 
     <div class="grid grid-2">
       <section class="block">
         <h2>Work Value by Client</h2>
-        <div class="card">${Q(E.clients.slice(0,8).map(e=>[e.name,e.value]))}</div>
+        <div class="card">${te(D.clients.slice(0,8).map(e=>[e.name,e.value]))}</div>
       </section>
       <section class="block">
         <h2>Work Value by Service</h2>
-        <div class="card">${Q(E.services.slice(0,8).map(e=>[e.name,e.value]),!0)}</div>
+        <div class="card">${te(D.services.slice(0,8).map(e=>[e.name,e.value]),!0)}</div>
       </section>
     </div>
 
     <section class="block">
       <h2>Team Load at a Glance</h2>
-      <div class="card">${E.personnel.filter(e=>e.status!=="inactive").map(be).join("")||'<div class="empty">No personnel yet.</div>'}</div>
+      <div class="card">${D.personnel.filter(e=>e.status!=="inactive").map(Te).join("")||'<div class="empty">No personnel yet.</div>'}</div>
     </section>
-  `,G()}function Q(t,s){if(!t.length)return'<div class="empty">No data yet.</div>';const e=Math.max(1,...t.map(a=>a[1]));return t.map(([a,i])=>`
+  `,ee()}function te(t,s){if(!t.length)return'<div class="empty">No data yet.</div>';const e=Math.max(1,...t.map(a=>a[1]));return t.map(([a,i])=>`
     <div class="bar-row">
       <div>${escapeHtml(a)}</div>
       <div class="bar-track"><div class="bar-fill ${s?"gold":""}" style="width:${(i/e*100).toFixed(1)}%"></div></div>
       <div class="num">${fmtINR(i)}</div>
-    </div>`).join("")}function be(t){const s=Math.min(t.utilization,160);return`
+    </div>`).join("")}function Te(t){const s=Math.min(t.utilization,160);return`
     <div style="margin-bottom:16px;">
       <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:3px;">
         <span><strong>${escapeHtml(t.name)}</strong> <span class="muted">${escapeHtml(t.duties||"")}</span></span>
@@ -105,7 +105,7 @@ import{l as ie,m as ne}from"./api-DJ1Zya1A.js";import{initProposalStudio as le}f
         <div class="gauge-zone" style="left:90%;width:10%;background:var(--red-bg);"></div>
         <div class="gauge-fill" style="left:${Math.min(s/1.6,99)}%;"></div>
       </div>
-    </div>`}function R(t){(!m.assignments||m.assignments.every(e=>!e.personId))&&(m.assignments=j());const s=m.assignments.reduce((e,a)=>e+(Number(a.percent)||0),0);t.innerHTML=`
+    </div>`}function R(t){(!v.assignments||v.assignments.every(e=>!e.personId))&&(v.assignments=V());const s=v.assignments.reduce((e,a)=>e+(Number(a.percent)||0),0);t.innerHTML=`
     <section class="block">
       <div style="margin-bottom:20px;">
         <h2 style="font-size:20px;font-weight:800;color:var(--text-1);margin-bottom:4px;border:none;padding:0;">Log New Job & Work Deliverable</h2>
@@ -120,7 +120,7 @@ import{l as ie,m as ne}from"./api-DJ1Zya1A.js";import{initProposalStudio as le}f
             <div class="select-with-btn">
               <select id="jClient">
                 <option value="">Select client…</option>
-                ${g.clients.map(e=>`<option value="${e._id}" ${e._id===m.clientId?"selected":""}>${escapeHtml(e.name)}</option>`).join("")}
+                ${y.clients.map(e=>`<option value="${e._id}" ${e._id===v.clientId?"selected":""}>${escapeHtml(e.name)}</option>`).join("")}
               </select>
               <button class="btn ghost small" type="button" id="addNewClientBtn">+ New Client</button>
             </div>
@@ -129,11 +129,11 @@ import{l as ie,m as ne}from"./api-DJ1Zya1A.js";import{initProposalStudio as le}f
           <div class="log-job-row">
             <div class="field" style="margin-bottom:0;">
               <label>START DATE *</label>
-              <input type="date" id="jDate" value="${m.date||new Date().toISOString().slice(0,10)}">
+              <input type="date" id="jDate" value="${v.date||new Date().toISOString().slice(0,10)}">
             </div>
             <div class="field" style="margin-bottom:0;">
               <label>COMPLETION DATE (OPTIONAL)</label>
-              <input type="date" id="jCompletion" value="${m.completion||""}" placeholder="dd.mm.yyyy">
+              <input type="date" id="jCompletion" value="${v.completion||""}" placeholder="dd.mm.yyyy">
             </div>
           </div>
         </div>
@@ -145,13 +145,13 @@ import{l as ie,m as ne}from"./api-DJ1Zya1A.js";import{initProposalStudio as le}f
             <div class="select-with-btn">
               <select id="jService">
                 <option value="">Select service to add…</option>
-                ${g.services.map(e=>`<option value="${e._id}">${escapeHtml(e.name)}</option>`).join("")}
+                ${y.services.map(e=>`<option value="${e._id}">${escapeHtml(e.name)}</option>`).join("")}
               </select>
               <button class="btn ghost small" type="button" id="addNewServiceBtn">+ New Service</button>
             </div>
-            ${m.serviceIds.length?`
+            ${v.serviceIds.length?`
               <div class="selected-services-tags" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;">
-                ${m.serviceIds.map(e=>{const a=g.services.find(i=>i._id===e);return a?`
+                ${v.serviceIds.map(e=>{const a=y.services.find(i=>i._id===e);return a?`
                     <span class="badge blue" style="display:inline-flex;align-items:center;gap:6px;padding:6px 12px;font-size:12px;border-radius:20px;">
                       ${escapeHtml(a.name)}
                       <span class="remove-service-tag" data-id="${a._id}" style="cursor:pointer;font-weight:bold;margin-left:4px;" title="Remove service">✕</span>
@@ -163,12 +163,12 @@ import{l as ie,m as ne}from"./api-DJ1Zya1A.js";import{initProposalStudio as le}f
 
           <div class="field" style="margin-bottom:16px;">
             <label>JOB VALUE (₹ ATTRIBUTABLE VALUE)</label>
-            <input type="number" id="jValue" value="${m.value||""}" placeholder="e.g. 25000" min="0">
+            <input type="number" id="jValue" value="${v.value||""}" placeholder="e.g. 25000" min="0">
           </div>
 
           <div class="field" style="margin-bottom:0;">
             <label>DELIVERABLE DESCRIPTION & SPECIFICS</label>
-            <textarea id="jDesc" placeholder="Describe the scope of work, completed artifacts, or client notes..." style="height:90px;resize:vertical;">${escapeHtml(m.desc||"")}</textarea>
+            <textarea id="jDesc" placeholder="Describe the scope of work, completed artifacts, or client notes..." style="height:90px;resize:vertical;">${escapeHtml(v.desc||"")}</textarea>
           </div>
         </div>
 
@@ -182,7 +182,7 @@ import{l as ie,m as ne}from"./api-DJ1Zya1A.js";import{initProposalStudio as le}f
               <div></div>
             </div>
             <div id="assignRows">
-              ${m.assignments.map((e,a)=>fe(e,a)).join("")}
+              ${v.assignments.map((e,a)=>Ee(e,a)).join("")}
             </div>
             <button class="btn ghost small" id="addAssignRow" type="button" style="margin-top:10px;">+ Add Team Member</button>
             <div style="margin-top:14px;">
@@ -205,12 +205,12 @@ import{l as ie,m as ne}from"./api-DJ1Zya1A.js";import{initProposalStudio as le}f
         </div>
       </div>
     </section>
-  `,ye()}function fe(t,s){return`
+  `,De()}function Ee(t,s){return`
     <div class="person-assign-row" data-idx="${s}">
       <div class="field">
         <select class="a-person">
           <option value="">Select…</option>
-          ${g.personnel.map(e=>`<option value="${e._id}" ${e._id===t.personId?"selected":""}>${escapeHtml(e.name)}${e.duties?` (${escapeHtml(e.duties)})`:""}</option>`).join("")}
+          ${y.personnel.map(e=>`<option value="${e._id}" ${e._id===t.personId?"selected":""}>${escapeHtml(e.name)}${e.duties?` (${escapeHtml(e.duties)})`:""}</option>`).join("")}
         </select>
       </div>
       <div class="field">
@@ -223,7 +223,7 @@ import{l as ie,m as ne}from"./api-DJ1Zya1A.js";import{initProposalStudio as le}f
         <button class="btn-remove-person a-remove" type="button" title="Remove person">✕</button>
       </div>
     </div>
-  `}function ye(){const t=document.getElementById("jClient");t&&(t.onchange=c=>m.clientId=c.target.value);const s=document.getElementById("addNewClientBtn");s&&(s.onclick=()=>{const c=openModal(`
+  `}function De(){const t=document.getElementById("jClient");t&&(t.onchange=c=>v.clientId=c.target.value);const s=document.getElementById("addNewClientBtn");s&&(s.onclick=()=>{const c=openModal(`
         <h3>Add New Client</h3>
         <div class="field">
           <label>Client Name *</label>
@@ -237,7 +237,7 @@ import{l as ie,m as ne}from"./api-DJ1Zya1A.js";import{initProposalStudio as le}f
           <button class="btn ghost" id="mCancel">Cancel</button>
           <button class="btn gold" id="mSave">Add Client</button>
         </div>
-      `);c.querySelector("#mCancel").onclick=()=>c.remove(),c.querySelector("#mSave").onclick=async()=>{const b=c.querySelector("#newClientName").value.trim(),r=c.querySelector("#newClientNotes").value.trim();if(!b){flashToast("Client name is required",!0);return}try{const S=await apiPost("/clients",{name:b,notes:r});await q(),m.clientId=S._id,flashToast("Client added"),c.remove(),R(document.getElementById("content"))}catch(S){flashToast(S.message,!0)}}});const e=document.getElementById("jDate");e&&(e.onchange=c=>m.date=c.target.value);const a=document.getElementById("jCompletion");a&&(a.onchange=c=>m.completion=c.target.value);const i=document.getElementById("jService");i&&(i.onchange=c=>{const b=c.target.value;b&&(m.serviceIds.includes(b)||m.serviceIds.push(b),R(document.getElementById("content")))}),document.querySelectorAll(".remove-service-tag").forEach(c=>{c.onclick=b=>{b.stopPropagation();const r=c.dataset.id;m.serviceIds=m.serviceIds.filter(S=>S!==r),R(document.getElementById("content"))}});const n=document.getElementById("addNewServiceBtn");n&&(n.onclick=()=>{const c=openModal(`
+      `);c.querySelector("#mCancel").onclick=()=>c.remove(),c.querySelector("#mSave").onclick=async()=>{const f=c.querySelector("#newClientName").value.trim(),o=c.querySelector("#newClientNotes").value.trim();if(!f){flashToast("Client name is required",!0);return}try{const w=await apiPost("/clients",{name:f,notes:o});await q(),v.clientId=w._id,flashToast("Client added"),c.remove(),R(document.getElementById("content"))}catch(w){flashToast(w.message,!0)}}});const e=document.getElementById("jDate");e&&(e.onchange=c=>v.date=c.target.value);const a=document.getElementById("jCompletion");a&&(a.onchange=c=>v.completion=c.target.value);const i=document.getElementById("jService");i&&(i.onchange=c=>{const f=c.target.value;f&&(v.serviceIds.includes(f)||v.serviceIds.push(f),R(document.getElementById("content")))}),document.querySelectorAll(".remove-service-tag").forEach(c=>{c.onclick=f=>{f.stopPropagation();const o=c.dataset.id;v.serviceIds=v.serviceIds.filter(w=>w!==o),R(document.getElementById("content"))}});const n=document.getElementById("addNewServiceBtn");n&&(n.onclick=()=>{const c=openModal(`
         <h3>Add New Service</h3>
         <div class="field">
           <label>Service Name *</label>
@@ -247,26 +247,26 @@ import{l as ie,m as ne}from"./api-DJ1Zya1A.js";import{initProposalStudio as le}f
           <button class="btn ghost" id="mCancel">Cancel</button>
           <button class="btn gold" id="mSave">Add Service</button>
         </div>
-      `);c.querySelector("#mCancel").onclick=()=>c.remove(),c.querySelector("#mSave").onclick=async()=>{const b=c.querySelector("#newServiceName").value.trim();if(!b){flashToast("Service name is required",!0);return}try{const r=await apiPost("/services",{name:b});await q(),m.serviceIds.includes(r._id)||m.serviceIds.push(r._id),flashToast("Service added"),c.remove(),R(document.getElementById("content"))}catch(r){flashToast(r.message,!0)}}});const o=document.getElementById("jDesc");o&&(o.oninput=c=>m.desc=c.target.value);const u=document.getElementById("jValue");u&&(u.oninput=c=>m.value=c.target.value),document.querySelectorAll(".person-assign-row").forEach(c=>{const b=Number(c.dataset.idx),r=c.querySelector(".a-person");r&&(r.onchange=p=>m.assignments[b].personId=p.target.value);const S=c.querySelector(".a-percent");S&&(S.oninput=p=>{m.assignments[b].percent=p.target.value,he()});const C=c.querySelector(".a-hours");C&&(C.oninput=p=>m.assignments[b].hours=p.target.value);const d=c.querySelector(".a-remove");d&&(d.onclick=()=>{m.assignments.length>1&&(m.assignments.splice(b,1),R(document.getElementById("content")))})});const x=document.getElementById("addAssignRow");x&&(x.onclick=()=>{m.assignments.push({personId:"",percent:0,hours:""}),R(document.getElementById("content"))}),bindAttachmentUploader("jAttachments",{existing:m.attachments||[]});const h=document.getElementById("clearJobBtn");h&&(h.onclick=()=>{m={title:"",assignments:j(),serviceIds:[],clientId:"",date:new Date().toISOString().slice(0,10),completion:"",value:"",desc:"",attachments:[]},setUploaderAttachments("jAttachments",[]),R(document.getElementById("content"))});const f=document.getElementById("saveJobBtn");f&&(f.onclick=async()=>{try{if(typeof Notification<"u"&&Notification.permission==="default")try{await Notification.requestPermission()}catch{}if(!m.clientId){flashToast("Please select a client",!0);return}if(!m.serviceIds||!m.serviceIds.length){flashToast("Please select at least one service",!0);return}const c=m.assignments.filter(p=>p.personId);if(!c.length){flashToast("Please assign at least one person",!0);return}for(const p of c)if(p.hours===""||p.hours==null){flashToast("Enter hours spent for every assigned person",!0);return}const b=g.clients.find(p=>p._id===m.clientId),S=g.services.filter(p=>m.serviceIds.includes(p._id)).map(p=>p.name).join(", "),C=m.title||(b?`${b.name} — ${S||"Deliverable"}`:S||"Untitled Job"),d=getUploaderAttachments("jAttachments");await apiPost("/jobs",{title:C,clientId:m.clientId,serviceIds:m.serviceIds,date:m.date||new Date().toISOString().slice(0,10),completionDate:m.completion||null,value:Number(m.value)||0,description:m.desc||"",assignments:c,attachments:d}),flashToast("Job saved successfully! 📁"),typeof window.ci360FetchNotifications=="function"&&window.ci360FetchNotifications(),m={title:"",assignments:j(),serviceIds:[],clientId:"",date:new Date().toISOString().slice(0,10),completion:"",value:"",desc:"",attachments:[]},v.tab="jobs",y()}catch(c){flashToast(c.message,!0)}})}function he(){const t=m.assignments.reduce((e,a)=>e+(Number(a.percent)||0),0),s=document.querySelector(".assign-total");s&&(s.textContent=`${t}% of work allocated ${t!==100?"— should total 100%":"✓"}`,s.classList.toggle("warn",t!==100))}async function xe(t){let s=await apiGet("/jobs");s.sort((e,a)=>new Date(a.date)-new Date(e.date)),v.jobsFilter==="progress"&&(s=s.filter(e=>!e.completionDate)),v.jobsFilter==="done"&&(s=s.filter(e=>e.completionDate)),t.innerHTML=`
+      `);c.querySelector("#mCancel").onclick=()=>c.remove(),c.querySelector("#mSave").onclick=async()=>{const f=c.querySelector("#newServiceName").value.trim();if(!f){flashToast("Service name is required",!0);return}try{const o=await apiPost("/services",{name:f});await q(),v.serviceIds.includes(o._id)||v.serviceIds.push(o._id),flashToast("Service added"),c.remove(),R(document.getElementById("content"))}catch(o){flashToast(o.message,!0)}}});const l=document.getElementById("jDesc");l&&(l.oninput=c=>v.desc=c.target.value);const d=document.getElementById("jValue");d&&(d.oninput=c=>v.value=c.target.value),document.querySelectorAll(".person-assign-row").forEach(c=>{const f=Number(c.dataset.idx),o=c.querySelector(".a-person");o&&(o.onchange=u=>v.assignments[f].personId=u.target.value);const w=c.querySelector(".a-percent");w&&(w.oninput=u=>{v.assignments[f].percent=u.target.value,qe()});const C=c.querySelector(".a-hours");C&&(C.oninput=u=>v.assignments[f].hours=u.target.value);const m=c.querySelector(".a-remove");m&&(m.onclick=()=>{v.assignments.length>1&&(v.assignments.splice(f,1),R(document.getElementById("content")))})});const p=document.getElementById("addAssignRow");p&&(p.onclick=()=>{v.assignments.push({personId:"",percent:0,hours:""}),R(document.getElementById("content"))}),bindAttachmentUploader("jAttachments",{existing:v.attachments||[]});const h=document.getElementById("clearJobBtn");h&&(h.onclick=()=>{v={title:"",assignments:V(),serviceIds:[],clientId:"",date:new Date().toISOString().slice(0,10),completion:"",value:"",desc:"",attachments:[]},setUploaderAttachments("jAttachments",[]),R(document.getElementById("content"))});const b=document.getElementById("saveJobBtn");b&&(b.onclick=async()=>{try{if(typeof Notification<"u"&&Notification.permission==="default")try{await Notification.requestPermission()}catch{}if(!v.clientId){flashToast("Please select a client",!0);return}if(!v.serviceIds||!v.serviceIds.length){flashToast("Please select at least one service",!0);return}const c=v.assignments.filter(u=>u.personId);if(!c.length){flashToast("Please assign at least one person",!0);return}for(const u of c)if(u.hours===""||u.hours==null){flashToast("Enter hours spent for every assigned person",!0);return}const f=y.clients.find(u=>u._id===v.clientId),w=y.services.filter(u=>v.serviceIds.includes(u._id)).map(u=>u.name).join(", "),C=v.title||(f?`${f.name} — ${w||"Deliverable"}`:w||"Untitled Job"),m=getUploaderAttachments("jAttachments");await apiPost("/jobs",{title:C,clientId:v.clientId,serviceIds:v.serviceIds,date:v.date||new Date().toISOString().slice(0,10),completionDate:v.completion||null,value:Number(v.value)||0,description:v.desc||"",assignments:c,attachments:m}),flashToast("Job saved successfully! 📁"),typeof window.ci360FetchNotifications=="function"&&window.ci360FetchNotifications(),v={title:"",assignments:V(),serviceIds:[],clientId:"",date:new Date().toISOString().slice(0,10),completion:"",value:"",desc:"",attachments:[]},g.tab="jobs",x()}catch(c){flashToast(c.message,!0)}})}function qe(){const t=v.assignments.reduce((e,a)=>e+(Number(a.percent)||0),0),s=document.querySelector(".assign-total");s&&(s.textContent=`${t}% of work allocated ${t!==100?"— should total 100%":"✓"}`,s.classList.toggle("warn",t!==100))}async function Ne(t){let s=await apiGet("/jobs");s.sort((e,a)=>new Date(a.date)-new Date(e.date)),g.jobsFilter==="progress"&&(s=s.filter(e=>!e.completionDate)),g.jobsFilter==="done"&&(s=s.filter(e=>e.completionDate)),t.innerHTML=`
     <section class="block">
       <h2>All Jobs <span class="eyebrow">${s.length} shown</span></h2>
       <div style="margin-bottom:12px;display:flex;gap:6px;">
-        <button class="pchip ${v.jobsFilter==="all"?"active":""}" data-jf="all">All</button>
-        <button class="pchip ${v.jobsFilter==="progress"?"active":""}" data-jf="progress">In Progress</button>
-        <button class="pchip ${v.jobsFilter==="done"?"active":""}" data-jf="done">Completed</button>
+        <button class="pchip ${g.jobsFilter==="all"?"active":""}" data-jf="all">All</button>
+        <button class="pchip ${g.jobsFilter==="progress"?"active":""}" data-jf="progress">In Progress</button>
+        <button class="pchip ${g.jobsFilter==="done"?"active":""}" data-jf="done">Completed</button>
       </div>
       ${s.length===0?'<div class="empty">No jobs logged yet.</div>':`
       <div class="card" style="overflow-x:auto;">
         <table>
           <thead><tr><th>Job Title</th><th>Files &amp; Artifacts</th><th>Start</th><th>Status &amp; Sign-Off</th><th>Client</th><th>Service(s)</th><th>Assigned Personnel</th><th class="num">Hours</th><th style="text-align:right;">Actions</th></tr></thead>
           <tbody>
-          ${s.map(e=>{const a=e.status==="Completed",i=(e.assignments||[]).map(u=>`${escapeHtml(se(u.personId))} (${u.percent}%)`).join(", "),n=(e.attachments||[]).length,o=(e.deliverables||[]).length;return`<tr>
+          ${s.map(e=>{const a=e.status==="Completed",i=(e.assignments||[]).map(d=>`${escapeHtml(re(d.personId))} (${d.percent}%)`).join(", "),n=(e.attachments||[]).length,l=(e.deliverables||[]).length;return`<tr>
               <td><strong>${escapeHtml(e.title||"Untitled Job")}</strong></td>
               <td>
                 <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap">
                   ${n?`<button type="button" class="btn ghost small view-job-files" data-id="${e._id}" title="View ${n} Brief Attachments" style="padding:2px 6px;font-size:11px"><span class="badge blue" style="font-size:10.5px">📎 ${n} Brief</span></button>`:""}
-                  ${o?`<button type="button" class="btn ghost small view-job-files" data-id="${e._id}" title="View ${o} Finished Deliverables" style="padding:2px 6px;font-size:11px"><span class="badge green" style="font-size:10.5px">📦 ${o} Work</span></button>`:""}
-                  ${!n&&!o?'<span class="muted" style="font-size:11px">—</span>':""}
+                  ${l?`<button type="button" class="btn ghost small view-job-files" data-id="${e._id}" title="View ${l} Finished Deliverables" style="padding:2px 6px;font-size:11px"><span class="badge green" style="font-size:10.5px">📦 ${l} Work</span></button>`:""}
+                  ${!n&&!l?'<span class="muted" style="font-size:11px">—</span>':""}
                 </div>
               </td>
               <td>${fmtDate(e.date)}</td>
@@ -280,13 +280,13 @@ import{l as ie,m as ne}from"./api-DJ1Zya1A.js";import{initProposalStudio as le}f
                    <button type="button" class="btn gold small admin-resubmit-btn" data-id="${e._id}" data-title="${escapeHtml(e.title||"Job")}" data-reason="${escapeHtml(e.clientApproval?.deniedReason||"")}" data-type="denial" style="margin-top:3px;padding:2px 7px;font-size:10px;font-weight:700">🔁 Resubmit</button>`:""}
                 </div>
               </td>
-              <td>${escapeHtml(W(e.clientId))}</td>
-              <td>${(e.serviceNames||[]).map(u=>`<span class="badge gray">${escapeHtml(u)}</span>`).join(" ")}</td>
+              <td>${escapeHtml(Z(e.clientId))}</td>
+              <td>${(e.serviceNames||[]).map(d=>`<span class="badge gray">${escapeHtml(d)}</span>`).join(" ")}</td>
               <td class="assign-cell-click" data-id="${e._id}" style="cursor:pointer;" title="Click to assign or change personnel">
                 ${i||'<span class="muted">Unassigned</span>'}
                 <span style="font-size:11px;color:var(--gold-600);margin-left:4px;">✏️</span>
               </td>
-              <td class="num">${fmtHours((e.assignments||[]).reduce((u,x)=>u+(Number(x.hours)||0),0))}</td>
+              <td class="num">${fmtHours((e.assignments||[]).reduce((d,p)=>d+(Number(p.hours)||0),0))}</td>
               <td style="text-align:right;white-space:nowrap;">
                 <button class="btn ghost small job-ticket-btn" data-id="${e._id}" title="Support Tickets linked to this Job" style="margin-right:4px;padding:3px 8px;font-size:11px;">🎫 Ticket</button>
                 <button class="btn ghost small view-job-files" data-id="${e._id}" style="margin-right:4px;padding:3px 8px;font-size:11px;">📁 Files</button>
@@ -298,7 +298,7 @@ import{l as ie,m as ne}from"./api-DJ1Zya1A.js";import{initProposalStudio as le}f
         </table>
       </div>`}
     </section>
-  `,document.querySelectorAll("[data-jf]").forEach(e=>e.onclick=()=>{v.jobsFilter=e.dataset.jf,y()}),document.querySelectorAll(".job-ticket-btn").forEach(e=>{e.onclick=()=>{window.ci360NavTab("tickets",{jobId:e.dataset.id})}}),document.querySelectorAll(".admin-resubmit-btn").forEach(e=>{e.onclick=()=>qe(e.dataset.id,e.dataset.title,e.dataset.reason,e.dataset.type)}),document.querySelectorAll(".view-job-files").forEach(e=>{e.onclick=()=>{const a=e.dataset.id,i=s.find(x=>x._id===a);if(!i)return;const n=encodeURIComponent(JSON.stringify(i.attachments||[])),o=encodeURIComponent(JSON.stringify(i.deliverables||[])),u=openModal(`
+  `,document.querySelectorAll("[data-jf]").forEach(e=>e.onclick=()=>{g.jobsFilter=e.dataset.jf,x()}),document.querySelectorAll(".job-ticket-btn").forEach(e=>{e.onclick=()=>{window.ci360NavTab("tickets",{jobId:e.dataset.id})}}),document.querySelectorAll(".admin-resubmit-btn").forEach(e=>{e.onclick=()=>Je(e.dataset.id,e.dataset.title,e.dataset.reason,e.dataset.type)}),document.querySelectorAll(".view-job-files").forEach(e=>{e.onclick=()=>{const a=e.dataset.id,i=s.find(p=>p._id===a);if(!i)return;const n=encodeURIComponent(JSON.stringify(i.attachments||[])),l=encodeURIComponent(JSON.stringify(i.deliverables||[])),d=openModal(`
         <div style="margin-bottom:14px;border-bottom:1px solid var(--border-sm);padding-bottom:10px">
           <h3 style="margin-bottom:4px">📁 Job Files &amp; Artifacts</h3>
           <div style="font-size:12.5px;color:var(--text-3)">${escapeHtml(i.title||"Untitled Job")}</div>
@@ -342,7 +342,7 @@ import{l as ie,m as ne}from"./api-DJ1Zya1A.js";import{initProposalStudio as le}f
         <div style="margin-bottom:20px">
           <h4 style="font-size:13px;font-weight:700;color:var(--text-1);margin-bottom:8px">📦 Completed Deliverables &amp; Proofs (${(i.deliverables||[]).length})</h4>
           ${i.deliverables&&i.deliverables.length?`
-            <div data-attachments="${o}">
+            <div data-attachments="${l}">
               ${renderAttachmentChips(i.deliverables)}
             </div>
           `:'<div style="font-size:12px;color:var(--text-4);font-style:italic">No completed deliverables attached yet.</div>'}
@@ -373,24 +373,24 @@ import{l as ie,m as ne}from"./api-DJ1Zya1A.js";import{initProposalStudio as le}f
         <div class="modal-actions">
           <button class="btn ghost" id="mCloseFiles">Close</button>
         </div>
-      `);bindAttachmentUploader("mDelUpload"),u.querySelector("#mDelSaveBtn").onclick=async()=>{const x=getUploaderAttachments("mDelUpload"),h=u.querySelector("#mDelNote").value.trim(),f=(u.querySelector("#mDelUrl")||{}).value?.trim()||"",c=u.querySelector("#mDelMarkComplete")?.checked??!0,b=x.map(r=>({...r,notes:h}));if(f){let r=f;/^https?:\/\//i.test(r)||(r="https://"+r),b.unshift({name:h?`${h} (Live URL)`:"Live Deliverable URL / Website",url:r,type:"url",size:0,notes:h||"Live URL"})}if(!b.length){flashToast("Please enter a deliverable URL or select files",!0);return}try{await apiPost(`/jobs/${a}/deliverables`,{deliverables:b,markComplete:c}),flashToast(c?"Deliverables added & sent to Client for Approval! 📦🎉":"Deliverables added! 📦"),u.remove(),y()}catch(r){flashToast(r.message,!0)}},u.querySelector("#mCloseFiles").onclick=()=>u.remove()}}),document.querySelectorAll(".edit-job, .assign-cell-click").forEach(e=>{e.onclick=()=>{const a=e.dataset.id,i=s.find(n=>n._id===a);i&&we(i,()=>y())}}),document.querySelectorAll(".toggle-status-btn").forEach(e=>e.onclick=async()=>{const a=e.dataset.id,i=e.dataset.done==="false",n=s.find(u=>u._id===a);let o=n?n.completionDate:null;i&&!o&&(o=new Date().toISOString().slice(0,10)),await apiPut("/jobs/"+a,{status:i?"Completed":"In Progress",completionDate:o}),flashToast(i?"Job marked as Completed!":"Job marked as In Progress"),y()}),document.querySelectorAll(".del-job").forEach(e=>e.onclick=async()=>{confirm("Delete this job?")&&(await apiDelete("/jobs/"+e.dataset.id),flashToast("Deleted"),y())})}function we(t,s){let e={title:t.title||"",clientId:t.clientId?t.clientId._id||t.clientId:"",serviceIds:t.serviceIds?t.serviceIds.map(l=>l._id||l):[],date:t.date?new Date(t.date).toISOString().slice(0,10):new Date().toISOString().slice(0,10),completionDate:t.completionDate?new Date(t.completionDate).toISOString().slice(0,10):"",status:t.status||"In Progress",priority:t.priority||"Medium",value:t.value!=null?t.value:"",description:t.description||"",preferredPersonId:t.preferredPersonId?t.preferredPersonId._id||t.preferredPersonId:"",assignments:t.assignments&&t.assignments.length?t.assignments.map(l=>({personId:String(l.personId._id||l.personId),percent:l.percent!=null?l.percent:0,hours:l.hours!=null?l.hours:0})):j()};function a(){return e.serviceIds.length?e.serviceIds.map(l=>{const w=g.services.find(A=>String(A._id)===String(l));return w?`
+      `);bindAttachmentUploader("mDelUpload"),d.querySelector("#mDelSaveBtn").onclick=async()=>{const p=getUploaderAttachments("mDelUpload"),h=d.querySelector("#mDelNote").value.trim(),b=(d.querySelector("#mDelUrl")||{}).value?.trim()||"",c=d.querySelector("#mDelMarkComplete")?.checked??!0,f=p.map(o=>({...o,notes:h}));if(b){let o=b;/^https?:\/\//i.test(o)||(o="https://"+o),f.unshift({name:h?`${h} (Live URL)`:"Live Deliverable URL / Website",url:o,type:"url",size:0,notes:h||"Live URL"})}if(!f.length){flashToast("Please enter a deliverable URL or select files",!0);return}try{await apiPost(`/jobs/${a}/deliverables`,{deliverables:f,markComplete:c}),flashToast(c?"Deliverables added & sent to Client for Approval! 📦🎉":"Deliverables added! 📦"),d.remove(),x()}catch(o){flashToast(o.message,!0)}},d.querySelector("#mCloseFiles").onclick=()=>d.remove()}}),document.querySelectorAll(".edit-job, .assign-cell-click").forEach(e=>{e.onclick=()=>{const a=e.dataset.id,i=s.find(n=>n._id===a);i&&Re(i,()=>x())}}),document.querySelectorAll(".toggle-status-btn").forEach(e=>e.onclick=async()=>{const a=e.dataset.id,i=e.dataset.done==="false",n=s.find(d=>d._id===a);let l=n?n.completionDate:null;i&&!l&&(l=new Date().toISOString().slice(0,10)),await apiPut("/jobs/"+a,{status:i?"Completed":"In Progress",completionDate:l}),flashToast(i?"Job marked as Completed!":"Job marked as In Progress"),x()}),document.querySelectorAll(".del-job").forEach(e=>e.onclick=async()=>{confirm("Delete this job?")&&(await apiDelete("/jobs/"+e.dataset.id),flashToast("Deleted"),x())})}function Re(t,s){let e={title:t.title||"",clientId:t.clientId?t.clientId._id||t.clientId:"",serviceIds:t.serviceIds?t.serviceIds.map(r=>r._id||r):[],date:t.date?new Date(t.date).toISOString().slice(0,10):new Date().toISOString().slice(0,10),completionDate:t.completionDate?new Date(t.completionDate).toISOString().slice(0,10):"",status:t.status||"In Progress",priority:t.priority||"Medium",value:t.value!=null?t.value:"",description:t.description||"",preferredPersonId:t.preferredPersonId?t.preferredPersonId._id||t.preferredPersonId:"",assignments:t.assignments&&t.assignments.length?t.assignments.map(r=>({personId:String(r.personId._id||r.personId),percent:r.percent!=null?r.percent:0,hours:r.hours!=null?r.hours:0})):V()};function a(){return e.serviceIds.length?e.serviceIds.map(r=>{const S=y.services.find(A=>String(A._id)===String(r));return S?`
         <span class="badge blue" style="display:inline-flex;align-items:center;gap:6px;padding:4px 10px;font-size:12px;border-radius:20px;">
-          ${escapeHtml(w.name)}
-          <span class="m-remove-service" data-id="${w._id}" style="cursor:pointer;font-weight:bold;margin-left:4px;" title="Remove service">✕</span>
+          ${escapeHtml(S.name)}
+          <span class="m-remove-service" data-id="${S._id}" style="cursor:pointer;font-weight:bold;margin-left:4px;" title="Remove service">✕</span>
         </span>
-      `:""}).join(""):'<span class="muted" style="font-size:12px;">No services selected</span>'}function i(){return e.assignments.map((l,w)=>`
-      <div class="m-person-assign-row" data-idx="${w}" style="display:grid;grid-template-columns:2fr 1fr 1fr 32px;gap:8px;align-items:center;margin-bottom:8px;">
+      `:""}).join(""):'<span class="muted" style="font-size:12px;">No services selected</span>'}function i(){return e.assignments.map((r,S)=>`
+      <div class="m-person-assign-row" data-idx="${S}" style="display:grid;grid-template-columns:2fr 1fr 1fr 32px;gap:8px;align-items:center;margin-bottom:8px;">
         <div class="field" style="margin-bottom:0;">
           <select class="m-a-person" style="padding:6px 8px;font-size:13px;width:100%;">
             <option value="">Select team member…</option>
-            ${g.personnel.map(A=>`<option value="${A._id}" ${String(A._id)===String(l.personId)?"selected":""}>${escapeHtml(A.name)}${A.duties?` (${escapeHtml(A.duties)})`:""}</option>`).join("")}
+            ${y.personnel.map(A=>`<option value="${A._id}" ${String(A._id)===String(r.personId)?"selected":""}>${escapeHtml(A.name)}${A.duties?` (${escapeHtml(A.duties)})`:""}</option>`).join("")}
           </select>
         </div>
         <div class="field" style="margin-bottom:0;">
-          <input type="number" class="m-a-percent" value="${l.percent!=null?l.percent:""}" placeholder="100" min="0" max="100" style="padding:6px 8px;font-size:13px;width:100%;">
+          <input type="number" class="m-a-percent" value="${r.percent!=null?r.percent:""}" placeholder="100" min="0" max="100" style="padding:6px 8px;font-size:13px;width:100%;">
         </div>
         <div class="field" style="margin-bottom:0;">
-          <input type="number" class="m-a-hours" value="${l.hours!=null?l.hours:""}" placeholder="0" min="0" step="0.5" style="padding:6px 8px;font-size:13px;width:100%;">
+          <input type="number" class="m-a-hours" value="${r.hours!=null?r.hours:""}" placeholder="0" min="0" step="0.5" style="padding:6px 8px;font-size:13px;width:100%;">
         </div>
         <div style="display:flex;justify-content:center;">
           <button class="btn-remove-person m-a-remove" type="button" title="Remove person" style="cursor:pointer;background:none;border:none;color:var(--red);font-weight:bold;font-size:16px;">✕</button>
@@ -416,7 +416,7 @@ import{l as ie,m as ne}from"./api-DJ1Zya1A.js";import{initProposalStudio as le}f
           <label>CLIENT *</label>
           <select id="mEditClient">
             <option value="">Select client…</option>
-            ${g.clients.map(l=>`<option value="${l._id}" ${String(l._id)===String(e.clientId)?"selected":""}>${escapeHtml(l.name)}</option>`).join("")}
+            ${y.clients.map(r=>`<option value="${r._id}" ${String(r._id)===String(e.clientId)?"selected":""}>${escapeHtml(r.name)}</option>`).join("")}
           </select>
         </div>
         <div class="field" style="margin-bottom:0;">
@@ -443,7 +443,7 @@ import{l as ie,m as ne}from"./api-DJ1Zya1A.js";import{initProposalStudio as le}f
         <label>SERVICE(S) DELIVERED *</label>
         <select id="mEditServiceSelect">
           <option value="">Select service to add…</option>
-          ${g.services.map(l=>`<option value="${l._id}">${escapeHtml(l.name)}</option>`).join("")}
+          ${y.services.map(r=>`<option value="${r._id}">${escapeHtml(r.name)}</option>`).join("")}
         </select>
         <div id="mEditServicesTags" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;">
           ${a()}
@@ -507,7 +507,7 @@ import{l as ie,m as ne}from"./api-DJ1Zya1A.js";import{initProposalStudio as le}f
 
       <div class="modal-actions" style="margin-top:16px;display:flex;justify-content:space-between;align-items:center;">
         <div>
-          ${D?.role==="superadmin"?`
+          ${T?.role==="superadmin"?`
             <button type="button" class="btn danger" id="mEditDeleteJob" style="padding:8px 16px;">🗑️ Delete Job</button>
           `:""}
         </div>
@@ -517,11 +517,11 @@ import{l as ie,m as ne}from"./api-DJ1Zya1A.js";import{initProposalStudio as le}f
         </div>
       </div>
     </div>
-  `),o=n.querySelector(".modal");o&&(o.style.maxWidth="680px"),bindAttachmentUploader("mEditAttachments",{existing:t.attachments||[]}),bindAttachmentUploader("mEditDeliverables",{existing:t.deliverables||[]});const u=()=>{const l=e.assignments.reduce((A,P)=>A+(Number(P.percent)||0),0),w=n.querySelector("#mAssignTotalInfo");w&&(w.innerHTML=l===100?'<span style="color:var(--green, #10b981);">✓ 100% Allocated</span>':`<span style="color:var(--amber, #f59e0b);">⚠️ ${l}% Allocated (should be 100%)</span>`)},x=()=>{n.querySelectorAll(".m-remove-service").forEach(l=>{l.onclick=()=>{const w=l.dataset.id;e.serviceIds=e.serviceIds.filter(A=>String(A)!==String(w)),n.querySelector("#mEditServicesTags").innerHTML=a(),x()}})},h=()=>{n.querySelectorAll(".m-person-assign-row").forEach(l=>{const w=Number(l.dataset.idx),A=l.querySelector(".m-a-person");A&&(A.onchange=H=>e.assignments[w].personId=H.target.value);const P=l.querySelector(".m-a-percent");P&&(P.oninput=H=>{e.assignments[w].percent=H.target.value,u()});const B=l.querySelector(".m-a-hours");B&&(B.oninput=H=>e.assignments[w].hours=H.target.value);const L=l.querySelector(".m-a-remove");L&&(L.onclick=()=>{e.assignments.length>1?(e.assignments.splice(w,1),n.querySelector("#mEditAssignRows").innerHTML=i(),h(),u()):flashToast("Job must have at least one team member row",!0)})})},f=n.querySelector("#mCloseJobEdit"),c=n.querySelector("#mEditCancel");f&&(f.onclick=()=>n.remove()),c&&(c.onclick=()=>n.remove());const b=n.querySelector("#mEditDeleteJob");b&&(b.onclick=async()=>{const l=t.title||"this job";if(confirm(`Are you sure you want to delete "${l}"?
-(It will be safely retained in the database archive.)`))try{await apiDelete("/jobs/"+t._id),flashToast("Job deleted"),n.remove(),s&&s()}catch(w){flashToast(w.message,!0)}});const r=n.querySelector("#mEditTitle");r&&(r.oninput=l=>e.title=l.target.value);const S=n.querySelector("#mEditClient");S&&(S.onchange=l=>e.clientId=l.target.value);const C=n.querySelector("#mEditStatus");C&&(C.onchange=l=>e.status=l.target.value);const d=n.querySelector("#mEditDate");d&&(d.onchange=l=>e.date=l.target.value);const p=n.querySelector("#mEditCompletionDate");p&&(p.onchange=l=>e.completionDate=l.target.value);const $=n.querySelector("#mEditPriority");$&&($.onchange=l=>e.priority=l.target.value);const k=n.querySelector("#mEditValue");k&&(k.oninput=l=>e.value=l.target.value);const I=n.querySelector("#mEditDesc");I&&(I.oninput=l=>e.description=l.target.value);const N=n.querySelector("#mEditServiceSelect");N&&(N.onchange=l=>{const w=l.target.value;w&&!e.serviceIds.map(String).includes(String(w))&&(e.serviceIds.push(w),n.querySelector("#mEditServicesTags").innerHTML=a(),x()),N.value=""}),x(),h(),u();const M=n.querySelector("#mAddAssignRow");M&&(M.onclick=()=>{e.assignments.push({personId:"",percent:0,hours:0}),n.querySelector("#mEditAssignRows").innerHTML=i(),h(),u()});const _=n.querySelector("#mEditSave");_&&(_.onclick=async()=>{try{if(!e.clientId){flashToast("Client is required",!0);return}if(!e.serviceIds||!e.serviceIds.length){flashToast("At least one service is required",!0);return}const l=e.assignments.filter(T=>T.personId&&String(T.personId).trim()!=="");if(!l.length){flashToast("Please select at least one assigned team member",!0);return}for(const T of l)if(T.hours===""||T.hours==null){flashToast("Enter hours spent for every assigned person",!0);return}const w=g.clients.find(T=>String(T._id)===String(e.clientId)),P=g.services.filter(T=>e.serviceIds.map(String).includes(String(T._id))).map(T=>T.name).join(", "),B=e.title||(w?`${w.name} — ${P||"Deliverable"}`:P||"Untitled Job"),L=getUploaderAttachments("mEditAttachments"),H=getUploaderAttachments("mEditDeliverables");await apiPut("/jobs/"+t._id,{title:B,clientId:e.clientId,serviceIds:e.serviceIds,date:e.date,completionDate:e.completionDate||null,status:e.status,priority:e.priority,value:Number(e.value)||0,description:e.description||"",assignments:l,attachments:L,deliverables:H});const De=l.map(T=>se(T.personId)).join(", ");flashToast("Job updated & saved! 📁"),n.remove(),s&&s()}catch(l){flashToast(l.message,!0)}finally{_.disabled=!1,_.textContent="Save & Update Assignments"}})}async function Se(t){E=await apiGet("/dashboard/admin?period="+v.period),t.innerHTML=`${V()}
+  `),l=n.querySelector(".modal");l&&(l.style.maxWidth="680px"),bindAttachmentUploader("mEditAttachments",{existing:t.attachments||[]}),bindAttachmentUploader("mEditDeliverables",{existing:t.deliverables||[]});const d=()=>{const r=e.assignments.reduce((A,z)=>A+(Number(z.percent)||0),0),S=n.querySelector("#mAssignTotalInfo");S&&(S.innerHTML=r===100?'<span style="color:var(--green, #10b981);">✓ 100% Allocated</span>':`<span style="color:var(--amber, #f59e0b);">⚠️ ${r}% Allocated (should be 100%)</span>`)},p=()=>{n.querySelectorAll(".m-remove-service").forEach(r=>{r.onclick=()=>{const S=r.dataset.id;e.serviceIds=e.serviceIds.filter(A=>String(A)!==String(S)),n.querySelector("#mEditServicesTags").innerHTML=a(),p()}})},h=()=>{n.querySelectorAll(".m-person-assign-row").forEach(r=>{const S=Number(r.dataset.idx),A=r.querySelector(".m-a-person");A&&(A.onchange=B=>e.assignments[S].personId=B.target.value);const z=r.querySelector(".m-a-percent");z&&(z.oninput=B=>{e.assignments[S].percent=B.target.value,d()});const F=r.querySelector(".m-a-hours");F&&(F.oninput=B=>e.assignments[S].hours=B.target.value);const G=r.querySelector(".m-a-remove");G&&(G.onclick=()=>{e.assignments.length>1?(e.assignments.splice(S,1),n.querySelector("#mEditAssignRows").innerHTML=i(),h(),d()):flashToast("Job must have at least one team member row",!0)})})},b=n.querySelector("#mCloseJobEdit"),c=n.querySelector("#mEditCancel");b&&(b.onclick=()=>n.remove()),c&&(c.onclick=()=>n.remove());const f=n.querySelector("#mEditDeleteJob");f&&(f.onclick=async()=>{const r=t.title||"this job";if(confirm(`Are you sure you want to delete "${r}"?
+(It will be safely retained in the database archive.)`))try{await apiDelete("/jobs/"+t._id),flashToast("Job deleted"),n.remove(),s&&s()}catch(S){flashToast(S.message,!0)}});const o=n.querySelector("#mEditTitle");o&&(o.oninput=r=>e.title=r.target.value);const w=n.querySelector("#mEditClient");w&&(w.onchange=r=>e.clientId=r.target.value);const C=n.querySelector("#mEditStatus");C&&(C.onchange=r=>e.status=r.target.value);const m=n.querySelector("#mEditDate");m&&(m.onchange=r=>e.date=r.target.value);const u=n.querySelector("#mEditCompletionDate");u&&(u.onchange=r=>e.completionDate=r.target.value);const $=n.querySelector("#mEditPriority");$&&($.onchange=r=>e.priority=r.target.value);const k=n.querySelector("#mEditValue");k&&(k.oninput=r=>e.value=r.target.value);const E=n.querySelector("#mEditDesc");E&&(E.oninput=r=>e.description=r.target.value);const H=n.querySelector("#mEditServiceSelect");H&&(H.onchange=r=>{const S=r.target.value;S&&!e.serviceIds.map(String).includes(String(S))&&(e.serviceIds.push(S),n.querySelector("#mEditServicesTags").innerHTML=a(),p()),H.value=""}),p(),h(),d();const O=n.querySelector("#mAddAssignRow");O&&(O.onclick=()=>{e.assignments.push({personId:"",percent:0,hours:0}),n.querySelector("#mEditAssignRows").innerHTML=i(),h(),d()});const J=n.querySelector("#mEditSave");J&&(J.onclick=async()=>{try{if(!e.clientId){flashToast("Client is required",!0);return}if(!e.serviceIds||!e.serviceIds.length){flashToast("At least one service is required",!0);return}const r=e.assignments.filter(I=>I.personId&&String(I.personId).trim()!=="");if(!r.length){flashToast("Please select at least one assigned team member",!0);return}for(const I of r)if(I.hours===""||I.hours==null){flashToast("Enter hours spent for every assigned person",!0);return}const S=y.clients.find(I=>String(I._id)===String(e.clientId)),z=y.services.filter(I=>e.serviceIds.map(String).includes(String(I._id))).map(I=>I.name).join(", "),F=e.title||(S?`${S.name} — ${z||"Deliverable"}`:z||"Untitled Job"),G=getUploaderAttachments("mEditAttachments"),B=getUploaderAttachments("mEditDeliverables");await apiPut("/jobs/"+t._id,{title:F,clientId:e.clientId,serviceIds:e.serviceIds,date:e.date,completionDate:e.completionDate||null,status:e.status,priority:e.priority,value:Number(e.value)||0,description:e.description||"",assignments:r,attachments:G,deliverables:B});const Fe=r.map(I=>re(I.personId)).join(", ");flashToast("Job updated & saved! 📁"),n.remove(),s&&s()}catch(r){flashToast(r.message,!0)}finally{J.disabled=!1,J.textContent="Save & Update Assignments"}})}async function Pe(t){D=await apiGet("/dashboard/admin?period="+g.period),t.innerHTML=`${K()}
     <section class="block"><h2>By Client</h2>
       <div class="grid grid-3">
-        ${E.clients.map(s=>`
+        ${D.clients.map(s=>`
           <div class="card">
             <h3 style="font-size:17px;">${escapeHtml(s.name)}</h3>
             <div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span class="muted">Work Value</span><strong>${fmtINR(s.value)}</strong></div>
@@ -530,7 +530,7 @@ import{l as ie,m as ne}from"./api-DJ1Zya1A.js";import{initProposalStudio as le}f
             <div style="display:flex;justify-content:space-between;"><span class="muted">People Involved</span><strong>${s.peopleCount}</strong></div>
           </div>`).join("")||'<div class="empty">No clients yet.</div>'}
       </div>
-    </section>`,G()}async function O(t){E=await apiGet("/dashboard/admin?period="+v.period);const s=D?.role==="superadmin";t.innerHTML=`${V()}
+    </section>`,ee()}async function Y(t){D=await apiGet("/dashboard/admin?period="+g.period);const s=T?.role==="superadmin";t.innerHTML=`${K()}
     <section class="block"><h2>By Person</h2>
       <div class="card table-card" style="padding:0;overflow:hidden">
         <div class="table-wrapper">
@@ -544,7 +544,7 @@ import{l as ie,m as ne}from"./api-DJ1Zya1A.js";import{initProposalStudio as le}f
             <th class="num">Work Credit</th>
             ${s?'<th class="num" style="padding-right:22px;text-align:right">Actions</th>':""}
           </tr></thead>
-          <tbody>${E.personnel.map(e=>{const a=(e.status||"active").toLowerCase(),i=e.personId||e._id;return`<tr>
+          <tbody>${D.personnel.map(e=>{const a=(e.status||"active").toLowerCase(),i=e.personId||e._id;return`<tr>
               <td style="padding-left:22px"><strong>${escapeHtml(e.name)}</strong></td><td class="muted">${escapeHtml(e.duties||"")}</td>
               <td>
                 <select class="person-status-sel" data-id="${i}" style="padding:4px 10px;font-size:12.5px;font-weight:700;border-radius:6px;border:1px solid var(--border-sm);background:var(--bg-input);color:var(--text-1);cursor:pointer;">
@@ -568,34 +568,34 @@ import{l as ie,m as ne}from"./api-DJ1Zya1A.js";import{initProposalStudio as le}f
             </tr>`}).join("")}</tbody></table>
         </div>
       </div>
-    </section>`,G(),document.querySelectorAll(".person-status-sel").forEach(e=>{e.onchange=async a=>{const i=e.dataset.id,n=a.target.value;try{await apiPut("/personnel/"+i,{status:n}),await q(),flashToast("Status updated to "+n),O(t)}catch(o){flashToast(o.message,!0)}}}),document.querySelectorAll(".edit-person-direct").forEach(e=>{e.onclick=()=>{const a=g.personnel.find(i=>String(i._id)===String(e.dataset.id));a&&F(a)}}),document.querySelectorAll(".del-person-direct").forEach(e=>{e.onclick=async()=>{const a=g.personnel.find(n=>String(n._id)===String(e.dataset.id)),i=a?a.name:"this person";if(confirm(`Are you sure you want to remove ${i}?
-(They will be safely retained in the database archive.)`))try{await apiDelete("/personnel/"+e.dataset.id),await q(),flashToast(`${i} removed`),O(t)}catch(n){flashToast(n.message,!0)}}})}const z=[["strategy","Strategy"],["cs","CS"],["website","Website"],["design","Design"],["copy","Copy"],["edit","Edit"],["shoot","Shoot"],["seo","SEO"],["smo","SMO"],["qc","QC"]];async function $e(t){const s=await apiGet("/roster");t.innerHTML=`
+    </section>`,ee(),document.querySelectorAll(".person-status-sel").forEach(e=>{e.onchange=async a=>{const i=e.dataset.id,n=a.target.value;try{await apiPut("/personnel/"+i,{status:n}),await q(),flashToast("Status updated to "+n),Y(t)}catch(l){flashToast(l.message,!0)}}}),document.querySelectorAll(".edit-person-direct").forEach(e=>{e.onclick=()=>{const a=y.personnel.find(i=>String(i._id)===String(e.dataset.id));a&&X(a)}}),document.querySelectorAll(".del-person-direct").forEach(e=>{e.onclick=async()=>{const a=y.personnel.find(n=>String(n._id)===String(e.dataset.id)),i=a?a.name:"this person";if(confirm(`Are you sure you want to remove ${i}?
+(They will be safely retained in the database archive.)`))try{await apiDelete("/personnel/"+e.dataset.id),await q(),flashToast(`${i} removed`),Y(t)}catch(n){flashToast(n.message,!0)}}})}const L=[["strategy","Strategy"],["cs","CS"],["website","Website"],["design","Design"],["copy","Copy"],["edit","Edit"],["shoot","Shoot"],["seo","SEO"],["smo","SMO"],["qc","QC"]];async function He(t){const s=await apiGet("/roster");t.innerHTML=`
     <section class="block">
       <h2>Accounts <span class="eyebrow">${s.length} accounts</span></h2>
       <div class="banner">Who owns which function on each account — separate from the job/hours log.</div>
       <div style="margin-bottom:14px;display:flex;gap:8px;"><button class="btn gold small" id="addAccountBtn">+ Add Account</button></div>
       <div class="card table-card" style="padding:0;overflow:hidden">
         <div class="table-wrapper">
-          <table><thead><tr><th style="padding-left:22px">Client</th><th>Nature</th>${z.map(e=>`<th>${e[1]}</th>`).join("")}<th class="num">Difficulty</th><th class="num" style="padding-right:22px"></th></tr></thead>
+          <table><thead><tr><th style="padding-left:22px">Client</th><th>Nature</th>${L.map(e=>`<th>${e[1]}</th>`).join("")}<th class="num">Difficulty</th><th class="num" style="padding-right:22px"></th></tr></thead>
           <tbody>${s.map(e=>`<tr>
-            <td style="padding-left:22px"><strong>${escapeHtml(W(e.clientId))}</strong></td>
+            <td style="padding-left:22px"><strong>${escapeHtml(Z(e.clientId))}</strong></td>
             <td><span class="badge ${e.nature==="Existing"?"green":"blue"}">${e.nature}</span></td>
-            ${z.map(a=>`<td>${escapeHtml(e.roles[a[0]]||"—")}</td>`).join("")}
+            ${L.map(a=>`<td>${escapeHtml(e.roles[a[0]]||"—")}</td>`).join("")}
             <td class="num"><span class="badge ${e.difficulty>=9?"red":e.difficulty>=7?"amber":e.difficulty>=4?"blue":"green"}">${e.difficulty}</span></td>
             <td class="num" style="padding-right:22px"><button class="btn ghost small edit-roster" data-id="${e._id}">Edit</button></td>
           </tr>`).join("")||'<tr><td colspan="13"><div class="empty">No accounts yet.</div></td></tr>'}</tbody></table>
         </div>
       </div>
-    </section>`,document.getElementById("addAccountBtn").onclick=()=>Y(null),document.querySelectorAll(".edit-roster").forEach(e=>e.onclick=()=>Y(s.find(a=>a._id===e.dataset.id)))}function Y(t){const s=!t,e=t||{_id:null,clientId:"",nature:"Existing",roles:{},difficulty:5,comments:""};z.forEach(i=>{e.roles[i[0]]==null&&(e.roles[i[0]]="")});const a=openModal(`
+    </section>`,document.getElementById("addAccountBtn").onclick=()=>se(null),document.querySelectorAll(".edit-roster").forEach(e=>e.onclick=()=>se(s.find(a=>a._id===e.dataset.id)))}function se(t){const s=!t,e=t||{_id:null,clientId:"",nature:"Existing",roles:{},difficulty:5,comments:""};L.forEach(i=>{e.roles[i[0]]==null&&(e.roles[i[0]]="")});const a=openModal(`
     <h3>${s?"Add Account":"Edit Account"}</h3>
     <div class="field-row">
       <div class="field"><label>Client</label>
-        ${s?`<select id="rClient"><option value="">Select…</option>${g.clients.map(i=>`<option value="${i._id}">${escapeHtml(i.name)}</option>`).join("")}</select>`:`<input type="text" value="${escapeHtml(W(e.clientId))}" disabled>`}
+        ${s?`<select id="rClient"><option value="">Select…</option>${y.clients.map(i=>`<option value="${i._id}">${escapeHtml(i.name)}</option>`).join("")}</select>`:`<input type="text" value="${escapeHtml(Z(e.clientId))}" disabled>`}
       </div>
       <div class="field"><label>Nature</label><select id="rNature"><option value="Existing" ${e.nature==="Existing"?"selected":""}>Existing</option><option value="Prospect" ${e.nature==="Prospect"?"selected":""}>Prospect</option></select></div>
     </div>
-    <div class="field-row">${z.slice(0,5).map(i=>`<div class="field"><label>${i[1]}</label><input type="text" class="r-role" data-key="${i[0]}" value="${escapeHtml(e.roles[i[0]])}"></div>`).join("")}</div>
-    <div class="field-row">${z.slice(5,10).map(i=>`<div class="field"><label>${i[1]}</label><input type="text" class="r-role" data-key="${i[0]}" value="${escapeHtml(e.roles[i[0]])}"></div>`).join("")}</div>
+    <div class="field-row">${L.slice(0,5).map(i=>`<div class="field"><label>${i[1]}</label><input type="text" class="r-role" data-key="${i[0]}" value="${escapeHtml(e.roles[i[0]])}"></div>`).join("")}</div>
+    <div class="field-row">${L.slice(5,10).map(i=>`<div class="field"><label>${i[1]}</label><input type="text" class="r-role" data-key="${i[0]}" value="${escapeHtml(e.roles[i[0]])}"></div>`).join("")}</div>
     <div class="field-row">
       <div class="field"><label>Difficulty (1-10)</label><input id="rDifficulty" type="number" min="1" max="10" value="${e.difficulty}"></div>
     </div>
@@ -604,7 +604,7 @@ import{l as ie,m as ne}from"./api-DJ1Zya1A.js";import{initProposalStudio as le}f
       ${s?"":'<button class="btn danger" id="mDelete" style="margin-right:auto;">Remove</button>'}
       <button class="btn ghost" id="mCancel">Cancel</button>
       <button class="btn gold" id="mSave">Save</button>
-    </div>`);a.querySelector("#mCancel").onclick=()=>a.remove(),s||(a.querySelector("#mDelete").onclick=async()=>{confirm("Remove this account?")&&(await apiDelete("/roster/"+e._id),a.remove(),y())}),a.querySelector("#mSave").onclick=async()=>{const i={};a.querySelectorAll(".r-role").forEach(o=>i[o.dataset.key]=o.value.trim());const n={nature:a.querySelector("#rNature").value,roles:i,difficulty:Number(a.querySelector("#rDifficulty").value)||1,comments:a.querySelector("#rComments").value.trim()};try{if(s){const o=a.querySelector("#rClient").value;if(!o){flashToast("Select a client",!0);return}await apiPost("/roster",Object.assign({clientId:o},n))}else await apiPut("/roster/"+e._id,n);a.remove(),y()}catch(o){flashToast(o.message,!0)}}}function ke(t){if(!t)return"Deliverables";const s={count:"Deliverables",hours:"Hours",reels:"Reels",stories:"Stories",posts:"Posts"};return s[t]?s[t]:t.charAt(0).toUpperCase()+t.slice(1)}async function Ae(t){const s=await apiGet("/targets"),e={day:"Daily",week:"Weekly",month:"Monthly"};t.innerHTML=`
+    </div>`);a.querySelector("#mCancel").onclick=()=>a.remove(),s||(a.querySelector("#mDelete").onclick=async()=>{confirm("Remove this account?")&&(await apiDelete("/roster/"+e._id),a.remove(),x())}),a.querySelector("#mSave").onclick=async()=>{const i={};a.querySelectorAll(".r-role").forEach(l=>i[l.dataset.key]=l.value.trim());const n={nature:a.querySelector("#rNature").value,roles:i,difficulty:Number(a.querySelector("#rDifficulty").value)||1,comments:a.querySelector("#rComments").value.trim()};try{if(s){const l=a.querySelector("#rClient").value;if(!l){flashToast("Select a client",!0);return}await apiPost("/roster",Object.assign({clientId:l},n))}else await apiPut("/roster/"+e._id,n);a.remove(),x()}catch(l){flashToast(l.message,!0)}}}function ze(t){if(!t)return"Deliverables";const s={count:"Deliverables",hours:"Hours",reels:"Reels",stories:"Stories",posts:"Posts"};return s[t]?s[t]:t.charAt(0).toUpperCase()+t.slice(1)}async function Be(t){const s=await apiGet("/targets"),e={day:"Daily",week:"Weekly",month:"Monthly"};t.innerHTML=`
     <section class="block">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
         <div>
@@ -629,21 +629,21 @@ import{l as ie,m as ne}from"./api-DJ1Zya1A.js";import{initProposalStudio as le}f
               </tr>
             </thead>
             <tbody>
-              ${s.map(a=>{const i=a.personId?.name||"—",n=a.serviceId?.name||"—",o=ke(a.unit),u=e[a.period]||(a.period?a.period.toUpperCase():"Daily"),x=a.actual||0,h=a.quantity>0?x/a.quantity:0,f=Math.round(h*100),c=h>=1?"green":h>=.6?"amber":"red",b=h>=1?"✓ Met":h>=.6?"Behind":"Off Pace",r=Math.min(f,100);return`
+              ${s.map(a=>{const i=a.personId?.name||"—",n=a.serviceId?.name||"—",l=ze(a.unit),d=e[a.period]||(a.period?a.period.toUpperCase():"Daily"),p=a.actual||0,h=a.quantity>0?p/a.quantity:0,b=Math.round(h*100),c=h>=1?"green":h>=.6?"amber":"red",f=h>=1?"✓ Met":h>=.6?"Behind":"Off Pace",o=Math.min(b,100);return`
                 <tr>
                   <td style="padding-left:22px"><strong>${escapeHtml(i)}</strong></td>
                   <td><span class="badge blue" style="white-space:normal;line-height:1.3;display:inline-block;padding:4px 8px;font-size:12px">${escapeHtml(n)}</span></td>
                   <td><span style="font-size:14px;font-weight:700;color:var(--text-1)">${a.quantity}</span></td>
-                  <td><span class="badge gray">${escapeHtml(o)}</span></td>
-                  <td><span class="badge gray" style="font-weight:600">${u}</span></td>
+                  <td><span class="badge gray">${escapeHtml(l)}</span></td>
+                  <td><span class="badge gray" style="font-weight:600">${d}</span></td>
                   <td>
                     <div style="display:flex;flex-direction:column;gap:4px">
                       <div style="display:flex;justify-content:space-between;align-items:center;font-size:11.5px">
-                        <span style="font-weight:700;color:var(--text-1)">${x} / ${a.quantity} <span style="font-weight:500;color:var(--text-3)">(${f}%)</span></span>
-                        <span class="badge ${c}" style="font-size:10px;padding:1px 5px">${b}</span>
+                        <span style="font-weight:700;color:var(--text-1)">${p} / ${a.quantity} <span style="font-weight:500;color:var(--text-3)">(${b}%)</span></span>
+                        <span class="badge ${c}" style="font-size:10px;padding:1px 5px">${f}</span>
                       </div>
                       <div style="height:5px;width:100%;background:var(--bg-surface);border-radius:10px;overflow:hidden;border:1px solid var(--border-xs)">
-                        <div style="width:${r}%;height:100%;background:var(--${c==="green"?"green":"amber"}-500);border-radius:10px;transition:width 0.6s ease"></div>
+                        <div style="width:${o}%;height:100%;background:var(--${c==="green"?"green":"amber"}-500);border-radius:10px;transition:width 0.6s ease"></div>
                       </div>
                     </div>
                   </td>
@@ -659,21 +659,21 @@ import{l as ie,m as ne}from"./api-DJ1Zya1A.js";import{initProposalStudio as le}f
         </div>
       </div>
     </section>
-  `,document.getElementById("addAdminTargetBtn").onclick=()=>X(null),document.querySelectorAll(".edit-target").forEach(a=>{a.onclick=()=>X(s.find(i=>i._id===a.dataset.id))}),document.querySelectorAll(".del-target").forEach(a=>{a.onclick=async()=>{if(confirm("Remove this target?"))try{await apiDelete("/targets/"+a.dataset.id),flashToast("Target removed"),y()}catch(i){flashToast(i.message,!0)}}})}function X(t){const s=!t;t=t||{personId:g.personnel[0]?._id,serviceId:g.services[0]?._id,quantity:5,unit:"reels",period:"day"};const e=t.personId?._id||t.personId||"",a=t.serviceId?._id||t.serviceId||"",n=["reels","stories","posts","count","hours"].includes(t.unit),o=openModal(`
+  `,document.getElementById("addAdminTargetBtn").onclick=()=>ae(null),document.querySelectorAll(".edit-target").forEach(a=>{a.onclick=()=>ae(s.find(i=>i._id===a.dataset.id))}),document.querySelectorAll(".del-target").forEach(a=>{a.onclick=async()=>{if(confirm("Remove this target?"))try{await apiDelete("/targets/"+a.dataset.id),flashToast("Target removed"),x()}catch(i){flashToast(i.message,!0)}}})}function ae(t){const s=!t;t=t||{personId:y.personnel[0]?._id,serviceId:y.services[0]?._id,quantity:5,unit:"reels",period:"day"};const e=t.personId?._id||t.personId||"",a=t.serviceId?._id||t.serviceId||"",n=["reels","stories","posts","count","hours"].includes(t.unit),l=openModal(`
     <h3>${s?"Assign New":"Edit"} Target</h3>
     <p style="font-size:12.5px;color:var(--text-3);margin-bottom:16px">Set output goals for reels, stories, posts, hours, or any custom deliverable.</p>
 
     <div class="field" style="margin-bottom:12px">
       <label>Personnel Member *</label>
       <select id="mTgtPerson">
-        ${g.personnel.map(f=>`<option value="${f._id}" ${String(f._id)===String(e)?"selected":""}>${escapeHtml(f.name)}</option>`).join("")}
+        ${y.personnel.map(b=>`<option value="${b._id}" ${String(b._id)===String(e)?"selected":""}>${escapeHtml(b.name)}</option>`).join("")}
       </select>
     </div>
 
     <div class="field" style="margin-bottom:12px">
       <label>Service / Deliverable Type *</label>
       <select id="mTgtService">
-        ${g.services.map(f=>`<option value="${f._id}" ${String(f._id)===String(a)?"selected":""}>${escapeHtml(f.name)}</option>`).join("")}
+        ${y.services.map(b=>`<option value="${b._id}" ${String(b._id)===String(a)?"selected":""}>${escapeHtml(b.name)}</option>`).join("")}
       </select>
     </div>
 
@@ -717,7 +717,7 @@ import{l as ie,m as ne}from"./api-DJ1Zya1A.js";import{initProposalStudio as le}f
       <button class="btn ghost" id="mCancel">Cancel</button>
       <button class="btn gold" id="mSave">Save Target</button>
     </div>
-  `);bindAttachmentUploader("mTgtAttachments",{existing:t.attachments||[]});const u=o.querySelector("#mTgtUnit"),x=o.querySelector("#mTgtCustomUnitWrap"),h=o.querySelector("#mTgtCustomUnit");u.onchange=()=>{u.value==="custom"?(x.style.display="flex",h.focus()):x.style.display="none"},o.querySelector("#mCancel").onclick=()=>o.remove(),o.querySelector("#mSave").onclick=async()=>{let f=u.value;f==="custom"&&(f=h.value.trim()||"Deliverables");const c=getUploaderAttachments("mTgtAttachments"),b={personId:o.querySelector("#mTgtPerson").value,serviceId:o.querySelector("#mTgtService").value,quantity:Number(o.querySelector("#mTgtQty").value)||1,unit:f,period:o.querySelector("#mTgtPeriod").value,attachments:c};if(!b.personId||!b.serviceId){flashToast("Person and Service are required",!0);return}try{s?await apiPost("/targets",b):await apiPut("/targets/"+t._id,b),flashToast("Target saved successfully! 🎯"),o.remove(),y()}catch(r){flashToast(r.message,!0)}}}async function Ce(t){const[s,e]=await Promise.all([apiGet("/salary/grades"),apiGet("/salary/assignments")]);g.salaryGrades=s,g.salaryAssignments=e;const a={};e.forEach(i=>a[i.personId]=i.gradeId),t.innerHTML=`
+  `);bindAttachmentUploader("mTgtAttachments",{existing:t.attachments||[]});const d=l.querySelector("#mTgtUnit"),p=l.querySelector("#mTgtCustomUnitWrap"),h=l.querySelector("#mTgtCustomUnit");d.onchange=()=>{d.value==="custom"?(p.style.display="flex",h.focus()):p.style.display="none"},l.querySelector("#mCancel").onclick=()=>l.remove(),l.querySelector("#mSave").onclick=async()=>{let b=d.value;b==="custom"&&(b=h.value.trim()||"Deliverables");const c=getUploaderAttachments("mTgtAttachments"),f={personId:l.querySelector("#mTgtPerson").value,serviceId:l.querySelector("#mTgtService").value,quantity:Number(l.querySelector("#mTgtQty").value)||1,unit:b,period:l.querySelector("#mTgtPeriod").value,attachments:c};if(!f.personId||!f.serviceId){flashToast("Person and Service are required",!0);return}try{s?await apiPost("/targets",f):await apiPut("/targets/"+t._id,f),flashToast("Target saved successfully! 🎯"),l.remove(),x()}catch(o){flashToast(o.message,!0)}}}async function Me(t){const[s,e]=await Promise.all([apiGet("/salary/grades"),apiGet("/salary/assignments")]);y.salaryGrades=s,y.salaryAssignments=e;const a={};e.forEach(i=>a[i.personId]=i.gradeId),t.innerHTML=`
     <section class="block">
       <h2>Salary Grades <span class="eyebrow">Admin only</span></h2>
       <div class="banner">No individual's exact salary is ever entered — each person is placed in a grade band, and only the grade label appears anywhere else in the tool.</div>
@@ -726,25 +726,28 @@ import{l as ie,m as ne}from"./api-DJ1Zya1A.js";import{initProposalStudio as le}f
       <div style="margin:10px 0 24px;"><button class="btn ghost small" id="addGradeBtn">+ Add Grade</button></div>
       <h3 style="font-size:15px;margin-bottom:8px;">Assign Grades</h3>
       <div class="card"><table><thead><tr><th>Person</th><th>Status</th><th class="num">Grade</th></tr></thead>
-      <tbody>${g.personnel.map(i=>`<tr><td><strong>${escapeHtml(i.name)}</strong><div class="muted">${escapeHtml(i.duties||"")}</div></td>
+      <tbody>${y.personnel.map(i=>`<tr><td><strong>${escapeHtml(i.name)}</strong><div class="muted">${escapeHtml(i.duties||"")}</div></td>
         <td><span class="badge green">${i.status}</span></td>
         <td class="num"><select class="grade-select" data-id="${i._id}"><option value="">Not set</option>${s.map(n=>`<option value="${n._id}" ${a[i._id]===n._id?"selected":""}>${escapeHtml(n.label)}</option>`).join("")}</select></td>
       </tr>`).join("")}</tbody></table></div>
-    </section>`,document.getElementById("addGradeBtn").onclick=()=>Z(null),document.querySelectorAll(".edit-grade").forEach(i=>i.onclick=()=>Z(s.find(n=>n._id===i.dataset.id))),document.querySelectorAll(".del-grade").forEach(i=>i.onclick=async()=>{confirm("Remove grade?")&&(await apiDelete("/salary/grades/"+i.dataset.id),y())}),document.querySelectorAll(".grade-select").forEach(i=>{i.onchange=async()=>{await apiPut("/salary/assignments/"+i.dataset.id,{gradeId:i.value||null}),flashToast("Saved")}})}function Z(t){const s=!t;t=t||{label:"",min:0,max:0};const e=openModal(`<h3>${s?"Add":"Edit"} Grade</h3>
+    </section>`,document.getElementById("addGradeBtn").onclick=()=>ie(null),document.querySelectorAll(".edit-grade").forEach(i=>i.onclick=()=>ie(s.find(n=>n._id===i.dataset.id))),document.querySelectorAll(".del-grade").forEach(i=>i.onclick=async()=>{confirm("Remove grade?")&&(await apiDelete("/salary/grades/"+i.dataset.id),x())}),document.querySelectorAll(".grade-select").forEach(i=>{i.onchange=async()=>{await apiPut("/salary/assignments/"+i.dataset.id,{gradeId:i.value||null}),flashToast("Saved")}})}function ie(t){const s=!t;t=t||{label:"",min:0,max:0};const e=openModal(`<h3>${s?"Add":"Edit"} Grade</h3>
     <div class="field"><label>Label</label><input id="gLabel" type="text" value="${escapeHtml(t.label)}"></div>
     <div class="field-row"><div class="field"><label>Range Start (₹)</label><input id="gMin" type="number" value="${t.min}"></div><div class="field"><label>Range End (₹)</label><input id="gMax" type="number" value="${t.max}"></div></div>
-    <div class="modal-actions"><button class="btn ghost" id="mCancel">Cancel</button><button class="btn gold" id="mSave">Save</button></div>`);e.querySelector("#mCancel").onclick=()=>e.remove(),e.querySelector("#mSave").onclick=async()=>{const a={label:e.querySelector("#gLabel").value.trim(),min:Number(e.querySelector("#gMin").value)||0,max:Number(e.querySelector("#gMax").value)||0};if(!a.label){flashToast("Label required",!0);return}try{s?await apiPost("/salary/grades",a):await apiPut("/salary/grades/"+t._id,a),e.remove(),y()}catch(i){flashToast(i.message,!0)}}}function Te(t){const s={active:"green","work from home":"blue",wfh:"blue","on leave":"amber",inactive:"gray"};t.innerHTML=`
+    <div class="modal-actions"><button class="btn ghost" id="mCancel">Cancel</button><button class="btn gold" id="mSave">Save</button></div>`);e.querySelector("#mCancel").onclick=()=>e.remove(),e.querySelector("#mSave").onclick=async()=>{const a={label:e.querySelector("#gLabel").value.trim(),min:Number(e.querySelector("#gMin").value)||0,max:Number(e.querySelector("#gMax").value)||0};if(!a.label){flashToast("Label required",!0);return}try{s?await apiPost("/salary/grades",a):await apiPut("/salary/grades/"+t._id,a),e.remove(),x()}catch(i){flashToast(i.message,!0)}}}function Ue(t){const s={active:"green","work from home":"blue",wfh:"blue","on leave":"amber",inactive:"gray"};t.innerHTML=`
     <section class="block">
       <!-- Admin Account Settings Card -->
       <div style="margin-bottom:24px;width:100%;max-width:100%;box-sizing:border-box;">
-        ${ie({title:"My Administrator Credentials",subtitle:"Manage your personal login email, display name, and password"})}
+        ${me({title:"My Administrator Credentials",subtitle:"Manage your personal login email, display name, and password"})}
       </div>
+
+      <!-- Superadmin Sidebar Navigation Customizer Card -->
+      ${T?.role==="superadmin"?_e():""}
 
       <!-- Personnel Section -->
       <div class="card" style="margin-bottom:24px">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:12px">
           <div>
-            <h3 style="font-size:16px;font-weight:800;color:var(--text-1);margin:0 0 2px 0">Team Personnel (${g.personnel.length})</h3>
+            <h3 style="font-size:16px;font-weight:800;color:var(--text-1);margin:0 0 2px 0">Team Personnel (${y.personnel.length})</h3>
             <div style="font-size:12px;color:var(--text-3)">Active team members, capacities, and working arrangements</div>
           </div>
           <button class="btn gold small" id="addPersonBtn" type="button">+ Add Person</button>
@@ -761,7 +764,7 @@ import{l as ie,m as ne}from"./api-DJ1Zya1A.js";import{initProposalStudio as le}f
               </tr>
             </thead>
             <tbody>
-              ${g.personnel.map(n=>`
+              ${y.personnel.map(n=>`
                 <tr>
                   <td><strong>${escapeHtml(n.name)}</strong></td>
                   <td>${escapeHtml(n.duties||"—")}</td>
@@ -782,7 +785,7 @@ import{l as ie,m as ne}from"./api-DJ1Zya1A.js";import{initProposalStudio as le}f
       <div class="card" style="margin-bottom:24px">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:12px">
           <div>
-            <h3 style="font-size:16px;font-weight:800;color:var(--text-1);margin:0 0 2px 0">Client Accounts (${g.clients.length})</h3>
+            <h3 style="font-size:16px;font-weight:800;color:var(--text-1);margin:0 0 2px 0">Client Accounts (${y.clients.length})</h3>
             <div style="font-size:12px;color:var(--text-3)">Corporate clients, account details, and brand specifications</div>
           </div>
           <button class="btn gold small" id="addClientBtn" type="button">+ Add Client</button>
@@ -797,7 +800,7 @@ import{l as ie,m as ne}from"./api-DJ1Zya1A.js";import{initProposalStudio as le}f
               </tr>
             </thead>
             <tbody>
-              ${g.clients.map(n=>`
+              ${y.clients.map(n=>`
                 <tr>
                   <td><strong>${escapeHtml(n.name)}</strong></td>
                   <td>${n.notes?escapeHtml(n.notes):'<span class="muted">—</span>'}</td>
@@ -816,7 +819,7 @@ import{l as ie,m as ne}from"./api-DJ1Zya1A.js";import{initProposalStudio as le}f
       <div class="card">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:12px">
           <div>
-            <h3 style="font-size:16px;font-weight:800;color:var(--text-1);margin:0 0 2px 0">Service Offerings (${g.services.length})</h3>
+            <h3 style="font-size:16px;font-weight:800;color:var(--text-1);margin:0 0 2px 0">Service Offerings (${y.services.length})</h3>
             <div style="font-size:12px;color:var(--text-3)">Standard deliverable offerings and reference effort hours</div>
           </div>
           <button class="btn gold small" id="addServiceBtn" type="button">+ Add Service</button>
@@ -831,7 +834,7 @@ import{l as ie,m as ne}from"./api-DJ1Zya1A.js";import{initProposalStudio as le}f
               </tr>
             </thead>
             <tbody>
-              ${g.services.map(n=>`
+              ${y.services.map(n=>`
                 <tr>
                   <td><strong>${escapeHtml(n.name)}</strong></td>
                   <td class="num"><strong>${n.hours||0} hrs</strong> baseline</td>
@@ -846,7 +849,84 @@ import{l as ie,m as ne}from"./api-DJ1Zya1A.js";import{initProposalStudio as le}f
         </div>
       </div>
     </section>
-  `;const e=document.getElementById("addPersonBtn");e&&(e.onclick=()=>F(null)),document.querySelectorAll(".edit-person").forEach(n=>n.onclick=()=>F(g.personnel.find(o=>o._id===n.dataset.id))),document.querySelectorAll(".del-person").forEach(n=>n.onclick=async()=>{confirm("Remove this person?")&&(await apiDelete("/personnel/"+n.dataset.id),await q(),y())});const a=document.getElementById("addClientBtn");a&&(a.onclick=()=>K(null)),document.querySelectorAll(".edit-client").forEach(n=>n.onclick=()=>K(g.clients.find(o=>o._id===n.dataset.id))),document.querySelectorAll(".del-client").forEach(n=>n.onclick=async()=>{confirm("Remove this client?")&&(await apiDelete("/clients/"+n.dataset.id),await q(),y())});const i=document.getElementById("addServiceBtn");i&&(i.onclick=()=>ee(null)),document.querySelectorAll(".edit-service").forEach(n=>n.onclick=()=>ee(g.services.find(o=>o._id===n.dataset.id))),document.querySelectorAll(".del-service").forEach(n=>n.onclick=async()=>{confirm("Remove this service?")&&(await apiDelete("/services/"+n.dataset.id),await q(),y())}),ne(t)}const Ie=Te;function F(t){const s=!t;t=t||{name:"",duties:"",capacity:48,status:"active",attachments:[]};const e=openModal(`
+  `;const e=document.getElementById("addPersonBtn");e&&(e.onclick=()=>X(null)),document.querySelectorAll(".edit-person").forEach(n=>n.onclick=()=>X(y.personnel.find(l=>l._id===n.dataset.id))),document.querySelectorAll(".del-person").forEach(n=>n.onclick=async()=>{confirm("Remove this person?")&&(await apiDelete("/personnel/"+n.dataset.id),await q(),x())});const a=document.getElementById("addClientBtn");a&&(a.onclick=()=>ne(null)),document.querySelectorAll(".edit-client").forEach(n=>n.onclick=()=>ne(y.clients.find(l=>l._id===n.dataset.id))),document.querySelectorAll(".del-client").forEach(n=>n.onclick=async()=>{confirm("Remove this client?")&&(await apiDelete("/clients/"+n.dataset.id),await q(),x())});const i=document.getElementById("addServiceBtn");i&&(i.onclick=()=>le(null)),document.querySelectorAll(".edit-service").forEach(n=>n.onclick=()=>le(y.services.find(l=>l._id===n.dataset.id))),document.querySelectorAll(".del-service").forEach(n=>n.onclick=async()=>{confirm("Remove this service?")&&(await apiDelete("/services/"+n.dataset.id),await q(),x())}),ue(t),T?.role==="superadmin"&&Le(),g.tabParams?.section==="sidebar-customizer"&&setTimeout(()=>{const n=document.getElementById("sidebarCustomizerCard");n&&(n.scrollIntoView({behavior:"smooth",block:"start"}),n.style.outline="2px solid #6366f1",setTimeout(()=>n.style.outline="",1500))},120)}function P(){return W||(W=JSON.parse(JSON.stringify(fe()))),W}function _e(){const t=P(),s=N||"admin";return`
+    <div class="nav-customizer-card" id="sidebarCustomizerCard">
+      <div class="nav-customizer-header">
+        <div>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;flex-wrap:wrap;">
+            <span style="font-size:22px;">🧭</span>
+            <h3 style="font-size:18px;font-weight:800;color:var(--text-1);margin:0;">Dashboard Sidebar Customizer</h3>
+            <span class="badge purple" style="font-size:11px;padding:3px 8px;font-weight:700;">👑 Superadmin Control</span>
+          </div>
+          <p style="font-size:13px;color:var(--text-3);margin:0;">
+            Customize which sidebar tabs and modules appear across all dashboards. Changes apply across all user accounts in real time.
+          </p>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <button type="button" class="btn ghost small" id="resetNavDefaultsBtn" title="Reset all sidebars back to default visibility">
+            ↺ Reset to Defaults
+          </button>
+          <button type="button" class="btn gold small" id="saveNavConfigBtn">
+            💾 Save Navigation Settings
+          </button>
+        </div>
+      </div>
+
+      <!-- Dashboard Selector Pills -->
+      <div class="nav-customizer-dash-tabs" id="navDashTabs">
+        ${[{key:"admin",label:"🛡️ Admin Dashboard"},{key:"employee",label:"💼 Employee Workspace"},{key:"accounts",label:"💳 Accounts & Billing"},{key:"client",label:"🏢 Client Portal"}].map(a=>{const i=t[a.key]||[],n=i.filter(d=>d.visible!==!1).length,l=i.length;return`
+            <button type="button" class="nav-dash-pill ${s===a.key?"active":""}" data-dash="${a.key}">
+              <span>${a.label}</span>
+              <span class="pill-counter" id="dashCount_${a.key}">${n} / ${l} visible</span>
+            </button>
+          `}).join("")}
+      </div>
+
+      <!-- Toolbar -->
+      <div class="nav-customizer-toolbar">
+        <div style="display:flex;align-items:center;gap:10px;flex:1;max-width:320px;">
+          <input type="text" class="input small" id="navItemSearch" placeholder="Search sidebar tabs..." value="${escapeHtml(M)}" style="width:100%;">
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <button type="button" class="btn ghost small" id="navShowAllBtn">Show All</button>
+          <button type="button" class="btn ghost small" id="navHideAllBtn">Hide Optional</button>
+        </div>
+      </div>
+
+      <!-- Nav Items Grid -->
+      <div class="nav-items-grid" id="navItemsGrid">
+        ${_(s,t,M)}
+      </div>
+    </div>
+  `}function _(t,s,e=""){const a=s[t]||[],i=(e||"").toLowerCase().trim(),n=a.filter(l=>i?l.label&&l.label.toLowerCase().includes(i)||l.key&&l.key.toLowerCase().includes(i)||l.category&&l.category.toLowerCase().includes(i):!0);return n.length===0?`<div style="grid-column:1/-1;text-align:center;padding:32px;color:var(--text-3);font-size:13px;">No sidebar tabs found matching "${escapeHtml(e)}"</div>`:n.map(l=>{const d=l.visible!==!1,p=!!l.locked;return`
+      <div class="nav-item-card ${d?"":"is-hidden"}" data-dash="${t}" data-key="${l.key}">
+        <div style="display:flex;align-items:center;gap:12px;overflow:hidden;">
+          <div style="font-size:22px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.06);border-radius:8px;flex-shrink:0;">
+            ${l.icon||"📌"}
+          </div>
+          <div style="min-width:0;">
+            <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+              <strong style="font-size:13px;color:var(--text-1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(l.label)}</strong>
+              ${p?'<span class="badge blue" style="font-size:10px;padding:1px 5px;">🔒 System Required</span>':""}
+              ${l.superadminOnly?'<span class="badge purple" style="font-size:10px;padding:1px 5px;">👑 Superadmin</span>':""}
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;margin-top:2px;">
+              <span style="font-size:11px;color:var(--text-3);font-family:monospace;">${l.key}</span>
+              ${l.category?`<span style="font-size:11px;color:var(--text-3);">· ${l.category}</span>`:""}
+              <span class="nav-status-indicator" style="font-size:11px;font-weight:600;color:${d?"#10b981":"#f59e0b"};">
+                ${d?"● Visible":"○ Hidden"}
+              </span>
+            </div>
+          </div>
+        </div>
+        <div style="margin-left:12px;flex-shrink:0;">
+          <label class="ci-switch" title="${p?"Cannot hide settings to prevent lockout":d?"Click to hide from sidebar":"Click to show in sidebar"}">
+            <input type="checkbox" class="nav-toggle-input" data-dash="${t}" data-key="${l.key}" ${d?"checked":""} ${p?"disabled":""}>
+            <span class="ci-switch-slider"></span>
+          </label>
+        </div>
+      </div>
+    `}).join("")}function Q(){const t=P();["admin","employee","accounts","client"].forEach(s=>{const e=document.getElementById(`dashCount_${s}`);if(e){const a=t[s]||[],i=a.filter(n=>n.visible!==!1).length;e.textContent=`${i} / ${a.length} visible`}})}function Le(t){const s=document.getElementById("sidebarCustomizerCard");if(!s)return;s.querySelectorAll(".nav-dash-pill").forEach(p=>{p.onclick=()=>{N=p.dataset.dash,s.querySelectorAll(".nav-dash-pill").forEach(b=>b.classList.toggle("active",b===p));const h=document.getElementById("navItemsGrid");h&&(h.innerHTML=_(N,P(),M),n())}});const e=document.getElementById("navItemSearch");e&&(e.oninput=p=>{M=p.target.value;const h=document.getElementById("navItemsGrid");h&&(h.innerHTML=_(N,P(),M),n())});const a=document.getElementById("navShowAllBtn");a&&(a.onclick=()=>{const p=P();(p[N]||[]).forEach(c=>{c.visible=!0});const b=document.getElementById("navItemsGrid");b&&(b.innerHTML=_(N,p,M),n()),Q()});const i=document.getElementById("navHideAllBtn");i&&(i.onclick=()=>{const p=P();(p[N]||[]).forEach(c=>{c.locked||(c.visible=!1)});const b=document.getElementById("navItemsGrid");b&&(b.innerHTML=_(N,p,M),n()),Q()});function n(){s.querySelectorAll(".nav-toggle-input").forEach(p=>{p.onchange=()=>{const h=p.dataset.dash,b=p.dataset.key,f=(P()[h]||[]).find(o=>o.key===b);if(f&&!f.locked){f.visible=p.checked;const o=p.closest(".nav-item-card");if(o){o.classList.toggle("is-hidden",!p.checked);const w=o.querySelector(".nav-status-indicator");w&&(w.textContent=p.checked?"● Visible":"○ Hidden",w.style.color=p.checked?"#10b981":"#f59e0b")}Q()}}})}n();const l=document.getElementById("saveNavConfigBtn");l&&(l.onclick=async()=>{l.disabled=!0,l.textContent="Saving…";try{const p=P();await ve(p),flashToast("✅ Dashboard sidebar settings saved! Updating navigation...","success"),setTimeout(()=>{U()},300)}catch(p){flashToast("❌ Failed to save navigation: "+p.message,"error"),l.disabled=!1,l.textContent="💾 Save Navigation Settings"}});const d=document.getElementById("resetNavDefaultsBtn");d&&(d.onclick=async()=>{if(confirm("Are you sure you want to reset sidebar navigation for all dashboards back to default visible tabs?")){d.disabled=!0,d.textContent="Resetting…";try{const p=await ge();W=JSON.parse(JSON.stringify(p.config||be)),flashToast("↺ Sidebar navigation reset to defaults!","success"),U()}catch(p){flashToast("❌ Failed to reset navigation: "+p.message,"error"),d.disabled=!1,d.textContent="↺ Reset to Defaults"}}})}const je=Ue;function X(t){const s=!t;t=t||{name:"",duties:"",capacity:48,status:"active",attachments:[]};const e=openModal(`
     <h3>${s?"Add New":"Edit"} Person</h3>
     <div class="field"><label>Full Name *</label><input id="mName" type="text" value="${escapeHtml(t.name)}" placeholder="e.g. Shatayu Verma"></div>
     <div class="field"><label>Duties / Role</label><input id="mDuties" type="text" value="${escapeHtml(t.duties)}" placeholder="e.g. Lead Designer / Frontend"></div>
@@ -863,7 +943,7 @@ import{l as ie,m as ne}from"./api-DJ1Zya1A.js";import{initProposalStudio as le}f
       ${renderAttachmentUploader({id:"mPersonFiles",label:"Documents & Contracts",subtitle:"Upload resumes, ID proofs, employment contracts or certificates"})}
     </div>
     <div class="modal-actions"><button class="btn ghost" id="mCancel">Cancel</button><button class="btn gold" id="mSave">Save Person</button></div>
-  `);bindAttachmentUploader("mPersonFiles",{existing:t.attachments||[]}),e.querySelector("#mCancel").onclick=()=>e.remove(),e.querySelector("#mSave").onclick=async()=>{const a=getUploaderAttachments("mPersonFiles"),i={name:e.querySelector("#mName").value.trim(),duties:e.querySelector("#mDuties").value.trim(),capacity:Number(e.querySelector("#mCapacity").value)||48,status:e.querySelector("#mStatus").value,attachments:a};if(!i.name){flashToast("Name is required",!0);return}try{s?await apiPost("/personnel",i):await apiPut("/personnel/"+t._id,i),await q(),flashToast("Person saved! 📁"),e.remove(),y()}catch(n){flashToast(n.message,!0)}}}function K(t){const s=!t;t=t||{name:"",notes:"",attachments:[]};const e=openModal(`
+  `);bindAttachmentUploader("mPersonFiles",{existing:t.attachments||[]}),e.querySelector("#mCancel").onclick=()=>e.remove(),e.querySelector("#mSave").onclick=async()=>{const a=getUploaderAttachments("mPersonFiles"),i={name:e.querySelector("#mName").value.trim(),duties:e.querySelector("#mDuties").value.trim(),capacity:Number(e.querySelector("#mCapacity").value)||48,status:e.querySelector("#mStatus").value,attachments:a};if(!i.name){flashToast("Name is required",!0);return}try{s?await apiPost("/personnel",i):await apiPut("/personnel/"+t._id,i),await q(),flashToast("Person saved! 📁"),e.remove(),x()}catch(n){flashToast(n.message,!0)}}}function ne(t){const s=!t;t=t||{name:"",notes:"",attachments:[]};const e=openModal(`
     <h3>${s?"Add New":"Edit"} Client</h3>
     <div class="field"><label>Client Name *</label><input id="mCName" type="text" value="${escapeHtml(t.name)}" placeholder="e.g. Network 18"></div>
     <div class="field"><label>Notes / Contract Details</label><textarea id="mCNotes" placeholder="Client specific notes, contact terms...">${escapeHtml(t.notes||"")}</textarea></div>
@@ -871,28 +951,28 @@ import{l as ie,m as ne}from"./api-DJ1Zya1A.js";import{initProposalStudio as le}f
       ${renderAttachmentUploader({id:"mClientFiles",label:"Brand Assets & Agreements",subtitle:"Upload brand guidelines, contracts, briefs or logos"})}
     </div>
     <div class="modal-actions"><button class="btn ghost" id="mCancel">Cancel</button><button class="btn gold" id="mSave">Save Client</button></div>
-  `);bindAttachmentUploader("mClientFiles",{existing:t.attachments||[]}),e.querySelector("#mCancel").onclick=()=>e.remove(),e.querySelector("#mSave").onclick=async()=>{const a=getUploaderAttachments("mClientFiles"),i={name:e.querySelector("#mCName").value.trim(),notes:e.querySelector("#mCNotes").value.trim(),attachments:a};if(!i.name){flashToast("Name is required",!0);return}try{s?await apiPost("/clients",i):await apiPut("/clients/"+t._id,i),await q(),flashToast("Client saved! 📁"),e.remove(),y()}catch(n){flashToast(n.message,!0)}}}function ee(t){const s=!t;t=t||{name:"",hours:4};const e=openModal(`
+  `);bindAttachmentUploader("mClientFiles",{existing:t.attachments||[]}),e.querySelector("#mCancel").onclick=()=>e.remove(),e.querySelector("#mSave").onclick=async()=>{const a=getUploaderAttachments("mClientFiles"),i={name:e.querySelector("#mCName").value.trim(),notes:e.querySelector("#mCNotes").value.trim(),attachments:a};if(!i.name){flashToast("Name is required",!0);return}try{s?await apiPost("/clients",i):await apiPut("/clients/"+t._id,i),await q(),flashToast("Client saved! 📁"),e.remove(),x()}catch(n){flashToast(n.message,!0)}}}function le(t){const s=!t;t=t||{name:"",hours:4};const e=openModal(`
     <h3>${s?"Add New":"Edit"} Service</h3>
     <div class="field"><label>Service Name *</label><input id="mSName" type="text" value="${escapeHtml(t.name)}" placeholder="e.g. UI/UX Design"></div>
     <div class="field"><label>Reference Effort (hrs)</label><input id="mSHours" type="number" value="${t.hours||4}" min="0"></div>
     <div class="modal-actions"><button class="btn ghost" id="mCancel">Cancel</button><button class="btn gold" id="mSave">Save Service</button></div>
-  `);e.querySelector("#mCancel").onclick=()=>e.remove(),e.querySelector("#mSave").onclick=async()=>{const a={name:e.querySelector("#mSName").value.trim(),hours:Number(e.querySelector("#mSHours").value)||0};if(!a.name){flashToast("Name is required",!0);return}try{s?await apiPost("/services",a):await apiPut("/services/"+t._id,a),await q(),e.remove(),y()}catch(i){flashToast(i.message,!0)}}}async function ae(t){const s=await apiGet("/users");let e="all",a="role",i="";function n(){let r=[...s];if(i){const d=i.toLowerCase();r=r.filter(p=>p.name&&p.name.toLowerCase().includes(d)||p.email&&p.email.toLowerCase().includes(d)||p.role&&p.role.toLowerCase().includes(d))}e==="admin"?r=r.filter(d=>d.role==="superadmin"||d.role==="admin"):e==="accounts"?r=r.filter(d=>d.role==="accounts"):e==="employee"?r=r.filter(d=>d.role==="employee"):e==="client"&&(r=r.filter(d=>d.role==="client"));const S={superadmin:1,admin:1,accounts:2,employee:3,client:4};a==="role"?r.sort((d,p)=>{const $=S[d.role]||9,k=S[p.role]||9;return $!==k?$-k:(d.name||"").localeCompare(p.name||"")}):a==="role-desc"?r.sort((d,p)=>{const $=S[d.role]||9,k=S[p.role]||9;return $!==k?k-$:(d.name||"").localeCompare(p.name||"")}):a==="name-asc"?r.sort((d,p)=>(d.name||"").localeCompare(p.name||"")):a==="name-desc"?r.sort((d,p)=>(p.name||"").localeCompare(d.name||"")):a==="status"&&r.sort((d,p)=>(p.active?1:0)-(d.active?1:0));const C=t.querySelector("#userTableBody");if(C){if(r.length===0){C.innerHTML='<tr><td colspan="6"><div class="empty" style="padding:32px 16px">No users found matching the selected filters.</div></td></tr>';return}C.innerHTML=r.map(d=>{const p=d.role==="superadmin",$=d.role==="admin",k=d.role==="accounts",I=d.role==="employee",N=p?'<span class="badge gold" style="font-weight:700">👑 Superadmin</span>':$?'<span class="badge gold" style="font-weight:700">🛡️ Admin</span>':k?'<span class="badge amber" style="font-weight:700">💳 Accounts</span>':I?'<span class="badge blue" style="font-weight:700">💼 Employee</span>':'<span class="badge green" style="font-weight:700">🤝 Client</span>',M=d.personnelId?escapeHtml(d.personnelId.name):d.clientId?escapeHtml(d.clientId.name):'<span class="muted">—</span>';return`
+  `);e.querySelector("#mCancel").onclick=()=>e.remove(),e.querySelector("#mSave").onclick=async()=>{const a={name:e.querySelector("#mSName").value.trim(),hours:Number(e.querySelector("#mSHours").value)||0};if(!a.name){flashToast("Name is required",!0);return}try{s?await apiPost("/services",a):await apiPut("/services/"+t._id,a),await q(),e.remove(),x()}catch(i){flashToast(i.message,!0)}}}async function de(t){const s=await apiGet("/users");let e="all",a="role",i="";function n(){let o=[...s];if(i){const m=i.toLowerCase();o=o.filter(u=>u.name&&u.name.toLowerCase().includes(m)||u.email&&u.email.toLowerCase().includes(m)||u.role&&u.role.toLowerCase().includes(m))}e==="admin"?o=o.filter(m=>m.role==="superadmin"||m.role==="admin"):e==="accounts"?o=o.filter(m=>m.role==="accounts"):e==="employee"?o=o.filter(m=>m.role==="employee"):e==="client"&&(o=o.filter(m=>m.role==="client"));const w={superadmin:1,admin:1,accounts:2,employee:3,client:4};a==="role"?o.sort((m,u)=>{const $=w[m.role]||9,k=w[u.role]||9;return $!==k?$-k:(m.name||"").localeCompare(u.name||"")}):a==="role-desc"?o.sort((m,u)=>{const $=w[m.role]||9,k=w[u.role]||9;return $!==k?k-$:(m.name||"").localeCompare(u.name||"")}):a==="name-asc"?o.sort((m,u)=>(m.name||"").localeCompare(u.name||"")):a==="name-desc"?o.sort((m,u)=>(u.name||"").localeCompare(m.name||"")):a==="status"&&o.sort((m,u)=>(u.active?1:0)-(m.active?1:0));const C=t.querySelector("#userTableBody");if(C){if(o.length===0){C.innerHTML='<tr><td colspan="6"><div class="empty" style="padding:32px 16px">No users found matching the selected filters.</div></td></tr>';return}C.innerHTML=o.map(m=>{const u=m.role==="superadmin",$=m.role==="admin",k=m.role==="accounts",E=m.role==="employee",H=u?'<span class="badge gold" style="font-weight:700">👑 Superadmin</span>':$?'<span class="badge gold" style="font-weight:700">🛡️ Admin</span>':k?'<span class="badge amber" style="font-weight:700">💳 Accounts</span>':E?'<span class="badge blue" style="font-weight:700">💼 Employee</span>':'<span class="badge green" style="font-weight:700">🤝 Client</span>',O=m.personnelId?escapeHtml(m.personnelId.name):m.clientId?escapeHtml(m.clientId.name):'<span class="muted">—</span>';return`
         <tr>
           <td style="padding-left:22px">
-            <div style="font-weight:700;color:var(--text-1)">${escapeHtml(d.name)}</div>
+            <div style="font-weight:700;color:var(--text-1)">${escapeHtml(m.name)}</div>
           </td>
-          <td><span style="color:var(--text-2);font-size:13px">${escapeHtml(d.email)}</span></td>
-          <td>${N}</td>
-          <td>${M}</td>
-          <td><span class="badge ${d.active?"green":"gray"}">${d.active?"🟢 Active":"⚪ Disabled"}</span></td>
+          <td><span style="color:var(--text-2);font-size:13px">${escapeHtml(m.email)}</span></td>
+          <td>${H}</td>
+          <td>${O}</td>
+          <td><span class="badge ${m.active?"green":"gray"}">${m.active?"🟢 Active":"⚪ Disabled"}</span></td>
           <td class="num" style="padding-right:22px;text-align:right;white-space:nowrap">
             <div style="display:inline-flex;gap:6px;align-items:center;justify-content:flex-end">
-              <button class="btn ghost small reset-pw-user" data-id="${d._id}" style="padding:4px 8px;font-size:11.5px" title="Change Password">🔑 Password</button>
-              <button class="btn ghost small edit-user" data-id="${d._id}" style="padding:4px 8px;font-size:11.5px">Edit</button>
-              <button class="btn danger small del-user" data-id="${d._id}" style="padding:4px 8px;font-size:11.5px">Remove</button>
+              <button class="btn ghost small reset-pw-user" data-id="${m._id}" style="padding:4px 8px;font-size:11.5px" title="Change Password">🔑 Password</button>
+              <button class="btn ghost small edit-user" data-id="${m._id}" style="padding:4px 8px;font-size:11.5px">Edit</button>
+              <button class="btn danger small del-user" data-id="${m._id}" style="padding:4px 8px;font-size:11.5px">Remove</button>
             </div>
           </td>
-        </tr>`}).join(""),C.querySelectorAll(".reset-pw-user").forEach(d=>{d.onclick=async()=>{const p=s.find(k=>k._id===d.dataset.id);if(!p)return;const $=prompt(`Enter new password for ${p.name} (${p.email}):`);if(!(!$||!$.trim()))try{await apiPut("/users/"+p._id,{password:$.trim()}),flashToast(`Password successfully changed for ${p.name}! 🔑`)}catch(k){flashToast(k.message,!0)}}}),C.querySelectorAll(".edit-user").forEach(d=>d.onclick=()=>te(s.find(p=>p._id===d.dataset.id))),C.querySelectorAll(".del-user").forEach(d=>d.onclick=async()=>{const p=d.dataset.id,$=s.find(I=>I._id===p),k=$?$.name:"this user";if(confirm(`Permanently remove ${k} from CI360?`))try{await apiDelete("/users/"+p),flashToast(`User ${k} removed`);const I=s.findIndex(N=>N._id===p);I!==-1&&s.splice(I,1),n(),await ae(t)}catch(I){flashToast(I.message,!0)}})}}const o=s.filter(r=>r.role==="superadmin"||r.role==="admin").length,u=s.filter(r=>r.role==="accounts").length,x=s.filter(r=>r.role==="employee").length,h=s.filter(r=>r.role==="client").length;t.innerHTML=`
+        </tr>`}).join(""),C.querySelectorAll(".reset-pw-user").forEach(m=>{m.onclick=async()=>{const u=s.find(k=>k._id===m.dataset.id);if(!u)return;const $=prompt(`Enter new password for ${u.name} (${u.email}):`);if(!(!$||!$.trim()))try{await apiPut("/users/"+u._id,{password:$.trim()}),flashToast(`Password successfully changed for ${u.name}! 🔑`)}catch(k){flashToast(k.message,!0)}}}),C.querySelectorAll(".edit-user").forEach(m=>m.onclick=()=>oe(s.find(u=>u._id===m.dataset.id))),C.querySelectorAll(".del-user").forEach(m=>m.onclick=async()=>{const u=m.dataset.id,$=s.find(E=>E._id===u),k=$?$.name:"this user";if(confirm(`Permanently remove ${k} from CI360?`))try{await apiDelete("/users/"+u),flashToast(`User ${k} removed`);const E=s.findIndex(H=>H._id===u);E!==-1&&s.splice(E,1),n(),await de(t)}catch(E){flashToast(E.message,!0)}})}}const l=s.filter(o=>o.role==="superadmin"||o.role==="admin").length,d=s.filter(o=>o.role==="accounts").length,p=s.filter(o=>o.role==="employee").length,h=s.filter(o=>o.role==="client").length;t.innerHTML=`
     <section class="block">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:12px">
         <div>
@@ -907,9 +987,9 @@ import{l as ie,m as ne}from"./api-DJ1Zya1A.js";import{initProposalStudio as le}f
         <!-- Filter Tabs -->
         <div style="display:flex;gap:6px;flex-wrap:wrap">
           <button class="pchip active user-role-filter" data-role="all">All (${s.length})</button>
-          <button class="pchip user-role-filter" data-role="admin">👑 Admins (${o})</button>
-          <button class="pchip user-role-filter" data-role="accounts">💳 Accounts (${u})</button>
-          <button class="pchip user-role-filter" data-role="employee">💼 Employees (${x})</button>
+          <button class="pchip user-role-filter" data-role="admin">👑 Admins (${l})</button>
+          <button class="pchip user-role-filter" data-role="accounts">💳 Accounts (${d})</button>
+          <button class="pchip user-role-filter" data-role="employee">💼 Employees (${p})</button>
           <button class="pchip user-role-filter" data-role="client">🤝 Clients (${h})</button>
         </div>
 
@@ -947,7 +1027,7 @@ import{l as ie,m as ne}from"./api-DJ1Zya1A.js";import{initProposalStudio as le}f
           </table>
         </div>
       </div>
-    </section>`,n(),t.querySelectorAll(".user-role-filter").forEach(r=>{r.onclick=()=>{t.querySelectorAll(".user-role-filter").forEach(S=>S.classList.remove("active")),r.classList.add("active"),e=r.dataset.role,n()}});const f=t.querySelector("#userSortSel");f&&(f.onchange=()=>{a=f.value,n()});const c=t.querySelector("#userSearchInp");c&&(c.oninput=()=>{i=c.value.trim(),n()});const b=t.querySelector("#addUserBtn");b&&(b.onclick=()=>te(null))}function te(t){const s=!t;t=t||{name:"",email:"",role:"employee",personnelId:"",clientId:"",active:!0};const e=t.role,a=openModal(`<h3>${s?"Add":"Edit"} User</h3>
+    </section>`,n(),t.querySelectorAll(".user-role-filter").forEach(o=>{o.onclick=()=>{t.querySelectorAll(".user-role-filter").forEach(w=>w.classList.remove("active")),o.classList.add("active"),e=o.dataset.role,n()}});const b=t.querySelector("#userSortSel");b&&(b.onchange=()=>{a=b.value,n()});const c=t.querySelector("#userSearchInp");c&&(c.oninput=()=>{i=c.value.trim(),n()});const f=t.querySelector("#addUserBtn");f&&(f.onclick=()=>oe(null))}function oe(t){const s=!t;t=t||{name:"",email:"",role:"employee",personnelId:"",clientId:"",active:!0};const e=t.role,a=openModal(`<h3>${s?"Add":"Edit"} User</h3>
     <div class="field-row">
       <div class="field"><label>Name</label><input id="uName" type="text" value="${escapeHtml(t.name)}"></div>
       <div class="field"><label>Email</label><input id="uEmail" type="email" value="${escapeHtml(t.email)}"></div>
@@ -963,7 +1043,7 @@ import{l as ie,m as ne}from"./api-DJ1Zya1A.js";import{initProposalStudio as le}f
     </div>
     <div class="field" id="uLinkWrap"></div>
     <div class="field"><label><input type="checkbox" id="uActive" ${t.active?"checked":""}> Active</label></div>
-    <div class="modal-actions"><button class="btn ghost" id="mCancel">Cancel</button><button class="btn gold" id="mSave">Save</button></div>`);function i(){const n=a.querySelector("#uRole").value,o=a.querySelector("#uLinkWrap");n==="employee"?o.innerHTML=`<label>Linked Personnel</label><select id="uPersonnel"><option value="">Select…</option>${g.personnel.map(u=>`<option value="${u._id}" ${t.personnelId&&(t.personnelId._id||t.personnelId)===u._id?"selected":""}>${escapeHtml(u.name)}</option>`).join("")}</select>`:n==="client"?o.innerHTML=`<label>Linked Client</label><select id="uClient"><option value="">Select…</option>${g.clients.map(u=>`<option value="${u._id}" ${t.clientId&&(t.clientId._id||t.clientId)===u._id?"selected":""}>${escapeHtml(u.name)}</option>`).join("")}</select>`:o.innerHTML=""}a.querySelector("#uRole").onchange=i,i(),a.querySelector("#mCancel").onclick=()=>a.remove(),a.querySelector("#mSave").onclick=async()=>{const n=a.querySelector("#uRole").value,o={name:a.querySelector("#uName").value.trim(),email:a.querySelector("#uEmail").value.trim(),role:n,active:a.querySelector("#uActive").checked,personnelId:n==="employee"&&a.querySelector("#uPersonnel")?.value||null,clientId:n==="client"&&a.querySelector("#uClient")?.value||null},u=a.querySelector("#uPassword").value;if(u&&(o.password=u),!o.name||!o.email){flashToast("Name and email required",!0);return}if(s&&!u){flashToast("Password required for a new user",!0);return}try{s?await apiPost("/users",o):await apiPut("/users/"+t._id,o),a.remove(),y()}catch(x){flashToast(x.message,!0)}}}let U={date:new Date().toISOString().slice(0,10),personnelId:"all",filter:"all",search:""};async function Ee(t){oe(t,{userRole:"superadmin",currentUser:D})}window.adminToggleTask=async function(t){try{await apiPatch("/tasks/"+t+"/toggle",{}),flashToast("Task status updated"),y()}catch(s){flashToast(s.message,!0)}};window.adminEditTask=async function(t){try{const e=(await apiGet("/tasks")).find(i=>i._id===t);if(!e)return;const a=prompt("Edit task title:",e.title);a!==null&&a.trim()&&(await apiPut("/tasks/"+t,{title:a.trim()}),flashToast("Task updated"),y())}catch(s){flashToast(s.message,!0)}};window.adminQuickAddTaskForEmp=async function(t){const s=prompt("Enter task for this employee:");if(!(!s||!s.trim()))try{const e=new Date,a=`${e.getFullYear()}-${String(e.getMonth()+1).padStart(2,"0")}-${String(e.getDate()).padStart(2,"0")}`,i=U.date==="all"?a:U.date;await apiPost("/tasks",{title:s.trim(),personnelId:t,dueDate:i,priority:"Medium",status:"Todo"}),flashToast("Task assigned to employee! ✍️"),y()}catch(e){flashToast(e.message,!0)}};window.adminDeleteTask=async function(t){if(confirm("Delete this task?"))try{await apiDelete("/tasks/"+t),flashToast("Task deleted"),y()}catch(s){flashToast(s.message,!0)}};window.adminClearCompletedTasks=async function(t){if(confirm("Delete completed tasks?"))try{const s={date:U.date};t&&t!=="all"?s.personnelId=t:U.personnelId&&U.personnelId;const e=await apiPost("/tasks/clear-completed",s);flashToast(`Completed tasks deleted (${e.deletedCount||0} removed) 🗑️`),y()}catch(s){flashToast(s.message,!0)}};window.addEventListener("ci360:dataUpdated",()=>{const t=document.activeElement,s=t&&(t.tagName==="INPUT"||t.tagName==="TEXTAREA"||t.isContentEditable),e=document.querySelector(".modal-bg, .modal-backdrop, #jobModal, .modal");!s&&!e&&v.tab!=="logjob"&&y(!0)});ce();function qe(t,s,e,a="denial"){const i=a==="revision",n=openModal(`
+    <div class="modal-actions"><button class="btn ghost" id="mCancel">Cancel</button><button class="btn gold" id="mSave">Save</button></div>`);function i(){const n=a.querySelector("#uRole").value,l=a.querySelector("#uLinkWrap");n==="employee"?l.innerHTML=`<label>Linked Personnel</label><select id="uPersonnel"><option value="">Select…</option>${y.personnel.map(d=>`<option value="${d._id}" ${t.personnelId&&(t.personnelId._id||t.personnelId)===d._id?"selected":""}>${escapeHtml(d.name)}</option>`).join("")}</select>`:n==="client"?l.innerHTML=`<label>Linked Client</label><select id="uClient"><option value="">Select…</option>${y.clients.map(d=>`<option value="${d._id}" ${t.clientId&&(t.clientId._id||t.clientId)===d._id?"selected":""}>${escapeHtml(d.name)}</option>`).join("")}</select>`:l.innerHTML=""}a.querySelector("#uRole").onchange=i,i(),a.querySelector("#mCancel").onclick=()=>a.remove(),a.querySelector("#mSave").onclick=async()=>{const n=a.querySelector("#uRole").value,l={name:a.querySelector("#uName").value.trim(),email:a.querySelector("#uEmail").value.trim(),role:n,active:a.querySelector("#uActive").checked,personnelId:n==="employee"&&a.querySelector("#uPersonnel")?.value||null,clientId:n==="client"&&a.querySelector("#uClient")?.value||null},d=a.querySelector("#uPassword").value;if(d&&(l.password=d),!l.name||!l.email){flashToast("Name and email required",!0);return}if(s&&!d){flashToast("Password required for a new user",!0);return}try{s?await apiPost("/users",l):await apiPut("/users/"+t._id,l),a.remove(),x()}catch(p){flashToast(p.message,!0)}}}let j={date:new Date().toISOString().slice(0,10),personnelId:"all",filter:"all",search:""};async function Oe(t){he(t,{userRole:"superadmin",currentUser:T})}window.adminToggleTask=async function(t){try{await apiPatch("/tasks/"+t+"/toggle",{}),flashToast("Task status updated"),x()}catch(s){flashToast(s.message,!0)}};window.adminEditTask=async function(t){try{const e=(await apiGet("/tasks")).find(i=>i._id===t);if(!e)return;const a=prompt("Edit task title:",e.title);a!==null&&a.trim()&&(await apiPut("/tasks/"+t,{title:a.trim()}),flashToast("Task updated"),x())}catch(s){flashToast(s.message,!0)}};window.adminQuickAddTaskForEmp=async function(t){const s=prompt("Enter task for this employee:");if(!(!s||!s.trim()))try{const e=new Date,a=`${e.getFullYear()}-${String(e.getMonth()+1).padStart(2,"0")}-${String(e.getDate()).padStart(2,"0")}`,i=j.date==="all"?a:j.date;await apiPost("/tasks",{title:s.trim(),personnelId:t,dueDate:i,priority:"Medium",status:"Todo"}),flashToast("Task assigned to employee! ✍️"),x()}catch(e){flashToast(e.message,!0)}};window.adminDeleteTask=async function(t){if(confirm("Delete this task?"))try{await apiDelete("/tasks/"+t),flashToast("Task deleted"),x()}catch(s){flashToast(s.message,!0)}};window.adminClearCompletedTasks=async function(t){if(confirm("Delete completed tasks?"))try{const s={date:j.date};t&&t!=="all"?s.personnelId=t:j.personnelId&&j.personnelId;const e=await apiPost("/tasks/clear-completed",s);flashToast(`Completed tasks deleted (${e.deletedCount||0} removed) 🗑️`),x()}catch(s){flashToast(s.message,!0)}};window.addEventListener("ci360:dataUpdated",()=>{const t=document.activeElement,s=t&&(t.tagName==="INPUT"||t.tagName==="TEXTAREA"||t.isContentEditable),e=document.querySelector(".modal-bg, .modal-backdrop, #jobModal, .modal");!s&&!e&&g.tab!=="logjob"&&x(!0)});Se();function Je(t,s,e,a="denial"){const i=a==="revision",n=openModal(`
     <div style="margin-bottom:14px">
       <div style="font-size:18px;font-weight:800;color:var(--text-1);margin-bottom:4px;display:flex;align-items:center;gap:8px">
         <span>🔁</span> Resubmit Work to Client for Approval
@@ -997,4 +1077,4 @@ import{l as ie,m as ne}from"./api-DJ1Zya1A.js";import{initProposalStudio as le}f
       <button class="btn ghost" id="mAdmResubCancel">Cancel</button>
       <button class="btn gold" id="mAdmResubConfirm" style="font-weight:700">🔁 Resubmit to Client for Approval</button>
     </div>
-  `);bindAttachmentUploader("mAdmResubUp"),n.querySelector("#mAdmResubCancel").onclick=()=>n.remove(),n.querySelector("#mAdmResubConfirm").onclick=async()=>{const o=n.querySelector("#mAdmResubNotes").value.trim(),u=n.querySelector("#mAdmResubUrl").value.trim(),x=getUploaderAttachments("mAdmResubUp"),h=n.querySelector("#mAdmResubConfirm");h.disabled=!0,h.textContent="Resubmitting…";try{await apiPost(`/jobs/${t}/resubmit`,{notes:o,url:u,deliverables:x}),flashToast("Job resubmitted to client for re-approval! 🔁🎉"),n.remove(),y()}catch(f){flashToast(f.message,!0),h.disabled=!1,h.textContent="🔁 Resubmit to Client for Approval"}}}
+  `);bindAttachmentUploader("mAdmResubUp"),n.querySelector("#mAdmResubCancel").onclick=()=>n.remove(),n.querySelector("#mAdmResubConfirm").onclick=async()=>{const l=n.querySelector("#mAdmResubNotes").value.trim(),d=n.querySelector("#mAdmResubUrl").value.trim(),p=getUploaderAttachments("mAdmResubUp"),h=n.querySelector("#mAdmResubConfirm");h.disabled=!0,h.textContent="Resubmitting…";try{await apiPost(`/jobs/${t}/resubmit`,{notes:l,url:d,deliverables:p}),flashToast("Job resubmitted to client for re-approval! 🔁🎉"),n.remove(),x()}catch(b){flashToast(b.message,!0),h.disabled=!1,h.textContent="🔁 Resubmit to Client for Approval"}}}

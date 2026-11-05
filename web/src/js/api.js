@@ -1474,6 +1474,119 @@ export function initNotificationBell() {
   } catch (e) { }
 }
 
+/* ── SIDEBAR NAVIGATION CONFIGURATION ────────────────────────── */
+export const DEFAULT_SIDEBAR_CONFIG = {
+  admin: [
+    { key: 'dashboard', label: 'Dashboard', icon: '📊', visible: true, category: 'Core' },
+    { key: 'dailytasks', label: 'Daily Planner', icon: '📅', visible: true, category: 'Productivity' },
+    { key: 'tickets', label: 'Support Tickets', icon: '🎫', visible: true, category: 'Support' },
+    { key: 'billing_dashboard', label: 'Accounts & Billing', icon: '💳', href: '/accounts', visible: true, category: 'Finance' },
+    { key: 'proposals', label: 'Proposal Studio', icon: '📜', visible: true, category: 'Sales' },
+    { key: 'teambonding', label: 'Team Chat & Lounge', icon: '💬', visible: true, category: 'Collaboration' },
+    { key: 'logjob', label: 'Log a Job', icon: '➕', visible: true, category: 'Operations' },
+    { key: 'jobs', label: 'All Jobs', icon: '📁', visible: true, category: 'Operations' },
+    { key: 'byclient', label: 'By Client', icon: '💼', visible: true, category: 'Analytics' },
+    { key: 'byperson', label: 'By Person', icon: '👥', visible: true, category: 'Analytics' },
+    { key: 'accounts', label: 'Client Roster', icon: '🏢', visible: true, category: 'Directory' },
+    { key: 'targets', label: 'Targets', icon: '🎯', visible: true, category: 'Management' },
+    { key: 'salaries', label: 'Salaries', icon: '💰', visible: true, superadminOnly: true, category: 'Finance' },
+    { key: 'users', label: 'Users', icon: '👤', visible: true, superadminOnly: true, category: 'System' },
+    { key: 'manage', label: 'Settings & Manage', icon: '⚙️', visible: true, locked: true, category: 'System' }
+  ],
+  employee: [
+    { key: 'dashboard', label: 'Overview Dashboard', icon: '📊', visible: true, category: 'Core' },
+    { key: 'myjobs', label: 'My Jobs', icon: '📋', visible: true, category: 'Operations' },
+    { key: 'dailytasks', label: 'Daily Planner', icon: '📅', visible: true, category: 'Productivity' },
+    { key: 'tickets', label: 'Support Tickets', icon: '🎫', visible: true, category: 'Support' },
+    { key: 'proposals', label: 'Proposal Studio', icon: '📜', visible: true, category: 'Sales' },
+    { key: 'teambonding', label: 'Team Chat & Lounge', icon: '💬', visible: true, category: 'Collaboration' },
+    { key: 'targets', label: 'My Targets', icon: '🎯', visible: true, category: 'Productivity' },
+    { key: 'accounts_redirect', label: 'Accounts Dashboard 💰', icon: '💳', visible: true, category: 'Finance' },
+    { key: 'settings', label: 'Settings', icon: '⚙️', visible: true, category: 'System' }
+  ],
+  accounts: [
+    { key: 'overview', label: 'Overview', icon: '📊', visible: true, category: 'Core' },
+    { key: 'invoices', label: 'Invoices', icon: '📄', visible: true, category: 'Billing' },
+    { key: 'payments', label: 'Payments', icon: '💵', visible: true, category: 'Billing' },
+    { key: 'receivables', label: 'Pending & Receivables', icon: '⏳', visible: true, category: 'Billing' },
+    { key: 'billing', label: 'Billing Profiles', icon: '📑', visible: true, category: 'Billing' },
+    { key: 'tally', label: 'TallyPrime Silver', icon: '🏛️', visible: true, category: 'Integration' },
+    { key: 'settings', label: 'Settings', icon: '⚙️', visible: true, category: 'System' }
+  ],
+  client: [
+    { key: 'dashboard', label: 'Overview Dashboard', icon: '📊', visible: true, category: 'Core' },
+    { key: 'jobs', label: 'All Jobs Logged', icon: '📋', visible: true, category: 'Operations' },
+    { key: 'logjob', label: 'Log a Job', icon: '➕', visible: true, category: 'Operations' },
+    { key: 'delivered', label: 'Work Delivered', icon: '📦', visible: true, category: 'Deliverables' },
+    { key: 'proposals', label: 'Proposals & Scope', icon: '📜', visible: true, category: 'Contracts' },
+    { key: 'billing', label: 'Billing & Invoices', icon: '💳', visible: true, category: 'Finance' },
+    { key: 'team', label: 'Our Team', icon: '👥', visible: true, category: 'Personnel' },
+    { key: 'settings', label: 'Settings', icon: '⚙️', visible: true, category: 'System' }
+  ]
+};
+
+export function getCachedSidebarNavConfig() {
+  try {
+    const cached = localStorage.getItem('ci360_nav_config');
+    if (cached) {
+      const parsed = JSON.parse(cached);
+      if (parsed && typeof parsed === 'object') return parsed;
+    }
+  } catch (e) {}
+  return DEFAULT_SIDEBAR_CONFIG;
+}
+
+export async function fetchSidebarNavConfig() {
+  try {
+    const res = await apiGet('/settings/navigation');
+    if (res && res.config) {
+      localStorage.setItem('ci360_nav_config', JSON.stringify(res.config));
+      return res.config;
+    }
+  } catch (e) {}
+  return getCachedSidebarNavConfig();
+}
+
+export async function saveSidebarNavConfig(config) {
+  const res = await apiPut('/settings/navigation', { config });
+  if (res && res.config) {
+    localStorage.setItem('ci360_nav_config', JSON.stringify(res.config));
+  }
+  return res;
+}
+
+export async function resetSidebarNavConfig() {
+  const res = await apiPost('/settings/navigation/reset', {});
+  if (res && res.config) {
+    localStorage.setItem('ci360_nav_config', JSON.stringify(res.config));
+  }
+  return res;
+}
+
+export function filterTabsForDashboard(dashboardRole, tabs, isSuperadmin = false) {
+  if (!Array.isArray(tabs)) return [];
+  const config = getCachedSidebarNavConfig();
+  const dashConfig = config[dashboardRole] || DEFAULT_SIDEBAR_CONFIG[dashboardRole] || [];
+  const hiddenKeys = new Set(
+    dashConfig
+      .filter(item => item.visible === false)
+      .map(item => item.key)
+  );
+
+  return tabs.filter(t => {
+    // Locked items are always visible
+    if (t.locked || (dashboardRole === 'admin' && t.key === 'manage')) return true;
+
+    // Superadmin baseline restrictions
+    if (!isSuperadmin && (t.key === 'salaries' || t.key === 'users')) return false;
+
+    // Filter hidden tabs
+    if (hiddenKeys.has(t.key)) return false;
+
+    return true;
+  });
+}
+
 /* ── APP SHELL ───────────────────────────────────────────────── */
 export function renderAppShell({ user, currentRole, activeTab, tabs, title, subtitle }) {
   const initial = user && user.name ? user.name.charAt(0).toUpperCase() : 'U';
@@ -1488,8 +1601,12 @@ export function renderAppShell({ user, currentRole, activeTab, tabs, title, subt
           : (user && user.role ? user.role.toUpperCase() : 'User');
   const userName = user && user.name ? user.name : 'User';
   const userEmail = user && user.email ? user.email : (user && user.username ? user.username : '');
-  const hasLogJobTab = tabs && tabs.some(t => t.key === 'logjob');
-  const activeTabObj = tabs && tabs.find(t => t.key === activeTab);
+
+  const isSuperadmin = user && user.role === 'superadmin';
+  const dashKey = (currentRole === 'superadmin' || currentRole === 'admin') ? 'admin' : currentRole;
+  const effectiveTabs = filterTabsForDashboard(dashKey, tabs || [], isSuperadmin);
+  const hasLogJobTab = effectiveTabs && effectiveTabs.some(t => t.key === 'logjob');
+  const activeTabObj = (effectiveTabs && effectiveTabs.find(t => t.key === activeTab)) || (tabs && tabs.find(t => t.key === activeTab));
   const pageTitle = title || (activeTabObj && activeTabObj.label) || 'Dashboard';
 
   // Mobile Bottom Navigation Mapping
@@ -1633,6 +1750,14 @@ export function renderAppShell({ user, currentRole, activeTab, tabs, title, subt
     ];
   }
 
+  // Filter mobile bottom nav items if customizer hid corresponding tabs
+  if (mobileNavItems && mobileNavItems.length) {
+    const config = getCachedSidebarNavConfig();
+    const dashItems = config[dashKey] || DEFAULT_SIDEBAR_CONFIG[dashKey] || [];
+    const hiddenSet = new Set(dashItems.filter(i => i.visible === false).map(i => i.key));
+    mobileNavItems = mobileNavItems.filter(m => m.isMore || !hiddenSet.has(m.key));
+  }
+
   const isSidebarCollapsed = typeof localStorage !== 'undefined' && localStorage.getItem('ci360_sidebar_collapsed') === 'true';
 
   return `
@@ -1653,7 +1778,7 @@ export function renderAppShell({ user, currentRole, activeTab, tabs, title, subt
         </div>
         <nav class="sidebar-nav" role="navigation" aria-label="Main navigation">
           <div class="nav-group-label">Navigation</div>
-          ${tabs.map(t => t.href ? `
+          ${effectiveTabs.map(t => t.href ? `
             <a href="${t.href}" class="sidebar-item ${activeTab === t.key ? 'active' : ''}" data-tab="${t.key}" aria-current="${activeTab === t.key ? 'page' : 'false'}" style="text-decoration:none;">
               <span class="icon">${t.icon || '📌'}</span>
               <span>${t.label}</span>
@@ -1784,6 +1909,11 @@ export function renderAppShell({ user, currentRole, activeTab, tabs, title, subt
                       <span class="tud-icon">🛡️</span>
                       <span class="tud-label">Session: Verified</span>
                     </div>
+                    ${user && user.role === 'superadmin' ? `
+                    <button type="button" class="tud-item" id="tudSidebarConfigBtn" role="menuitem">
+                      <span class="tud-icon">🧭</span>
+                      <span class="tud-label">Customize Sidebars</span>
+                    </button>` : ''}
                   </div>
                   <div class="tud-divider"></div>
                   <div class="tud-items">
@@ -1828,6 +1958,17 @@ export function renderAppShell({ user, currentRole, activeTab, tabs, title, subt
                       </div>
                     </button>
 
+                    ${user && user.role === 'superadmin' ? `
+                    <button type="button" class="tud-mobile-item" id="tudMobileSidebarConfigBtn" role="menuitem">
+                      <div class="tmi-left">
+                        <span style="font-size:16px">🧭</span>
+                        <span>Customize Sidebars</span>
+                      </div>
+                      <div class="tmi-right">
+                        <svg class="tmi-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+                      </div>
+                    </button>` : ''}
+
                     <button type="button" class="tud-mobile-item" id="tudMobileHelpBtn" role="menuitem">
                       <div class="tmi-left">
                         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
@@ -1838,6 +1979,17 @@ export function renderAppShell({ user, currentRole, activeTab, tabs, title, subt
                       </div>
                     </button>
 
+                    ${user && user.role === 'superadmin' ? `
+                    <button type="button" class="tud-mobile-item" id="tudMobileSidebarConfigBtn" role="menuitem">
+                      <div class="tmi-left">
+                        <span style="font-size:16px">🧭</span>
+                        <span>Customize Sidebars</span>
+                      </div>
+                      <div class="tmi-right">
+                        <svg class="tmi-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+                      </div>
+                    </button>` : ''}
+
                     <button type="button" class="tud-mobile-item danger" id="logoutBtnMobile" role="menuitem">
                       <div class="tmi-left">
                         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
@@ -1847,6 +1999,17 @@ export function renderAppShell({ user, currentRole, activeTab, tabs, title, subt
                         <svg class="tmi-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
                       </div>
                     </button>
+
+                    ${user && user.role === 'superadmin' ? `
+                    <button type="button" class="tud-mobile-item" id="tudMobileSidebarConfigBtn" role="menuitem">
+                      <div class="tmi-left">
+                        <span style="font-size:16px">🧭</span>
+                        <span>Customize Sidebars</span>
+                      </div>
+                      <div class="tmi-right">
+                        <svg class="tmi-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+                      </div>
+                    </button>` : ''}
                   </div>
                 </div>
               </div>
@@ -2091,6 +2254,34 @@ export function bindAppShellEvents(onTabChange) {
         onTabChange(settingsTab.dataset.tab);
       } else {
         openAccountSettingsModal();
+      }
+    };
+  }
+
+  const tudSidebarConfigBtn = document.getElementById('tudSidebarConfigBtn');
+  if (tudSidebarConfigBtn) {
+    tudSidebarConfigBtn.onclick = (e) => {
+      e.stopPropagation();
+      const userDropdown = document.getElementById('topbarUserDropdown');
+      if (userDropdown) userDropdown.style.display = 'none';
+      if (typeof window.ci360NavTab === 'function') {
+        window.ci360NavTab('manage', { section: 'sidebar-customizer' });
+      } else {
+        window.location.href = '/admin?tab=manage&section=sidebar-customizer';
+      }
+    };
+  }
+
+  const tudMobileSidebarConfigBtn = document.getElementById('tudMobileSidebarConfigBtn');
+  if (tudMobileSidebarConfigBtn) {
+    tudMobileSidebarConfigBtn.onclick = (e) => {
+      e.stopPropagation();
+      const userDropdown = document.getElementById('topbarUserDropdown');
+      if (userDropdown) userDropdown.style.display = 'none';
+      if (typeof window.ci360NavTab === 'function') {
+        window.ci360NavTab('manage', { section: 'sidebar-customizer' });
+      } else {
+        window.location.href = '/admin?tab=manage&section=sidebar-customizer';
       }
     };
   }
@@ -3620,7 +3811,9 @@ Object.assign(window, {
   renderKpiCard, renderBadge, renderProgressBar, renderPeriodPicker,
   renderSupportTicketSection, bindSupportTicketSection,
   renderAccountSettingsCard, bindAccountSettingsCard, openAccountSettingsModal,
-  getArchive, restoreArchiveItem, purgeArchiveItem, purgeAllArchive
+  getArchive, restoreArchiveItem, purgeArchiveItem, purgeAllArchive,
+  DEFAULT_SIDEBAR_CONFIG, getCachedSidebarNavConfig, fetchSidebarNavConfig,
+  saveSidebarNavConfig, resetSidebarNavConfig, filterTabsForDashboard
 });
 
 

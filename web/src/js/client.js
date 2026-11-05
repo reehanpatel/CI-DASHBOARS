@@ -1,4 +1,4 @@
-import { renderAccountSettingsCard, bindAccountSettingsCard } from './api.js';
+import { renderAccountSettingsCard, bindAccountSettingsCard, fetchSidebarNavConfig, filterTabsForDashboard } from './api.js';
 
 let user = null;
 let servicesCache = [];
@@ -12,7 +12,11 @@ async function boot(){
   user = requireAuth('client');
   if(!user) return;
   try{
-    const [services, personnel] = await Promise.all([apiGet('/services'), apiGet('/personnel')]);
+    const [services, personnel] = await Promise.all([
+      apiGet('/services'),
+      apiGet('/personnel'),
+      fetchSidebarNavConfig().catch(() => {})
+    ]);
     servicesCache = services;
     personnelCache = personnel.filter(p=>p.status==='active');
   }catch(e){ servicesCache=[]; personnelCache=[]; }
@@ -32,13 +36,17 @@ const CLIENT_TABS = [
 
 function render(){
   const app = document.getElementById('app');
-  const activeTabObj = CLIENT_TABS.find(t=>t.key===ui.tab) || CLIENT_TABS[0];
+  const visibleTabs = filterTabsForDashboard('client', CLIENT_TABS, false);
+  const activeTabObj = visibleTabs.find(t=>t.key===ui.tab) || visibleTabs[0];
+  if (!visibleTabs.some(t => t.key === ui.tab)) {
+    ui.tab = activeTabObj ? activeTabObj.key : 'dashboard';
+  }
   app.innerHTML = renderAppShell({
     user,
     currentRole: 'client',
     activeTab: ui.tab,
-    tabs: CLIENT_TABS,
-    title: activeTabObj.label,
+    tabs: visibleTabs,
+    title: activeTabObj ? activeTabObj.label : 'Overview Dashboard',
     subtitle: 'Client Portal & Service Requests'
   });
   bindAppShellEvents((newTab)=>{ ui.tab = newTab; render(); });

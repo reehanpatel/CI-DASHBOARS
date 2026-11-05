@@ -2,7 +2,16 @@ import { initProposalStudio } from './proposals.js';
 import { initDailyPlanner } from './planner.js';
 import { initTeamBonding } from './teambonding.js';
 import { initSupportTickets } from './supporttickets.js';
-import { renderAccountSettingsCard, bindAccountSettingsCard } from './api.js';
+import {
+  renderAccountSettingsCard,
+  bindAccountSettingsCard,
+  fetchSidebarNavConfig,
+  getCachedSidebarNavConfig,
+  saveSidebarNavConfig,
+  resetSidebarNavConfig,
+  filterTabsForDashboard,
+  DEFAULT_SIDEBAR_CONFIG
+} from './api.js';
 
 let user = null;
 let cache = { personnel: [], clients: [], services: [], salaryGrades: [], salaryAssignments: [] };
@@ -10,12 +19,18 @@ let dash = null; // last /api/dashboard/admin response
 let ui = { tab: 'dashboard', period: 'month', jobsFilter: 'all' };
 let draft = { title: '', clientId: '', serviceIds: [], date: new Date().toISOString().slice(0, 10), completion: '', value: '', desc: '', assignments: [{ personId: '', percent: 100, hours: '' }, { personId: '', percent: 0, hours: '' }] };
 
+let customizerActiveDash = 'admin';
+let customizerSearch = '';
+let customizerNavConfig = null;
 
 async function boot() {
   initTheme();
   user = requireAuth('superadmin');
   if (!user) return;
-  await refreshCache();
+  await Promise.all([
+    refreshCache(),
+    fetchSidebarNavConfig().catch(() => {})
+  ]);
   render();
 }
 
@@ -60,11 +75,11 @@ const ADMIN_TABS = [
 function render() {
   const app = document.getElementById('app');
   const isSuperadmin = user?.role === 'superadmin';
-  const visibleTabs = ADMIN_TABS.filter(t => {
-    if (!isSuperadmin && (t.key === 'salaries' || t.key === 'users')) return false;
-    return true;
-  });
+  const visibleTabs = filterTabsForDashboard('admin', ADMIN_TABS, isSuperadmin);
   const activeTabObj = visibleTabs.find(t => t.key === ui.tab) || visibleTabs[0];
+  if (!visibleTabs.some(t => t.key === ui.tab)) {
+    ui.tab = activeTabObj ? activeTabObj.key : 'dashboard';
+  }
   app.innerHTML = renderAppShell({
     user,
     currentRole: isSuperadmin ? 'superadmin' : 'admin',
@@ -1666,6 +1681,9 @@ function tabManage(c) {
   })}
       </div>
 
+      <!-- Superadmin Sidebar Navigation Customizer Card -->
+      ${user?.role === 'superadmin' ? renderSidebarCustomizerCard() : ''}
+
       <!-- Personnel Section -->
       <div class="card" style="margin-bottom:24px">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:12px">
@@ -1792,6 +1810,290 @@ function tabManage(c) {
 
   // Bind Admin Account Settings
   bindAccountSettingsCard(c);
+
+  // Bind Superadmin Sidebar Customizer
+  if (user?.role === 'superadmin') {
+    bindSidebarCustomizerCard(c);
+  }
+
+  // Smooth scroll if navigated directly from topbar menu
+  if (ui.tabParams?.section === 'sidebar-customizer') {
+    setTimeout(() => {
+      const el = document.getElementById('sidebarCustomizerCard');
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        el.style.outline = '2px solid #6366f1';
+        setTimeout(() => el.style.outline = '', 1500);
+      }
+    }, 120);
+  }
+}
+
+function getCustomizerConfig() {
+  if (!customizerNavConfig) {
+    customizerNavConfig = JSON.parse(JSON.stringify(getCachedSidebarNavConfig()));
+  }
+  return customizerNavConfig;
+}
+
+function renderSidebarCustomizerCard() {
+  const cfg = getCustomizerConfig();
+  const currentDash = customizerActiveDash || 'admin';
+  const dashList = [
+    { key: 'admin', label: '🛡️ Admin Dashboard' },
+    { key: 'employee', label: '💼 Employee Workspace' },
+    { key: 'accounts', label: '💳 Accounts & Billing' },
+    { key: 'client', label: '🏢 Client Portal' }
+  ];
+
+  return `
+    <div class="nav-customizer-card" id="sidebarCustomizerCard">
+      <div class="nav-customizer-header">
+        <div>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;flex-wrap:wrap;">
+            <span style="font-size:22px;">🧭</span>
+            <h3 style="font-size:18px;font-weight:800;color:var(--text-1);margin:0;">Dashboard Sidebar Customizer</h3>
+            <span class="badge purple" style="font-size:11px;padding:3px 8px;font-weight:700;">👑 Superadmin Control</span>
+          </div>
+          <p style="font-size:13px;color:var(--text-3);margin:0;">
+            Customize which sidebar tabs and modules appear across all dashboards. Changes apply across all user accounts in real time.
+          </p>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <button type="button" class="btn ghost small" id="resetNavDefaultsBtn" title="Reset all sidebars back to default visibility">
+            ↺ Reset to Defaults
+          </button>
+          <button type="button" class="btn gold small" id="saveNavConfigBtn">
+            💾 Save Navigation Settings
+          </button>
+        </div>
+      </div>
+
+      <!-- Dashboard Selector Pills -->
+      <div class="nav-customizer-dash-tabs" id="navDashTabs">
+        ${dashList.map(d => {
+          const items = cfg[d.key] || [];
+          const visCount = items.filter(i => i.visible !== false).length;
+          const totCount = items.length;
+          return `
+            <button type="button" class="nav-dash-pill ${currentDash === d.key ? 'active' : ''}" data-dash="${d.key}">
+              <span>${d.label}</span>
+              <span class="pill-counter" id="dashCount_${d.key}">${visCount} / ${totCount} visible</span>
+            </button>
+          `;
+        }).join('')}
+      </div>
+
+      <!-- Toolbar -->
+      <div class="nav-customizer-toolbar">
+        <div style="display:flex;align-items:center;gap:10px;flex:1;max-width:320px;">
+          <input type="text" class="input small" id="navItemSearch" placeholder="Search sidebar tabs..." value="${escapeHtml(customizerSearch)}" style="width:100%;">
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <button type="button" class="btn ghost small" id="navShowAllBtn">Show All</button>
+          <button type="button" class="btn ghost small" id="navHideAllBtn">Hide Optional</button>
+        </div>
+      </div>
+
+      <!-- Nav Items Grid -->
+      <div class="nav-items-grid" id="navItemsGrid">
+        ${renderNavItemsGrid(currentDash, cfg, customizerSearch)}
+      </div>
+    </div>
+  `;
+}
+
+function renderNavItemsGrid(dash, cfg, query = '') {
+  const items = cfg[dash] || [];
+  const q = (query || '').toLowerCase().trim();
+  const filtered = items.filter(item => {
+    if (!q) return true;
+    return (item.label && item.label.toLowerCase().includes(q)) ||
+           (item.key && item.key.toLowerCase().includes(q)) ||
+           (item.category && item.category.toLowerCase().includes(q));
+  });
+
+  if (filtered.length === 0) {
+    return `<div style="grid-column:1/-1;text-align:center;padding:32px;color:var(--text-3);font-size:13px;">No sidebar tabs found matching "${escapeHtml(query)}"</div>`;
+  }
+
+  return filtered.map(item => {
+    const isVis = item.visible !== false;
+    const isLocked = !!item.locked;
+    return `
+      <div class="nav-item-card ${isVis ? '' : 'is-hidden'}" data-dash="${dash}" data-key="${item.key}">
+        <div style="display:flex;align-items:center;gap:12px;overflow:hidden;">
+          <div style="font-size:22px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.06);border-radius:8px;flex-shrink:0;">
+            ${item.icon || '📌'}
+          </div>
+          <div style="min-width:0;">
+            <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+              <strong style="font-size:13px;color:var(--text-1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(item.label)}</strong>
+              ${isLocked ? `<span class="badge blue" style="font-size:10px;padding:1px 5px;">🔒 System Required</span>` : ''}
+              ${item.superadminOnly ? `<span class="badge purple" style="font-size:10px;padding:1px 5px;">👑 Superadmin</span>` : ''}
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;margin-top:2px;">
+              <span style="font-size:11px;color:var(--text-3);font-family:monospace;">${item.key}</span>
+              ${item.category ? `<span style="font-size:11px;color:var(--text-3);">· ${item.category}</span>` : ''}
+              <span class="nav-status-indicator" style="font-size:11px;font-weight:600;color:${isVis ? '#10b981' : '#f59e0b'};">
+                ${isVis ? '● Visible' : '○ Hidden'}
+              </span>
+            </div>
+          </div>
+        </div>
+        <div style="margin-left:12px;flex-shrink:0;">
+          <label class="ci-switch" title="${isLocked ? 'Cannot hide settings to prevent lockout' : (isVis ? 'Click to hide from sidebar' : 'Click to show in sidebar')}">
+            <input type="checkbox" class="nav-toggle-input" data-dash="${dash}" data-key="${item.key}" ${isVis ? 'checked' : ''} ${isLocked ? 'disabled' : ''}>
+            <span class="ci-switch-slider"></span>
+          </label>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function updateNavPillCounters() {
+  const cfg = getCustomizerConfig();
+  ['admin', 'employee', 'accounts', 'client'].forEach(d => {
+    const el = document.getElementById(`dashCount_${d}`);
+    if (el) {
+      const items = cfg[d] || [];
+      const vis = items.filter(i => i.visible !== false).length;
+      el.textContent = `${vis} / ${items.length} visible`;
+    }
+  });
+}
+
+function bindSidebarCustomizerCard(c) {
+  const card = document.getElementById('sidebarCustomizerCard');
+  if (!card) return;
+
+  // Tab switching
+  card.querySelectorAll('.nav-dash-pill').forEach(pill => {
+    pill.onclick = () => {
+      customizerActiveDash = pill.dataset.dash;
+      card.querySelectorAll('.nav-dash-pill').forEach(p => p.classList.toggle('active', p === pill));
+      const grid = document.getElementById('navItemsGrid');
+      if (grid) {
+        grid.innerHTML = renderNavItemsGrid(customizerActiveDash, getCustomizerConfig(), customizerSearch);
+        bindGridInputs();
+      }
+    };
+  });
+
+  // Search input
+  const searchInput = document.getElementById('navItemSearch');
+  if (searchInput) {
+    searchInput.oninput = (e) => {
+      customizerSearch = e.target.value;
+      const grid = document.getElementById('navItemsGrid');
+      if (grid) {
+        grid.innerHTML = renderNavItemsGrid(customizerActiveDash, getCustomizerConfig(), customizerSearch);
+        bindGridInputs();
+      }
+    };
+  }
+
+  // Show All / Hide All
+  const showAllBtn = document.getElementById('navShowAllBtn');
+  if (showAllBtn) {
+    showAllBtn.onclick = () => {
+      const cfg = getCustomizerConfig();
+      const items = cfg[customizerActiveDash] || [];
+      items.forEach(i => { i.visible = true; });
+      const grid = document.getElementById('navItemsGrid');
+      if (grid) {
+        grid.innerHTML = renderNavItemsGrid(customizerActiveDash, cfg, customizerSearch);
+        bindGridInputs();
+      }
+      updateNavPillCounters();
+    };
+  }
+
+  const hideAllBtn = document.getElementById('navHideAllBtn');
+  if (hideAllBtn) {
+    hideAllBtn.onclick = () => {
+      const cfg = getCustomizerConfig();
+      const items = cfg[customizerActiveDash] || [];
+      items.forEach(i => {
+        if (!i.locked) i.visible = false;
+      });
+      const grid = document.getElementById('navItemsGrid');
+      if (grid) {
+        grid.innerHTML = renderNavItemsGrid(customizerActiveDash, cfg, customizerSearch);
+        bindGridInputs();
+      }
+      updateNavPillCounters();
+    };
+  }
+
+  // Toggle input handler
+  function bindGridInputs() {
+    card.querySelectorAll('.nav-toggle-input').forEach(chk => {
+      chk.onchange = () => {
+        const d = chk.dataset.dash;
+        const k = chk.dataset.key;
+        const cfg = getCustomizerConfig();
+        const item = (cfg[d] || []).find(i => i.key === k);
+        if (item && !item.locked) {
+          item.visible = chk.checked;
+          const parentCard = chk.closest('.nav-item-card');
+          if (parentCard) {
+            parentCard.classList.toggle('is-hidden', !chk.checked);
+            const statusInd = parentCard.querySelector('.nav-status-indicator');
+            if (statusInd) {
+              statusInd.textContent = chk.checked ? '● Visible' : '○ Hidden';
+              statusInd.style.color = chk.checked ? '#10b981' : '#f59e0b';
+            }
+          }
+          updateNavPillCounters();
+        }
+      };
+    });
+  }
+  bindGridInputs();
+
+  // Save Navigation Settings
+  const saveBtn = document.getElementById('saveNavConfigBtn');
+  if (saveBtn) {
+    saveBtn.onclick = async () => {
+      saveBtn.disabled = true;
+      saveBtn.textContent = 'Saving…';
+      try {
+        const cfg = getCustomizerConfig();
+        await saveSidebarNavConfig(cfg);
+        flashToast('✅ Dashboard sidebar settings saved! Updating navigation...', 'success');
+        // Re-render admin app shell immediately so active sidebar updates in real time
+        setTimeout(() => {
+          render();
+        }, 300);
+      } catch (err) {
+        flashToast('❌ Failed to save navigation: ' + err.message, 'error');
+        saveBtn.disabled = false;
+        saveBtn.textContent = '💾 Save Navigation Settings';
+      }
+    };
+  }
+
+  // Reset to Defaults
+  const resetBtn = document.getElementById('resetNavDefaultsBtn');
+  if (resetBtn) {
+    resetBtn.onclick = async () => {
+      if (!confirm('Are you sure you want to reset sidebar navigation for all dashboards back to default visible tabs?')) return;
+      resetBtn.disabled = true;
+      resetBtn.textContent = 'Resetting…';
+      try {
+        const res = await resetSidebarNavConfig();
+        customizerNavConfig = JSON.parse(JSON.stringify(res.config || DEFAULT_SIDEBAR_CONFIG));
+        flashToast('↺ Sidebar navigation reset to defaults!', 'success');
+        render();
+      } catch (err) {
+        flashToast('❌ Failed to reset navigation: ' + err.message, 'error');
+        resetBtn.disabled = false;
+        resetBtn.textContent = '↺ Reset to Defaults';
+      }
+    };
+  }
 }
 
 const tabSettings = tabManage;

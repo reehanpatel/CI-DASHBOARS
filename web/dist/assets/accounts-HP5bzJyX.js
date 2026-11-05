@@ -1,16 +1,16 @@
-import{r as le,b as ie,e as i,i as se,a as oe,c as B,f as p,d as A,g as N,h as g,j as ee,k as Z,l as de,m as re,o as j}from"./api-DJ1Zya1A.js";let E=null,D="overview",G=[],ce=[];const Y=[{key:"overview",label:"Overview",icon:"📊"},{key:"invoices",label:"Invoices",icon:"📄"},{key:"payments",label:"Payments",icon:"💵"},{key:"receivables",label:"Pending & Receivables",icon:"⏳"},{key:"billing",label:"Billing Profiles",icon:"📑"},{key:"tally",label:"TallyPrime Silver",icon:"🏛️"},{key:"settings",label:"Settings",icon:"⚙️"}];async function pe(){if(se(),E=oe("accounts"),!!E){try{const[l,m]=await Promise.all([B("/clients").catch(()=>[]),B("/services").catch(()=>[])]);G=l||[],ce=m||[]}catch(l){console.error("Failed to load initial metadata",l)}q()}}function q(){const l=document.getElementById("app"),m=Y.find(e=>e.key===D)||Y[0];l.innerHTML=le({user:E,currentRole:"accounts",activeTab:D,tabs:Y,title:m.label,subtitle:"Billing, Invoicing & Receivables Intelligence"}),ie(e=>{D=e,q()}),C()}window.ci360NavTab=l=>{D=l,q()};async function C(){const l=document.getElementById("content");if(l){l.innerHTML=`
+import{f as ae,r as le,b as ie,e as i,i as se,a as oe,c as P,d as de,g as v,h as B,j as N,k as g,l as J,m as K,n as re,o as ce,p as j}from"./api-Bgw38Yen.js";let E=null,A="overview",G=[],pe=[];const ve=[{key:"overview",label:"Overview",icon:"📊"},{key:"invoices",label:"Invoices",icon:"📄"},{key:"payments",label:"Payments",icon:"💵"},{key:"receivables",label:"Pending & Receivables",icon:"⏳"},{key:"billing",label:"Billing Profiles",icon:"📑"},{key:"tally",label:"TallyPrime Silver",icon:"🏛️"},{key:"settings",label:"Settings",icon:"⚙️"}];async function me(){if(se(),E=oe("accounts"),!!E){try{const[l,p]=await Promise.all([P("/clients").catch(()=>[]),P("/services").catch(()=>[]),de().catch(()=>{})]);G=l||[],pe=p||[]}catch(l){console.error("Failed to load initial metadata",l)}q()}}function q(){const l=document.getElementById("app"),p=ae("accounts",ve,!1),e=p.find(t=>t.key===A)||p[0];p.some(t=>t.key===A)||(A=e?e.key:"overview"),l.innerHTML=le({user:E,currentRole:"accounts",activeTab:A,tabs:p,title:e?e.label:"Overview",subtitle:"Billing, Invoicing & Receivables Intelligence"}),ie(t=>{A=t,q()}),C()}window.ci360NavTab=l=>{A=l,q()};async function C(){const l=document.getElementById("content");if(l){l.innerHTML=`
     <div style="display:flex;justify-content:center;align-items:center;min-height:240px">
       <div class="spinner"></div>
-    </div>`;try{D==="overview"?await me(l):D==="invoices"?await ye(l):D==="payments"?await be(l):D==="receivables"?await xe(l):D==="billing"?await he(l):D==="tally"?await we(l):D==="settings"&&ve(l)}catch(m){l.innerHTML=`
+    </div>`;try{A==="overview"?await ue(l):A==="invoices"?await ge(l):A==="payments"?await fe(l):A==="receivables"?await he(l):A==="billing"?await we(l):A==="tally"?await Ce(l):A==="settings"&&ye(l)}catch(p){l.innerHTML=`
       <div class="empty" style="padding:48px 24px">
         <h3 style="color:var(--s-red-text);margin-bottom:8px">Unable to load accounts data</h3>
-        <p style="color:var(--text-3);font-size:13px;margin-bottom:16px">${i(m.message)}</p>
+        <p style="color:var(--text-3);font-size:13px;margin-bottom:16px">${i(p.message)}</p>
         <button class="btn gold small" id="retryAccountsBtn">Retry</button>
-      </div>`;const e=document.getElementById("retryAccountsBtn");e&&(e.onclick=()=>C())}}}function ve(l){l.innerHTML=`
+      </div>`;const e=document.getElementById("retryAccountsBtn");e&&(e.onclick=()=>C())}}}function ye(l){l.innerHTML=`
     <div style="padding:8px 0 24px 0;">
-      ${de({title:"Accounts User Profile & Credentials",subtitle:"Manage your authorized financial management username, login email, and security password"})}
+      ${re({title:"Accounts User Profile & Credentials",subtitle:"Manage your authorized financial management username, login email, and security password"})}
     </div>
-  `,re(l)}async function me(l){const m=await B("/accounts/dashboard"),e=m.metrics||{},t=m.aging||{current:0,days31to60:0,days61to90:0,days90plus:0},s=t.current+t.days31to60+t.days61to90+t.days90plus||1,v=Math.round(t.current/s*100),a=Math.round(t.days31to60/s*100),o=Math.round(t.days61to90/s*100),b=Math.max(0,100-(v+a+o)),x=E&&(/ekta/i.test(E.name)||/ekta/i.test(E.email)),c=E&&(E.role==="superadmin"||E.role==="admin"),h=x||c||E&&E.personnelId;l.innerHTML=`
+  `,ce(l)}async function ue(l){const p=await P("/accounts/dashboard"),e=p.metrics||{},t=p.aging||{current:0,days31to60:0,days61to90:0,days90plus:0},s=t.current+t.days31to60+t.days61to90+t.days90plus||1,m=Math.round(t.current/s*100),a=Math.round(t.days31to60/s*100),o=Math.round(t.days61to90/s*100),b=Math.max(0,100-(m+a+o)),x=E&&(/ekta/i.test(E.name)||/ekta/i.test(E.email)),c=E&&(E.role==="superadmin"||E.role==="admin"),h=x||c||E&&E.personnelId;l.innerHTML=`
     <section class="block">
       <div class="accounts-header-banner">
         <div class="accounts-header-title">
@@ -48,7 +48,7 @@ import{r as le,b as ie,e as i,i as se,a as oe,c as B,f as p,d as A,g as N,h as g
             <span class="kpi-label">Total Invoiced</span>
             <div class="kpi-icon" style="background:var(--brand-50);color:var(--brand-600)">📄</div>
           </div>
-          <div class="kpi-value">${p(e.totalBilled||0)}</div>
+          <div class="kpi-value">${v(e.totalBilled||0)}</div>
           <div style="font-size:11.5px;color:var(--text-3);margin-top:6px;display:flex;align-items:center;gap:6px">
             <span class="badge blue">${e.invoiceCounts?e.invoiceCounts.total:0} Total</span>
             <span>All active billing</span>
@@ -60,7 +60,7 @@ import{r as le,b as ie,e as i,i as se,a as oe,c as B,f as p,d as A,g as N,h as g
             <span class="kpi-label">Payments Collected</span>
             <div class="kpi-icon" style="background:var(--s-green-bg);color:var(--green-600)">💵</div>
           </div>
-          <div class="kpi-value" style="color:var(--green-600)">${p(e.totalReceived||0)}</div>
+          <div class="kpi-value" style="color:var(--green-600)">${v(e.totalReceived||0)}</div>
           <div style="font-size:11.5px;color:var(--text-3);margin-top:6px;display:flex;align-items:center;gap:6px">
             <span class="badge green">${e.collectionRate||0}% Cleared</span>
             <span>of total billed</span>
@@ -72,7 +72,7 @@ import{r as le,b as ie,e as i,i as se,a as oe,c as B,f as p,d as A,g as N,h as g
             <span class="kpi-label">Total Pending Dues</span>
             <div class="kpi-icon" style="background:#FFFBEB;color:var(--amber-600)">⏳</div>
           </div>
-          <div class="kpi-value" style="color:var(--amber-600)">${p(e.totalPending||0)}</div>
+          <div class="kpi-value" style="color:var(--amber-600)">${v(e.totalPending||0)}</div>
           <div style="font-size:11.5px;color:var(--text-3);margin-top:6px;display:flex;align-items:center;gap:6px">
             <span class="badge amber">${(e.invoiceCounts?.partially_paid||0)+(e.invoiceCounts?.issued||0)} Invoices</span>
             <span>Awaiting full settlement</span>
@@ -84,7 +84,7 @@ import{r as le,b as ie,e as i,i as se,a as oe,c as B,f as p,d as A,g as N,h as g
             <span class="kpi-label">Overdue Amount</span>
             <div class="kpi-icon" style="background:var(--s-red-bg);color:var(--red-600)">🚨</div>
           </div>
-          <div class="kpi-value" style="color:var(--red-600)">${p(e.totalOverdue||0)}</div>
+          <div class="kpi-value" style="color:var(--red-600)">${v(e.totalOverdue||0)}</div>
           <div style="font-size:11.5px;color:var(--text-3);margin-top:6px;display:flex;align-items:center;gap:6px">
             <span class="badge red">${e.invoiceCounts?e.invoiceCounts.overdue:0} Overdue</span>
             <span>Past due date</span>
@@ -98,15 +98,15 @@ import{r as le,b as ie,e as i,i as se,a as oe,c as B,f as p,d as A,g as N,h as g
         <div class="card">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
             <h3 style="font-size:15px;font-weight:800;color:var(--text-1);margin:0">Receivables Aging Analysis</h3>
-            <span class="badge gold">${p(e.totalPending||0)} Pending</span>
+            <span class="badge gold">${v(e.totalPending||0)} Pending</span>
           </div>
           <div style="font-size:12px;color:var(--text-3);margin-bottom:8px">Visual distribution of pending receivables based on invoice due dates.</div>
           
           <div class="aging-bar-container">
-            <div class="aging-segment current" style="width:${v}%" title="0-30 Days: ${p(t.current)}"></div>
-            <div class="aging-segment days31to60" style="width:${a}%" title="31-60 Days: ${p(t.days31to60)}"></div>
-            <div class="aging-segment days61to90" style="width:${o}%" title="61-90 Days: ${p(t.days61to90)}"></div>
-            <div class="aging-segment days90plus" style="width:${b}%" title="90+ Days: ${p(t.days90plus)}"></div>
+            <div class="aging-segment current" style="width:${m}%" title="0-30 Days: ${v(t.current)}"></div>
+            <div class="aging-segment days31to60" style="width:${a}%" title="31-60 Days: ${v(t.days31to60)}"></div>
+            <div class="aging-segment days61to90" style="width:${o}%" title="61-90 Days: ${v(t.days61to90)}"></div>
+            <div class="aging-segment days90plus" style="width:${b}%" title="90+ Days: ${v(t.days90plus)}"></div>
           </div>
 
           <div class="aging-legend">
@@ -114,28 +114,28 @@ import{r as le,b as ie,e as i,i as se,a as oe,c as B,f as p,d as A,g as N,h as g
               <div class="aging-dot" style="background:var(--green-500)"></div>
               <div>
                 <div style="font-size:11px;color:var(--text-3);font-weight:600">0 - 30 Days</div>
-                <div style="font-size:13px;font-weight:800;color:var(--text-1)">${p(t.current)}</div>
+                <div style="font-size:13px;font-weight:800;color:var(--text-1)">${v(t.current)}</div>
               </div>
             </div>
             <div class="aging-legend-item">
               <div class="aging-dot" style="background:var(--amber-500)"></div>
               <div>
                 <div style="font-size:11px;color:var(--text-3);font-weight:600">31 - 60 Days</div>
-                <div style="font-size:13px;font-weight:800;color:var(--text-1)">${p(t.days31to60)}</div>
+                <div style="font-size:13px;font-weight:800;color:var(--text-1)">${v(t.days31to60)}</div>
               </div>
             </div>
             <div class="aging-legend-item">
               <div class="aging-dot" style="background:#F97316"></div>
               <div>
                 <div style="font-size:11px;color:var(--text-3);font-weight:600">61 - 90 Days</div>
-                <div style="font-size:13px;font-weight:800;color:var(--text-1)">${p(t.days61to90)}</div>
+                <div style="font-size:13px;font-weight:800;color:var(--text-1)">${v(t.days61to90)}</div>
               </div>
             </div>
             <div class="aging-legend-item">
               <div class="aging-dot" style="background:var(--red-500)"></div>
               <div>
                 <div style="font-size:11px;color:var(--text-3);font-weight:600">90+ Days</div>
-                <div style="font-size:13px;font-weight:800;color:var(--red-600)">${p(t.days90plus)}</div>
+                <div style="font-size:13px;font-weight:800;color:var(--red-600)">${v(t.days90plus)}</div>
               </div>
             </div>
           </div>
@@ -150,17 +150,17 @@ import{r as le,b as ie,e as i,i as se,a as oe,c as B,f as p,d as A,g as N,h as g
           <div style="font-size:12px;color:var(--text-3);margin-bottom:14px">Comparison of total invoiced amounts vs. cash collected.</div>
 
           <div style="display:flex;flex-direction:column;gap:12px">
-            ${(m.monthlyTrend||[]).map(r=>{const $=Math.max(...(m.monthlyTrend||[]).map(I=>Math.max(I.billed,I.collected)),1e3),T=Math.round(r.billed/$*100),d=Math.round(r.collected/$*100);return`
+            ${(p.monthlyTrend||[]).map(r=>{const $=Math.max(...(p.monthlyTrend||[]).map(I=>Math.max(I.billed,I.collected)),1e3),T=Math.round(r.billed/$*100),d=Math.round(r.collected/$*100);return`
                 <div style="display:flex;align-items:center;gap:12px;font-size:12px">
                   <span style="width:50px;font-weight:700;color:var(--text-2)">${r.month}</span>
                   <div style="flex:1;display:flex;flex-direction:column;gap:4px">
                     <div style="display:flex;align-items:center;gap:8px">
-                      <div style="height:7px;background:var(--brand-500);width:${Math.max(4,T)}%;border-radius:4px" title="Billed: ${p(r.billed)}"></div>
-                      <span style="font-size:10.5px;color:var(--text-3);min-width:60px">${p(r.billed)}</span>
+                      <div style="height:7px;background:var(--brand-500);width:${Math.max(4,T)}%;border-radius:4px" title="Billed: ${v(r.billed)}"></div>
+                      <span style="font-size:10.5px;color:var(--text-3);min-width:60px">${v(r.billed)}</span>
                     </div>
                     <div style="display:flex;align-items:center;gap:8px">
-                      <div style="height:7px;background:var(--green-500);width:${Math.max(4,d)}%;border-radius:4px" title="Collected: ${p(r.collected)}"></div>
-                      <span style="font-size:10.5px;color:var(--green-600);font-weight:600;min-width:60px">${p(r.collected)}</span>
+                      <div style="height:7px;background:var(--green-500);width:${Math.max(4,d)}%;border-radius:4px" title="Collected: ${v(r.collected)}"></div>
+                      <span style="font-size:10.5px;color:var(--green-600);font-weight:600;min-width:60px">${v(r.collected)}</span>
                     </div>
                   </div>
                 </div>`}).join("")||'<div class="empty" style="padding:16px">No trend data yet</div>'}
@@ -194,15 +194,15 @@ import{r as le,b as ie,e as i,i as se,a as oe,c as B,f as p,d as A,g as N,h as g
                 </tr>
               </thead>
               <tbody>
-                ${(m.topClientsPending||[]).slice(0,5).map(r=>`
+                ${(p.topClientsPending||[]).slice(0,5).map(r=>`
                   <tr>
                     <td style="padding-left:20px">
                       <strong>${i(r.clientName)}</strong>
                       <div style="font-size:11px;color:var(--text-3)">${r.invoiceCount} invoices</div>
                     </td>
-                    <td class="num" style="font-weight:700;color:var(--amber-600)">${p(r.pendingAmount)}</td>
+                    <td class="num" style="font-weight:700;color:var(--amber-600)">${v(r.pendingAmount)}</td>
                     <td class="num">
-                      ${r.overdueAmount>0?`<span class="badge red">${p(r.overdueAmount)}</span>`:'<span class="muted">—</span>'}
+                      ${r.overdueAmount>0?`<span class="badge red">${v(r.overdueAmount)}</span>`:'<span class="muted">—</span>'}
                     </td>
                     <td class="num" style="padding-right:20px">
                       <button class="btn green small quick-collect-btn" data-client-id="${r.clientId}" data-client-name="${i(r.clientName)}" data-pending="${r.pendingAmount}">
@@ -236,14 +236,14 @@ import{r as le,b as ie,e as i,i as se,a as oe,c as B,f as p,d as A,g as N,h as g
                 </tr>
               </thead>
               <tbody>
-                ${(m.recentInvoices||[]).slice(0,5).map(r=>`
+                ${(p.recentInvoices||[]).slice(0,5).map(r=>`
                   <tr>
                     <td style="padding-left:20px">
                       <strong>${i(r.invoiceNumber)}</strong>
-                      <div style="font-size:11px;color:var(--text-3)">${A(r.issueDate)}</div>
+                      <div style="font-size:11px;color:var(--text-3)">${B(r.issueDate)}</div>
                     </td>
                     <td>${i(r.clientName)}</td>
-                    <td class="num" style="font-weight:700">${p(r.totalAmount)}</td>
+                    <td class="num" style="font-weight:700">${v(r.totalAmount)}</td>
                     <td>${U(r.status)}</td>
                     <td class="num" style="padding-right:20px">
                       <button class="btn ghost small view-invoice-btn" data-id="${r._id}">View</button>
@@ -254,9 +254,9 @@ import{r as le,b as ie,e as i,i as se,a as oe,c as B,f as p,d as A,g as N,h as g
           </div>
         </div>
       </div>
-    </section>`,document.getElementById("quickNewInvoiceBtn").onclick=()=>te(),document.getElementById("quickRecordPaymentBtn").onclick=()=>O();const y=document.getElementById("seedDemoAccountsBtn");y&&(y.onclick=async()=>{if(confirm("Load realistic demo invoices, payments, and billing profiles?"))try{y.disabled=!0,y.textContent="Loading demo data…";const r=await N("/accounts/seed-demo",{});g(r.message||"Demo data loaded successfully!"),C()}catch(r){g(r.message,!0),y.disabled=!1,y.textContent="⚡ Seed Demo Data"}});const f=document.getElementById("clearAllAccountsDataBtn");f&&(f.onclick=async()=>{if(confirm(`⚠️ WARNING: Are you sure you want to delete ALL invoices and ALL payments in CI360 Accounts?
+    </section>`,document.getElementById("quickNewInvoiceBtn").onclick=()=>ee(),document.getElementById("quickRecordPaymentBtn").onclick=()=>O();const y=document.getElementById("seedDemoAccountsBtn");y&&(y.onclick=async()=>{if(confirm("Load realistic demo invoices, payments, and billing profiles?"))try{y.disabled=!0,y.textContent="Loading demo data…";const r=await N("/accounts/seed-demo",{});g(r.message||"Demo data loaded successfully!"),C()}catch(r){g(r.message,!0),y.disabled=!1,y.textContent="⚡ Seed Demo Data"}});const f=document.getElementById("clearAllAccountsDataBtn");f&&(f.onclick=async()=>{if(confirm(`⚠️ WARNING: Are you sure you want to delete ALL invoices and ALL payments in CI360 Accounts?
 
-This will permanently wipe all transactions. Client billing profiles will remain intact.`))try{f.disabled=!0,f.textContent="Clearing…";const r=await N("/accounts/clear-all",{});g(r.message||"Accounts data cleared successfully"),C()}catch(r){g(r.message,!0),f.disabled=!1,f.innerHTML="<span>🗑️ Delete All Data</span>"}}),document.getElementById("viewAllReceivablesBtn").onclick=()=>{D="receivables",q()},document.getElementById("viewAllInvoicesBtn").onclick=()=>{D="invoices",q()},l.querySelectorAll(".quick-collect-btn").forEach(r=>{r.onclick=()=>{O({clientId:r.dataset.clientId,clientName:r.dataset.clientName,suggestedAmount:Number(r.dataset.pending)||0})}}),l.querySelectorAll(".view-invoice-btn").forEach(r=>{r.onclick=()=>ne(r.dataset.id)})}function U(l){return l==="paid"?'<span class="badge green">Paid</span>':l==="partially_paid"?'<span class="badge blue">Partially Paid</span>':l==="overdue"?'<span class="badge red">Overdue</span>':l==="issued"?'<span class="badge amber">Issued</span>':l==="draft"?'<span class="badge gray">Draft</span>':l==="cancelled"?'<span class="badge red">Cancelled</span>':`<span class="badge">${i(l||"—")}</span>`}let Q="all",H="",_="";async function ye(l){let m=`?status=${encodeURIComponent(Q)}`;H&&(m+=`&clientId=${encodeURIComponent(H)}`),_&&(m+=`&search=${encodeURIComponent(_)}`);const e=await B("/accounts/invoices"+m),t=e.reduce((n,w)=>n+(w.totalAmount||0),0),s=e.reduce((n,w)=>n+(w.amountPaid||0),0),v=e.reduce((n,w)=>n+(w.pendingAmount||0),0);l.innerHTML=`
+This will permanently wipe all transactions. Client billing profiles will remain intact.`))try{f.disabled=!0,f.textContent="Clearing…";const r=await N("/accounts/clear-all",{});g(r.message||"Accounts data cleared successfully"),C()}catch(r){g(r.message,!0),f.disabled=!1,f.innerHTML="<span>🗑️ Delete All Data</span>"}}),document.getElementById("viewAllReceivablesBtn").onclick=()=>{A="receivables",q()},document.getElementById("viewAllInvoicesBtn").onclick=()=>{A="invoices",q()},l.querySelectorAll(".quick-collect-btn").forEach(r=>{r.onclick=()=>{O({clientId:r.dataset.clientId,clientName:r.dataset.clientName,suggestedAmount:Number(r.dataset.pending)||0})}}),l.querySelectorAll(".view-invoice-btn").forEach(r=>{r.onclick=()=>te(r.dataset.id)})}function U(l){return l==="paid"?'<span class="badge green">Paid</span>':l==="partially_paid"?'<span class="badge blue">Partially Paid</span>':l==="overdue"?'<span class="badge red">Overdue</span>':l==="issued"?'<span class="badge amber">Issued</span>':l==="draft"?'<span class="badge gray">Draft</span>':l==="cancelled"?'<span class="badge red">Cancelled</span>':`<span class="badge">${i(l||"—")}</span>`}let Y="all",H="",_="";async function ge(l){let p=`?status=${encodeURIComponent(Y)}`;H&&(p+=`&clientId=${encodeURIComponent(H)}`),_&&(p+=`&search=${encodeURIComponent(_)}`);const e=await P("/accounts/invoices"+p),t=e.reduce((n,w)=>n+(w.totalAmount||0),0),s=e.reduce((n,w)=>n+(w.amountPaid||0),0),m=e.reduce((n,w)=>n+(w.pendingAmount||0),0);l.innerHTML=`
     <section class="block">
       <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:16px">
         <div>
@@ -272,13 +272,13 @@ This will permanently wipe all transactions. Client billing profiles will remain
       <!-- Quick Summary Pills -->
       <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:18px">
         <div style="background:var(--bg-card);border:1px solid var(--border-sm);padding:8px 14px;border-radius:var(--r-sm);font-size:12px">
-          <span style="color:var(--text-3)">Total Billed:</span> <strong>${p(t)}</strong>
+          <span style="color:var(--text-3)">Total Billed:</span> <strong>${v(t)}</strong>
         </div>
         <div style="background:var(--bg-card);border:1px solid var(--border-sm);padding:8px 14px;border-radius:var(--r-sm);font-size:12px">
-          <span style="color:var(--text-3)">Collected:</span> <strong style="color:var(--green-600)">${p(s)}</strong>
+          <span style="color:var(--text-3)">Collected:</span> <strong style="color:var(--green-600)">${v(s)}</strong>
         </div>
         <div style="background:var(--bg-card);border:1px solid var(--border-sm);padding:8px 14px;border-radius:var(--r-sm);font-size:12px">
-          <span style="color:var(--text-3)">Pending:</span> <strong style="color:var(--amber-600)">${p(v)}</strong>
+          <span style="color:var(--text-3)">Pending:</span> <strong style="color:var(--amber-600)">${v(m)}</strong>
         </div>
       </div>
 
@@ -296,7 +296,7 @@ This will permanently wipe all transactions. Client billing profiles will remain
           </div>
           <div style="display:flex;gap:6px;flex-wrap:wrap">
             ${["all","issued","partially_paid","paid","overdue","draft"].map(n=>`
-              <button class="btn ghost small invoice-status-filter ${Q===n?"active gold":""}" data-status="${n}">
+              <button class="btn ghost small invoice-status-filter ${Y===n?"active gold":""}" data-status="${n}">
                 ${n==="all"?"All":n.replace("_"," ").replace(/\b\w/g,w=>w.toUpperCase())}
               </button>`).join("")}
           </div>
@@ -355,12 +355,12 @@ This will permanently wipe all transactions. Client billing profiles will remain
                   </td>
                   <td><strong>${i(n.clientName)}</strong></td>
                   <td><span class="badge">${n.billingType?n.billingType.toUpperCase():"RETAINER"}</span></td>
-                  <td style="font-size:12.5px">${A(n.issueDate)}</td>
-                  <td style="font-size:12.5px;color:${n.status==="overdue"?"var(--red-600)":"inherit"}">${A(n.dueDate)}</td>
-                  <td class="num" style="font-weight:700">${p(n.totalAmount)}</td>
-                  <td class="num" style="color:var(--green-600);font-weight:600">${p(n.amountPaid)}</td>
+                  <td style="font-size:12.5px">${B(n.issueDate)}</td>
+                  <td style="font-size:12.5px;color:${n.status==="overdue"?"var(--red-600)":"inherit"}">${B(n.dueDate)}</td>
+                  <td class="num" style="font-weight:700">${v(n.totalAmount)}</td>
+                  <td class="num" style="color:var(--green-600);font-weight:600">${v(n.amountPaid)}</td>
                   <td class="num" style="font-weight:700;color:${n.pendingAmount>0?"var(--amber-600)":"var(--text-4)"}">
-                    ${p(n.pendingAmount)}
+                    ${v(n.pendingAmount)}
                   </td>
                   <td>${U(n.status)}</td>
                   <td class="num" style="padding-right:22px;white-space:nowrap">
@@ -377,14 +377,14 @@ This will permanently wipe all transactions. Client billing profiles will remain
           </table>
         </div>
       </div>
-    </section>`;const a=document.getElementById("invoiceSearchInput");let o=null;a.oninput=()=>{clearTimeout(o),o=setTimeout(()=>{_=a.value.trim(),C()},300)},document.getElementById("invoiceClientFilter").onchange=n=>{H=n.target.value,C()},l.querySelectorAll(".invoice-status-filter").forEach(n=>{n.onclick=()=>{Q=n.dataset.status,C()}}),document.getElementById("newInvoiceBtn").onclick=()=>te();const b=document.getElementById("selectAllInvoicesCb"),x=document.getElementById("thSelectAllInvoices"),c=document.getElementById("invoicesDeselectAllBtn"),h=document.getElementById("invoicesSelectedCounter"),y=document.getElementById("deleteSelectedInvoicesBtn"),f=document.getElementById("deleteInvoicesSelectedCount"),r=document.getElementById("deleteAllInvoicesBtn"),$=l.querySelectorAll(".invoice-select-cb");function T(){const n=Array.from($).filter(k=>k.checked),w=n.length;h&&(h.textContent=`${w} of ${e.length} selected`),f&&(f.textContent=w),w>0?(y&&(y.style.display="inline-flex"),c&&(c.style.display="inline-flex")):(y&&(y.style.display="none"),c&&(c.style.display="none"));const R=$.length>0&&n.length===$.length;b&&(b.checked=R),x&&(x.checked=R)}function d(n){$.forEach(w=>{w.checked=n}),T()}b&&(b.onchange=n=>d(n.target.checked)),x&&(x.onchange=n=>d(n.target.checked)),c&&(c.onclick=()=>d(!1)),$.forEach(n=>{n.onchange=()=>T()}),y&&(y.onclick=async()=>{const n=Array.from($).filter(w=>w.checked).map(w=>w.dataset.id);if(n.length&&confirm(`Are you sure you want to permanently delete the ${n.length} selected invoice(s)? This cannot be undone.`))try{y.disabled=!0,y.textContent="Deleting…";const w=await N("/accounts/invoices/bulk-delete",{ids:n});g(w.message||`Deleted ${n.length} invoice(s)`),C()}catch(w){g(w.message,!0),y.disabled=!1,T()}}),r&&(r.onclick=async()=>{if(!e.length){g("No invoices to delete",!0);return}if(confirm(`⚠️ DANGER: Are you sure you want to delete ALL ${e.length} invoices?
+    </section>`;const a=document.getElementById("invoiceSearchInput");let o=null;a.oninput=()=>{clearTimeout(o),o=setTimeout(()=>{_=a.value.trim(),C()},300)},document.getElementById("invoiceClientFilter").onchange=n=>{H=n.target.value,C()},l.querySelectorAll(".invoice-status-filter").forEach(n=>{n.onclick=()=>{Y=n.dataset.status,C()}}),document.getElementById("newInvoiceBtn").onclick=()=>ee();const b=document.getElementById("selectAllInvoicesCb"),x=document.getElementById("thSelectAllInvoices"),c=document.getElementById("invoicesDeselectAllBtn"),h=document.getElementById("invoicesSelectedCounter"),y=document.getElementById("deleteSelectedInvoicesBtn"),f=document.getElementById("deleteInvoicesSelectedCount"),r=document.getElementById("deleteAllInvoicesBtn"),$=l.querySelectorAll(".invoice-select-cb");function T(){const n=Array.from($).filter(k=>k.checked),w=n.length;h&&(h.textContent=`${w} of ${e.length} selected`),f&&(f.textContent=w),w>0?(y&&(y.style.display="inline-flex"),c&&(c.style.display="inline-flex")):(y&&(y.style.display="none"),c&&(c.style.display="none"));const R=$.length>0&&n.length===$.length;b&&(b.checked=R),x&&(x.checked=R)}function d(n){$.forEach(w=>{w.checked=n}),T()}b&&(b.onchange=n=>d(n.target.checked)),x&&(x.onchange=n=>d(n.target.checked)),c&&(c.onclick=()=>d(!1)),$.forEach(n=>{n.onchange=()=>T()}),y&&(y.onclick=async()=>{const n=Array.from($).filter(w=>w.checked).map(w=>w.dataset.id);if(n.length&&confirm(`Are you sure you want to permanently delete the ${n.length} selected invoice(s)? This cannot be undone.`))try{y.disabled=!0,y.textContent="Deleting…";const w=await N("/accounts/invoices/bulk-delete",{ids:n});g(w.message||`Deleted ${n.length} invoice(s)`),C()}catch(w){g(w.message,!0),y.disabled=!1,T()}}),r&&(r.onclick=async()=>{if(!e.length){g("No invoices to delete",!0);return}if(confirm(`⚠️ DANGER: Are you sure you want to delete ALL ${e.length} invoices?
 
-This will permanently remove all invoice records and unlink their payment records. This cannot be undone.`))try{r.disabled=!0,r.textContent="Deleting all…";const n=await N("/accounts/invoices/bulk-delete",{deleteAll:!0});g(n.message||"All invoices have been deleted."),C()}catch(n){g(n.message,!0),r.disabled=!1,r.textContent=`💥 Delete All Invoices (${e.length})`}}),l.querySelectorAll(".view-invoice-btn").forEach(n=>{n.onclick=()=>ne(n.dataset.id)}),l.querySelectorAll(".edit-invoice-btn").forEach(n=>{n.onclick=()=>ge(n.dataset.id)}),l.querySelectorAll(".pay-invoice-btn").forEach(n=>{n.onclick=()=>{O({invoiceId:n.dataset.id,invoiceNumber:n.dataset.num,clientId:n.dataset.clientId,clientName:n.dataset.clientName,suggestedAmount:Number(n.dataset.pending)||0})}}),l.querySelectorAll(".delete-invoice-btn").forEach(n=>{n.onclick=async()=>{if(confirm("Are you sure you want to delete this invoice? This cannot be undone."))try{await ee("/accounts/invoices/"+n.dataset.id),g("Invoice deleted successfully"),C()}catch(w){g(w.message,!0)}}});const I=document.getElementById("exportInvoicesCsvBtn");I&&(I.onclick=()=>ue(e))}function ue(l){if(!l||!l.length){g("No invoices to export",!0);return}const m=["Invoice Number","Client Name","Type","Issue Date","Due Date","Subtotal","Tax (18%)","Total Amount","Amount Paid","Pending Amount","Status"],e=l.map(o=>[o.invoiceNumber,`"${(o.clientName||"").replace(/"/g,'""')}"`,o.billingType||"",A(o.issueDate),A(o.dueDate),o.subtotal||0,o.taxAmount||0,o.totalAmount||0,o.amountPaid||0,o.pendingAmount||0,o.status]),t=[m.join(","),...e.map(o=>o.join(","))].join(`
-`),s=new Blob([t],{type:"text/csv;charset=utf-8;"}),v=URL.createObjectURL(s),a=document.createElement("a");a.href=v,a.download=`CI360_Invoices_${new Date().toISOString().slice(0,10)}.csv`,a.click(),URL.revokeObjectURL(v),g("Invoices exported to CSV")}async function te(l){let m="INV-2026-0001";try{const b=await B("/accounts/next-invoice-number");b&&b.invoiceNumber&&(m=b.invoiceNumber)}catch{}const e=new Date;e.setDate(e.getDate()+15);const t=[{description:"Strategic Intelligence & Creative Retainer",serviceId:"",quantity:1,rate:5e4,amount:5e4}],s=j(`
+This will permanently remove all invoice records and unlink their payment records. This cannot be undone.`))try{r.disabled=!0,r.textContent="Deleting all…";const n=await N("/accounts/invoices/bulk-delete",{deleteAll:!0});g(n.message||"All invoices have been deleted."),C()}catch(n){g(n.message,!0),r.disabled=!1,r.textContent=`💥 Delete All Invoices (${e.length})`}}),l.querySelectorAll(".view-invoice-btn").forEach(n=>{n.onclick=()=>te(n.dataset.id)}),l.querySelectorAll(".edit-invoice-btn").forEach(n=>{n.onclick=()=>xe(n.dataset.id)}),l.querySelectorAll(".pay-invoice-btn").forEach(n=>{n.onclick=()=>{O({invoiceId:n.dataset.id,invoiceNumber:n.dataset.num,clientId:n.dataset.clientId,clientName:n.dataset.clientName,suggestedAmount:Number(n.dataset.pending)||0})}}),l.querySelectorAll(".delete-invoice-btn").forEach(n=>{n.onclick=async()=>{if(confirm("Are you sure you want to delete this invoice? This cannot be undone."))try{await J("/accounts/invoices/"+n.dataset.id),g("Invoice deleted successfully"),C()}catch(w){g(w.message,!0)}}});const I=document.getElementById("exportInvoicesCsvBtn");I&&(I.onclick=()=>be(e))}function be(l){if(!l||!l.length){g("No invoices to export",!0);return}const p=["Invoice Number","Client Name","Type","Issue Date","Due Date","Subtotal","Tax (18%)","Total Amount","Amount Paid","Pending Amount","Status"],e=l.map(o=>[o.invoiceNumber,`"${(o.clientName||"").replace(/"/g,'""')}"`,o.billingType||"",B(o.issueDate),B(o.dueDate),o.subtotal||0,o.taxAmount||0,o.totalAmount||0,o.amountPaid||0,o.pendingAmount||0,o.status]),t=[p.join(","),...e.map(o=>o.join(","))].join(`
+`),s=new Blob([t],{type:"text/csv;charset=utf-8;"}),m=URL.createObjectURL(s),a=document.createElement("a");a.href=m,a.download=`CI360_Invoices_${new Date().toISOString().slice(0,10)}.csv`,a.click(),URL.revokeObjectURL(m),g("Invoices exported to CSV")}async function ee(l){let p="INV-2026-0001";try{const b=await P("/accounts/next-invoice-number");b&&b.invoiceNumber&&(p=b.invoiceNumber)}catch{}const e=new Date;e.setDate(e.getDate()+15);const t=[{description:"Strategic Intelligence & Creative Retainer",serviceId:"",quantity:1,rate:5e4,amount:5e4}],s=j(`
     <div style="max-width:680px;width:100%">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
         <h3 style="margin:0;font-size:18px">Create New Invoice</h3>
-        <span class="badge gold" style="font-family:var(--font-heading);font-size:12px">${i(m)}</span>
+        <span class="badge gold" style="font-family:var(--font-heading);font-size:12px">${i(p)}</span>
       </div>
 
       <div class="field-row">
@@ -397,7 +397,7 @@ This will permanently remove all invoice records and unlink their payment record
         </div>
         <div class="field">
           <label>Invoice Number</label>
-          <input type="text" id="modalInvNum" value="${i(m)}" required>
+          <input type="text" id="modalInvNum" value="${i(p)}" required>
         </div>
       </div>
 
@@ -481,7 +481,7 @@ This will permanently remove all invoice records and unlink their payment record
         <button class="btn ghost" id="modalCancelInvBtn">Cancel</button>
         <button class="btn gold" id="modalSaveInvBtn">Create & Issue Invoice</button>
       </div>
-    </div>`);let v=[...t];function a(){const b=s.querySelector("#modalItemsContainer");b.innerHTML=v.map((x,c)=>`
+    </div>`);let m=[...t];function a(){const b=s.querySelector("#modalItemsContainer");b.innerHTML=m.map((x,c)=>`
       <div style="display:flex;gap:8px;align-items:center;background:var(--bg-card);border:1px solid var(--border-xs);padding:8px 10px;border-radius:var(--r-sm)">
         <div style="flex:2">
           <input type="text" class="item-desc" data-idx="${c}" placeholder="Description / Service" value="${i(x.description)}" style="margin:0;font-size:12px">
@@ -493,12 +493,12 @@ This will permanently remove all invoice records and unlink their payment record
           <input type="number" class="item-rate" data-idx="${c}" placeholder="Rate (₹)" min="0" value="${x.rate}" style="margin:0;font-size:12px;text-align:right">
         </div>
         <div style="width:90px;font-weight:700;font-size:12.5px;text-align:right">
-          ${p(x.amount)}
+          ${v(x.amount)}
         </div>
         <div>
-          ${v.length>1?`<button type="button" class="btn danger small remove-item-btn" data-idx="${c}" style="padding:4px 8px">✕</button>`:""}
+          ${m.length>1?`<button type="button" class="btn danger small remove-item-btn" data-idx="${c}" style="padding:4px 8px">✕</button>`:""}
         </div>
-      </div>`).join(""),b.querySelectorAll(".item-desc").forEach(x=>{x.oninput=c=>{v[Number(c.target.dataset.idx)].description=c.target.value}}),b.querySelectorAll(".item-qty").forEach(x=>{x.oninput=c=>{const h=Number(c.target.dataset.idx),y=Number(c.target.value)||1;v[h].quantity=y,v[h].amount=y*(v[h].rate||0),a(),o()}}),b.querySelectorAll(".item-rate").forEach(x=>{x.oninput=c=>{const h=Number(c.target.dataset.idx),y=Number(c.target.value)||0;v[h].rate=y,v[h].amount=(v[h].quantity||1)*y,a(),o()}}),b.querySelectorAll(".remove-item-btn").forEach(x=>{x.onclick=()=>{const c=Number(x.dataset.idx);v.splice(c,1),a(),o()}})}function o(){const b=v.reduce((r,$)=>r+(Number($.amount)||0),0),x=Number(s.querySelector("#modalCalcTaxRate").value)||0,c=Number(s.querySelector("#modalCalcDiscount").value)||0,h=Math.max(0,b-c),y=Math.round(h*(x/100)),f=h+y;s.querySelector("#modalCalcSubtotal").textContent=p(b),s.querySelector("#modalCalcTaxAmount").textContent=p(y),s.querySelector("#modalCalcTotal").textContent=p(f)}s.querySelector("#modalAddItemRowBtn").onclick=()=>{v.push({description:"",serviceId:"",quantity:1,rate:0,amount:0}),a(),o()},s.querySelector("#modalCalcTaxRate").onchange=o,s.querySelector("#modalCalcDiscount").oninput=o,s.querySelector("#modalInvClient").onchange=async b=>{const x=b.target.value;if(x)try{const c=await B("/accounts/billing-profiles").then(h=>h.find(y=>y.clientId===x)?.profile);c&&(c.retainerAmount&&v.length===1&&v[0].rate===5e4&&(v[0].rate=c.retainerAmount,v[0].amount=c.retainerAmount,a(),o()),c.gstin&&(s.querySelector("#modalInvGstin").value=c.gstin),c.billingType&&(s.querySelector("#modalInvType").value=c.billingType))}catch{}},a(),o(),s.querySelector("#modalCancelInvBtn").onclick=()=>s.remove(),s.querySelector("#modalSaveInvBtn").onclick=async()=>{const b=s.querySelector("#modalInvClient").value,x=s.querySelector("#modalInvNum").value.trim(),c=s.querySelector("#modalInvIssueDate").value,h=s.querySelector("#modalInvDueDate").value,y=s.querySelector("#modalInvType").value,f=Number(s.querySelector("#modalCalcTaxRate").value)||0,r=Number(s.querySelector("#modalCalcDiscount").value)||0,$=s.querySelector("#modalInvTerms").value.trim(),T=s.querySelector("#modalInvGstin").value.trim(),d=s.querySelector("#modalInvNotes").value.trim();if(!b){g("Please select a client",!0);return}if(!h){g("Please select a due date",!0);return}if(!v.length||!v.some(n=>n.amount>0)){g("Please provide at least one valid line item with an amount",!0);return}const I={clientId:b,invoiceNumber:x,issueDate:c,dueDate:h,billingType:y,items:v,discount:r,taxRate:f,paymentTerms:$,gstin:T,notes:d};try{const n=s.querySelector("#modalSaveInvBtn");n.disabled=!0,n.textContent="Generating Invoice…",await N("/accounts/invoices",I),g("Invoice created and issued successfully!"),s.remove(),C()}catch(n){g(n.message,!0),s.querySelector("#modalSaveInvBtn").disabled=!1,s.querySelector("#modalSaveInvBtn").textContent="Create & Issue Invoice"}}}async function ge(l){const e=(await B("/accounts/invoices/"+l)).invoice;if(!e)return;const t=j(`
+      </div>`).join(""),b.querySelectorAll(".item-desc").forEach(x=>{x.oninput=c=>{m[Number(c.target.dataset.idx)].description=c.target.value}}),b.querySelectorAll(".item-qty").forEach(x=>{x.oninput=c=>{const h=Number(c.target.dataset.idx),y=Number(c.target.value)||1;m[h].quantity=y,m[h].amount=y*(m[h].rate||0),a(),o()}}),b.querySelectorAll(".item-rate").forEach(x=>{x.oninput=c=>{const h=Number(c.target.dataset.idx),y=Number(c.target.value)||0;m[h].rate=y,m[h].amount=(m[h].quantity||1)*y,a(),o()}}),b.querySelectorAll(".remove-item-btn").forEach(x=>{x.onclick=()=>{const c=Number(x.dataset.idx);m.splice(c,1),a(),o()}})}function o(){const b=m.reduce((r,$)=>r+(Number($.amount)||0),0),x=Number(s.querySelector("#modalCalcTaxRate").value)||0,c=Number(s.querySelector("#modalCalcDiscount").value)||0,h=Math.max(0,b-c),y=Math.round(h*(x/100)),f=h+y;s.querySelector("#modalCalcSubtotal").textContent=v(b),s.querySelector("#modalCalcTaxAmount").textContent=v(y),s.querySelector("#modalCalcTotal").textContent=v(f)}s.querySelector("#modalAddItemRowBtn").onclick=()=>{m.push({description:"",serviceId:"",quantity:1,rate:0,amount:0}),a(),o()},s.querySelector("#modalCalcTaxRate").onchange=o,s.querySelector("#modalCalcDiscount").oninput=o,s.querySelector("#modalInvClient").onchange=async b=>{const x=b.target.value;if(x)try{const c=await P("/accounts/billing-profiles").then(h=>h.find(y=>y.clientId===x)?.profile);c&&(c.retainerAmount&&m.length===1&&m[0].rate===5e4&&(m[0].rate=c.retainerAmount,m[0].amount=c.retainerAmount,a(),o()),c.gstin&&(s.querySelector("#modalInvGstin").value=c.gstin),c.billingType&&(s.querySelector("#modalInvType").value=c.billingType))}catch{}},a(),o(),s.querySelector("#modalCancelInvBtn").onclick=()=>s.remove(),s.querySelector("#modalSaveInvBtn").onclick=async()=>{const b=s.querySelector("#modalInvClient").value,x=s.querySelector("#modalInvNum").value.trim(),c=s.querySelector("#modalInvIssueDate").value,h=s.querySelector("#modalInvDueDate").value,y=s.querySelector("#modalInvType").value,f=Number(s.querySelector("#modalCalcTaxRate").value)||0,r=Number(s.querySelector("#modalCalcDiscount").value)||0,$=s.querySelector("#modalInvTerms").value.trim(),T=s.querySelector("#modalInvGstin").value.trim(),d=s.querySelector("#modalInvNotes").value.trim();if(!b){g("Please select a client",!0);return}if(!h){g("Please select a due date",!0);return}if(!m.length||!m.some(n=>n.amount>0)){g("Please provide at least one valid line item with an amount",!0);return}const I={clientId:b,invoiceNumber:x,issueDate:c,dueDate:h,billingType:y,items:m,discount:r,taxRate:f,paymentTerms:$,gstin:T,notes:d};try{const n=s.querySelector("#modalSaveInvBtn");n.disabled=!0,n.textContent="Generating Invoice…",await N("/accounts/invoices",I),g("Invoice created and issued successfully!"),s.remove(),C()}catch(n){g(n.message,!0),s.querySelector("#modalSaveInvBtn").disabled=!1,s.querySelector("#modalSaveInvBtn").textContent="Create & Issue Invoice"}}}async function xe(l){const e=(await P("/accounts/invoices/"+l)).invoice;if(!e)return;const t=j(`
     <div style="max-width:640px;width:100%">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
         <h3 style="margin:0;font-size:18px">Edit Invoice ${i(e.invoiceNumber)}</h3>
@@ -553,7 +553,7 @@ This will permanently remove all invoice records and unlink their payment record
         <button class="btn ghost" id="editCancelBtn">Cancel</button>
         <button class="btn gold" id="editSaveBtn">Save Changes</button>
       </div>
-    </div>`);t.querySelector("#editCancelBtn").onclick=()=>t.remove(),t.querySelector("#editSaveBtn").onclick=async()=>{const s={status:t.querySelector("#editInvStatus").value,issueDate:t.querySelector("#editInvIssueDate").value,dueDate:t.querySelector("#editInvDueDate").value,paymentTerms:t.querySelector("#editInvTerms").value.trim(),gstin:t.querySelector("#editInvGstin").value.trim(),notes:t.querySelector("#editInvNotes").value.trim()};try{await Z("/accounts/invoices/"+l,s),g("Invoice updated successfully"),t.remove(),C()}catch(v){g(v.message,!0)}}}async function ne(l){const m=await B("/accounts/invoices/"+l),e=m.invoice,t=m.payments||[];if(!e)return;const s=j(`
+    </div>`);t.querySelector("#editCancelBtn").onclick=()=>t.remove(),t.querySelector("#editSaveBtn").onclick=async()=>{const s={status:t.querySelector("#editInvStatus").value,issueDate:t.querySelector("#editInvIssueDate").value,dueDate:t.querySelector("#editInvDueDate").value,paymentTerms:t.querySelector("#editInvTerms").value.trim(),gstin:t.querySelector("#editInvGstin").value.trim(),notes:t.querySelector("#editInvNotes").value.trim()};try{await K("/accounts/invoices/"+l,s),g("Invoice updated successfully"),t.remove(),C()}catch(m){g(m.message,!0)}}}async function te(l){const p=await P("/accounts/invoices/"+l),e=p.invoice,t=p.payments||[];if(!e)return;const s=j(`
     <div style="max-width:860px;width:100%">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px" class="no-print">
         <div style="display:flex;align-items:center;gap:10px">
@@ -583,9 +583,9 @@ This will permanently remove all invoice records and unlink their payment record
           <div class="invoice-meta-right">
             <div style="font-size:11px;font-weight:700;letter-spacing:0.08em;color:var(--text-4);text-transform:uppercase">TAX INVOICE</div>
             <div class="invoice-number-badge">${i(e.invoiceNumber)}</div>
-            <div style="font-size:12px;color:var(--text-3);margin-top:4px">Date: <strong>${A(e.issueDate)}</strong></div>
+            <div style="font-size:12px;color:var(--text-3);margin-top:4px">Date: <strong>${B(e.issueDate)}</strong></div>
             <div style="font-size:12px;color:${e.status==="overdue"?"var(--red-600)":"var(--text-3)"}">
-              Due Date: <strong>${A(e.dueDate)}</strong>
+              Due Date: <strong>${B(e.dueDate)}</strong>
             </div>
           </div>
         </div>
@@ -601,7 +601,7 @@ This will permanently remove all invoice records and unlink their payment record
           <div style="text-align:right">
             <div style="font-size:11px;font-weight:700;color:var(--text-4);text-transform:uppercase;margin-bottom:4px">Payment Status</div>
             <div>${U(e.status)}</div>
-            <div style="font-size:12px;color:var(--text-3);margin-top:6px">Pending Balance: <strong style="color:${e.pendingAmount>0?"var(--amber-600)":"var(--green-600)"};font-size:14px">${p(e.pendingAmount)}</strong></div>
+            <div style="font-size:12px;color:var(--text-3);margin-top:6px">Pending Balance: <strong style="color:${e.pendingAmount>0?"var(--amber-600)":"var(--green-600)"};font-size:14px">${v(e.pendingAmount)}</strong></div>
           </div>
         </div>
 
@@ -623,8 +623,8 @@ This will permanently remove all invoice records and unlink their payment record
                   ${a.serviceName?`<div style="font-size:11px;color:var(--text-3)">Service: ${i(a.serviceName)}</div>`:""}
                 </td>
                 <td style="text-align:center">${a.quantity||1}</td>
-                <td style="text-align:right">${p(a.rate)}</td>
-                <td style="text-align:right;font-weight:700">${p(a.amount)}</td>
+                <td style="text-align:right">${v(a.rate)}</td>
+                <td style="text-align:right;font-weight:700">${v(a.amount)}</td>
               </tr>`).join("")}
           </tbody>
         </table>
@@ -634,28 +634,28 @@ This will permanently remove all invoice records and unlink their payment record
           <div class="invoice-totals-box">
             <div class="invoice-total-row">
               <span>Subtotal</span>
-              <strong>${p(e.subtotal)}</strong>
+              <strong>${v(e.subtotal)}</strong>
             </div>
             ${e.discount>0?`
               <div class="invoice-total-row">
                 <span>Discount</span>
-                <span style="color:var(--green-600)">- ${p(e.discount)}</span>
+                <span style="color:var(--green-600)">- ${v(e.discount)}</span>
               </div>`:""}
             <div class="invoice-total-row">
               <span>GST (${e.taxRate||18}%)</span>
-              <span>${p(e.taxAmount)}</span>
+              <span>${v(e.taxAmount)}</span>
             </div>
             <div class="invoice-total-row grand-total">
               <span>Total Amount</span>
-              <span>${p(e.totalAmount)}</span>
+              <span>${v(e.totalAmount)}</span>
             </div>
             <div class="invoice-total-row" style="padding-top:8px">
               <span>Amount Paid</span>
-              <span style="color:var(--green-600);font-weight:700">${p(e.amountPaid)}</span>
+              <span style="color:var(--green-600);font-weight:700">${v(e.amountPaid)}</span>
             </div>
             <div class="invoice-total-row" style="font-size:15px;font-weight:800;color:${e.pendingAmount>0?"var(--amber-600)":"var(--green-600)"}">
               <span>Pending Amount</span>
-              <span>${p(e.pendingAmount)}</span>
+              <span>${v(e.pendingAmount)}</span>
             </div>
           </div>
         </div>
@@ -697,16 +697,16 @@ This will permanently remove all invoice records and unlink their payment record
                 ${t.map(a=>`
                   <tr>
                     <td><strong>${i(a.paymentNumber)}</strong></td>
-                    <td>${A(a.paymentDate)}</td>
+                    <td>${B(a.paymentDate)}</td>
                     <td><span class="badge">${i(a.paymentMethod)}</span></td>
                     <td style="font-family:var(--font-mono);font-size:11.5px">${i(a.referenceId||"—")}</td>
-                    <td class="num" style="color:var(--green-600);font-weight:700">${p(a.amount)}</td>
+                    <td class="num" style="color:var(--green-600);font-weight:700">${v(a.amount)}</td>
                   </tr>`).join("")}
               </tbody>
             </table>
           </div>
         </div>`:""}
-    </div>`);s.querySelector("#viewModalCloseBtn").onclick=()=>s.remove(),s.querySelector("#viewModalPrintBtn").onclick=()=>{window.print()};const v=s.querySelector("#viewModalPayBtn");v&&(v.onclick=()=>{s.remove(),O({invoiceId:e._id,invoiceNumber:e.invoiceNumber,clientId:e.clientId,clientName:e.clientName,suggestedAmount:e.pendingAmount})})}let K="all",V="",X="";async function be(l){let m=`?paymentMethod=${encodeURIComponent(K)}`;V&&(m+=`&clientId=${encodeURIComponent(V)}`),X&&(m+=`&search=${encodeURIComponent(X)}`);const e=await B("/accounts/payments"+m),t=e.reduce((d,I)=>d+(I.amount||0),0);l.innerHTML=`
+    </div>`);s.querySelector("#viewModalCloseBtn").onclick=()=>s.remove(),s.querySelector("#viewModalPrintBtn").onclick=()=>{window.print()};const m=s.querySelector("#viewModalPayBtn");m&&(m.onclick=()=>{s.remove(),O({invoiceId:e._id,invoiceNumber:e.invoiceNumber,clientId:e.clientId,clientName:e.clientName,suggestedAmount:e.pendingAmount})})}let Q="all",V="",X="";async function fe(l){let p=`?paymentMethod=${encodeURIComponent(Q)}`;V&&(p+=`&clientId=${encodeURIComponent(V)}`),X&&(p+=`&search=${encodeURIComponent(X)}`);const e=await P("/accounts/payments"+p),t=e.reduce((d,I)=>d+(I.amount||0),0);l.innerHTML=`
     <section class="block">
       <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:16px">
         <div>
@@ -722,10 +722,10 @@ This will permanently remove all invoice records and unlink their payment record
       <!-- Quick Summary -->
       <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:18px">
         <div style="background:var(--bg-card);border:1px solid var(--border-sm);padding:8px 14px;border-radius:var(--r-sm);font-size:12px">
-          <span style="color:var(--text-3)">Total Collections:</span> <strong style="color:var(--green-600)">${p(t)}</strong>
+          <span style="color:var(--text-3)">Total Collections:</span> <strong style="color:var(--green-600)">${v(t)}</strong>
         </div>
         <div style="background:var(--bg-card);border:1px solid var(--border-sm);padding:8px 14px;border-radius:var(--r-sm);font-size:12px">
-          <span style="color:var(--text-3)">Average Payment:</span> <strong>${p(e.length?t/e.length:0)}</strong>
+          <span style="color:var(--text-3)">Average Payment:</span> <strong>${v(e.length?t/e.length:0)}</strong>
         </div>
       </div>
 
@@ -743,7 +743,7 @@ This will permanently remove all invoice records and unlink their payment record
           </div>
           <div style="display:flex;gap:6px;flex-wrap:wrap">
             ${["all","bank_transfer","upi","cheque","card","cash"].map(d=>`
-              <button class="btn ghost small payment-method-filter ${K===d?"active gold":""}" data-method="${d}">
+              <button class="btn ghost small payment-method-filter ${Q===d?"active gold":""}" data-method="${d}">
                 ${d==="all"?"All Methods":d.replace("_"," ").toUpperCase()}
               </button>`).join("")}
           </div>
@@ -803,14 +803,14 @@ This will permanently remove all invoice records and unlink their payment record
                   <td>
                     ${d.invoiceNumber?`<span class="badge blue">${i(d.invoiceNumber)}</span>`:'<span class="muted">Advance / General</span>'}
                   </td>
-                  <td style="font-size:12.5px">${A(d.paymentDate)}</td>
+                  <td style="font-size:12.5px">${B(d.paymentDate)}</td>
                   <td>
                     <span class="badge ${d.paymentMethod==="upi"?"gold":d.paymentMethod==="bank_transfer"?"blue":"green"}">
                       ${d.paymentMethod==="bank_transfer"?"🏦 RTGS/NEFT":d.paymentMethod==="upi"?"📱 UPI":d.paymentMethod.toUpperCase()}
                     </span>
                   </td>
                   <td style="font-family:var(--font-mono);font-size:12px">${i(d.referenceId||"—")}</td>
-                  <td class="num" style="font-weight:800;color:var(--green-600);font-size:14px">${p(d.amount)}</td>
+                  <td class="num" style="font-weight:800;color:var(--green-600);font-size:14px">${v(d.amount)}</td>
                   <td style="font-size:12px;color:var(--text-3)">${i(d.recordedByName||"Accounts")}</td>
                   <td class="num" style="padding-right:22px">
                     <button class="btn danger small delete-payment-btn" data-id="${d._id}" title="Delete payment & restore invoice balance">
@@ -822,14 +822,14 @@ This will permanently remove all invoice records and unlink their payment record
           </table>
         </div>
       </div>
-    </section>`;const s=document.getElementById("paymentSearchInput");let v=null;s.oninput=()=>{clearTimeout(v),v=setTimeout(()=>{X=s.value.trim(),C()},300)},document.getElementById("paymentClientFilter").onchange=d=>{V=d.target.value,C()},l.querySelectorAll(".payment-method-filter").forEach(d=>{d.onclick=()=>{K=d.dataset.method,C()}}),document.getElementById("newPaymentBtn").onclick=()=>O();const a=document.getElementById("selectAllPaymentsCb"),o=document.getElementById("thSelectAllPayments"),b=document.getElementById("paymentsDeselectAllBtn"),x=document.getElementById("paymentsSelectedCounter"),c=document.getElementById("deleteSelectedPaymentsBtn"),h=document.getElementById("deletePaymentsSelectedCount"),y=document.getElementById("deleteAllPaymentsBtn"),f=l.querySelectorAll(".payment-select-cb");function r(){const d=Array.from(f).filter(w=>w.checked),I=d.length;x&&(x.textContent=`${I} of ${e.length} selected`),h&&(h.textContent=I),I>0?(c&&(c.style.display="inline-flex"),b&&(b.style.display="inline-flex")):(c&&(c.style.display="none"),b&&(b.style.display="none"));const n=f.length>0&&d.length===f.length;a&&(a.checked=n),o&&(o.checked=n)}function $(d){f.forEach(I=>{I.checked=d}),r()}a&&(a.onchange=d=>$(d.target.checked)),o&&(o.onchange=d=>$(d.target.checked)),b&&(b.onclick=()=>$(!1)),f.forEach(d=>{d.onchange=()=>r()}),c&&(c.onclick=async()=>{const d=Array.from(f).filter(I=>I.checked).map(I=>I.dataset.id);if(d.length&&confirm(`Are you sure you want to permanently delete the ${d.length} selected payment(s)? This will restore linked invoice balances.`))try{c.disabled=!0,c.textContent="Deleting…";const I=await N("/accounts/payments/bulk-delete",{ids:d});g(I.message||`Deleted ${d.length} payment(s)`),C()}catch(I){g(I.message,!0),c.disabled=!1,r()}}),y&&(y.onclick=async()=>{if(!e.length){g("No payments to delete",!0);return}if(confirm(`⚠️ DANGER: Are you sure you want to delete ALL ${e.length} payments?
+    </section>`;const s=document.getElementById("paymentSearchInput");let m=null;s.oninput=()=>{clearTimeout(m),m=setTimeout(()=>{X=s.value.trim(),C()},300)},document.getElementById("paymentClientFilter").onchange=d=>{V=d.target.value,C()},l.querySelectorAll(".payment-method-filter").forEach(d=>{d.onclick=()=>{Q=d.dataset.method,C()}}),document.getElementById("newPaymentBtn").onclick=()=>O();const a=document.getElementById("selectAllPaymentsCb"),o=document.getElementById("thSelectAllPayments"),b=document.getElementById("paymentsDeselectAllBtn"),x=document.getElementById("paymentsSelectedCounter"),c=document.getElementById("deleteSelectedPaymentsBtn"),h=document.getElementById("deletePaymentsSelectedCount"),y=document.getElementById("deleteAllPaymentsBtn"),f=l.querySelectorAll(".payment-select-cb");function r(){const d=Array.from(f).filter(w=>w.checked),I=d.length;x&&(x.textContent=`${I} of ${e.length} selected`),h&&(h.textContent=I),I>0?(c&&(c.style.display="inline-flex"),b&&(b.style.display="inline-flex")):(c&&(c.style.display="none"),b&&(b.style.display="none"));const n=f.length>0&&d.length===f.length;a&&(a.checked=n),o&&(o.checked=n)}function $(d){f.forEach(I=>{I.checked=d}),r()}a&&(a.onchange=d=>$(d.target.checked)),o&&(o.onchange=d=>$(d.target.checked)),b&&(b.onclick=()=>$(!1)),f.forEach(d=>{d.onchange=()=>r()}),c&&(c.onclick=async()=>{const d=Array.from(f).filter(I=>I.checked).map(I=>I.dataset.id);if(d.length&&confirm(`Are you sure you want to permanently delete the ${d.length} selected payment(s)? This will restore linked invoice balances.`))try{c.disabled=!0,c.textContent="Deleting…";const I=await N("/accounts/payments/bulk-delete",{ids:d});g(I.message||`Deleted ${d.length} payment(s)`),C()}catch(I){g(I.message,!0),c.disabled=!1,r()}}),y&&(y.onclick=async()=>{if(!e.length){g("No payments to delete",!0);return}if(confirm(`⚠️ DANGER: Are you sure you want to delete ALL ${e.length} payments?
 
-This will restore all invoice balances to pending. This cannot be undone.`))try{y.disabled=!0,y.textContent="Deleting all…";const d=await N("/accounts/payments/bulk-delete",{deleteAll:!0});g(d.message||"All payments have been deleted."),C()}catch(d){g(d.message,!0),y.disabled=!1,y.textContent=`💥 Delete All Payments (${e.length})`}}),l.querySelectorAll(".delete-payment-btn").forEach(d=>{d.onclick=async()=>{if(confirm("Delete this payment record? This will restore the pending amount on the linked invoice."))try{await ee("/accounts/payments/"+d.dataset.id),g("Payment deleted and invoice balance restored"),C()}catch(I){g(I.message,!0)}}});const T=document.getElementById("exportPaymentsCsvBtn");T&&(T.onclick=()=>{if(!e.length)return g("No payments to export",!0);const d=["Payment Number","Client Name","Invoice Number","Date","Method","Reference / UTR","Amount","Recorded By"],I=e.map(P=>[P.paymentNumber,`"${(P.clientName||"").replace(/"/g,'""')}"`,P.invoiceNumber||"",A(P.paymentDate),P.paymentMethod,P.referenceId||"",P.amount||0,P.recordedByName||""]),n=[d.join(","),...I.map(P=>P.join(","))].join(`
-`),w=new Blob([n],{type:"text/csv;charset=utf-8;"}),R=URL.createObjectURL(w),k=document.createElement("a");k.href=R,k.download=`CI360_Payments_${new Date().toISOString().slice(0,10)}.csv`,k.click(),URL.revokeObjectURL(R),g("Payments exported to CSV")})}async function O(l={}){let m="PAY-2026-0001";try{const o=await B("/accounts/next-payment-number");o&&o.paymentNumber&&(m=o.paymentNumber)}catch{}let e=[];if(l.clientId)try{e=await B(`/accounts/invoices?clientId=${l.clientId}`),e=e.filter(o=>o.pendingAmount>0&&o.status!=="cancelled")}catch{}const t=j(`
+This will restore all invoice balances to pending. This cannot be undone.`))try{y.disabled=!0,y.textContent="Deleting all…";const d=await N("/accounts/payments/bulk-delete",{deleteAll:!0});g(d.message||"All payments have been deleted."),C()}catch(d){g(d.message,!0),y.disabled=!1,y.textContent=`💥 Delete All Payments (${e.length})`}}),l.querySelectorAll(".delete-payment-btn").forEach(d=>{d.onclick=async()=>{if(confirm("Delete this payment record? This will restore the pending amount on the linked invoice."))try{await J("/accounts/payments/"+d.dataset.id),g("Payment deleted and invoice balance restored"),C()}catch(I){g(I.message,!0)}}});const T=document.getElementById("exportPaymentsCsvBtn");T&&(T.onclick=()=>{if(!e.length)return g("No payments to export",!0);const d=["Payment Number","Client Name","Invoice Number","Date","Method","Reference / UTR","Amount","Recorded By"],I=e.map(D=>[D.paymentNumber,`"${(D.clientName||"").replace(/"/g,'""')}"`,D.invoiceNumber||"",B(D.paymentDate),D.paymentMethod,D.referenceId||"",D.amount||0,D.recordedByName||""]),n=[d.join(","),...I.map(D=>D.join(","))].join(`
+`),w=new Blob([n],{type:"text/csv;charset=utf-8;"}),R=URL.createObjectURL(w),k=document.createElement("a");k.href=R,k.download=`CI360_Payments_${new Date().toISOString().slice(0,10)}.csv`,k.click(),URL.revokeObjectURL(R),g("Payments exported to CSV")})}async function O(l={}){let p="PAY-2026-0001";try{const o=await P("/accounts/next-payment-number");o&&o.paymentNumber&&(p=o.paymentNumber)}catch{}let e=[];if(l.clientId)try{e=await P(`/accounts/invoices?clientId=${l.clientId}`),e=e.filter(o=>o.pendingAmount>0&&o.status!=="cancelled")}catch{}const t=j(`
     <div style="max-width:540px;width:100%">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
         <h3 style="margin:0;font-size:18px">Record Client Payment</h3>
-        <span class="badge green" style="font-family:var(--font-heading);font-size:12px">${i(m)}</span>
+        <span class="badge green" style="font-family:var(--font-heading);font-size:12px">${i(p)}</span>
       </div>
 
       <div class="field">
@@ -846,7 +846,7 @@ This will restore all invoice balances to pending. This cannot be undone.`))try{
           <option value="">General advance / No invoice link</option>
           ${e.map(o=>`
             <option value="${o._id}" data-pending="${o.pendingAmount}" ${l.invoiceId===o._id?"selected":""}>
-              ${i(o.invoiceNumber)} — Balance: ${p(o.pendingAmount)} (Total: ${p(o.totalAmount)})
+              ${i(o.invoiceNumber)} — Balance: ${v(o.pendingAmount)} (Total: ${v(o.totalAmount)})
             </option>`).join("")}
         </select>
       </div>
@@ -889,12 +889,12 @@ This will restore all invoice balances to pending. This cannot be undone.`))try{
         <button class="btn ghost" id="modalPayCancelBtn">Cancel</button>
         <button class="btn green" id="modalPaySaveBtn">Save Payment Receipt</button>
       </div>
-    </div>`),s=t.querySelector("#modalPayClient"),v=t.querySelector("#modalPayInvoice"),a=t.querySelector("#modalPayAmount");s.onchange=async()=>{const o=s.value;if(!o){v.innerHTML='<option value="">General advance / No invoice link</option>';return}try{const x=(await B(`/accounts/invoices?clientId=${o}`)||[]).filter(c=>c.pendingAmount>0&&c.status!=="cancelled");v.innerHTML=`
+    </div>`),s=t.querySelector("#modalPayClient"),m=t.querySelector("#modalPayInvoice"),a=t.querySelector("#modalPayAmount");s.onchange=async()=>{const o=s.value;if(!o){m.innerHTML='<option value="">General advance / No invoice link</option>';return}try{const x=(await P(`/accounts/invoices?clientId=${o}`)||[]).filter(c=>c.pendingAmount>0&&c.status!=="cancelled");m.innerHTML=`
         <option value="">General advance / No invoice link</option>
         ${x.map(c=>`
           <option value="${c._id}" data-pending="${c.pendingAmount}">
-            ${i(c.invoiceNumber)} — Balance: ${p(c.pendingAmount)} (Total: ${p(c.totalAmount)})
-          </option>`).join("")}`,x.length===1&&!a.value&&(v.value=x[0]._id,a.value=x[0].pendingAmount)}catch{}},v.onchange=()=>{const b=v.options[v.selectedIndex].getAttribute("data-pending");b&&(a.value=b)},t.querySelector("#modalPayCancelBtn").onclick=()=>t.remove(),t.querySelector("#modalPaySaveBtn").onclick=async()=>{const o=s.value,b=v.value||null,x=Number(a.value),c=t.querySelector("#modalPayDate").value,h=t.querySelector("#modalPayMethod").value,y=t.querySelector("#modalPayRef").value.trim(),f=t.querySelector("#modalPayNotes").value.trim();if(!o)return g("Please select a client",!0);if(!x||x<=0)return g("Please enter a valid payment amount",!0);try{const r=t.querySelector("#modalPaySaveBtn");r.disabled=!0,r.textContent="Saving…",await N("/accounts/payments",{clientId:o,invoiceId:b,amount:x,paymentDate:c,paymentMethod:h,referenceId:y,notes:f}),g("Payment recorded successfully!"),t.remove(),C()}catch(r){g(r.message,!0),t.querySelector("#modalPaySaveBtn").disabled=!1,t.querySelector("#modalPaySaveBtn").textContent="Save Payment Receipt"}}}async function xe(l){const m=await B("/accounts/receivables"),e=m.reduce((a,o)=>a+(o.pendingAmount||0),0),t=m.reduce((a,o)=>a+(o.overdueAmount||0),0),s=m.filter(a=>a.pendingAmount>0);l.innerHTML=`
+            ${i(c.invoiceNumber)} — Balance: ${v(c.pendingAmount)} (Total: ${v(c.totalAmount)})
+          </option>`).join("")}`,x.length===1&&!a.value&&(m.value=x[0]._id,a.value=x[0].pendingAmount)}catch{}},m.onchange=()=>{const b=m.options[m.selectedIndex].getAttribute("data-pending");b&&(a.value=b)},t.querySelector("#modalPayCancelBtn").onclick=()=>t.remove(),t.querySelector("#modalPaySaveBtn").onclick=async()=>{const o=s.value,b=m.value||null,x=Number(a.value),c=t.querySelector("#modalPayDate").value,h=t.querySelector("#modalPayMethod").value,y=t.querySelector("#modalPayRef").value.trim(),f=t.querySelector("#modalPayNotes").value.trim();if(!o)return g("Please select a client",!0);if(!x||x<=0)return g("Please enter a valid payment amount",!0);try{const r=t.querySelector("#modalPaySaveBtn");r.disabled=!0,r.textContent="Saving…",await N("/accounts/payments",{clientId:o,invoiceId:b,amount:x,paymentDate:c,paymentMethod:h,referenceId:y,notes:f}),g("Payment recorded successfully!"),t.remove(),C()}catch(r){g(r.message,!0),t.querySelector("#modalPaySaveBtn").disabled=!1,t.querySelector("#modalPaySaveBtn").textContent="Save Payment Receipt"}}}async function he(l){const p=await P("/accounts/receivables"),e=p.reduce((a,o)=>a+(o.pendingAmount||0),0),t=p.reduce((a,o)=>a+(o.overdueAmount||0),0),s=p.filter(a=>a.pendingAmount>0);l.innerHTML=`
     <section class="block">
       <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:16px">
         <div>
@@ -913,7 +913,7 @@ This will restore all invoice balances to pending. This cannot be undone.`))try{
             <span class="kpi-label">Total Outstanding Balance</span>
             <div class="kpi-icon" style="background:#FFFBEB;color:var(--amber-600)">⏳</div>
           </div>
-          <div class="kpi-value" style="color:var(--amber-600)">${p(e)}</div>
+          <div class="kpi-value" style="color:var(--amber-600)">${v(e)}</div>
           <div style="font-size:12px;color:var(--text-3);margin-top:4px">Across all clients</div>
         </div>
 
@@ -922,7 +922,7 @@ This will restore all invoice balances to pending. This cannot be undone.`))try{
             <span class="kpi-label">Critically Overdue</span>
             <div class="kpi-icon" style="background:var(--s-red-bg);color:var(--red-600)">🚨</div>
           </div>
-          <div class="kpi-value" style="color:var(--red-600)">${p(t)}</div>
+          <div class="kpi-value" style="color:var(--red-600)">${v(t)}</div>
           <div style="font-size:12px;color:var(--text-3);margin-top:4px">Exceeded credit payment terms</div>
         </div>
 
@@ -932,7 +932,7 @@ This will restore all invoice balances to pending. This cannot be undone.`))try{
             <div class="kpi-icon" style="background:var(--accent-bg);color:var(--accent)">👥</div>
           </div>
           <div class="kpi-value">${s.length}</div>
-          <div style="font-size:12px;color:var(--text-3);margin-top:4px">Out of ${m.length} total clients</div>
+          <div style="font-size:12px;color:var(--text-3);margin-top:4px">Out of ${p.length} total clients</div>
         </div>
       </div>
 
@@ -953,25 +953,25 @@ This will restore all invoice balances to pending. This cannot be undone.`))try{
               </tr>
             </thead>
             <tbody>
-              ${m.map(a=>`
+              ${p.map(a=>`
                 <tr style="${a.pendingAmount>0?"":"opacity:0.65"}">
                   <td style="padding-left:22px">
                     <strong>${i(a.clientName)}</strong>
                     ${a.gstin?`<div style="font-size:11px;color:var(--text-3)">GSTIN: ${i(a.gstin)}</div>`:""}
                   </td>
-                  <td class="num">${p(a.totalBilled)}</td>
-                  <td class="num" style="color:var(--green-600);font-weight:600">${p(a.totalPaid)}</td>
+                  <td class="num">${v(a.totalBilled)}</td>
+                  <td class="num" style="color:var(--green-600);font-weight:600">${v(a.totalPaid)}</td>
                   <td class="num" style="font-weight:800;font-size:14px;color:${a.pendingAmount>0?"var(--amber-600)":"var(--text-4)"}">
-                    ${p(a.pendingAmount)}
+                    ${v(a.pendingAmount)}
                   </td>
                   <td class="num">
-                    ${a.overdueAmount>0?`<span class="badge red">${p(a.overdueAmount)}</span>`:'<span class="muted">—</span>'}
+                    ${a.overdueAmount>0?`<span class="badge red">${v(a.overdueAmount)}</span>`:'<span class="muted">—</span>'}
                   </td>
                   <td style="font-size:12.5px;color:${a.overdueAmount>0?"var(--red-600)":"inherit"}">
-                    ${a.oldestDueDate?A(a.oldestDueDate):'<span class="muted">—</span>'}
+                    ${a.oldestDueDate?B(a.oldestDueDate):'<span class="muted">—</span>'}
                   </td>
                   <td style="font-size:12px">
-                    ${a.lastPaymentDate?`${A(a.lastPaymentDate)} (${p(a.lastPaymentAmount)})`:'<span class="muted">No payments</span>'}
+                    ${a.lastPaymentDate?`${B(a.lastPaymentDate)} (${v(a.lastPaymentAmount)})`:'<span class="muted">No payments</span>'}
                   </td>
                   <td class="num" style="padding-right:22px;white-space:nowrap">
                     ${a.pendingAmount>0?`
@@ -987,12 +987,12 @@ This will restore all invoice balances to pending. This cannot be undone.`))try{
           </table>
         </div>
       </div>
-    </section>`,l.querySelectorAll(".settle-payment-btn").forEach(a=>{a.onclick=()=>{O({clientId:a.dataset.clientId,clientName:a.dataset.clientName,suggestedAmount:Number(a.dataset.pending)||0})}}),l.querySelectorAll(".reminder-btn").forEach(a=>{a.onclick=()=>{fe({clientName:a.dataset.clientName,pending:Number(a.dataset.pending)||0,overdue:Number(a.dataset.overdue)||0,phone:a.dataset.phone})}});const v=document.getElementById("exportReceivablesCsvBtn");v&&(v.onclick=()=>{if(!m.length)return g("No receivables to export",!0);const a=["Client Name","GSTIN","Total Billed","Total Paid","Pending Balance","Overdue Amount","Oldest Due Date","Last Payment Date","Last Payment Amount"],o=m.map(y=>[`"${(y.clientName||"").replace(/"/g,'""')}"`,y.gstin||"",y.totalBilled||0,y.totalPaid||0,y.pendingAmount||0,y.overdueAmount||0,y.oldestDueDate?A(y.oldestDueDate):"",y.lastPaymentDate?A(y.lastPaymentDate):"",y.lastPaymentAmount||0]),b=[a.join(","),...o.map(y=>y.join(","))].join(`
-`),x=new Blob([b],{type:"text/csv;charset=utf-8;"}),c=URL.createObjectURL(x),h=document.createElement("a");h.href=c,h.download=`CI360_Receivables_Statement_${new Date().toISOString().slice(0,10)}.csv`,h.click(),URL.revokeObjectURL(c),g("Receivables statement exported to CSV")})}function fe({clientName:l,pending:m,overdue:e,phone:t}){const s=`Dear ${l},
+    </section>`,l.querySelectorAll(".settle-payment-btn").forEach(a=>{a.onclick=()=>{O({clientId:a.dataset.clientId,clientName:a.dataset.clientName,suggestedAmount:Number(a.dataset.pending)||0})}}),l.querySelectorAll(".reminder-btn").forEach(a=>{a.onclick=()=>{Ie({clientName:a.dataset.clientName,pending:Number(a.dataset.pending)||0,overdue:Number(a.dataset.overdue)||0,phone:a.dataset.phone})}});const m=document.getElementById("exportReceivablesCsvBtn");m&&(m.onclick=()=>{if(!p.length)return g("No receivables to export",!0);const a=["Client Name","GSTIN","Total Billed","Total Paid","Pending Balance","Overdue Amount","Oldest Due Date","Last Payment Date","Last Payment Amount"],o=p.map(y=>[`"${(y.clientName||"").replace(/"/g,'""')}"`,y.gstin||"",y.totalBilled||0,y.totalPaid||0,y.pendingAmount||0,y.overdueAmount||0,y.oldestDueDate?B(y.oldestDueDate):"",y.lastPaymentDate?B(y.lastPaymentDate):"",y.lastPaymentAmount||0]),b=[a.join(","),...o.map(y=>y.join(","))].join(`
+`),x=new Blob([b],{type:"text/csv;charset=utf-8;"}),c=URL.createObjectURL(x),h=document.createElement("a");h.href=c,h.download=`CI360_Receivables_Statement_${new Date().toISOString().slice(0,10)}.csv`,h.click(),URL.revokeObjectURL(c),g("Receivables statement exported to CSV")})}function Ie({clientName:l,pending:p,overdue:e,phone:t}){const s=`Dear ${l},
 
 Greetings from COGNITO INNOVO PRIVATE LIMITED.
 
-This is a friendly reminder regarding your outstanding account balance of ${p(m)}${e>0?` (including ${p(e)} overdue)`:""}.
+This is a friendly reminder regarding your outstanding account balance of ${v(p)}${e>0?` (including ${v(e)} overdue)`:""}.
 
 Please arrange for the settlement at your earliest convenience to our registered bank account:
 - Company: COGNITO INNOVO PRIVATE LIMITED
@@ -1004,11 +1004,11 @@ Please arrange for the settlement at your earliest convenience to our registered
 If you have already processed this remittance, kindly share the UTR / transaction receipt. Thank you for your continued partnership!
 
 Warm regards,
-Accounts Department | COGNITO INNOVO PRIVATE LIMITED`,v=j(`
+Accounts Department | COGNITO INNOVO PRIVATE LIMITED`,m=j(`
     <div style="max-width:540px;width:100%">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
         <h3 style="margin:0;font-size:18px">Payment Reminder for ${i(l)}</h3>
-        <span class="badge amber" style="font-size:12px">${p(m)} Due</span>
+        <span class="badge amber" style="font-size:12px">${v(p)} Due</span>
       </div>
       <div style="font-size:12.5px;color:var(--text-3);margin-bottom:12px">
         You can copy this formatted payment reminder template to email/chat or launch WhatsApp directly.
@@ -1024,11 +1024,11 @@ Accounts Department | COGNITO INNOVO PRIVATE LIMITED`,v=j(`
         <button class="btn gold" id="reminderCopyBtn">📋 Copy to Clipboard</button>
         <button class="btn green" id="reminderWhatsAppBtn">💬 Open WhatsApp</button>
       </div>
-    </div>`);v.querySelector("#reminderCloseBtn").onclick=()=>v.remove(),v.querySelector("#reminderCopyBtn").onclick=()=>{const a=v.querySelector("#reminderTextArea").value;navigator.clipboard.writeText(a).then(()=>{g("Reminder template copied to clipboard!")}).catch(()=>{g("Failed to copy text",!0)})},v.querySelector("#reminderWhatsAppBtn").onclick=()=>{const a=encodeURIComponent(v.querySelector("#reminderTextArea").value),o=(t||"").replace(/[^0-9]/g,""),b=o?`https://wa.me/${o}?text=${a}`:`https://wa.me/?text=${a}`;window.open(b,"_blank")}}async function he(l){const m=await B("/accounts/billing-profiles");l.innerHTML=`
+    </div>`);m.querySelector("#reminderCloseBtn").onclick=()=>m.remove(),m.querySelector("#reminderCopyBtn").onclick=()=>{const a=m.querySelector("#reminderTextArea").value;navigator.clipboard.writeText(a).then(()=>{g("Reminder template copied to clipboard!")}).catch(()=>{g("Failed to copy text",!0)})},m.querySelector("#reminderWhatsAppBtn").onclick=()=>{const a=encodeURIComponent(m.querySelector("#reminderTextArea").value),o=(t||"").replace(/[^0-9]/g,""),b=o?`https://wa.me/${o}?text=${a}`:`https://wa.me/?text=${a}`;window.open(b,"_blank")}}async function we(l){const p=await P("/accounts/billing-profiles");l.innerHTML=`
     <section class="block">
       <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:16px">
         <div>
-          <h2>Client Billing Profiles <span class="eyebrow">${m.length} clients</span></h2>
+          <h2>Client Billing Profiles <span class="eyebrow">${p.length} clients</span></h2>
           <div style="font-size:12.5px;color:var(--text-3)">Configure monthly retainer amounts, GSTIN, payment terms, and 1-click invoice generation.</div>
         </div>
       </div>
@@ -1049,7 +1049,7 @@ Accounts Department | COGNITO INNOVO PRIVATE LIMITED`,v=j(`
               </tr>
             </thead>
             <tbody>
-              ${m.map(e=>{const t=e.profile;return`
+              ${p.map(e=>{const t=e.profile;return`
                   <tr>
                     <td style="padding-left:22px">
                       <strong>${i(e.clientName)}</strong>
@@ -1058,7 +1058,7 @@ Accounts Department | COGNITO INNOVO PRIVATE LIMITED`,v=j(`
                     <td><span class="badge">${(t.billingType||"retainer").toUpperCase()}</span></td>
                     <td style="font-size:12px;text-transform:capitalize">${i(t.billingCycle||"monthly")}</td>
                     <td class="num" style="font-weight:800;color:var(--brand-600);font-size:14px">
-                      ${p(t.retainerAmount||0)}
+                      ${v(t.retainerAmount||0)}
                     </td>
                     <td style="font-family:var(--font-mono);font-size:11.5px">${i(t.gstin||"—")}</td>
                     <td style="font-size:12px">Net ${t.paymentTermsDays||15}d</td>
@@ -1078,10 +1078,10 @@ Accounts Department | COGNITO INNOVO PRIVATE LIMITED`,v=j(`
           </table>
         </div>
       </div>
-    </section>`,l.querySelectorAll(".gen-monthly-inv-btn").forEach(e=>{e.onclick=async()=>{const t=e.dataset.clientName,s=Number(e.dataset.amount)||0;if(confirm(`Generate this month's invoice for ${t} for ${p(s)}?`))try{e.disabled=!0,e.textContent="…",await N(`/accounts/billing-profiles/${e.dataset.clientId}/generate-invoice`,{amount:s}),g(`Invoice generated successfully for ${t}!`),D="invoices",q()}catch(v){g(v.message,!0),e.disabled=!1,e.textContent="⚡ Gen Invoice"}}}),l.querySelectorAll(".edit-profile-btn").forEach(e=>{e.onclick=()=>{const t=m.find(s=>s.clientId===e.dataset.clientId);Ie(e.dataset.clientId,e.dataset.clientName,t?t.profile:{})}})}function Ie(l,m,e={}){const t=j(`
+    </section>`,l.querySelectorAll(".gen-monthly-inv-btn").forEach(e=>{e.onclick=async()=>{const t=e.dataset.clientName,s=Number(e.dataset.amount)||0;if(confirm(`Generate this month's invoice for ${t} for ${v(s)}?`))try{e.disabled=!0,e.textContent="…",await N(`/accounts/billing-profiles/${e.dataset.clientId}/generate-invoice`,{amount:s}),g(`Invoice generated successfully for ${t}!`),A="invoices",q()}catch(m){g(m.message,!0),e.disabled=!1,e.textContent="⚡ Gen Invoice"}}}),l.querySelectorAll(".edit-profile-btn").forEach(e=>{e.onclick=()=>{const t=p.find(s=>s.clientId===e.dataset.clientId);$e(e.dataset.clientId,e.dataset.clientName,t?t.profile:{})}})}function $e(l,p,e={}){const t=j(`
     <div style="max-width:540px;width:100%">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-        <h3 style="margin:0;font-size:18px">Billing Setup: ${i(m)}</h3>
+        <h3 style="margin:0;font-size:18px">Billing Setup: ${i(p)}</h3>
       </div>
 
       <div class="field-row">
@@ -1146,7 +1146,7 @@ Accounts Department | COGNITO INNOVO PRIVATE LIMITED`,v=j(`
         <button class="btn ghost" id="bpCancelBtn">Cancel</button>
         <button class="btn gold" id="bpSaveBtn">Save Billing Setup</button>
       </div>
-    </div>`);t.querySelector("#bpCancelBtn").onclick=()=>t.remove(),t.querySelector("#bpSaveBtn").onclick=async()=>{const s={billingType:t.querySelector("#bpType").value,billingCycle:t.querySelector("#bpCycle").value,retainerAmount:Number(t.querySelector("#bpAmount").value)||0,paymentTermsDays:Number(t.querySelector("#bpTerms").value)||15,gstin:t.querySelector("#bpGstin").value.trim(),panNumber:t.querySelector("#bpPan").value.trim(),billingEmail:t.querySelector("#bpEmail").value.trim(),billingPhone:t.querySelector("#bpPhone").value.trim(),billingAddress:t.querySelector("#bpAddress").value.trim()};try{await Z(`/accounts/billing-profiles/${l}`,s),g("Billing profile saved successfully"),t.remove(),C()}catch(v){g(v.message,!0)}}}async function we(l){const m=await B("/accounts/tally/summary"),e=m.config||{},t=m.stats||{totalInvoices:0,totalClients:0,tallyInvoices:0,tallyPayments:0},s=m.lastSync||null,v=m.recentInvoices||[],a=m.recentPayments||[],o=`http://${i(e.serverHost||"localhost")}:${i(e.serverPort||9e3)}`,b=[...v.map(u=>({type:"Sales Invoice",icon:"📄",number:u.invoiceNumber,party:u.clientName,amount:u.totalAmount,date:u.issueDate,badgeClass:"badge blue"})),...a.map(u=>({type:"Payment Receipt",icon:"💵",number:u.paymentNumber,party:u.clientName,amount:u.amount,date:u.paymentDate,badgeClass:"badge green"}))].sort((u,S)=>new Date(S.date)-new Date(u.date)).slice(0,15);l.innerHTML=`
+    </div>`);t.querySelector("#bpCancelBtn").onclick=()=>t.remove(),t.querySelector("#bpSaveBtn").onclick=async()=>{const s={billingType:t.querySelector("#bpType").value,billingCycle:t.querySelector("#bpCycle").value,retainerAmount:Number(t.querySelector("#bpAmount").value)||0,paymentTermsDays:Number(t.querySelector("#bpTerms").value)||15,gstin:t.querySelector("#bpGstin").value.trim(),panNumber:t.querySelector("#bpPan").value.trim(),billingEmail:t.querySelector("#bpEmail").value.trim(),billingPhone:t.querySelector("#bpPhone").value.trim(),billingAddress:t.querySelector("#bpAddress").value.trim()};try{await K(`/accounts/billing-profiles/${l}`,s),g("Billing profile saved successfully"),t.remove(),C()}catch(m){g(m.message,!0)}}}async function Ce(l){const p=await P("/accounts/tally/summary"),e=p.config||{},t=p.stats||{totalInvoices:0,totalClients:0,tallyInvoices:0,tallyPayments:0},s=p.lastSync||null,m=p.recentInvoices||[],a=p.recentPayments||[],o=`http://${i(e.serverHost||"localhost")}:${i(e.serverPort||9e3)}`,b=[...m.map(u=>({type:"Sales Invoice",icon:"📄",number:u.invoiceNumber,party:u.clientName,amount:u.totalAmount,date:u.issueDate,badgeClass:"badge blue"})),...a.map(u=>({type:"Payment Receipt",icon:"💵",number:u.paymentNumber,party:u.clientName,amount:u.amount,date:u.paymentDate,badgeClass:"badge green"}))].sort((u,S)=>new Date(S.date)-new Date(u.date)).slice(0,15);l.innerHTML=`
     <section class="block">
       <!-- Header Banner -->
       <div class="accounts-header-banner" style="background:linear-gradient(135deg,rgba(16,185,129,0.15) 0%,rgba(79,70,229,0.12) 100%)">
@@ -1190,7 +1190,7 @@ Accounts Department | COGNITO INNOVO PRIVATE LIMITED`,v=j(`
       <div style="margin-bottom:20px;padding:12px 16px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:var(--r-sm);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
         <div style="display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--text-1)">
           <span style="font-size:16px">🕒</span>
-          <span><strong>Last Synchronized:</strong> ${A(s.syncedAt)} (${new Date(s.syncedAt).toLocaleTimeString()})</span>
+          <span><strong>Last Synchronized:</strong> ${B(s.syncedAt)} (${new Date(s.syncedAt).toLocaleTimeString()})</span>
           <span style="color:var(--text-3)">•</span>
           <span class="badge blue" style="font-size:11px">${s.invoicesImported||0} Invoices</span>
           <span class="badge green" style="font-size:11px">${s.paymentsImported||0} Receipts</span>
@@ -1349,7 +1349,7 @@ Accounts Department | COGNITO INNOVO PRIVATE LIMITED`,v=j(`
               <tbody>
                 ${b.map(u=>`
                   <tr>
-                    <td>${A(u.date)}</td>
+                    <td>${B(u.date)}</td>
                     <td>
                       <span class="${u.badgeClass}" style="display:inline-flex;align-items:center;gap:4px">
                         <span>${u.icon}</span>
@@ -1358,7 +1358,7 @@ Accounts Department | COGNITO INNOVO PRIVATE LIMITED`,v=j(`
                     </td>
                     <td style="font-family:var(--font-mono);font-weight:600">${i(u.number)}</td>
                     <td><strong>${i(u.party||"—")}</strong></td>
-                    <td style="text-align:right;font-weight:700">${p(u.amount)}</td>
+                    <td style="text-align:right;font-weight:700">${v(u.amount)}</td>
                     <td style="text-align:center">
                       <span class="badge green" style="font-size:10.5px">TallyPrime</span>
                     </td>
@@ -1445,4 +1445,4 @@ Accounts Department | COGNITO INNOVO PRIVATE LIMITED`,v=j(`
         </details>
       </div>
 
-    </section>`;const x=document.getElementById("tallyTestPingBtn"),c=document.getElementById("tallyLivePingBtn"),h=document.getElementById("tallyStatusDot"),y=document.getElementById("tallyStatusText"),f=document.getElementById("tallyConnectionAlert"),r=document.getElementById("tallyAlertTitle"),$=document.getElementById("tallyAlertMsg"),T=document.getElementById("tallyAlertIcon");async function d(){y.textContent="Pinging Tally…",h.style.background="var(--amber-500)";try{const u=(document.getElementById("tallyServerHost")?document.getElementById("tallyServerHost").value.trim():e.serverHost)||"localhost",S=Number(document.getElementById("tallyServerPort")?document.getElementById("tallyServerPort").value:e.serverPort)||9e3,M=await N("/accounts/tally/test-connection",{serverHost:u,serverPort:S});f.style.display="block",M.connected?(h.style.background="var(--green-500)",y.textContent=`Tally Online (${S})`,f.style.borderLeftColor="var(--green-500)",T.textContent="✅",r.textContent="TallyPrime Server Connected",$.textContent=M.message,g("Connected to TallyPrime Silver on port "+S)):(h.style.background="var(--red-500)",y.textContent=`Tally Offline (${S})`,f.style.borderLeftColor="var(--amber-500)",T.textContent="⚠️",r.textContent="TallyPrime XML Server Not Detected on Port "+S,$.textContent=`${M.message} ${M.instructions||"You can still use Upload XML File anytime!"}`)}catch(u){h.style.background="var(--red-500)",y.textContent="Tally Offline",f.style.display="block",f.style.borderLeftColor="var(--red-500)",T.textContent="❌",r.textContent="Connection Error",$.textContent=u.message}}x&&(x.onclick=d),c&&(c.onclick=d);const I=document.getElementById("tallyAlertCloseBtn");I&&(I.onclick=()=>{f.style.display="none"});async function n(){const u=document.getElementById("tallyLiveFetchBtn"),S=document.getElementById("tallyTopFetchBtn"),M=u?u.innerHTML:"";try{u&&(u.disabled=!0,u.innerHTML='<span class="spinner" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:6px"></span> Ingesting from Tally…'),S&&(S.disabled=!0),g("Connecting to TallyPrime port "+(e.serverPort||9e3)+" and fetching Day Book vouchers…");const F=await N("/accounts/tally/fetch-from-tally",{serverHost:e.serverHost||"localhost",serverPort:e.serverPort||9e3});f.style.display="block",f.style.borderLeftColor="var(--green-500)",T.textContent="🎉",r.textContent="Tally Entries Ingested Successfully!",$.textContent=F.message,g(F.message),setTimeout(()=>C(),1200)}catch(F){f.style.display="block",f.style.borderLeftColor="var(--amber-500)",T.textContent="⚠️",r.textContent="Tally Ingestion Notice",$.textContent=`${F.message}. If Tally is running on a different computer, export your Day Book as XML and use the "Upload Tally XML File" option!`,g(F.message,!0)}finally{u&&(u.disabled=!1,u.innerHTML=M),S&&(S.disabled=!1)}}const w=document.getElementById("tallyLiveFetchBtn");w&&(w.onclick=n);const R=document.getElementById("tallyTopFetchBtn");R&&(R.onclick=n);const k=document.getElementById("tallyDropzone"),P=document.getElementById("tallyFileInput"),ae=document.getElementById("tallySelectedFileName"),z=document.getElementById("tallyUploadXmlBtn");let W=null;k&&P&&(k.onclick=()=>P.click(),k.ondragover=u=>{u.preventDefault(),k.style.borderColor="var(--brand-500)",k.style.background="rgba(79,70,229,0.05)"},k.ondragleave=()=>{k.style.borderColor="var(--border-sm)",k.style.background="var(--bg-2)"},k.ondrop=u=>{u.preventDefault(),k.style.borderColor="var(--border-sm)",k.style.background="var(--bg-2)",u.dataTransfer.files&&u.dataTransfer.files.length&&J(u.dataTransfer.files[0])},P.onchange=u=>{u.target.files&&u.target.files.length&&J(u.target.files[0])});function J(u){if(!u.name.toLowerCase().endsWith(".xml")){g("Please select a valid Tally .xml file",!0);return}ae.innerHTML=`<strong style="color:var(--brand-600)">📄 ${i(u.name)}</strong> (${(u.size/1024).toFixed(1)} KB)`;const S=new FileReader;S.onload=M=>{W=M.target.result,z&&(z.disabled=!1,z.classList.add("gold"),z.classList.remove("green")),g('XML file loaded. Click "Parse & Ingest XML" to import.')},S.readAsText(u)}z&&(z.onclick=async()=>{if(!W){g("Please select an XML file first",!0);return}try{z.disabled=!0,z.textContent="Parsing XML & Ingesting…";const u=await N("/accounts/tally/import-xml-file",{xmlContent:W});f.style.display="block",f.style.borderLeftColor="var(--green-500)",T.textContent="🎉",r.textContent="Tally XML Ingested Successfully!",$.textContent=u.message,g(u.message),setTimeout(()=>C(),1200)}catch(u){f.style.display="block",f.style.borderLeftColor="var(--red-500)",T.textContent="❌",r.textContent="XML Ingestion Error",$.textContent=u.message,g(u.message,!0),z.disabled=!1,z.textContent="📤 Parse & Ingest XML"}});const L=document.getElementById("tallySaveConfigBtn");L&&(L.onclick=async()=>{const u={companyName:document.getElementById("tallyCompanyName").value.trim(),serverHost:document.getElementById("tallyServerHost").value.trim()||"localhost",serverPort:Number(document.getElementById("tallyServerPort").value)||9e3};try{L.disabled=!0,L.textContent="Saving…",await Z("/accounts/tally/config",u),g("Tally settings saved!"),L.disabled=!1,L.textContent="💾 Save Settings"}catch(S){g(S.message,!0),L.disabled=!1,L.textContent="💾 Save Settings"}}),setTimeout(d,600)}window.addEventListener("ci360:dataUpdated",()=>{const l=document.activeElement,m=l&&(l.tagName==="INPUT"||l.tagName==="TEXTAREA"||l.isContentEditable),e=document.querySelector(".modal-bg, .modal-backdrop, .modal");!m&&!e&&C()});pe();
+    </section>`;const x=document.getElementById("tallyTestPingBtn"),c=document.getElementById("tallyLivePingBtn"),h=document.getElementById("tallyStatusDot"),y=document.getElementById("tallyStatusText"),f=document.getElementById("tallyConnectionAlert"),r=document.getElementById("tallyAlertTitle"),$=document.getElementById("tallyAlertMsg"),T=document.getElementById("tallyAlertIcon");async function d(){y.textContent="Pinging Tally…",h.style.background="var(--amber-500)";try{const u=(document.getElementById("tallyServerHost")?document.getElementById("tallyServerHost").value.trim():e.serverHost)||"localhost",S=Number(document.getElementById("tallyServerPort")?document.getElementById("tallyServerPort").value:e.serverPort)||9e3,M=await N("/accounts/tally/test-connection",{serverHost:u,serverPort:S});f.style.display="block",M.connected?(h.style.background="var(--green-500)",y.textContent=`Tally Online (${S})`,f.style.borderLeftColor="var(--green-500)",T.textContent="✅",r.textContent="TallyPrime Server Connected",$.textContent=M.message,g("Connected to TallyPrime Silver on port "+S)):(h.style.background="var(--red-500)",y.textContent=`Tally Offline (${S})`,f.style.borderLeftColor="var(--amber-500)",T.textContent="⚠️",r.textContent="TallyPrime XML Server Not Detected on Port "+S,$.textContent=`${M.message} ${M.instructions||"You can still use Upload XML File anytime!"}`)}catch(u){h.style.background="var(--red-500)",y.textContent="Tally Offline",f.style.display="block",f.style.borderLeftColor="var(--red-500)",T.textContent="❌",r.textContent="Connection Error",$.textContent=u.message}}x&&(x.onclick=d),c&&(c.onclick=d);const I=document.getElementById("tallyAlertCloseBtn");I&&(I.onclick=()=>{f.style.display="none"});async function n(){const u=document.getElementById("tallyLiveFetchBtn"),S=document.getElementById("tallyTopFetchBtn"),M=u?u.innerHTML:"";try{u&&(u.disabled=!0,u.innerHTML='<span class="spinner" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:6px"></span> Ingesting from Tally…'),S&&(S.disabled=!0),g("Connecting to TallyPrime port "+(e.serverPort||9e3)+" and fetching Day Book vouchers…");const F=await N("/accounts/tally/fetch-from-tally",{serverHost:e.serverHost||"localhost",serverPort:e.serverPort||9e3});f.style.display="block",f.style.borderLeftColor="var(--green-500)",T.textContent="🎉",r.textContent="Tally Entries Ingested Successfully!",$.textContent=F.message,g(F.message),setTimeout(()=>C(),1200)}catch(F){f.style.display="block",f.style.borderLeftColor="var(--amber-500)",T.textContent="⚠️",r.textContent="Tally Ingestion Notice",$.textContent=`${F.message}. If Tally is running on a different computer, export your Day Book as XML and use the "Upload Tally XML File" option!`,g(F.message,!0)}finally{u&&(u.disabled=!1,u.innerHTML=M),S&&(S.disabled=!1)}}const w=document.getElementById("tallyLiveFetchBtn");w&&(w.onclick=n);const R=document.getElementById("tallyTopFetchBtn");R&&(R.onclick=n);const k=document.getElementById("tallyDropzone"),D=document.getElementById("tallyFileInput"),ne=document.getElementById("tallySelectedFileName"),z=document.getElementById("tallyUploadXmlBtn");let W=null;k&&D&&(k.onclick=()=>D.click(),k.ondragover=u=>{u.preventDefault(),k.style.borderColor="var(--brand-500)",k.style.background="rgba(79,70,229,0.05)"},k.ondragleave=()=>{k.style.borderColor="var(--border-sm)",k.style.background="var(--bg-2)"},k.ondrop=u=>{u.preventDefault(),k.style.borderColor="var(--border-sm)",k.style.background="var(--bg-2)",u.dataTransfer.files&&u.dataTransfer.files.length&&Z(u.dataTransfer.files[0])},D.onchange=u=>{u.target.files&&u.target.files.length&&Z(u.target.files[0])});function Z(u){if(!u.name.toLowerCase().endsWith(".xml")){g("Please select a valid Tally .xml file",!0);return}ne.innerHTML=`<strong style="color:var(--brand-600)">📄 ${i(u.name)}</strong> (${(u.size/1024).toFixed(1)} KB)`;const S=new FileReader;S.onload=M=>{W=M.target.result,z&&(z.disabled=!1,z.classList.add("gold"),z.classList.remove("green")),g('XML file loaded. Click "Parse & Ingest XML" to import.')},S.readAsText(u)}z&&(z.onclick=async()=>{if(!W){g("Please select an XML file first",!0);return}try{z.disabled=!0,z.textContent="Parsing XML & Ingesting…";const u=await N("/accounts/tally/import-xml-file",{xmlContent:W});f.style.display="block",f.style.borderLeftColor="var(--green-500)",T.textContent="🎉",r.textContent="Tally XML Ingested Successfully!",$.textContent=u.message,g(u.message),setTimeout(()=>C(),1200)}catch(u){f.style.display="block",f.style.borderLeftColor="var(--red-500)",T.textContent="❌",r.textContent="XML Ingestion Error",$.textContent=u.message,g(u.message,!0),z.disabled=!1,z.textContent="📤 Parse & Ingest XML"}});const L=document.getElementById("tallySaveConfigBtn");L&&(L.onclick=async()=>{const u={companyName:document.getElementById("tallyCompanyName").value.trim(),serverHost:document.getElementById("tallyServerHost").value.trim()||"localhost",serverPort:Number(document.getElementById("tallyServerPort").value)||9e3};try{L.disabled=!0,L.textContent="Saving…",await K("/accounts/tally/config",u),g("Tally settings saved!"),L.disabled=!1,L.textContent="💾 Save Settings"}catch(S){g(S.message,!0),L.disabled=!1,L.textContent="💾 Save Settings"}}),setTimeout(d,600)}window.addEventListener("ci360:dataUpdated",()=>{const l=document.activeElement,p=l&&(l.tagName==="INPUT"||l.tagName==="TEXTAREA"||l.isContentEditable),e=document.querySelector(".modal-bg, .modal-backdrop, .modal");!p&&!e&&C()});me();

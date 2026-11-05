@@ -14,7 +14,9 @@ import {
   bindAppShellEvents,
   initTheme,
   renderAccountSettingsCard,
-  bindAccountSettingsCard
+  bindAccountSettingsCard,
+  fetchSidebarNavConfig,
+  filterTabsForDashboard
 } from './api.js';
 
 let user = null;
@@ -41,7 +43,8 @@ async function init() {
   try {
     const [clients, services] = await Promise.all([
       apiGet('/clients').catch(() => []),
-      apiGet('/services').catch(() => [])
+      apiGet('/services').catch(() => []),
+      fetchSidebarNavConfig().catch(() => {})
     ]);
     cachedClients = clients || [];
     cachedServices = services || [];
@@ -54,14 +57,18 @@ async function init() {
 
 function render() {
   const app = document.getElementById('app');
-  const activeTabObj = ACCOUNTS_TABS.find(t => t.key === currentTab) || ACCOUNTS_TABS[0];
+  const visibleTabs = filterTabsForDashboard('accounts', ACCOUNTS_TABS, false);
+  const activeTabObj = visibleTabs.find(t => t.key === currentTab) || visibleTabs[0];
+  if (!visibleTabs.some(t => t.key === currentTab)) {
+    currentTab = activeTabObj ? activeTabObj.key : 'overview';
+  }
 
   app.innerHTML = renderAppShell({
     user,
     currentRole: 'accounts',
     activeTab: currentTab,
-    tabs: ACCOUNTS_TABS,
-    title: activeTabObj.label,
+    tabs: visibleTabs,
+    title: activeTabObj ? activeTabObj.label : 'Overview',
     subtitle: 'Billing, Invoicing & Receivables Intelligence'
   });
 

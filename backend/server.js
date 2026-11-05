@@ -2369,6 +2369,7 @@ app.use("/api/accounts", require("./routes/accounts"));
 app.use("/api/proposals", require("./routes/proposals"));
 app.use("/api/archive", require("./routes/archive"));
 app.use("/api/bonding", require("./routes/teambonding"));
+app.use("/api/settings", require("./routes/settings"));
 
 var webDistPath = path.join(__dirname, "../web/dist");
 var webSrcPath = path.join(__dirname, "../web");
