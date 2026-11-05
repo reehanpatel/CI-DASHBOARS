@@ -33,6 +33,8 @@ const TaskSchema = new mongoose.Schema({
   timeSpent: { type: Number, default: 0 },
   tags: [{ type: String, trim: true }],
   completedAt: { type: Date, default: null },
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+  createdByName: { type: String, default: '' },
   isDeleted: { type: Boolean, default: false, index: true },
   deletedAt: { type: Date, default: null },
   deletedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },

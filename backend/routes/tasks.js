@@ -96,6 +96,7 @@ router.get('/', async (req, res) => {
     const tasks = await Task.find(filter)
       .populate('userId', 'name email role')
       .populate('personnelId', 'name role department status')
+      .populate('createdBy', 'name email role')
       .populate('jobId', 'title clientApproval status date')
       .populate('clientId', 'name')
       .sort({ createdAt: -1 })
@@ -142,10 +143,14 @@ router.post('/', async (req, res) => {
     const effectiveCompletionDateStr = rawComp ? rawComp.slice(0, 10) : fallbackDay;
     const effectiveCompletionDate = new Date(effectiveCompletionDateStr + 'T00:00:00.000Z');
 
+    const todayStr = new Date().toISOString().slice(0, 10);
+    // You cannot add tasks on previous dates - only today or future dates
+    if (effectiveCompletionDateStr < todayStr) {
+      return res.status(400).json({ error: 'Cannot add tasks on previous dates. You can only view, edit, or mark existing tasks complete.' });
+    }
+
     const dStr = effectiveCompletionDateStr;
     const calculatedDueDate = effectiveCompletionDate;
-
-    // Previous tasks can be added by all (no past date restriction)
     const isCompleted = status === 'Completed';
 
     // Handle Admin bulk assignment to all team members
@@ -177,7 +182,9 @@ router.post('/', async (req, res) => {
           clientId: clientId || null,
           checklists: Array.isArray(checklists) ? checklists : [],
           tags: Array.isArray(tags) ? tags : [],
-          completedAt: isCompleted ? new Date() : null
+          completedAt: isCompleted ? new Date() : null,
+          createdBy: req.user._id,
+          createdByName: req.user.name || 'User'
         });
         await t.save();
         createdTasks.push(t);
@@ -218,7 +225,9 @@ router.post('/', async (req, res) => {
       clientId: clientId || null,
       checklists: Array.isArray(checklists) ? checklists : [],
       tags: Array.isArray(tags) ? tags : [],
-      completedAt: isCompleted ? new Date() : null
+      completedAt: isCompleted ? new Date() : null,
+      createdBy: req.user._id,
+      createdByName: req.user.name || 'User'
     });
 
     await task.save();
@@ -235,6 +244,7 @@ router.post('/', async (req, res) => {
     const populated = await Task.findById(task._id)
       .populate('userId', 'name email role')
       .populate('personnelId', 'name role department status')
+      .populate('createdBy', 'name email role')
       .populate('jobId', 'title clientApproval status date')
       .populate('clientId', 'name');
 
@@ -416,6 +426,10 @@ router.post('/bulk-import', async (req, res) => {
     }
 
     const dStr = date ? date.trim() : new Date().toISOString().slice(0, 10);
+    const todayStr = new Date().toISOString().slice(0, 10);
+    if (dStr < todayStr) {
+      return res.status(400).json({ error: 'Cannot import tasks to previous dates.' });
+    }
     const dueDate = new Date(dStr + 'T00:00:00.000Z');
 
     // Fetch existing active tasks for this user & date to prevent duplicate insertions
@@ -449,7 +463,9 @@ router.post('/bulk-import', async (req, res) => {
         dateStr: dStr,
         startTime: item.startTime ? String(item.startTime).trim() : '',
         dueTime: item.dueTime ? String(item.dueTime).trim() : '',
-        tags: Array.isArray(item.tags) ? item.tags : []
+        tags: Array.isArray(item.tags) ? item.tags : [],
+        createdBy: req.user._id,
+        createdByName: req.user.name || 'User'
       });
       await t.save();
       createdList.push(t);

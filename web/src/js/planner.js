@@ -141,6 +141,8 @@ export function initDailyPlanner(container, options = {}) {
     viewMode: 'daily', // 'daily' | 'weekly' | 'report'
     filterStatus: 'all', // 'all' | 'pending' | 'in_progress' | 'completed' | 'overdue'
     searchQuery: '',
+    groupByEmployee: isSuperadmin, // Group tasks by employee on admin dashboard
+    collapsedEmployees: {}, // Tracks collapsed employee accordion states
     selectedCategory: 'all',
     selectedPersonnelId: 'all',
     tasks: [],
@@ -269,9 +271,14 @@ export function initDailyPlanner(container, options = {}) {
             </div>
 
             <!-- Primary Add Task Button -->
-            <button type="button" class="ci360-btn-primary" id="btnOpenAddTaskModal">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-              <span>Add Task</span>
+            <button type="button" class="ci360-btn-primary ${state.selectedDate < todayStr ? 'is-locked-past' : ''}" id="btnOpenAddTaskModal" title="${state.selectedDate < todayStr ? 'Cannot add tasks on previous dates (switch to today or later)' : 'Add Task'}">
+              ${state.selectedDate < todayStr ? `
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                <span>Add Task (Past Date)</span>
+              ` : `
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                <span>Add Task</span>
+              `}
             </button>
 
             <!-- Actions Dropdown Button -->
@@ -434,6 +441,7 @@ export function initDailyPlanner(container, options = {}) {
    */
   function renderDailyFocusView(dayTasks, stats) {
     const todayStr = getTodayStr();
+    const isPastDate = state.selectedDate < todayStr;
 
     // Filter tasks based on search & filter
     let visibleTasks = dayTasks;
@@ -449,11 +457,14 @@ export function initDailyPlanner(container, options = {}) {
     }
 
     if (state.searchQuery) {
-      const q = state.searchQuery.toLowerCase();
+      const q = state.searchQuery.toLowerCase().trim();
       visibleTasks = visibleTasks.filter(t => {
-        return (t.title || '').toLowerCase().includes(q) ||
-               (t.description || '').toLowerCase().includes(q) ||
-               (t.category || '').toLowerCase().includes(q);
+        const title = (t.title || '').toLowerCase();
+        const desc = (t.description || '').toLowerCase();
+        const cat = (t.category || '').toLowerCase();
+        const empName = (t.personnelId?.name || t.userId?.name || '').toLowerCase();
+        const creatorName = (t.createdByName || t.createdBy?.name || (t.createdBy?.email ? t.createdBy.email.split('@')[0] : '')).toLowerCase();
+        return title.includes(q) || desc.includes(q) || cat.includes(q) || empName.includes(q) || creatorName.includes(q);
       });
     }
 
@@ -465,6 +476,47 @@ export function initDailyPlanner(container, options = {}) {
       return (priOrder[a.priority] || 2) - (priOrder[b.priority] || 2);
     });
 
+    // Group tasks by employee when in admin mode with grouping active
+    const employeeMap = new Map();
+    visibleTasks.forEach(task => {
+      let empKey = 'unassigned';
+      let empName = 'Unassigned / Team';
+      let empDept = '';
+      let empRole = '';
+
+      if (task.personnelId && typeof task.personnelId === 'object' && task.personnelId._id) {
+        empKey = String(task.personnelId._id);
+        empName = task.personnelId.name || 'Team Member';
+        empRole = task.personnelId.role || 'Personnel';
+        empDept = task.personnelId.department || '';
+      } else if (task.userId && typeof task.userId === 'object' && task.userId._id) {
+        empKey = String(task.userId._id);
+        empName = task.userId.name || 'User';
+        empRole = task.userId.role || 'Member';
+      } else if (task.createdByName || (task.createdBy && task.createdBy.name)) {
+        empName = task.createdByName || task.createdBy.name;
+        empKey = 'creator_' + empName.toLowerCase().replace(/[^a-z0-9]/g, '_');
+        empRole = 'Creator';
+      }
+
+      if (!employeeMap.has(empKey)) {
+        employeeMap.set(empKey, {
+          key: empKey,
+          name: empName,
+          department: empDept,
+          role: empRole,
+          tasks: []
+        });
+      }
+      employeeMap.get(empKey).tasks.push(task);
+    });
+
+    const employeeGroups = Array.from(employeeMap.values()).sort((a, b) => {
+      if (a.key === 'unassigned') return 1;
+      if (b.key === 'unassigned') return -1;
+      return a.name.localeCompare(b.name);
+    });
+
     return `
       <div class="ci360-today-focus-section">
         
@@ -473,7 +525,7 @@ export function initDailyPlanner(container, options = {}) {
           <div class="ci360-focus-title-wrap">
             <h2 class="ci360-focus-title">
               <span class="accent-dot"></span>
-              Today's Focus
+              ${isPastDate ? 'Focus Archive' : "Today's Focus"}
             </h2>
             <span class="ci360-task-count-badge">${visibleTasks.length} ${visibleTasks.length === 1 ? 'task' : 'tasks'}</span>
           </div>
@@ -490,76 +542,148 @@ export function initDailyPlanner(container, options = {}) {
               ` : ''}
             </div>
 
-            <!-- Search Bar -->
+            <!-- Admin Employee Grouping Controls -->
+            ${isSuperadmin ? `
+              <div class="ci360-admin-emp-controls" style="display:flex;align-items:center;gap:6px;">
+                <button type="button" class="filter-pill ${state.groupByEmployee ? 'active' : ''}" id="btnToggleEmpGrouping" title="Group and collapse tasks by employee">
+                  👥 ${state.groupByEmployee ? 'By Employee' : 'Flat List'}
+                </button>
+                ${state.groupByEmployee && employeeGroups.length > 0 ? `
+                  <button type="button" class="filter-pill" id="btnExpandAllEmp" title="Expand all employee tasks">⊞ Expand</button>
+                  <button type="button" class="filter-pill" id="btnCollapseAllEmp" title="Collapse all employee tasks">⊟ Collapse</button>
+                ` : ''}
+              </div>
+            ` : ''}
+
+            <!-- Search Bar with employee search support -->
             <div class="ci360-search-box">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-              <input type="text" id="plannerTaskSearchInp" placeholder="Search tasks..." value="${escapeHtml(state.searchQuery)}">
+              <input type="text" id="plannerTaskSearchInp" placeholder="Search tasks, category or employee..." value="${escapeHtml(state.searchQuery)}">
               ${state.searchQuery ? `<button type="button" id="btnClearSearch" class="clear-search-btn">×</button>` : ''}
             </div>
           </div>
         </div>
 
-        <!-- Inline Quick-Add Card (Always available on any date) -->
-        <div class="ci360-quick-add-bar">
-          <div class="ci360-quick-add-input-wrap">
-            <input type="text" id="quickAddTitleInp" class="ci360-quick-input" placeholder="Add a focus task for ${formatShortDate(state.selectedDate)}... (Press Enter to save)">
+        <!-- Inline Quick-Add Card (Only for Today or Future Dates) / Past Date Banner -->
+        ${isPastDate ? `
+          <div class="ci360-past-date-banner">
+            <div class="past-banner-icon">🔒</div>
+            <div class="past-banner-body">
+              <div class="past-banner-title">Previous Date (${formatShortDate(state.selectedDate)})</div>
+              <div class="past-banner-desc">
+                Adding new tasks on previous dates is restricted. You can edit existing tasks, adjust completion dates, or mark tasks as completed.
+              </div>
+            </div>
           </div>
-
-          <div class="ci360-quick-add-meta">
-            <div class="ci360-quick-date-group" title="Completion Date (defaults to that day if left blank)" style="display:inline-flex;align-items:center;gap:4px;">
-              <span style="font-size:11.5px;color:var(--text-3);font-weight:600;">Due:</span>
-              <input type="date" id="quickAddCompletionDate" class="ci360-quick-select" value="${state.selectedDate}" title="Completion Date (defaults to that day if left blank)">
+        ` : `
+          <div class="ci360-quick-add-bar">
+            <div class="ci360-quick-add-input-wrap">
+              <input type="text" id="quickAddTitleInp" class="ci360-quick-input" placeholder="Add a focus task for ${formatShortDate(state.selectedDate)}... (Press Enter to save)">
             </div>
 
-            <select id="quickAddPriority" class="ci360-quick-select" title="Priority">
-              <option value="Low">Priority: Low</option>
-              <option value="Medium" selected>Priority: Medium</option>
-              <option value="High">Priority: High</option>
-              <option value="Urgent">Priority: Urgent</option>
-            </select>
+            <div class="ci360-quick-add-meta">
+              <div class="ci360-quick-date-group" title="Completion Date (defaults to that day if left blank)" style="display:inline-flex;align-items:center;gap:4px;">
+                <span style="font-size:11.5px;color:var(--text-3);font-weight:600;">Due:</span>
+                <input type="date" id="quickAddCompletionDate" class="ci360-quick-select" value="${state.selectedDate}" min="${todayStr}" title="Completion Date (defaults to that day if left blank)">
+              </div>
 
-            <select id="quickAddCategory" class="ci360-quick-select" title="Category">
-              <option value="General" selected>General</option>
-              <option value="Client Work">Client Work</option>
-              <option value="Development">Development</option>
-              <option value="Design">Design</option>
-              <option value="Meeting">Meeting</option>
-              <option value="Follow-up">Follow-up</option>
-            </select>
+              <select id="quickAddPriority" class="ci360-quick-select" title="Priority">
+                <option value="Low">Priority: Low</option>
+                <option value="Medium" selected>Priority: Medium</option>
+                <option value="High">Priority: High</option>
+                <option value="Urgent">Priority: Urgent</option>
+              </select>
 
-            <button type="button" class="ci360-quick-add-btn" id="btnQuickAddSubmit">
-              <span>+ Add</span>
-            </button>
+              <select id="quickAddCategory" class="ci360-quick-select" title="Category">
+                <option value="General" selected>General</option>
+                <option value="Client Work">Client Work</option>
+                <option value="Development">Development</option>
+                <option value="Design">Design</option>
+                <option value="Meeting">Meeting</option>
+                <option value="Follow-up">Follow-up</option>
+              </select>
+
+              <button type="button" class="ci360-quick-add-btn" id="btnQuickAddSubmit">
+                <span>+ Add</span>
+              </button>
+            </div>
           </div>
-        </div>
+        `}
 
         <!-- Task List or Empty State -->
         <div class="ci360-tasks-container">
-          ${visibleTasks.length === 0 ? renderEmptyFocusState() : `
-            <div class="ci360-task-list">
-              ${visibleTasks.map(task => renderTaskCard(task, todayStr)).join('')}
-            </div>
-          `}
+          ${visibleTasks.length === 0 ? renderEmptyFocusState(isPastDate) : (
+            isSuperadmin && state.groupByEmployee ? `
+              <div class="ci360-emp-groups-container">
+                ${employeeGroups.map(group => {
+                  const isCollapsed = !!state.collapsedEmployees[group.key];
+                  const completedCount = group.tasks.filter(t => t.status === 'Completed').length;
+                  const inProgCount = group.tasks.filter(t => t.status === 'In Progress').length;
+                  const pendingCount = group.tasks.filter(t => t.status === 'Pending' || t.status === 'Todo').length;
+                  const pct = group.tasks.length > 0 ? Math.round((completedCount / group.tasks.length) * 100) : 0;
+
+                  return `
+                    <div class="ci360-emp-group-card ${isCollapsed ? 'is-collapsed' : ''}" data-emp-key="${group.key}">
+                      <div class="ci360-emp-group-header" data-action="toggle-emp-group" data-emp-key="${group.key}" role="button" tabindex="0">
+                        <div class="emp-group-left">
+                          <span class="emp-collapse-icon">${isCollapsed ? '▶' : '▼'}</span>
+                          <div class="emp-avatar">${escapeHtml((group.name || 'U').charAt(0).toUpperCase())}</div>
+                          <div class="emp-info">
+                            <span class="emp-name">${escapeHtml(group.name)}</span>
+                            ${group.department || group.role ? `<span class="emp-subtitle">${escapeHtml(group.department ? group.department + ' · ' + group.role : group.role)}</span>` : ''}
+                          </div>
+                        </div>
+
+                        <div class="emp-group-right">
+                          <span class="emp-stat-pill total">${group.tasks.length} ${group.tasks.length === 1 ? 'task' : 'tasks'}</span>
+                          <span class="emp-stat-pill done">${completedCount} done</span>
+                          ${inProgCount > 0 ? `<span class="emp-stat-pill in-prog">${inProgCount} in progress</span>` : ''}
+                          ${pendingCount > 0 ? `<span class="emp-stat-pill pending">${pendingCount} pending</span>` : ''}
+                          <div class="emp-mini-bar-wrap" title="${pct}% completed">
+                            <div class="emp-mini-bar-fill" style="width:${pct}%;"></div>
+                          </div>
+                        </div>
+                      </div>
+
+                      ${!isCollapsed ? `
+                        <div class="ci360-emp-group-body">
+                          <div class="ci360-task-list">
+                            ${group.tasks.map(task => renderTaskCard(task, todayStr)).join('')}
+                          </div>
+                        </div>
+                      ` : ''}
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+            ` : `
+              <div class="ci360-task-list">
+                ${visibleTasks.map(task => renderTaskCard(task, todayStr)).join('')}
+              </div>
+            `
+          )}
         </div>
 
       </div>
     `;
   }
 
-  function renderEmptyFocusState() {
+  function renderEmptyFocusState(isPastDate = false) {
     return `
       <div class="ci360-empty-focus-state">
-        <div class="empty-icon-wrap">✨</div>
+        <div class="empty-icon-wrap">${isPastDate ? '📜' : '✨'}</div>
         <h3>No tasks found for ${formatShortDate(state.selectedDate)}</h3>
-        <p>Your schedule is clean and ready. Add your first priority task above or import your daily agenda.</p>
-        <div style="display:flex;gap:10px;justify-content:center;margin-top:14px">
-          <button type="button" class="ci360-btn-primary" onclick="document.getElementById('quickAddTitleInp')?.focus()">
-            + Quick Add Task
-          </button>
-          <button type="button" class="ci360-btn-secondary" id="btnEmptyStateImport">
-            📥 Import List
-          </button>
-        </div>
+        <p>${isPastDate ? 'No scheduled tasks were recorded on this past date.' : 'Your schedule is clean and ready. Add your first priority task above or import your daily agenda.'}</p>
+        ${!isPastDate ? `
+          <div style="display:flex;gap:10px;justify-content:center;margin-top:14px">
+            <button type="button" class="ci360-btn-primary" onclick="document.getElementById('quickAddTitleInp')?.focus()">
+              + Quick Add Task
+            </button>
+            <button type="button" class="ci360-btn-secondary" id="btnEmptyStateImport">
+              📥 Import List
+            </button>
+          </div>
+        ` : ''}
       </div>
     `;
   }
@@ -570,6 +694,7 @@ export function initDailyPlanner(container, options = {}) {
     const compDateStr = task.completionDateStr || task.dateStr || (task.dueDate ? new Date(task.dueDate).toISOString().slice(0, 10) : todayStr);
     const priClass = `pri-${(task.priority || 'medium').toLowerCase()}`;
     const statusClass = `status-${(task.status || 'pending').toLowerCase().replace(/\s+/g, '-')}`;
+    const addedByName = task.createdByName || task.createdBy?.name || (task.createdBy?.email ? task.createdBy.email.split('@')[0] : '') || (task.personnelId?.name || task.userId?.name || '');
 
     return `
       <div class="ci360-task-card ${isCompleted ? 'is-completed' : ''} ${isPastDue ? 'is-overdue' : ''}" data-id="${task._id}">
@@ -604,10 +729,17 @@ export function initDailyPlanner(container, options = {}) {
               ${escapeHtml(task.status || 'Pending')}
             </span>
 
-            <!-- Completion Date Badge -->
+            <!-- Completion Date Badge (Always Visible & Prominent) -->
             <span class="ci360-badge completion-badge" title="Target Completion Date: ${compDateStr}">
-              📅 ${formatShortDate(compDateStr)}
+              📅 Due: ${formatShortDate(compDateStr)}
             </span>
+
+            <!-- Added By Badge (Shows Who Created the Task) -->
+            ${addedByName ? `
+              <span class="ci360-badge creator-badge" title="Created / Added by: ${escapeHtml(addedByName)}">
+                ✍️ Added by: ${escapeHtml(addedByName)}
+              </span>
+            ` : ''}
 
             <!-- Category -->
             ${task.category ? `
@@ -632,10 +764,10 @@ export function initDailyPlanner(container, options = {}) {
               </span>
             ` : ''}
 
-            <!-- Superadmin assigned employee name -->
-            ${isSuperadmin && (task.personnelId?.name || task.userId?.name) ? `
-              <span class="ci360-badge personnel-badge">
-                👤 ${escapeHtml(task.personnelId?.name || task.userId?.name)}
+            <!-- Superadmin assigned employee name (if different from addedByName) -->
+            ${isSuperadmin && (task.personnelId?.name || task.userId?.name) && (task.personnelId?.name || task.userId?.name) !== addedByName ? `
+              <span class="ci360-badge personnel-badge" title="Assigned Employee">
+                👤 Assigned: ${escapeHtml(task.personnelId?.name || task.userId?.name)}
               </span>
             ` : ''}
           </div>
@@ -727,10 +859,16 @@ export function initDailyPlanner(container, options = {}) {
                   `).join('')}
                 </div>
 
-                <!-- Quick Add for Day Button -->
-                <button type="button" class="day-col-add-btn" data-action="add-day" data-date="${dStr}">
-                  + Add Task
-                </button>
+                <!-- Quick Add for Day Button (Locked on past dates) -->
+                ${dStr < todayStr ? `
+                  <div class="day-col-locked-note" title="Cannot add tasks on previous dates">
+                    <span>🔒 Past Date</span>
+                  </div>
+                ` : `
+                  <button type="button" class="day-col-add-btn" data-action="add-day" data-date="${dStr}">
+                    + Add Task
+                  </button>
+                `}
 
               </div>
             `;
@@ -939,7 +1077,15 @@ export function initDailyPlanner(container, options = {}) {
 
     // Add Task Primary Modal
     const btnAdd = document.getElementById('btnOpenAddTaskModal');
-    if (btnAdd) btnAdd.onclick = () => openAddEditTaskModal();
+    if (btnAdd) {
+      btnAdd.onclick = () => {
+        if (state.selectedDate < getTodayStr()) {
+          flashToast('Cannot add tasks on previous dates. Please select Today or a future date to schedule a new task.', true);
+          return;
+        }
+        openAddEditTaskModal();
+      };
+    }
 
     // Tools & Actions Dropdown
     const btnTools = document.getElementById('btnPlannerActionsMenu');
@@ -1028,6 +1174,12 @@ export function initDailyPlanner(container, options = {}) {
       const quickBtn = document.getElementById('btnQuickAddSubmit');
 
       const handleQuickAdd = async () => {
+        const todayStr = getTodayStr();
+        if (state.selectedDate < todayStr) {
+          flashToast('Cannot add tasks on previous dates. You can only view, edit, or mark existing tasks complete.', true);
+          return;
+        }
+
         const title = (quickInp?.value || '').trim();
         if (!title) {
           flashToast('Please enter a task title', true);
@@ -1037,6 +1189,10 @@ export function initDailyPlanner(container, options = {}) {
 
         // Completion date: if no completion date is added, default to that day (state.selectedDate)
         const compDate = (quickDate?.value || '').trim() || state.selectedDate;
+        if (compDate < todayStr) {
+          flashToast('Cannot set completion date on a previous date.', true);
+          return;
+        }
 
         try {
           const payload = {
@@ -1070,6 +1226,45 @@ export function initDailyPlanner(container, options = {}) {
       if (quickInp) quickInp.onkeydown = (e) => {
         if (e.key === 'Enter') handleQuickAdd();
       };
+
+      // Employee group accordion collapse toggle
+      document.querySelectorAll('[data-action="toggle-emp-group"]').forEach(hdr => {
+        hdr.onclick = () => {
+          const empKey = hdr.dataset.empKey;
+          state.collapsedEmployees[empKey] = !state.collapsedEmployees[empKey];
+          render();
+        };
+      });
+
+      // Employee grouping toggle
+      const btnToggleEmp = document.getElementById('btnToggleEmpGrouping');
+      if (btnToggleEmp) {
+        btnToggleEmp.onclick = () => {
+          state.groupByEmployee = !state.groupByEmployee;
+          render();
+        };
+      }
+
+      // Expand all employee groups
+      const btnExpAll = document.getElementById('btnExpandAllEmp');
+      if (btnExpAll) {
+        btnExpAll.onclick = () => {
+          state.collapsedEmployees = {};
+          render();
+        };
+      }
+
+      // Collapse all employee groups
+      const btnColAll = document.getElementById('btnCollapseAllEmp');
+      if (btnColAll) {
+        btnColAll.onclick = () => {
+          document.querySelectorAll('.ci360-emp-group-card').forEach(c => {
+            const k = c.dataset.empKey;
+            if (k) state.collapsedEmployees[k] = true;
+          });
+          render();
+        };
+      }
 
       // Empty state import
       const btnEmptyImport = document.getElementById('btnEmptyStateImport');
@@ -1202,9 +1397,10 @@ export function initDailyPlanner(container, options = {}) {
    */
   function openAddEditTaskModal(existingTask = null, targetDate = null) {
     const isEdit = !!existingTask;
+    const todayStr = getTodayStr();
     const initialDate = existingTask
       ? (existingTask.completionDateStr || existingTask.dateStr || (existingTask.dueDate ? new Date(existingTask.dueDate).toISOString().slice(0, 10) : state.selectedDate))
-      : (targetDate || state.selectedDate);
+      : (targetDate && targetDate >= todayStr ? targetDate : (state.selectedDate >= todayStr ? state.selectedDate : todayStr));
 
     const modalHtml = `
       <div class="ci360-planner-modal">
@@ -1230,11 +1426,11 @@ export function initDailyPlanner(container, options = {}) {
           <div class="form-row">
             <div class="form-group flex-1">
               <label for="taskDate">Assigned Date</label>
-              <input type="date" id="taskDate" class="input" value="${initialDate}">
+              <input type="date" id="taskDate" class="input" value="${initialDate}" ${isEdit ? '' : `min="${todayStr}"`}>
             </div>
             <div class="form-group flex-1">
               <label for="taskCompletionDate">Completion Date</label>
-              <input type="date" id="taskCompletionDate" class="input" value="${existingTask?.completionDateStr || existingTask?.dateStr || ''}" placeholder="Defaults to that day">
+              <input type="date" id="taskCompletionDate" class="input" value="${existingTask?.completionDateStr || existingTask?.dateStr || ''}" ${isEdit ? '' : `min="${todayStr}"`} placeholder="Defaults to that day">
               <small style="color:var(--text-3);font-size:11px;">If left blank, will default to that day (${initialDate})</small>
             </div>
             <div class="form-group flex-1">
@@ -1349,6 +1545,11 @@ export function initDailyPlanner(container, options = {}) {
         return;
       }
 
+      if (!isEdit && (finalCompletionDate < todayStr || assignedDate < todayStr)) {
+        flashToast('Cannot add tasks on previous dates. New tasks can only be scheduled for today or future dates.', true);
+        return;
+      }
+
       const payload = {
         title,
         description,
@@ -1423,7 +1624,7 @@ export function initDailyPlanner(container, options = {}) {
           <div class="form-row">
             <div class="form-group flex-1">
               <label for="importTargetDate" class="required">Target Date for Tasks</label>
-              <input type="date" id="importTargetDate" class="input" value="${state.selectedDate}">
+              <input type="date" id="importTargetDate" class="input" value="${state.selectedDate < getTodayStr() ? getTodayStr() : state.selectedDate}" min="${getTodayStr()}">
             </div>
 
             <div class="form-group flex-1">
@@ -1595,6 +1796,12 @@ export function initDailyPlanner(container, options = {}) {
       btnSubmit.textContent = 'Importing...';
 
       const targetDate = modalBg.querySelector('#importTargetDate').value;
+      if (targetDate < getTodayStr()) {
+        flashToast('Cannot import tasks for previous dates. Target date must be today or later.', true);
+        btnSubmit.disabled = false;
+        btnSubmit.textContent = `Import ${parsedTasks.length} ${parsedTasks.length === 1 ? 'Task' : 'Tasks'}`;
+        return;
+      }
       const defaultPri = modalBg.querySelector('#importPriority').value;
       const defaultCat = modalBg.querySelector('#importCategory').value.trim() || 'General';
 
@@ -1643,7 +1850,7 @@ export function initDailyPlanner(container, options = {}) {
     const width = 800;
     const headerHeight = 160;
     const statsHeight = 90;
-    const itemHeight = 65;
+    const itemHeight = 74;
     const footerHeight = 70;
     const contentHeight = Math.max(120, dayTasks.length * itemHeight);
     const totalHeight = headerHeight + statsHeight + contentHeight + footerHeight;
@@ -1793,19 +2000,28 @@ export function initDailyPlanner(container, options = {}) {
         ctx.font = 'bold 10px Inter, sans-serif';
         ctx.fillText(pri, width - 138, itemY + 18);
 
-        // Status or Time
-        const metaStr = t.dueTime ? `🕒 ${t.dueTime}` : (t.category || 'General');
+        // Metadata Row: Who added the task, due date, category, time
+        const addedByName = t.createdByName || t.createdBy?.name || (t.createdBy?.email ? t.createdBy.email.split('@')[0] : '') || (t.personnelId?.name || t.userId?.name || 'Member');
+        const compDateStr = t.completionDateStr || t.dateStr || '';
+
+        const metaParts = [];
+        if (addedByName) metaParts.push(`✍️ Added by: ${addedByName}`);
+        if (compDateStr) metaParts.push(`📅 Due: ${formatShortDate(compDateStr)}`);
+        if (t.dueTime) metaParts.push(`🕒 ${t.dueTime}`);
+        if (t.category && t.category !== 'General') metaParts.push(`#${t.category}`);
+        const metaStr = metaParts.join('   ·   ');
+
         ctx.fillStyle = text2;
         ctx.font = '11px Inter, sans-serif';
-        ctx.fillText(metaStr, 70, itemY + 34);
+        ctx.fillText(metaStr, 70, itemY + 36);
 
         // Divider
         if (i < dayTasks.length - 1) {
           ctx.strokeStyle = border;
           ctx.lineWidth = 0.6;
           ctx.beginPath();
-          ctx.moveTo(40, itemY + 48);
-          ctx.lineTo(width - 40, itemY + 48);
+          ctx.moveTo(40, itemY + 54);
+          ctx.lineTo(width - 40, itemY + 54);
           ctx.stroke();
         }
       });
@@ -2970,7 +3186,28 @@ function ensurePlannerStyles() {
 
     .ci360-badge.category-badge { background: var(--bg-hover); color: var(--text-2); font-weight: 500; }
     .ci360-badge.time-badge { background: var(--bg-hover); color: var(--text-2); font-weight: 500; }
-    .ci360-badge.completion-badge { background: rgba(59, 130, 246, 0.1); color: var(--blue-500, #3b82f6); font-weight: 600; border: 1px solid rgba(59, 130, 246, 0.2); }
+    .ci360-badge.completion-badge {
+      background: rgba(37, 99, 235, 0.12);
+      color: #2563EB;
+      font-weight: 700;
+      border: 1px solid rgba(37, 99, 235, 0.25);
+    }
+    [data-theme="dark"] .ci360-badge.completion-badge {
+      background: rgba(59, 130, 246, 0.2);
+      color: #93C5FD;
+      border-color: rgba(59, 130, 246, 0.35);
+    }
+    .ci360-badge.creator-badge {
+      background: rgba(99, 102, 241, 0.12);
+      color: var(--brand-600);
+      font-weight: 600;
+      border: 1px solid rgba(99, 102, 241, 0.25);
+    }
+    [data-theme="dark"] .ci360-badge.creator-badge {
+      background: rgba(99, 102, 241, 0.2);
+      color: var(--brand-400);
+      border-color: rgba(99, 102, 241, 0.35);
+    }
     .ci360-badge.overdue-badge { background: rgba(239, 68, 68, 0.12); color: var(--red-600); }
     .ci360-badge.personnel-badge { background: var(--brand-50); color: var(--brand-600); }
     [data-theme="dark"] .ci360-badge.personnel-badge { background: rgba(99, 102, 241, 0.2); color: var(--brand-400); }
@@ -3419,6 +3656,514 @@ function ensurePlannerStyles() {
     .ci360-planner-wrap.is-compact .kpi-box {
       padding: 6px 12px;
       min-width: 80px;
+    }
+
+    /* Past Date Banner */
+    .ci360-past-date-banner {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 18px;
+      border-radius: var(--r-lg);
+      background: rgba(245, 158, 11, 0.08);
+      border: 1px solid rgba(245, 158, 11, 0.25);
+      margin-bottom: 8px;
+    }
+    .past-banner-icon {
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+    .past-banner-body {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .past-banner-title {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--text-1);
+    }
+    .past-banner-desc {
+      font-size: 12.5px;
+      color: var(--text-3);
+      line-height: 1.4;
+    }
+    .day-col-locked-note {
+      text-align: center;
+      padding: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-4);
+      background: var(--bg-hover);
+      border-radius: var(--r-sm);
+      margin-top: 8px;
+    }
+    .ci360-btn-primary.is-locked-past {
+      opacity: 0.75;
+      background: var(--text-4);
+      cursor: not-allowed;
+    }
+
+    /* Admin Employee Grouping & Collapsible Cards */
+    .ci360-emp-groups-container {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .ci360-emp-group-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-sm);
+      border-radius: var(--r-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-xs);
+      transition: all var(--t-fast);
+    }
+    .ci360-emp-group-card:hover {
+      border-color: var(--border-md);
+    }
+    .ci360-emp-group-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 18px;
+      background: var(--bg-elevated);
+      cursor: pointer;
+      user-select: none;
+      transition: background var(--t-fast);
+    }
+    .ci360-emp-group-header:hover {
+      background: var(--bg-hover);
+    }
+    .emp-group-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 1;
+      min-width: 0;
+    }
+    .emp-collapse-icon {
+      font-size: 11px;
+      color: var(--text-3);
+      width: 14px;
+      text-align: center;
+      transition: transform var(--t-fast);
+    }
+    .emp-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(99, 102, 241, 0.15);
+      color: var(--brand-500);
+      font-weight: 800;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .emp-info {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+    .emp-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-1);
+    }
+    .emp-subtitle {
+      font-size: 11.5px;
+      color: var(--text-3);
+    }
+    .emp-group-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .emp-stat-pill {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: var(--r-full);
+      background: var(--bg-card);
+      border: 1px solid var(--border-xs);
+      color: var(--text-2);
+    }
+    .emp-stat-pill.done {
+      color: var(--green-600);
+      background: rgba(16, 185, 129, 0.1);
+      border-color: rgba(16, 185, 129, 0.2);
+    }
+    .emp-stat-pill.in-prog {
+      color: var(--amber-600);
+      background: rgba(245, 158, 11, 0.1);
+      border-color: rgba(245, 158, 11, 0.2);
+    }
+    .emp-stat-pill.pending {
+      color: var(--text-3);
+      background: var(--bg-hover);
+    }
+    .emp-mini-bar-wrap {
+      width: 50px;
+      height: 6px;
+      border-radius: var(--r-full);
+      background: var(--border-xs);
+      overflow: hidden;
+    }
+    .emp-mini-bar-fill {
+      height: 100%;
+      background: var(--green-500);
+      border-radius: var(--r-full);
+      transition: width 0.3s ease;
+    }
+    .ci360-emp-group-body {
+      padding: 12px 16px;
+      border-top: 1px solid var(--border-xs);
+    }
+
+    /* ── COMPREHENSIVE LIGHT THEME ENHANCEMENTS FOR DAILY PLANNER ── */
+    [data-theme="light"] .ci360-planner-wrap,
+    html:not([data-theme="dark"]) .ci360-planner-wrap {
+      color: #0F172A;
+    }
+    [data-theme="light"] .ci360-planner-heading,
+    html:not([data-theme="dark"]) .ci360-planner-heading {
+      color: #0F172A;
+    }
+    [data-theme="light"] .ci360-planner-subheading,
+    html:not([data-theme="dark"]) .ci360-planner-subheading {
+      color: #64748B;
+    }
+    [data-theme="light"] .ci360-view-switcher,
+    html:not([data-theme="dark"]) .ci360-view-switcher {
+      background: #FFFFFF;
+      border-color: #E2E8F0;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    [data-theme="light"] .ci360-switch-btn,
+    html:not([data-theme="dark"]) .ci360-switch-btn {
+      color: #64748B;
+    }
+    [data-theme="light"] .ci360-switch-btn:hover,
+    html:not([data-theme="dark"]) .ci360-switch-btn:hover {
+      background: #F1F5F9;
+      color: #0F172A;
+    }
+    [data-theme="light"] .ci360-switch-btn.active,
+    html:not([data-theme="dark"]) .ci360-switch-btn.active {
+      background: #4F46E5;
+      color: #FFFFFF;
+    }
+    [data-theme="light"] .ci360-btn-secondary,
+    html:not([data-theme="dark"]) .ci360-btn-secondary {
+      background: #FFFFFF;
+      color: #334155;
+      border-color: #CBD5E1;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    }
+    [data-theme="light"] .ci360-btn-secondary:hover,
+    html:not([data-theme="dark"]) .ci360-btn-secondary:hover {
+      background: #F8FAFC;
+      color: #0F172A;
+      border-color: #94A3B8;
+    }
+    [data-theme="light"] .ci360-dropdown-menu,
+    html:not([data-theme="dark"]) .ci360-dropdown-menu {
+      background: #FFFFFF;
+      border-color: #E2E8F0;
+      box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1);
+    }
+    [data-theme="light"] .ci360-menu-item,
+    html:not([data-theme="dark"]) .ci360-menu-item {
+      color: #0F172A;
+    }
+    [data-theme="light"] .ci360-menu-item:hover,
+    html:not([data-theme="dark"]) .ci360-menu-item:hover {
+      background: #F1F5F9;
+    }
+    [data-theme="light"] .ci360-menu-item .meta small,
+    html:not([data-theme="dark"]) .ci360-menu-item .meta small {
+      color: #64748B;
+    }
+    [data-theme="light"] .ci360-planner-nav-strip,
+    html:not([data-theme="dark"]) .ci360-planner-nav-strip {
+      background: #FFFFFF;
+      border-color: #E2E8F0;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    [data-theme="light"] .ci360-nav-arrow,
+    html:not([data-theme="dark"]) .ci360-nav-arrow {
+      background: #FFFFFF;
+      border-color: #CBD5E1;
+      color: #334155;
+    }
+    [data-theme="light"] .ci360-date-picker-badge,
+    html:not([data-theme="dark"]) .ci360-date-picker-badge {
+      background: #F8FAFC;
+      border-color: #CBD5E1;
+    }
+    [data-theme="light"] .ci360-date-picker-badge .date-text,
+    html:not([data-theme="dark"]) .ci360-date-picker-badge .date-text {
+      color: #0F172A;
+    }
+    [data-theme="light"] .ci360-today-btn,
+    html:not([data-theme="dark"]) .ci360-today-btn {
+      background: #FFFFFF;
+      border-color: #CBD5E1;
+      color: #475569;
+    }
+    [data-theme="light"] .ci360-today-btn.is-current,
+    html:not([data-theme="dark"]) .ci360-today-btn.is-current {
+      background: #EEF2FF;
+      color: #4F46E5;
+      border-color: #C7D2FE;
+    }
+    [data-theme="light"] .ci360-select-inline,
+    html:not([data-theme="dark"]) .ci360-select-inline {
+      background: #FFFFFF;
+      border-color: #CBD5E1;
+      color: #0F172A;
+    }
+    [data-theme="light"] .ci360-progress-summary-card,
+    html:not([data-theme="dark"]) .ci360-progress-summary-card {
+      background: #FFFFFF;
+      border-color: #E2E8F0;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    }
+    [data-theme="light"] .kpi-box,
+    html:not([data-theme="dark"]) .kpi-box {
+      background: #F8FAFC;
+      border-color: #E2E8F0;
+    }
+    [data-theme="light"] .kpi-box .kpi-num,
+    html:not([data-theme="dark"]) .kpi-box .kpi-num {
+      color: #0F172A;
+    }
+    [data-theme="light"] .kpi-box .kpi-label,
+    html:not([data-theme="dark"]) .kpi-box .kpi-label {
+      color: #64748B;
+    }
+    [data-theme="light"] .ring-num,
+    html:not([data-theme="dark"]) .ring-num {
+      color: #0F172A;
+    }
+    [data-theme="light"] .ci360-circular-svg .circle-bg,
+    html:not([data-theme="dark"]) .ci360-circular-svg .circle-bg {
+      stroke: #E2E8F0;
+    }
+    [data-theme="light"] .ci360-focus-title,
+    html:not([data-theme="dark"]) .ci360-focus-title {
+      color: #0F172A;
+    }
+    [data-theme="light"] .ci360-filter-pills,
+    html:not([data-theme="dark"]) .ci360-filter-pills {
+      background: #FFFFFF;
+      border-color: #CBD5E1;
+    }
+    [data-theme="light"] .filter-pill,
+    html:not([data-theme="dark"]) .filter-pill {
+      color: #64748B;
+    }
+    [data-theme="light"] .filter-pill:hover,
+    html:not([data-theme="dark"]) .filter-pill:hover {
+      background: #F1F5F9;
+      color: #0F172A;
+    }
+    [data-theme="light"] .filter-pill.active,
+    html:not([data-theme="dark"]) .filter-pill.active {
+      background: #EEF2FF;
+      color: #4F46E5;
+    }
+    [data-theme="light"] .ci360-search-box,
+    html:not([data-theme="dark"]) .ci360-search-box {
+      background: #FFFFFF;
+      border-color: #CBD5E1;
+    }
+    [data-theme="light"] .ci360-search-box input,
+    html:not([data-theme="dark"]) .ci360-search-box input {
+      color: #0F172A;
+    }
+    [data-theme="light"] .ci360-search-box input::placeholder,
+    html:not([data-theme="dark"]) .ci360-search-box input::placeholder {
+      color: #94A3B8;
+    }
+    [data-theme="light"] .ci360-quick-add-bar,
+    html:not([data-theme="dark"]) .ci360-quick-add-bar {
+      background: #FFFFFF;
+      border: 1.5px dashed #CBD5E1;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+    }
+    [data-theme="light"] .ci360-quick-input,
+    html:not([data-theme="dark"]) .ci360-quick-input {
+      color: #0F172A;
+    }
+    [data-theme="light"] .ci360-quick-input::placeholder,
+    html:not([data-theme="dark"]) .ci360-quick-input::placeholder {
+      color: #94A3B8;
+    }
+    [data-theme="light"] .ci360-quick-select,
+    html:not([data-theme="dark"]) .ci360-quick-select {
+      background: #F8FAFC;
+      border-color: #CBD5E1;
+      color: #334155;
+    }
+    [data-theme="light"] .ci360-task-card,
+    html:not([data-theme="dark"]) .ci360-task-card {
+      background: #FFFFFF;
+      border-color: #E2E8F0;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+    [data-theme="light"] .ci360-task-card:hover,
+    html:not([data-theme="dark"]) .ci360-task-card:hover {
+      border-color: #CBD5E1;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    }
+    [data-theme="light"] .ci360-task-card.is-completed,
+    html:not([data-theme="dark"]) .ci360-task-card.is-completed {
+      background: #F8FAFC;
+      border-color: #E2E8F0;
+    }
+    [data-theme="light"] .ci360-task-title,
+    html:not([data-theme="dark"]) .ci360-task-title {
+      color: #0F172A;
+    }
+    [data-theme="light"] .ci360-task-desc,
+    html:not([data-theme="dark"]) .ci360-task-desc {
+      color: #475569;
+    }
+    [data-theme="light"] .ci360-task-check,
+    html:not([data-theme="dark"]) .ci360-task-check {
+      border-color: #CBD5E1;
+    }
+    [data-theme="light"] .task-action-btn,
+    html:not([data-theme="dark"]) .task-action-btn {
+      color: #64748B;
+    }
+    [data-theme="light"] .task-action-btn:hover,
+    html:not([data-theme="dark"]) .task-action-btn:hover {
+      background: #F1F5F9;
+      color: #0F172A;
+    }
+    [data-theme="light"] .ci360-past-date-banner,
+    html:not([data-theme="dark"]) .ci360-past-date-banner {
+      background: #FFFBEB;
+      border-color: #FDE68A;
+    }
+    [data-theme="light"] .past-banner-title,
+    html:not([data-theme="dark"]) .past-banner-title {
+      color: #92400E;
+    }
+    [data-theme="light"] .past-banner-desc,
+    html:not([data-theme="dark"]) .past-banner-desc {
+      color: #B45309;
+    }
+    [data-theme="light"] .ci360-emp-group-card,
+    html:not([data-theme="dark"]) .ci360-emp-group-card {
+      background: #FFFFFF;
+      border-color: #E2E8F0;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+    [data-theme="light"] .ci360-emp-group-header,
+    html:not([data-theme="dark"]) .ci360-emp-group-header {
+      background: #F8FAFC;
+      border-color: #E2E8F0;
+    }
+    [data-theme="light"] .ci360-emp-group-header:hover,
+    html:not([data-theme="dark"]) .ci360-emp-group-header:hover {
+      background: #F1F5F9;
+    }
+    [data-theme="light"] .emp-avatar,
+    html:not([data-theme="dark"]) .emp-avatar {
+      background: #EEF2FF;
+      color: #4F46E5;
+      border: 1px solid #C7D2FE;
+    }
+    [data-theme="light"] .emp-name,
+    html:not([data-theme="dark"]) .emp-name {
+      color: #0F172A;
+    }
+    [data-theme="light"] .emp-subtitle,
+    html:not([data-theme="dark"]) .emp-subtitle {
+      color: #64748B;
+    }
+    [data-theme="light"] .emp-stat-pill,
+    html:not([data-theme="dark"]) .emp-stat-pill {
+      background: #FFFFFF;
+      border-color: #E2E8F0;
+      color: #475569;
+    }
+    [data-theme="light"] .ci360-day-column,
+    html:not([data-theme="dark"]) .ci360-day-column {
+      background: #FFFFFF;
+      border-color: #E2E8F0;
+    }
+    [data-theme="light"] .day-col-header .day-name,
+    html:not([data-theme="dark"]) .day-col-header .day-name {
+      color: #64748B;
+    }
+    [data-theme="light"] .day-col-header .day-number,
+    html:not([data-theme="dark"]) .day-col-header .day-number {
+      color: #0F172A;
+    }
+    [data-theme="light"] .ci360-mini-task-card,
+    html:not([data-theme="dark"]) .ci360-mini-task-card {
+      background: #F8FAFC;
+      border-color: #E2E8F0;
+    }
+    [data-theme="light"] .ci360-mini-task-card:hover,
+    html:not([data-theme="dark"]) .ci360-mini-task-card:hover {
+      background: #FFFFFF;
+      border-color: #CBD5E1;
+    }
+    [data-theme="light"] .mini-title,
+    html:not([data-theme="dark"]) .mini-title {
+      color: #0F172A;
+    }
+    [data-theme="light"] .day-col-add-btn,
+    html:not([data-theme="dark"]) .day-col-add-btn {
+      border: 1px dashed #CBD5E1;
+      color: #64748B;
+    }
+    [data-theme="light"] .day-col-add-btn:hover,
+    html:not([data-theme="dark"]) .day-col-add-btn:hover {
+      border-color: #4F46E5;
+      color: #4F46E5;
+      background: #EEF2FF;
+    }
+    [data-theme="light"] .ci360-planner-modal,
+    html:not([data-theme="dark"]) .ci360-planner-modal {
+      background: #FFFFFF;
+      color: #0F172A;
+      border: 1px solid #E2E8F0;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+    }
+    [data-theme="light"] .ci360-modal-header h3,
+    html:not([data-theme="dark"]) .ci360-modal-header h3 {
+      color: #0F172A;
+    }
+    [data-theme="light"] .ci360-modal-form label,
+    html:not([data-theme="dark"]) .ci360-modal-form label {
+      color: #334155;
+    }
+    [data-theme="light"] .ci360-modal-form .input,
+    html:not([data-theme="dark"]) .ci360-modal-form .input {
+      background: #FFFFFF;
+      color: #0F172A;
+      border: 1px solid #CBD5E1;
+    }
+    [data-theme="light"] .ci360-badge.creator-badge,
+    html:not([data-theme="dark"]) .ci360-badge.creator-badge {
+      background: #F5F3FF;
+      color: #6D28D9;
+      border-color: #DDD6FE;
+    }
+    [data-theme="light"] .ci360-badge.completion-badge,
+    html:not([data-theme="dark"]) .ci360-badge.completion-badge {
+      background: #EFF6FF;
+      color: #1D4ED8;
+      border-color: #BFDBFE;
     }
   `;
   document.head.appendChild(style);
