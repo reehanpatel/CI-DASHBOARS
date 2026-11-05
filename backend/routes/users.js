@@ -7,8 +7,13 @@ const router = express.Router();
 router.use(verifyToken, requireRole('superadmin'));
 
 router.get('/', async (req, res) => {
-  const users = await User.find().select('-passwordHash').populate('personnelId', 'name').populate('clientId', 'name').sort('name');
-  res.json(users);
+  const users = await User.find()
+    .select('-passwordHash')
+    .populate('personnelId', 'name isDeleted')
+    .populate('clientId', 'name')
+    .sort('name');
+  const visibleUsers = users.filter(u => !(u.personnelId && u.personnelId.isDeleted));
+  res.json(visibleUsers);
 });
 
 router.post('/', async (req, res) => {
@@ -63,6 +68,14 @@ router.delete('/:id', async (req, res) => {
       const superadminCount = await User.countDocuments({ role: 'superadmin' });
       if (superadminCount <= 1) {
         return res.status(400).json({ error: 'Cannot delete the only remaining superadmin account.' });
+      }
+    }
+    if (target.personnelId) {
+      try {
+        const Personnel = require('../models/Personnel');
+        await Personnel.findByIdAndUpdate(target.personnelId, { isDeleted: true, deletedAt: new Date() });
+      } catch (pErr) {
+        console.warn('Personnel soft-delete warning:', pErr.message);
       }
     }
     await User.findByIdAndDelete(req.params.id);

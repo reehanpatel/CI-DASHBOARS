@@ -6932,7 +6932,7 @@ html:not([data-theme="dark"]) textarea {
 [class*="refresh-icon"],
 [class*="refreshing"],
 .data-refreshing,
-.jira-refresh-spin {
+.ci-360-refresh-spin, .jira-refresh-spin {
   animation: none !important;
   transform: none !important;
   transition: none !important;

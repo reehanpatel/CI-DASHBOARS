@@ -1,5 +1,5 @@
 /**
- * CI360 SUPPORT TICKETS MODULE — JIRA-STYLE INTERNAL MANAGEMENT
+ * CI360 SUPPORT TICKETS MODULE — CI-360-STYLE INTERNAL MANAGEMENT
  * Complete Scrum board with drag-and-drop, 2-column issue detail modal,
  * subtasks, comments, attachments, activity history, and work logging.
  *
@@ -27,7 +27,7 @@ function renderTextWithLinks(text) {
   const escaped = escapeHtml(text);
   const urlRegex = /(https?:\/\/[^\s<]+[^<.,:;"')\]\s])/g;
   return escaped.replace(urlRegex, (url) => {
-    return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="jira-inline-link">${url} ↗</a>`;
+    return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="ci-360-inline-link">${url} ↗</a>`;
   });
 }
 
@@ -93,42 +93,42 @@ export async function initSupportTickets(container, options = {}) {
 
   // Render Skeleton Initial Structure
   container.innerHTML = `
-    <div class="jira-module-wrap">
+    <div class="ci-360-module-wrap">
       <!-- Top Header Toolbar -->
-      <div class="jira-header-bar">
-        <div class="jira-header-left">
-          <div class="jira-breadcrumb">
-            <span class="jira-project-icon">CI</span>
+      <div class="ci-360-header-bar">
+        <div class="ci-360-header-left">
+          <div class="ci-360-breadcrumb">
+            <span class="ci-360-project-icon">CI</span>
             <span>CI360 / SUPPORT / ${isSuper ? 'ALL TICKETS (ADMIN)' : 'MY ASSIGNED TICKETS'}</span>
           </div>
-          <div class="jira-title-row">
-            <h2 class="jira-main-title">🎫 ${isSuper ? 'Support Tickets Board' : 'Support Tickets'}</h2>
+          <div class="ci-360-title-row">
+            <h2 class="ci-360-main-title">🎫 ${isSuper ? 'Support Tickets Board' : 'Support Tickets'}</h2>
           </div>
         </div>
-        <div class="jira-header-actions">
-          <button class="btn-jira-secondary" id="btn-jira-refresh" title="Refresh Board">
+        <div class="ci-360-header-actions">
+          <button class="btn-ci-360-secondary" id="btn-ci-360-refresh" title="Refresh Board">
             🔄 Refresh
           </button>
-          <button class="btn-jira-primary" id="btn-jira-create-ticket">
+          <button class="btn-ci-360-primary" id="btn-ci-360-create-ticket">
             + Create Ticket
           </button>
         </div>
       </div>
 
       <!-- Stats Overview Ribbon -->
-      <div class="jira-stats-ribbon" id="jira-stats-root">
-        <div class="jira-stat-card"><span class="jira-stat-val">—</span><span class="jira-stat-lbl">Loading Stats...</span></div>
+      <div class="ci-360-stats-ribbon" id="ci-360-stats-root">
+        <div class="ci-360-stat-card"><span class="ci-360-stat-val">—</span><span class="ci-360-stat-lbl">Loading Stats...</span></div>
       </div>
 
       <!-- Filter Toolbar -->
-      <div class="jira-filter-bar">
-        <div class="jira-filter-left">
-          <div class="jira-search-wrap">
-            <span class="jira-search-icon">🔍</span>
-            <input type="text" id="jira-search-input" class="jira-search-input" placeholder="Search ticket (ID, title, description)..." />
+      <div class="ci-360-filter-bar">
+        <div class="ci-360-filter-left">
+          <div class="ci-360-search-wrap">
+            <span class="ci-360-search-icon">🔍</span>
+            <input type="text" id="ci-360-search-input" class="ci-360-search-input" placeholder="Search ticket (ID, title, description)..." />
           </div>
 
-          <select id="jira-filter-priority" class="jira-filter-select">
+          <select id="ci-360-filter-priority" class="ci-360-filter-select">
             <option value="all">Priority: All</option>
             <option value="Critical">🔴 Critical</option>
             <option value="High">🟠 High</option>
@@ -136,37 +136,37 @@ export async function initSupportTickets(container, options = {}) {
             <option value="Low">🟢 Low</option>
           </select>
 
-          <select id="jira-filter-category" class="jira-filter-select">
+          <select id="ci-360-filter-category" class="ci-360-filter-select">
             <option value="all">Category: All</option>
             ${CATEGORIES.map(c => `<option value="${c.key}">${c.icon} ${c.label}</option>`).join('')}
           </select>
 
-          <select id="jira-filter-job" class="jira-filter-select">
+          <select id="ci-360-filter-job" class="ci-360-filter-select">
             <option value="all">Linked Job: All</option>
           </select>
 
-          <select id="jira-filter-assignee" class="jira-filter-select">
+          <select id="ci-360-filter-assignee" class="ci-360-filter-select">
             <option value="all">Assignee: All</option>
             <option value="unassigned">Unassigned</option>
           </select>
 
-          <button type="button" class="jira-pill-filter" id="jira-pill-my-issues">
+          <button type="button" class="ci-360-pill-filter" id="ci-360-pill-my-issues">
             Only My Issues
           </button>
 
-          <span class="jira-clear-filters" id="jira-clear-filters" style="display:none;">Clear Filters</span>
+          <span class="ci-360-clear-filters" id="ci-360-clear-filters" style="display:none;">Clear Filters</span>
         </div>
       </div>
 
       <!-- Scrum Board Columns Container -->
-      <div class="jira-board-columns" id="jira-board-columns-root">
+      <div class="ci-360-board-columns" id="ci-360-board-columns-root">
         <div style="padding:40px;color:#94a3b8;font-size:14px;font-weight:600;">
           Loading Scrum Board...
         </div>
       </div>
 
       <!-- Modal Injection Root -->
-      <div id="jira-modals-root"></div>
+      <div id="ci-360-modals-root"></div>
     </div>
   `;
 
@@ -269,45 +269,45 @@ export async function initSupportTickets(container, options = {}) {
      RENDER STATS OVERVIEW RIBBON
      ────────────────────────────────────────────────────────────────────────── */
   function renderStats() {
-    const root = container.querySelector('#jira-stats-root');
+    const root = container.querySelector('#ci-360-stats-root');
     if (!root) return;
 
     root.innerHTML = `
-      <div class="jira-stat-card ${filters.status === 'all' && !filters.myIssuesOnly ? 'active' : ''}" data-stat-filter="all">
-        <span class="jira-stat-val">${stats.total || 0}</span>
-        <span class="jira-stat-lbl">Total Tickets</span>
+      <div class="ci-360-stat-card ${filters.status === 'all' && !filters.myIssuesOnly ? 'active' : ''}" data-stat-filter="all">
+        <span class="ci-360-stat-val">${stats.total || 0}</span>
+        <span class="ci-360-stat-lbl">Total Tickets</span>
       </div>
-      <div class="jira-stat-card ${filters.status === 'To Do' ? 'active' : ''}" data-stat-filter="To Do">
-        <span class="jira-stat-val">${stats.toDo || 0}</span>
-        <span class="jira-stat-lbl">To Do</span>
+      <div class="ci-360-stat-card ${filters.status === 'To Do' ? 'active' : ''}" data-stat-filter="To Do">
+        <span class="ci-360-stat-val">${stats.toDo || 0}</span>
+        <span class="ci-360-stat-lbl">To Do</span>
       </div>
-      <div class="jira-stat-card content ${filters.status === 'Content' ? 'active' : ''}" data-stat-filter="Content">
-        <span class="jira-stat-val">${stats.content ?? (stats.inProgress || 0)}</span>
-        <span class="jira-stat-lbl">Content</span>
+      <div class="ci-360-stat-card content ${filters.status === 'Content' ? 'active' : ''}" data-stat-filter="Content">
+        <span class="ci-360-stat-val">${stats.content ?? (stats.inProgress || 0)}</span>
+        <span class="ci-360-stat-lbl">Content</span>
       </div>
-      <div class="jira-stat-card design ${filters.status === 'Design' ? 'active' : ''}" data-stat-filter="Design">
-        <span class="jira-stat-val">${stats.design || 0}</span>
-        <span class="jira-stat-lbl">Design</span>
+      <div class="ci-360-stat-card design ${filters.status === 'Design' ? 'active' : ''}" data-stat-filter="Design">
+        <span class="ci-360-stat-val">${stats.design || 0}</span>
+        <span class="ci-360-stat-lbl">Design</span>
       </div>
-      <div class="jira-stat-card review ${filters.status === 'Under Review' ? 'active' : ''}" data-stat-filter="Under Review">
-        <span class="jira-stat-val">${stats.underReview || 0}</span>
-        <span class="jira-stat-lbl">Under Review</span>
+      <div class="ci-360-stat-card review ${filters.status === 'Under Review' ? 'active' : ''}" data-stat-filter="Under Review">
+        <span class="ci-360-stat-val">${stats.underReview || 0}</span>
+        <span class="ci-360-stat-lbl">Under Review</span>
       </div>
-      <div class="jira-stat-card ready ${filters.status === 'Ready to Leave' ? 'active' : ''}" data-stat-filter="Ready to Leave">
-        <span class="jira-stat-val">${stats.readyToLeave ?? (stats.resolved || stats.closed || 0)}</span>
-        <span class="jira-stat-lbl">Ready to Leave</span>
+      <div class="ci-360-stat-card ready ${filters.status === 'Ready to Leave' ? 'active' : ''}" data-stat-filter="Ready to Leave">
+        <span class="ci-360-stat-val">${stats.readyToLeave ?? (stats.resolved || stats.closed || 0)}</span>
+        <span class="ci-360-stat-lbl">Ready to Leave</span>
       </div>
-      <div class="jira-stat-card critical" data-stat-filter="critical">
-        <span class="jira-stat-val">${stats.critical || 0}</span>
-        <span class="jira-stat-lbl">Critical 🔴</span>
+      <div class="ci-360-stat-card critical" data-stat-filter="critical">
+        <span class="ci-360-stat-val">${stats.critical || 0}</span>
+        <span class="ci-360-stat-lbl">Critical 🔴</span>
       </div>
-      <div class="jira-stat-card overdue" data-stat-filter="overdue">
-        <span class="jira-stat-val">${stats.overdue || 0}</span>
-        <span class="jira-stat-lbl">Overdue ⚠️</span>
+      <div class="ci-360-stat-card overdue" data-stat-filter="overdue">
+        <span class="ci-360-stat-val">${stats.overdue || 0}</span>
+        <span class="ci-360-stat-lbl">Overdue ⚠️</span>
       </div>
     `;
 
-    root.querySelectorAll('.jira-stat-card').forEach(card => {
+    root.querySelectorAll('.ci-360-stat-card').forEach(card => {
       card.onclick = async () => {
         const filterType = card.dataset.statFilter;
         if (filterType === 'all') {
@@ -326,7 +326,7 @@ export async function initSupportTickets(container, options = {}) {
   }
 
   function populateFilterDropdowns() {
-    const selAssignee = container.querySelector('#jira-filter-assignee');
+    const selAssignee = container.querySelector('#ci-360-filter-assignee');
     if (selAssignee) {
       selAssignee.innerHTML = `
         <option value="all">Assignee: All</option>
@@ -339,7 +339,7 @@ export async function initSupportTickets(container, options = {}) {
       `;
     }
 
-    const selJob = container.querySelector('#jira-filter-job');
+    const selJob = container.querySelector('#ci-360-filter-job');
     if (selJob) {
       selJob.innerHTML = `
         <option value="all">Linked Job: All</option>
@@ -356,7 +356,7 @@ export async function initSupportTickets(container, options = {}) {
      RENDER SCRUM BOARD COLUMNS & CARDS
      ────────────────────────────────────────────────────────────────────────── */
   function renderBoard() {
-    const boardRoot = container.querySelector('#jira-board-columns-root');
+    const boardRoot = container.querySelector('#ci-360-board-columns-root');
     if (!boardRoot) return;
 
     // Group tickets by status
@@ -376,14 +376,14 @@ export async function initSupportTickets(container, options = {}) {
       const colTickets = grouped[col.key] || [];
 
       return `
-        <div class="jira-board-column" data-status="${col.key}">
-          <div class="jira-column-header">
-            <div class="jira-col-title-wrap">
-              <span class="jira-col-title">${escapeHtml(col.label)}</span>
-              <span class="jira-col-badge">${colTickets.length}</span>
+        <div class="ci-360-board-column" data-status="${col.key}">
+          <div class="ci-360-column-header">
+            <div class="ci-360-col-title-wrap">
+              <span class="ci-360-col-title">${escapeHtml(col.label)}</span>
+              <span class="ci-360-col-badge">${colTickets.length}</span>
             </div>
           </div>
-          <div class="jira-cards-list" data-column-status="${col.key}">
+          <div class="ci-360-cards-list" data-column-status="${col.key}">
             ${colTickets.length === 0 ? `
               <div style="padding:18px 6px;text-align:center;color:#475569;font-size:11px;font-style:italic;">
                 No tickets
@@ -417,19 +417,19 @@ export async function initSupportTickets(container, options = {}) {
 
     let avatarsHtml = '';
     if (assigneesList.length === 0) {
-      avatarsHtml = `<div class="jira-avatar unassigned" title="Unassigned">?</div>`;
+      avatarsHtml = `<div class="ci-360-avatar unassigned" title="Unassigned">?</div>`;
     } else {
       const displayAssignees = assigneesList.slice(0, 3);
       const remainingCount = assigneesList.length - 3;
       avatarsHtml = `
-        <div class="jira-avatar-group">
+        <div class="ci-360-avatar-group">
           ${displayAssignees.map(a => `
-            <div class="jira-avatar" title="Assignee: ${escapeHtml(a.name || 'Member')} (${escapeHtml(a.role || '')})">
+            <div class="ci-360-avatar" title="Assignee: ${escapeHtml(a.name || 'Member')} (${escapeHtml(a.role || '')})">
               ${(a.avatar || a.name?.slice(0, 1) || 'U').toUpperCase()}
             </div>
           `).join('')}
           ${remainingCount > 0 ? `
-            <div class="jira-avatar extra-count" title="${remainingCount} more assignees: ${escapeHtml(assigneesList.slice(3).map(a => a.name).join(', '))}">
+            <div class="ci-360-avatar extra-count" title="${remainingCount} more assignees: ${escapeHtml(assigneesList.slice(3).map(a => a.name).join(', '))}">
               +${remainingCount}
             </div>
           ` : ''}
@@ -438,58 +438,58 @@ export async function initSupportTickets(container, options = {}) {
     }
 
     return `
-      <div class="jira-card" draggable="true" data-ticket-id="${t._id}">
-        <div class="jira-card-top">
+      <div class="ci-360-card" draggable="true" data-ticket-id="${t._id}">
+        <div class="ci-360-card-top">
           <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
-            <span class="jira-category-pill ${cat.slug}">
+            <span class="ci-360-category-pill ${cat.slug}">
               ${cat.icon} ${cat.label}
             </span>
             ${isReporter ? `
-              <span class="jira-reporter-tag" title="You created this ticket">
+              <span class="ci-360-reporter-tag" title="You created this ticket">
                 ✍️ By You
               </span>
             ` : ''}
             ${t.dueDate ? `
-              <span class="jira-due-pill ${isOverdue ? 'overdue' : ''}" title="Due Date">
+              <span class="ci-360-due-pill ${isOverdue ? 'overdue' : ''}" title="Due Date">
                 ${isOverdue ? '⚠️ ' : '📅 '}
                 ${new Date(t.dueDate).toISOString().slice(0, 10)}
               </span>
             ` : ''}
           </div>
           ${canDelete ? `
-            <button type="button" class="jira-card-quick-del btn-delete-card-ticket" data-ticket-id="${t._id}" data-ticket-num="${escapeHtml(t.ticketId)}" title="Delete Ticket (${isSuperadmin ? 'Superadmin' : 'Creator'})">
+            <button type="button" class="ci-360-card-quick-del btn-delete-card-ticket" data-ticket-id="${t._id}" data-ticket-num="${escapeHtml(t.ticketId)}" title="Delete Ticket (${isSuperadmin ? 'Superadmin' : 'Creator'})">
               🗑️
             </button>
           ` : ''}
         </div>
 
-        <div class="jira-card-title" title="${escapeHtml(t.title)}">
+        <div class="ci-360-card-title" title="${escapeHtml(t.title)}">
           ${escapeHtml(t.title)}
         </div>
 
         ${(t.jobTitle || (t.jobId && t.jobId.title)) ? `
-          <div class="jira-card-job-link" title="Linked Internal Job: ${escapeHtml(t.jobTitle || t.jobId.title)}">
+          <div class="ci-360-card-job-link" title="Linked Internal Job: ${escapeHtml(t.jobTitle || t.jobId.title)}">
             📁 ${escapeHtml(t.jobTitle || t.jobId.title)}
           </div>
         ` : ''}
 
         ${(t.linkUrl || (t.links && t.links.length > 0)) ? `
           <div style="margin: 4px 0 2px 0;">
-            <a href="${escapeHtml(t.linkUrl || t.links[0]?.url)}" target="_blank" rel="noopener noreferrer" class="jira-card-link-badge" onclick="event.stopPropagation();" title="Open URL: ${escapeHtml(t.linkUrl || t.links[0]?.url)}">
+            <a href="${escapeHtml(t.linkUrl || t.links[0]?.url)}" target="_blank" rel="noopener noreferrer" class="ci-360-card-link-badge" onclick="event.stopPropagation();" title="Open URL: ${escapeHtml(t.linkUrl || t.links[0]?.url)}">
               🔗 ${(t.links && t.links[0]?.title) ? escapeHtml(t.links[0].title) : 'External Link'} ↗
             </a>
           </div>
         ` : ''}
 
-        <div class="jira-card-bottom">
-          <div class="jira-card-id-row">
-            <span class="jira-pri-icon" title="Priority: ${pri.label}">${pri.icon}</span>
-            <span class="jira-ticket-id">${escapeHtml(t.ticketId)}</span>
+        <div class="ci-360-card-bottom">
+          <div class="ci-360-card-id-row">
+            <span class="ci-360-pri-icon" title="Priority: ${pri.label}">${pri.icon}</span>
+            <span class="ci-360-ticket-id">${escapeHtml(t.ticketId)}</span>
           </div>
 
-          <div class="jira-card-assignee-row">
+          <div class="ci-360-card-assignee-row">
             ${subtaskTotal > 0 ? `
-              <span class="jira-subtask-badge" title="${subtaskDone} of ${subtaskTotal} subtasks completed">
+              <span class="ci-360-subtask-badge" title="${subtaskDone} of ${subtaskTotal} subtasks completed">
                 ☑ ${subtaskDone}/${subtaskTotal}
               </span>
             ` : ''}
@@ -504,8 +504,8 @@ export async function initSupportTickets(container, options = {}) {
      HTML5 DRAG AND DROP ENGINE
      ────────────────────────────────────────────────────────────────────────── */
   function bindDragAndDrop() {
-    const cards = container.querySelectorAll('.jira-card');
-    const columns = container.querySelectorAll('.jira-board-column');
+    const cards = container.querySelectorAll('.ci-360-card');
+    const columns = container.querySelectorAll('.ci-360-board-column');
 
     cards.forEach(card => {
       card.ondragstart = (e) => {
@@ -591,7 +591,7 @@ export async function initSupportTickets(container, options = {}) {
       };
     });
 
-    container.querySelectorAll('.jira-card').forEach(card => {
+    container.querySelectorAll('.ci-360-card').forEach(card => {
       card.onclick = (e) => {
         // Prevent trigger if clicking an internal link or delete button
         if (e.target.tagName === 'A' || e.target.closest('.btn-delete-card-ticket')) return;
@@ -606,7 +606,7 @@ export async function initSupportTickets(container, options = {}) {
      ────────────────────────────────────────────────────────────────────────── */
   function bindGlobalEvents() {
     // Refresh button
-    const btnRefresh = container.querySelector('#btn-jira-refresh');
+    const btnRefresh = container.querySelector('#btn-ci-360-refresh');
     if (btnRefresh) {
       btnRefresh.onclick = async () => {
         // no animation on refresh
@@ -617,7 +617,7 @@ export async function initSupportTickets(container, options = {}) {
     }
 
     // Create ticket button
-    const btnCreate = container.querySelector('#btn-jira-create-ticket');
+    const btnCreate = container.querySelector('#btn-ci-360-create-ticket');
     if (btnCreate) {
       btnCreate.onclick = () => {
         openCreateTicketModal();
@@ -625,7 +625,7 @@ export async function initSupportTickets(container, options = {}) {
     }
 
     // Search input (debounced)
-    const searchInp = container.querySelector('#jira-search-input');
+    const searchInp = container.querySelector('#ci-360-search-input');
     let searchDebounce = null;
     if (searchInp) {
       searchInp.oninput = (e) => {
@@ -639,7 +639,7 @@ export async function initSupportTickets(container, options = {}) {
     }
 
     // Priority filter
-    const priSelect = container.querySelector('#jira-filter-priority');
+    const priSelect = container.querySelector('#ci-360-filter-priority');
     if (priSelect) {
       priSelect.onchange = async (e) => {
         filters.priority = e.target.value;
@@ -649,7 +649,7 @@ export async function initSupportTickets(container, options = {}) {
     }
 
     // Category filter
-    const catSelect = container.querySelector('#jira-filter-category');
+    const catSelect = container.querySelector('#ci-360-filter-category');
     if (catSelect) {
       catSelect.onchange = async (e) => {
         filters.category = e.target.value;
@@ -659,7 +659,7 @@ export async function initSupportTickets(container, options = {}) {
     }
 
     // Linked Job filter
-    const jobSelect = container.querySelector('#jira-filter-job');
+    const jobSelect = container.querySelector('#ci-360-filter-job');
     if (jobSelect) {
       jobSelect.onchange = async (e) => {
         filters.jobId = e.target.value;
@@ -669,7 +669,7 @@ export async function initSupportTickets(container, options = {}) {
     }
 
     // Assignee filter
-    const assSelect = container.querySelector('#jira-filter-assignee');
+    const assSelect = container.querySelector('#ci-360-filter-assignee');
     if (assSelect) {
       assSelect.onchange = async (e) => {
         filters.assigneeId = e.target.value;
@@ -679,7 +679,7 @@ export async function initSupportTickets(container, options = {}) {
     }
 
     // Only My Issues pill (Admin)
-    const pillMy = container.querySelector('#jira-pill-my-issues');
+    const pillMy = container.querySelector('#ci-360-pill-my-issues');
     if (pillMy) {
       pillMy.onclick = async () => {
         filters.myIssuesOnly = !filters.myIssuesOnly;
@@ -690,9 +690,9 @@ export async function initSupportTickets(container, options = {}) {
     }
 
     // Employee scope filter pills (All / Assigned / Created)
-    const pillScopeAll = container.querySelector('#jira-pill-scope-all');
-    const pillScopeAssigned = container.querySelector('#jira-pill-scope-assigned');
-    const pillScopeCreated = container.querySelector('#jira-pill-scope-created');
+    const pillScopeAll = container.querySelector('#ci-360-pill-scope-all');
+    const pillScopeAssigned = container.querySelector('#ci-360-pill-scope-assigned');
+    const pillScopeCreated = container.querySelector('#ci-360-pill-scope-created');
 
     const setScope = async (scope) => {
       filters.scope = scope;
@@ -708,7 +708,7 @@ export async function initSupportTickets(container, options = {}) {
     if (pillScopeCreated) pillScopeCreated.onclick = () => setScope('created');
 
     // Clear filters
-    const clearBtn = container.querySelector('#jira-clear-filters');
+    const clearBtn = container.querySelector('#ci-360-clear-filters');
     if (clearBtn) {
       clearBtn.onclick = async () => {
         filters = {
@@ -725,7 +725,7 @@ export async function initSupportTickets(container, options = {}) {
         if (searchInp) searchInp.value = '';
         if (priSelect) priSelect.value = 'all';
         if (catSelect) catSelect.value = 'all';
-        const jobSel = container.querySelector('#jira-filter-job');
+        const jobSel = container.querySelector('#ci-360-filter-job');
         if (jobSel) jobSel.value = 'all';
         if (assSelect) assSelect.value = 'all';
         if (pillMy) pillMy.classList.remove('active');
@@ -739,7 +739,7 @@ export async function initSupportTickets(container, options = {}) {
   }
 
   function updateClearFiltersVisibility() {
-    const clearBtn = container.querySelector('#jira-clear-filters');
+    const clearBtn = container.querySelector('#ci-360-clear-filters');
     if (!clearBtn) return;
     const hasActive = filters.search || filters.priority !== 'all' || filters.category !== 'all' || (filters.jobId && filters.jobId !== 'all') || filters.assigneeId !== 'all' || filters.myIssuesOnly || (filters.scope && filters.scope !== 'all');
     clearBtn.style.display = hasActive ? 'inline' : 'none';
@@ -751,15 +751,15 @@ export async function initSupportTickets(container, options = {}) {
   }
 
   /* ──────────────────────────────────────────────────────────────────────────
-     JIRA ISSUE DETAIL MODAL (2-COLUMN COMPREHENSIVE VIEW)
+     CI-360 ISSUE DETAIL MODAL (2-COLUMN COMPREHENSIVE VIEW)
      ────────────────────────────────────────────────────────────────────────── */
   async function openTicketDetailModal(ticketDocId) {
-    const modalRoot = container.querySelector('#jira-modals-root');
+    const modalRoot = container.querySelector('#ci-360-modals-root');
     if (!modalRoot) return;
 
     modalRoot.innerHTML = `
-      <div class="jira-modal-backdrop">
-        <div class="jira-modal-card" style="align-items:center;justify-content:center;">
+      <div class="ci-360-modal-backdrop">
+        <div class="ci-360-modal-card" style="align-items:center;justify-content:center;">
           <div style="color:#94a3b8;font-size:15px;font-weight:600;">Loading Issue Details...</div>
         </div>
       </div>
@@ -777,7 +777,7 @@ export async function initSupportTickets(container, options = {}) {
   }
 
   function renderTicketDetailModal() {
-    const modalRoot = container.querySelector('#jira-modals-root');
+    const modalRoot = container.querySelector('#ci-360-modals-root');
     if (!modalRoot || !activeModalTicket) return;
 
     const t = activeModalTicket;
@@ -811,99 +811,99 @@ export async function initSupportTickets(container, options = {}) {
     const currentJobTitle = t.jobTitle || (t.jobId && t.jobId.title) || '';
 
     modalRoot.innerHTML = `
-      <div class="jira-modal-backdrop" id="jira-detail-backdrop">
-        <div class="jira-modal-card">
+      <div class="ci-360-modal-backdrop" id="ci-360-detail-backdrop">
+        <div class="ci-360-modal-card">
           <!-- Top Bar -->
-          <div class="jira-modal-header">
-            <div class="jira-modal-title-row">
-              <span class="jira-category-pill ${cat.slug}">${cat.icon} ${cat.label}</span>
-              <span class="jira-ticket-id" style="font-size:13px;color:#38bdf8;">${escapeHtml(t.ticketId)}</span>
+          <div class="ci-360-modal-header">
+            <div class="ci-360-modal-title-row">
+              <span class="ci-360-category-pill ${cat.slug}">${cat.icon} ${cat.label}</span>
+              <span class="ci-360-ticket-id" style="font-size:13px;color:#38bdf8;">${escapeHtml(t.ticketId)}</span>
             </div>
-            <button class="jira-modal-close" id="btn-close-jira-modal" title="Close (Esc)">&times;</button>
+            <button class="ci-360-modal-close" id="btn-close-ci-360-modal" title="Close (Esc)">&times;</button>
           </div>
 
           <!-- 2-Column Body -->
-          <div class="jira-detail-body">
+          <div class="ci-360-detail-body">
             <!-- Left Main Column (68%) -->
-            <div class="jira-detail-main">
+            <div class="ci-360-detail-main">
               <!-- Issue Title Header -->
-              <div class="jira-issue-header-wrap">
-                <input type="text" class="jira-editable-title" id="inp-detail-title" value="${escapeHtml(t.title)}" title="Click to edit title" />
+              <div class="ci-360-issue-header-wrap">
+                <input type="text" class="ci-360-editable-title" id="inp-detail-title" value="${escapeHtml(t.title)}" title="Click to edit title" />
               </div>
 
               <!-- Description Section -->
-              <div class="jira-section-block">
-                <div class="jira-sec-title">
+              <div class="ci-360-section-block">
+                <div class="ci-360-sec-title">
                   <span>Description</span>
-                  <button type="button" class="jira-tool-btn" id="btn-toggle-desc-edit">
+                  <button type="button" class="ci-360-tool-btn" id="btn-toggle-desc-edit">
                     ${isEditingDescription ? 'Cancel' : '✏️ Edit'}
                   </button>
                 </div>
 
                 ${isEditingDescription ? `
-                  <div class="jira-editor-toolbar">
-                    <button type="button" class="jira-tool-btn" data-fmt="bold"><strong>B</strong></button>
-                    <button type="button" class="jira-tool-btn" data-fmt="italic"><em>I</em></button>
-                    <button type="button" class="jira-tool-btn" data-fmt="bullet">• List</button>
-                    <button type="button" class="jira-tool-btn" data-fmt="code">&lt;/&gt;</button>
+                  <div class="ci-360-editor-toolbar">
+                    <button type="button" class="ci-360-tool-btn" data-fmt="bold"><strong>B</strong></button>
+                    <button type="button" class="ci-360-tool-btn" data-fmt="italic"><em>I</em></button>
+                    <button type="button" class="ci-360-tool-btn" data-fmt="bullet">• List</button>
+                    <button type="button" class="ci-360-tool-btn" data-fmt="code">&lt;/&gt;</button>
                   </div>
-                  <textarea id="inp-detail-desc" class="jira-desc-editor" rows="6">${escapeHtml(t.description || '')}</textarea>
+                  <textarea id="inp-detail-desc" class="ci-360-desc-editor" rows="6">${escapeHtml(t.description || '')}</textarea>
                   <div style="display:flex;gap:8px;margin-top:6px;">
-                    <button class="btn-jira-primary" id="btn-save-desc">Save Description</button>
-                    <button class="btn-jira-secondary" id="btn-cancel-desc">Cancel</button>
+                    <button class="btn-ci-360-primary" id="btn-save-desc">Save Description</button>
+                    <button class="btn-ci-360-secondary" id="btn-cancel-desc">Cancel</button>
                   </div>
                 ` : `
-                  <div class="jira-desc-wrap" id="view-detail-desc">
+                  <div class="ci-360-desc-wrap" id="view-detail-desc">
                     ${t.description ? renderTextWithLinks(t.description) : '<span style="color:#64748b;font-style:italic;">No description provided. Click "Edit" to add details.</span>'}
                   </div>
                 `}
               </div>
 
               <!-- Reference & External URLs (Figma, Loom, Live App, Docs) -->
-              <div class="jira-section-block">
-                <div class="jira-sec-title">
+              <div class="ci-360-section-block">
+                <div class="ci-360-sec-title">
                   <span>🔗 Reference &amp; External Links (${(t.links || []).length + (t.linkUrl && !(t.links || []).some(l => l.url === t.linkUrl) ? 1 : 0)})</span>
-                  <button type="button" class="btn-jira-secondary" id="btn-toggle-add-link" style="font-size:11px;padding:4px 9px;">
+                  <button type="button" class="btn-ci-360-secondary" id="btn-toggle-add-link" style="font-size:11px;padding:4px 9px;">
                     + Add Link
                   </button>
                 </div>
 
-                <div id="add-link-form" class="jira-form-box" style="display:none;padding:12px;margin-bottom:10px;">
+                <div id="add-link-form" class="ci-360-form-box" style="display:none;padding:12px;margin-bottom:10px;">
                   <div style="display:flex;flex-direction:column;gap:8px;">
-                    <input type="url" id="inp-new-link-url" class="jira-form-input" placeholder="Paste link URL (e.g. https://figma.com/..., https://loom.com/..., live website)..." />
-                    <input type="text" id="inp-new-link-title" class="jira-form-input" placeholder="Link label / description (Optional, e.g. Figma UI, Loom Video, Live App)..." />
+                    <input type="url" id="inp-new-link-url" class="ci-360-form-input" placeholder="Paste link URL (e.g. https://figma.com/..., https://loom.com/..., live website)..." />
+                    <input type="text" id="inp-new-link-title" class="ci-360-form-input" placeholder="Link label / description (Optional, e.g. Figma UI, Loom Video, Live App)..." />
                     <div style="display:flex;gap:8px;justify-content:flex-end;">
-                      <button type="button" class="btn-jira-secondary" id="btn-cancel-new-link" style="font-size:12px;padding:6px 12px;">Cancel</button>
-                      <button type="button" class="btn-jira-primary" id="btn-save-new-link" style="font-size:12px;padding:6px 12px;">Save Link 🔗</button>
+                      <button type="button" class="btn-ci-360-secondary" id="btn-cancel-new-link" style="font-size:12px;padding:6px 12px;">Cancel</button>
+                      <button type="button" class="btn-ci-360-primary" id="btn-save-new-link" style="font-size:12px;padding:6px 12px;">Save Link 🔗</button>
                     </div>
                   </div>
                 </div>
 
                 ${(t.links && t.links.length > 0) || t.linkUrl ? `
-                  <div class="jira-links-list" style="display:flex;flex-direction:column;gap:8px;">
+                  <div class="ci-360-links-list" style="display:flex;flex-direction:column;gap:8px;">
                     ${t.linkUrl && !(t.links || []).some(l => l.url === t.linkUrl) ? `
-                      <div class="jira-link-card" style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 12px;border-radius:8px;">
+                      <div class="ci-360-link-card" style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 12px;border-radius:8px;">
                         <div style="display:flex;align-items:center;gap:8px;min-width:0;flex:1;">
                           <span style="font-size:16px;">🔗</span>
                           <div style="min-width:0;flex:1;">
-                            <a href="${escapeHtml(t.linkUrl)}" target="_blank" rel="noopener noreferrer" class="jira-link-anchor" style="font-size:12.5px;font-weight:700;color:#38bdf8;text-decoration:none;display:inline-flex;align-items:center;gap:4px;word-break:break-all;">
+                            <a href="${escapeHtml(t.linkUrl)}" target="_blank" rel="noopener noreferrer" class="ci-360-link-anchor" style="font-size:12.5px;font-weight:700;color:#38bdf8;text-decoration:none;display:inline-flex;align-items:center;gap:4px;word-break:break-all;">
                               ${escapeHtml(t.linkUrl)} <span>↗</span>
                             </a>
                             <div style="font-size:11px;color:#94a3b8;">Primary Reference Link</div>
                           </div>
                         </div>
                         <div style="display:flex;align-items:center;gap:6px;">
-                          <button type="button" class="btn-jira-secondary btn-copy-link" data-url="${escapeHtml(t.linkUrl)}" style="font-size:11px;padding:3px 8px;">Copy</button>
-                          <a href="${escapeHtml(t.linkUrl)}" target="_blank" rel="noopener noreferrer" class="btn-jira-primary" style="font-size:11px;padding:3px 9px;text-decoration:none;">Open ↗</a>
+                          <button type="button" class="btn-ci-360-secondary btn-copy-link" data-url="${escapeHtml(t.linkUrl)}" style="font-size:11px;padding:3px 8px;">Copy</button>
+                          <a href="${escapeHtml(t.linkUrl)}" target="_blank" rel="noopener noreferrer" class="btn-ci-360-primary" style="font-size:11px;padding:3px 9px;text-decoration:none;">Open ↗</a>
                         </div>
                       </div>
                     ` : ''}
                     ${(t.links || []).map(lnk => `
-                      <div class="jira-link-card" style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 12px;border-radius:8px;">
+                      <div class="ci-360-link-card" style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 12px;border-radius:8px;">
                         <div style="display:flex;align-items:center;gap:8px;min-width:0;flex:1;">
                           <span style="font-size:16px;">🔗</span>
                           <div style="min-width:0;flex:1;">
-                            <a href="${escapeHtml(lnk.url)}" target="_blank" rel="noopener noreferrer" class="jira-link-anchor" style="font-size:12.5px;font-weight:700;color:#38bdf8;text-decoration:none;display:inline-flex;align-items:center;gap:4px;word-break:break-all;">
+                            <a href="${escapeHtml(lnk.url)}" target="_blank" rel="noopener noreferrer" class="ci-360-link-anchor" style="font-size:12.5px;font-weight:700;color:#38bdf8;text-decoration:none;display:inline-flex;align-items:center;gap:4px;word-break:break-all;">
                               ${escapeHtml(lnk.title || lnk.url)} <span>↗</span>
                             </a>
                             <div style="font-size:11px;color:#94a3b8;">
@@ -912,9 +912,9 @@ export async function initSupportTickets(container, options = {}) {
                           </div>
                         </div>
                         <div style="display:flex;align-items:center;gap:6px;">
-                          <button type="button" class="btn-jira-secondary btn-copy-link" data-url="${escapeHtml(lnk.url)}" style="font-size:11px;padding:3px 8px;">Copy</button>
-                          <a href="${escapeHtml(lnk.url)}" target="_blank" rel="noopener noreferrer" class="btn-jira-primary" style="font-size:11px;padding:3px 9px;text-decoration:none;">Open ↗</a>
-                          <button type="button" class="jira-att-del btn-del-link" data-link-id="${lnk.id}" title="Remove Link">&times;</button>
+                          <button type="button" class="btn-ci-360-secondary btn-copy-link" data-url="${escapeHtml(lnk.url)}" style="font-size:11px;padding:3px 8px;">Copy</button>
+                          <a href="${escapeHtml(lnk.url)}" target="_blank" rel="noopener noreferrer" class="btn-ci-360-primary" style="font-size:11px;padding:3px 9px;text-decoration:none;">Open ↗</a>
+                          <button type="button" class="ci-360-att-del btn-del-link" data-link-id="${lnk.id}" title="Remove Link">&times;</button>
                         </div>
                       </div>
                     `).join('')}
@@ -925,10 +925,10 @@ export async function initSupportTickets(container, options = {}) {
               </div>
 
               <!-- Attachments Section (Fast streaming - any file format up to 1GB) -->
-              <div class="jira-section-block">
-                <div class="jira-sec-title">
+              <div class="ci-360-section-block">
+                <div class="ci-360-sec-title">
                   <span>Attachments (${attachments.length})</span>
-                  <button type="button" class="btn-jira-secondary" id="btn-trigger-detail-upload" style="font-size:11px;padding:4px 9px;cursor:pointer;display:inline-flex;align-items:center;gap:4px;">
+                  <button type="button" class="btn-ci-360-secondary" id="btn-trigger-detail-upload" style="font-size:11px;padding:4px 9px;cursor:pointer;display:inline-flex;align-items:center;gap:4px;">
                     <span>📎 Upload Any File / Video (Up to 1GB)</span>
                   </button>
                   <input type="file" id="inp-detail-att-upload" multiple style="display:none;" />
@@ -939,18 +939,18 @@ export async function initSupportTickets(container, options = {}) {
                 ${attachments.length === 0 ? `
                   <div style="color:#64748b;font-size:12px;font-style:italic;">No attachments yet. Upload MP4 videos (up to 1GB), screen recordings, screenshots, or logs.</div>
                 ` : `
-                  <div class="jira-attachments-grid">
+                  <div class="ci-360-attachments-grid">
                     ${attachments.map(att => {
                       const isVideo = (att.type && att.type.includes('video')) || 
                                       (att.name && att.name.match(/\.(mp4|mov|webm|avi|mkv)$/i)) ||
                                       (att.url && att.url.match(/\.(mp4|mov|webm|avi|mkv)$/i));
                       return `
-                        <div class="jira-att-card ${isVideo ? 'is-video' : ''}" style="${isVideo ? 'grid-column: 1 / -1; display:flex; flex-direction:column; gap:6px;' : ''}">
+                        <div class="ci-360-att-card ${isVideo ? 'is-video' : ''}" style="${isVideo ? 'grid-column: 1 / -1; display:flex; flex-direction:column; gap:6px;' : ''}">
                           <div style="display:flex;align-items:center;justify-content:space-between;width:100%;gap:8px;">
-                            <div class="jira-att-left">
+                            <div class="ci-360-att-left">
                               <span style="font-size:${isVideo ? '16px' : '13px'};">${isVideo ? '🎬' : '📎'}</span>
                               <div style="display:flex;flex-direction:column;min-width:0;">
-                                <a href="${att.url}" target="_blank" rel="noopener noreferrer" class="jira-att-name" title="${escapeHtml(att.name)}">
+                                <a href="${att.url}" target="_blank" rel="noopener noreferrer" class="ci-360-att-name" title="${escapeHtml(att.name)}">
                                   ${escapeHtml(att.name)}
                                 </a>
                                 <span style="font-size:10.5px;color:#94a3b8;">${fmtFileSize(att.size)} ${isVideo ? '• MP4 Video' : ''}</span>
@@ -962,12 +962,12 @@ export async function initSupportTickets(container, options = {}) {
                                   ▶ Play Video
                                 </button>
                               ` : ''}
-                              <a href="${att.url}" download="${escapeHtml(att.name)}" class="btn-jira-secondary" style="font-size:11px;padding:3px 7px;text-decoration:none;" title="Download">⬇</a>
-                              <button type="button" class="jira-att-del btn-del-att" data-att-id="${att.id}" title="Delete file">&times;</button>
+                              <a href="${att.url}" download="${escapeHtml(att.name)}" class="btn-ci-360-secondary" style="font-size:11px;padding:3px 7px;text-decoration:none;" title="Download">⬇</a>
+                              <button type="button" class="ci-360-att-del btn-del-att" data-att-id="${att.id}" title="Delete file">&times;</button>
                             </div>
                           </div>
                           ${isVideo ? `
-                            <div class="jira-video-slot" id="video-slot-${att.id}" style="display:none;margin-top:6px;width:100%;">
+                            <div class="ci-360-video-slot" id="video-slot-${att.id}" style="display:none;margin-top:6px;width:100%;">
                               <video controls preload="metadata" style="width:100%;max-height:360px;border-radius:6px;background:#000;">
                                 <source src="${att.url}" type="${att.type || 'video/mp4'}">
                                 Your browser does not support HTML5 video streaming.
@@ -982,39 +982,39 @@ export async function initSupportTickets(container, options = {}) {
               </div>
 
               <!-- Subtasks Section -->
-              <div class="jira-section-block">
-                <div class="jira-sec-title">
+              <div class="ci-360-section-block">
+                <div class="ci-360-sec-title">
                   <span>Subtasks (${subtaskDone}/${subtasks.length})</span>
                   <span style="font-size:11px;color:#10b981;font-weight:700;">${subtaskPct}% Done</span>
                 </div>
 
-                <div class="jira-subtask-progress">
-                  <div class="jira-subtask-bar" style="width:${subtaskPct}%"></div>
+                <div class="ci-360-subtask-progress">
+                  <div class="ci-360-subtask-bar" style="width:${subtaskPct}%"></div>
                 </div>
 
-                <div class="jira-subtask-list">
+                <div class="ci-360-subtask-list">
                   ${subtasks.map(s => `
-                    <div class="jira-subtask-item">
-                      <div class="jira-subtask-left">
-                        <input type="checkbox" class="jira-subtask-cb cb-subtask-toggle" data-subtask-id="${s.id}" ${s.completed ? 'checked' : ''} />
-                        <span class="jira-subtask-title ${s.completed ? 'done' : ''}">${escapeHtml(s.title)}</span>
+                    <div class="ci-360-subtask-item">
+                      <div class="ci-360-subtask-left">
+                        <input type="checkbox" class="ci-360-subtask-cb cb-subtask-toggle" data-subtask-id="${s.id}" ${s.completed ? 'checked' : ''} />
+                        <span class="ci-360-subtask-title ${s.completed ? 'done' : ''}">${escapeHtml(s.title)}</span>
                       </div>
-                      <button type="button" class="jira-att-del btn-del-subtask" data-subtask-id="${s.id}" title="Remove subtask">&times;</button>
+                      <button type="button" class="ci-360-att-del btn-del-subtask" data-subtask-id="${s.id}" title="Remove subtask">&times;</button>
                     </div>
                   `).join('')}
                 </div>
 
-                <div class="jira-subtask-add-row">
-                  <input type="text" id="inp-new-subtask" class="jira-subtask-input" placeholder="+ Add a subtask (press Enter)..." />
-                  <button type="button" class="btn-jira-secondary" id="btn-add-subtask">Add</button>
+                <div class="ci-360-subtask-add-row">
+                  <input type="text" id="inp-new-subtask" class="ci-360-subtask-input" placeholder="+ Add a subtask (press Enter)..." />
+                  <button type="button" class="btn-ci-360-secondary" id="btn-add-subtask">Add</button>
                 </div>
               </div>
 
               <!-- Linked Work Items Section -->
-              <div class="jira-section-block">
-                <div class="jira-sec-title">
+              <div class="ci-360-section-block">
+                <div class="ci-360-sec-title">
                   <span>Linked Work Items (${linkedTickets.length})</span>
-                  <button type="button" class="btn-jira-secondary" id="btn-open-link-dialog" style="font-size:11px;padding:4px 8px;">
+                  <button type="button" class="btn-ci-360-secondary" id="btn-open-link-dialog" style="font-size:11px;padding:4px 8px;">
                     🔗 Link Issue
                   </button>
                 </div>
@@ -1024,54 +1024,54 @@ export async function initSupportTickets(container, options = {}) {
                 ` : `
                   <div style="display:flex;flex-direction:column;gap:6px;">
                     ${linkedTickets.map(lnk => `
-                      <div class="jira-subtask-item">
+                      <div class="ci-360-subtask-item">
                         <div style="display:flex;align-items:center;gap:8px;">
                           <span style="font-size:11px;color:#94a3b8;font-weight:700;text-transform:uppercase;">${escapeHtml(lnk.relationship)}</span>
-                          <span class="jira-ticket-id" style="color:#38bdf8;">${escapeHtml(lnk.ticketId)}</span>
-                          <span class="jira-linked-title" style="font-size:12.5px;">${escapeHtml(lnk.title)}</span>
+                          <span class="ci-360-ticket-id" style="color:#38bdf8;">${escapeHtml(lnk.ticketId)}</span>
+                          <span class="ci-360-linked-title" style="font-size:12.5px;">${escapeHtml(lnk.title)}</span>
                         </div>
                         <div style="display:flex;align-items:center;gap:6px;">
-                          <span class="jira-col-badge">${escapeHtml(lnk.status || 'Open')}</span>
-                          <button type="button" class="jira-att-del btn-del-link" data-link-id="${lnk.id}" title="Remove link">&times;</button>
+                          <span class="ci-360-col-badge">${escapeHtml(lnk.status || 'Open')}</span>
+                          <button type="button" class="ci-360-att-del btn-del-link" data-link-id="${lnk.id}" title="Remove link">&times;</button>
                         </div>
                       </div>
                     `).join('')}
                   </div>
                 `}
 
-                <div id="jira-link-box" class="jira-form-box" style="display:none;padding:10px;border-radius:6px;margin-top:6px;">
+                <div id="ci-360-link-box" class="ci-360-form-box" style="display:none;padding:10px;border-radius:6px;margin-top:6px;">
                   <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                    <select id="sel-link-rel" class="jira-select-field" style="width:140px;">
+                    <select id="sel-link-rel" class="ci-360-select-field" style="width:140px;">
                       <option value="relates to">relates to</option>
                       <option value="blocks">blocks</option>
                       <option value="is blocked by">is blocked by</option>
                       <option value="duplicates">duplicates</option>
                     </select>
-                    <input type="text" id="inp-link-target" class="jira-subtask-input" placeholder="Ticket ID (e.g. SUP-002)..." style="flex:1;" />
-                    <button class="btn-jira-primary" id="btn-submit-link">Link</button>
-                    <button class="btn-jira-secondary" id="btn-cancel-link">Cancel</button>
+                    <input type="text" id="inp-link-target" class="ci-360-subtask-input" placeholder="Ticket ID (e.g. SUP-002)..." style="flex:1;" />
+                    <button class="btn-ci-360-primary" id="btn-submit-link">Link</button>
+                    <button class="btn-ci-360-secondary" id="btn-cancel-link">Cancel</button>
                   </div>
                 </div>
               </div>
 
               <!-- Dedicated Linked Internal Job Block -->
-              <div class="jira-section-block">
-                <div class="jira-sec-title">
+              <div class="ci-360-section-block">
+                <div class="ci-360-sec-title">
                   <span style="display:flex;align-items:center;gap:6px;">📁 Linked Internal Job</span>
-                  <button type="button" class="jira-tool-btn" id="btn-toggle-job-link">
+                  <button type="button" class="ci-360-tool-btn" id="btn-toggle-job-link">
                     ${currentJobTitle ? '✏️ Change Job' : '+ Link a Job'}
                   </button>
                 </div>
                 ${currentJobTitle ? `
-                  <div class="jira-linked-job-card">
+                  <div class="ci-360-linked-job-card">
                     <div style="display:flex;align-items:center;gap:10px;">
                       <span style="font-size:22px;">📁</span>
                       <div>
-                        <div class="jira-job-card-title" style="font-weight:700;font-size:13px;">${escapeHtml(currentJobTitle)}</div>
+                        <div class="ci-360-job-card-title" style="font-weight:700;font-size:13px;">${escapeHtml(currentJobTitle)}</div>
                         <div style="font-size:11px;color:#38bdf8;">CI360 Job ID: ${escapeHtml(currentJobId)}</div>
                       </div>
                     </div>
-                    <button type="button" class="jira-tool-btn" id="btn-unlink-job" style="color:#ef4444;border-color:rgba(239,68,68,0.3);" title="Remove job link">
+                    <button type="button" class="ci-360-tool-btn" id="btn-unlink-job" style="color:#ef4444;border-color:rgba(239,68,68,0.3);" title="Remove job link">
                       ✕ Unlink
                     </button>
                   </div>
@@ -1081,10 +1081,10 @@ export async function initSupportTickets(container, options = {}) {
                   </div>
                 `}
 
-                <div id="jira-job-link-box" class="jira-form-box" style="display:none;padding:12px;border-radius:6px;margin-top:8px;">
-                  <label class="jira-form-label" style="font-size:11.5px;font-weight:700;display:block;margin-bottom:6px;">Choose Job to Link:</label>
+                <div id="ci-360-job-link-box" class="ci-360-form-box" style="display:none;padding:12px;border-radius:6px;margin-top:8px;">
+                  <label class="ci-360-form-label" style="font-size:11.5px;font-weight:700;display:block;margin-bottom:6px;">Choose Job to Link:</label>
                   <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                    <select id="inp-modal-job-select" class="jira-select-field" style="flex:1;min-width:220px;">
+                    <select id="inp-modal-job-select" class="ci-360-select-field" style="flex:1;min-width:220px;">
                       <option value="">-- Select a Job --</option>
                       ${jobs.map(j => `
                         <option value="${j._id}" ${currentJobId === j._id.toString() ? 'selected' : ''}>
@@ -1092,54 +1092,54 @@ export async function initSupportTickets(container, options = {}) {
                         </option>
                       `).join('')}
                     </select>
-                    <button class="btn-jira-primary" id="btn-save-job-link">Link Job</button>
-                    <button class="btn-jira-secondary" id="btn-cancel-job-link">Cancel</button>
+                    <button class="btn-ci-360-primary" id="btn-save-job-link">Link Job</button>
+                    <button class="btn-ci-360-secondary" id="btn-cancel-job-link">Cancel</button>
                   </div>
                 </div>
               </div>
 
               <!-- Activity Tabs Section -->
-              <div class="jira-section-block" style="margin-top:10px;">
-                <div class="jira-sec-title">Activity</div>
-                <div class="jira-activity-tabs">
-                  <button type="button" class="jira-act-tab ${activeActivityTab === 'comments' ? 'active' : ''}" data-act-tab="comments">
+              <div class="ci-360-section-block" style="margin-top:10px;">
+                <div class="ci-360-sec-title">Activity</div>
+                <div class="ci-360-activity-tabs">
+                  <button type="button" class="ci-360-act-tab ${activeActivityTab === 'comments' ? 'active' : ''}" data-act-tab="comments">
                     Comments (${comments.length})
                   </button>
-                  <button type="button" class="jira-act-tab ${activeActivityTab === 'history' ? 'active' : ''}" data-act-tab="history">
+                  <button type="button" class="ci-360-act-tab ${activeActivityTab === 'history' ? 'active' : ''}" data-act-tab="history">
                     History (${history.length})
                   </button>
-                  <button type="button" class="jira-act-tab ${activeActivityTab === 'worklog' ? 'active' : ''}" data-act-tab="worklog">
+                  <button type="button" class="ci-360-act-tab ${activeActivityTab === 'worklog' ? 'active' : ''}" data-act-tab="worklog">
                     Work Log (${workLogs.length})
                   </button>
                 </div>
 
                 <!-- A. Comments Tab -->
                 ${activeActivityTab === 'comments' ? `
-                  <div class="jira-comments-feed">
+                  <div class="ci-360-comments-feed">
                     ${comments.map(c => `
-                      <div class="jira-comment-item">
-                        <div class="jira-avatar" style="background:#2563eb;">
+                      <div class="ci-360-comment-item">
+                        <div class="ci-360-avatar" style="background:#2563eb;">
                           ${(c.userName || 'U').slice(0, 1).toUpperCase()}
                         </div>
-                        <div class="jira-comment-main">
-                          <div class="jira-comment-head">
-                            <span class="jira-comment-author">${escapeHtml(c.userName)} <span style="font-size:10px;color:#94a3b8;font-weight:400;">(${escapeHtml(c.userRole)})</span></span>
-                            <span class="jira-comment-time">${timeAgo(c.createdAt)}</span>
+                        <div class="ci-360-comment-main">
+                          <div class="ci-360-comment-head">
+                            <span class="ci-360-comment-author">${escapeHtml(c.userName)} <span style="font-size:10px;color:#94a3b8;font-weight:400;">(${escapeHtml(c.userRole)})</span></span>
+                            <span class="ci-360-comment-time">${timeAgo(c.createdAt)}</span>
                           </div>
-                          <div class="jira-comment-body">${renderTextWithLinks(c.content)}</div>
+                          <div class="ci-360-comment-body">${renderTextWithLinks(c.content)}</div>
                         </div>
                       </div>
                     `).join('')}
 
                     <!-- Add Comment Composer -->
-                    <div class="jira-comment-composer">
-                      <div class="jira-avatar" style="background:#3b82f6;">
+                    <div class="ci-360-comment-composer">
+                      <div class="ci-360-avatar" style="background:#3b82f6;">
                         ${(currentUser?.name || 'U').slice(0, 1).toUpperCase()}
                       </div>
                       <div style="flex:1;display:flex;flex-direction:column;gap:6px;">
-                        <textarea id="inp-new-comment" class="jira-comment-textarea" rows="2" placeholder="Add an internal comment..."></textarea>
+                        <textarea id="inp-new-comment" class="ci-360-comment-textarea" rows="2" placeholder="Add an internal comment..."></textarea>
                         <div style="display:flex;justify-content:flex-end;">
-                          <button class="btn-jira-primary" id="btn-submit-comment">Save Comment</button>
+                          <button class="btn-ci-360-primary" id="btn-submit-comment">Save Comment</button>
                         </div>
                       </div>
                     </div>
@@ -1148,21 +1148,21 @@ export async function initSupportTickets(container, options = {}) {
 
                 <!-- B. History Tab -->
                 ${activeActivityTab === 'history' ? `
-                  <div class="jira-history-feed">
+                  <div class="ci-360-history-feed">
                     ${history.length === 0 ? `
                       <div style="color:#64748b;font-size:12px;font-style:italic;">No recorded history.</div>
                     ` : history.map(h => `
-                      <div class="jira-history-item">
-                        <div class="jira-avatar unassigned" style="width:20px;height:20px;font-size:9px;">
+                      <div class="ci-360-history-item">
+                        <div class="ci-360-avatar unassigned" style="width:20px;height:20px;font-size:9px;">
                           ${(h.userName || 'S').slice(0, 1).toUpperCase()}
                         </div>
-                        <div class="jira-history-main">
-                          <div class="jira-history-head">
-                            <span class="jira-comment-author" style="font-size:12px;">${escapeHtml(h.userName)}</span>
-                            <span class="jira-comment-time">${timeAgo(h.timestamp)}</span>
+                        <div class="ci-360-history-main">
+                          <div class="ci-360-history-head">
+                            <span class="ci-360-comment-author" style="font-size:12px;">${escapeHtml(h.userName)}</span>
+                            <span class="ci-360-comment-time">${timeAgo(h.timestamp)}</span>
                           </div>
                           <div style="font-size:12px;color:#94a3b8;">
-                            Changed <strong class="jira-history-field">${escapeHtml(h.field)}</strong>:
+                            Changed <strong class="ci-360-history-field">${escapeHtml(h.field)}</strong>:
                             ${h.from ? `<span style="text-decoration:line-through;color:#ef4444;">${escapeHtml(h.from)}</span> ➔ ` : ''}
                             <span style="color:#10b981;font-weight:600;">${escapeHtml(h.to)}</span>
                           </div>
@@ -1174,21 +1174,21 @@ export async function initSupportTickets(container, options = {}) {
 
                 <!-- C. Work Log Tab -->
                 ${activeActivityTab === 'worklog' ? `
-                  <div class="jira-worklog-feed">
+                  <div class="ci-360-worklog-feed">
                     <div style="display:flex;justify-content:space-between;align-items:center;">
                       <span style="font-size:12px;color:#94a3b8;">Total Logged: <strong>${t.loggedHours || 0} hrs</strong></span>
-                      <button class="btn-jira-secondary" id="btn-open-worklog-dialog" style="font-size:11px;padding:4px 8px;">
+                      <button class="btn-ci-360-secondary" id="btn-open-worklog-dialog" style="font-size:11px;padding:4px 8px;">
                         ⏱️ Log Work
                       </button>
                     </div>
 
-                    <div id="jira-worklog-box" class="jira-form-box" style="display:none;padding:10px;border-radius:6px;margin:6px 0;">
+                    <div id="ci-360-worklog-box" class="ci-360-form-box" style="display:none;padding:10px;border-radius:6px;margin:6px 0;">
                       <div style="display:flex;flex-direction:column;gap:8px;">
-                        <input type="text" id="inp-worklog-time" class="jira-subtask-input" placeholder="Time spent (e.g. 2h 30m, 45m)..." />
-                        <input type="text" id="inp-worklog-desc" class="jira-subtask-input" placeholder="Description of work performed..." />
+                        <input type="text" id="inp-worklog-time" class="ci-360-subtask-input" placeholder="Time spent (e.g. 2h 30m, 45m)..." />
+                        <input type="text" id="inp-worklog-desc" class="ci-360-subtask-input" placeholder="Description of work performed..." />
                         <div style="display:flex;justify-content:flex-end;gap:6px;">
-                          <button class="btn-jira-primary" id="btn-submit-worklog">Log</button>
-                          <button class="btn-jira-secondary" id="btn-cancel-worklog">Cancel</button>
+                          <button class="btn-ci-360-primary" id="btn-submit-worklog">Log</button>
+                          <button class="btn-ci-360-secondary" id="btn-cancel-worklog">Cancel</button>
                         </div>
                       </div>
                     </div>
@@ -1196,16 +1196,16 @@ export async function initSupportTickets(container, options = {}) {
                     ${workLogs.length === 0 ? `
                       <div style="color:#64748b;font-size:12px;font-style:italic;">No work logged yet.</div>
                     ` : workLogs.map(w => `
-                      <div class="jira-worklog-item">
-                        <div class="jira-avatar" style="background:#10b981;width:20px;height:20px;font-size:9px;">
+                      <div class="ci-360-worklog-item">
+                        <div class="ci-360-avatar" style="background:#10b981;width:20px;height:20px;font-size:9px;">
                           ${(w.userName || 'U').slice(0, 1).toUpperCase()}
                         </div>
-                        <div class="jira-worklog-main">
-                          <div class="jira-worklog-head">
-                            <span class="jira-comment-author" style="font-size:12px;">${escapeHtml(w.userName)} logged <strong style="color:#38bdf8;">${escapeHtml(w.timeSpent)}</strong></span>
-                            <span class="jira-comment-time">${timeAgo(w.loggedAt)}</span>
+                        <div class="ci-360-worklog-main">
+                          <div class="ci-360-worklog-head">
+                            <span class="ci-360-comment-author" style="font-size:12px;">${escapeHtml(w.userName)} logged <strong style="color:#38bdf8;">${escapeHtml(w.timeSpent)}</strong></span>
+                            <span class="ci-360-comment-time">${timeAgo(w.loggedAt)}</span>
                           </div>
-                          ${w.description ? `<div class="jira-comment-body" style="font-size:12px;">${escapeHtml(w.description)}</div>` : ''}
+                          ${w.description ? `<div class="ci-360-comment-body" style="font-size:12px;">${escapeHtml(w.description)}</div>` : ''}
                         </div>
                       </div>
                     `).join('')}
@@ -1215,11 +1215,11 @@ export async function initSupportTickets(container, options = {}) {
             </div>
 
             <!-- Right Sidebar Panel (32%) -->
-            <div class="jira-detail-sidebar">
+            <div class="ci-360-detail-sidebar">
               <!-- Status -->
-              <div class="jira-side-field">
-                <span class="jira-side-lbl">Status</span>
-                <select id="sel-detail-status" class="jira-select-field">
+              <div class="ci-360-side-field">
+                <span class="ci-360-side-lbl">Status</span>
+                <select id="sel-detail-status" class="ci-360-select-field">
                   ${STATUS_COLUMNS.map(s => {
       let normSt = t.status || 'To Do';
       if (normSt === 'In Progress') normSt = 'Content';
@@ -1235,9 +1235,9 @@ export async function initSupportTickets(container, options = {}) {
               </div>
 
               <!-- Priority -->
-              <div class="jira-side-field">
-                <span class="jira-side-lbl">Priority</span>
-                <select id="sel-detail-priority" class="jira-select-field">
+              <div class="ci-360-side-field">
+                <span class="ci-360-side-lbl">Priority</span>
+                <select id="sel-detail-priority" class="ci-360-select-field">
                   ${PRIORITIES.map(p => `
                     <option value="${p.key}" ${t.priority === p.key ? 'selected' : ''}>
                       ${p.icon} ${p.label}
@@ -1247,54 +1247,54 @@ export async function initSupportTickets(container, options = {}) {
               </div>
 
               <!-- Assignees (Multi-Employee Team Assignment) -->
-              <div class="jira-side-field">
+              <div class="ci-360-side-field">
                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
-                  <span class="jira-side-lbl" style="margin-bottom:0;">Assigned Personnel (${assigneesList.length})</span>
+                  <span class="ci-360-side-lbl" style="margin-bottom:0;">Assigned Personnel (${assigneesList.length})</span>
                   ${canManageTicket ? `
-                    <button type="button" class="jira-tool-btn" id="btn-toggle-assignee-picker" style="font-size:11px;padding:2px 7px;">
+                    <button type="button" class="ci-360-tool-btn" id="btn-toggle-assignee-picker" style="font-size:11px;padding:2px 7px;">
                       ✏️ Assign / Change
                     </button>
                   ` : ''}
                 </div>
 
-                <div class="jira-assigned-chips-wrap">
+                <div class="ci-360-assigned-chips-wrap">
                   ${assigneesList.length === 0 ? `
                     <span style="font-size:12px;color:#64748b;font-style:italic;">Unassigned</span>
                   ` : assigneesList.map(a => `
-                    <div class="jira-assignee-chip">
-                      <div class="jira-avatar" style="width:20px;height:20px;font-size:10px;">
+                    <div class="ci-360-assignee-chip">
+                      <div class="ci-360-avatar" style="width:20px;height:20px;font-size:10px;">
                         ${(a.avatar || a.name?.slice(0, 1) || 'U').toUpperCase()}
                       </div>
-                      <span class="jira-assignee-chip-name" title="${escapeHtml(a.name)}">${escapeHtml(a.name)}</span>
+                      <span class="ci-360-assignee-chip-name" title="${escapeHtml(a.name)}">${escapeHtml(a.name)}</span>
                       ${canManageTicket ? `
-                        <button type="button" class="jira-assignee-chip-remove btn-remove-assignee" data-user-id="${a.userId}" title="Remove ${escapeHtml(a.name)}">&times;</button>
+                        <button type="button" class="ci-360-assignee-chip-remove btn-remove-assignee" data-user-id="${a.userId}" title="Remove ${escapeHtml(a.name)}">&times;</button>
                       ` : ''}
                     </div>
                   `).join('')}
                 </div>
 
                 <!-- Interactive Multi-select Assignee Picker -->
-                <div id="jira-detail-assignee-box" class="jira-form-box" style="display:none;margin-top:8px;padding:10px;border-radius:6px;">
-                  <div class="jira-assignee-header" style="font-size:11px;font-weight:700;color:#94a3b8;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;">
+                <div id="ci-360-detail-assignee-box" class="ci-360-form-box" style="display:none;margin-top:8px;padding:10px;border-radius:6px;">
+                  <div class="ci-360-assignee-header" style="font-size:11px;font-weight:700;color:#94a3b8;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;">
                     <span>ASSIGN / REASSIGN EMPLOYEES</span>
                     <button type="button" id="btn-close-detail-assignee-box" style="background:none;border:none;color:#94a3b8;cursor:pointer;font-size:13px;">✕</button>
                   </div>
-                  <div class="jira-emp-checklist" style="max-height:160px;overflow-y:auto;display:flex;flex-direction:column;gap:4px;">
+                  <div class="ci-360-emp-checklist" style="max-height:160px;overflow-y:auto;display:flex;flex-direction:column;gap:4px;">
                     ${employees.map(u => {
                       const isAssigned = assigneesList.some(a => a && a.userId && String(a.userId) === String(u._id));
                       return `
-                        <label class="jira-emp-check-item ${isAssigned ? 'selected' : ''}">
+                        <label class="ci-360-emp-check-item ${isAssigned ? 'selected' : ''}">
                           <input type="checkbox" class="chk-detail-emp" value="${u._id}" ${isAssigned ? 'checked' : ''} />
-                          <div class="jira-avatar" style="width:18px;height:18px;font-size:9px;">${(u.name || 'U').slice(0, 1).toUpperCase()}</div>
-                          <span class="jira-emp-name" style="font-size:12px;flex:1;">
-                            ${escapeHtml(u.name)} <span class="jira-emp-role" style="font-size:10.5px;color:#94a3b8;">(${escapeHtml(u.role)})</span>
+                          <div class="ci-360-avatar" style="width:18px;height:18px;font-size:9px;">${(u.name || 'U').slice(0, 1).toUpperCase()}</div>
+                          <span class="ci-360-emp-name" style="font-size:12px;flex:1;">
+                            ${escapeHtml(u.name)} <span class="ci-360-emp-role" style="font-size:10.5px;color:#94a3b8;">(${escapeHtml(u.role)})</span>
                           </span>
                         </label>
                       `;
                     }).join('')}
                   </div>
                   <div style="margin-top:8px;display:flex;justify-content:flex-end;gap:6px;">
-                    <button type="button" class="btn-jira-primary" id="btn-save-detail-assignees" style="font-size:11px;padding:4px 10px;">
+                    <button type="button" class="btn-ci-360-primary" id="btn-save-detail-assignees" style="font-size:11px;padding:4px 10px;">
                       Save Assignees
                     </button>
                   </div>
@@ -1302,10 +1302,10 @@ export async function initSupportTickets(container, options = {}) {
               </div>
 
               <!-- Reporter (Read Only) -->
-              <div class="jira-side-field">
-                <span class="jira-side-lbl">Reporter</span>
+              <div class="ci-360-side-field">
+                <span class="ci-360-side-lbl">Reporter</span>
                 <div style="display:flex;align-items:center;gap:8px;margin-top:2px;">
-                  <div class="jira-avatar" style="background:#2563eb;">
+                  <div class="ci-360-avatar" style="background:#2563eb;">
                     ${(t.reporter?.name || 'U').slice(0, 1).toUpperCase()}
                   </div>
                   <div>
@@ -1316,9 +1316,9 @@ export async function initSupportTickets(container, options = {}) {
               </div>
 
               <!-- Category -->
-              <div class="jira-side-field">
-                <span class="jira-side-lbl">Category</span>
-                <select id="sel-detail-category" class="jira-select-field">
+              <div class="ci-360-side-field">
+                <span class="ci-360-side-lbl">Category</span>
+                <select id="sel-detail-category" class="ci-360-select-field">
                   ${CATEGORIES.map(c => `
                     <option value="${c.key}" ${t.category === c.key ? 'selected' : ''}>
                       ${c.icon} ${c.label}
@@ -1328,15 +1328,15 @@ export async function initSupportTickets(container, options = {}) {
               </div>
 
               <!-- Due Date -->
-              <div class="jira-side-field">
-                <span class="jira-side-lbl">Due Date</span>
-                <input type="date" id="inp-detail-duedate" class="jira-date-field" value="${t.dueDate ? new Date(t.dueDate).toISOString().slice(0, 10) : ''}" />
+              <div class="ci-360-side-field">
+                <span class="ci-360-side-lbl">Due Date</span>
+                <input type="date" id="inp-detail-duedate" class="ci-360-date-field" value="${t.dueDate ? new Date(t.dueDate).toISOString().slice(0, 10) : ''}" />
               </div>
 
               <!-- Linked Job / Project -->
-              <div class="jira-side-field">
-                <span class="jira-side-lbl">Linked Internal Project / Job</span>
-                <select id="sel-detail-job" class="jira-select-field">
+              <div class="ci-360-side-field">
+                <span class="ci-360-side-lbl">Linked Internal Project / Job</span>
+                <select id="sel-detail-job" class="ci-360-select-field">
                   <option value="">None (Workspace General)</option>
                   ${jobs.map(j => `
                     <option value="${j._id}" ${currentJobId === j._id.toString() ? 'selected' : ''}>
@@ -1347,11 +1347,11 @@ export async function initSupportTickets(container, options = {}) {
               </div>
 
               <!-- Estimated & Logged Time -->
-              <div class="jira-side-field">
-                <span class="jira-side-lbl">Time Tracking</span>
+              <div class="ci-360-side-field">
+                <span class="ci-360-side-lbl">Time Tracking</span>
                 <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:#cbd5e1;">
                   <span>Logged: <strong>${t.loggedHours || 0}h</strong></span>
-                  <span>/ Est: <input type="number" id="inp-detail-esthours" class="jira-est-input" value="${t.estimatedHours || 0}" />h</span>
+                  <span>/ Est: <input type="number" id="inp-detail-esthours" class="ci-360-est-input" value="${t.estimatedHours || 0}" />h</span>
                 </div>
               </div>
 
@@ -1365,7 +1365,7 @@ export async function initSupportTickets(container, options = {}) {
               <!-- Actions (Delete - Creator or Superadmin) -->
               ${canDelete ? `
                 <div style="padding-top:10px;">
-                  <button type="button" class="jira-tool-btn" id="btn-delete-ticket" style="color:#ef4444;border-color:rgba(239,68,68,0.4);width:100%;padding:6px;">
+                  <button type="button" class="ci-360-tool-btn" id="btn-delete-ticket" style="color:#ef4444;border-color:rgba(239,68,68,0.4);width:100%;padding:6px;">
                     🗑️ Delete Ticket
                   </button>
                 </div>
@@ -1380,14 +1380,14 @@ export async function initSupportTickets(container, options = {}) {
   }
 
   function bindTicketDetailEvents() {
-    const modalRoot = container.querySelector('#jira-modals-root');
+    const modalRoot = container.querySelector('#ci-360-modals-root');
     if (!modalRoot || !activeModalTicket) return;
 
     // Close button & backdrop click
-    const btnClose = modalRoot.querySelector('#btn-close-jira-modal');
+    const btnClose = modalRoot.querySelector('#btn-close-ci-360-modal');
     if (btnClose) btnClose.onclick = closeTicketDetailModal;
 
-    const backdrop = modalRoot.querySelector('#jira-detail-backdrop');
+    const backdrop = modalRoot.querySelector('#ci-360-detail-backdrop');
     if (backdrop) {
       backdrop.onclick = (e) => {
         if (e.target === backdrop) closeTicketDetailModal();
@@ -1482,7 +1482,7 @@ export async function initSupportTickets(container, options = {}) {
 
     // Assignee Picker Toggle & Actions
     const btnToggleAssigneePicker = modalRoot.querySelector('#btn-toggle-assignee-picker');
-    const detailAssigneeBox = modalRoot.querySelector('#jira-detail-assignee-box');
+    const detailAssigneeBox = modalRoot.querySelector('#ci-360-detail-assignee-box');
     const btnCloseDetailAssignee = modalRoot.querySelector('#btn-close-detail-assignee-box');
     const btnSaveDetailAssignees = modalRoot.querySelector('#btn-save-detail-assignees');
 
@@ -1501,7 +1501,7 @@ export async function initSupportTickets(container, options = {}) {
 
     modalRoot.querySelectorAll('.chk-detail-emp').forEach(chk => {
       chk.onchange = () => {
-        chk.closest('.jira-emp-check-item')?.classList.toggle('selected', chk.checked);
+        chk.closest('.ci-360-emp-check-item')?.classList.toggle('selected', chk.checked);
       };
     });
 
@@ -1592,7 +1592,7 @@ export async function initSupportTickets(container, options = {}) {
 
     // Toggle Job link form (Main Section)
     const btnToggleJobLink = modalRoot.querySelector('#btn-toggle-job-link');
-    const jobLinkBox = modalRoot.querySelector('#jira-job-link-box');
+    const jobLinkBox = modalRoot.querySelector('#ci-360-job-link-box');
     if (btnToggleJobLink && jobLinkBox) {
       btnToggleJobLink.onclick = () => {
         jobLinkBox.style.display = jobLinkBox.style.display === 'none' ? 'block' : 'none';
@@ -1880,7 +1880,7 @@ export async function initSupportTickets(container, options = {}) {
     });
 
     // Activity Tabs
-    modalRoot.querySelectorAll('.jira-act-tab').forEach(tab => {
+    modalRoot.querySelectorAll('.ci-360-act-tab').forEach(tab => {
       tab.onclick = () => {
         activeActivityTab = tab.dataset.actTab;
         renderTicketDetailModal();
@@ -1911,7 +1911,7 @@ export async function initSupportTickets(container, options = {}) {
 
     // Link Issue Dialog
     const btnOpenLink = modalRoot.querySelector('#btn-open-link-dialog');
-    const linkBox = modalRoot.querySelector('#jira-link-box');
+    const linkBox = modalRoot.querySelector('#ci-360-link-box');
     const btnCancelLink = modalRoot.querySelector('#btn-cancel-link');
     const btnSubmitLink = modalRoot.querySelector('#btn-submit-link');
     const inpLinkTarget = modalRoot.querySelector('#inp-link-target');
@@ -1958,7 +1958,7 @@ export async function initSupportTickets(container, options = {}) {
 
     // Log Work Dialog
     const btnOpenWorklog = modalRoot.querySelector('#btn-open-worklog-dialog');
-    const worklogBox = modalRoot.querySelector('#jira-worklog-box');
+    const worklogBox = modalRoot.querySelector('#ci-360-worklog-box');
     const btnCancelWorklog = modalRoot.querySelector('#btn-cancel-worklog');
     const btnSubmitWorklog = modalRoot.querySelector('#btn-submit-worklog');
     const inpWorkTime = modalRoot.querySelector('#inp-worklog-time');
@@ -2016,41 +2016,41 @@ export async function initSupportTickets(container, options = {}) {
   function closeTicketDetailModal() {
     activeModalTicket = null;
     isEditingDescription = false;
-    const modalRoot = container.querySelector('#jira-modals-root');
+    const modalRoot = container.querySelector('#ci-360-modals-root');
     if (modalRoot) modalRoot.innerHTML = '';
   }
 
   /* ──────────────────────────────────────────────────────────────────────────
-     CREATE TICKET MODAL (JIRA-STYLE)
+     CREATE TICKET MODAL (CI-360-STYLE)
      ────────────────────────────────────────────────────────────────────────── */
   function openCreateTicketModal(preSelectedJobId = null) {
-    const modalRoot = container.querySelector('#jira-modals-root');
+    const modalRoot = container.querySelector('#ci-360-modals-root');
     if (!modalRoot) return;
 
     const chosenJobId = preSelectedJobId || (filters.jobId && filters.jobId !== 'all' ? filters.jobId : null);
 
     modalRoot.innerHTML = `
-      <div class="jira-modal-backdrop" id="jira-create-backdrop">
-        <div class="jira-modal-card" style="max-width:680px;height:auto;max-height:92vh;">
-          <div class="jira-modal-header">
+      <div class="ci-360-modal-backdrop" id="ci-360-create-backdrop">
+        <div class="ci-360-modal-card" style="max-width:680px;height:auto;max-height:92vh;">
+          <div class="ci-360-modal-header">
             <h3 style="margin:0;font-size:16px;font-weight:700;color:#f8fafc;">
               🎫 Create Support Ticket
             </h3>
-            <button class="jira-modal-close" id="btn-close-create-modal">&times;</button>
+            <button class="ci-360-modal-close" id="btn-close-create-modal">&times;</button>
           </div>
 
           <div style="padding:22px;overflow-y:auto;flex:1;">
-            <div class="jira-form-grid-2">
-              <div class="jira-form-group">
-                <label class="jira-form-label">Issue Type / Category *</label>
-                <select id="create-ticket-cat" class="jira-select-field">
+            <div class="ci-360-form-grid-2">
+              <div class="ci-360-form-group">
+                <label class="ci-360-form-label">Issue Type / Category *</label>
+                <select id="create-ticket-cat" class="ci-360-select-field">
                   ${CATEGORIES.map(c => `<option value="${c.key}">${c.icon} ${c.label}</option>`).join('')}
                 </select>
               </div>
 
-              <div class="jira-form-group">
-                <label class="jira-form-label">Priority *</label>
-                <select id="create-ticket-pri" class="jira-select-field">
+              <div class="ci-360-form-group">
+                <label class="ci-360-form-label">Priority *</label>
+                <select id="create-ticket-pri" class="ci-360-select-field">
                   <option value="Medium" selected>🟡 Medium</option>
                   <option value="Low">🟢 Low</option>
                   <option value="High">🟠 High</option>
@@ -2059,19 +2059,19 @@ export async function initSupportTickets(container, options = {}) {
               </div>
             </div>
 
-            <div class="jira-form-group">
-              <label class="jira-form-label">Summary / Title *</label>
-              <input type="text" id="create-ticket-title" class="jira-form-input" placeholder="e.g. Navigation dropdown glitch on Safari mobile" required />
+            <div class="ci-360-form-group">
+              <label class="ci-360-form-label">Summary / Title *</label>
+              <input type="text" id="create-ticket-title" class="ci-360-form-input" placeholder="e.g. Navigation dropdown glitch on Safari mobile" required />
             </div>
 
-            <div class="jira-form-group">
-              <label class="jira-form-label">Description (Provide details, steps, or context)</label>
-              <textarea id="create-ticket-desc" class="jira-form-textarea" rows="4" placeholder="Describe the issue, requirements, or internal request..."></textarea>
+            <div class="ci-360-form-group">
+              <label class="ci-360-form-label">Description (Provide details, steps, or context)</label>
+              <textarea id="create-ticket-desc" class="ci-360-form-textarea" rows="4" placeholder="Describe the issue, requirements, or internal request..."></textarea>
             </div>
 
-            <div class="jira-form-group">
+            <div class="ci-360-form-group">
               <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-                <label class="jira-form-label" style="margin-bottom:0;">Assign Employees (Choose one or multiple)</label>
+                <label class="ci-360-form-label" style="margin-bottom:0;">Assign Employees (Choose one or multiple)</label>
                 <div style="display:flex;gap:8px;">
                   <button type="button" id="btn-create-assign-self" style="background:none;border:none;color:#38bdf8;font-size:11px;font-weight:600;cursor:pointer;text-decoration:underline;">
                     + Select Myself
@@ -2082,18 +2082,18 @@ export async function initSupportTickets(container, options = {}) {
                 </div>
               </div>
 
-              <div class="jira-emp-checklist-box">
-                <div class="jira-emp-checklist" id="create-emp-checklist">
+              <div class="ci-360-emp-checklist-box">
+                <div class="ci-360-emp-checklist" id="create-emp-checklist">
                   ${employees.map(u => {
                     const isSelf = currentUser && String(currentUser._id || currentUser.id) === String(u._id);
                     return `
-                      <label class="jira-emp-check-item ${isSelf ? 'selected' : ''}">
+                      <label class="ci-360-emp-check-item ${isSelf ? 'selected' : ''}">
                         <input type="checkbox" class="chk-create-emp" value="${u._id}" ${isSelf ? 'checked' : ''} />
-                        <div class="jira-avatar" style="width:20px;height:20px;font-size:10px;">
+                        <div class="ci-360-avatar" style="width:20px;height:20px;font-size:10px;">
                           ${(u.name || 'U').slice(0, 1).toUpperCase()}
                         </div>
-                        <span class="jira-emp-name" style="font-size:12px;flex:1;">
-                          ${escapeHtml(u.name)} <span class="jira-emp-role" style="font-size:10.5px;color:#94a3b8;">(${escapeHtml(u.role)})${isSelf ? ' — (You)' : ''}</span>
+                        <span class="ci-360-emp-name" style="font-size:12px;flex:1;">
+                          ${escapeHtml(u.name)} <span class="ci-360-emp-role" style="font-size:10.5px;color:#94a3b8;">(${escapeHtml(u.role)})${isSelf ? ' — (You)' : ''}</span>
                         </span>
                       </label>
                     `;
@@ -2105,15 +2105,15 @@ export async function initSupportTickets(container, options = {}) {
               </div>
             </div>
 
-            <div class="jira-form-grid-2">
-              <div class="jira-form-group">
-                <label class="jira-form-label">Due Date (Optional)</label>
-                <input type="date" id="create-ticket-duedate" class="jira-date-field" />
+            <div class="ci-360-form-grid-2">
+              <div class="ci-360-form-group">
+                <label class="ci-360-form-label">Due Date (Optional)</label>
+                <input type="date" id="create-ticket-duedate" class="ci-360-date-field" />
               </div>
 
-              <div class="jira-form-group">
-                <label class="jira-form-label">Related Job / Internal Project (Optional)</label>
-                <select id="create-ticket-job" class="jira-select-field">
+              <div class="ci-360-form-group">
+                <label class="ci-360-form-label">Related Job / Internal Project (Optional)</label>
+                <select id="create-ticket-job" class="ci-360-select-field">
                   <option value="">None (General Workspace Issue)</option>
                   ${jobs.map(j => `
                     <option value="${j._id}" ${chosenJobId && String(chosenJobId) === String(j._id) ? 'selected' : ''}>
@@ -2125,38 +2125,38 @@ export async function initSupportTickets(container, options = {}) {
             </div>
 
             <!-- External Reference URL / Link -->
-            <div class="jira-form-group">
-              <label class="jira-form-label">🔗 External Reference Link / URL (Optional)</label>
-              <input type="url" id="create-ticket-url" class="jira-form-input" placeholder="e.g. https://figma.com/..., https://loom.com/..., live website URL, Google Drive..." />
+            <div class="ci-360-form-group">
+              <label class="ci-360-form-label">🔗 External Reference Link / URL (Optional)</label>
+              <input type="url" id="create-ticket-url" class="ci-360-form-input" placeholder="e.g. https://figma.com/..., https://loom.com/..., live website URL, Google Drive..." />
             </div>
 
             <!-- Attachments & Fast File Uploader (Up to 1GB) -->
-            <div class="jira-form-group" style="margin-top:14px;">
+            <div class="ci-360-form-group" style="margin-top:14px;">
               <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-                <label class="jira-form-label" style="margin:0;">Attachments &amp; Files (All formats up to 1GB)</label>
+                <label class="ci-360-form-label" style="margin:0;">Attachments &amp; Files (All formats up to 1GB)</label>
                 <span id="create-att-count" style="font-size:11px;color:#94a3b8;">0 files attached</span>
               </div>
-              <label class="jira-att-dropzone" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:14px;border-radius:8px;cursor:pointer;transition:border-color 0.2s;">
+              <label class="ci-360-att-dropzone" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:14px;border-radius:8px;cursor:pointer;transition:border-color 0.2s;">
                 <div style="font-size:18px;">📁 ⚡</div>
                 <div style="font-size:12px;font-weight:600;color:#e2e8f0;">Click or drag &amp; drop files or videos here</div>
                 <div style="font-size:10.5px;color:#64748b;">Fast parallel uploading: MP4, MOV, WebM, images, PDFs, archives (Up to 1GB supported)</div>
                 <input type="file" id="inp-create-ticket-att" multiple style="display:none;" />
               </label>
               <div id="create-att-progress" style="display:none;margin-top:8px;"></div>
-              <div id="create-att-list" class="jira-attachments-grid" style="margin-top:8px;"></div>
+              <div id="create-att-list" class="ci-360-attachments-grid" style="margin-top:8px;"></div>
             </div>
           </div>
 
-          <div class="jira-modal-footer">
-            <button type="button" class="btn-jira-secondary" id="btn-cancel-create-ticket">Cancel</button>
-            <button type="button" class="btn-jira-primary" id="btn-submit-create-ticket">Create Ticket 🚀</button>
+          <div class="ci-360-modal-footer">
+            <button type="button" class="btn-ci-360-secondary" id="btn-cancel-create-ticket">Cancel</button>
+            <button type="button" class="btn-ci-360-primary" id="btn-submit-create-ticket">Create Ticket 🚀</button>
           </div>
         </div>
       </div>
     `;
 
     const updateSelectedStyles = () => {
-      modalRoot.querySelectorAll('.jira-emp-check-item').forEach(label => {
+      modalRoot.querySelectorAll('.ci-360-emp-check-item').forEach(label => {
         const chk = label.querySelector('.chk-create-emp');
         label.classList.toggle('selected', Boolean(chk?.checked));
       });
@@ -2197,15 +2197,15 @@ export async function initSupportTickets(container, options = {}) {
       attListEl.innerHTML = pendingAttachments.map((att, idx) => {
         const isVideo = (att.type && att.type.includes('video')) || (att.name && att.name.match(/\.(mp4|mov|webm|avi|mkv)$/i));
         return `
-          <div class="jira-att-card">
-            <div class="jira-att-left">
+          <div class="ci-360-att-card">
+            <div class="ci-360-att-left">
               <span>${isVideo ? '🎬' : '📎'}</span>
               <div style="display:flex;flex-direction:column;min-width:0;">
-                <span class="jira-att-name" title="${escapeHtml(att.name)}">${escapeHtml(att.name)}</span>
+                <span class="ci-360-att-name" title="${escapeHtml(att.name)}">${escapeHtml(att.name)}</span>
                 <span style="font-size:10px;color:#94a3b8;">${fmtFileSize(att.size)} ${isVideo ? '• MP4' : ''}</span>
               </div>
             </div>
-            <button type="button" class="jira-att-del btn-del-pending-att" data-idx="${idx}" title="Remove">&times;</button>
+            <button type="button" class="ci-360-att-del btn-del-pending-att" data-idx="${idx}" title="Remove">&times;</button>
           </div>
         `;
       }).join('');
@@ -2271,7 +2271,7 @@ export async function initSupportTickets(container, options = {}) {
     const btnCancel = modalRoot.querySelector('#btn-cancel-create-ticket');
     if (btnCancel) btnCancel.onclick = closeCreate;
 
-    const backdrop = modalRoot.querySelector('#jira-create-backdrop');
+    const backdrop = modalRoot.querySelector('#ci-360-create-backdrop');
     if (backdrop) {
       backdrop.onclick = (e) => { if (e.target === backdrop) closeCreate(); };
     }
@@ -2334,7 +2334,7 @@ export async function initSupportTickets(container, options = {}) {
   container._openTicketDetailModal = openTicketDetailModal;
   container._setJobFilter = async (jobId) => {
     filters.jobId = jobId || 'all';
-    const jobSel = container.querySelector('#jira-filter-job');
+    const jobSel = container.querySelector('#ci-360-filter-job');
     if (jobSel) jobSel.value = filters.jobId;
     updateClearFiltersVisibility();
     await reloadBoard();

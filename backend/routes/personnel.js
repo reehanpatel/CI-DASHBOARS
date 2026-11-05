@@ -79,7 +79,23 @@ router.delete('/:id', requireRole('superadmin'), async (req, res) => {
   p.deletedBy = req.user ? req.user._id : null;
   p.deletedByName = req.user ? req.user.name : '';
   await p.save();
-  res.json({ ok: true, message: 'Personnel soft deleted from dashboard and preserved in database' });
+
+  // Also remove corresponding user account so it does not remain in User Accounts
+  try {
+    const User = require('../models/User');
+    const matchConditions = [{ personnelId: p._id }];
+    if (p.email && p.email.trim()) {
+      matchConditions.push({ email: p.email.toLowerCase().trim() });
+    }
+    if (p.name && p.name.trim()) {
+      matchConditions.push({ name: new RegExp(`^${p.name.trim()}$`, 'i') });
+    }
+    await User.deleteMany({ $or: matchConditions });
+  } catch (userErr) {
+    console.warn('Could not auto-remove user account linked to personnel:', userErr.message);
+  }
+
+  res.json({ ok: true, message: 'Personnel soft deleted and linked user account removed' });
 });
 
 module.exports = router;

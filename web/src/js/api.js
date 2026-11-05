@@ -3365,7 +3365,7 @@ export function renderAccountSettingsCard(options = {}) {
   const roleBadge = (user.role || 'user').toUpperCase();
 
   return `
-    <div class="${showCardWrapper ? 'card' : ''}" style="max-width:760px;margin:0 auto;width:100%;" id="${formId}-wrap">
+    <div class="${showCardWrapper ? 'card' : ''}" style="max-width:100%;margin:0;width:100%;box-sizing:border-box;" id="${formId}-wrap">
       <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border);">
         <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,var(--gold-500,#d4af37),#b8860b);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:20px;box-shadow:0 4px 12px rgba(212,175,55,0.25);flex-shrink:0;">
           ${escapeHtml(initial)}

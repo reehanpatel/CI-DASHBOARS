@@ -76,7 +76,7 @@ const WorkLogSchema = new mongoose.Schema({
 }, { _id: false });
 
 const SupportTicketSchema = new mongoose.Schema({
-  // Jira-style unique ID, e.g. SUP-001, SUP-002
+  // CI-360 unique ID, e.g. SUP-001, SUP-002
   ticketId: { type: String, required: true, unique: true, index: true, uppercase: true },
 
   title: { type: String, required: true, trim: true },
@@ -89,7 +89,7 @@ const SupportTicketSchema = new mongoose.Schema({
     index: true
   },
 
-  // 5 Jira Scrum status columns
+  // 5 CI-360 Scrum status columns
   status: {
     type: String,
     enum: ['To Do', 'Content', 'Creative', 'Under Review', 'Ready to Leave', 'In Progress', 'Resolved', 'Closed'],

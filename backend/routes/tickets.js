@@ -457,7 +457,7 @@ router.get('/:id', async (req, res) => {
 });
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   POST /api/tickets - Create a new internal support ticket (Jira-Style)
+   POST /api/tickets - Create a new internal support ticket (CI-360)
    ───────────────────────────────────────────────────────────────────────────── */
 router.post('/', async (req, res) => {
   try {

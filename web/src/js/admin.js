@@ -1659,7 +1659,7 @@ function tabManage(c) {
   c.innerHTML = `
     <section class="block">
       <!-- Admin Account Settings Card -->
-      <div style="margin-bottom:24px;">
+      <div style="margin-bottom:24px;width:100%;max-width:100%;box-sizing:border-box;">
         ${renderAccountSettingsCard({
     title: 'My Administrator Credentials',
     subtitle: 'Manage your personal login email, display name, and password'
@@ -2006,11 +2006,17 @@ async function tabUsers(c) {
 
     tbody.querySelectorAll('.edit-user').forEach(b => b.onclick = () => openUserModal(users.find(u => u._id === b.dataset.id)));
     tbody.querySelectorAll('.del-user').forEach(b => b.onclick = async () => {
-      if (!confirm('Permanently remove this user account?')) return;
+      const uId = b.dataset.id;
+      const targetUser = users.find(u => u._id === uId);
+      const name = targetUser ? targetUser.name : 'this user';
+      if (!confirm(`Permanently remove ${name} from CI360?`)) return;
       try {
-        await apiDelete('/users/' + b.dataset.id);
-        flashToast('User removed');
-        tabUsers(c);
+        await apiDelete('/users/' + uId);
+        flashToast(`User ${name} removed`);
+        const idx = users.findIndex(u => u._id === uId);
+        if (idx !== -1) users.splice(idx, 1);
+        renderUserTable();
+        await tabUsers(c);
       } catch (err) { flashToast(err.message, true); }
     });
   }
