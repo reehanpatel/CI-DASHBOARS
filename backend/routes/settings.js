@@ -166,3 +166,4 @@ router.post('/navigation/reset', async (req, res) => {
 
 module.exports = router;
 module.exports.DEFAULT_SIDEBAR_CONFIG = DEFAULT_SIDEBAR_CONFIG;
+

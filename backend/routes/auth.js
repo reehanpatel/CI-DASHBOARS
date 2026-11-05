@@ -21,6 +21,7 @@ function publicUser(user) {
     role: user.role,
     personnelId: user.personnelId,
     clientId: user.clientId,
+    customModules: user.customModules || {},
   };
 }
 

@@ -10,11 +10,12 @@ import {
   saveSidebarNavConfig,
   resetSidebarNavConfig,
   filterTabsForDashboard,
+  saveUserModulePermissions,
   DEFAULT_SIDEBAR_CONFIG
 } from './api.js';
 
 let user = null;
-let cache = { personnel: [], clients: [], services: [], salaryGrades: [], salaryAssignments: [] };
+let cache = { personnel: [], clients: [], services: [], salaryGrades: [], salaryAssignments: [], users: [] };
 let dash = null; // last /api/dashboard/admin response
 let ui = { tab: 'dashboard', period: 'month', jobsFilter: 'all' };
 let draft = { title: '', clientId: '', serviceIds: [], date: new Date().toISOString().slice(0, 10), completion: '', value: '', desc: '', assignments: [{ personId: '', percent: 100, hours: '' }, { personId: '', percent: 0, hours: '' }] };
@@ -22,6 +23,7 @@ let draft = { title: '', clientId: '', serviceIds: [], date: new Date().toISOStr
 let customizerActiveDash = 'admin';
 let customizerSearch = '';
 let customizerNavConfig = null;
+let customizerSelectedUserId = '__global__';
 
 async function boot() {
   initTheme();
@@ -35,8 +37,16 @@ async function boot() {
 }
 
 async function refreshCache() {
-  const [personnel, clients, services] = await Promise.all([apiGet('/personnel'), apiGet('/clients'), apiGet('/services')]);
-  cache.personnel = personnel; cache.clients = clients; cache.services = services;
+  const [personnel, clients, services, users] = await Promise.all([
+    apiGet('/personnel').catch(() => []),
+    apiGet('/clients').catch(() => []),
+    apiGet('/services').catch(() => []),
+    apiGet('/users').catch(() => [])
+  ]);
+  cache.personnel = personnel || [];
+  cache.clients = clients || [];
+  cache.services = services || [];
+  cache.users = users || [];
 }
 
 function getDefaultAssignments() {
@@ -1712,8 +1722,11 @@ function tabManage(c) {
                   <td class="num"><strong>${p.capacity || 48} hrs</strong>/wk</td>
                   <td><span class="badge ${statusBadgeMap[p.status] || 'green'}">${escapeHtml(p.status || 'active')}</span></td>
                   <td class="num">
-                    <button class="btn ghost small edit-person" data-id="${p._id}">Edit</button>
-                    <button class="btn danger small del-person" data-id="${p._id}">Remove</button>
+                    <div style="display:inline-flex;gap:4px;align-items:center;justify-content:flex-end;">
+                      ${user?.role === 'superadmin' ? `<button class="btn ghost small person-modules-btn" data-id="${p._id}" data-name="${escapeHtml(p.name)}" style="color:#6366f1;border-color:rgba(99,102,241,0.3);padding:4px 8px;font-size:11px;" title="Customize Sidebar Modules for this Person">🧭 Modules</button>` : ''}
+                      <button class="btn ghost small edit-person" data-id="${p._id}">Edit</button>
+                      <button class="btn danger small del-person" data-id="${p._id}">Remove</button>
+                    </div>
                   </td>
                 </tr>
               `).join('') || '<tr><td colspan="5"><div class="empty">No personnel added yet.</div></td></tr>'}
@@ -1797,6 +1810,19 @@ function tabManage(c) {
   if (addPBtn) addPBtn.onclick = () => openPersonModal(null);
   document.querySelectorAll('.edit-person').forEach(b => b.onclick = () => openPersonModal(cache.personnel.find(p => p._id === b.dataset.id)));
   document.querySelectorAll('.del-person').forEach(b => b.onclick = async () => { if (!confirm('Remove this person?')) return; await apiDelete('/personnel/' + b.dataset.id); await refreshCache(); renderTab(); });
+  document.querySelectorAll('.person-modules-btn').forEach(b => {
+    b.onclick = () => {
+      const pId = b.dataset.id;
+      const pName = b.dataset.name || '';
+      const matchedUser = (cache.users || []).find(u => String(u.personnelId?._id || u.personnelId) === String(pId)) ||
+                          (cache.users || []).find(u => u.name && u.name.toLowerCase() === pName.toLowerCase());
+      if (matchedUser) {
+        openUserModuleModal(matchedUser);
+      } else {
+        flashToast(`No user login account found for ${pName} yet. Create one in the Users tab to set modules!`, 'info');
+      }
+    };
+  });
 
   const addCBtn = document.getElementById('addClientBtn');
   if (addCBtn) addCBtn.onclick = () => openClientModal(null);
@@ -1838,7 +1864,10 @@ function getCustomizerConfig() {
 
 function renderSidebarCustomizerCard() {
   const cfg = getCustomizerConfig();
-  const currentDash = customizerActiveDash || 'admin';
+  const isPerUser = customizerSelectedUserId !== '__global__';
+  const targetUser = isPerUser ? (cache.users || []).find(u => u._id === customizerSelectedUserId) : null;
+  const currentDash = isPerUser && targetUser ? (targetUser.role === 'superadmin' ? 'admin' : targetUser.role) : (customizerActiveDash || 'admin');
+
   const dashList = [
     { key: 'admin', label: '🛡️ Admin Dashboard' },
     { key: 'employee', label: '💼 Employee Workspace' },
@@ -1852,24 +1881,63 @@ function renderSidebarCustomizerCard() {
         <div>
           <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;flex-wrap:wrap;">
             <span style="font-size:22px;">🧭</span>
-            <h3 style="font-size:18px;font-weight:800;color:var(--text-1);margin:0;">Dashboard Sidebar Customizer</h3>
+            <h3 style="font-size:18px;font-weight:800;color:var(--text-1);margin:0;">Dashboard Sidebar & Module Customizer</h3>
             <span class="badge purple" style="font-size:11px;padding:3px 8px;font-weight:700;">👑 Superadmin Control</span>
           </div>
           <p style="font-size:13px;color:var(--text-3);margin:0;">
-            Customize which sidebar tabs and modules appear across all dashboards. Changes apply across all user accounts in real time.
+            Customize which sidebar tabs and modules appear across all dashboards or for specific individual team members.
           </p>
         </div>
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-          <button type="button" class="btn ghost small" id="resetNavDefaultsBtn" title="Reset all sidebars back to default visibility">
-            ↺ Reset to Defaults
-          </button>
-          <button type="button" class="btn gold small" id="saveNavConfigBtn">
-            💾 Save Navigation Settings
-          </button>
+          ${isPerUser ? `
+            <button type="button" class="btn ghost small" id="resetNavDefaultsBtn" title="Reset this person's module overrides to role defaults">
+              ↺ Reset to Role Default
+            </button>
+            <button type="button" class="btn gold small" id="saveNavConfigBtn">
+              💾 Save Permissions for ${escapeHtml(targetUser ? targetUser.name : 'User')}
+            </button>
+          ` : `
+            <button type="button" class="btn ghost small" id="resetNavDefaultsBtn" title="Reset all sidebars back to default visibility">
+              ↺ Reset to Defaults
+            </button>
+            <button type="button" class="btn gold small" id="saveNavConfigBtn">
+              💾 Save Navigation Settings
+            </button>
+          `}
         </div>
       </div>
 
-      <!-- Dashboard Selector Pills -->
+      <!-- Scope Selector (Global Defaults vs Specific Person) -->
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 24px;border-bottom:1px solid var(--border-color);background:rgba(255,255,255,0.02);flex-wrap:wrap;gap:12px;">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+          <label for="customizerPersonSelect" style="font-size:13px;font-weight:700;color:var(--text-1);display:flex;align-items:center;gap:6px;">
+            <span>Target Person / Scope:</span>
+          </label>
+          <select id="customizerPersonSelect" class="input small" style="min-width:290px;font-weight:600;">
+            <option value="__global__" ${!isPerUser ? 'selected' : ''}>🌐 Global Role Defaults (All Users)</option>
+            <optgroup label="── Customize Specific Person ──">
+              ${(cache.users || []).map(u => {
+                const hasCustom = u.customModules && Object.keys(u.customModules).length > 0;
+                return `
+                  <option value="${u._id}" ${customizerSelectedUserId === u._id ? 'selected' : ''}>
+                    👤 ${escapeHtml(u.name)} (${u.role.toUpperCase()})${hasCustom ? ' ★ Custom' : ''}
+                  </option>
+                `;
+              }).join('')}
+            </optgroup>
+          </select>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          ${isPerUser ? `
+            <span class="badge blue" style="font-size:11px;padding:3px 8px;">👤 Customizing ${escapeHtml(targetUser ? targetUser.name : '')}</span>
+          ` : `
+            <span class="badge green" style="font-size:11px;padding:3px 8px;">🌐 Global Dashboard Mode</span>
+          `}
+        </div>
+      </div>
+
+      <!-- Dashboard Selector Pills (Shown when in Global Mode) -->
+      ${!isPerUser ? `
       <div class="nav-customizer-dash-tabs" id="navDashTabs">
         ${dashList.map(d => {
           const items = cfg[d.key] || [];
@@ -1882,16 +1950,26 @@ function renderSidebarCustomizerCard() {
             </button>
           `;
         }).join('')}
-      </div>
+      </div>` : `
+      <div style="padding:10px 24px;border-bottom:1px solid var(--border-color);background:rgba(99,102,241,0.06);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+        <span style="font-size:12.5px;color:var(--text-1);font-weight:600;">
+          Workspace: <strong>${escapeHtml(currentDash.toUpperCase())} DASHBOARD</strong> · Target User: <strong>${escapeHtml(targetUser ? targetUser.name : '')}</strong> (${escapeHtml(targetUser ? targetUser.email : '')})
+        </span>
+        <span class="pill-counter" id="dashCount_user" style="background:#4f46e5;color:#fff;padding:3px 9px;border-radius:10px;font-weight:700;font-size:11.5px;"></span>
+      </div>`}
 
-      <!-- Toolbar -->
+      <!-- Toolbar with Quick All-Module Show / Hide -->
       <div class="nav-customizer-toolbar">
         <div style="display:flex;align-items:center;gap:10px;flex:1;max-width:320px;">
           <input type="text" class="input small" id="navItemSearch" placeholder="Search sidebar tabs..." value="${escapeHtml(customizerSearch)}" style="width:100%;">
         </div>
-        <div style="display:flex;gap:8px;align-items:center;">
-          <button type="button" class="btn ghost small" id="navShowAllBtn">Show All</button>
-          <button type="button" class="btn ghost small" id="navHideAllBtn">Hide Optional</button>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <button type="button" class="btn ghost small" id="navShowAllBtn" style="color:#10b981;border-color:rgba(16,185,129,0.3);font-weight:600;" title="Make all modules visible for this scope">
+            👁️ Show All Modules
+          </button>
+          <button type="button" class="btn ghost small" id="navHideAllBtn" style="color:#f59e0b;border-color:rgba(245,158,11,0.3);font-weight:600;" title="Hide all optional modules for this scope">
+            🙈 Hide All Modules
+          </button>
         </div>
       </div>
 
@@ -1904,7 +1982,9 @@ function renderSidebarCustomizerCard() {
 }
 
 function renderNavItemsGrid(dash, cfg, query = '') {
-  const items = cfg[dash] || [];
+  const isPerUser = customizerSelectedUserId !== '__global__';
+  const targetUser = isPerUser ? (cache.users || []).find(u => u._id === customizerSelectedUserId) : null;
+  const items = cfg[dash] || DEFAULT_SIDEBAR_CONFIG[dash] || [];
   const q = (query || '').toLowerCase().trim();
   const filtered = items.filter(item => {
     if (!q) return true;
@@ -1918,7 +1998,12 @@ function renderNavItemsGrid(dash, cfg, query = '') {
   }
 
   return filtered.map(item => {
-    const isVis = item.visible !== false;
+    let isVis = item.visible !== false;
+    if (isPerUser && targetUser) {
+      if (targetUser.customModules && targetUser.customModules[item.key] !== undefined) {
+        isVis = !!targetUser.customModules[item.key];
+      }
+    }
     const isLocked = !!item.locked;
     return `
       <div class="nav-item-card ${isVis ? '' : 'is-hidden'}" data-dash="${dash}" data-key="${item.key}">
@@ -1954,21 +2039,57 @@ function renderNavItemsGrid(dash, cfg, query = '') {
 
 function updateNavPillCounters() {
   const cfg = getCustomizerConfig();
-  ['admin', 'employee', 'accounts', 'client'].forEach(d => {
-    const el = document.getElementById(`dashCount_${d}`);
-    if (el) {
-      const items = cfg[d] || [];
-      const vis = items.filter(i => i.visible !== false).length;
-      el.textContent = `${vis} / ${items.length} visible`;
-    }
-  });
+  const isPerUser = customizerSelectedUserId !== '__global__';
+  const targetUser = isPerUser ? (cache.users || []).find(u => u._id === customizerSelectedUserId) : null;
+
+  if (isPerUser && targetUser) {
+    const role = targetUser.role === 'superadmin' ? 'admin' : targetUser.role;
+    const items = cfg[role] || DEFAULT_SIDEBAR_CONFIG[role] || [];
+    let vis = 0;
+    items.forEach(i => {
+      if (targetUser.customModules && targetUser.customModules[i.key] !== undefined) {
+        if (targetUser.customModules[i.key]) vis++;
+      } else if (i.visible !== false) {
+        vis++;
+      }
+    });
+    const el = document.getElementById('dashCount_user');
+    if (el) el.textContent = `${vis} / ${items.length} modules visible`;
+  } else {
+    ['admin', 'employee', 'accounts', 'client'].forEach(d => {
+      const el = document.getElementById(`dashCount_${d}`);
+      if (el) {
+        const items = cfg[d] || [];
+        const vis = items.filter(i => i.visible !== false).length;
+        el.textContent = `${vis} / ${items.length} visible`;
+      }
+    });
+  }
 }
 
 function bindSidebarCustomizerCard(c) {
   const card = document.getElementById('sidebarCustomizerCard');
   if (!card) return;
 
-  // Tab switching
+  // Person Selector change
+  const personSelect = document.getElementById('customizerPersonSelect');
+  if (personSelect) {
+    personSelect.onchange = (e) => {
+      customizerSelectedUserId = e.target.value;
+      if (customizerSelectedUserId !== '__global__') {
+        const u = (cache.users || []).find(x => x._id === customizerSelectedUserId);
+        if (u) {
+          customizerActiveDash = u.role === 'superadmin' ? 'admin' : u.role;
+          if (!u.customModules) u.customModules = {};
+        }
+      }
+      // Re-render the customizer card
+      const manageRoot = document.getElementById('content');
+      if (manageRoot) tabManage(manageRoot);
+    };
+  }
+
+  // Tab switching in global mode
   card.querySelectorAll('.nav-dash-pill').forEach(pill => {
     pill.onclick = () => {
       customizerActiveDash = pill.dataset.dash;
@@ -1994,33 +2115,56 @@ function bindSidebarCustomizerCard(c) {
     };
   }
 
-  // Show All / Hide All
+  // Show All Modules
   const showAllBtn = document.getElementById('navShowAllBtn');
   if (showAllBtn) {
     showAllBtn.onclick = () => {
+      const isPerUser = customizerSelectedUserId !== '__global__';
+      const targetUser = isPerUser ? (cache.users || []).find(u => u._id === customizerSelectedUserId) : null;
       const cfg = getCustomizerConfig();
-      const items = cfg[customizerActiveDash] || [];
-      items.forEach(i => { i.visible = true; });
+      const currentDash = isPerUser && targetUser ? (targetUser.role === 'superadmin' ? 'admin' : targetUser.role) : customizerActiveDash;
+      const items = cfg[currentDash] || DEFAULT_SIDEBAR_CONFIG[currentDash] || [];
+
+      if (isPerUser && targetUser) {
+        if (!targetUser.customModules) targetUser.customModules = {};
+        items.forEach(i => { targetUser.customModules[i.key] = true; });
+      } else {
+        items.forEach(i => { i.visible = true; });
+      }
+
       const grid = document.getElementById('navItemsGrid');
       if (grid) {
-        grid.innerHTML = renderNavItemsGrid(customizerActiveDash, cfg, customizerSearch);
+        grid.innerHTML = renderNavItemsGrid(currentDash, cfg, customizerSearch);
         bindGridInputs();
       }
       updateNavPillCounters();
     };
   }
 
+  // Hide All Modules
   const hideAllBtn = document.getElementById('navHideAllBtn');
   if (hideAllBtn) {
     hideAllBtn.onclick = () => {
+      const isPerUser = customizerSelectedUserId !== '__global__';
+      const targetUser = isPerUser ? (cache.users || []).find(u => u._id === customizerSelectedUserId) : null;
       const cfg = getCustomizerConfig();
-      const items = cfg[customizerActiveDash] || [];
-      items.forEach(i => {
-        if (!i.locked) i.visible = false;
-      });
+      const currentDash = isPerUser && targetUser ? (targetUser.role === 'superadmin' ? 'admin' : targetUser.role) : customizerActiveDash;
+      const items = cfg[currentDash] || DEFAULT_SIDEBAR_CONFIG[currentDash] || [];
+
+      if (isPerUser && targetUser) {
+        if (!targetUser.customModules) targetUser.customModules = {};
+        items.forEach(i => {
+          targetUser.customModules[i.key] = !!i.locked;
+        });
+      } else {
+        items.forEach(i => {
+          if (!i.locked) i.visible = false;
+        });
+      }
+
       const grid = document.getElementById('navItemsGrid');
       if (grid) {
-        grid.innerHTML = renderNavItemsGrid(customizerActiveDash, cfg, customizerSearch);
+        grid.innerHTML = renderNavItemsGrid(currentDash, cfg, customizerSearch);
         bindGridInputs();
       }
       updateNavPillCounters();
@@ -2033,25 +2177,35 @@ function bindSidebarCustomizerCard(c) {
       chk.onchange = () => {
         const d = chk.dataset.dash;
         const k = chk.dataset.key;
+        const isPerUser = customizerSelectedUserId !== '__global__';
+        const targetUser = isPerUser ? (cache.users || []).find(u => u._id === customizerSelectedUserId) : null;
         const cfg = getCustomizerConfig();
-        const item = (cfg[d] || []).find(i => i.key === k);
-        if (item && !item.locked) {
-          item.visible = chk.checked;
-          const parentCard = chk.closest('.nav-item-card');
-          if (parentCard) {
-            parentCard.classList.toggle('is-hidden', !chk.checked);
-            const statusInd = parentCard.querySelector('.nav-status-indicator');
-            if (statusInd) {
-              statusInd.textContent = chk.checked ? '● Visible' : '○ Hidden';
-              statusInd.style.color = chk.checked ? '#10b981' : '#f59e0b';
-            }
+
+        if (isPerUser && targetUser) {
+          if (!targetUser.customModules) targetUser.customModules = {};
+          targetUser.customModules[k] = chk.checked;
+        } else {
+          const item = (cfg[d] || []).find(i => i.key === k);
+          if (item && !item.locked) {
+            item.visible = chk.checked;
           }
-          updateNavPillCounters();
         }
+
+        const parentCard = chk.closest('.nav-item-card');
+        if (parentCard) {
+          parentCard.classList.toggle('is-hidden', !chk.checked);
+          const statusInd = parentCard.querySelector('.nav-status-indicator');
+          if (statusInd) {
+            statusInd.textContent = chk.checked ? '● Visible' : '○ Hidden';
+            statusInd.style.color = chk.checked ? '#10b981' : '#f59e0b';
+          }
+        }
+        updateNavPillCounters();
       };
     });
   }
   bindGridInputs();
+  updateNavPillCounters();
 
   // Save Navigation Settings
   const saveBtn = document.getElementById('saveNavConfigBtn');
@@ -2060,10 +2214,18 @@ function bindSidebarCustomizerCard(c) {
       saveBtn.disabled = true;
       saveBtn.textContent = 'Saving…';
       try {
-        const cfg = getCustomizerConfig();
-        await saveSidebarNavConfig(cfg);
-        flashToast('✅ Dashboard sidebar settings saved! Updating navigation...', 'success');
-        // Re-render admin app shell immediately so active sidebar updates in real time
+        const isPerUser = customizerSelectedUserId !== '__global__';
+        const targetUser = isPerUser ? (cache.users || []).find(u => u._id === customizerSelectedUserId) : null;
+
+        if (isPerUser && targetUser) {
+          await saveUserModulePermissions(targetUser._id, targetUser.customModules || {});
+          flashToast(`✅ Module permissions saved for ${targetUser.name}!`, 'success');
+        } else {
+          const cfg = getCustomizerConfig();
+          await saveSidebarNavConfig(cfg);
+          flashToast('✅ Dashboard sidebar settings saved! Updating navigation...', 'success');
+        }
+
         setTimeout(() => {
           render();
         }, 300);
@@ -2075,25 +2237,236 @@ function bindSidebarCustomizerCard(c) {
     };
   }
 
-  // Reset to Defaults
+  // Reset to Defaults / Role Defaults
   const resetBtn = document.getElementById('resetNavDefaultsBtn');
   if (resetBtn) {
     resetBtn.onclick = async () => {
-      if (!confirm('Are you sure you want to reset sidebar navigation for all dashboards back to default visible tabs?')) return;
-      resetBtn.disabled = true;
-      resetBtn.textContent = 'Resetting…';
-      try {
-        const res = await resetSidebarNavConfig();
-        customizerNavConfig = JSON.parse(JSON.stringify(res.config || DEFAULT_SIDEBAR_CONFIG));
-        flashToast('↺ Sidebar navigation reset to defaults!', 'success');
-        render();
-      } catch (err) {
-        flashToast('❌ Failed to reset navigation: ' + err.message, 'error');
-        resetBtn.disabled = false;
-        resetBtn.textContent = '↺ Reset to Defaults';
+      const isPerUser = customizerSelectedUserId !== '__global__';
+      const targetUser = isPerUser ? (cache.users || []).find(u => u._id === customizerSelectedUserId) : null;
+
+      if (isPerUser && targetUser) {
+        if (!confirm(`Reset ${targetUser.name}'s module permissions back to role defaults?`)) return;
+        resetBtn.disabled = true;
+        resetBtn.textContent = 'Resetting…';
+        try {
+          targetUser.customModules = {};
+          await saveUserModulePermissions(targetUser._id, {});
+          flashToast(`↺ ${targetUser.name}'s modules reset to role default!`, 'success');
+          render();
+        } catch (err) {
+          flashToast('❌ Failed to reset: ' + err.message, 'error');
+          resetBtn.disabled = false;
+          resetBtn.textContent = '↺ Reset to Role Default';
+        }
+      } else {
+        if (!confirm('Are you sure you want to reset sidebar navigation for all dashboards back to default visible tabs?')) return;
+        resetBtn.disabled = true;
+        resetBtn.textContent = 'Resetting…';
+        try {
+          const res = await resetSidebarNavConfig();
+          customizerNavConfig = JSON.parse(JSON.stringify(res.config || DEFAULT_SIDEBAR_CONFIG));
+          flashToast('↺ Sidebar navigation reset to defaults!', 'success');
+          render();
+        } catch (err) {
+          flashToast('❌ Failed to reset navigation: ' + err.message, 'error');
+          resetBtn.disabled = false;
+          resetBtn.textContent = '↺ Reset to Defaults';
+        }
       }
     };
   }
+}
+
+function openUserModuleModal(targetUser) {
+  if (!targetUser) return;
+  const role = targetUser.role === 'superadmin' ? 'admin' : targetUser.role;
+  const defaultItems = (DEFAULT_SIDEBAR_CONFIG[role] || []);
+  const globalConfig = getCachedSidebarNavConfig()[role] || defaultItems;
+
+  let userMods = { ...(targetUser.customModules || {}) };
+
+  function isKeyVisible(k) {
+    if (userMods[k] !== undefined) return !!userMods[k];
+    const g = globalConfig.find(x => x.key === k);
+    return g ? g.visible !== false : true;
+  }
+
+  function getVisibleCount() {
+    return defaultItems.filter(item => isKeyVisible(item.key)).length;
+  }
+
+  function renderModalBody() {
+    return `
+      <div style="padding:4px 0 16px 0;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px;">
+          <div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="font-size:22px;">🧭</span>
+              <h3 style="margin:0;font-size:18px;font-weight:800;color:var(--text-1);">${escapeHtml(targetUser.name)}</h3>
+              <span class="badge ${targetUser.role === 'admin' ? 'blue' : targetUser.role === 'employee' ? 'purple' : 'gold'}">${targetUser.role.toUpperCase()}</span>
+            </div>
+            <div style="font-size:12px;color:var(--text-3);margin-top:2px;">
+              Configure which sidebar navigation modules are visible for this specific user.
+            </div>
+          </div>
+          <div class="pill-counter" id="modalVisCounter" style="background:#4f46e5;color:#fff;padding:4px 10px;border-radius:12px;font-weight:700;font-size:12px;">
+            ${getVisibleCount()} / ${defaultItems.length} modules visible
+          </div>
+        </div>
+
+        <!-- Master Bulk Actions Bar -->
+        <div style="display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,0.03);border:1px solid var(--border-color);border-radius:10px;padding:10px 14px;margin-bottom:16px;flex-wrap:wrap;gap:8px;">
+          <span style="font-size:12px;font-weight:600;color:var(--text-2);">Quick Controls:</span>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;">
+            <button type="button" class="btn ghost small" id="mShowAllBtn" style="color:#10b981;border-color:rgba(16,185,129,0.3);font-weight:600;">
+              👁️ Show All Modules
+            </button>
+            <button type="button" class="btn ghost small" id="mHideAllBtn" style="color:#f59e0b;border-color:rgba(245,158,11,0.3);font-weight:600;">
+              🙈 Hide All Modules
+            </button>
+            <button type="button" class="btn ghost small" id="mResetDefaultBtn" style="color:var(--text-3);">
+              ↺ Role Default
+            </button>
+          </div>
+        </div>
+
+        <!-- Modules Grid -->
+        <div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(260px, 1fr));gap:10px;max-height:55vh;overflow-y:auto;padding-right:4px;" id="mModulesGrid">
+          ${defaultItems.map(item => {
+            const isVis = isKeyVisible(item.key);
+            const isLocked = !!item.locked;
+            return `
+              <div class="nav-item-card ${isVis ? '' : 'is-hidden'}" data-key="${item.key}" style="padding:10px 12px;">
+                <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+                  <span style="font-size:20px;flex-shrink:0;">${item.icon || '📌'}</span>
+                  <div style="min-width:0;">
+                    <div style="font-size:13px;font-weight:700;color:var(--text-1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(item.label)}</div>
+                    <div style="font-size:11px;font-weight:600;color:${isVis ? '#10b981' : '#f59e0b'};" class="m-status-lbl">${isVis ? '● Visible' : '○ Hidden'}</div>
+                  </div>
+                </div>
+                <label class="ci-switch">
+                  <input type="checkbox" class="m-toggle-input" data-key="${item.key}" ${isVis ? 'checked' : ''} ${isLocked ? 'disabled' : ''}>
+                  <span class="ci-switch-slider"></span>
+                </label>
+              </div>
+            `;
+          }).join('')}
+        </div>
+
+        <!-- Footer Actions -->
+        <div style="display:flex;align-items:center;justify-content:flex-end;gap:10px;margin-top:20px;padding-top:14px;border-top:1px solid var(--border-color);">
+          <button type="button" class="btn ghost" id="mCancelBtn">Cancel</button>
+          <button type="button" class="btn gold" id="mSaveBtn">💾 Save Permissions for ${escapeHtml(targetUser.name)}</button>
+        </div>
+      </div>
+    `;
+  }
+
+  const bg = openModal(renderModalBody(), 'medium');
+
+  function bindModalEvents() {
+    const counter = bg.querySelector('#modalVisCounter');
+
+    const showAll = bg.querySelector('#mShowAllBtn');
+    if (showAll) {
+      showAll.onclick = () => {
+        defaultItems.forEach(i => { userMods[i.key] = true; });
+        refreshGrid();
+      };
+    }
+
+    const hideAll = bg.querySelector('#mHideAllBtn');
+    if (hideAll) {
+      hideAll.onclick = () => {
+        defaultItems.forEach(i => {
+          userMods[i.key] = !!i.locked;
+        });
+        refreshGrid();
+      };
+    }
+
+    const resetDef = bg.querySelector('#mResetDefaultBtn');
+    if (resetDef) {
+      resetDef.onclick = () => {
+        userMods = {};
+        refreshGrid();
+      };
+    }
+
+    const cancelBtn = bg.querySelector('#mCancelBtn');
+    if (cancelBtn) cancelBtn.onclick = () => bg.remove();
+
+    function bindInputs() {
+      bg.querySelectorAll('.m-toggle-input').forEach(chk => {
+        chk.onchange = () => {
+          const k = chk.dataset.key;
+          userMods[k] = chk.checked;
+          const card = chk.closest('.nav-item-card');
+          if (card) {
+            card.classList.toggle('is-hidden', !chk.checked);
+            const lbl = card.querySelector('.m-status-lbl');
+            if (lbl) {
+              lbl.textContent = chk.checked ? '● Visible' : '○ Hidden';
+              lbl.style.color = chk.checked ? '#10b981' : '#f59e0b';
+            }
+          }
+          if (counter) counter.textContent = `${getVisibleCount()} / ${defaultItems.length} modules visible`;
+        };
+      });
+    }
+
+    function refreshGrid() {
+      const grid = bg.querySelector('#mModulesGrid');
+      if (grid) {
+        grid.innerHTML = defaultItems.map(item => {
+          const isVis = isKeyVisible(item.key);
+          const isLocked = !!item.locked;
+          return `
+            <div class="nav-item-card ${isVis ? '' : 'is-hidden'}" data-key="${item.key}" style="padding:10px 12px;">
+              <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+                <span style="font-size:20px;flex-shrink:0;">${item.icon || '📌'}</span>
+                <div style="min-width:0;">
+                  <div style="font-size:13px;font-weight:700;color:var(--text-1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(item.label)}</div>
+                  <div style="font-size:11px;font-weight:600;color:${isVis ? '#10b981' : '#f59e0b'};" class="m-status-lbl">${isVis ? '● Visible' : '○ Hidden'}</div>
+                </div>
+              </div>
+              <label class="ci-switch">
+                <input type="checkbox" class="m-toggle-input" data-key="${item.key}" ${isVis ? 'checked' : ''} ${isLocked ? 'disabled' : ''}>
+                <span class="ci-switch-slider"></span>
+              </label>
+            </div>
+          `;
+        }).join('');
+        bindInputs();
+      }
+      if (counter) counter.textContent = `${getVisibleCount()} / ${defaultItems.length} modules visible`;
+    }
+
+    bindInputs();
+
+    const saveBtn = bg.querySelector('#mSaveBtn');
+    if (saveBtn) {
+      saveBtn.onclick = async () => {
+        saveBtn.disabled = true;
+        saveBtn.textContent = 'Saving…';
+        try {
+          await saveUserModulePermissions(targetUser._id || targetUser.id, userMods);
+          targetUser.customModules = userMods;
+          flashToast(`✅ Module permissions updated for ${targetUser.name}!`, 'success');
+          bg.remove();
+          setTimeout(() => {
+            render();
+          }, 300);
+        } catch (err) {
+          flashToast('❌ Failed to save: ' + err.message, 'error');
+          saveBtn.disabled = false;
+          saveBtn.textContent = `💾 Save Permissions for ${escapeHtml(targetUser.name)}`;
+        }
+      };
+    }
+  }
+
+  bindModalEvents();
 }
 
 const tabSettings = tabManage;
@@ -2285,6 +2658,7 @@ async function tabUsers(c) {
           <td><span class="badge ${u.active ? 'green' : 'gray'}">${u.active ? '🟢 Active' : '⚪ Disabled'}</span></td>
           <td class="num" style="padding-right:22px;text-align:right;white-space:nowrap">
             <div style="display:inline-flex;gap:6px;align-items:center;justify-content:flex-end">
+              <button class="btn ghost small user-modules-btn" data-id="${u._id}" style="padding:4px 8px;font-size:11.5px;color:#6366f1;border-color:rgba(99,102,241,0.35);font-weight:600;" title="Customize Sidebar Modules for this Person">🧭 Modules</button>
               <button class="btn ghost small reset-pw-user" data-id="${u._id}" style="padding:4px 8px;font-size:11.5px" title="Change Password">🔑 Password</button>
               <button class="btn ghost small edit-user" data-id="${u._id}" style="padding:4px 8px;font-size:11.5px">Edit</button>
               <button class="btn danger small del-user" data-id="${u._id}" style="padding:4px 8px;font-size:11.5px">Remove</button>
@@ -2292,6 +2666,13 @@ async function tabUsers(c) {
           </td>
         </tr>`;
     }).join('');
+
+    tbody.querySelectorAll('.user-modules-btn').forEach(b => {
+      b.onclick = () => {
+        const u = users.find(x => x._id === b.dataset.id);
+        if (u) openUserModuleModal(u);
+      };
+    });
 
     tbody.querySelectorAll('.reset-pw-user').forEach(b => {
       b.onclick = async () => {

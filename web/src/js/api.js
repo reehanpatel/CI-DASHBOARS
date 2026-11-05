@@ -1563,8 +1563,19 @@ export async function resetSidebarNavConfig() {
   return res;
 }
 
-export function filterTabsForDashboard(dashboardRole, tabs, isSuperadmin = false) {
+export async function saveUserModulePermissions(userId, customModules) {
+  const res = await apiPut(`/users/${userId}/modules`, { customModules });
+  const currentUser = getUser();
+  if (currentUser && (currentUser.id === userId || currentUser._id === userId)) {
+    currentUser.customModules = customModules;
+    setSession(getToken(), currentUser);
+  }
+  return res;
+}
+
+export function filterTabsForDashboard(dashboardRole, tabs, isSuperadmin = false, targetUser = null) {
   if (!Array.isArray(tabs)) return [];
+  const u = targetUser || getUser();
   const config = getCachedSidebarNavConfig();
   const dashConfig = config[dashboardRole] || DEFAULT_SIDEBAR_CONFIG[dashboardRole] || [];
   const hiddenKeys = new Set(
@@ -1573,6 +1584,8 @@ export function filterTabsForDashboard(dashboardRole, tabs, isSuperadmin = false
       .map(item => item.key)
   );
 
+  const userOverrides = (u && u.customModules && typeof u.customModules === 'object') ? u.customModules : null;
+
   return tabs.filter(t => {
     // Locked items are always visible
     if (t.locked || (dashboardRole === 'admin' && t.key === 'manage')) return true;
@@ -1580,7 +1593,12 @@ export function filterTabsForDashboard(dashboardRole, tabs, isSuperadmin = false
     // Superadmin baseline restrictions
     if (!isSuperadmin && (t.key === 'salaries' || t.key === 'users')) return false;
 
-    // Filter hidden tabs
+    // Per-person custom override takes highest precedence!
+    if (userOverrides && userOverrides[t.key] !== undefined) {
+      return !!userOverrides[t.key];
+    }
+
+    // Fall back to dashboard default visibility
     if (hiddenKeys.has(t.key)) return false;
 
     return true;
@@ -1604,7 +1622,7 @@ export function renderAppShell({ user, currentRole, activeTab, tabs, title, subt
 
   const isSuperadmin = user && user.role === 'superadmin';
   const dashKey = (currentRole === 'superadmin' || currentRole === 'admin') ? 'admin' : currentRole;
-  const effectiveTabs = filterTabsForDashboard(dashKey, tabs || [], isSuperadmin);
+  const effectiveTabs = filterTabsForDashboard(dashKey, tabs || [], isSuperadmin, user);
   const hasLogJobTab = effectiveTabs && effectiveTabs.some(t => t.key === 'logjob');
   const activeTabObj = (effectiveTabs && effectiveTabs.find(t => t.key === activeTab)) || (tabs && tabs.find(t => t.key === activeTab));
   const pageTitle = title || (activeTabObj && activeTabObj.label) || 'Dashboard';
@@ -1755,7 +1773,15 @@ export function renderAppShell({ user, currentRole, activeTab, tabs, title, subt
     const config = getCachedSidebarNavConfig();
     const dashItems = config[dashKey] || DEFAULT_SIDEBAR_CONFIG[dashKey] || [];
     const hiddenSet = new Set(dashItems.filter(i => i.visible === false).map(i => i.key));
-    mobileNavItems = mobileNavItems.filter(m => m.isMore || !hiddenSet.has(m.key));
+    const userOverrides = (user && user.customModules && typeof user.customModules === 'object') ? user.customModules : null;
+
+    mobileNavItems = mobileNavItems.filter(m => {
+      if (m.isMore) return true;
+      if (userOverrides && userOverrides[m.key] !== undefined) {
+        return !!userOverrides[m.key];
+      }
+      return !hiddenSet.has(m.key);
+    });
   }
 
   const isSidebarCollapsed = typeof localStorage !== 'undefined' && localStorage.getItem('ci360_sidebar_collapsed') === 'true';
@@ -3813,7 +3839,8 @@ Object.assign(window, {
   renderAccountSettingsCard, bindAccountSettingsCard, openAccountSettingsModal,
   getArchive, restoreArchiveItem, purgeArchiveItem, purgeAllArchive,
   DEFAULT_SIDEBAR_CONFIG, getCachedSidebarNavConfig, fetchSidebarNavConfig,
-  saveSidebarNavConfig, resetSidebarNavConfig, filterTabsForDashboard
+  saveSidebarNavConfig, resetSidebarNavConfig, filterTabsForDashboard,
+  saveUserModulePermissions
 });
 
 

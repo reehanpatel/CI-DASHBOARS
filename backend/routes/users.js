@@ -40,7 +40,7 @@ router.post('/', async (req, res) => {
 
 router.put('/:id', async (req, res) => {
   try {
-    const { name, email, password, role, personnelId, clientId, active } = req.body;
+    const { name, email, password, role, personnelId, clientId, active, customModules } = req.body;
     const user = await User.findById(req.params.id);
     if (!user) return res.status(404).json({ error: 'User not found' });
 
@@ -50,6 +50,7 @@ router.put('/:id', async (req, res) => {
     if (personnelId !== undefined) user.personnelId = (user.role === 'employee') ? personnelId : null;
     if (clientId !== undefined) user.clientId = (user.role === 'client') ? clientId : null;
     if (active != null) user.active = active;
+    if (customModules !== undefined) user.customModules = customModules || {};
     if (password && String(password).trim()) user.passwordHash = await bcrypt.hash(String(password).trim(), 10);
 
     await user.save();
@@ -57,6 +58,21 @@ router.put('/:id', async (req, res) => {
     res.json(clean);
   } catch (err) {
     res.status(500).json({ error: 'Could not update user', detail: err.message });
+  }
+});
+
+router.put('/:id/modules', async (req, res) => {
+  try {
+    const { customModules } = req.body;
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    user.customModules = customModules || {};
+    await user.save();
+    const clean = user.toObject(); delete clean.passwordHash;
+    res.json({ success: true, user: clean });
+  } catch (err) {
+    res.status(500).json({ error: 'Could not update user module permissions', detail: err.message });
   }
 });
 

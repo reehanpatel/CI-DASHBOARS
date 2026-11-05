@@ -10,6 +10,7 @@ const UserSchema = new mongoose.Schema({
   // Link a client login to their Client record
   clientId: { type: mongoose.Schema.Types.ObjectId, ref: 'Client', default: null },
   active: { type: Boolean, default: true },
+  customModules: { type: mongoose.Schema.Types.Mixed, default: {} },
 }, { timestamps: true });
 
 module.exports = mongoose.models.User || mongoose.model('User', UserSchema);
