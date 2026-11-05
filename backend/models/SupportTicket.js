@@ -92,7 +92,7 @@ const SupportTicketSchema = new mongoose.Schema({
   // 5 CI-360 Scrum status columns
   status: {
     type: String,
-    enum: ['To Do', 'Content', 'Design', 'Creative', 'Under Review', 'Ready to Leave', 'In Progress', 'Resolved', 'Closed'],
+    enum: ['To Do', 'Content', 'Design', 'Creative', 'Under Review', 'Ready to Leave', 'In Progress', 'Resolved', 'Closed', 'Open', 'In Review'],
     default: 'To Do',
     index: true
   },
@@ -188,4 +188,7 @@ SupportTicketSchema.pre('save', function (next) {
   next();
 });
 
-module.exports = mongoose.models.SupportTicket || mongoose.model('SupportTicket', SupportTicketSchema);
+if (mongoose.models.SupportTicket) {
+  try { delete mongoose.models.SupportTicket; } catch (e) {}
+}
+module.exports = mongoose.model('SupportTicket', SupportTicketSchema);

@@ -206,13 +206,28 @@ export function initDailyPlanner(container, options = {}) {
         if (String(pId) !== String(state.selectedPersonnelId)) return false;
       }
 
-      // Exact date match (checks completionDateStr, dateStr, dueDate)
-      const taskDate = t.completionDateStr || t.dateStr || (t.dueDate ? new Date(t.dueDate).toISOString().slice(0, 10) : '');
-      if (taskDate) {
-        return taskDate === dateStr;
+      // Date matching logic
+      const dueDateStr = t.completionDateStr || t.dateStr || (t.dueDate ? new Date(t.dueDate).toISOString().slice(0, 10) : '');
+      const assignDateStr = t.assignedDateStr || (t.assignedDate ? new Date(t.assignedDate).toISOString().slice(0, 10) : '') || (t.createdAt ? new Date(t.createdAt).toISOString().slice(0, 10) : '') || dueDateStr;
+
+      // In Progress: show on all dates from assigned date to due date
+      if (t.status === 'In Progress') {
+        const start = (assignDateStr && dueDateStr && assignDateStr <= dueDateStr) ? assignDateStr : (dueDateStr || assignDateStr);
+        const end = (assignDateStr && dueDateStr && assignDateStr <= dueDateStr) ? dueDateStr : (assignDateStr || dueDateStr);
+        if (start && end) {
+          if (dateStr >= start && dateStr <= end) return true;
+        } else if (dueDateStr && dueDateStr === dateStr) {
+          return true;
+        } else if (assignDateStr && assignDateStr === dateStr) {
+          return true;
+        }
       }
-      // If task has no explicit date, associate with today
-      return dateStr === getTodayStr();
+
+      // If completed or pending, match dueDateStr (or assignDateStr if pending)
+      if (dueDateStr && dueDateStr === dateStr) return true;
+      if (t.status !== 'Completed' && assignDateStr && assignDateStr === dateStr) return true;
+      if (!dueDateStr && !assignDateStr) return dateStr === getTodayStr();
+      return false;
     });
   }
 
@@ -702,6 +717,8 @@ export function initDailyPlanner(container, options = {}) {
     const isCompleted = task.status === 'Completed';
     const isPastDue = isOverdue(task, todayStr);
     const compDateStr = task.completionDateStr || task.dateStr || (task.dueDate ? new Date(task.dueDate).toISOString().slice(0, 10) : todayStr);
+    const assignDateStr = task.assignedDateStr || (task.assignedDate ? new Date(task.assignedDate).toISOString().slice(0, 10) : '') || (task.createdAt ? new Date(task.createdAt).toISOString().slice(0, 10) : '');
+    const isMultiDayInProgress = task.status === 'In Progress' && assignDateStr && compDateStr && assignDateStr !== compDateStr;
     const priClass = `pri-${(task.priority || 'medium').toLowerCase()}`;
     const statusClass = `status-${(task.status || 'pending').toLowerCase().replace(/\s+/g, '-')}`;
     const addedByName = task.createdByName || task.createdBy?.name || (task.createdBy?.email ? task.createdBy.email.split('@')[0] : '') || (task.personnelId?.name || task.userId?.name || '');
@@ -739,10 +756,16 @@ export function initDailyPlanner(container, options = {}) {
               ${escapeHtml(task.status || 'Pending')}
             </span>
 
-            <!-- Completion Date Badge (Always Visible & Prominent) -->
-            <span class="ci360-badge completion-badge" title="Target Completion Date: ${compDateStr}">
-              📅 Due: ${formatShortDate(compDateStr)}
-            </span>
+            <!-- Completion Date / Date Span Badge (Always Visible & Prominent) -->
+            ${isMultiDayInProgress ? `
+              <span class="ci360-badge completion-badge" style="background:rgba(59,130,246,0.15);color:#3b82f6;border-color:rgba(59,130,246,0.3);" title="In Progress from ${formatShortDate(assignDateStr)} to ${formatShortDate(compDateStr)}">
+                📅 ${formatShortDate(assignDateStr)} ➔ Due: ${formatShortDate(compDateStr)}
+              </span>
+            ` : `
+              <span class="ci360-badge completion-badge" title="Target Completion Date: ${compDateStr}">
+                📅 Due: ${formatShortDate(compDateStr)}
+              </span>
+            `}
 
             <!-- Date Changed / Rescheduled Badge (prominently shown when date is changed) -->
             ${task.rescheduledFrom && task.rescheduledFrom !== compDateStr ? `
@@ -1205,6 +1228,8 @@ export function initDailyPlanner(container, options = {}) {
         try {
           const payload = {
             title,
+            assignedDate: state.selectedDate,
+            assignedDateStr: state.selectedDate,
             dateStr: compDate,
             completionDate: compDate,
             completionDateStr: compDate,
@@ -1414,8 +1439,12 @@ export function initDailyPlanner(container, options = {}) {
   function openAddEditTaskModal(existingTask = null, targetDate = null) {
     const isEdit = !!existingTask;
     const todayStr = getTodayStr();
-    const initialDate = existingTask
-      ? (existingTask.completionDateStr || existingTask.dateStr || (existingTask.dueDate ? new Date(existingTask.dueDate).toISOString().slice(0, 10) : state.selectedDate))
+    const initialAssignedDate = existingTask
+      ? (existingTask.assignedDateStr || (existingTask.assignedDate ? new Date(existingTask.assignedDate).toISOString().slice(0, 10) : '') || existingTask.dateStr || (existingTask.createdAt ? new Date(existingTask.createdAt).toISOString().slice(0, 10) : state.selectedDate))
+      : (targetDate && targetDate >= todayStr ? targetDate : (state.selectedDate >= todayStr ? state.selectedDate : todayStr));
+
+    const initialCompDate = existingTask
+      ? (existingTask.completionDateStr || (existingTask.dueDate ? new Date(existingTask.dueDate).toISOString().slice(0, 10) : initialAssignedDate))
       : (targetDate && targetDate >= todayStr ? targetDate : (state.selectedDate >= todayStr ? state.selectedDate : todayStr));
 
     const modalHtml = `
@@ -1442,12 +1471,12 @@ export function initDailyPlanner(container, options = {}) {
           <div class="form-row">
             <div class="form-group flex-1">
               <label for="taskDate">Assigned Date</label>
-              <input type="date" id="taskDate" class="input" value="${initialDate}" ${isEdit ? '' : `min="${todayStr}"`}>
+              <input type="date" id="taskDate" class="input" value="${initialAssignedDate}" ${isEdit ? '' : `min="${todayStr}"`}>
             </div>
             <div class="form-group flex-1">
               <label for="taskCompletionDate">Completion Date</label>
-              <input type="date" id="taskCompletionDate" class="input" value="${existingTask?.completionDateStr || existingTask?.dateStr || ''}" ${isEdit ? '' : `min="${todayStr}"`} placeholder="Defaults to that day">
-              <small style="color:var(--text-3);font-size:11px;">If left blank, will default to that day (${initialDate})</small>
+              <input type="date" id="taskCompletionDate" class="input" value="${existingTask?.completionDateStr || (existingTask?.dueDate ? new Date(existingTask.dueDate).toISOString().slice(0, 10) : '')}" ${isEdit ? '' : `min="${todayStr}"`} placeholder="Defaults to that day">
+              <small style="color:var(--text-3);font-size:11px;">If left blank, will default to that day (${initialAssignedDate})</small>
             </div>
           </div>
 
@@ -1539,7 +1568,7 @@ export function initDailyPlanner(container, options = {}) {
       e.preventDefault();
       const title = modalBg.querySelector('#taskTitle').value.trim();
       const description = modalBg.querySelector('#taskDesc').value.trim();
-      const assignedDate = modalBg.querySelector('#taskDate').value || initialDate;
+      const assignedDate = modalBg.querySelector('#taskDate').value || initialAssignedDate;
       const compDateInput = modalBg.querySelector('#taskCompletionDate')?.value?.trim();
       // If no completion date is added, default to that day (assignedDate or state.selectedDate)
       const finalCompletionDate = compDateInput || assignedDate || state.selectedDate;
@@ -1560,6 +1589,8 @@ export function initDailyPlanner(container, options = {}) {
       const payload = {
         title,
         description,
+        assignedDate,
+        assignedDateStr: assignedDate,
         dateStr: finalCompletionDate,
         completionDate: finalCompletionDate,
         completionDateStr: finalCompletionDate,

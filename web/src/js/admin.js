@@ -2890,9 +2890,25 @@ async function tabDailyTasks(c) {
   let dateFiltered = allTasks;
   if (activeDate !== 'all') {
     dateFiltered = allTasks.filter(t => {
-      if (!t.dueDate) return activeDate === todayStr;
-      const taskDate = new Date(t.dueDate).toISOString().slice(0, 10);
-      return taskDate === activeDate;
+      const dueDateStr = t.completionDateStr || t.dateStr || (t.dueDate ? new Date(t.dueDate).toISOString().slice(0, 10) : '');
+      const assignDateStr = t.assignedDateStr || (t.assignedDate ? new Date(t.assignedDate).toISOString().slice(0, 10) : '') || (t.createdAt ? new Date(t.createdAt).toISOString().slice(0, 10) : '') || dueDateStr;
+
+      if (t.status === 'In Progress') {
+        const start = (assignDateStr && dueDateStr && assignDateStr <= dueDateStr) ? assignDateStr : (dueDateStr || assignDateStr);
+        const end = (assignDateStr && dueDateStr && assignDateStr <= dueDateStr) ? dueDateStr : (assignDateStr || dueDateStr);
+        if (start && end) {
+          if (activeDate >= start && activeDate <= end) return true;
+        } else if (dueDateStr && dueDateStr === activeDate) {
+          return true;
+        } else if (assignDateStr && assignDateStr === activeDate) {
+          return true;
+        }
+      }
+
+      if (dueDateStr && dueDateStr === activeDate) return true;
+      if (t.status !== 'Completed' && assignDateStr && assignDateStr === activeDate) return true;
+      if (!dueDateStr && !assignDateStr) return activeDate === todayStr;
+      return false;
     });
   }
 

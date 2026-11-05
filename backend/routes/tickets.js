@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
-const SupportTicket = mongoose.models.SupportTicket || require('../models/SupportTicket');
+const SupportTicket = require('../models/SupportTicket');
 const Job = mongoose.models.Job || require('../models/Job');
 const User = mongoose.models.User || require('../models/User');
 const Personnel = mongoose.models.Personnel || require('../models/Personnel');

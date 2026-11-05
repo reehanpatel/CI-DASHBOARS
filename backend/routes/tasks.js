@@ -149,6 +149,9 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ error: 'Cannot add tasks on previous dates. You can only view, edit, or mark existing tasks complete.' });
     }
 
+    const finalAssignedDateStr = (assignedDateStr || assignedDate ? String(assignedDateStr || assignedDate).trim().slice(0, 10) : (dateStr ? String(dateStr).trim().slice(0, 10) : todayStr));
+    const finalAssignedDate = new Date(finalAssignedDateStr + 'T00:00:00.000Z');
+
     const dStr = effectiveCompletionDateStr;
     const calculatedDueDate = effectiveCompletionDate;
     const isCompleted = status === 'Completed';
@@ -173,8 +176,11 @@ router.post('/', async (req, res) => {
           priority: priority || 'Medium',
           dueDate: calculatedDueDate,
           dateStr: dStr,
+          assignedDate: finalAssignedDate,
+          assignedDateStr: finalAssignedDateStr,
           completionDate: calculatedDueDate,
           completionDateStr: dStr,
+          originalDateStr: dStr,
           startTime: startTime ? startTime.trim() : '',
           dueTime: dueTime ? dueTime.trim() : '',
           category: category ? category.trim() : 'General',
@@ -226,6 +232,8 @@ router.post('/', async (req, res) => {
       priority: priority || 'Medium',
       dueDate: calculatedDueDate,
       dateStr: dStr,
+      assignedDate: finalAssignedDate,
+      assignedDateStr: finalAssignedDateStr,
       completionDate: calculatedDueDate,
       completionDateStr: dStr,
       originalDateStr: dStr,
@@ -293,6 +301,8 @@ router.put('/:id', async (req, res) => {
       priority,
       dueDate,
       dateStr,
+      assignedDate,
+      assignedDateStr,
       completionDate,
       completionDateStr: reqCompletionDateStr,
       startTime,
@@ -375,6 +385,14 @@ router.put('/:id', async (req, res) => {
         newDateStr = new Date(task.dueDate).toISOString().slice(0, 10);
         task.dateStr = newDateStr;
         task.completionDateStr = newDateStr;
+      }
+    }
+
+    if (assignedDate !== undefined || assignedDateStr !== undefined) {
+      const aStr = String(assignedDateStr || assignedDate || '').trim().slice(0, 10);
+      if (aStr) {
+        task.assignedDateStr = aStr;
+        task.assignedDate = new Date(aStr + 'T00:00:00.000Z');
       }
     }
 

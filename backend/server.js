@@ -2116,8 +2116,8 @@ var require_SupportTicket = __commonJS({
       userRole:   { type: String, required: true },
       subject:    { type: String, required: true, trim: true },
       message:    { type: String, required: true, trim: true },
-      priority:   { type: String, enum: ["Low","Medium","High","Urgent"], default: "Medium" },
-      status:     { type: String, enum: ["Open","In Review","Resolved","Closed"], default: "Open" },
+      priority:   { type: String, enum: ["Low","Medium","High","Urgent","Critical"], default: "Medium" },
+      status:     { type: String, enum: ["To Do","Content","Design","Creative","Under Review","Ready to Leave","In Progress","Resolved","Closed","Open","In Review"], default: "To Do" },
       adminReply: { type: String, default: "" },
       repliedAt:  { type: Date, default: null },
       attachments: [{
