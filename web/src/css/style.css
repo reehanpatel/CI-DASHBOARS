@@ -1384,19 +1384,19 @@ textarea {
 
 /* ── APP CONTENT ───────────────────────────────────────────── */
 .app-content {
-    max-width: none !important;
-    width: auto !important;
-    box-sizing: border-box !important;
-    flex: 1 1 0%;
-    padding: 20px !important;
-    margin: 0px 71px !important;
+  max-width: 100% !important;
+  width: auto !important;
+  box-sizing: border-box !important;
+  flex: 1 1 0%;
+  padding: 20px !important;
+  margin: 0px !important;
 }
 
 .ci360-planner-wrap {
-    width: 100% !important;
-    max-width: none !important;
-    margin: 0 !important;
-    box-sizing: border-box !important;
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  box-sizing: border-box !important;
 }
 
 @media (max-width: 992px) {
