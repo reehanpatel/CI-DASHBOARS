@@ -295,3 +295,4 @@ Clients who sign in with client credentials receive a simplified, branded extran
 
 ### Q4: How do I change margins or padding across the app?
 **A:** The entire software conforms to the `.app-content` standard: `padding: 20px !important; margin: 0px 71px !important;` on desktop displays, scaling down automatically for mobile and tablet devices.
+

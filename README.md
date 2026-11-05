@@ -40,9 +40,10 @@ ci360/
 ## Documentation & User Manuals
 
 Complete system documentation and user manuals are located in [`docs/`](docs/):
-- **[System Architecture & Developer Documentation](docs/SYSTEM_DOCUMENTATION.md)** — Exhaustive overview of all 21 Mongoose models, 18 API route families, role-based access control (RBAC), multi-player state machines, sync polling, and deployment configuration.
-- **[End-User Manual & Operating Guide](docs/USER_MANUAL.md)** — Step-by-step operational workflows for Super Admins, Admins, Employees, and Clients across all 10 software modules, UI keyboard shortcuts, error handling, and FAQ.
-- **[Team Bonding & Real-Time Multiplayer Games Manual](docs/TEAM_BONDING_AND_GAMES_MANUAL.md)** — Detailed rules, mechanics, turn engines, and guide for Ludo, Chess, Connect Four, and Tic-Tac-Toe.
+- **[System Architecture & Developer Documentation](docs/SYSTEM_DOCUMENTATION.md)** ([PDF](docs/CI360_System_Documentation.pdf)) — Exhaustive overview of all 21 Mongoose models, 18 API route families, role-based access control (RBAC), multi-player state machines, sync polling, and deployment configuration.
+- **[End-User Manual & Operating Guide](docs/USER_MANUAL.md)** ([PDF](docs/CI360_User_Manual.pdf)) — Step-by-step operational workflows for Super Admins, Admins, Employees, and Clients across all 10 software modules, UI keyboard shortcuts, error handling, and FAQ.
+- **[Team Bonding & Real-Time Multiplayer Games Manual](docs/TEAM_BONDING_AND_GAMES_MANUAL.md)** ([PDF](docs/CI360_Team_Bonding_and_Games_Manual.pdf)) — Detailed rules, mechanics, turn engines, and guide for Ludo, Chess, Connect Four, and Tic-Tac-Toe.
+- **[Master Platform Handbook](docs/CI360_Complete_Platform_Handbook.pdf)** — Unified, complete PDF manual combining Architecture, User Operations, and Multiplayer Games into a single publication-ready handbook.
 
 ## Prerequisites
 

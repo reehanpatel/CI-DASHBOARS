@@ -326,3 +326,4 @@ The Express application serves the API and the compiled frontend simultaneously:
 npm run start
 ```
 Runs `node server.js` which loads environment variables and serves `web/dist` on port 4000.
+
