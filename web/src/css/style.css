@@ -1392,6 +1392,13 @@ textarea {
     margin: 0px 71px !important;
 }
 
+.ci360-planner-wrap {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+}
+
 @media (max-width: 992px) {
   .app-content {
     margin: 0 32px !important;

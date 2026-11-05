@@ -2221,9 +2221,11 @@ function ensurePlannerStyles() {
   style.textContent = `
     /* CI360 Dayfolio Planner Module Styles */
     .ci360-planner-wrap {
-      max-width: 1040px;
-      margin: 0 auto;
-      padding: 0 4px 60px;
+      width: 100% !important;
+      max-width: none !important;
+      margin: 0 !important;
+      padding: 0 0 60px;
+      box-sizing: border-box !important;
       font-family: var(--font-sans);
       color: var(--text-1);
     }
