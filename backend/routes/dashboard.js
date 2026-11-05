@@ -33,7 +33,7 @@ function buildInsights(personMap) {
 }
 
 // ---- SUPER ADMIN OVERVIEW ----
-router.get('/admin', requireRole('superadmin'), async (req, res) => {
+router.get('/admin', requireRole('superadmin', 'admin', 'employee'), async (req, res) => {
   const period = req.query.period || 'month';
   const { from, to } = periodRange(period);
 

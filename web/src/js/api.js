@@ -1496,12 +1496,20 @@ export const DEFAULT_SIDEBAR_CONFIG = {
   employee: [
     { key: 'dashboard', label: 'Overview Dashboard', icon: '📊', visible: true, category: 'Core' },
     { key: 'myjobs', label: 'My Jobs', icon: '📋', visible: true, category: 'Operations' },
+    { key: 'logjob', label: 'Log a Job', icon: '➕', visible: true, category: 'Operations' },
+    { key: 'jobs', label: 'All Jobs', icon: '📁', visible: true, category: 'Operations' },
     { key: 'dailytasks', label: 'Daily Planner', icon: '📅', visible: true, category: 'Productivity' },
     { key: 'tickets', label: 'Support Tickets', icon: '🎫', visible: true, category: 'Support' },
+    { key: 'billing_dashboard', label: 'Accounts & Billing', icon: '💳', href: '/accounts', visible: true, category: 'Finance' },
     { key: 'proposals', label: 'Proposal Studio', icon: '📜', visible: true, category: 'Sales' },
     { key: 'teambonding', label: 'Team Chat & Lounge', icon: '💬', visible: true, category: 'Collaboration' },
-    { key: 'targets', label: 'My Targets', icon: '🎯', visible: true, category: 'Productivity' },
-    { key: 'accounts_redirect', label: 'Accounts Dashboard 💰', icon: '💳', visible: true, category: 'Finance' },
+    { key: 'byclient', label: 'By Client', icon: '💼', visible: true, category: 'Analytics' },
+    { key: 'byperson', label: 'By Person', icon: '👥', visible: true, category: 'Analytics' },
+    { key: 'accounts', label: 'Client Roster', icon: '🏢', visible: true, category: 'Directory' },
+    { key: 'targets', label: 'Targets', icon: '🎯', visible: true, category: 'Productivity' },
+    { key: 'salaries', label: 'Salaries', icon: '💰', visible: true, superadminOnly: true, category: 'Finance' },
+    { key: 'users', label: 'Users', icon: '👤', visible: true, superadminOnly: true, category: 'System' },
+    { key: 'manage', label: 'Settings & Manage', icon: '⚙️', visible: true, category: 'System' },
     { key: 'settings', label: 'Settings', icon: '⚙️', visible: true, category: 'System' }
   ],
   accounts: [
@@ -1511,6 +1519,11 @@ export const DEFAULT_SIDEBAR_CONFIG = {
     { key: 'receivables', label: 'Pending & Receivables', icon: '⏳', visible: true, category: 'Billing' },
     { key: 'billing', label: 'Billing Profiles', icon: '📑', visible: true, category: 'Billing' },
     { key: 'tally', label: 'TallyPrime Silver', icon: '🏛️', visible: true, category: 'Integration' },
+    { key: 'logjob', label: 'Log a Job', icon: '➕', visible: true, category: 'Operations' },
+    { key: 'jobs', label: 'All Jobs', icon: '📁', visible: true, category: 'Operations' },
+    { key: 'proposals', label: 'Proposal Studio', icon: '📜', visible: true, category: 'Sales' },
+    { key: 'teambonding', label: 'Team Chat & Lounge', icon: '💬', visible: true, category: 'Collaboration' },
+    { key: 'tickets', label: 'Support Tickets', icon: '🎫', visible: true, category: 'Support' },
     { key: 'settings', label: 'Settings', icon: '⚙️', visible: true, category: 'System' }
   ],
   client: [
@@ -1520,7 +1533,9 @@ export const DEFAULT_SIDEBAR_CONFIG = {
     { key: 'delivered', label: 'Work Delivered', icon: '📦', visible: true, category: 'Deliverables' },
     { key: 'proposals', label: 'Proposals & Scope', icon: '📜', visible: true, category: 'Contracts' },
     { key: 'billing', label: 'Billing & Invoices', icon: '💳', visible: true, category: 'Finance' },
+    { key: 'tickets', label: 'Support Tickets', icon: '🎫', visible: true, category: 'Support' },
     { key: 'team', label: 'Our Team', icon: '👥', visible: true, category: 'Personnel' },
+    { key: 'teambonding', label: 'Team Lounge', icon: '💬', visible: true, category: 'Collaboration' },
     { key: 'settings', label: 'Settings', icon: '⚙️', visible: true, category: 'System' }
   ]
 };
@@ -1590,12 +1605,15 @@ export function filterTabsForDashboard(dashboardRole, tabs, isSuperadmin = false
     // Locked items are always visible
     if (t.locked || (dashboardRole === 'admin' && t.key === 'manage')) return true;
 
-    // Superadmin baseline restrictions
-    if (!isSuperadmin && (t.key === 'salaries' || t.key === 'users')) return false;
-
     // Per-person custom override takes highest precedence!
     if (userOverrides && userOverrides[t.key] !== undefined) {
       return !!userOverrides[t.key];
+    }
+
+    // Baseline restrictions for non-superadmin only if not explicitly enabled in dashboard config
+    if (!isSuperadmin && (t.key === 'salaries' || t.key === 'users')) {
+      const cfgItem = dashConfig.find(item => item.key === t.key);
+      if (!cfgItem || cfgItem.visible === false) return false;
     }
 
     // Fall back to dashboard default visibility

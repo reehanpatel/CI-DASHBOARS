@@ -24,21 +24,25 @@ function clientName(id){ const c = cache.clients.find(c=>c._id===id); return c ?
 function isLeadManager(){ return user && (/mansi/i.test(user.name) || /urna/i.test(user.name)); }
 
 function getEmployeeTabs() {
-  const isAccountsAccess = user && (user.role === 'accounts' || user.role === 'superadmin' || /ekta/i.test(user.name) || /ekta/i.test(user.email));
-  const tabs = [
+  return [
     { key: 'dashboard',  label: 'Overview Dashboard', icon: '📊' },
     { key: 'myjobs',     label: 'My Jobs',            icon: '📋' },
+    { key: 'logjob',     label: 'Log a Job',          icon: '➕' },
+    { key: 'jobs',       label: 'All Jobs',           icon: '📁' },
     { key: 'dailytasks', label: 'Daily Planner',      icon: '📅' },
     { key: 'tickets',    label: 'Support Tickets',    icon: '🎫' },
+    { key: 'billing_dashboard', label: 'Accounts & Billing', icon: '💳', href: '/accounts' },
     { key: 'proposals',  label: 'Proposal Studio',    icon: '📜' },
     { key: 'teambonding',label: 'Team Chat & Lounge', icon: '💬' },
-    { key: 'targets',    label: 'My Targets',         icon: '🎯' },
+    { key: 'byclient',   label: 'By Client',          icon: '💼' },
+    { key: 'byperson',   label: 'By Person',          icon: '👥' },
+    { key: 'accounts',   label: 'Client Roster',      icon: '🏢' },
+    { key: 'targets',    label: 'Targets',            icon: '🎯' },
+    { key: 'salaries',   label: 'Salaries',           icon: '💰' },
+    { key: 'users',      label: 'Users',              icon: '👤' },
+    { key: 'manage',     label: 'Settings & Manage',  icon: '⚙️' },
     { key: 'settings',   label: 'Settings',           icon: '⚙️' }
   ];
-  if (isAccountsAccess) {
-    tabs.push({ key: 'accounts_redirect', label: 'Accounts Dashboard 💰', icon: '💳' });
-  }
-  return tabs;
 }
 
 function render(){
@@ -58,7 +62,7 @@ function render(){
     subtitle: isLeadManager() ? 'Lead Workspace · Mansi & Urna Management' : 'Employee Workspace & Productivity Dashboard'
   });
   bindAppShellEvents((newTab)=>{ 
-    if (newTab === 'accounts_redirect') {
+    if (newTab === 'accounts_redirect' || newTab === 'billing_dashboard') {
       window.location.href = '/accounts';
       return;
     }
@@ -68,14 +72,12 @@ function render(){
   renderTab();
 }
 window.ci360NavTab = (tabName, highlightId = null) => { 
-  if (tabName === 'accounts_redirect') {
+  if (tabName === 'accounts_redirect' || tabName === 'billing_dashboard') {
     window.location.href = '/accounts';
     return;
   }
   // Normalize tab names across roles and notifications
-  if (tabName === 'jobs' || tabName === 'myjobs') {
-    tabName = 'myjobs';
-  } else if (tabName === 'tasks' || tabName === 'mytasks' || tabName === 'dailytasks') {
+  if (tabName === 'tasks' || tabName === 'mytasks' || tabName === 'dailytasks') {
     tabName = 'dailytasks';
   } else if (tabName === 'target' || tabName === 'targets') {
     tabName = 'targets';
@@ -89,6 +91,7 @@ window.ci360NavTab = (tabName, highlightId = null) => {
     tabName = 'dashboard';
   }
 
+  let params = null;
   if (highlightId && typeof highlightId === 'object') {
     params = highlightId;
     highlightId = params.highlightId || null;
@@ -108,13 +111,21 @@ async function renderTab(skipSkeleton = false){
   c.dataset.loaded = 'true';
   try{
     if(ui.tab==='dashboard')                                                await tabEmployeeDashboard(c);
-    else if(ui.tab==='myjobs' || ui.tab==='jobs')                          await tabMyJobs(c);
+    else if(ui.tab==='myjobs')                                              await tabMyJobs(c, false);
+    else if(ui.tab==='jobs')                                                await tabMyJobs(c, true);
+    else if(ui.tab==='logjob')                                              tabLogJob(c);
     else if(ui.tab==='dailytasks' || ui.tab==='mytasks' || ui.tab==='tasks') await tabDailyTasks(c);
     else if(ui.tab==='tickets' || ui.tab==='supporttickets' || ui.tab==='ticket') await tabSupportTickets(c);
+    else if(ui.tab==='billing_dashboard')                                   { window.location.href = '/accounts'; return; }
     else if(ui.tab==='proposals' || ui.tab==='proposal')                   await tabProposals(c);
     else if(ui.tab==='teambonding' || ui.tab==='bonding')                  await tabTeamBonding(c);
+    else if(ui.tab==='byclient')                                            await tabByClient(c);
+    else if(ui.tab==='byperson')                                            await tabByPerson(c);
+    else if(ui.tab==='accounts')                                            await tabAccounts(c);
     else if(ui.tab==='targets' || ui.tab==='target')                       await tabTargets(c);
-    else if(ui.tab==='settings')                                            await tabSettings(c);
+    else if(ui.tab==='salaries')                                            await tabSalaries(c);
+    else if(ui.tab==='users')                                               await tabUsers(c);
+    else if(ui.tab==='settings' || ui.tab==='manage')                      await tabSettings(c);
     else {
       ui.tab = 'dashboard';
       await tabEmployeeDashboard(c);
@@ -494,16 +505,19 @@ async function tabEmployeeDashboard(c){
 }
 
 
-/* ════════════════════════════ MY JOBS ════════════════════════════ */
-async function tabMyJobs(c){
-  const jobs = await apiGet('/jobs?mine=true');
+/* ════════════════════════════ MY JOBS & ALL JOBS ════════════════════════════ */
+async function tabMyJobs(c, showAll = false){
+  const endpoint = showAll ? '/jobs' : '/jobs?mine=true';
+  const jobs = await apiGet(endpoint);
   const priorityBadges = { Medium:'gray', High:'amber', Urgent:'red' };
+  const titleLabel = showAll ? 'All Jobs' : 'My Jobs';
+  const emptyDesc = showAll ? 'No jobs have been logged in the system yet.' : 'Jobs assigned to you by admins will appear here.';
 
   if(jobs.length === 0){
     c.innerHTML = `
       <div class="block">
-        <h2>My Jobs <span class="eyebrow">No assigned jobs yet</span></h2>
-        ${renderEmptyState('No jobs assigned yet', 'Jobs assigned to you by admins will appear here.', '📋')}
+        <h2>${titleLabel} <span class="eyebrow">No jobs found</span></h2>
+        ${renderEmptyState(showAll ? 'No jobs found' : 'No jobs assigned yet', emptyDesc, '📋')}
       </div>`;
     return;
   }
@@ -511,7 +525,7 @@ async function tabMyJobs(c){
   c.innerHTML = `
     <div class="block">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
-        <h2 style="margin:0">My Jobs <span class="eyebrow">${jobs.length} total</span></h2>
+        <h2 style="margin:0">${titleLabel} <span class="eyebrow">${jobs.length} total</span></h2>
         <div style="display:flex;gap:8px;align-items:center">
           <span style="font-size:12px;color:var(--text-3)">Click the date or 💾 to save completion date</span>
         </div>
@@ -798,6 +812,504 @@ async function tabMyJobs(c){
         setTimeout(() => targetEl.classList.remove('pulse-highlight'), 2200);
       }
     }, 150);
+  }
+}
+
+/* ════════════════════════════ LOG A JOB ════════════════════════════ */
+let logJobDraft = {
+  title: '',
+  assignments: [],
+  serviceIds: [],
+  clientId: '',
+  date: new Date().toISOString().slice(0, 10),
+  completion: '',
+  value: '',
+  desc: '',
+  attachments: []
+};
+
+function getDefaultAssignments() {
+  const myPerson = (cache.personnel || []).find(p => String(p._id) === String(user?.personnelId?._id || user?.personnelId));
+  return [
+    { personId: myPerson ? myPerson._id : ((cache.personnel && cache.personnel[0]) ? cache.personnel[0]._id : ''), percent: 100, hours: '' }
+  ];
+}
+
+function tabLogJob(c) {
+  if (!logJobDraft.assignments || !logJobDraft.assignments.length) {
+    logJobDraft.assignments = getDefaultAssignments();
+  }
+  const totalPercent = logJobDraft.assignments.reduce((s, a) => s + (Number(a.percent) || 0), 0);
+  c.innerHTML = `
+    <section class="block">
+      <div style="margin-bottom:20px;">
+        <h2 style="font-size:20px;font-weight:800;color:var(--text-1);margin-bottom:4px;border:none;padding:0;">Log New Job & Work Deliverable</h2>
+        <p style="font-size:13px;color:var(--text-3);margin:0;">Record client deliverables, services provided, financial value, and team hour attributions.</p>
+      </div>
+
+      <div class="card log-job-card" style="background:var(--bg-card);border:1px solid var(--border-sm);border-radius:var(--r-md);padding:24px;">
+        <div style="margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--border-sm);">
+          <h3 style="font-size:14px;font-weight:800;color:var(--text-1);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:16px;">1. Client & Timeline</h3>
+          <div class="field" style="margin-bottom:16px;">
+            <label>CLIENT *</label>
+            <div class="select-with-btn">
+              <select id="ejClient">
+                <option value="">Select client…</option>
+                ${(cache.clients || []).map(cl => `<option value="${cl._id}" ${cl._id === logJobDraft.clientId ? 'selected' : ''}>${escapeHtml(cl.name)}</option>`).join('')}
+              </select>
+            </div>
+          </div>
+
+          <div class="log-job-row" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+            <div class="field" style="margin-bottom:0;">
+              <label>START DATE *</label>
+              <input type="date" id="ejDate" value="${logJobDraft.date || new Date().toISOString().slice(0, 10)}">
+            </div>
+            <div class="field" style="margin-bottom:0;">
+              <label>COMPLETION DATE (OPTIONAL)</label>
+              <input type="date" id="ejCompletion" value="${logJobDraft.completion || ''}">
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--border-sm);">
+          <h3 style="font-size:14px;font-weight:800;color:var(--text-1);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:16px;">2. Deliverable & Financials</h3>
+          <div class="field" style="margin-bottom:16px;">
+            <label>SERVICE(S) DELIVERED *</label>
+            <div class="select-with-btn">
+              <select id="ejService">
+                <option value="">Select service to add…</option>
+                ${(cache.services || []).map(s => `<option value="${s._id}">${escapeHtml(s.name)}</option>`).join('')}
+              </select>
+            </div>
+            ${logJobDraft.serviceIds.length ? `
+              <div class="selected-services-tags" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;">
+                ${logJobDraft.serviceIds.map(id => {
+                  const s = (cache.services || []).find(srv => srv._id === id);
+                  if (!s) return '';
+                  return `
+                    <span class="badge blue" style="display:inline-flex;align-items:center;gap:6px;padding:6px 12px;font-size:12px;border-radius:20px;">
+                      ${escapeHtml(s.name)}
+                      <span class="remove-service-tag" data-id="${s._id}" style="cursor:pointer;font-weight:bold;margin-left:4px;" title="Remove service">✕</span>
+                    </span>
+                  `;
+                }).join('')}
+              </div>
+            ` : ''}
+          </div>
+
+          <div class="field" style="margin-bottom:16px;">
+            <label>JOB TITLE (OPTIONAL — AUTO-GENERATES IF BLANK)</label>
+            <input type="text" id="ejTitle" value="${escapeHtml(logJobDraft.title || '')}" placeholder="e.g. Brand Redesign & Social Campaign">
+          </div>
+
+          <div class="field" style="margin-bottom:16px;">
+            <label>JOB VALUE (₹ ATTRIBUTABLE VALUE)</label>
+            <input type="number" id="ejValue" value="${logJobDraft.value || ''}" placeholder="e.g. 25000" min="0">
+          </div>
+
+          <div class="field" style="margin-bottom:0;">
+            <label>DELIVERABLE DESCRIPTION & SPECIFICS</label>
+            <textarea id="ejDesc" placeholder="Describe the scope of work, completed artifacts, or client notes..." style="height:90px;resize:vertical;">${escapeHtml(logJobDraft.desc || '')}</textarea>
+          </div>
+        </div>
+
+        <div style="margin-bottom:24px;">
+          <h3 style="font-size:14px;font-weight:800;color:var(--text-1);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:16px;">3. Team Work Allocation & Hours</h3>
+          <div class="people-assigned-box">
+            <div class="people-assigned-headers" style="display:grid;grid-template-columns:2fr 1fr 1fr 40px;gap:12px;font-size:11px;font-weight:700;color:var(--text-3);text-transform:uppercase;margin-bottom:8px;">
+              <div>TEAM MEMBER</div>
+              <div>% OF WORK</div>
+              <div>HOURS SPENT</div>
+              <div></div>
+            </div>
+            <div id="eAssignRows">
+              ${logJobDraft.assignments.map((a, i) => `
+                <div class="person-assign-row" data-idx="${i}" style="display:grid;grid-template-columns:2fr 1fr 1fr 40px;gap:12px;align-items:center;margin-bottom:8px;">
+                  <div class="field" style="margin-bottom:0;">
+                    <select class="ea-person">
+                      <option value="">Select…</option>
+                      ${(cache.personnel || []).map(p => `<option value="${p._id}" ${p._id === a.personId ? 'selected' : ''}>${escapeHtml(p.name)}${p.duties ? ` (${escapeHtml(p.duties)})` : ''}</option>`).join('')}
+                    </select>
+                  </div>
+                  <div class="field" style="margin-bottom:0;">
+                    <input type="number" class="ea-percent" value="${a.percent != null ? a.percent : ''}" placeholder="100" min="0" max="100">
+                  </div>
+                  <div class="field" style="margin-bottom:0;">
+                    <input type="number" class="ea-hours" value="${a.hours || ''}" placeholder="e.g. 3.5" min="0" step="0.5">
+                  </div>
+                  <div style="display:flex;justify-content:center;">
+                    <button class="btn-remove-person ea-remove" type="button" title="Remove person" style="background:transparent;border:none;color:var(--red-500);cursor:pointer;font-size:16px;">✕</button>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+            <button class="btn ghost small" id="eAddAssignRow" type="button" style="margin-top:10px;">+ Add Team Member</button>
+            <div style="margin-top:14px;">
+              <div class="assign-total ${totalPercent !== 100 ? 'warn' : ''}" style="font-size:12px;display:flex;align-items:center;gap:6px;color:${totalPercent === 100 ? 'var(--green-500)' : 'var(--amber-500)'};">
+                <span>${totalPercent === 100 ? '✓' : '⚠️'}</span>
+                <span>${totalPercent}% of work allocated ${totalPercent !== 100 ? '— should total 100%' : '(100% Complete)'}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--border-sm);">
+          <h3 style="font-size:14px;font-weight:800;color:var(--text-1);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:16px;">4. Briefs & File Attachments</h3>
+          ${renderAttachmentUploader({ id: 'ejAttachments', label: 'Briefs & Reference Assets', subtitle: 'Upload briefs, design mockups, agreements, logos or source files' })}
+        </div>
+
+        <div class="form-actions" style="display:flex;gap:12px;justify-content:flex-end;">
+          <button class="btn ghost" id="eClearJobBtn" type="button">Reset Draft</button>
+          <button class="btn gold" id="eSaveJobBtn" type="button" style="padding:10px 28px;font-size:14px;">Save Job & Dispatch Notifications</button>
+        </div>
+      </div>
+    </section>
+  `;
+
+  bindLogJobHandlers(c);
+}
+
+function bindLogJobHandlers(c) {
+  const ejClient = document.getElementById('ejClient');
+  if (ejClient) ejClient.onchange = e => logJobDraft.clientId = e.target.value;
+
+  const ejDate = document.getElementById('ejDate');
+  if (ejDate) ejDate.onchange = e => logJobDraft.date = e.target.value;
+
+  const ejCompletion = document.getElementById('ejCompletion');
+  if (ejCompletion) ejCompletion.onchange = e => logJobDraft.completion = e.target.value;
+
+  const ejTitle = document.getElementById('ejTitle');
+  if (ejTitle) ejTitle.oninput = e => logJobDraft.title = e.target.value;
+
+  const ejValue = document.getElementById('ejValue');
+  if (ejValue) ejValue.oninput = e => logJobDraft.value = e.target.value;
+
+  const ejDesc = document.getElementById('ejDesc');
+  if (ejDesc) ejDesc.oninput = e => logJobDraft.desc = e.target.value;
+
+  const ejService = document.getElementById('ejService');
+  if (ejService) {
+    ejService.onchange = e => {
+      const val = e.target.value;
+      if (val && !logJobDraft.serviceIds.includes(val)) {
+        logJobDraft.serviceIds.push(val);
+        tabLogJob(c);
+      }
+    };
+  }
+
+  c.querySelectorAll('.remove-service-tag').forEach(tag => {
+    tag.onclick = e => {
+      e.stopPropagation();
+      const id = tag.dataset.id;
+      logJobDraft.serviceIds = logJobDraft.serviceIds.filter(x => x !== id);
+      tabLogJob(c);
+    };
+  });
+
+  c.querySelectorAll('.person-assign-row').forEach(row => {
+    const idx = Number(row.dataset.idx);
+    const sel = row.querySelector('.ea-person');
+    if (sel) sel.onchange = e => {
+      if (logJobDraft.assignments[idx]) logJobDraft.assignments[idx].personId = e.target.value;
+    };
+    const pInp = row.querySelector('.ea-percent');
+    if (pInp) pInp.oninput = e => {
+      if (logJobDraft.assignments[idx]) logJobDraft.assignments[idx].percent = e.target.value;
+    };
+    const hInp = row.querySelector('.ea-hours');
+    if (hInp) hInp.oninput = e => {
+      if (logJobDraft.assignments[idx]) logJobDraft.assignments[idx].hours = e.target.value;
+    };
+    const rm = row.querySelector('.ea-remove');
+    if (rm) rm.onclick = () => {
+      if (logJobDraft.assignments.length > 1) {
+        logJobDraft.assignments.splice(idx, 1);
+        tabLogJob(c);
+      }
+    };
+  });
+
+  const addRow = document.getElementById('eAddAssignRow');
+  if (addRow) {
+    addRow.onclick = () => {
+      logJobDraft.assignments.push({ personId: '', percent: 0, hours: '' });
+      tabLogJob(c);
+    };
+  }
+
+  bindAttachmentUploader('ejAttachments', { existing: logJobDraft.attachments || [] });
+
+  const clearBtn = document.getElementById('eClearJobBtn');
+  if (clearBtn) {
+    clearBtn.onclick = () => {
+      logJobDraft = { title: '', assignments: getDefaultAssignments(), serviceIds: [], clientId: '', date: new Date().toISOString().slice(0, 10), completion: '', value: '', desc: '', attachments: [] };
+      setUploaderAttachments('ejAttachments', []);
+      tabLogJob(c);
+    };
+  }
+
+  const saveBtn = document.getElementById('eSaveJobBtn');
+  if (saveBtn) {
+    saveBtn.onclick = async () => {
+      try {
+        if (!logJobDraft.clientId) {
+          flashToast('Please select a client', true);
+          return;
+        }
+        if (!logJobDraft.serviceIds || !logJobDraft.serviceIds.length) {
+          flashToast('Please select at least one service', true);
+          return;
+        }
+        const valid = logJobDraft.assignments.filter(a => a.personId);
+        if (!valid.length) {
+          flashToast('Please assign at least one person', true);
+          return;
+        }
+        for (const a of valid) {
+          if (a.hours === '' || a.hours == null) {
+            flashToast('Enter hours spent for every assigned person', true);
+            return;
+          }
+        }
+
+        const clientObj = (cache.clients || []).find(cl => cl._id === logJobDraft.clientId);
+        const selectedServices = (cache.services || []).filter(s => logJobDraft.serviceIds.includes(s._id));
+        const serviceNamesStr = selectedServices.map(s => s.name).join(', ');
+        const title = logJobDraft.title || (clientObj ? `${clientObj.name} — ${serviceNamesStr || 'Deliverable'}` : (serviceNamesStr || 'Untitled Job'));
+        const attachments = getUploaderAttachments('ejAttachments');
+
+        await apiPost('/jobs', {
+          title,
+          clientId: logJobDraft.clientId,
+          serviceIds: logJobDraft.serviceIds,
+          date: logJobDraft.date || new Date().toISOString().slice(0, 10),
+          completionDate: logJobDraft.completion || null,
+          value: Number(logJobDraft.value) || 0,
+          description: logJobDraft.desc || '',
+          assignments: valid,
+          attachments
+        });
+
+        flashToast('Job saved successfully! 📁');
+        if (typeof window.ci360FetchNotifications === 'function') {
+          window.ci360FetchNotifications();
+        }
+
+        logJobDraft = { title: '', assignments: getDefaultAssignments(), serviceIds: [], clientId: '', date: new Date().toISOString().slice(0, 10), completion: '', value: '', desc: '', attachments: [] };
+        ui.tab = 'myjobs';
+        render();
+      } catch (err) {
+        flashToast(err.message, true);
+      }
+    };
+  }
+}
+
+/* ════════════════════════════ BY CLIENT ════════════════════════════ */
+async function tabByClient(c) {
+  try {
+    const dash = await apiGet('/dashboard/admin?period=' + ui.period);
+    c.innerHTML = `
+      <section class="block">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
+          <h2 style="margin:0;">By Client <span class="eyebrow">${(dash.clients || []).length} clients</span></h2>
+        </div>
+        <div class="grid grid-3">
+          ${(dash.clients || []).map(cl => `
+            <div class="card" style="background:var(--bg-card);border:1px solid var(--border-sm);border-radius:var(--r-md);padding:18px;">
+              <h3 style="font-size:16px;font-weight:700;margin-bottom:12px;color:var(--text-1);">${escapeHtml(cl.name)}</h3>
+              <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:13px;"><span style="color:var(--text-3);">Work Value</span><strong>${fmtINR(cl.value)}</strong></div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:13px;"><span style="color:var(--text-3);">Jobs</span><strong>${cl.jobCount}</strong></div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:13px;"><span style="color:var(--text-3);">Effort</span><strong>${fmtHours(cl.hours)}</strong></div>
+              <div style="display:flex;justify-content:space-between;font-size:13px;"><span style="color:var(--text-3);">Team Members</span><strong>${cl.peopleCount}</strong></div>
+            </div>
+          `).join('') || renderEmptyState('No clients found', 'No client records available for this period.', '💼')}
+        </div>
+      </section>
+    `;
+  } catch(e) {
+    c.innerHTML = renderEmptyState('Unable to load client analytics', e.message, '💼');
+  }
+}
+
+/* ════════════════════════════ BY PERSON ════════════════════════════ */
+async function tabByPerson(c) {
+  try {
+    const dash = await apiGet('/dashboard/admin?period=' + ui.period);
+    c.innerHTML = `
+      <section class="block">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
+          <h2 style="margin:0;">By Person <span class="eyebrow">${(dash.personnel || []).length} team members</span></h2>
+        </div>
+        <div class="card table-card" style="padding:0;overflow:hidden;background:var(--bg-card);border:1px solid var(--border-sm);border-radius:var(--r-md);">
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th style="padding-left:20px;">Person</th>
+                  <th>Duties</th>
+                  <th>Status</th>
+                  <th class="num">Hours</th>
+                  <th class="num">Utilization</th>
+                  <th class="num">Jobs</th>
+                  <th class="num" style="padding-right:20px;">Work Credit</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${(dash.personnel || []).map(p => `
+                  <tr>
+                    <td style="padding-left:20px;"><strong>${escapeHtml(p.name)}</strong></td>
+                    <td><span style="color:var(--text-3);font-size:12px;">${escapeHtml(p.duties || '—')}</span></td>
+                    <td><span class="badge ${p.status === 'active' ? 'green' : 'amber'}">${escapeHtml(p.status || 'active')}</span></td>
+                    <td class="num">${fmtHours(p.hours)}</td>
+                    <td class="num">${p.utilization}%</td>
+                    <td class="num">${p.jobCount}</td>
+                    <td class="num" style="padding-right:20px;"><strong>${fmtINR(p.credit)}</strong></td>
+                  </tr>
+                `).join('') || '<tr><td colspan="7" style="text-align:center;padding:24px;">No team member records found</td></tr>'}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    `;
+  } catch(e) {
+    c.innerHTML = renderEmptyState('Unable to load team member analytics', e.message, '👥');
+  }
+}
+
+/* ════════════════════════════ CLIENT ROSTER ════════════════════════════ */
+async function tabAccounts(c) {
+  try {
+    const roster = await apiGet('/roster');
+    c.innerHTML = `
+      <section class="block">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
+          <h2 style="margin:0;">Client Roster <span class="eyebrow">${roster.length} accounts</span></h2>
+        </div>
+        <div class="card table-card" style="padding:0;overflow:hidden;background:var(--bg-card);border:1px solid var(--border-sm);border-radius:var(--r-md);">
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th style="padding-left:20px;">Client</th>
+                  <th>Nature</th>
+                  <th>Strategy</th>
+                  <th>CS</th>
+                  <th>Website</th>
+                  <th>Design</th>
+                  <th>Copy</th>
+                  <th>Edit</th>
+                  <th>Shoot</th>
+                  <th>SEO</th>
+                  <th>SMO</th>
+                  <th>QC</th>
+                  <th class="num" style="padding-right:20px;">Difficulty</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${roster.map(r => `
+                  <tr>
+                    <td style="padding-left:20px;"><strong>${escapeHtml(clientName(r.clientId))}</strong></td>
+                    <td><span class="badge ${r.nature === 'Existing' ? 'green' : 'blue'}">${escapeHtml(r.nature || 'Existing')}</span></td>
+                    <td>${escapeHtml((r.roles && r.roles.strategy) || '—')}</td>
+                    <td>${escapeHtml((r.roles && r.roles.cs) || '—')}</td>
+                    <td>${escapeHtml((r.roles && r.roles.website) || '—')}</td>
+                    <td>${escapeHtml((r.roles && r.roles.design) || '—')}</td>
+                    <td>${escapeHtml((r.roles && r.roles.copy) || '—')}</td>
+                    <td>${escapeHtml((r.roles && r.roles.edit) || '—')}</td>
+                    <td>${escapeHtml((r.roles && r.roles.shoot) || '—')}</td>
+                    <td>${escapeHtml((r.roles && r.roles.seo) || '—')}</td>
+                    <td>${escapeHtml((r.roles && r.roles.smo) || '—')}</td>
+                    <td>${escapeHtml((r.roles && r.roles.qc) || '—')}</td>
+                    <td class="num" style="padding-right:20px;"><span class="badge ${r.difficulty >= 9 ? 'red' : r.difficulty >= 7 ? 'amber' : 'green'}">${r.difficulty || 5}</span></td>
+                  </tr>
+                `).join('') || '<tr><td colspan="13" style="text-align:center;padding:24px;">No client roster entries found</td></tr>'}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    `;
+  } catch(e) {
+    c.innerHTML = renderEmptyState('Unable to load client roster', e.message, '🏢');
+  }
+}
+
+/* ════════════════════════════ SALARIES ════════════════════════════ */
+async function tabSalaries(c) {
+  try {
+    const salaries = await apiGet('/salary');
+    c.innerHTML = `
+      <section class="block">
+        <h2>Salaries &amp; Compensation</h2>
+        <div class="card table-card" style="padding:0;overflow:hidden;background:var(--bg-card);border:1px solid var(--border-sm);border-radius:var(--r-md);">
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th style="padding-left:20px;">Person</th>
+                  <th class="num">Monthly Base</th>
+                  <th class="num" style="padding-right:20px;">Annual CTC</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${(salaries || []).map(s => `
+                  <tr>
+                    <td style="padding-left:20px;"><strong>${escapeHtml(s.personName || s.name || 'Team Member')}</strong></td>
+                    <td class="num">${fmtINR(s.monthlySalary || s.salary || 0)}</td>
+                    <td class="num" style="padding-right:20px;"><strong>${fmtINR((s.monthlySalary || s.salary || 0) * 12)}</strong></td>
+                  </tr>
+                `).join('') || '<tr><td colspan="3" style="text-align:center;padding:24px;">No salary records available</td></tr>'}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    `;
+  } catch(e) {
+    c.innerHTML = renderEmptyState('Access Restricted', 'Salary details require superadmin authorization.', '💰');
+  }
+}
+
+/* ════════════════════════════ USERS DIRECTORY ════════════════════════════ */
+async function tabUsers(c) {
+  try {
+    const users = await apiGet('/users');
+    c.innerHTML = `
+      <section class="block">
+        <h2>Users Directory</h2>
+        <div class="card table-card" style="padding:0;overflow:hidden;background:var(--bg-card);border:1px solid var(--border-sm);border-radius:var(--r-md);">
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th style="padding-left:20px;">User Name</th>
+                  <th>Email</th>
+                  <th>Role</th>
+                  <th style="padding-right:20px;">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${(users || []).map(u => `
+                  <tr>
+                    <td style="padding-left:20px;"><strong>${escapeHtml(u.name)}</strong></td>
+                    <td>${escapeHtml(u.email || u.username || '—')}</td>
+                    <td><span class="badge blue">${escapeHtml(u.role || 'user')}</span></td>
+                    <td style="padding-right:20px;"><span class="badge ${u.status === 'disabled' ? 'red' : 'green'}">${escapeHtml(u.status || 'active')}</span></td>
+                  </tr>
+                `).join('') || '<tr><td colspan="4" style="text-align:center;padding:24px;">No users found</td></tr>'}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    `;
+  } catch(e) {
+    c.innerHTML = renderEmptyState('Access Restricted', 'User management requires administrative privileges.', '👤');
   }
 }
 
