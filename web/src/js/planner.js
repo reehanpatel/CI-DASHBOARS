@@ -2435,14 +2435,18 @@ export function initDailyPlanner(container, options = {}) {
 
           <!-- Desktop & Laptop Notifications -->
           <div class="form-group" style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);">
-            <div style="font-weight:600;font-size:13px;margin-bottom:4px;color:var(--text-1);">🔔 Desktop & Laptop Notifications</div>
+            <div style="font-weight:600;font-size:13px;margin-bottom:4px;color:var(--text-1);">🔔 Desktop & Laptop Notifications (Brave & All Browsers)</div>
             <div style="font-size:12px;color:var(--text-3);margin-bottom:8px;">Receive real-time popups on your laptop and browser when tasks are assigned, dates change, and due alerts arrive.</div>
             <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
               <input type="checkbox" id="setNotifEnabled" ${(typeof window !== 'undefined' && localStorage.getItem('ci360_notif_enabled') !== 'false' && typeof Notification !== 'undefined' && Notification.permission === 'granted') ? 'checked' : ''}>
               <span>Enable Browser & Laptop Notifications</span>
             </label>
-            <div style="margin-top:8px;">
+            <div style="margin-top:8px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
               <button type="button" class="btn ghost small" id="btnPlannerTestNotif" style="padding:4px 10px;font-size:11.5px;">🔔 Send Test Notification</button>
+              <span style="font-size:11px;color:var(--text-3);" id="plannerNotifStatusLabel">${(typeof Notification !== 'undefined' && Notification.permission === 'granted') ? '🟢 Active on this laptop' : (typeof Notification !== 'undefined' && Notification.permission === 'denied' ? '🔴 Blocked in browser' : '⚪ Ready to enable')}</span>
+            </div>
+            <div style="margin-top:6px;font-size:11px;color:var(--text-3);">
+              💡 <strong>Brave, Chrome & Edge Tip:</strong> Notifications show in Windows Action Center. In Brave, ensure notifications are allowed under the site shield/lock icon in the URL bar.
             </div>
           </div>
 
@@ -2466,13 +2470,19 @@ export function initDailyPlanner(container, options = {}) {
         if ('Notification' in window && Notification.permission !== 'granted') {
           const granted = await requestNotificationPermission();
           if (!granted) {
-            flashToast('Please grant notification permission in your browser.', true);
+            if (Notification.permission === 'denied') {
+              alert('Notifications are blocked by your browser.\n\nIn Brave or Chrome, click the lock or shield icon on the left of the address bar, set Notifications to "Allow", and reload.');
+            } else {
+              flashToast('Please grant notification permission in your browser.', true);
+            }
             return;
           }
         }
         localStorage.setItem('ci360_notif_enabled', 'true');
         const notifChk = modalBg.querySelector('#setNotifEnabled');
         if (notifChk) notifChk.checked = true;
+        const statusLbl = modalBg.querySelector('#plannerNotifStatusLabel');
+        if (statusLbl) statusLbl.textContent = '🟢 Active on this laptop';
         await triggerSystemNotification({
           title: 'CI360 Planner Alert 🔔',
           message: 'Laptop & browser notifications are active and ready!',

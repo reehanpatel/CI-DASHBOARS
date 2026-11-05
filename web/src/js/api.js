@@ -367,25 +367,38 @@ export async function requestNotificationPermission() {
     return false;
   }
   try {
-    const perm = await Notification.requestPermission();
+    let perm;
+    try {
+      perm = await Notification.requestPermission();
+    } catch (_) {
+      perm = await new Promise(resolve => Notification.requestPermission(resolve));
+    }
     const banner = document.getElementById('notifPermissionBanner');
     if (perm === 'granted') {
       localStorage.setItem('ci360_notif_enabled', 'true');
-      await registerPushSubscription();
+      // Fire push subscription asynchronously without blocking UI or notifications
+      registerPushSubscription().catch(() => {});
       if (banner) {
         banner.classList.add('hidden');
         banner.style.setProperty('display', 'none', 'important');
         banner.remove();
       }
-      flashToast('Notifications successfully enabled on this device!');
+      flashToast('Notifications successfully enabled for Brave, Chrome & all browsers! 🔔');
       playNotificationChime();
       triggerPhoneVibration();
       await triggerSystemNotification({
-        title: 'CI360 Alerts Active 🔔',
-        message: 'Instant notifications are now live on this device for jobs, tasks, and overdue invoices!',
+        title: 'CI360 Laptop Alerts Active 🔔',
+        message: 'Instant notifications are now live on your laptop and browser!',
         id: 'ci360-perm-welcome'
       });
       return true;
+    } else if (perm === 'denied') {
+      if (banner) {
+        banner.classList.add('hidden');
+        banner.style.setProperty('display', 'none', 'important');
+      }
+      flashToast('Notifications are blocked. In Brave / Chrome, click the lock or shield icon in the address bar to Allow notifications.', true);
+      return false;
     } else {
       if (banner) {
         banner.classList.add('hidden');
@@ -466,7 +479,43 @@ export async function triggerSystemNotification({ title, message, type, id, url 
     }
   };
 
-  // 1. Send to Service Worker via postMessage (Crucial for mobile Android Chrome & PWA)
+  // 1. Direct window Notification for ALL desktop browsers (Brave, Chrome, Edge, Firefox, Safari, Opera)
+  // On laptops & desktop PCs, new Notification() immediately triggers the native Windows Action Center or macOS toast.
+  // This bypasses Google push services (which Brave blocks by default) and works 100% reliably.
+  let shownOnDesktop = false;
+  try {
+    const n = new Notification(title, options);
+    n.onclick = (e) => {
+      try {
+        e.preventDefault();
+        window.focus();
+        if (options.data && options.data.url) {
+          window.location.href = options.data.url;
+        }
+        n.close();
+      } catch (_) {}
+    };
+    shownOnDesktop = true;
+  } catch (desktopErr) {
+    // Only thrown on Android mobile Chrome where new Notification() in window scope is forbidden
+    shownOnDesktop = false;
+  }
+
+  // 2. Service Worker showNotification fallback (primarily for mobile Android or PWA background tasks)
+  if (!shownOnDesktop) {
+    try {
+      if ('serviceWorker' in navigator) {
+        const reg = swRegistration || await navigator.serviceWorker.getRegistration();
+        if (reg && reg.showNotification) {
+          await reg.showNotification(title, options);
+        }
+      }
+    } catch (swErr) {
+      console.warn('Service worker notification fallback notice:', swErr);
+    }
+  }
+
+  // 3. Post to Service Worker controller if active (for badge updates and PWA caching)
   try {
     if (navigator.serviceWorker && navigator.serviceWorker.controller) {
       navigator.serviceWorker.controller.postMessage({
@@ -476,29 +525,6 @@ export async function triggerSystemNotification({ title, message, type, id, url 
       });
     }
   } catch (e) { }
-
-  // 2. Fallback via active ServiceWorker registration
-  try {
-    if ('serviceWorker' in navigator) {
-      const reg = swRegistration || await navigator.serviceWorker.getRegistration();
-      if (reg && reg.showNotification) {
-        await reg.showNotification(title, options);
-        return;
-      }
-    }
-  } catch (err) { }
-
-  // 3. Direct window Notification for desktop Chrome, Edge, Safari, Firefox
-  try {
-    const n = new Notification(title, options);
-    n.onclick = () => {
-      window.focus();
-      n.close();
-    };
-    return;
-  } catch (e) {
-    // Expected on mobile Android Chrome
-  }
 }
 
 function urlBase64ToUint8Array(base64String) {
@@ -527,7 +553,9 @@ export async function registerPushSubscription(registration = null) {
       // Do not subscribe unauthenticated visitors to prevent 401 errors on login page
       return null;
     }
-    const reg = registration || swRegistration || await navigator.serviceWorker.ready;
+    const readyPromise = ('serviceWorker' in navigator) ? navigator.serviceWorker.ready : Promise.resolve(null);
+    const timeoutPromise = new Promise(resolve => setTimeout(() => resolve(null), 2500));
+    const reg = registration || swRegistration || await Promise.race([readyPromise, timeoutPromise]);
     if (!reg || !reg.pushManager) return null;
 
     let sub = await reg.pushManager.getSubscription();
@@ -3613,9 +3641,13 @@ export function renderAccountSettingsCard(options = {}) {
   const notifEnabled = typeof window !== 'undefined'
     ? (localStorage.getItem('ci360_notif_enabled') !== 'false' && ('Notification' in window && Notification.permission === 'granted'))
     : true;
-  const permStatusText = typeof window !== 'undefined' && 'Notification' in window
-    ? (Notification.permission === 'granted' ? 'Status: Active on this device' : (Notification.permission === 'denied' ? 'Status: Blocked in browser settings' : 'Status: Ready to enable'))
-    : 'Status: Ready to enable';
+  const isBraveBrowser = typeof navigator !== 'undefined' && ((navigator.brave && typeof navigator.brave.isBrave === 'function') || /Brave/i.test(navigator.userAgent));
+  const permStatus = typeof window !== 'undefined' && 'Notification' in window ? Notification.permission : 'default';
+  const permStatusText = permStatus === 'granted'
+    ? 'Status: 🟢 Active on this laptop & browser'
+    : (permStatus === 'denied'
+      ? `Status: 🔴 Blocked by browser. Click the lock/shield icon next to URL in ${isBraveBrowser ? 'Brave' : 'your browser'} bar to allow.`
+      : 'Status: ⚪ Ready to enable (Click toggle or Send Test Alert)');
 
   return `
     <div class="${showCardWrapper ? 'card' : ''}" style="max-width:100%;margin:0;width:100%;box-sizing:border-box;" id="${formId}-wrap">
@@ -3709,6 +3741,9 @@ export function renderAccountSettingsCard(options = {}) {
               <span>🔔</span> Send Test Alert
             </button>
           </div>
+          <div style="margin-top:10px;font-size:11.5px;color:var(--text-3);line-height:1.4;">
+            💡 <strong>Brave, Chrome, Edge & Firefox on Laptops:</strong> Notifications pop up in the Windows Action Center (bottom-right of your screen) with audio chime. In Brave, ensure notifications are allowed under the site shield/lock icon in the URL bar.
+          </div>
         </div>
 
         <!-- Alert Notice Box -->
@@ -3780,14 +3815,18 @@ export function bindAccountSettingsCard(container, options = {}) {
       if ('Notification' in window && Notification.permission !== 'granted') {
         const granted = await requestNotificationPermission();
         if (!granted) {
-          flashToast('Please grant notification permission in your browser.', true);
+          if (Notification.permission === 'denied') {
+            alert('Notifications are blocked by your browser.\n\nIn Brave or Chrome, click the lock or shield icon on the left of the address bar, set Notifications to "Allow", and reload.');
+          } else {
+            flashToast('Please grant notification permission in your browser.', true);
+          }
           return;
         }
       }
       localStorage.setItem('ci360_notif_enabled', 'true');
       if (notifToggle) notifToggle.checked = true;
       if (notifStateText) notifStateText.textContent = 'Notifications Enabled';
-      if (notifSubtext) notifSubtext.textContent = 'Status: Active on this device';
+      if (notifSubtext) notifSubtext.textContent = 'Status: 🟢 Active on this laptop & browser';
       await triggerSystemNotification({
         title: 'CI360 Laptop Alert 🔔',
         message: 'Desktop & downloaded app notifications are active and working!',
