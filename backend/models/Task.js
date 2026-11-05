@@ -22,6 +22,8 @@ const TaskSchema = new mongoose.Schema({
   },
   dueDate: { type: Date, default: null },
   dateStr: { type: String, default: '', index: true },
+  completionDate: { type: Date, default: null },
+  completionDateStr: { type: String, default: '', index: true },
   startTime: { type: String, default: '', trim: true },
   dueTime: { type: String, default: '', trim: true },
   category: { type: String, default: 'General', trim: true },

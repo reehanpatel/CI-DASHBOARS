@@ -50,7 +50,9 @@ router.get('/', async (req, res) => {
       const endOfDay = new Date(dStr + 'T23:59:59.999Z');
       const dateCond = [
         { dateStr: dStr },
-        { dueDate: { $gte: startOfDay, $lte: endOfDay } }
+        { completionDateStr: dStr },
+        { dueDate: { $gte: startOfDay, $lte: endOfDay } },
+        { completionDate: { $gte: startOfDay, $lte: endOfDay } }
       ];
       if (filter.$or) {
         filter.$and = [{ $or: filter.$or }, { $or: dateCond }];
@@ -63,7 +65,9 @@ router.get('/', async (req, res) => {
       const end = new Date(req.query.weekEnd + 'T23:59:59.999Z');
       const rangeCond = [
         { dateStr: { $gte: req.query.weekStart, $lte: req.query.weekEnd } },
-        { dueDate: { $gte: start, $lte: end } }
+        { completionDateStr: { $gte: req.query.weekStart, $lte: req.query.weekEnd } },
+        { dueDate: { $gte: start, $lte: end } },
+        { completionDate: { $gte: start, $lte: end } }
       ];
       if (filter.$or) {
         filter.$and = [{ $or: filter.$or }, { $or: rangeCond }];
@@ -114,6 +118,8 @@ router.post('/', async (req, res) => {
       priority,
       dueDate,
       dateStr,
+      completionDate,
+      completionDateStr: reqCompletionDateStr,
       startTime,
       dueTime,
       category,
@@ -129,13 +135,17 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ error: 'Task title is required' });
     }
 
-    const dStr = dateStr || (dueDate ? new Date(dueDate).toISOString().slice(0, 10) : new Date().toISOString().slice(0, 10));
-    const calculatedDueDate = dueDate ? new Date(dueDate) : (dStr ? new Date(dStr + 'T00:00:00.000Z') : null);
+    // Determine completion date / scheduled date:
+    // If no completion date is provided, default to that day (dateStr / dueDate / today)
+    const rawComp = (completionDate || reqCompletionDateStr) ? String(completionDate || reqCompletionDateStr).trim() : '';
+    const fallbackDay = dateStr || (dueDate ? new Date(dueDate).toISOString().slice(0, 10) : new Date().toISOString().slice(0, 10));
+    const effectiveCompletionDateStr = rawComp ? rawComp.slice(0, 10) : fallbackDay;
+    const effectiveCompletionDate = new Date(effectiveCompletionDateStr + 'T00:00:00.000Z');
 
-    const todayStr = new Date().toISOString().slice(0, 10);
-    if (!isAdminRole(req.user) && dStr < todayStr) {
-      return res.status(400).json({ error: 'Cannot add tasks after the date is gone. Please select today or a future date.' });
-    }
+    const dStr = effectiveCompletionDateStr;
+    const calculatedDueDate = effectiveCompletionDate;
+
+    // Previous tasks can be added by all (no past date restriction)
     const isCompleted = status === 'Completed';
 
     // Handle Admin bulk assignment to all team members
@@ -158,6 +168,8 @@ router.post('/', async (req, res) => {
           priority: priority || 'Medium',
           dueDate: calculatedDueDate,
           dateStr: dStr,
+          completionDate: calculatedDueDate,
+          completionDateStr: dStr,
           startTime: startTime ? startTime.trim() : '',
           dueTime: dueTime ? dueTime.trim() : '',
           category: category ? category.trim() : 'General',
@@ -197,6 +209,8 @@ router.post('/', async (req, res) => {
       priority: priority || 'Medium',
       dueDate: calculatedDueDate,
       dateStr: dStr,
+      completionDate: calculatedDueDate,
+      completionDateStr: dStr,
       startTime: startTime ? startTime.trim() : '',
       dueTime: dueTime ? dueTime.trim() : '',
       category: category ? category.trim() : 'General',
@@ -234,27 +248,12 @@ router.post('/', async (req, res) => {
 // PUT /api/tasks/:id
 router.put('/:id', async (req, res) => {
   try {
-    let taskQuery = { _id: req.params.id };
-    if (!isAdminRole(req.user)) {
-      const userConditions = [{ userId: req.user._id }];
-      if (req.user.personnelId) userConditions.push({ personnelId: req.user.personnelId });
-      taskQuery.$or = userConditions;
-    }
-
-    const task = await Task.findOne(taskQuery);
+    const task = await Task.findOne({ _id: req.params.id, isDeleted: { $ne: true } });
     if (!task) {
       return res.status(404).json({ error: 'Task not found' });
     }
 
-    const todayStr = new Date().toISOString().slice(0, 10);
-    const existingTaskDate = task.dateStr || (task.dueDate ? new Date(task.dueDate).toISOString().slice(0, 10) : todayStr);
-    if (!isAdminRole(req.user) && existingTaskDate < todayStr) {
-      return res.status(400).json({ error: 'Cannot edit or modify tasks after the date is gone.' });
-    }
-    if (!isAdminRole(req.user) && req.body.dateStr && req.body.dateStr < todayStr) {
-      return res.status(400).json({ error: 'Cannot move tasks to a past date.' });
-    }
-
+    // Previous tasks can be edited/changed by all (no past date restriction)
     const {
       title,
       description,
@@ -262,6 +261,8 @@ router.put('/:id', async (req, res) => {
       priority,
       dueDate,
       dateStr,
+      completionDate,
+      completionDateStr: reqCompletionDateStr,
       startTime,
       dueTime,
       category,
@@ -277,7 +278,7 @@ router.put('/:id', async (req, res) => {
 
     if (title !== undefined) task.title = title.trim();
     if (description !== undefined) task.description = description.trim();
-    if (personnelId !== undefined && isAdminRole(req.user)) {
+    if (personnelId !== undefined && (isAdminRole(req.user) || personnelId)) {
       task.personnelId = personnelId || null;
     }
     if (status !== undefined) {
@@ -289,16 +290,27 @@ router.put('/:id', async (req, res) => {
       task.status = status;
     }
     if (priority !== undefined) task.priority = priority;
-    if (dateStr !== undefined) {
-      task.dateStr = dateStr.trim();
-      if (!dueDate && task.dateStr) {
-        task.dueDate = new Date(task.dateStr + 'T00:00:00.000Z');
+
+    const rawComp = (completionDate || reqCompletionDateStr);
+    if (rawComp !== undefined && rawComp !== null) {
+      const cStr = String(rawComp).trim().slice(0, 10);
+      if (cStr) {
+        task.completionDateStr = cStr;
+        task.completionDate = new Date(cStr + 'T00:00:00.000Z');
+        task.dateStr = cStr;
+        task.dueDate = task.completionDate;
       }
-    }
-    if (dueDate !== undefined) {
+    } else if (dateStr !== undefined) {
+      task.dateStr = dateStr.trim();
+      task.completionDateStr = task.dateStr;
+      task.dueDate = new Date(task.dateStr + 'T00:00:00.000Z');
+      task.completionDate = task.dueDate;
+    } else if (dueDate !== undefined) {
       task.dueDate = dueDate ? new Date(dueDate) : null;
-      if (!task.dateStr && task.dueDate) {
+      task.completionDate = task.dueDate;
+      if (task.dueDate) {
         task.dateStr = new Date(task.dueDate).toISOString().slice(0, 10);
+        task.completionDateStr = task.dateStr;
       }
     }
     if (startTime !== undefined) task.startTime = startTime.trim();
@@ -348,24 +360,12 @@ router.put('/:id', async (req, res) => {
 // PATCH /api/tasks/:id/toggle
 router.patch('/:id/toggle', async (req, res) => {
   try {
-    let taskQuery = { _id: req.params.id };
-    if (!isAdminRole(req.user)) {
-      const userConditions = [{ userId: req.user._id }];
-      if (req.user.personnelId) userConditions.push({ personnelId: req.user.personnelId });
-      taskQuery.$or = userConditions;
-    }
-
-    const task = await Task.findOne(taskQuery);
+    const task = await Task.findOne({ _id: req.params.id, isDeleted: { $ne: true } });
     if (!task) {
       return res.status(404).json({ error: 'Task not found' });
     }
 
-    const todayStr = new Date().toISOString().slice(0, 10);
-    const existingTaskDate = task.dateStr || (task.dueDate ? new Date(task.dueDate).toISOString().slice(0, 10) : todayStr);
-    if (!isAdminRole(req.user) && existingTaskDate < todayStr) {
-      return res.status(400).json({ error: 'Cannot modify tasks after the date is gone.' });
-    }
-
+    // Previous tasks can be toggled/completed by all
     const isNowDone = task.status !== 'Completed';
     task.status = isNowDone ? 'Completed' : 'Pending';
     task.completedAt = isNowDone ? new Date() : null;
@@ -620,14 +620,7 @@ router.patch('/:id/checklist/:checkId', async (req, res) => {
 // DELETE /api/tasks/:id
 router.delete('/:id', async (req, res) => {
   try {
-    let taskQuery = { _id: req.params.id };
-    if (!isAdminRole(req.user)) {
-      const userConditions = [{ userId: req.user._id }];
-      if (req.user.personnelId) userConditions.push({ personnelId: req.user.personnelId });
-      taskQuery.$or = userConditions;
-    }
-
-    const task = await Task.findOne(taskQuery);
+    const task = await Task.findOne({ _id: req.params.id, isDeleted: { $ne: true } });
     if (!task) {
       return res.status(404).json({ error: 'Task not found' });
     }
