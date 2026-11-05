@@ -238,6 +238,7 @@ router.get('/stats', async (req, res) => {
       let st = t.status || 'To Do';
       // Normalize legacy statuses
       if (st === 'In Progress') st = 'Content';
+      else if (st === 'Creative') st = 'Design';
       else if (st === 'Resolved') st = 'Under Review';
       else if (st === 'Closed') st = 'Ready to Leave';
 
