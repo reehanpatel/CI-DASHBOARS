@@ -198,10 +198,20 @@ router.post('/', async (req, res) => {
     let targetUserId = req.user._id;
 
     if (isAdminRole(req.user) && reqPersonnelId) {
-      personnelId = reqPersonnelId;
-      const User = mongoose.models.User || require('../models/User');
-      const linkedUser = await User.findOne({ personnelId: reqPersonnelId });
-      if (linkedUser) targetUserId = linkedUser._id;
+      if (reqPersonnelId === 'all') {
+        personnelId = null;
+      } else {
+        personnelId = reqPersonnelId;
+        const User = mongoose.models.User || require('../models/User');
+        let linkedUser = await User.findOne({ personnelId: reqPersonnelId });
+        if (!linkedUser) {
+          const p = await Personnel.findById(reqPersonnelId);
+          if (p) {
+            linkedUser = await User.findOne({ name: new RegExp('^' + p.name.trim() + '$', 'i') });
+          }
+        }
+        if (linkedUser) targetUserId = linkedUser._id;
+      }
     } else if (!personnelId && req.user.name) {
       const p = await Personnel.findOne({ name: new RegExp('^' + req.user.name + '$', 'i') });
       if (p) personnelId = p._id;
@@ -218,6 +228,7 @@ router.post('/', async (req, res) => {
       dateStr: dStr,
       completionDate: calculatedDueDate,
       completionDateStr: dStr,
+      originalDateStr: dStr,
       startTime: startTime ? startTime.trim() : '',
       dueTime: dueTime ? dueTime.trim() : '',
       category: category ? category.trim() : 'General',
@@ -232,14 +243,25 @@ router.post('/', async (req, res) => {
 
     await task.save();
 
-    await createNotificationForTask({
-      type: 'task_created',
-      title: '📅 Daily Task Added',
-      message: `"${task.title}" was added to your planner.`,
-      task,
-      actorId: req.user._id,
-      actorName: req.user.name
-    });
+    if (isAdminRole(req.user) && targetUserId.toString() !== req.user._id.toString()) {
+      await createNotificationForTask({
+        type: 'task_assigned',
+        title: '📌 New Task Assigned',
+        message: `${req.user.name || 'Admin'} assigned task "${task.title}" to you (Due: ${dStr}).`,
+        task,
+        actorId: req.user._id,
+        actorName: req.user.name
+      });
+    } else {
+      await createNotificationForTask({
+        type: 'task_created',
+        title: '📅 Daily Task Added',
+        message: `"${task.title}" was added to your planner.`,
+        task,
+        actorId: req.user._id,
+        actorName: req.user.name
+      });
+    }
 
     const populated = await Task.findById(task._id)
       .populate('userId', 'name email role')
@@ -285,12 +307,40 @@ router.put('/:id', async (req, res) => {
     } = req.body;
 
     const wasCompleted = task.status === 'Completed';
+    const oldDateStr = task.completionDateStr || task.dateStr || (task.dueDate ? new Date(task.dueDate).toISOString().slice(0, 10) : '');
+    const oldPersonnelId = task.personnelId ? String(task.personnelId) : null;
+    let assigneeChanged = false;
 
     if (title !== undefined) task.title = title.trim();
     if (description !== undefined) task.description = description.trim();
+    
     if (personnelId !== undefined && (isAdminRole(req.user) || personnelId)) {
-      task.personnelId = personnelId || null;
+      if (personnelId === 'all') {
+        // kept as is
+      } else if (personnelId && personnelId !== 'me') {
+        const newPersId = String(personnelId);
+        if (newPersId !== oldPersonnelId) {
+          assigneeChanged = true;
+          task.personnelId = personnelId;
+          const User = mongoose.models.User || require('../models/User');
+          let linkedUser = await User.findOne({ personnelId });
+          if (!linkedUser) {
+            const p = await Personnel.findById(personnelId);
+            if (p) {
+              linkedUser = await User.findOne({ name: new RegExp('^' + p.name.trim() + '$', 'i') });
+            }
+          }
+          if (linkedUser) {
+            task.userId = linkedUser._id;
+          }
+        }
+      } else {
+        if (oldPersonnelId !== null) assigneeChanged = true;
+        task.personnelId = null;
+        task.userId = req.user._id;
+      }
     }
+
     if (status !== undefined) {
       if (status === 'Completed' && !wasCompleted) {
         task.completedAt = new Date();
@@ -301,28 +351,44 @@ router.put('/:id', async (req, res) => {
     }
     if (priority !== undefined) task.priority = priority;
 
+    let newDateStr = '';
     const rawComp = (completionDate || reqCompletionDateStr);
     if (rawComp !== undefined && rawComp !== null) {
       const cStr = String(rawComp).trim().slice(0, 10);
       if (cStr) {
+        newDateStr = cStr;
         task.completionDateStr = cStr;
         task.completionDate = new Date(cStr + 'T00:00:00.000Z');
         task.dateStr = cStr;
         task.dueDate = task.completionDate;
       }
     } else if (dateStr !== undefined) {
-      task.dateStr = dateStr.trim();
-      task.completionDateStr = task.dateStr;
-      task.dueDate = new Date(task.dateStr + 'T00:00:00.000Z');
+      newDateStr = dateStr.trim();
+      task.dateStr = newDateStr;
+      task.completionDateStr = newDateStr;
+      task.dueDate = new Date(newDateStr + 'T00:00:00.000Z');
       task.completionDate = task.dueDate;
     } else if (dueDate !== undefined) {
       task.dueDate = dueDate ? new Date(dueDate) : null;
       task.completionDate = task.dueDate;
       if (task.dueDate) {
-        task.dateStr = new Date(task.dueDate).toISOString().slice(0, 10);
-        task.completionDateStr = task.dateStr;
+        newDateStr = new Date(task.dueDate).toISOString().slice(0, 10);
+        task.dateStr = newDateStr;
+        task.completionDateStr = newDateStr;
       }
     }
+
+    // Check if task date was changed / rescheduled
+    const dateChanged = oldDateStr && newDateStr && oldDateStr !== newDateStr;
+    if (dateChanged) {
+      if (!task.originalDateStr) {
+        task.originalDateStr = oldDateStr;
+      }
+      task.rescheduledFrom = oldDateStr;
+      task.dateChangeCount = (task.dateChangeCount || 0) + 1;
+      task.lastDateChangedAt = new Date();
+    }
+
     if (startTime !== undefined) task.startTime = startTime.trim();
     if (dueTime !== undefined) task.dueTime = dueTime.trim();
     if (category !== undefined) task.category = category.trim();
@@ -343,6 +409,24 @@ router.put('/:id', async (req, res) => {
         actorId: req.user._id,
         actorName: req.user.name
       });
+    } else if (assigneeChanged) {
+      await createNotificationForTask({
+        type: 'task_assigned',
+        title: '📌 Task Assigned to You',
+        message: `${req.user.name || 'Admin'} assigned task "${task.title}" to you (Due: ${task.completionDateStr || task.dateStr}).`,
+        task,
+        actorId: req.user._id,
+        actorName: req.user.name
+      });
+    } else if (dateChanged) {
+      await createNotificationForTask({
+        type: 'task_rescheduled',
+        title: '📅 Task Date Changed / Rescheduled',
+        message: `"${task.title}" date was changed from ${oldDateStr} to ${newDateStr}.`,
+        task,
+        actorId: req.user._id,
+        actorName: req.user.name
+      });
     } else {
       await createNotificationForTask({
         type: 'task_updated',
@@ -357,6 +441,7 @@ router.put('/:id', async (req, res) => {
     const populated = await Task.findById(task._id)
       .populate('userId', 'name email role')
       .populate('personnelId', 'name role department status')
+      .populate('createdBy', 'name email role')
       .populate('jobId', 'title clientApproval status date')
       .populate('clientId', 'name');
 

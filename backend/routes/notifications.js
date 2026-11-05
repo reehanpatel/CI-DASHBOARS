@@ -260,7 +260,15 @@ router.get('/', async (req, res) => {
     let overdueTasksList = [];
     let dueTodayTasksList = [];
     if (req.user.role === 'employee' || req.user.role === 'superadmin' || req.user.role === 'admin') {
-      const activeTasks = await Task.find({ userId, status: { $ne: 'Completed' } }).limit(30);
+      const userConditions = [{ userId }];
+      if (req.user.personnelId) {
+        userConditions.push({ personnelId: req.user.personnelId });
+      }
+      const activeTasks = await Task.find({
+        $or: userConditions,
+        status: { $ne: 'Completed' },
+        isDeleted: { $ne: true }
+      }).limit(30);
       for (const t of activeTasks) {
         const taskDateStr = t.dueDate ? new Date(t.dueDate).toISOString().slice(0, 10) : todayStr;
         if (taskDateStr <= todayStr) {

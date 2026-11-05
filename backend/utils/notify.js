@@ -246,7 +246,19 @@ async function createNotificationForTask({ type, title, message, task, actorId, 
 
     // 2. Linked Personnel user
     if (task.personnelId) {
-      const linkedUser = await User.findOne({ personnelId: task.personnelId, active: true });
+      let linkedUser = await User.findOne({ personnelId: task.personnelId, active: true });
+      if (!linkedUser) {
+        const p = await Personnel.findById(task.personnelId);
+        if (p) {
+          linkedUser = await User.findOne({
+            $or: [
+              { personnelId: p._id },
+              { name: new RegExp('^' + p.name.trim() + '$', 'i') }
+            ],
+            active: true
+          });
+        }
+      }
       if (linkedUser) targetUserIds.add(String(linkedUser._id));
     }
 

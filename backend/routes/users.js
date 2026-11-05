@@ -12,7 +12,24 @@ router.get('/', async (req, res) => {
     .populate('personnelId', 'name isDeleted')
     .populate('clientId', 'name')
     .sort('name');
-  const visibleUsers = users.filter(u => !(u.personnelId && u.personnelId.isDeleted));
+
+  let deletedNames = new Set();
+  let deletedEmails = new Set();
+  try {
+    const Personnel = require('../models/Personnel');
+    const deletedPersonnel = await Personnel.find({ isDeleted: true }).select('name email');
+    deletedNames = new Set(deletedPersonnel.map(p => (p.name || '').toLowerCase().trim()).filter(Boolean));
+    deletedEmails = new Set(deletedPersonnel.map(p => (p.email || '').toLowerCase().trim()).filter(Boolean));
+  } catch (err) {}
+
+  const visibleUsers = users.filter(u => {
+    if (u.personnelId && u.personnelId.isDeleted) return false;
+    const uName = (u.name || '').toLowerCase().trim();
+    const uEmail = (u.email || '').toLowerCase().trim();
+    if (uName && deletedNames.has(uName)) return false;
+    if (uEmail && deletedEmails.has(uEmail)) return false;
+    return true;
+  });
   res.json(visibleUsers);
 });
 
@@ -92,6 +109,18 @@ router.delete('/:id', async (req, res) => {
         await Personnel.findByIdAndUpdate(target.personnelId, { isDeleted: true, deletedAt: new Date() });
       } catch (pErr) {
         console.warn('Personnel soft-delete warning:', pErr.message);
+      }
+    } else {
+      try {
+        const Personnel = require('../models/Personnel');
+        const pMatches = [];
+        if (target.email) pMatches.push({ email: target.email.toLowerCase().trim() });
+        if (target.name) pMatches.push({ name: new RegExp(`^${target.name.trim()}$`, 'i') });
+        if (pMatches.length) {
+          await Personnel.updateMany({ $or: pMatches }, { isDeleted: true, deletedAt: new Date() });
+        }
+      } catch (pErr) {
+        console.warn('Personnel match soft-delete warning:', pErr.message);
       }
     }
     await User.findByIdAndDelete(req.params.id);

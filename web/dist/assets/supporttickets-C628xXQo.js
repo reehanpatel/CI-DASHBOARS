@@ -1,4 +1,4 @@
-import{c as Re,k as y,e as h,v as Xe,l as Ze,p as Gt,m as Yt,j as Ce,w as ga,x as ta,y as ba}from"./api-DWnSPm0D.js";const ma={displayName:"Daily Planner",weekStartsOn:1,timezone:"Asia/Kolkata",defaultPriority:"Medium",density:"comfortable",soundEnabled:!0};function _a(){try{const i=localStorage.getItem("ci360_planner_settings");if(i)return Object.assign({},ma,JSON.parse(i))}catch{}return Object.assign({},ma)}function Ta(i){try{localStorage.setItem("ci360_planner_settings",JSON.stringify(i))}catch{}}function We(){const i=new Date,t=i.getFullYear(),e=String(i.getMonth()+1).padStart(2,"0"),d=String(i.getDate()).padStart(2,"0");return`${t}-${e}-${d}`}function Wt(i,t){const e=new Date(i+"T00:00:00");e.setDate(e.getDate()+t);const d=e.getFullYear(),b=String(e.getMonth()+1).padStart(2,"0"),c=String(e.getDate()).padStart(2,"0");return`${d}-${b}-${c}`}function At(i){return i?new Date(i+"T00:00:00").toLocaleDateString("en-US",{weekday:"long",year:"numeric",month:"long",day:"numeric"}):"—"}function ot(i){return i?new Date(i+"T00:00:00").toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"}):"—"}function fa(i){return i?new Date(i+"T00:00:00").toLocaleDateString("en-US",{weekday:"short"}):""}function aa(i,t=1){const e=new Date(i+"T00:00:00"),d=e.getDay(),b=(d<t?7:0)+d-t,c=new Date(e);c.setDate(e.getDate()-b);const l=[];for(let n=0;n<7;n++){const z=new Date(c);z.setDate(c.getDate()+n);const W=z.getFullYear(),S=String(z.getMonth()+1).padStart(2,"0"),E=String(z.getDate()).padStart(2,"0");l.push(`${W}-${S}-${E}`)}return l}function Aa(){try{const i=window.AudioContext||window.webkitAudioContext;if(!i)return;const t=new i,e=t.currentTime,d=t.createOscillator(),b=t.createGain();d.type="sine",d.frequency.setValueAtTime(523.25,e),d.frequency.exponentialRampToValueAtTime(783.99,e+.15),b.gain.setValueAtTime(.2,e),b.gain.exponentialRampToValueAtTime(.001,e+.35),d.connect(b),b.connect(t.destination),d.start(e),d.stop(e+.35)}catch{}}function ti(i,t={}){const{userRole:e="employee",currentUser:d=null,onNavigate:b=null}=t,c=e==="superadmin"||e==="admin";let l=_a(),n={selectedDate:We(),viewMode:"daily",filterStatus:"all",searchQuery:"",groupByEmployee:c,collapsedEmployees:{},selectedCategory:"all",selectedPersonnelId:"all",tasks:[],personnelList:[],loading:!1};Ea(),z();async function z(){n.loading=!0,W();try{const g=[Re("/tasks")];c&&g.push(Re("/personnel").catch(()=>[]));const[_,I]=await Promise.all(g);n.tasks=Array.isArray(_)?_:[],I&&(n.personnelList=Array.isArray(I)?I:[])}catch(g){y("Failed to load planner tasks: "+g.message,!0)}finally{n.loading=!1,j()}}function W(){i.innerHTML=`
+import{c as Re,k as y,e as h,v as Ze,l as et,p as Gt,m as Yt,j as Ce,w as ga,x as ta,y as ba}from"./api-Ce3qOVyG.js";const fa={displayName:"Daily Planner",weekStartsOn:1,timezone:"Asia/Kolkata",defaultPriority:"Medium",density:"comfortable",soundEnabled:!0};function _a(){try{const i=localStorage.getItem("ci360_planner_settings");if(i)return Object.assign({},fa,JSON.parse(i))}catch{}return Object.assign({},fa)}function Ta(i){try{localStorage.setItem("ci360_planner_settings",JSON.stringify(i))}catch{}}function We(){const i=new Date,t=i.getFullYear(),e=String(i.getMonth()+1).padStart(2,"0"),d=String(i.getDate()).padStart(2,"0");return`${t}-${e}-${d}`}function Wt(i,t){const e=new Date(i+"T00:00:00");e.setDate(e.getDate()+t);const d=e.getFullYear(),b=String(e.getMonth()+1).padStart(2,"0"),c=String(e.getDate()).padStart(2,"0");return`${d}-${b}-${c}`}function At(i){return i?new Date(i+"T00:00:00").toLocaleDateString("en-US",{weekday:"long",year:"numeric",month:"long",day:"numeric"}):"—"}function Xe(i){return i?new Date(i+"T00:00:00").toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"}):"—"}function ma(i){return i?new Date(i+"T00:00:00").toLocaleDateString("en-US",{weekday:"short"}):""}function aa(i,t=1){const e=new Date(i+"T00:00:00"),d=e.getDay(),b=(d<t?7:0)+d-t,c=new Date(e);c.setDate(e.getDate()-b);const l=[];for(let n=0;n<7;n++){const z=new Date(c);z.setDate(c.getDate()+n);const W=z.getFullYear(),S=String(z.getMonth()+1).padStart(2,"0"),E=String(z.getDate()).padStart(2,"0");l.push(`${W}-${S}-${E}`)}return l}function Aa(){try{const i=window.AudioContext||window.webkitAudioContext;if(!i)return;const t=new i,e=t.currentTime,d=t.createOscillator(),b=t.createGain();d.type="sine",d.frequency.setValueAtTime(523.25,e),d.frequency.exponentialRampToValueAtTime(783.99,e+.15),b.gain.setValueAtTime(.2,e),b.gain.exponentialRampToValueAtTime(.001,e+.35),d.connect(b),b.connect(t.destination),d.start(e),d.stop(e+.35)}catch{}}function ti(i,t={}){const{userRole:e="employee",currentUser:d=null,onNavigate:b=null}=t,c=e==="superadmin"||e==="admin";let l=_a(),n={selectedDate:We(),viewMode:"daily",filterStatus:"all",searchQuery:"",groupByEmployee:c,collapsedEmployees:{},selectedCategory:"all",selectedPersonnelId:"all",tasks:[],personnelList:[],loading:!1};Ea(),z();async function z(){n.loading=!0,W();try{const p=[Re("/tasks")];c&&p.push(Re("/personnel").catch(()=>[]));const[_,I]=await Promise.all(p);n.tasks=Array.isArray(_)?_:[],I&&(n.personnelList=Array.isArray(I)?I:[])}catch(p){y("Failed to load planner tasks: "+p.message,!0)}finally{n.loading=!1,N()}}function W(){i.innerHTML=`
       <div class="ci360-planner-wrap">
         <div class="ci360-planner-skeleton" style="padding:24px;background:var(--bg-card);border-radius:var(--r-lg);border:1px solid var(--border-sm)">
           <div style="height:32px;width:240px;background:var(--border-xs);border-radius:6px;margin-bottom:12px;animation:pulse 1.5s infinite"></div>
@@ -12,7 +12,7 @@ import{c as Re,k as y,e as h,v as Xe,l as Ze,p as Gt,m as Yt,j as Ce,w as ga,x a
           <div style="height:200px;background:var(--border-xs);border-radius:12px"></div>
         </div>
       </div>
-    `}function S(g){return n.tasks.filter(_=>{if(_.isDeleted===!0)return!1;if(c&&n.selectedPersonnelId!=="all"){const a=_.personnelId?._id||_.personnelId;if(String(a)!==String(n.selectedPersonnelId))return!1}const I=_.completionDateStr||_.dateStr||(_.dueDate?new Date(_.dueDate).toISOString().slice(0,10):"");return I?I===g:g===We()})}function E(g,_){if(g.status==="Completed")return!1;const I=g.completionDateStr||g.dateStr||(g.dueDate?new Date(g.dueDate).toISOString().slice(0,10):"");return I?I<_:!1}function N(g,_){const I=g.length,a=g.filter(R=>R.status==="Completed").length,s=g.filter(R=>R.status==="In Progress").length,T=g.filter(R=>R.status==="Pending"||R.status==="Todo").length,P=g.filter(R=>E(R,_)).length,$=I>0?Math.round(a/I*100):0;return{total:I,completed:a,inProgress:s,pending:T,overdue:P,percent:$}}function j(){const g=We(),_=n.selectedDate===g,I=S(n.selectedDate),a=N(I,g);i.innerHTML=`
+    `}function S(p){return n.tasks.filter(_=>{if(_.isDeleted===!0)return!1;if(c&&n.selectedPersonnelId!=="all"){const a=_.personnelId?._id||_.personnelId;if(String(a)!==String(n.selectedPersonnelId))return!1}const I=_.completionDateStr||_.dateStr||(_.dueDate?new Date(_.dueDate).toISOString().slice(0,10):"");return I?I===p:p===We()})}function E(p,_){if(p.status==="Completed")return!1;const I=p.completionDateStr||p.dateStr||(p.dueDate?new Date(p.dueDate).toISOString().slice(0,10):"");return I?I<_:!1}function j(p,_){const I=p.length,a=p.filter(R=>R.status==="Completed").length,o=p.filter(R=>R.status==="In Progress").length,T=p.filter(R=>R.status==="Pending"||R.status==="Todo").length,P=p.filter(R=>E(R,_)).length,$=I>0?Math.round(a/I*100):0;return{total:I,completed:a,inProgress:o,pending:T,overdue:P,percent:$}}function N(){const p=We(),_=n.selectedDate===p,I=S(n.selectedDate),a=j(I,p);i.innerHTML=`
       <div class="ci360-planner-wrap ${l.density==="compact"?"is-compact":""}">
         
         <!-- Planner Main Header -->
@@ -21,7 +21,7 @@ import{c as Re,k as y,e as h,v as Xe,l as Ze,p as Gt,m as Yt,j as Ce,w as ga,x a
             <div class="ci360-planner-title-group">
               <div class="ci360-planner-eyebrow">
                 <span class="ci360-planner-tag-badge">Dayfolio System</span>
-                <span class="ci360-planner-date-indicator">${ot(n.selectedDate)}</span>
+                <span class="ci360-planner-date-indicator">${Xe(n.selectedDate)}</span>
               </div>
               <h1 class="ci360-planner-heading">${h(l.displayName||"Daily Planner")}</h1>
               <p class="ci360-planner-subheading">Plan your day. Track your progress.</p>
@@ -43,8 +43,8 @@ import{c as Re,k as y,e as h,v as Xe,l as Ze,p as Gt,m as Yt,j as Ce,w as ga,x a
             </div>
 
             <!-- Primary Add Task Button -->
-            <button type="button" class="ci360-btn-primary ${n.selectedDate<g?"is-locked-past":""}" id="btnOpenAddTaskModal" title="${n.selectedDate<g?"Cannot add tasks on previous dates (switch to today or later)":"Add Task"}">
-              ${n.selectedDate<g?`
+            <button type="button" class="ci360-btn-primary ${n.selectedDate<p?"is-locked-past":""}" id="btnOpenAddTaskModal" title="${n.selectedDate<p?"Cannot add tasks on previous dates (switch to today or later)":"Add Task"}">
+              ${n.selectedDate<p?`
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                 <span>Add Task (Past Date)</span>
               `:`
@@ -128,9 +128,9 @@ import{c as Re,k as y,e as h,v as Xe,l as Ze,p as Gt,m as Yt,j as Ce,w as ga,x a
               <label for="admTeamSelect" class="ci360-label-inline">Team:</label>
               <select id="admTeamSelect" class="ci360-select-inline">
                 <option value="all" ${n.selectedPersonnelId==="all"?"selected":""}>All Team Members</option>
-                ${n.personnelList.map(s=>`
-                  <option value="${s._id}" ${n.selectedPersonnelId===String(s._id)?"selected":""}>
-                    ${h(s.name)} (${h(s.department||s.role||"Team")})
+                ${n.personnelList.map(o=>`
+                  <option value="${o._id}" ${n.selectedPersonnelId===String(o._id)?"selected":""}>
+                    ${h(o.name)} (${h(o.department||o.role||"Team")})
                   </option>
                 `).join("")}
               </select>
@@ -192,7 +192,7 @@ import{c as Re,k as y,e as h,v as Xe,l as Ze,p as Gt,m as Yt,j as Ce,w as ga,x a
         </main>
 
       </div>
-    `,it(),Fe()}function ge(g,_){return n.viewMode==="weekly"?rt():n.viewMode==="report"?St():ye(g,_)}function ye(g,_){const I=We(),a=n.selectedDate<I;let s=g;if(n.filterStatus==="pending"?s=s.filter($=>$.status==="Pending"||$.status==="Todo"):n.filterStatus==="in_progress"?s=s.filter($=>$.status==="In Progress"):n.filterStatus==="completed"?s=s.filter($=>$.status==="Completed"):n.filterStatus==="overdue"&&(s=s.filter($=>E($,I))),n.searchQuery){const $=n.searchQuery.toLowerCase().trim();s=s.filter(R=>{const A=(R.title||"").toLowerCase(),U=(R.description||"").toLowerCase(),G=(R.category||"").toLowerCase(),v=(R.personnelId?.name||R.userId?.name||"").toLowerCase(),M=(R.createdByName||R.createdBy?.name||(R.createdBy?.email?R.createdBy.email.split("@")[0]:"")).toLowerCase();return A.includes($)||U.includes($)||G.includes($)||v.includes($)||M.includes($)})}s.sort(($,R)=>{if($.status==="Completed"&&R.status!=="Completed")return 1;if($.status!=="Completed"&&R.status==="Completed")return-1;const A={Urgent:0,High:1,Medium:2,Low:3};return(A[$.priority]||2)-(A[R.priority]||2)});const T=new Map;s.forEach($=>{let R="unassigned",A="Unassigned / Team",U="",G="";$.personnelId&&typeof $.personnelId=="object"&&$.personnelId._id?(R=String($.personnelId._id),A=$.personnelId.name||"Team Member",G=$.personnelId.role||"Personnel",U=$.personnelId.department||""):$.userId&&typeof $.userId=="object"&&$.userId._id?(R=String($.userId._id),A=$.userId.name||"User",G=$.userId.role||"Member"):($.createdByName||$.createdBy&&$.createdBy.name)&&(A=$.createdByName||$.createdBy.name,R="creator_"+A.toLowerCase().replace(/[^a-z0-9]/g,"_"),G="Creator"),T.has(R)||T.set(R,{key:R,name:A,department:U,role:G,tasks:[]}),T.get(R).tasks.push($)});const P=Array.from(T.values()).sort(($,R)=>$.key==="unassigned"?1:R.key==="unassigned"?-1:$.name.localeCompare(R.name));return`
+    `,nt(),Fe()}function ge(p,_){return n.viewMode==="weekly"?rt():n.viewMode==="report"?St():ye(p,_)}function ye(p,_){const I=We(),a=n.selectedDate<I;let o=p;if(n.filterStatus==="pending"?o=o.filter($=>$.status==="Pending"||$.status==="Todo"):n.filterStatus==="in_progress"?o=o.filter($=>$.status==="In Progress"):n.filterStatus==="completed"?o=o.filter($=>$.status==="Completed"):n.filterStatus==="overdue"&&(o=o.filter($=>E($,I))),n.searchQuery){const $=n.searchQuery.toLowerCase().trim();o=o.filter(R=>{const A=(R.title||"").toLowerCase(),U=(R.description||"").toLowerCase(),G=(R.category||"").toLowerCase(),v=(R.personnelId?.name||R.userId?.name||"").toLowerCase(),M=(R.createdByName||R.createdBy?.name||(R.createdBy?.email?R.createdBy.email.split("@")[0]:"")).toLowerCase();return A.includes($)||U.includes($)||G.includes($)||v.includes($)||M.includes($)})}o.sort(($,R)=>{if($.status==="Completed"&&R.status!=="Completed")return 1;if($.status!=="Completed"&&R.status==="Completed")return-1;const A={Urgent:0,High:1,Medium:2,Low:3};return(A[$.priority]||2)-(A[R.priority]||2)});const T=new Map;o.forEach($=>{let R="unassigned",A="Unassigned / Team",U="",G="";$.personnelId&&typeof $.personnelId=="object"&&$.personnelId._id?(R=String($.personnelId._id),A=$.personnelId.name||"Team Member",G=$.personnelId.role||"Personnel",U=$.personnelId.department||""):$.userId&&typeof $.userId=="object"&&$.userId._id?(R=String($.userId._id),A=$.userId.name||"User",G=$.userId.role||"Member"):($.createdByName||$.createdBy&&$.createdBy.name)&&(A=$.createdByName||$.createdBy.name,R="creator_"+A.toLowerCase().replace(/[^a-z0-9]/g,"_"),G="Creator"),T.has(R)||T.set(R,{key:R,name:A,department:U,role:G,tasks:[]}),T.get(R).tasks.push($)});const P=Array.from(T.values()).sort(($,R)=>$.key==="unassigned"?1:R.key==="unassigned"?-1:$.name.localeCompare(R.name));return`
       <div class="ci360-today-focus-section">
         
         <!-- Section Header with Search & Filter Chips -->
@@ -202,7 +202,7 @@ import{c as Re,k as y,e as h,v as Xe,l as Ze,p as Gt,m as Yt,j as Ce,w as ga,x a
               <span class="accent-dot"></span>
               ${a?"Focus Archive":"Today's Focus"}
             </h2>
-            <span class="ci360-task-count-badge">${s.length} ${s.length===1?"task":"tasks"}</span>
+            <span class="ci360-task-count-badge">${o.length} ${o.length===1?"task":"tasks"}</span>
           </div>
 
           <div class="ci360-focus-controls">
@@ -244,7 +244,7 @@ import{c as Re,k as y,e as h,v as Xe,l as Ze,p as Gt,m as Yt,j as Ce,w as ga,x a
           <div class="ci360-past-date-banner">
             <div class="past-banner-icon">🔒</div>
             <div class="past-banner-body">
-              <div class="past-banner-title">Previous Date (${ot(n.selectedDate)})</div>
+              <div class="past-banner-title">Previous Date (${Xe(n.selectedDate)})</div>
               <div class="past-banner-desc">
                 Adding new tasks on previous dates is restricted. You can edit existing tasks, adjust completion dates, or mark tasks as completed.
               </div>
@@ -253,7 +253,7 @@ import{c as Re,k as y,e as h,v as Xe,l as Ze,p as Gt,m as Yt,j as Ce,w as ga,x a
         `:`
           <div class="ci360-quick-add-bar">
             <div class="ci360-quick-add-input-wrap">
-              <input type="text" id="quickAddTitleInp" class="ci360-quick-input" placeholder="Add a focus task for ${ot(n.selectedDate)}... (Press Enter to save)">
+              <input type="text" id="quickAddTitleInp" class="ci360-quick-input" placeholder="Add a focus task for ${Xe(n.selectedDate)}... (Press Enter to save)">
             </div>
 
             <div class="ci360-quick-add-meta">
@@ -278,6 +278,16 @@ import{c as Re,k as y,e as h,v as Xe,l as Ze,p as Gt,m as Yt,j as Ce,w as ga,x a
                 <option value="Follow-up">Follow-up</option>
               </select>
 
+              ${c?`
+                <select id="quickAddAssignee" class="ci360-quick-select" title="Assign To Employee" style="max-width:140px;">
+                  <option value="" ${n.selectedPersonnelId==="all"?"selected":""}>👤 Myself</option>
+                  <option value="all">👥 All Team</option>
+                  ${n.personnelList.map($=>`
+                    <option value="${$._id}" ${n.selectedPersonnelId===String($._id)?"selected":""}>👤 ${h($.name)}</option>
+                  `).join("")}
+                </select>
+              `:""}
+
               <button type="button" class="ci360-quick-add-btn" id="btnQuickAddSubmit">
                 <span>+ Add</span>
               </button>
@@ -287,7 +297,7 @@ import{c as Re,k as y,e as h,v as Xe,l as Ze,p as Gt,m as Yt,j as Ce,w as ga,x a
 
         <!-- Task List or Empty State -->
         <div class="ci360-tasks-container">
-          ${s.length===0?Ve(a):c&&n.groupByEmployee?`
+          ${o.length===0?Ve(a):c&&n.groupByEmployee?`
               <div class="ci360-emp-groups-container">
                 ${P.map($=>{const R=!!n.collapsedEmployees[$.key],A=$.tasks.filter(M=>M.status==="Completed").length,U=$.tasks.filter(M=>M.status==="In Progress").length,G=$.tasks.filter(M=>M.status==="Pending"||M.status==="Todo").length,v=$.tasks.length>0?Math.round(A/$.tasks.length*100):0;return`
                     <div class="ci360-emp-group-card ${R?"is-collapsed":""}" data-emp-key="${$.key}">
@@ -315,7 +325,7 @@ import{c as Re,k as y,e as h,v as Xe,l as Ze,p as Gt,m as Yt,j as Ce,w as ga,x a
                       ${R?"":`
                         <div class="ci360-emp-group-body">
                           <div class="ci360-task-list">
-                            ${$.tasks.map(M=>et(M,I)).join("")}
+                            ${$.tasks.map(M=>tt(M,I)).join("")}
                           </div>
                         </div>
                       `}
@@ -324,18 +334,18 @@ import{c as Re,k as y,e as h,v as Xe,l as Ze,p as Gt,m as Yt,j as Ce,w as ga,x a
               </div>
             `:`
               <div class="ci360-task-list">
-                ${s.map($=>et($,I)).join("")}
+                ${o.map($=>tt($,I)).join("")}
               </div>
             `}
         </div>
 
       </div>
-    `}function Ve(g=!1){return`
+    `}function Ve(p=!1){return`
       <div class="ci360-empty-focus-state">
-        <div class="empty-icon-wrap">${g?"📜":"✨"}</div>
-        <h3>No tasks found for ${ot(n.selectedDate)}</h3>
-        <p>${g?"No scheduled tasks were recorded on this past date.":"Your schedule is clean and ready. Add your first priority task above or import your daily agenda."}</p>
-        ${g?"":`
+        <div class="empty-icon-wrap">${p?"📜":"✨"}</div>
+        <h3>No tasks found for ${Xe(n.selectedDate)}</h3>
+        <p>${p?"No scheduled tasks were recorded on this past date.":"Your schedule is clean and ready. Add your first priority task above or import your daily agenda."}</p>
+        ${p?"":`
           <div style="display:flex;gap:10px;justify-content:center;margin-top:14px">
             <button type="button" class="ci360-btn-primary" onclick="document.getElementById('quickAddTitleInp')?.focus()">
               + Quick Add Task
@@ -346,11 +356,11 @@ import{c as Re,k as y,e as h,v as Xe,l as Ze,p as Gt,m as Yt,j as Ce,w as ga,x a
           </div>
         `}
       </div>
-    `}function et(g,_){const I=g.status==="Completed",a=E(g,_),s=g.completionDateStr||g.dateStr||(g.dueDate?new Date(g.dueDate).toISOString().slice(0,10):_),T=`pri-${(g.priority||"medium").toLowerCase()}`,P=`status-${(g.status||"pending").toLowerCase().replace(/\s+/g,"-")}`,$=g.createdByName||g.createdBy?.name||(g.createdBy?.email?g.createdBy.email.split("@")[0]:"")||g.personnelId?.name||g.userId?.name||"";return`
-      <div class="ci360-task-card ${I?"is-completed":""} ${a?"is-overdue":""}" data-id="${g._id}">
+    `}function tt(p,_){const I=p.status==="Completed",a=E(p,_),o=p.completionDateStr||p.dateStr||(p.dueDate?new Date(p.dueDate).toISOString().slice(0,10):_),T=`pri-${(p.priority||"medium").toLowerCase()}`,P=`status-${(p.status||"pending").toLowerCase().replace(/\s+/g,"-")}`,$=p.createdByName||p.createdBy?.name||(p.createdBy?.email?p.createdBy.email.split("@")[0]:"")||p.personnelId?.name||p.userId?.name||"";return`
+      <div class="ci360-task-card ${I?"is-completed":""} ${a?"is-overdue":""}" data-id="${p._id}">
         
         <!-- Completion Checkbox -->
-        <button type="button" class="ci360-task-check ${I?"checked":""}" data-action="toggle" data-id="${g._id}" title="${I?"Reopen task":"Mark as done"}">
+        <button type="button" class="ci360-task-check ${I?"checked":""}" data-action="toggle" data-id="${p._id}" title="${I?"Reopen task":"Mark as done"}">
           <svg class="check-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
             <polyline points="20 6 9 17 4 12"/>
           </svg>
@@ -359,11 +369,11 @@ import{c as Re,k as y,e as h,v as Xe,l as Ze,p as Gt,m as Yt,j as Ce,w as ga,x a
         <!-- Main Task Info -->
         <div class="ci360-task-body">
           <div class="ci360-task-title-row">
-            <span class="ci360-task-title">${h(g.title)}</span>
+            <span class="ci360-task-title">${h(p.title)}</span>
           </div>
 
-          ${g.description?`
-            <div class="ci360-task-desc">${h(g.description)}</div>
+          ${p.description?`
+            <div class="ci360-task-desc">${h(p.description)}</div>
           `:""}
 
           <!-- Metadata Badges -->
@@ -371,18 +381,25 @@ import{c as Re,k as y,e as h,v as Xe,l as Ze,p as Gt,m as Yt,j as Ce,w as ga,x a
             <!-- Priority Badge -->
             <span class="ci360-badge ${T}">
               <span class="badge-dot"></span>
-              ${h(g.priority||"Medium")}
+              ${h(p.priority||"Medium")}
             </span>
 
             <!-- Status Badge -->
             <span class="ci360-badge ${P}">
-              ${h(g.status||"Pending")}
+              ${h(p.status||"Pending")}
             </span>
 
             <!-- Completion Date Badge (Always Visible & Prominent) -->
-            <span class="ci360-badge completion-badge" title="Target Completion Date: ${s}">
-              📅 Due: ${ot(s)}
+            <span class="ci360-badge completion-badge" title="Target Completion Date: ${o}">
+              📅 Due: ${Xe(o)}
             </span>
+
+            <!-- Date Changed / Rescheduled Badge (prominently shown when date is changed) -->
+            ${p.rescheduledFrom&&p.rescheduledFrom!==o?`
+              <span class="ci360-badge date-changed-badge" title="Rescheduled from ${Xe(p.rescheduledFrom)} to ${Xe(o)} (${p.dateChangeCount||1} change${(p.dateChangeCount||1)>1?"s":""})">
+                🔄 Date Changed: ${Xe(p.rescheduledFrom)} ➔ ${Xe(o)}
+              </span>
+            `:""}
 
             <!-- Added By Badge (Shows Who Created the Task) -->
             ${$?`
@@ -392,18 +409,18 @@ import{c as Re,k as y,e as h,v as Xe,l as Ze,p as Gt,m as Yt,j as Ce,w as ga,x a
             `:""}
 
             <!-- Category -->
-            ${g.category?`
+            ${p.category?`
               <span class="ci360-badge category-badge">
-                #${h(g.category)}
+                #${h(p.category)}
               </span>
             `:""}
 
             <!-- Time Display -->
-            ${g.startTime||g.dueTime?`
+            ${p.startTime||p.dueTime?`
               <span class="ci360-badge time-badge">
-                🕒 ${g.startTime?h(g.startTime):""}
-                   ${g.startTime&&g.dueTime?"–":""}
-                   ${g.dueTime?h(g.dueTime):""}
+                🕒 ${p.startTime?h(p.startTime):""}
+                   ${p.startTime&&p.dueTime?"–":""}
+                   ${p.dueTime?h(p.dueTime):""}
               </span>
             `:""}
 
@@ -415,9 +432,9 @@ import{c as Re,k as y,e as h,v as Xe,l as Ze,p as Gt,m as Yt,j as Ce,w as ga,x a
             `:""}
 
             <!-- Superadmin assigned employee name (if different from addedByName) -->
-            ${c&&(g.personnelId?.name||g.userId?.name)&&(g.personnelId?.name||g.userId?.name)!==$?`
+            ${c&&(p.personnelId?.name||p.userId?.name)&&(p.personnelId?.name||p.userId?.name)!==$?`
               <span class="ci360-badge personnel-badge" title="Assigned Employee">
-                👤 Assigned: ${h(g.personnelId?.name||g.userId?.name)}
+                👤 Assigned: ${h(p.personnelId?.name||p.userId?.name)}
               </span>
             `:""}
           </div>
@@ -425,16 +442,16 @@ import{c as Re,k as y,e as h,v as Xe,l as Ze,p as Gt,m as Yt,j as Ce,w as ga,x a
 
         <!-- Task Actions Menu: Previous tasks can be edited, deleted, changed by all -->
         <div class="ci360-task-actions">
-          <button type="button" class="task-action-btn edit" data-action="edit" data-id="${g._id}" title="Edit task">
+          <button type="button" class="task-action-btn edit" data-action="edit" data-id="${p._id}" title="Edit task">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
           </button>
-          <button type="button" class="task-action-btn delete" data-action="delete" data-id="${g._id}" title="Delete task">
+          <button type="button" class="task-action-btn delete" data-action="delete" data-id="${p._id}" title="Delete task">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
           </button>
         </div>
 
       </div>
-    `}function rt(){const g=aa(n.selectedDate,l.weekStartsOn),_=ot(g[0]),I=ot(g[6]),a=We();return`
+    `}function rt(){const p=aa(n.selectedDate,l.weekStartsOn),_=Xe(p[0]),I=Xe(p[6]),a=We();return`
       <div class="ci360-weekly-planner-section">
         
         <!-- Week Navigator Banner -->
@@ -453,13 +470,13 @@ import{c as Re,k as y,e as h,v as Xe,l as Ze,p as Gt,m as Yt,j as Ce,w as ga,x a
 
         <!-- 7-Day Grid -->
         <div class="ci360-week-grid">
-          ${g.map(s=>{const T=s===a,P=s===n.selectedDate,$=S(s),R=N($,a);return`
-              <div class="ci360-day-column ${T?"is-today":""} ${P?"is-selected":""}" data-date="${s}">
+          ${p.map(o=>{const T=o===a,P=o===n.selectedDate,$=S(o),R=j($,a);return`
+              <div class="ci360-day-column ${T?"is-today":""} ${P?"is-selected":""}" data-date="${o}">
                 
                 <!-- Column Header -->
-                <div class="day-col-header" data-date="${s}">
-                  <div class="day-name">${fa(s)}</div>
-                  <div class="day-number">${new Date(s+"T00:00:00").getDate()}</div>
+                <div class="day-col-header" data-date="${o}">
+                  <div class="day-name">${ma(o)}</div>
+                  <div class="day-number">${new Date(o+"T00:00:00").getDate()}</div>
                   ${T?'<span class="today-pill">Today</span>':""}
                 </div>
 
@@ -492,12 +509,12 @@ import{c as Re,k as y,e as h,v as Xe,l as Ze,p as Gt,m as Yt,j as Ce,w as ga,x a
                 </div>
 
                 <!-- Quick Add for Day Button (Locked on past dates) -->
-                ${s<a?`
+                ${o<a?`
                   <div class="day-col-locked-note" title="Cannot add tasks on previous dates">
                     <span>🔒 Past Date</span>
                   </div>
                 `:`
-                  <button type="button" class="day-col-add-btn" data-action="add-day" data-date="${s}">
+                  <button type="button" class="day-col-add-btn" data-action="add-day" data-date="${o}">
                     + Add Task
                   </button>
                 `}
@@ -507,7 +524,7 @@ import{c as Re,k as y,e as h,v as Xe,l as Ze,p as Gt,m as Yt,j as Ce,w as ga,x a
         </div>
 
       </div>
-    `}function St(){const g=aa(n.selectedDate,l.weekStartsOn),_=At(g[0]),I=At(g[6]),a=We(),s=n.tasks.filter(U=>{if(U.isDeleted===!0)return!1;const G=U.dateStr||(U.dueDate?new Date(U.dueDate).toISOString().slice(0,10):"");return g.includes(G)}),T=s.length,P=s.filter(U=>U.status==="Completed").length,$=s.filter(U=>U.status==="In Progress").length,R=T>0?Math.round(P/T*100):0,A={Urgent:0,High:0,Medium:0,Low:0};return s.forEach(U=>{const G=U.priority||"Medium";A[G]!==void 0&&A[G]++}),`
+    `}function St(){const p=aa(n.selectedDate,l.weekStartsOn),_=At(p[0]),I=At(p[6]),a=We(),o=n.tasks.filter(U=>{if(U.isDeleted===!0)return!1;const G=U.dateStr||(U.dueDate?new Date(U.dueDate).toISOString().slice(0,10):"");return p.includes(G)}),T=o.length,P=o.filter(U=>U.status==="Completed").length,$=o.filter(U=>U.status==="In Progress").length,R=T>0?Math.round(P/T*100):0,A={Urgent:0,High:0,Medium:0,Low:0};return o.forEach(U=>{const G=U.priority||"Medium";A[G]!==void 0&&A[G]++}),`
       <div class="ci360-report-section">
         
         <div class="ci360-report-banner">
@@ -559,10 +576,10 @@ import{c as Re,k as y,e as h,v as Xe,l as Ze,p as Gt,m as Yt,j as Ce,w as ga,x a
                 </tr>
               </thead>
               <tbody>
-                ${g.map(U=>{const G=S(U),v=N(G,a);return`
+                ${p.map(U=>{const G=S(U),v=j(G,a);return`
                     <tr>
-                      <td><strong>${fa(U)}</strong></td>
-                      <td>${ot(U)}</td>
+                      <td><strong>${ma(U)}</strong></td>
+                      <td>${Xe(U)}</td>
                       <td>${v.total}</td>
                       <td style="color:var(--green-500);font-weight:600">${v.completed}</td>
                       <td>${v.pending+v.inProgress}</td>
@@ -605,8 +622,8 @@ import{c as Re,k as y,e as h,v as Xe,l as Ze,p as Gt,m as Yt,j as Ce,w as ga,x a
         </div>
 
       </div>
-    `}function it(){const g=document.getElementById("btnViewDaily"),_=document.getElementById("btnViewWeekly"),I=document.getElementById("btnViewReport");g&&(g.onclick=()=>{n.viewMode="daily",j()}),_&&(_.onclick=()=>{n.viewMode="weekly",j()}),I&&(I.onclick=()=>{n.viewMode="report",j()});const a=document.getElementById("btnPrevDay"),s=document.getElementById("btnNextDay"),T=document.getElementById("btnJumpToday"),P=document.getElementById("hiddenDateInput"),$=document.getElementById("datePickerBadge");a&&(a.onclick=()=>{n.selectedDate=Wt(n.selectedDate,-1),j()}),s&&(s.onclick=()=>{n.selectedDate=Wt(n.selectedDate,1),j()}),T&&(T.onclick=()=>{n.selectedDate=We(),j()}),$&&P&&($.onclick=()=>{try{typeof P.showPicker=="function"?P.showPicker():P.focus()}catch{P.focus()}},P.onchange=Q=>{Q.target.value&&(n.selectedDate=Q.target.value,j())});const R=document.getElementById("admTeamSelect");R&&(R.onchange=Q=>{n.selectedPersonnelId=Q.target.value,j()});const A=document.getElementById("btnOpenAddTaskModal");A&&(A.onclick=()=>{if(n.selectedDate<We()){y("Cannot add tasks on previous dates. Please select Today or a future date to schedule a new task.",!0);return}Oe()});const U=document.getElementById("btnPlannerActionsMenu"),G=document.getElementById("plannerActionsDropdown");U&&G&&(U.onclick=Q=>{Q.stopPropagation(),G.classList.toggle("hidden")},document.addEventListener("click",Q=>{!G.contains(Q.target)&&Q.target!==U&&G.classList.add("hidden")}));const v=document.getElementById("btnActionImport");v&&(v.onclick=()=>{G?.classList.add("hidden"),ct()});const M=document.getElementById("btnActionExportPng");M&&(M.onclick=()=>{G?.classList.add("hidden"),Me()});const X=document.getElementById("btnActionExportPdf");X&&(X.onclick=()=>{G?.classList.add("hidden"),ce()});const ee=document.getElementById("btnActionBackup");ee&&(ee.onclick=()=>{G?.classList.add("hidden"),st()});const ie=document.getElementById("btnActionSettings");ie&&(ie.onclick=()=>{G?.classList.add("hidden"),ve()})}function Fe(g){if(n.viewMode==="daily"){document.querySelectorAll(".filter-pill").forEach(M=>{M.onclick=()=>{n.filterStatus=M.dataset.f,j()}});const _=document.getElementById("plannerTaskSearchInp");_&&(_.oninput=M=>{n.searchQuery=M.target.value,j()});const I=document.getElementById("btnClearSearch");I&&(I.onclick=()=>{n.searchQuery="",j()});const a=document.getElementById("quickAddTitleInp"),s=document.getElementById("quickAddCompletionDate"),T=document.getElementById("quickAddPriority"),P=document.getElementById("quickAddCategory"),$=document.getElementById("btnQuickAddSubmit"),R=async()=>{const M=We();if(n.selectedDate<M){y("Cannot add tasks on previous dates. You can only view, edit, or mark existing tasks complete.",!0);return}const X=(a?.value||"").trim();if(!X){y("Please enter a task title",!0),a?.focus();return}const ee=(s?.value||"").trim()||n.selectedDate;if(ee<M){y("Cannot set completion date on a previous date.",!0);return}try{const ie={title:X,dateStr:ee,completionDate:ee,completionDateStr:ee,dueDate:ee,priority:T?.value||l.defaultPriority,category:P?.value||"General",status:"Pending"};c&&n.selectedPersonnelId!=="all"&&(ie.personnelId=n.selectedPersonnelId);const Q=await Ce("/tasks",ie);n.tasks.unshift(Q),y("Task added to today's focus! ✨"),a&&(a.value="",a.focus()),j()}catch(ie){y(ie.message,!0)}};$&&($.onclick=R),a&&(a.onkeydown=M=>{M.key==="Enter"&&R()}),document.querySelectorAll('[data-action="toggle-emp-group"]').forEach(M=>{M.onclick=()=>{const X=M.dataset.empKey;n.collapsedEmployees[X]=!n.collapsedEmployees[X],j()}});const A=document.getElementById("btnToggleEmpGrouping");A&&(A.onclick=()=>{n.groupByEmployee=!n.groupByEmployee,j()});const U=document.getElementById("btnExpandAllEmp");U&&(U.onclick=()=>{n.collapsedEmployees={},j()});const G=document.getElementById("btnCollapseAllEmp");G&&(G.onclick=()=>{document.querySelectorAll(".ci360-emp-group-card").forEach(M=>{const X=M.dataset.empKey;X&&(n.collapsedEmployees[X]=!0)}),j()});const v=document.getElementById("btnEmptyStateImport");v&&(v.onclick=()=>ct())}if(n.viewMode==="weekly"){const _=document.getElementById("btnPrevWeek"),I=document.getElementById("btnNextWeek"),a=document.getElementById("btnThisWeek");_&&(_.onclick=()=>{n.selectedDate=Wt(n.selectedDate,-7),j()}),I&&(I.onclick=()=>{n.selectedDate=Wt(n.selectedDate,7),j()}),a&&(a.onclick=()=>{n.selectedDate=We(),j()}),document.querySelectorAll(".day-col-header").forEach(s=>{s.onclick=()=>{n.selectedDate=s.dataset.date,n.viewMode="daily",j()}}),document.querySelectorAll('[data-action="add-day"]').forEach(s=>{s.onclick=()=>{Oe(null,s.dataset.date)}})}if(n.viewMode==="report"){const _=document.getElementById("btnDownloadWeeklyPdf");_&&(_.onclick=ce)}i.querySelectorAll('[data-action="toggle"]').forEach(_=>{_.onclick=async I=>{I.stopPropagation();const a=_.dataset.id;await nt(a)}}),i.querySelectorAll('[data-action="edit"]').forEach(_=>{_.onclick=I=>{I.stopPropagation();const a=_.dataset.id,s=n.tasks.find(T=>T._id===a);s&&Oe(s)}}),i.querySelectorAll('[data-action="delete"]').forEach(_=>{_.onclick=async I=>{I.stopPropagation();const a=_.dataset.id;await ut(a)}})}async function nt(g){const _=n.tasks.find(a=>a._id===g);if(!_)return;const I=_.status!=="Completed";try{const a=await Xe(`/tasks/${g}/toggle`,{}),s=n.tasks.findIndex(T=>T._id===g);s!==-1&&(n.tasks[s]=a),I?(l.soundEnabled&&Aa(),y("Task marked as completed! 🎉")):y("Task reopened as pending."),j()}catch(a){y(a.message,!0)}}async function ut(g){const _=n.tasks.find(I=>I._id===g);if(_&&confirm(`Are you sure you want to remove "${_.title}" from your planner?
-(It will be safely retained in the database archive.)`))try{await Ze(`/tasks/${g}`),n.tasks=n.tasks.filter(I=>I._id!==g),y("Task removed from planner (safely stored in database archive)"),j()}catch(I){y(I.message,!0)}}function Oe(g=null,_=null){const I=!!g,a=We(),s=g?g.completionDateStr||g.dateStr||(g.dueDate?new Date(g.dueDate).toISOString().slice(0,10):n.selectedDate):_&&_>=a?_:n.selectedDate>=a?n.selectedDate:a,T=`
+    `}function nt(){const p=document.getElementById("btnViewDaily"),_=document.getElementById("btnViewWeekly"),I=document.getElementById("btnViewReport");p&&(p.onclick=()=>{n.viewMode="daily",N()}),_&&(_.onclick=()=>{n.viewMode="weekly",N()}),I&&(I.onclick=()=>{n.viewMode="report",N()});const a=document.getElementById("btnPrevDay"),o=document.getElementById("btnNextDay"),T=document.getElementById("btnJumpToday"),P=document.getElementById("hiddenDateInput"),$=document.getElementById("datePickerBadge");a&&(a.onclick=()=>{n.selectedDate=Wt(n.selectedDate,-1),N()}),o&&(o.onclick=()=>{n.selectedDate=Wt(n.selectedDate,1),N()}),T&&(T.onclick=()=>{n.selectedDate=We(),N()}),$&&P&&($.onclick=()=>{try{typeof P.showPicker=="function"?P.showPicker():P.focus()}catch{P.focus()}},P.onchange=Q=>{Q.target.value&&(n.selectedDate=Q.target.value,N())});const R=document.getElementById("admTeamSelect");R&&(R.onchange=Q=>{n.selectedPersonnelId=Q.target.value,N()});const A=document.getElementById("btnOpenAddTaskModal");A&&(A.onclick=()=>{if(n.selectedDate<We()){y("Cannot add tasks on previous dates. Please select Today or a future date to schedule a new task.",!0);return}Oe()});const U=document.getElementById("btnPlannerActionsMenu"),G=document.getElementById("plannerActionsDropdown");U&&G&&(U.onclick=Q=>{Q.stopPropagation(),G.classList.toggle("hidden")},document.addEventListener("click",Q=>{!G.contains(Q.target)&&Q.target!==U&&G.classList.add("hidden")}));const v=document.getElementById("btnActionImport");v&&(v.onclick=()=>{G?.classList.add("hidden"),ct()});const M=document.getElementById("btnActionExportPng");M&&(M.onclick=()=>{G?.classList.add("hidden"),Me()});const X=document.getElementById("btnActionExportPdf");X&&(X.onclick=()=>{G?.classList.add("hidden"),ce()});const ee=document.getElementById("btnActionBackup");ee&&(ee.onclick=()=>{G?.classList.add("hidden"),st()});const te=document.getElementById("btnActionSettings");te&&(te.onclick=()=>{G?.classList.add("hidden"),ve()})}function Fe(p){if(n.viewMode==="daily"){document.querySelectorAll(".filter-pill").forEach(M=>{M.onclick=()=>{n.filterStatus=M.dataset.f,N()}});const _=document.getElementById("plannerTaskSearchInp");_&&(_.oninput=M=>{n.searchQuery=M.target.value,N()});const I=document.getElementById("btnClearSearch");I&&(I.onclick=()=>{n.searchQuery="",N()});const a=document.getElementById("quickAddTitleInp"),o=document.getElementById("quickAddCompletionDate"),T=document.getElementById("quickAddPriority"),P=document.getElementById("quickAddCategory"),$=document.getElementById("btnQuickAddSubmit"),R=async()=>{const M=We();if(n.selectedDate<M){y("Cannot add tasks on previous dates. You can only view, edit, or mark existing tasks complete.",!0);return}const X=(a?.value||"").trim();if(!X){y("Please enter a task title",!0),a?.focus();return}const ee=(o?.value||"").trim()||n.selectedDate;if(ee<M){y("Cannot set completion date on a previous date.",!0);return}try{const te={title:X,dateStr:ee,completionDate:ee,completionDateStr:ee,dueDate:ee,priority:T?.value||l.defaultPriority,category:P?.value||"General",status:"Pending"};if(c){const u=document.getElementById("quickAddAssignee")?.value;u==="all"?(te.assignAll=!0,te.personnelId="all"):u?te.personnelId=u:n.selectedPersonnelId!=="all"&&(te.personnelId=n.selectedPersonnelId)}const Q=await Ce("/tasks",te);n.tasks.unshift(Q),y("Task added to today's focus! ✨"),a&&(a.value="",a.focus()),N()}catch(te){y(te.message,!0)}};$&&($.onclick=R),a&&(a.onkeydown=M=>{M.key==="Enter"&&R()}),document.querySelectorAll('[data-action="toggle-emp-group"]').forEach(M=>{M.onclick=()=>{const X=M.dataset.empKey;n.collapsedEmployees[X]=!n.collapsedEmployees[X],N()}});const A=document.getElementById("btnToggleEmpGrouping");A&&(A.onclick=()=>{n.groupByEmployee=!n.groupByEmployee,N()});const U=document.getElementById("btnExpandAllEmp");U&&(U.onclick=()=>{n.collapsedEmployees={},N()});const G=document.getElementById("btnCollapseAllEmp");G&&(G.onclick=()=>{document.querySelectorAll(".ci360-emp-group-card").forEach(M=>{const X=M.dataset.empKey;X&&(n.collapsedEmployees[X]=!0)}),N()});const v=document.getElementById("btnEmptyStateImport");v&&(v.onclick=()=>ct())}if(n.viewMode==="weekly"){const _=document.getElementById("btnPrevWeek"),I=document.getElementById("btnNextWeek"),a=document.getElementById("btnThisWeek");_&&(_.onclick=()=>{n.selectedDate=Wt(n.selectedDate,-7),N()}),I&&(I.onclick=()=>{n.selectedDate=Wt(n.selectedDate,7),N()}),a&&(a.onclick=()=>{n.selectedDate=We(),N()}),document.querySelectorAll(".day-col-header").forEach(o=>{o.onclick=()=>{n.selectedDate=o.dataset.date,n.viewMode="daily",N()}}),document.querySelectorAll('[data-action="add-day"]').forEach(o=>{o.onclick=()=>{Oe(null,o.dataset.date)}})}if(n.viewMode==="report"){const _=document.getElementById("btnDownloadWeeklyPdf");_&&(_.onclick=ce)}i.querySelectorAll('[data-action="toggle"]').forEach(_=>{_.onclick=async I=>{I.stopPropagation();const a=_.dataset.id;await ot(a)}}),i.querySelectorAll('[data-action="edit"]').forEach(_=>{_.onclick=I=>{I.stopPropagation();const a=_.dataset.id,o=n.tasks.find(T=>T._id===a);o&&Oe(o)}}),i.querySelectorAll('[data-action="delete"]').forEach(_=>{_.onclick=async I=>{I.stopPropagation();const a=_.dataset.id;await ut(a)}})}async function ot(p){const _=n.tasks.find(a=>a._id===p);if(!_)return;const I=_.status!=="Completed";try{const a=await Ze(`/tasks/${p}/toggle`,{}),o=n.tasks.findIndex(T=>T._id===p);o!==-1&&(n.tasks[o]=a),I?(l.soundEnabled&&Aa(),y("Task marked as completed! 🎉")):y("Task reopened as pending."),N()}catch(a){y(a.message,!0)}}async function ut(p){const _=n.tasks.find(I=>I._id===p);if(_&&confirm(`Are you sure you want to remove "${_.title}" from your planner?
+(It will be safely retained in the database archive.)`))try{await et(`/tasks/${p}`),n.tasks=n.tasks.filter(I=>I._id!==p),y("Task removed from planner (safely stored in database archive)"),N()}catch(I){y(I.message,!0)}}function Oe(p=null,_=null){const I=!!p,a=We(),o=p?p.completionDateStr||p.dateStr||(p.dueDate?new Date(p.dueDate).toISOString().slice(0,10):n.selectedDate):_&&_>=a?_:n.selectedDate>=a?n.selectedDate:a,T=`
       <div class="ci360-planner-modal">
         <div class="ci360-modal-header">
           <h3>${I?"Edit Task":"Add New Task"}</h3>
@@ -617,33 +634,33 @@ import{c as Re,k as y,e as h,v as Xe,l as Ze,p as Gt,m as Yt,j as Ce,w as ga,x a
           <!-- Title -->
           <div class="form-group">
             <label for="taskTitle" class="required">Task Title</label>
-            <input type="text" id="taskTitle" class="input" placeholder="e.g. Prepare client deck for review" value="${h(g?.title||"")}" required autofocus>
+            <input type="text" id="taskTitle" class="input" placeholder="e.g. Prepare client deck for review" value="${h(p?.title||"")}" required autofocus>
           </div>
 
           <!-- Description -->
           <div class="form-group">
             <label for="taskDesc">Description / Notes</label>
-            <textarea id="taskDesc" class="input" rows="3" placeholder="Key deliverables, context, or checklist details...">${h(g?.description||"")}</textarea>
+            <textarea id="taskDesc" class="input" rows="3" placeholder="Key deliverables, context, or checklist details...">${h(p?.description||"")}</textarea>
           </div>
 
           <!-- Date & Time Row -->
           <div class="form-row">
             <div class="form-group flex-1">
               <label for="taskDate">Assigned Date</label>
-              <input type="date" id="taskDate" class="input" value="${s}" ${I?"":`min="${a}"`}>
+              <input type="date" id="taskDate" class="input" value="${o}" ${I?"":`min="${a}"`}>
             </div>
             <div class="form-group flex-1">
               <label for="taskCompletionDate">Completion Date</label>
-              <input type="date" id="taskCompletionDate" class="input" value="${g?.completionDateStr||g?.dateStr||""}" ${I?"":`min="${a}"`} placeholder="Defaults to that day">
-              <small style="color:var(--text-3);font-size:11px;">If left blank, will default to that day (${s})</small>
+              <input type="date" id="taskCompletionDate" class="input" value="${p?.completionDateStr||p?.dateStr||""}" ${I?"":`min="${a}"`} placeholder="Defaults to that day">
+              <small style="color:var(--text-3);font-size:11px;">If left blank, will default to that day (${o})</small>
             </div>
             <div class="form-group flex-1">
               <label for="taskStartTime">Start Time</label>
-              <input type="time" id="taskStartTime" class="input" value="${g?.startTime||""}">
+              <input type="time" id="taskStartTime" class="input" value="${p?.startTime||""}">
             </div>
             <div class="form-group flex-1">
               <label for="taskDueTime">Due Time</label>
-              <input type="time" id="taskDueTime" class="input" value="${g?.dueTime||""}">
+              <input type="time" id="taskDueTime" class="input" value="${p?.dueTime||""}">
             </div>
           </div>
 
@@ -652,25 +669,25 @@ import{c as Re,k as y,e as h,v as Xe,l as Ze,p as Gt,m as Yt,j as Ce,w as ga,x a
             <div class="form-group flex-1">
               <label for="taskPriority">Priority</label>
               <select id="taskPriority" class="input">
-                <option value="Low" ${g?.priority==="Low"?"selected":""}>Low</option>
-                <option value="Medium" ${!g&&l.defaultPriority==="Medium"||g?.priority==="Medium"?"selected":""}>Medium</option>
-                <option value="High" ${!g&&l.defaultPriority==="High"||g?.priority==="High"?"selected":""}>High</option>
-                <option value="Urgent" ${g?.priority==="Urgent"?"selected":""}>Urgent</option>
+                <option value="Low" ${p?.priority==="Low"?"selected":""}>Low</option>
+                <option value="Medium" ${!p&&l.defaultPriority==="Medium"||p?.priority==="Medium"?"selected":""}>Medium</option>
+                <option value="High" ${!p&&l.defaultPriority==="High"||p?.priority==="High"?"selected":""}>High</option>
+                <option value="Urgent" ${p?.priority==="Urgent"?"selected":""}>Urgent</option>
               </select>
             </div>
 
             <div class="form-group flex-1">
               <label for="taskStatus">Status</label>
               <select id="taskStatus" class="input">
-                <option value="Pending" ${g?.status==="Pending"||g?.status==="Todo"||!g?"selected":""}>Pending</option>
-                <option value="In Progress" ${g?.status==="In Progress"?"selected":""}>In Progress</option>
-                <option value="Completed" ${g?.status==="Completed"?"selected":""}>Completed</option>
+                <option value="Pending" ${p?.status==="Pending"||p?.status==="Todo"||!p?"selected":""}>Pending</option>
+                <option value="In Progress" ${p?.status==="In Progress"?"selected":""}>In Progress</option>
+                <option value="Completed" ${p?.status==="Completed"?"selected":""}>Completed</option>
               </select>
             </div>
 
             <div class="form-group flex-1">
               <label for="taskCategory">Category / Label</label>
-              <input type="text" id="taskCategory" class="input" list="categoryOptions" placeholder="e.g. Design, Meeting" value="${h(g?.category||"General")}">
+              <input type="text" id="taskCategory" class="input" list="categoryOptions" placeholder="e.g. Design, Meeting" value="${h(p?.category||"General")}">
               <datalist id="categoryOptions">
                 <option value="General">
                 <option value="Client Work">
@@ -688,8 +705,9 @@ import{c as Re,k as y,e as h,v as Xe,l as Ze,p as Gt,m as Yt,j as Ce,w as ga,x a
             <div class="form-group">
               <label for="taskAssignee">Assign To</label>
               <select id="taskAssignee" class="input">
-                <option value="all" ${!g||g?.assignAll?"selected":""}>Assign to All Active Team Members</option>
-                ${n.personnelList.map(v=>{const M=g?.personnelId?._id===v._id||g?.personnelId===v._id;return`<option value="${v._id}" ${M?"selected":""}>${h(v.name)} (${h(v.department||v.role||"Member")})</option>`}).join("")}
+                <option value="me" ${!p||!p?.personnelId&&!p?.assignAll?"selected":""}>Myself (Admin)</option>
+                <option value="all" ${p?.assignAll?"selected":""}>Assign to All Active Team Members</option>
+                ${n.personnelList.map(v=>{const M=p?.personnelId?._id===v._id||p?.personnelId===v._id;return`<option value="${v._id}" ${M?"selected":""}>👤 ${h(v.name)} (${h(v.department||v.role||"Member")})</option>`}).join("")}
               </select>
             </div>
           `:""}
@@ -709,7 +727,7 @@ import{c as Re,k as y,e as h,v as Xe,l as Ze,p as Gt,m as Yt,j as Ce,w as ga,x a
           </div>
         </form>
       </div>
-    `,P=Gt(T),$=P.querySelector("#taskForm"),R=P.querySelector("#btnModalClose"),A=P.querySelector("#btnCancelModal"),U=P.querySelector("#btnModalDeleteTask"),G=()=>P.remove();R&&(R.onclick=G),A&&(A.onclick=G),U&&g&&(U.onclick=async()=>{G(),await ut(g._id)}),$.onsubmit=async v=>{v.preventDefault();const M=P.querySelector("#taskTitle").value.trim(),X=P.querySelector("#taskDesc").value.trim(),ee=P.querySelector("#taskDate").value||s,Q=P.querySelector("#taskCompletionDate")?.value?.trim()||ee||n.selectedDate,u=P.querySelector("#taskStartTime").value.trim(),f=P.querySelector("#taskDueTime").value.trim(),r=P.querySelector("#taskPriority").value,o=P.querySelector("#taskStatus").value,x=P.querySelector("#taskCategory").value.trim()||"General";if(!M){y("Task title is required",!0);return}if(!I&&(Q<a||ee<a)){y("Cannot add tasks on previous dates. New tasks can only be scheduled for today or future dates.",!0);return}const B={title:M,description:X,dateStr:Q,completionDate:Q,completionDateStr:Q,dueDate:Q,startTime:u,dueTime:f,priority:r,status:o,category:x};if(c){const O=P.querySelector("#taskAssignee")?.value;O==="all"?(B.assignAll=!0,B.personnelId="all"):O&&(B.personnelId=O)}const C=P.querySelector("#btnSaveTask");C.disabled=!0,C.textContent="Saving...";try{if(I){const O=await Yt(`/tasks/${g._id}`,B),ne=n.tasks.findIndex(F=>F._id===g._id);ne!==-1&&(n.tasks[ne]=O),y("Task updated successfully! ✍️")}else{const O=await Ce("/tasks",B);Array.isArray(O.tasks)?O.tasks.forEach(ne=>n.tasks.unshift(ne)):n.tasks.unshift(O),y("Task created successfully! ✨")}G(),j()}catch(O){y(O.message,!0),C.disabled=!1,C.textContent=I?"Save Changes":"Create Task"}}}function ct(){let g=[];const _=`
+    `,P=Gt(T),$=P.querySelector("#taskForm"),R=P.querySelector("#btnModalClose"),A=P.querySelector("#btnCancelModal"),U=P.querySelector("#btnModalDeleteTask"),G=()=>P.remove();R&&(R.onclick=G),A&&(A.onclick=G),U&&p&&(U.onclick=async()=>{G(),await ut(p._id)}),$.onsubmit=async v=>{v.preventDefault();const M=P.querySelector("#taskTitle").value.trim(),X=P.querySelector("#taskDesc").value.trim(),ee=P.querySelector("#taskDate").value||o,Q=P.querySelector("#taskCompletionDate")?.value?.trim()||ee||n.selectedDate,u=P.querySelector("#taskStartTime").value.trim(),m=P.querySelector("#taskDueTime").value.trim(),s=P.querySelector("#taskPriority").value,r=P.querySelector("#taskStatus").value,x=P.querySelector("#taskCategory").value.trim()||"General";if(!M){y("Task title is required",!0);return}if(!I&&(Q<a||ee<a)){y("Cannot add tasks on previous dates. New tasks can only be scheduled for today or future dates.",!0);return}const B={title:M,description:X,dateStr:Q,completionDate:Q,completionDateStr:Q,dueDate:Q,startTime:u,dueTime:m,priority:s,status:r,category:x};if(c){const O=P.querySelector("#taskAssignee")?.value;O==="all"?(B.assignAll=!0,B.personnelId="all"):O==="me"?B.personnelId="me":O&&(B.personnelId=O)}const C=P.querySelector("#btnSaveTask");C.disabled=!0,C.textContent="Saving...";try{if(I){const O=await Yt(`/tasks/${p._id}`,B),ne=n.tasks.findIndex(F=>F._id===p._id);ne!==-1&&(n.tasks[ne]=O),y("Task updated successfully! ✍️")}else{const O=await Ce("/tasks",B);Array.isArray(O.tasks)?O.tasks.forEach(ne=>n.tasks.unshift(ne)):n.tasks.unshift(O),y("Task created successfully! ✨")}G(),N()}catch(O){y(O.message,!0),C.disabled=!1,C.textContent=I?"Save Changes":"Create Task"}}}function ct(){let p=[];const _=`
       <div class="ci360-planner-modal import-modal" style="max-width:680px">
         <div class="ci360-modal-header">
           <div>
@@ -781,13 +799,13 @@ import{c as Re,k as y,e as h,v as Xe,l as Ze,p as Gt,m as Yt,j as Ce,w as ga,x a
 
         </div>
       </div>
-    `,I=Gt(_),a=()=>I.remove();I.querySelector("#btnImportClose").onclick=a,I.querySelector("#btnCancelImport").onclick=a;const s=I.querySelector("#importTextarea"),T=I.querySelector("#importFileInput"),P=I.querySelector("#importDropzone"),$=I.querySelector("#previewListArea"),R=I.querySelector("#previewCountLabel"),A=I.querySelector("#btnConfirmImport"),U=I.querySelector("#importFileInfo");function G(M){if(!M)return[];const X=M.split(/\r?\n/),ee=[];for(let ie of X)ie=ie.trim(),ie&&(ie=ie.replace(/^-\s*\[\s*[xX ]?\s*\]\s*/,""),ie=ie.replace(/^[-*•]\s+/,""),ie=ie.replace(/^\d+[\.\)]\s+/,""),ie=ie.trim(),ie&&ee.push(ie));return ee}function v(){const M=s.value,X=G(M),ee=I.querySelector("#importTargetDate").value,ie=S(ee),Q=new Set(ie.map(u=>(u.title||"").trim().toLowerCase()));g=[];for(const u of X){const f=Q.has(u.toLowerCase());g.push({title:u,isDuplicate:f})}if(R.textContent=`Preview (${g.length} ${g.length===1?"task":"tasks"} found)`,A.disabled=g.length===0,A.textContent=`Import ${g.length} ${g.length===1?"Task":"Tasks"}`,g.length===0){$.innerHTML='<div style="padding:16px;text-align:center;color:var(--text-4);font-size:12px">No tasks found. Paste text above to preview.</div>';return}$.innerHTML=g.map((u,f)=>`
+    `,I=Gt(_),a=()=>I.remove();I.querySelector("#btnImportClose").onclick=a,I.querySelector("#btnCancelImport").onclick=a;const o=I.querySelector("#importTextarea"),T=I.querySelector("#importFileInput"),P=I.querySelector("#importDropzone"),$=I.querySelector("#previewListArea"),R=I.querySelector("#previewCountLabel"),A=I.querySelector("#btnConfirmImport"),U=I.querySelector("#importFileInfo");function G(M){if(!M)return[];const X=M.split(/\r?\n/),ee=[];for(let te of X)te=te.trim(),te&&(te=te.replace(/^-\s*\[\s*[xX ]?\s*\]\s*/,""),te=te.replace(/^[-*•]\s+/,""),te=te.replace(/^\d+[\.\)]\s+/,""),te=te.trim(),te&&ee.push(te));return ee}function v(){const M=o.value,X=G(M),ee=I.querySelector("#importTargetDate").value,te=S(ee),Q=new Set(te.map(u=>(u.title||"").trim().toLowerCase()));p=[];for(const u of X){const m=Q.has(u.toLowerCase());p.push({title:u,isDuplicate:m})}if(R.textContent=`Preview (${p.length} ${p.length===1?"task":"tasks"} found)`,A.disabled=p.length===0,A.textContent=`Import ${p.length} ${p.length===1?"Task":"Tasks"}`,p.length===0){$.innerHTML='<div style="padding:16px;text-align:center;color:var(--text-4);font-size:12px">No tasks found. Paste text above to preview.</div>';return}$.innerHTML=p.map((u,m)=>`
         <div class="preview-item ${u.isDuplicate?"is-duplicate":""}">
-          <span class="preview-index">${f+1}.</span>
+          <span class="preview-index">${m+1}.</span>
           <span class="preview-title">${h(u.title)}</span>
           ${u.isDuplicate?'<span class="badge overdue-badge" style="font-size:10px">Already on this date</span>':""}
         </div>
-      `).join("")}s.oninput=v,P.onclick=()=>T.click(),T.onchange=M=>{const X=M.target.files[0];if(!X)return;U.textContent=`File selected: ${X.name} (${Math.round(X.size/1024)} KB)`;const ee=new FileReader;ee.onload=ie=>{s.value=ie.target.result,v()},ee.readAsText(X)},P.ondragover=M=>{M.preventDefault(),P.classList.add("dragover")},P.ondragleave=()=>P.classList.remove("dragover"),P.ondrop=M=>{M.preventDefault(),P.classList.remove("dragover");const X=M.dataTransfer.files[0];if(X&&(X.type==="text/plain"||X.name.endsWith(".txt"))){U.textContent=`File dropped: ${X.name}`;const ee=new FileReader;ee.onload=ie=>{s.value=ie.target.result,v()},ee.readAsText(X)}else y("Please drop a valid .txt plain-text file",!0)},A.onclick=async()=>{if(g.length===0)return;A.disabled=!0,A.textContent="Importing...";const M=I.querySelector("#importTargetDate").value;if(M<We()){y("Cannot import tasks for previous dates. Target date must be today or later.",!0),A.disabled=!1,A.textContent=`Import ${g.length} ${g.length===1?"Task":"Tasks"}`;return}const X=I.querySelector("#importPriority").value,ee=I.querySelector("#importCategory").value.trim()||"General",ie={date:M,tasks:g.map(Q=>({title:Q.title,priority:X,category:ee,status:"Pending"}))};c&&n.selectedPersonnelId!=="all"&&(ie.personnelId=n.selectedPersonnelId);try{const Q=await Ce("/tasks/bulk-import",ie);Array.isArray(Q.tasks)&&Q.tasks.forEach(u=>n.tasks.unshift(u)),y(`Imported ${Q.importedCount} tasks successfully! (${Q.skippedCount} skipped duplicates)`),a(),n.selectedDate=M,j()}catch(Q){y(Q.message,!0),A.disabled=!1,A.textContent="Retry Import"}}}async function Me(){const g=S(n.selectedDate),_=N(g,We()),I=At(n.selectedDate),a=2,s=800,T=160,P=90,$=74,R=70,A=Math.max(120,g.length*$),U=T+P+A+R,G=document.createElement("canvas");G.width=s*a,G.height=U*a;const v=G.getContext("2d");v.scale(a,a);const M=document.documentElement.getAttribute("data-theme")==="dark",X=M?"#0F172A":"#F8FAFC",ee=M?"#1E293B":"#FFFFFF",ie=M?"#334155":"#E2E8F0",Q=M?"#F8FAFC":"#0F172A",u=M?"#94A3B8":"#475569",f="#4F46E5",r="#10B981",o="#F59E0B";v.fillStyle=X,v.fillRect(0,0,s,U),v.fillStyle=ee,ze(v,24,20,s-48,T-30,16),v.fill(),v.strokeStyle=ie,v.lineWidth=1,v.stroke(),v.fillStyle=f,v.font="bold 12px Inter, sans-serif",v.fillText("CI360 INTELLIGENCE SUITE · DAILY PLANNER",44,52),v.fillStyle=Q,v.font='bold 22px "Plus Jakarta Sans", Inter, sans-serif',v.fillText(I,44,86),v.fillStyle=u,v.font="13px Inter, sans-serif",v.fillText(`Planned focus list · ${_.completed} of ${_.total} tasks completed (${_.percent}%)`,44,114);const x=T+6;v.fillStyle=ee,ze(v,24,x,s-48,P-16,12),v.fill(),v.stroke();const B=[{label:"TOTAL TASKS",val:String(_.total),color:Q},{label:"COMPLETED",val:String(_.completed),color:r},{label:"IN PROGRESS",val:String(_.inProgress),color:o},{label:"PENDING",val:String(_.pending),color:u},{label:"PROGRESS",val:`${_.percent}%`,color:f}],C=(s-48)/B.length;B.forEach((F,q)=>{const Y=24+q*C+20;v.fillStyle=F.color,v.font="bold 20px Inter, sans-serif",v.fillText(F.val,Y,x+36),v.fillStyle=u,v.font="10px Inter, sans-serif",v.fillText(F.label,Y,x+54)});const O=x+P;v.fillStyle=ee,ze(v,24,O,s-48,A+10,16),v.fill(),v.stroke(),g.length===0?(v.fillStyle=u,v.font="14px Inter, sans-serif",v.textAlign="center",v.fillText("No scheduled tasks recorded for this date.",s/2,O+60),v.textAlign="left"):g.forEach((F,q)=>{const Y=O+16+q*$,_e=F.status==="Completed";v.beginPath(),v.arc(48,Y+14,10,0,Math.PI*2),_e?(v.fillStyle=r,v.fill(),v.strokeStyle="#FFFFFF",v.lineWidth=2,v.beginPath(),v.moveTo(44,Y+14),v.lineTo(47,Y+17),v.lineTo(52,Y+11),v.stroke()):(v.strokeStyle=ie,v.lineWidth=2,v.stroke()),v.fillStyle=_e?u:Q,v.font=`${_e?"normal":"500"} 14px Inter, sans-serif`;const fe=F.title.length>55?F.title.slice(0,52)+"...":F.title;if(v.fillText(fe,70,Y+18),_e){const De=v.measureText(fe);v.strokeStyle=u,v.lineWidth=1.2,v.beginPath(),v.moveTo(70,Y+14),v.lineTo(70+De.width,Y+14),v.stroke()}const le=F.priority||"Medium";let ue="#E2E8F0",K="#334155";le==="Urgent"?(ue="#FEE2E2",K="#DC2626"):le==="High"?(ue="#FEF3C7",K="#D97706"):le==="Low"&&(ue="#ECFDF5",K="#059669"),v.fillStyle=ue,ze(v,s-150,Y+4,60,20,10),v.fill(),v.fillStyle=K,v.font="bold 10px Inter, sans-serif",v.fillText(le,s-138,Y+18);const re=F.createdByName||F.createdBy?.name||(F.createdBy?.email?F.createdBy.email.split("@")[0]:"")||F.personnelId?.name||F.userId?.name||"Member",be=F.completionDateStr||F.dateStr||"",de=[];de.push(`✍️ Added by: ${re}`),be&&de.push(`📅 Due: ${ot(be)}`),F.dueTime&&de.push(`🕒 ${F.dueTime}`),F.category&&F.category!=="General"&&de.push(`#${F.category}`);const he=de.join("   ·   ");v.fillStyle=u,v.font="11px Inter, sans-serif",v.fillText(he,70,Y+36),q<g.length-1&&(v.strokeStyle=ie,v.lineWidth=.6,v.beginPath(),v.moveTo(40,Y+54),v.lineTo(s-40,Y+54),v.stroke())});const ne=U-35;v.fillStyle=u,v.font="11px Inter, sans-serif",v.fillText(`Generated by CI360 Productivity Suite · Dayfolio Native Module · ${new Date().toLocaleDateString()}`,44,ne);try{const F=G.toDataURL("image/png"),q=document.createElement("a");q.href=F,q.download=`ci360-daily-planner-${n.selectedDate}.png`,document.body.appendChild(q),q.click(),q.remove(),y("Daily Planner image exported! 🖼️")}catch(F){y("Failed to export image: "+F.message,!0)}}function ze(g,_,I,a,s,T){g.beginPath(),g.moveTo(_+T,I),g.lineTo(_+a-T,I),g.quadraticCurveTo(_+a,I,_+a,I+T),g.lineTo(_+a,I+s-T),g.quadraticCurveTo(_+a,I+s,_+a-T,I+s),g.lineTo(_+T,I+s),g.quadraticCurveTo(_,I+s,_,I+s-T),g.lineTo(_,I+T),g.quadraticCurveTo(_,I,_+T,I),g.closePath()}function ce(){const g=aa(n.selectedDate,l.weekStartsOn),_=At(g[0]),I=At(g[6]);We();const a=n.tasks.filter(A=>{if(A.isDeleted===!0)return!1;const U=A.dateStr||(A.dueDate?new Date(A.dueDate).toISOString().slice(0,10):"");return g.includes(U)}),s=a.length,T=a.filter(A=>A.status==="Completed").length,P=s>0?Math.round(T/s*100):0,$=window.open("","_blank");if(!$){y("Pop-up blocked. Please allow pop-ups to print the PDF report.",!0);return}const R=`
+      `).join("")}o.oninput=v,P.onclick=()=>T.click(),T.onchange=M=>{const X=M.target.files[0];if(!X)return;U.textContent=`File selected: ${X.name} (${Math.round(X.size/1024)} KB)`;const ee=new FileReader;ee.onload=te=>{o.value=te.target.result,v()},ee.readAsText(X)},P.ondragover=M=>{M.preventDefault(),P.classList.add("dragover")},P.ondragleave=()=>P.classList.remove("dragover"),P.ondrop=M=>{M.preventDefault(),P.classList.remove("dragover");const X=M.dataTransfer.files[0];if(X&&(X.type==="text/plain"||X.name.endsWith(".txt"))){U.textContent=`File dropped: ${X.name}`;const ee=new FileReader;ee.onload=te=>{o.value=te.target.result,v()},ee.readAsText(X)}else y("Please drop a valid .txt plain-text file",!0)},A.onclick=async()=>{if(p.length===0)return;A.disabled=!0,A.textContent="Importing...";const M=I.querySelector("#importTargetDate").value;if(M<We()){y("Cannot import tasks for previous dates. Target date must be today or later.",!0),A.disabled=!1,A.textContent=`Import ${p.length} ${p.length===1?"Task":"Tasks"}`;return}const X=I.querySelector("#importPriority").value,ee=I.querySelector("#importCategory").value.trim()||"General",te={date:M,tasks:p.map(Q=>({title:Q.title,priority:X,category:ee,status:"Pending"}))};c&&n.selectedPersonnelId!=="all"&&(te.personnelId=n.selectedPersonnelId);try{const Q=await Ce("/tasks/bulk-import",te);Array.isArray(Q.tasks)&&Q.tasks.forEach(u=>n.tasks.unshift(u)),y(`Imported ${Q.importedCount} tasks successfully! (${Q.skippedCount} skipped duplicates)`),a(),n.selectedDate=M,N()}catch(Q){y(Q.message,!0),A.disabled=!1,A.textContent="Retry Import"}}}async function Me(){const p=S(n.selectedDate),_=j(p,We()),I=At(n.selectedDate),a=2,o=800,T=160,P=90,$=74,R=70,A=Math.max(120,p.length*$),U=T+P+A+R,G=document.createElement("canvas");G.width=o*a,G.height=U*a;const v=G.getContext("2d");v.scale(a,a);const M=document.documentElement.getAttribute("data-theme")==="dark",X=M?"#0F172A":"#F8FAFC",ee=M?"#1E293B":"#FFFFFF",te=M?"#334155":"#E2E8F0",Q=M?"#F8FAFC":"#0F172A",u=M?"#94A3B8":"#475569",m="#4F46E5",s="#10B981",r="#F59E0B";v.fillStyle=X,v.fillRect(0,0,o,U),v.fillStyle=ee,ze(v,24,20,o-48,T-30,16),v.fill(),v.strokeStyle=te,v.lineWidth=1,v.stroke(),v.fillStyle=m,v.font="bold 12px Inter, sans-serif",v.fillText("CI360 INTELLIGENCE SUITE · DAILY PLANNER",44,52),v.fillStyle=Q,v.font='bold 22px "Plus Jakarta Sans", Inter, sans-serif',v.fillText(I,44,86),v.fillStyle=u,v.font="13px Inter, sans-serif",v.fillText(`Planned focus list · ${_.completed} of ${_.total} tasks completed (${_.percent}%)`,44,114);const x=T+6;v.fillStyle=ee,ze(v,24,x,o-48,P-16,12),v.fill(),v.stroke();const B=[{label:"TOTAL TASKS",val:String(_.total),color:Q},{label:"COMPLETED",val:String(_.completed),color:s},{label:"IN PROGRESS",val:String(_.inProgress),color:r},{label:"PENDING",val:String(_.pending),color:u},{label:"PROGRESS",val:`${_.percent}%`,color:m}],C=(o-48)/B.length;B.forEach((F,q)=>{const Y=24+q*C+20;v.fillStyle=F.color,v.font="bold 20px Inter, sans-serif",v.fillText(F.val,Y,x+36),v.fillStyle=u,v.font="10px Inter, sans-serif",v.fillText(F.label,Y,x+54)});const O=x+P;v.fillStyle=ee,ze(v,24,O,o-48,A+10,16),v.fill(),v.stroke(),p.length===0?(v.fillStyle=u,v.font="14px Inter, sans-serif",v.textAlign="center",v.fillText("No scheduled tasks recorded for this date.",o/2,O+60),v.textAlign="left"):p.forEach((F,q)=>{const Y=O+16+q*$,_e=F.status==="Completed";v.beginPath(),v.arc(48,Y+14,10,0,Math.PI*2),_e?(v.fillStyle=s,v.fill(),v.strokeStyle="#FFFFFF",v.lineWidth=2,v.beginPath(),v.moveTo(44,Y+14),v.lineTo(47,Y+17),v.lineTo(52,Y+11),v.stroke()):(v.strokeStyle=te,v.lineWidth=2,v.stroke()),v.fillStyle=_e?u:Q,v.font=`${_e?"normal":"500"} 14px Inter, sans-serif`;const me=F.title.length>55?F.title.slice(0,52)+"...":F.title;if(v.fillText(me,70,Y+18),_e){const De=v.measureText(me);v.strokeStyle=u,v.lineWidth=1.2,v.beginPath(),v.moveTo(70,Y+14),v.lineTo(70+De.width,Y+14),v.stroke()}const le=F.priority||"Medium";let ue="#E2E8F0",K="#334155";le==="Urgent"?(ue="#FEE2E2",K="#DC2626"):le==="High"?(ue="#FEF3C7",K="#D97706"):le==="Low"&&(ue="#ECFDF5",K="#059669"),v.fillStyle=ue,ze(v,o-150,Y+4,60,20,10),v.fill(),v.fillStyle=K,v.font="bold 10px Inter, sans-serif",v.fillText(le,o-138,Y+18);const re=F.createdByName||F.createdBy?.name||(F.createdBy?.email?F.createdBy.email.split("@")[0]:"")||F.personnelId?.name||F.userId?.name||"Member",be=F.completionDateStr||F.dateStr||"",de=[];de.push(`✍️ Added by: ${re}`),be&&de.push(`📅 Due: ${Xe(be)}`),F.dueTime&&de.push(`🕒 ${F.dueTime}`),F.category&&F.category!=="General"&&de.push(`#${F.category}`);const he=de.join("   ·   ");v.fillStyle=u,v.font="11px Inter, sans-serif",v.fillText(he,70,Y+36),q<p.length-1&&(v.strokeStyle=te,v.lineWidth=.6,v.beginPath(),v.moveTo(40,Y+54),v.lineTo(o-40,Y+54),v.stroke())});const ne=U-35;v.fillStyle=u,v.font="11px Inter, sans-serif",v.fillText(`Generated by CI360 Productivity Suite · Dayfolio Native Module · ${new Date().toLocaleDateString()}`,44,ne);try{const F=G.toDataURL("image/png"),q=document.createElement("a");q.href=F,q.download=`ci360-daily-planner-${n.selectedDate}.png`,document.body.appendChild(q),q.click(),q.remove(),y("Daily Planner image exported! 🖼️")}catch(F){y("Failed to export image: "+F.message,!0)}}function ze(p,_,I,a,o,T){p.beginPath(),p.moveTo(_+T,I),p.lineTo(_+a-T,I),p.quadraticCurveTo(_+a,I,_+a,I+T),p.lineTo(_+a,I+o-T),p.quadraticCurveTo(_+a,I+o,_+a-T,I+o),p.lineTo(_+T,I+o),p.quadraticCurveTo(_,I+o,_,I+o-T),p.lineTo(_,I+T),p.quadraticCurveTo(_,I,_+T,I),p.closePath()}function ce(){const p=aa(n.selectedDate,l.weekStartsOn),_=At(p[0]),I=At(p[6]);We();const a=n.tasks.filter(A=>{if(A.isDeleted===!0)return!1;const U=A.dateStr||(A.dueDate?new Date(A.dueDate).toISOString().slice(0,10):"");return p.includes(U)}),o=a.length,T=a.filter(A=>A.status==="Completed").length,P=o>0?Math.round(T/o*100):0,$=window.open("","_blank");if(!$){y("Pop-up blocked. Please allow pop-ups to print the PDF report.",!0);return}const R=`
       <!DOCTYPE html>
       <html>
       <head>
@@ -835,7 +853,7 @@ import{c as Re,k as y,e as h,v as Xe,l as Ze,p as Gt,m as Yt,j as Ce,w as ga,x a
         <div class="kpis">
           <div class="kpi">
             <div class="kpi-label">Total Tasks</div>
-            <div class="kpi-num">${s}</div>
+            <div class="kpi-num">${o}</div>
           </div>
           <div class="kpi">
             <div class="kpi-label">Completed</div>
@@ -843,7 +861,7 @@ import{c as Re,k as y,e as h,v as Xe,l as Ze,p as Gt,m as Yt,j as Ce,w as ga,x a
           </div>
           <div class="kpi">
             <div class="kpi-label">Pending / Active</div>
-            <div class="kpi-num">${s-T}</div>
+            <div class="kpi-num">${o-T}</div>
           </div>
           <div class="kpi">
             <div class="kpi-label">Completion Rate</div>
@@ -864,9 +882,9 @@ import{c as Re,k as y,e as h,v as Xe,l as Ze,p as Gt,m as Yt,j as Ce,w as ga,x a
             </tr>
           </thead>
           <tbody>
-            ${g.map(A=>{const U=S(A);return U.length===0?`<tr><td><strong>${ot(A)}</strong></td><td colspan="5" style="color:#94a3b8">No scheduled tasks</td></tr>`:U.map(G=>`
+            ${p.map(A=>{const U=S(A);return U.length===0?`<tr><td><strong>${Xe(A)}</strong></td><td colspan="5" style="color:#94a3b8">No scheduled tasks</td></tr>`:U.map(G=>`
                 <tr>
-                  <td><strong>${ot(A)}</strong></td>
+                  <td><strong>${Xe(A)}</strong></td>
                   <td>${h(G.title)}</td>
                   <td><span class="badge badge-${(G.priority||"medium").toLowerCase().slice(0,3)}">${G.priority||"Medium"}</span></td>
                   <td>${h(G.category||"General")}</td>
@@ -940,7 +958,7 @@ import{c as Re,k as y,e as h,v as Xe,l as Ze,p as Gt,m as Yt,j as Ce,w as ga,x a
 
         </div>
       </div>
-    `),I=()=>_.remove();_.querySelector("#btnBackupClose").onclick=I;const a=_.querySelector("#btnDownloadBackupJson");a.onclick=async()=>{a.disabled=!0,a.textContent="Generating backup...";try{const A=await Re("/tasks/backup"),U=new Blob([JSON.stringify(A,null,2)],{type:"application/json"}),G=URL.createObjectURL(U),v=document.createElement("a");v.href=G,v.download=`ci360-planner-backup-${We()}.json`,document.body.appendChild(v),v.click(),v.remove(),y("Planner backup downloaded successfully! 💾")}catch(A){y("Backup export failed: "+A.message,!0)}finally{a.disabled=!1,a.textContent="Download JSON Backup"}};const s=_.querySelector("#restoreFileInput"),T=_.querySelector("#restorePreviewArea"),P=_.querySelector("#restoreCountText"),$=_.querySelector("#btnExecuteRestore");let R=null;s.onchange=A=>{const U=A.target.files[0];if(!U)return;const G=new FileReader;G.onload=v=>{try{const M=JSON.parse(v.target.result),X=Array.isArray(M.tasks)?M.tasks:Array.isArray(M)?M:null;if(!X||X.length===0){y("Invalid backup file: No tasks found",!0);return}R=X,T.style.display="block",P.textContent=`Valid backup: ${X.length} tasks ready to restore.`,$.disabled=!1}catch(M){y("Error parsing JSON backup file: "+M.message,!0),T.style.display="none",$.disabled=!0}},G.readAsText(U)},$.onclick=async()=>{if(!R||R.length===0)return;$.disabled=!0,$.textContent="Restoring...";const A=_.querySelector('input[name="restoreMode"]:checked')?.value||"merge";try{const U=await Ce("/tasks/restore",{tasks:R,mode:A});y(`Restored ${U.restoredCount} tasks! (${U.skippedCount} skipped) ✨`),I(),await z()}catch(U){y("Restore failed: "+U.message,!0),$.disabled=!1,$.textContent="Retry Restore"}}}function ve(){const g=`
+    `),I=()=>_.remove();_.querySelector("#btnBackupClose").onclick=I;const a=_.querySelector("#btnDownloadBackupJson");a.onclick=async()=>{a.disabled=!0,a.textContent="Generating backup...";try{const A=await Re("/tasks/backup"),U=new Blob([JSON.stringify(A,null,2)],{type:"application/json"}),G=URL.createObjectURL(U),v=document.createElement("a");v.href=G,v.download=`ci360-planner-backup-${We()}.json`,document.body.appendChild(v),v.click(),v.remove(),y("Planner backup downloaded successfully! 💾")}catch(A){y("Backup export failed: "+A.message,!0)}finally{a.disabled=!1,a.textContent="Download JSON Backup"}};const o=_.querySelector("#restoreFileInput"),T=_.querySelector("#restorePreviewArea"),P=_.querySelector("#restoreCountText"),$=_.querySelector("#btnExecuteRestore");let R=null;o.onchange=A=>{const U=A.target.files[0];if(!U)return;const G=new FileReader;G.onload=v=>{try{const M=JSON.parse(v.target.result),X=Array.isArray(M.tasks)?M.tasks:Array.isArray(M)?M:null;if(!X||X.length===0){y("Invalid backup file: No tasks found",!0);return}R=X,T.style.display="block",P.textContent=`Valid backup: ${X.length} tasks ready to restore.`,$.disabled=!1}catch(M){y("Error parsing JSON backup file: "+M.message,!0),T.style.display="none",$.disabled=!0}},G.readAsText(U)},$.onclick=async()=>{if(!R||R.length===0)return;$.disabled=!0,$.textContent="Restoring...";const A=_.querySelector('input[name="restoreMode"]:checked')?.value||"merge";try{const U=await Ce("/tasks/restore",{tasks:R,mode:A});y(`Restored ${U.restoredCount} tasks! (${U.skippedCount} skipped) ✨`),I(),await z()}catch(U){y("Restore failed: "+U.message,!0),$.disabled=!1,$.textContent="Retry Restore"}}}function ve(){const p=`
       <div class="ci360-planner-modal" style="max-width:520px">
         <div class="ci360-modal-header">
           <h3>Planner Preferences</h3>
@@ -995,13 +1013,26 @@ import{c as Re,k as y,e as h,v as Xe,l as Ze,p as Gt,m as Yt,j as Ce,w as ga,x a
             </label>
           </div>
 
+          <!-- Desktop & Laptop Notifications -->
+          <div class="form-group" style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);">
+            <div style="font-weight:600;font-size:13px;margin-bottom:4px;color:var(--text-1);">🔔 Desktop & Laptop Notifications</div>
+            <div style="font-size:12px;color:var(--text-3);margin-bottom:8px;">Receive real-time popups on your laptop and browser when tasks are assigned, dates change, and due alerts arrive.</div>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+              <input type="checkbox" id="setNotifEnabled" ${typeof window<"u"&&localStorage.getItem("ci360_notif_enabled")!=="false"&&typeof Notification<"u"&&Notification.permission==="granted"?"checked":""}>
+              <span>Enable Browser & Laptop Notifications</span>
+            </label>
+            <div style="margin-top:8px;">
+              <button type="button" class="btn ghost small" id="btnPlannerTestNotif" style="padding:4px 10px;font-size:11.5px;">🔔 Send Test Notification</button>
+            </div>
+          </div>
+
           <div class="ci360-modal-footer">
             <button type="button" class="ci360-btn-secondary" id="btnCancelSettings">Cancel</button>
             <button type="submit" class="ci360-btn-primary">Save Preferences</button>
           </div>
         </form>
       </div>
-    `,_=Gt(g),I=()=>_.remove();_.querySelector("#btnSettingsClose").onclick=I,_.querySelector("#btnCancelSettings").onclick=I,_.querySelector("#settingsForm").onsubmit=a=>{a.preventDefault(),l.displayName=_.querySelector("#setDisplayName").value.trim()||"Daily Planner",l.weekStartsOn=Number(_.querySelector("#setWeekStart").value),l.defaultPriority=_.querySelector("#setDefaultPriority").value,l.density=_.querySelector("#setDensity").value,l.soundEnabled=_.querySelector("#setSound").checked,Ta(l),y("Planner preferences saved! ⚙️"),I(),j()}}}function Ea(){if(document.getElementById("ci360-planner-styles"))return;const i=document.createElement("style");i.id="ci360-planner-styles",i.textContent=`
+    `,_=Gt(p),I=()=>_.remove();_.querySelector("#btnSettingsClose").onclick=I,_.querySelector("#btnCancelSettings").onclick=I;const a=_.querySelector("#btnPlannerTestNotif");a&&(a.onclick=async()=>{if("Notification"in window&&Notification.permission!=="granted"&&!await requestNotificationPermission()){y("Please grant notification permission in your browser.",!0);return}localStorage.setItem("ci360_notif_enabled","true");const o=_.querySelector("#setNotifEnabled");o&&(o.checked=!0),await triggerSystemNotification({title:"CI360 Planner Alert 🔔",message:"Laptop & browser notifications are active and ready!",id:"ci360-planner-test-"+Date.now()}),y("Test notification sent to your laptop/browser! 🔔")}),_.querySelector("#settingsForm").onsubmit=o=>{o.preventDefault(),l.displayName=_.querySelector("#setDisplayName").value.trim()||"Daily Planner",l.weekStartsOn=Number(_.querySelector("#setWeekStart").value),l.defaultPriority=_.querySelector("#setDefaultPriority").value,l.density=_.querySelector("#setDensity").value,l.soundEnabled=_.querySelector("#setSound").checked;const T=_.querySelector("#setNotifEnabled")?.checked;localStorage.setItem("ci360_notif_enabled",T?"true":"false"),T&&"Notification"in window&&Notification.permission==="default"&&requestNotificationPermission(),Ta(l),y("Planner preferences saved! ⚙️"),I(),N()}}}function Ea(){if(document.getElementById("ci360-planner-styles"))return;const i=document.createElement("style");i.id="ci360-planner-styles",i.textContent=`
     /* CI360 Dayfolio Planner Module Styles */
     .ci360-planner-wrap,
     .ci360-planner-wrap * {
@@ -1768,6 +1799,18 @@ import{c as Re,k as y,e as h,v as Xe,l as Ze,p as Gt,m as Yt,j as Ce,w as ga,x a
     .ci360-badge.overdue-badge { background: rgba(239, 68, 68, 0.12); color: var(--red-600); }
     .ci360-badge.personnel-badge { background: var(--brand-50); color: var(--brand-600); }
     [data-theme="dark"] .ci360-badge.personnel-badge { background: rgba(99, 102, 241, 0.2); color: var(--brand-400); }
+
+    .ci360-badge.date-changed-badge {
+      background: rgba(245, 158, 11, 0.14);
+      color: #D97706;
+      font-weight: 700;
+      border: 1px solid rgba(245, 158, 11, 0.35);
+    }
+    [data-theme="dark"] .ci360-badge.date-changed-badge {
+      background: rgba(245, 158, 11, 0.22);
+      color: #FBBF24;
+      border-color: rgba(245, 158, 11, 0.45);
+    }
 
     /* Task Actions */
     .ci360-task-actions {
@@ -2722,14 +2765,20 @@ import{c as Re,k as y,e as h,v as Xe,l as Ze,p as Gt,m as Yt,j as Ce,w as ga,x a
       color: #1D4ED8;
       border-color: #BFDBFE;
     }
+    [data-theme="light"] .ci360-badge.date-changed-badge,
+    html:not([data-theme="dark"]) .ci360-badge.date-changed-badge {
+      background: #FFFBEB;
+      color: #B45309;
+      border-color: #FDE68A;
+    }
   `,document.head.appendChild(i)}function Ia(i){return i!==null?{comment:i,variations:[]}:{variations:[]}}function Da(i,t,e,d,b){const c={move:i,variations:b};return t&&(c.suffix=t),e&&(c.nag=e),d!==null&&(c.comment=d),c}function Pa(...i){const[t,...e]=i;let d=t;for(const b of e)b!==null&&(d.variations=[b,...b.variations],b.variations=[],d=b);return t}function Fa(i,t){if(t.marker&&t.marker.comment){let e=t.root;for(;;){const d=e.variations[0];if(!d){e.comment=t.marker.comment;break}e=d}}return{headers:i,root:t.root,result:(t.marker&&t.marker.result)??void 0}}function La(i,t){function e(){this.constructor=i}e.prototype=t.prototype,i.prototype=new e}function Et(i,t,e,d){var b=Error.call(this,i);return Object.setPrototypeOf&&Object.setPrototypeOf(b,Et.prototype),b.expected=t,b.found=e,b.location=d,b.name="SyntaxError",b}La(Et,Error);function ia(i,t,e){return e=e||" ",i.length>t?i:(t-=i.length,e+=e.repeat(t),i+e.slice(0,t))}Et.prototype.format=function(i){var t="Error: "+this.message;if(this.location){var e=null,d;for(d=0;d<i.length;d++)if(i[d].source===this.location.source){e=i[d].text.split(/\r\n|\n|\r/g);break}var b=this.location.start,c=this.location.source&&typeof this.location.source.offset=="function"?this.location.source.offset(b):b,l=this.location.source+":"+c.line+":"+c.column;if(e){var n=this.location.end,z=ia("",c.line.toString().length," "),W=e[b.line-1],S=b.line===n.line?n.column:W.length+1,E=S-b.column||1;t+=`
  --> `+l+`
 `+z+` |
 `+c.line+" | "+W+`
 `+z+" | "+ia("",b.column-1," ")+ia("",E,"^")}else t+=`
- at `+l}return t};Et.buildMessage=function(i,t){var e={literal:function(W){return'"'+b(W.text)+'"'},class:function(W){var S=W.parts.map(function(E){return Array.isArray(E)?c(E[0])+"-"+c(E[1]):c(E)});return"["+(W.inverted?"^":"")+S.join("")+"]"},any:function(){return"any character"},end:function(){return"end of input"},other:function(W){return W.description}};function d(W){return W.charCodeAt(0).toString(16).toUpperCase()}function b(W){return W.replace(/\\/g,"\\\\").replace(/"/g,'\\"').replace(/\0/g,"\\0").replace(/\t/g,"\\t").replace(/\n/g,"\\n").replace(/\r/g,"\\r").replace(/[\x00-\x0F]/g,function(S){return"\\x0"+d(S)}).replace(/[\x10-\x1F\x7F-\x9F]/g,function(S){return"\\x"+d(S)})}function c(W){return W.replace(/\\/g,"\\\\").replace(/\]/g,"\\]").replace(/\^/g,"\\^").replace(/-/g,"\\-").replace(/\0/g,"\\0").replace(/\t/g,"\\t").replace(/\n/g,"\\n").replace(/\r/g,"\\r").replace(/[\x00-\x0F]/g,function(S){return"\\x0"+d(S)}).replace(/[\x10-\x1F\x7F-\x9F]/g,function(S){return"\\x"+d(S)})}function l(W){return e[W.type](W)}function n(W){var S=W.map(l),E,N;if(S.sort(),S.length>0){for(E=1,N=1;E<S.length;E++)S[E-1]!==S[E]&&(S[N]=S[E],N++);S.length=N}switch(S.length){case 1:return S[0];case 2:return S[0]+" or "+S[1];default:return S.slice(0,-1).join(", ")+", or "+S[S.length-1]}}function z(W){return W?'"'+b(W)+'"':"end of input"}return"Expected "+n(i)+" but "+z(t)+" found."};function qa(i,t){t=t!==void 0?t:{};var e={},d=t.grammarSource,b={pgn:Pt},c=Pt,l="[",n='"',z="]",W=".",S="O-O-O",E="O-O",N="0-0-0",j="0-0",ge="$",ye="{",Ve="}",et=";",rt="(",St=")",it="1-0",Fe="0-1",nt="1/2-1/2",ut="*",Oe=/^[a-zA-Z]/,ct=/^[^"]/,Me=/^[0-9]/,ze=/^[.]/,ce=/^[a-zA-Z1-8\-=]/,st=/^[+#]/,ve=/^[!?]/,g=/^[^}]/,_=/^[^\r\n]/,I=/^[ \t\r\n]/,a=Qe("tag pair"),s=qe("[",!1),T=qe('"',!1),P=qe("]",!1),$=Qe("tag name"),R=tt([["a","z"],["A","Z"]],!1,!1),A=Qe("tag value"),U=tt(['"'],!0,!1),G=Qe("move number"),v=tt([["0","9"]],!1,!1),M=qe(".",!1),X=tt(["."],!1,!1),ee=Qe("standard algebraic notation"),ie=qe("O-O-O",!1),Q=qe("O-O",!1),u=qe("0-0-0",!1),f=qe("0-0",!1),r=tt([["a","z"],["A","Z"],["1","8"],"-","="],!1,!1),o=tt(["+","#"],!1,!1),x=Qe("suffix annotation"),B=tt(["!","?"],!1,!1),C=Qe("NAG"),O=qe("$",!1),ne=Qe("brace comment"),F=qe("{",!1),q=tt(["}"],!0,!1),Y=qe("}",!1),_e=Qe("rest of line comment"),fe=qe(";",!1),le=tt(["\r",`
-`],!0,!1),ue=Qe("variation"),K=qe("(",!1),re=qe(")",!1),be=Qe("game termination marker"),de=qe("1-0",!1),he=qe("0-1",!1),De=qe("1/2-1/2",!1),Be=qe("*",!1),Ge=Qe("whitespace"),Le=tt([" ","	","\r",`
-`],!1,!1),pe=function(m,w){return Fa(m,w)},Ee=function(m){return Object.fromEntries(m)},Ue=function(m,w){return[m,w]},je=function(m,w){return{root:m,marker:w}},Pe=function(m,w){return Pa(Ia(m),...w.flat())},Ae=function(m,w,k,J,Z){return Da(m,w,k,J,Z)},Ie=function(m){return m},ke=function(m){return m.replace(/[\r\n]+/g," ")},me=function(m){return m.trim()},L=function(m){return m},H=function(m,w){return{result:m,comment:w}},p=t.peg$currPos|0,Te=[{line:1,column:1}],we=p,lt=t.peg$maxFailExpected||[],V=t.peg$silentFails|0,ht;if(t.startRule){if(!(t.startRule in b))throw new Error(`Can't start parsing from rule "`+t.startRule+'".');c=b[t.startRule]}function qe(m,w){return{type:"literal",text:m,ignoreCase:w}}function tt(m,w,k){return{type:"class",parts:m,inverted:w,ignoreCase:k}}function Ct(){return{type:"end"}}function Qe(m){return{type:"other",description:m}}function It(m){var w=Te[m],k;if(w)return w;if(m>=Te.length)k=Te.length-1;else for(k=m;!Te[--k];);for(w=Te[k],w={line:w.line,column:w.column};k<m;)i.charCodeAt(k)===10?(w.line++,w.column=1):w.column++,k++;return Te[m]=w,w}function Dt(m,w,k){var J=It(m),Z=It(w),$e={source:d,start:{offset:m,line:J.line,column:J.column},end:{offset:w,line:Z.line,column:Z.column}};return $e}function te(m){p<we||(p>we&&(we=p,lt=[]),lt.push(m))}function Bt(m,w,k){return new Et(Et.buildMessage(m,w),m,w,k)}function Pt(){var m,w,k;return m=p,w=Zt(),k=ea(),m=pe(w,k),m}function Zt(){var m,w,k;for(m=p,w=[],k=vt();k!==e;)w.push(k),k=vt();return k=Se(),m=Ee(w),m}function vt(){var m,w,k,J,Z,$e,pt;return V++,m=p,Se(),i.charCodeAt(p)===91?(w=l,p++):(w=e,V===0&&te(s)),w!==e?(Se(),k=jt(),k!==e?(Se(),i.charCodeAt(p)===34?(J=n,p++):(J=e,V===0&&te(T)),J!==e?(Z=Nt(),i.charCodeAt(p)===34?($e=n,p++):($e=e,V===0&&te(T)),$e!==e?(Se(),i.charCodeAt(p)===93?(pt=z,p++):(pt=e,V===0&&te(P)),pt!==e?m=Ue(k,Z):(p=m,m=e)):(p=m,m=e)):(p=m,m=e)):(p=m,m=e)):(p=m,m=e),V--,m===e&&V===0&&te(a),m}function jt(){var m,w,k;if(V++,m=p,w=[],k=i.charAt(p),Oe.test(k)?p++:(k=e,V===0&&te(R)),k!==e)for(;k!==e;)w.push(k),k=i.charAt(p),Oe.test(k)?p++:(k=e,V===0&&te(R));else w=e;return w!==e?m=i.substring(m,p):m=w,V--,m===e&&(w=e,V===0&&te($)),m}function Nt(){var m,w,k;for(V++,m=p,w=[],k=i.charAt(p),ct.test(k)?p++:(k=e,V===0&&te(U));k!==e;)w.push(k),k=i.charAt(p),ct.test(k)?p++:(k=e,V===0&&te(U));return m=i.substring(m,p),V--,w=e,V===0&&te(A),m}function ea(){var m,w,k;return m=p,w=Ot(),Se(),k=xe(),k===e&&(k=null),Se(),m=je(w,k),m}function Ot(){var m,w,k,J;for(m=p,w=Ut(),w===e&&(w=null),k=[],J=Ft();J!==e;)k.push(J),J=Ft();return m=Pe(w,k),m}function Ft(){var m,w,k,J,Z,$e,pt,Tt;if(m=p,Se(),_t(),Se(),w=Lt(),w!==e){for(k=gt(),k===e&&(k=null),J=[],Z=xt();Z!==e;)J.push(Z),Z=xt();for(Z=Se(),$e=Ut(),$e===e&&($e=null),pt=[],Tt=ae();Tt!==e;)pt.push(Tt),Tt=ae();m=Ae(w,k,J,$e,pt)}else p=m,m=e;return m}function _t(){var m,w,k,J,Z,$e;for(V++,m=p,w=[],k=i.charAt(p),Me.test(k)?p++:(k=e,V===0&&te(v));k!==e;)w.push(k),k=i.charAt(p),Me.test(k)?p++:(k=e,V===0&&te(v));if(i.charCodeAt(p)===46?(k=W,p++):(k=e,V===0&&te(M)),k!==e){for(J=Se(),Z=[],$e=i.charAt(p),ze.test($e)?p++:($e=e,V===0&&te(X));$e!==e;)Z.push($e),$e=i.charAt(p),ze.test($e)?p++:($e=e,V===0&&te(X));w=[w,k,J,Z],m=w}else p=m,m=e;return V--,m===e&&(w=e,V===0&&te(G)),m}function Lt(){var m,w,k,J,Z,$e;if(V++,m=p,w=p,i.substr(p,5)===S?(k=S,p+=5):(k=e,V===0&&te(ie)),k===e&&(i.substr(p,3)===E?(k=E,p+=3):(k=e,V===0&&te(Q)),k===e&&(i.substr(p,5)===N?(k=N,p+=5):(k=e,V===0&&te(u)),k===e&&(i.substr(p,3)===j?(k=j,p+=3):(k=e,V===0&&te(f)),k===e))))if(k=p,J=i.charAt(p),Oe.test(J)?p++:(J=e,V===0&&te(R)),J!==e){if(Z=[],$e=i.charAt(p),ce.test($e)?p++:($e=e,V===0&&te(r)),$e!==e)for(;$e!==e;)Z.push($e),$e=i.charAt(p),ce.test($e)?p++:($e=e,V===0&&te(r));else Z=e;Z!==e?(J=[J,Z],k=J):(p=k,k=e)}else p=k,k=e;return k!==e?(J=i.charAt(p),st.test(J)?p++:(J=e,V===0&&te(o)),J===e&&(J=null),k=[k,J],w=k):(p=w,w=e),w!==e?m=i.substring(m,p):m=w,V--,m===e&&(w=e,V===0&&te(ee)),m}function gt(){var m,w,k;for(V++,m=p,w=[],k=i.charAt(p),ve.test(k)?p++:(k=e,V===0&&te(B));k!==e;)w.push(k),w.length>=2?k=e:(k=i.charAt(p),ve.test(k)?p++:(k=e,V===0&&te(B)));return w.length<1?(p=m,m=e):m=w,V--,m===e&&(w=e,V===0&&te(x)),m}function xt(){var m,w,k,J,Z;if(V++,m=p,Se(),i.charCodeAt(p)===36?(w=ge,p++):(w=e,V===0&&te(O)),w!==e){if(k=p,J=[],Z=i.charAt(p),Me.test(Z)?p++:(Z=e,V===0&&te(v)),Z!==e)for(;Z!==e;)J.push(Z),Z=i.charAt(p),Me.test(Z)?p++:(Z=e,V===0&&te(v));else J=e;J!==e?k=i.substring(k,p):k=J,k!==e?m=Ie(k):(p=m,m=e)}else p=m,m=e;return V--,m===e&&V===0&&te(C),m}function Ut(){var m;return m=Ht(),m===e&&(m=D()),m}function Ht(){var m,w,k,J,Z;if(V++,m=p,i.charCodeAt(p)===123?(w=ye,p++):(w=e,V===0&&te(F)),w!==e){for(k=p,J=[],Z=i.charAt(p),g.test(Z)?p++:(Z=e,V===0&&te(q));Z!==e;)J.push(Z),Z=i.charAt(p),g.test(Z)?p++:(Z=e,V===0&&te(q));k=i.substring(k,p),i.charCodeAt(p)===125?(J=Ve,p++):(J=e,V===0&&te(Y)),J!==e?m=ke(k):(p=m,m=e)}else p=m,m=e;return V--,m===e&&(w=e,V===0&&te(ne)),m}function D(){var m,w,k,J,Z;if(V++,m=p,i.charCodeAt(p)===59?(w=et,p++):(w=e,V===0&&te(fe)),w!==e){for(k=p,J=[],Z=i.charAt(p),_.test(Z)?p++:(Z=e,V===0&&te(le));Z!==e;)J.push(Z),Z=i.charAt(p),_.test(Z)?p++:(Z=e,V===0&&te(le));k=i.substring(k,p),m=me(k)}else p=m,m=e;return V--,m===e&&(w=e,V===0&&te(_e)),m}function ae(){var m,w,k,J;return V++,m=p,Se(),i.charCodeAt(p)===40?(w=rt,p++):(w=e,V===0&&te(K)),w!==e?(k=Ot(),k!==e?(Se(),i.charCodeAt(p)===41?(J=St,p++):(J=e,V===0&&te(re)),J!==e?m=L(k):(p=m,m=e)):(p=m,m=e)):(p=m,m=e),V--,m===e&&V===0&&te(ue),m}function xe(){var m,w,k;return V++,m=p,i.substr(p,3)===it?(w=it,p+=3):(w=e,V===0&&te(de)),w===e&&(i.substr(p,3)===Fe?(w=Fe,p+=3):(w=e,V===0&&te(he)),w===e&&(i.substr(p,7)===nt?(w=nt,p+=7):(w=e,V===0&&te(De)),w===e&&(i.charCodeAt(p)===42?(w=ut,p++):(w=e,V===0&&te(Be))))),w!==e?(Se(),k=Ut(),k===e&&(k=null),m=H(w,k)):(p=m,m=e),V--,m===e&&(w=e,V===0&&te(be)),m}function Se(){var m,w;for(V++,m=[],w=i.charAt(p),I.test(w)?p++:(w=e,V===0&&te(Le));w!==e;)m.push(w),w=i.charAt(p),I.test(w)?p++:(w=e,V===0&&te(Le));return V--,w=e,V===0&&te(Ge),m}if(ht=c(),t.peg$library)return{peg$result:ht,peg$currPos:p,peg$FAILED:e,peg$maxFailExpected:lt,peg$maxFailPos:we};if(ht!==e&&p===i.length)return ht;throw ht!==e&&p<i.length&&te(Ct()),Bt(lt,we<i.length?i.charAt(we):null,we<i.length?Dt(we,we+1):Dt(we,we))}/**
+ at `+l}return t};Et.buildMessage=function(i,t){var e={literal:function(W){return'"'+b(W.text)+'"'},class:function(W){var S=W.parts.map(function(E){return Array.isArray(E)?c(E[0])+"-"+c(E[1]):c(E)});return"["+(W.inverted?"^":"")+S.join("")+"]"},any:function(){return"any character"},end:function(){return"end of input"},other:function(W){return W.description}};function d(W){return W.charCodeAt(0).toString(16).toUpperCase()}function b(W){return W.replace(/\\/g,"\\\\").replace(/"/g,'\\"').replace(/\0/g,"\\0").replace(/\t/g,"\\t").replace(/\n/g,"\\n").replace(/\r/g,"\\r").replace(/[\x00-\x0F]/g,function(S){return"\\x0"+d(S)}).replace(/[\x10-\x1F\x7F-\x9F]/g,function(S){return"\\x"+d(S)})}function c(W){return W.replace(/\\/g,"\\\\").replace(/\]/g,"\\]").replace(/\^/g,"\\^").replace(/-/g,"\\-").replace(/\0/g,"\\0").replace(/\t/g,"\\t").replace(/\n/g,"\\n").replace(/\r/g,"\\r").replace(/[\x00-\x0F]/g,function(S){return"\\x0"+d(S)}).replace(/[\x10-\x1F\x7F-\x9F]/g,function(S){return"\\x"+d(S)})}function l(W){return e[W.type](W)}function n(W){var S=W.map(l),E,j;if(S.sort(),S.length>0){for(E=1,j=1;E<S.length;E++)S[E-1]!==S[E]&&(S[j]=S[E],j++);S.length=j}switch(S.length){case 1:return S[0];case 2:return S[0]+" or "+S[1];default:return S.slice(0,-1).join(", ")+", or "+S[S.length-1]}}function z(W){return W?'"'+b(W)+'"':"end of input"}return"Expected "+n(i)+" but "+z(t)+" found."};function qa(i,t){t=t!==void 0?t:{};var e={},d=t.grammarSource,b={pgn:Pt},c=Pt,l="[",n='"',z="]",W=".",S="O-O-O",E="O-O",j="0-0-0",N="0-0",ge="$",ye="{",Ve="}",tt=";",rt="(",St=")",nt="1-0",Fe="0-1",ot="1/2-1/2",ut="*",Oe=/^[a-zA-Z]/,ct=/^[^"]/,Me=/^[0-9]/,ze=/^[.]/,ce=/^[a-zA-Z1-8\-=]/,st=/^[+#]/,ve=/^[!?]/,p=/^[^}]/,_=/^[^\r\n]/,I=/^[ \t\r\n]/,a=Qe("tag pair"),o=qe("[",!1),T=qe('"',!1),P=qe("]",!1),$=Qe("tag name"),R=at([["a","z"],["A","Z"]],!1,!1),A=Qe("tag value"),U=at(['"'],!0,!1),G=Qe("move number"),v=at([["0","9"]],!1,!1),M=qe(".",!1),X=at(["."],!1,!1),ee=Qe("standard algebraic notation"),te=qe("O-O-O",!1),Q=qe("O-O",!1),u=qe("0-0-0",!1),m=qe("0-0",!1),s=at([["a","z"],["A","Z"],["1","8"],"-","="],!1,!1),r=at(["+","#"],!1,!1),x=Qe("suffix annotation"),B=at(["!","?"],!1,!1),C=Qe("NAG"),O=qe("$",!1),ne=Qe("brace comment"),F=qe("{",!1),q=at(["}"],!0,!1),Y=qe("}",!1),_e=Qe("rest of line comment"),me=qe(";",!1),le=at(["\r",`
+`],!0,!1),ue=Qe("variation"),K=qe("(",!1),re=qe(")",!1),be=Qe("game termination marker"),de=qe("1-0",!1),he=qe("0-1",!1),De=qe("1/2-1/2",!1),Be=qe("*",!1),Ge=Qe("whitespace"),Le=at([" ","	","\r",`
+`],!1,!1),pe=function(f,w){return Fa(f,w)},Ee=function(f){return Object.fromEntries(f)},Ue=function(f,w){return[f,w]},Ne=function(f,w){return{root:f,marker:w}},Pe=function(f,w){return Pa(Ia(f),...w.flat())},Ae=function(f,w,k,J,Z){return Da(f,w,k,J,Z)},Ie=function(f){return f},ke=function(f){return f.replace(/[\r\n]+/g," ")},fe=function(f){return f.trim()},L=function(f){return f},H=function(f,w){return{result:f,comment:w}},g=t.peg$currPos|0,Te=[{line:1,column:1}],we=g,lt=t.peg$maxFailExpected||[],V=t.peg$silentFails|0,ht;if(t.startRule){if(!(t.startRule in b))throw new Error(`Can't start parsing from rule "`+t.startRule+'".');c=b[t.startRule]}function qe(f,w){return{type:"literal",text:f,ignoreCase:w}}function at(f,w,k){return{type:"class",parts:f,inverted:w,ignoreCase:k}}function Ct(){return{type:"end"}}function Qe(f){return{type:"other",description:f}}function It(f){var w=Te[f],k;if(w)return w;if(f>=Te.length)k=Te.length-1;else for(k=f;!Te[--k];);for(w=Te[k],w={line:w.line,column:w.column};k<f;)i.charCodeAt(k)===10?(w.line++,w.column=1):w.column++,k++;return Te[f]=w,w}function Dt(f,w,k){var J=It(f),Z=It(w),$e={source:d,start:{offset:f,line:J.line,column:J.column},end:{offset:w,line:Z.line,column:Z.column}};return $e}function ae(f){g<we||(g>we&&(we=g,lt=[]),lt.push(f))}function Bt(f,w,k){return new Et(Et.buildMessage(f,w),f,w,k)}function Pt(){var f,w,k;return f=g,w=Zt(),k=ea(),f=pe(w,k),f}function Zt(){var f,w,k;for(f=g,w=[],k=vt();k!==e;)w.push(k),k=vt();return k=Se(),f=Ee(w),f}function vt(){var f,w,k,J,Z,$e,pt;return V++,f=g,Se(),i.charCodeAt(g)===91?(w=l,g++):(w=e,V===0&&ae(o)),w!==e?(Se(),k=Nt(),k!==e?(Se(),i.charCodeAt(g)===34?(J=n,g++):(J=e,V===0&&ae(T)),J!==e?(Z=jt(),i.charCodeAt(g)===34?($e=n,g++):($e=e,V===0&&ae(T)),$e!==e?(Se(),i.charCodeAt(g)===93?(pt=z,g++):(pt=e,V===0&&ae(P)),pt!==e?f=Ue(k,Z):(g=f,f=e)):(g=f,f=e)):(g=f,f=e)):(g=f,f=e)):(g=f,f=e),V--,f===e&&V===0&&ae(a),f}function Nt(){var f,w,k;if(V++,f=g,w=[],k=i.charAt(g),Oe.test(k)?g++:(k=e,V===0&&ae(R)),k!==e)for(;k!==e;)w.push(k),k=i.charAt(g),Oe.test(k)?g++:(k=e,V===0&&ae(R));else w=e;return w!==e?f=i.substring(f,g):f=w,V--,f===e&&(w=e,V===0&&ae($)),f}function jt(){var f,w,k;for(V++,f=g,w=[],k=i.charAt(g),ct.test(k)?g++:(k=e,V===0&&ae(U));k!==e;)w.push(k),k=i.charAt(g),ct.test(k)?g++:(k=e,V===0&&ae(U));return f=i.substring(f,g),V--,w=e,V===0&&ae(A),f}function ea(){var f,w,k;return f=g,w=Ot(),Se(),k=xe(),k===e&&(k=null),Se(),f=Ne(w,k),f}function Ot(){var f,w,k,J;for(f=g,w=Ut(),w===e&&(w=null),k=[],J=Ft();J!==e;)k.push(J),J=Ft();return f=Pe(w,k),f}function Ft(){var f,w,k,J,Z,$e,pt,Tt;if(f=g,Se(),_t(),Se(),w=Lt(),w!==e){for(k=gt(),k===e&&(k=null),J=[],Z=xt();Z!==e;)J.push(Z),Z=xt();for(Z=Se(),$e=Ut(),$e===e&&($e=null),pt=[],Tt=ie();Tt!==e;)pt.push(Tt),Tt=ie();f=Ae(w,k,J,$e,pt)}else g=f,f=e;return f}function _t(){var f,w,k,J,Z,$e;for(V++,f=g,w=[],k=i.charAt(g),Me.test(k)?g++:(k=e,V===0&&ae(v));k!==e;)w.push(k),k=i.charAt(g),Me.test(k)?g++:(k=e,V===0&&ae(v));if(i.charCodeAt(g)===46?(k=W,g++):(k=e,V===0&&ae(M)),k!==e){for(J=Se(),Z=[],$e=i.charAt(g),ze.test($e)?g++:($e=e,V===0&&ae(X));$e!==e;)Z.push($e),$e=i.charAt(g),ze.test($e)?g++:($e=e,V===0&&ae(X));w=[w,k,J,Z],f=w}else g=f,f=e;return V--,f===e&&(w=e,V===0&&ae(G)),f}function Lt(){var f,w,k,J,Z,$e;if(V++,f=g,w=g,i.substr(g,5)===S?(k=S,g+=5):(k=e,V===0&&ae(te)),k===e&&(i.substr(g,3)===E?(k=E,g+=3):(k=e,V===0&&ae(Q)),k===e&&(i.substr(g,5)===j?(k=j,g+=5):(k=e,V===0&&ae(u)),k===e&&(i.substr(g,3)===N?(k=N,g+=3):(k=e,V===0&&ae(m)),k===e))))if(k=g,J=i.charAt(g),Oe.test(J)?g++:(J=e,V===0&&ae(R)),J!==e){if(Z=[],$e=i.charAt(g),ce.test($e)?g++:($e=e,V===0&&ae(s)),$e!==e)for(;$e!==e;)Z.push($e),$e=i.charAt(g),ce.test($e)?g++:($e=e,V===0&&ae(s));else Z=e;Z!==e?(J=[J,Z],k=J):(g=k,k=e)}else g=k,k=e;return k!==e?(J=i.charAt(g),st.test(J)?g++:(J=e,V===0&&ae(r)),J===e&&(J=null),k=[k,J],w=k):(g=w,w=e),w!==e?f=i.substring(f,g):f=w,V--,f===e&&(w=e,V===0&&ae(ee)),f}function gt(){var f,w,k;for(V++,f=g,w=[],k=i.charAt(g),ve.test(k)?g++:(k=e,V===0&&ae(B));k!==e;)w.push(k),w.length>=2?k=e:(k=i.charAt(g),ve.test(k)?g++:(k=e,V===0&&ae(B)));return w.length<1?(g=f,f=e):f=w,V--,f===e&&(w=e,V===0&&ae(x)),f}function xt(){var f,w,k,J,Z;if(V++,f=g,Se(),i.charCodeAt(g)===36?(w=ge,g++):(w=e,V===0&&ae(O)),w!==e){if(k=g,J=[],Z=i.charAt(g),Me.test(Z)?g++:(Z=e,V===0&&ae(v)),Z!==e)for(;Z!==e;)J.push(Z),Z=i.charAt(g),Me.test(Z)?g++:(Z=e,V===0&&ae(v));else J=e;J!==e?k=i.substring(k,g):k=J,k!==e?f=Ie(k):(g=f,f=e)}else g=f,f=e;return V--,f===e&&V===0&&ae(C),f}function Ut(){var f;return f=Ht(),f===e&&(f=D()),f}function Ht(){var f,w,k,J,Z;if(V++,f=g,i.charCodeAt(g)===123?(w=ye,g++):(w=e,V===0&&ae(F)),w!==e){for(k=g,J=[],Z=i.charAt(g),p.test(Z)?g++:(Z=e,V===0&&ae(q));Z!==e;)J.push(Z),Z=i.charAt(g),p.test(Z)?g++:(Z=e,V===0&&ae(q));k=i.substring(k,g),i.charCodeAt(g)===125?(J=Ve,g++):(J=e,V===0&&ae(Y)),J!==e?f=ke(k):(g=f,f=e)}else g=f,f=e;return V--,f===e&&(w=e,V===0&&ae(ne)),f}function D(){var f,w,k,J,Z;if(V++,f=g,i.charCodeAt(g)===59?(w=tt,g++):(w=e,V===0&&ae(me)),w!==e){for(k=g,J=[],Z=i.charAt(g),_.test(Z)?g++:(Z=e,V===0&&ae(le));Z!==e;)J.push(Z),Z=i.charAt(g),_.test(Z)?g++:(Z=e,V===0&&ae(le));k=i.substring(k,g),f=fe(k)}else g=f,f=e;return V--,f===e&&(w=e,V===0&&ae(_e)),f}function ie(){var f,w,k,J;return V++,f=g,Se(),i.charCodeAt(g)===40?(w=rt,g++):(w=e,V===0&&ae(K)),w!==e?(k=Ot(),k!==e?(Se(),i.charCodeAt(g)===41?(J=St,g++):(J=e,V===0&&ae(re)),J!==e?f=L(k):(g=f,f=e)):(g=f,f=e)):(g=f,f=e),V--,f===e&&V===0&&ae(ue),f}function xe(){var f,w,k;return V++,f=g,i.substr(g,3)===nt?(w=nt,g+=3):(w=e,V===0&&ae(de)),w===e&&(i.substr(g,3)===Fe?(w=Fe,g+=3):(w=e,V===0&&ae(he)),w===e&&(i.substr(g,7)===ot?(w=ot,g+=7):(w=e,V===0&&ae(De)),w===e&&(i.charCodeAt(g)===42?(w=ut,g++):(w=e,V===0&&ae(Be))))),w!==e?(Se(),k=Ut(),k===e&&(k=null),f=H(w,k)):(g=f,f=e),V--,f===e&&(w=e,V===0&&ae(be)),f}function Se(){var f,w;for(V++,f=[],w=i.charAt(g),I.test(w)?g++:(w=e,V===0&&ae(Le));w!==e;)f.push(w),w=i.charAt(g),I.test(w)?g++:(w=e,V===0&&ae(Le));return V--,w=e,V===0&&ae(Ge),f}if(ht=c(),t.peg$library)return{peg$result:ht,peg$currPos:g,peg$FAILED:e,peg$maxFailExpected:lt,peg$maxFailPos:we};if(ht!==e&&g===i.length)return ht;throw ht!==e&&g<i.length&&ae(Ct()),Bt(lt,we<i.length?i.charAt(we):null,we<i.length?Dt(we,we+1):Dt(we,we))}/**
  * @license
  * Copyright (c) 2025, Jeff Hlywa (jhlywa@gmail.com)
  * All rights reserved.
@@ -2754,14 +2803,14 @@ import{c as Re,k as y,e as h,v as Xe,l as Ze,p as Gt,m as Yt,j as Ce,w as ga,x a
  * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
- */const Jt=0xffffffffffffffffn;function na(i,t){return(i<<t|i>>64n-t)&0xffffffffffffffffn}function ha(i,t){return i*t&Jt}function Ma(i){return function(){let t=BigInt(i&Jt),e=BigInt(i>>64n&Jt);const d=ha(na(ha(t,5n),7n),9n);return e^=t,t=(na(t,24n)^e^e<<16n)&Jt,e=na(e,37n),i=e<<64n|t,d}}const Xt=Ma(0xa187eb39cdcaed8f31c4b365b102e01en),za=Array.from({length:2},()=>Array.from({length:6},()=>Array.from({length:128},()=>Xt()))),Ra=Array.from({length:8},()=>Xt()),Ba=Array.from({length:16},()=>Xt()),oa=Xt(),Je="w",at="b",Ne="p",pa="n",Qt="b",zt="r",ft="q",He="k",ra="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";class Kt{color;from;to;piece;captured;promotion;flags;san;lan;before;after;constructor(t,e){const{color:d,piece:b,from:c,to:l,flags:n,captured:z,promotion:W}=e,S=Ke(c),E=Ke(l);this.color=d,this.piece=b,this.from=S,this.to=E,this.san=t._moveToSan(e,t._moves({legal:!0})),this.lan=S+E,this.before=t.fen(),t._makeMove(e),this.after=t.fen(),t._undoMove(),this.flags="";for(const N in se)se[N]&n&&(this.flags+=kt[N]);z&&(this.captured=z),W&&(this.promotion=W,this.lan+=W)}isCapture(){return this.flags.indexOf(kt.CAPTURE)>-1}isPromotion(){return this.flags.indexOf(kt.PROMOTION)>-1}isEnPassant(){return this.flags.indexOf(kt.EP_CAPTURE)>-1}isKingsideCastle(){return this.flags.indexOf(kt.KSIDE_CASTLE)>-1}isQueensideCastle(){return this.flags.indexOf(kt.QSIDE_CASTLE)>-1}isBigPawn(){return this.flags.indexOf(kt.BIG_PAWN)>-1}}const Ye=-1,kt={NORMAL:"n",CAPTURE:"c",BIG_PAWN:"b",EP_CAPTURE:"e",PROMOTION:"p",KSIDE_CASTLE:"k",QSIDE_CASTLE:"q",NULL_MOVE:"-"},se={NORMAL:1,CAPTURE:2,BIG_PAWN:4,EP_CAPTURE:8,PROMOTION:16,KSIDE_CASTLE:32,QSIDE_CASTLE:64,NULL_MOVE:128},ua={Event:"?",Site:"?",Date:"????.??.??",Round:"?",White:"?",Black:"?",Result:"*"},ja={WhiteTitle:null,BlackTitle:null,WhiteElo:null,BlackElo:null,WhiteUSCF:null,BlackUSCF:null,WhiteNA:null,BlackNA:null,WhiteType:null,BlackType:null,EventDate:null,EventSponsor:null,Section:null,Stage:null,Board:null,Opening:null,Variation:null,SubVariation:null,ECO:null,NIC:null,Time:null,UTCTime:null,UTCDate:null,TimeControl:null,SetUp:null,FEN:null,Termination:null,Annotator:null,Mode:null,PlyCount:null},Na={...ua,...ja},oe={a8:0,b8:1,c8:2,d8:3,e8:4,f8:5,g8:6,h8:7,a7:16,b7:17,c7:18,d7:19,e7:20,f7:21,g7:22,h7:23,a6:32,b6:33,c6:34,d6:35,e6:36,f6:37,g6:38,h6:39,a5:48,b5:49,c5:50,d5:51,e5:52,f5:53,g5:54,h5:55,a4:64,b4:65,c4:66,d4:67,e4:68,f4:69,g4:70,h4:71,a3:80,b3:81,c3:82,d3:83,e3:84,f3:85,g3:86,h3:87,a2:96,b2:97,c2:98,d2:99,e2:100,f2:101,g2:102,h2:103,a1:112,b1:113,c1:114,d1:115,e1:116,f1:117,g1:118,h1:119},sa={b:[16,32,17,15],w:[-16,-32,-17,-15]},va={n:[-18,-33,-31,-14,18,33,31,14],b:[-17,-15,17,15],r:[-16,1,16,-1],q:[-17,-16,-15,1,17,16,15,-1],k:[-17,-16,-15,1,17,16,15,-1]},Oa=[20,0,0,0,0,0,0,24,0,0,0,0,0,0,20,0,0,20,0,0,0,0,0,24,0,0,0,0,0,20,0,0,0,0,20,0,0,0,0,24,0,0,0,0,20,0,0,0,0,0,0,20,0,0,0,24,0,0,0,20,0,0,0,0,0,0,0,0,20,0,0,24,0,0,20,0,0,0,0,0,0,0,0,0,0,20,2,24,2,20,0,0,0,0,0,0,0,0,0,0,0,2,53,56,53,2,0,0,0,0,0,0,24,24,24,24,24,24,56,0,56,24,24,24,24,24,24,0,0,0,0,0,0,2,53,56,53,2,0,0,0,0,0,0,0,0,0,0,0,20,2,24,2,20,0,0,0,0,0,0,0,0,0,0,20,0,0,24,0,0,20,0,0,0,0,0,0,0,0,20,0,0,0,24,0,0,0,20,0,0,0,0,0,0,20,0,0,0,0,24,0,0,0,0,20,0,0,0,0,20,0,0,0,0,0,24,0,0,0,0,0,20,0,0,20,0,0,0,0,0,0,24,0,0,0,0,0,0,20],Ua=[17,0,0,0,0,0,0,16,0,0,0,0,0,0,15,0,0,17,0,0,0,0,0,16,0,0,0,0,0,15,0,0,0,0,17,0,0,0,0,16,0,0,0,0,15,0,0,0,0,0,0,17,0,0,0,16,0,0,0,15,0,0,0,0,0,0,0,0,17,0,0,16,0,0,15,0,0,0,0,0,0,0,0,0,0,17,0,16,0,15,0,0,0,0,0,0,0,0,0,0,0,0,17,16,15,0,0,0,0,0,0,0,1,1,1,1,1,1,1,0,-1,-1,-1,-1,-1,-1,-1,0,0,0,0,0,0,0,-15,-16,-17,0,0,0,0,0,0,0,0,0,0,0,0,-15,0,-16,0,-17,0,0,0,0,0,0,0,0,0,0,-15,0,0,-16,0,0,-17,0,0,0,0,0,0,0,0,-15,0,0,0,-16,0,0,0,-17,0,0,0,0,0,0,-15,0,0,0,0,-16,0,0,0,0,-17,0,0,0,0,-15,0,0,0,0,0,-16,0,0,0,0,0,-17,0,0,-15,0,0,0,0,0,0,-16,0,0,0,0,0,0,-17],Ha={p:1,n:2,b:4,r:8,q:16,k:32},Ga="pnbrqkPNBRQK",xa=[pa,Qt,zt,ft],Wa=7,Ka=6,Va=1,Ya=0,Vt={[He]:se.KSIDE_CASTLE,[ft]:se.QSIDE_CASTLE},bt={w:[{square:oe.a1,flag:se.QSIDE_CASTLE},{square:oe.h1,flag:se.KSIDE_CASTLE}],b:[{square:oe.a8,flag:se.QSIDE_CASTLE},{square:oe.h8,flag:se.KSIDE_CASTLE}]},Ja={b:Va,w:Ka},la="--";function $t(i){return i>>4}function Rt(i){return i&15}function $a(i){return"0123456789".indexOf(i)!==-1}function Ke(i){const t=Rt(i),e=$t(i);return"abcdefgh".substring(t,t+1)+"87654321".substring(e,e+1)}function qt(i){return i===Je?at:Je}function Qa(i){const t=i.split(/\s+/);if(t.length!==6)return{ok:!1,error:"Invalid FEN: must contain six space-delimited fields"};const e=parseInt(t[5],10);if(isNaN(e)||e<=0)return{ok:!1,error:"Invalid FEN: move number must be a positive integer"};const d=parseInt(t[4],10);if(isNaN(d)||d<0)return{ok:!1,error:"Invalid FEN: half move counter number must be a non-negative integer"};if(!/^(-|[abcdefgh][36])$/.test(t[3]))return{ok:!1,error:"Invalid FEN: en-passant square is invalid"};if(/[^kKqQ-]/.test(t[2]))return{ok:!1,error:"Invalid FEN: castling availability is invalid"};if(!/^(w|b)$/.test(t[1]))return{ok:!1,error:"Invalid FEN: side-to-move is invalid"};const b=t[0].split("/");if(b.length!==8)return{ok:!1,error:"Invalid FEN: piece data does not contain 8 '/'-delimited rows"};for(let l=0;l<b.length;l++){let n=0,z=!1;for(let W=0;W<b[l].length;W++)if($a(b[l][W])){if(z)return{ok:!1,error:"Invalid FEN: piece data is invalid (consecutive number)"};n+=parseInt(b[l][W],10),z=!0}else{if(!/^[prnbqkPRNBQK]$/.test(b[l][W]))return{ok:!1,error:"Invalid FEN: piece data is invalid (invalid piece)"};n+=1,z=!1}if(n!==8)return{ok:!1,error:"Invalid FEN: piece data is invalid (too many squares in rank)"}}if(t[3][1]=="3"&&t[1]=="w"||t[3][1]=="6"&&t[1]=="b")return{ok:!1,error:"Invalid FEN: illegal en-passant square"};const c=[{color:"white",regex:/K/g},{color:"black",regex:/k/g}];for(const{color:l,regex:n}of c){if(!n.test(t[0]))return{ok:!1,error:`Invalid FEN: missing ${l} king`};if((t[0].match(n)||[]).length>1)return{ok:!1,error:`Invalid FEN: too many ${l} kings`}}return Array.from(b[0]+b[7]).some(l=>l.toUpperCase()==="P")?{ok:!1,error:"Invalid FEN: some pawns are on the edge rows"}:{ok:!0}}function Xa(i,t){const e=i.from,d=i.to,b=i.piece;let c=0,l=0,n=0;for(let z=0,W=t.length;z<W;z++){const S=t[z].from,E=t[z].to,N=t[z].piece;b===N&&e!==S&&d===E&&(c++,$t(e)===$t(S)&&l++,Rt(e)===Rt(S)&&n++)}return c>0?l>0&&n>0?Ke(e):n>0?Ke(e).charAt(1):Ke(e).charAt(0):""}function mt(i,t,e,d,b,c=void 0,l=se.NORMAL){const n=$t(d);if(b===Ne&&(n===Wa||n===Ya))for(let z=0;z<xa.length;z++){const W=xa[z];i.push({color:t,from:e,to:d,piece:b,captured:c,promotion:W,flags:l|se.PROMOTION})}else i.push({color:t,from:e,to:d,piece:b,captured:c,flags:l})}function ya(i){let t=i.charAt(0);return t>="a"&&t<="h"?i.match(/[a-h]\d.*[a-h]\d/)?void 0:Ne:(t=t.toLowerCase(),t==="o"?He:t)}function da(i){return i.replace(/=/,"").replace(/[+#]?[?!]*$/,"")}class ka{_board=new Array(128);_turn=Je;_header={};_kings={w:Ye,b:Ye};_epSquare=-1;_halfMoves=0;_moveNumber=0;_history=[];_comments={};_castling={w:0,b:0};_hash=0n;_positionCount=new Map;constructor(t=ra,{skipValidation:e=!1}={}){this.load(t,{skipValidation:e})}clear({preserveHeaders:t=!1}={}){this._board=new Array(128),this._kings={w:Ye,b:Ye},this._turn=Je,this._castling={w:0,b:0},this._epSquare=Ye,this._halfMoves=0,this._moveNumber=1,this._history=[],this._comments={},this._header=t?this._header:{...Na},this._hash=this._computeHash(),this._positionCount=new Map,this._header.SetUp=null,this._header.FEN=null}load(t,{skipValidation:e=!1,preserveHeaders:d=!1}={}){let b=t.split(/\s+/);if(b.length>=2&&b.length<6){const n=["-","-","0","1"];t=b.concat(n.slice(-(6-b.length))).join(" ")}if(b=t.split(/\s+/),!e){const{ok:n,error:z}=Qa(t);if(!n)throw new Error(z)}const c=b[0];let l=0;this.clear({preserveHeaders:d});for(let n=0;n<c.length;n++){const z=c.charAt(n);if(z==="/")l+=8;else if($a(z))l+=parseInt(z,10);else{const W=z<"a"?Je:at;this._put({type:z.toLowerCase(),color:W},Ke(l)),l++}}this._turn=b[1],b[2].indexOf("K")>-1&&(this._castling.w|=se.KSIDE_CASTLE),b[2].indexOf("Q")>-1&&(this._castling.w|=se.QSIDE_CASTLE),b[2].indexOf("k")>-1&&(this._castling.b|=se.KSIDE_CASTLE),b[2].indexOf("q")>-1&&(this._castling.b|=se.QSIDE_CASTLE),this._epSquare=b[3]==="-"?Ye:oe[b[3]],this._halfMoves=parseInt(b[4],10),this._moveNumber=parseInt(b[5],10),this._hash=this._computeHash(),this._updateSetup(t),this._incPositionCount()}fen({forceEnpassantSquare:t=!1}={}){let e=0,d="";for(let l=oe.a8;l<=oe.h1;l++){if(this._board[l]){e>0&&(d+=e,e=0);const{color:n,type:z}=this._board[l];d+=n===Je?z.toUpperCase():z.toLowerCase()}else e++;l+1&136&&(e>0&&(d+=e),l!==oe.h1&&(d+="/"),e=0,l+=8)}let b="";this._castling[Je]&se.KSIDE_CASTLE&&(b+="K"),this._castling[Je]&se.QSIDE_CASTLE&&(b+="Q"),this._castling[at]&se.KSIDE_CASTLE&&(b+="k"),this._castling[at]&se.QSIDE_CASTLE&&(b+="q"),b=b||"-";let c="-";if(this._epSquare!==Ye)if(t)c=Ke(this._epSquare);else{const l=this._epSquare+(this._turn===Je?16:-16),n=[l+1,l-1];for(const z of n){if(z&136)continue;const W=this._turn;if(this._board[z]?.color===W&&this._board[z]?.type===Ne){this._makeMove({color:W,from:z,to:this._epSquare,piece:Ne,captured:Ne,flags:se.EP_CAPTURE});const S=!this._isKingAttacked(W);if(this._undoMove(),S){c=Ke(this._epSquare);break}}}}return[d,this._turn,b,c,this._halfMoves,this._moveNumber].join(" ")}_pieceKey(t){if(!this._board[t])return 0n;const{color:e,type:d}=this._board[t],b={w:0,b:1}[e],c={p:0,n:1,b:2,r:3,q:4,k:5}[d];return za[b][c][t]}_epKey(){return this._epSquare===Ye?0n:Ra[this._epSquare&7]}_castlingKey(){const t=this._castling.w>>5|this._castling.b>>3;return Ba[t]}_computeHash(){let t=0n;for(let e=oe.a8;e<=oe.h1;e++){if(e&136){e+=7;continue}this._board[e]&&(t^=this._pieceKey(e))}return t^=this._epKey(),t^=this._castlingKey(),this._turn==="b"&&(t^=oa),t}_updateSetup(t){this._history.length>0||(t!==ra?(this._header.SetUp="1",this._header.FEN=t):(this._header.SetUp=null,this._header.FEN=null))}reset(){this.load(ra)}get(t){return this._board[oe[t]]}findPiece(t){const e=[];for(let d=oe.a8;d<=oe.h1;d++){if(d&136){d+=7;continue}!this._board[d]||this._board[d]?.color!==t.color||this._board[d].color===t.color&&this._board[d].type===t.type&&e.push(Ke(d))}return e}put({type:t,color:e},d){return this._put({type:t,color:e},d)?(this._updateCastlingRights(),this._updateEnPassantSquare(),this._updateSetup(this.fen()),!0):!1}_set(t,e){this._hash^=this._pieceKey(t),this._board[t]=e,this._hash^=this._pieceKey(t)}_put({type:t,color:e},d){if(Ga.indexOf(t.toLowerCase())===-1||!(d in oe))return!1;const b=oe[d];if(t==He&&!(this._kings[e]==Ye||this._kings[e]==b))return!1;const c=this._board[b];return c&&c.type===He&&(this._kings[c.color]=Ye),this._set(b,{type:t,color:e}),t===He&&(this._kings[e]=b),!0}_clear(t){this._hash^=this._pieceKey(t),delete this._board[t]}remove(t){const e=this.get(t);return this._clear(oe[t]),e&&e.type===He&&(this._kings[e.color]=Ye),this._updateCastlingRights(),this._updateEnPassantSquare(),this._updateSetup(this.fen()),e}_updateCastlingRights(){this._hash^=this._castlingKey();const t=this._board[oe.e1]?.type===He&&this._board[oe.e1]?.color===Je,e=this._board[oe.e8]?.type===He&&this._board[oe.e8]?.color===at;(!t||this._board[oe.a1]?.type!==zt||this._board[oe.a1]?.color!==Je)&&(this._castling.w&=-65),(!t||this._board[oe.h1]?.type!==zt||this._board[oe.h1]?.color!==Je)&&(this._castling.w&=-33),(!e||this._board[oe.a8]?.type!==zt||this._board[oe.a8]?.color!==at)&&(this._castling.b&=-65),(!e||this._board[oe.h8]?.type!==zt||this._board[oe.h8]?.color!==at)&&(this._castling.b&=-33),this._hash^=this._castlingKey()}_updateEnPassantSquare(){if(this._epSquare===Ye)return;const t=this._epSquare+(this._turn===Je?-16:16),e=this._epSquare+(this._turn===Je?16:-16),d=[e+1,e-1];if(this._board[t]!==null||this._board[this._epSquare]!==null||this._board[e]?.color!==qt(this._turn)||this._board[e]?.type!==Ne){this._hash^=this._epKey(),this._epSquare=Ye;return}const b=c=>!(c&136)&&this._board[c]?.color===this._turn&&this._board[c]?.type===Ne;d.some(b)||(this._hash^=this._epKey(),this._epSquare=Ye)}_attacked(t,e,d){const b=[];for(let c=oe.a8;c<=oe.h1;c++){if(c&136){c+=7;continue}if(this._board[c]===void 0||this._board[c].color!==t)continue;const l=this._board[c],n=c-e;if(n===0)continue;const z=n+119;if(Oa[z]&Ha[l.type]){if(l.type===Ne){if(n>0&&l.color===Je||n<=0&&l.color===at)if(d)b.push(Ke(c));else return!0;continue}if(l.type==="n"||l.type==="k")if(d){b.push(Ke(c));continue}else return!0;const W=Ua[z];let S=c+W,E=!1;for(;S!==e;){if(this._board[S]!=null){E=!0;break}S+=W}if(!E)if(d){b.push(Ke(c));continue}else return!0}}return d?b:!1}attackers(t,e){return e?this._attacked(e,oe[t],!0):this._attacked(this._turn,oe[t],!0)}_isKingAttacked(t){const e=this._kings[t];return e===-1?!1:this._attacked(qt(t),e)}hash(){return this._hash.toString(16)}isAttacked(t,e){return this._attacked(e,oe[t])}isCheck(){return this._isKingAttacked(this._turn)}inCheck(){return this.isCheck()}isCheckmate(){return this.isCheck()&&this._moves().length===0}isStalemate(){return!this.isCheck()&&this._moves().length===0}isInsufficientMaterial(){const t={b:0,n:0,r:0,q:0,k:0,p:0},e=[];let d=0,b=0;for(let c=oe.a8;c<=oe.h1;c++){if(b=(b+1)%2,c&136){c+=7;continue}const l=this._board[c];l&&(t[l.type]=l.type in t?t[l.type]+1:1,l.type===Qt&&e.push(b),d++)}if(d===2)return!0;if(d===3&&(t[Qt]===1||t[pa]===1))return!0;if(d===t[Qt]+2){let c=0;const l=e.length;for(let n=0;n<l;n++)c+=e[n];if(c===0||c===l)return!0}return!1}isThreefoldRepetition(){return this._getPositionCount(this._hash)>=3}isDrawByFiftyMoves(){return this._halfMoves>=100}isDraw(){return this.isDrawByFiftyMoves()||this.isStalemate()||this.isInsufficientMaterial()||this.isThreefoldRepetition()}isGameOver(){return this.isCheckmate()||this.isDraw()}moves({verbose:t=!1,square:e=void 0,piece:d=void 0}={}){const b=this._moves({square:e,piece:d});return t?b.map(c=>new Kt(this,c)):b.map(c=>this._moveToSan(c,b))}_moves({legal:t=!0,piece:e=void 0,square:d=void 0}={}){const b=d?d.toLowerCase():void 0,c=e?.toLowerCase(),l=[],n=this._turn,z=qt(n);let W=oe.a8,S=oe.h1,E=!1;if(b)if(b in oe)W=S=oe[b],E=!0;else return[];for(let j=W;j<=S;j++){if(j&136){j+=7;continue}if(!this._board[j]||this._board[j].color===z)continue;const{type:ge}=this._board[j];let ye;if(ge===Ne){if(c&&c!==ge)continue;ye=j+sa[n][0],this._board[ye]||(mt(l,n,j,ye,Ne),ye=j+sa[n][1],Ja[n]===$t(j)&&!this._board[ye]&&mt(l,n,j,ye,Ne,void 0,se.BIG_PAWN));for(let Ve=2;Ve<4;Ve++)ye=j+sa[n][Ve],!(ye&136)&&(this._board[ye]?.color===z?mt(l,n,j,ye,Ne,this._board[ye].type,se.CAPTURE):ye===this._epSquare&&mt(l,n,j,ye,Ne,Ne,se.EP_CAPTURE))}else{if(c&&c!==ge)continue;for(let Ve=0,et=va[ge].length;Ve<et;Ve++){const rt=va[ge][Ve];for(ye=j;ye+=rt,!(ye&136);){if(!this._board[ye])mt(l,n,j,ye,ge);else{if(this._board[ye].color===n)break;mt(l,n,j,ye,ge,this._board[ye].type,se.CAPTURE);break}if(ge===pa||ge===He)break}}}}if((c===void 0||c===He)&&(!E||S===this._kings[n])){if(this._castling[n]&se.KSIDE_CASTLE){const j=this._kings[n],ge=j+2;!this._board[j+1]&&!this._board[ge]&&!this._attacked(z,this._kings[n])&&!this._attacked(z,j+1)&&!this._attacked(z,ge)&&mt(l,n,this._kings[n],ge,He,void 0,se.KSIDE_CASTLE)}if(this._castling[n]&se.QSIDE_CASTLE){const j=this._kings[n],ge=j-2;!this._board[j-1]&&!this._board[j-2]&&!this._board[j-3]&&!this._attacked(z,this._kings[n])&&!this._attacked(z,j-1)&&!this._attacked(z,ge)&&mt(l,n,this._kings[n],ge,He,void 0,se.QSIDE_CASTLE)}}if(!t||this._kings[n]===-1)return l;const N=[];for(let j=0,ge=l.length;j<ge;j++)this._makeMove(l[j]),this._isKingAttacked(n)||N.push(l[j]),this._undoMove();return N}move(t,{strict:e=!1}={}){let d=null;if(typeof t=="string")d=this._moveFromSan(t,e);else if(t===null)d=this._moveFromSan(la,e);else if(typeof t=="object"){const c=this._moves();for(let l=0,n=c.length;l<n;l++)if(t.from===Ke(c[l].from)&&t.to===Ke(c[l].to)&&(!("promotion"in c[l])||t.promotion===c[l].promotion)){d=c[l];break}}if(!d)throw typeof t=="string"?new Error(`Invalid move: ${t}`):new Error(`Invalid move: ${JSON.stringify(t)}`);if(this.isCheck()&&d.flags&se.NULL_MOVE)throw new Error("Null move not allowed when in check");const b=new Kt(this,d);return this._makeMove(d),this._incPositionCount(),b}_push(t){this._history.push({move:t,kings:{b:this._kings.b,w:this._kings.w},turn:this._turn,castling:{b:this._castling.b,w:this._castling.w},epSquare:this._epSquare,halfMoves:this._halfMoves,moveNumber:this._moveNumber})}_movePiece(t,e){this._hash^=this._pieceKey(t),this._board[e]=this._board[t],delete this._board[t],this._hash^=this._pieceKey(e)}_makeMove(t){const e=this._turn,d=qt(e);if(this._push(t),t.flags&se.NULL_MOVE){e===at&&this._moveNumber++,this._halfMoves++,this._turn=d,this._epSquare=Ye;return}if(this._hash^=this._epKey(),this._hash^=this._castlingKey(),t.captured&&(this._hash^=this._pieceKey(t.to)),this._movePiece(t.from,t.to),t.flags&se.EP_CAPTURE&&(this._turn===at?this._clear(t.to-16):this._clear(t.to+16)),t.promotion&&(this._clear(t.to),this._set(t.to,{type:t.promotion,color:e})),this._board[t.to].type===He){if(this._kings[e]=t.to,t.flags&se.KSIDE_CASTLE){const b=t.to-1,c=t.to+1;this._movePiece(c,b)}else if(t.flags&se.QSIDE_CASTLE){const b=t.to+1,c=t.to-2;this._movePiece(c,b)}this._castling[e]=0}if(this._castling[e]){for(let b=0,c=bt[e].length;b<c;b++)if(t.from===bt[e][b].square&&this._castling[e]&bt[e][b].flag){this._castling[e]^=bt[e][b].flag;break}}if(this._castling[d]){for(let b=0,c=bt[d].length;b<c;b++)if(t.to===bt[d][b].square&&this._castling[d]&bt[d][b].flag){this._castling[d]^=bt[d][b].flag;break}}if(this._hash^=this._castlingKey(),t.flags&se.BIG_PAWN){let b;e===at?b=t.to-16:b=t.to+16,!(t.to-1&136)&&this._board[t.to-1]?.type===Ne&&this._board[t.to-1]?.color===d||!(t.to+1&136)&&this._board[t.to+1]?.type===Ne&&this._board[t.to+1]?.color===d?(this._epSquare=b,this._hash^=this._epKey()):this._epSquare=Ye}else this._epSquare=Ye;t.piece===Ne?this._halfMoves=0:t.flags&(se.CAPTURE|se.EP_CAPTURE)?this._halfMoves=0:this._halfMoves++,e===at&&this._moveNumber++,this._turn=d,this._hash^=oa}undo(){const t=this._hash,e=this._undoMove();if(e){const d=new Kt(this,e);return this._decPositionCount(t),d}return null}_undoMove(){const t=this._history.pop();if(t===void 0)return null;this._hash^=this._epKey(),this._hash^=this._castlingKey();const e=t.move;this._kings=t.kings,this._turn=t.turn,this._castling=t.castling,this._epSquare=t.epSquare,this._halfMoves=t.halfMoves,this._moveNumber=t.moveNumber,this._hash^=this._epKey(),this._hash^=this._castlingKey(),this._hash^=oa;const d=this._turn,b=qt(d);if(e.flags&se.NULL_MOVE)return e;if(this._movePiece(e.to,e.from),e.piece&&(this._clear(e.from),this._set(e.from,{type:e.piece,color:d})),e.captured)if(e.flags&se.EP_CAPTURE){let c;d===at?c=e.to-16:c=e.to+16,this._set(c,{type:Ne,color:b})}else this._set(e.to,{type:e.captured,color:b});if(e.flags&(se.KSIDE_CASTLE|se.QSIDE_CASTLE)){let c,l;e.flags&se.KSIDE_CASTLE?(c=e.to+1,l=e.to-1):(c=e.to-2,l=e.to+1),this._movePiece(l,c)}return e}pgn({newline:t=`
-`,maxWidth:e=0}={}){const d=[];let b=!1;for(const N in this._header)this._header[N]&&d.push(`[${N} "${this._header[N]}"]`+t),b=!0;b&&this._history.length&&d.push(t);const c=N=>{const j=this._comments[this.fen()];if(typeof j<"u"){const ge=N.length>0?" ":"";N=`${N}${ge}{${j}}`}return N},l=[];for(;this._history.length>0;)l.push(this._undoMove());const n=[];let z="";for(l.length===0&&n.push(c(""));l.length>0;){z=c(z);const N=l.pop();if(!N)break;if(!this._history.length&&N.color==="b"){const j=`${this._moveNumber}. ...`;z=z?`${z} ${j}`:j}else N.color==="w"&&(z.length&&n.push(z),z=this._moveNumber+".");z=z+" "+this._moveToSan(N,this._moves({legal:!0})),this._makeMove(N)}if(z.length&&n.push(c(z)),n.push(this._header.Result||"*"),e===0)return d.join("")+n.join(" ");const W=function(){return d.length>0&&d[d.length-1]===" "?(d.pop(),!0):!1},S=function(N,j){for(const ge of j.split(" "))if(ge){if(N+ge.length>e){for(;W();)N--;d.push(t),N=0}d.push(ge),N+=ge.length,d.push(" "),N++}return W()&&N--,N};let E=0;for(let N=0;N<n.length;N++){if(E+n[N].length>e&&n[N].includes("{")){E=S(E,n[N]);continue}E+n[N].length>e&&N!==0?(d[d.length-1]===" "&&d.pop(),d.push(t),E=0):N!==0&&(d.push(" "),E++),d.push(n[N]),E+=n[N].length}return d.join("")}header(...t){for(let e=0;e<t.length;e+=2)typeof t[e]=="string"&&typeof t[e+1]=="string"&&(this._header[t[e]]=t[e+1]);return this._header}setHeader(t,e){return this._header[t]=e??ua[t]??null,this.getHeaders()}removeHeader(t){return t in this._header?(this._header[t]=ua[t]||null,!0):!1}getHeaders(){const t={};for(const[e,d]of Object.entries(this._header))d!==null&&(t[e]=d);return t}loadPgn(t,{strict:e=!1,newlineChar:d=`\r?
+ */const Jt=0xffffffffffffffffn;function na(i,t){return(i<<t|i>>64n-t)&0xffffffffffffffffn}function ha(i,t){return i*t&Jt}function Ma(i){return function(){let t=BigInt(i&Jt),e=BigInt(i>>64n&Jt);const d=ha(na(ha(t,5n),7n),9n);return e^=t,t=(na(t,24n)^e^e<<16n)&Jt,e=na(e,37n),i=e<<64n|t,d}}const Xt=Ma(0xa187eb39cdcaed8f31c4b365b102e01en),za=Array.from({length:2},()=>Array.from({length:6},()=>Array.from({length:128},()=>Xt()))),Ra=Array.from({length:8},()=>Xt()),Ba=Array.from({length:16},()=>Xt()),oa=Xt(),Je="w",it="b",je="p",pa="n",Qt="b",zt="r",mt="q",He="k",ra="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";class Kt{color;from;to;piece;captured;promotion;flags;san;lan;before;after;constructor(t,e){const{color:d,piece:b,from:c,to:l,flags:n,captured:z,promotion:W}=e,S=Ke(c),E=Ke(l);this.color=d,this.piece=b,this.from=S,this.to=E,this.san=t._moveToSan(e,t._moves({legal:!0})),this.lan=S+E,this.before=t.fen(),t._makeMove(e),this.after=t.fen(),t._undoMove(),this.flags="";for(const j in se)se[j]&n&&(this.flags+=kt[j]);z&&(this.captured=z),W&&(this.promotion=W,this.lan+=W)}isCapture(){return this.flags.indexOf(kt.CAPTURE)>-1}isPromotion(){return this.flags.indexOf(kt.PROMOTION)>-1}isEnPassant(){return this.flags.indexOf(kt.EP_CAPTURE)>-1}isKingsideCastle(){return this.flags.indexOf(kt.KSIDE_CASTLE)>-1}isQueensideCastle(){return this.flags.indexOf(kt.QSIDE_CASTLE)>-1}isBigPawn(){return this.flags.indexOf(kt.BIG_PAWN)>-1}}const Ye=-1,kt={NORMAL:"n",CAPTURE:"c",BIG_PAWN:"b",EP_CAPTURE:"e",PROMOTION:"p",KSIDE_CASTLE:"k",QSIDE_CASTLE:"q",NULL_MOVE:"-"},se={NORMAL:1,CAPTURE:2,BIG_PAWN:4,EP_CAPTURE:8,PROMOTION:16,KSIDE_CASTLE:32,QSIDE_CASTLE:64,NULL_MOVE:128},ua={Event:"?",Site:"?",Date:"????.??.??",Round:"?",White:"?",Black:"?",Result:"*"},Na={WhiteTitle:null,BlackTitle:null,WhiteElo:null,BlackElo:null,WhiteUSCF:null,BlackUSCF:null,WhiteNA:null,BlackNA:null,WhiteType:null,BlackType:null,EventDate:null,EventSponsor:null,Section:null,Stage:null,Board:null,Opening:null,Variation:null,SubVariation:null,ECO:null,NIC:null,Time:null,UTCTime:null,UTCDate:null,TimeControl:null,SetUp:null,FEN:null,Termination:null,Annotator:null,Mode:null,PlyCount:null},ja={...ua,...Na},oe={a8:0,b8:1,c8:2,d8:3,e8:4,f8:5,g8:6,h8:7,a7:16,b7:17,c7:18,d7:19,e7:20,f7:21,g7:22,h7:23,a6:32,b6:33,c6:34,d6:35,e6:36,f6:37,g6:38,h6:39,a5:48,b5:49,c5:50,d5:51,e5:52,f5:53,g5:54,h5:55,a4:64,b4:65,c4:66,d4:67,e4:68,f4:69,g4:70,h4:71,a3:80,b3:81,c3:82,d3:83,e3:84,f3:85,g3:86,h3:87,a2:96,b2:97,c2:98,d2:99,e2:100,f2:101,g2:102,h2:103,a1:112,b1:113,c1:114,d1:115,e1:116,f1:117,g1:118,h1:119},sa={b:[16,32,17,15],w:[-16,-32,-17,-15]},va={n:[-18,-33,-31,-14,18,33,31,14],b:[-17,-15,17,15],r:[-16,1,16,-1],q:[-17,-16,-15,1,17,16,15,-1],k:[-17,-16,-15,1,17,16,15,-1]},Oa=[20,0,0,0,0,0,0,24,0,0,0,0,0,0,20,0,0,20,0,0,0,0,0,24,0,0,0,0,0,20,0,0,0,0,20,0,0,0,0,24,0,0,0,0,20,0,0,0,0,0,0,20,0,0,0,24,0,0,0,20,0,0,0,0,0,0,0,0,20,0,0,24,0,0,20,0,0,0,0,0,0,0,0,0,0,20,2,24,2,20,0,0,0,0,0,0,0,0,0,0,0,2,53,56,53,2,0,0,0,0,0,0,24,24,24,24,24,24,56,0,56,24,24,24,24,24,24,0,0,0,0,0,0,2,53,56,53,2,0,0,0,0,0,0,0,0,0,0,0,20,2,24,2,20,0,0,0,0,0,0,0,0,0,0,20,0,0,24,0,0,20,0,0,0,0,0,0,0,0,20,0,0,0,24,0,0,0,20,0,0,0,0,0,0,20,0,0,0,0,24,0,0,0,0,20,0,0,0,0,20,0,0,0,0,0,24,0,0,0,0,0,20,0,0,20,0,0,0,0,0,0,24,0,0,0,0,0,0,20],Ua=[17,0,0,0,0,0,0,16,0,0,0,0,0,0,15,0,0,17,0,0,0,0,0,16,0,0,0,0,0,15,0,0,0,0,17,0,0,0,0,16,0,0,0,0,15,0,0,0,0,0,0,17,0,0,0,16,0,0,0,15,0,0,0,0,0,0,0,0,17,0,0,16,0,0,15,0,0,0,0,0,0,0,0,0,0,17,0,16,0,15,0,0,0,0,0,0,0,0,0,0,0,0,17,16,15,0,0,0,0,0,0,0,1,1,1,1,1,1,1,0,-1,-1,-1,-1,-1,-1,-1,0,0,0,0,0,0,0,-15,-16,-17,0,0,0,0,0,0,0,0,0,0,0,0,-15,0,-16,0,-17,0,0,0,0,0,0,0,0,0,0,-15,0,0,-16,0,0,-17,0,0,0,0,0,0,0,0,-15,0,0,0,-16,0,0,0,-17,0,0,0,0,0,0,-15,0,0,0,0,-16,0,0,0,0,-17,0,0,0,0,-15,0,0,0,0,0,-16,0,0,0,0,0,-17,0,0,-15,0,0,0,0,0,0,-16,0,0,0,0,0,0,-17],Ha={p:1,n:2,b:4,r:8,q:16,k:32},Ga="pnbrqkPNBRQK",xa=[pa,Qt,zt,mt],Wa=7,Ka=6,Va=1,Ya=0,Vt={[He]:se.KSIDE_CASTLE,[mt]:se.QSIDE_CASTLE},bt={w:[{square:oe.a1,flag:se.QSIDE_CASTLE},{square:oe.h1,flag:se.KSIDE_CASTLE}],b:[{square:oe.a8,flag:se.QSIDE_CASTLE},{square:oe.h8,flag:se.KSIDE_CASTLE}]},Ja={b:Va,w:Ka},la="--";function $t(i){return i>>4}function Rt(i){return i&15}function $a(i){return"0123456789".indexOf(i)!==-1}function Ke(i){const t=Rt(i),e=$t(i);return"abcdefgh".substring(t,t+1)+"87654321".substring(e,e+1)}function qt(i){return i===Je?it:Je}function Qa(i){const t=i.split(/\s+/);if(t.length!==6)return{ok:!1,error:"Invalid FEN: must contain six space-delimited fields"};const e=parseInt(t[5],10);if(isNaN(e)||e<=0)return{ok:!1,error:"Invalid FEN: move number must be a positive integer"};const d=parseInt(t[4],10);if(isNaN(d)||d<0)return{ok:!1,error:"Invalid FEN: half move counter number must be a non-negative integer"};if(!/^(-|[abcdefgh][36])$/.test(t[3]))return{ok:!1,error:"Invalid FEN: en-passant square is invalid"};if(/[^kKqQ-]/.test(t[2]))return{ok:!1,error:"Invalid FEN: castling availability is invalid"};if(!/^(w|b)$/.test(t[1]))return{ok:!1,error:"Invalid FEN: side-to-move is invalid"};const b=t[0].split("/");if(b.length!==8)return{ok:!1,error:"Invalid FEN: piece data does not contain 8 '/'-delimited rows"};for(let l=0;l<b.length;l++){let n=0,z=!1;for(let W=0;W<b[l].length;W++)if($a(b[l][W])){if(z)return{ok:!1,error:"Invalid FEN: piece data is invalid (consecutive number)"};n+=parseInt(b[l][W],10),z=!0}else{if(!/^[prnbqkPRNBQK]$/.test(b[l][W]))return{ok:!1,error:"Invalid FEN: piece data is invalid (invalid piece)"};n+=1,z=!1}if(n!==8)return{ok:!1,error:"Invalid FEN: piece data is invalid (too many squares in rank)"}}if(t[3][1]=="3"&&t[1]=="w"||t[3][1]=="6"&&t[1]=="b")return{ok:!1,error:"Invalid FEN: illegal en-passant square"};const c=[{color:"white",regex:/K/g},{color:"black",regex:/k/g}];for(const{color:l,regex:n}of c){if(!n.test(t[0]))return{ok:!1,error:`Invalid FEN: missing ${l} king`};if((t[0].match(n)||[]).length>1)return{ok:!1,error:`Invalid FEN: too many ${l} kings`}}return Array.from(b[0]+b[7]).some(l=>l.toUpperCase()==="P")?{ok:!1,error:"Invalid FEN: some pawns are on the edge rows"}:{ok:!0}}function Xa(i,t){const e=i.from,d=i.to,b=i.piece;let c=0,l=0,n=0;for(let z=0,W=t.length;z<W;z++){const S=t[z].from,E=t[z].to,j=t[z].piece;b===j&&e!==S&&d===E&&(c++,$t(e)===$t(S)&&l++,Rt(e)===Rt(S)&&n++)}return c>0?l>0&&n>0?Ke(e):n>0?Ke(e).charAt(1):Ke(e).charAt(0):""}function ft(i,t,e,d,b,c=void 0,l=se.NORMAL){const n=$t(d);if(b===je&&(n===Wa||n===Ya))for(let z=0;z<xa.length;z++){const W=xa[z];i.push({color:t,from:e,to:d,piece:b,captured:c,promotion:W,flags:l|se.PROMOTION})}else i.push({color:t,from:e,to:d,piece:b,captured:c,flags:l})}function ya(i){let t=i.charAt(0);return t>="a"&&t<="h"?i.match(/[a-h]\d.*[a-h]\d/)?void 0:je:(t=t.toLowerCase(),t==="o"?He:t)}function da(i){return i.replace(/=/,"").replace(/[+#]?[?!]*$/,"")}class ka{_board=new Array(128);_turn=Je;_header={};_kings={w:Ye,b:Ye};_epSquare=-1;_halfMoves=0;_moveNumber=0;_history=[];_comments={};_castling={w:0,b:0};_hash=0n;_positionCount=new Map;constructor(t=ra,{skipValidation:e=!1}={}){this.load(t,{skipValidation:e})}clear({preserveHeaders:t=!1}={}){this._board=new Array(128),this._kings={w:Ye,b:Ye},this._turn=Je,this._castling={w:0,b:0},this._epSquare=Ye,this._halfMoves=0,this._moveNumber=1,this._history=[],this._comments={},this._header=t?this._header:{...ja},this._hash=this._computeHash(),this._positionCount=new Map,this._header.SetUp=null,this._header.FEN=null}load(t,{skipValidation:e=!1,preserveHeaders:d=!1}={}){let b=t.split(/\s+/);if(b.length>=2&&b.length<6){const n=["-","-","0","1"];t=b.concat(n.slice(-(6-b.length))).join(" ")}if(b=t.split(/\s+/),!e){const{ok:n,error:z}=Qa(t);if(!n)throw new Error(z)}const c=b[0];let l=0;this.clear({preserveHeaders:d});for(let n=0;n<c.length;n++){const z=c.charAt(n);if(z==="/")l+=8;else if($a(z))l+=parseInt(z,10);else{const W=z<"a"?Je:it;this._put({type:z.toLowerCase(),color:W},Ke(l)),l++}}this._turn=b[1],b[2].indexOf("K")>-1&&(this._castling.w|=se.KSIDE_CASTLE),b[2].indexOf("Q")>-1&&(this._castling.w|=se.QSIDE_CASTLE),b[2].indexOf("k")>-1&&(this._castling.b|=se.KSIDE_CASTLE),b[2].indexOf("q")>-1&&(this._castling.b|=se.QSIDE_CASTLE),this._epSquare=b[3]==="-"?Ye:oe[b[3]],this._halfMoves=parseInt(b[4],10),this._moveNumber=parseInt(b[5],10),this._hash=this._computeHash(),this._updateSetup(t),this._incPositionCount()}fen({forceEnpassantSquare:t=!1}={}){let e=0,d="";for(let l=oe.a8;l<=oe.h1;l++){if(this._board[l]){e>0&&(d+=e,e=0);const{color:n,type:z}=this._board[l];d+=n===Je?z.toUpperCase():z.toLowerCase()}else e++;l+1&136&&(e>0&&(d+=e),l!==oe.h1&&(d+="/"),e=0,l+=8)}let b="";this._castling[Je]&se.KSIDE_CASTLE&&(b+="K"),this._castling[Je]&se.QSIDE_CASTLE&&(b+="Q"),this._castling[it]&se.KSIDE_CASTLE&&(b+="k"),this._castling[it]&se.QSIDE_CASTLE&&(b+="q"),b=b||"-";let c="-";if(this._epSquare!==Ye)if(t)c=Ke(this._epSquare);else{const l=this._epSquare+(this._turn===Je?16:-16),n=[l+1,l-1];for(const z of n){if(z&136)continue;const W=this._turn;if(this._board[z]?.color===W&&this._board[z]?.type===je){this._makeMove({color:W,from:z,to:this._epSquare,piece:je,captured:je,flags:se.EP_CAPTURE});const S=!this._isKingAttacked(W);if(this._undoMove(),S){c=Ke(this._epSquare);break}}}}return[d,this._turn,b,c,this._halfMoves,this._moveNumber].join(" ")}_pieceKey(t){if(!this._board[t])return 0n;const{color:e,type:d}=this._board[t],b={w:0,b:1}[e],c={p:0,n:1,b:2,r:3,q:4,k:5}[d];return za[b][c][t]}_epKey(){return this._epSquare===Ye?0n:Ra[this._epSquare&7]}_castlingKey(){const t=this._castling.w>>5|this._castling.b>>3;return Ba[t]}_computeHash(){let t=0n;for(let e=oe.a8;e<=oe.h1;e++){if(e&136){e+=7;continue}this._board[e]&&(t^=this._pieceKey(e))}return t^=this._epKey(),t^=this._castlingKey(),this._turn==="b"&&(t^=oa),t}_updateSetup(t){this._history.length>0||(t!==ra?(this._header.SetUp="1",this._header.FEN=t):(this._header.SetUp=null,this._header.FEN=null))}reset(){this.load(ra)}get(t){return this._board[oe[t]]}findPiece(t){const e=[];for(let d=oe.a8;d<=oe.h1;d++){if(d&136){d+=7;continue}!this._board[d]||this._board[d]?.color!==t.color||this._board[d].color===t.color&&this._board[d].type===t.type&&e.push(Ke(d))}return e}put({type:t,color:e},d){return this._put({type:t,color:e},d)?(this._updateCastlingRights(),this._updateEnPassantSquare(),this._updateSetup(this.fen()),!0):!1}_set(t,e){this._hash^=this._pieceKey(t),this._board[t]=e,this._hash^=this._pieceKey(t)}_put({type:t,color:e},d){if(Ga.indexOf(t.toLowerCase())===-1||!(d in oe))return!1;const b=oe[d];if(t==He&&!(this._kings[e]==Ye||this._kings[e]==b))return!1;const c=this._board[b];return c&&c.type===He&&(this._kings[c.color]=Ye),this._set(b,{type:t,color:e}),t===He&&(this._kings[e]=b),!0}_clear(t){this._hash^=this._pieceKey(t),delete this._board[t]}remove(t){const e=this.get(t);return this._clear(oe[t]),e&&e.type===He&&(this._kings[e.color]=Ye),this._updateCastlingRights(),this._updateEnPassantSquare(),this._updateSetup(this.fen()),e}_updateCastlingRights(){this._hash^=this._castlingKey();const t=this._board[oe.e1]?.type===He&&this._board[oe.e1]?.color===Je,e=this._board[oe.e8]?.type===He&&this._board[oe.e8]?.color===it;(!t||this._board[oe.a1]?.type!==zt||this._board[oe.a1]?.color!==Je)&&(this._castling.w&=-65),(!t||this._board[oe.h1]?.type!==zt||this._board[oe.h1]?.color!==Je)&&(this._castling.w&=-33),(!e||this._board[oe.a8]?.type!==zt||this._board[oe.a8]?.color!==it)&&(this._castling.b&=-65),(!e||this._board[oe.h8]?.type!==zt||this._board[oe.h8]?.color!==it)&&(this._castling.b&=-33),this._hash^=this._castlingKey()}_updateEnPassantSquare(){if(this._epSquare===Ye)return;const t=this._epSquare+(this._turn===Je?-16:16),e=this._epSquare+(this._turn===Je?16:-16),d=[e+1,e-1];if(this._board[t]!==null||this._board[this._epSquare]!==null||this._board[e]?.color!==qt(this._turn)||this._board[e]?.type!==je){this._hash^=this._epKey(),this._epSquare=Ye;return}const b=c=>!(c&136)&&this._board[c]?.color===this._turn&&this._board[c]?.type===je;d.some(b)||(this._hash^=this._epKey(),this._epSquare=Ye)}_attacked(t,e,d){const b=[];for(let c=oe.a8;c<=oe.h1;c++){if(c&136){c+=7;continue}if(this._board[c]===void 0||this._board[c].color!==t)continue;const l=this._board[c],n=c-e;if(n===0)continue;const z=n+119;if(Oa[z]&Ha[l.type]){if(l.type===je){if(n>0&&l.color===Je||n<=0&&l.color===it)if(d)b.push(Ke(c));else return!0;continue}if(l.type==="n"||l.type==="k")if(d){b.push(Ke(c));continue}else return!0;const W=Ua[z];let S=c+W,E=!1;for(;S!==e;){if(this._board[S]!=null){E=!0;break}S+=W}if(!E)if(d){b.push(Ke(c));continue}else return!0}}return d?b:!1}attackers(t,e){return e?this._attacked(e,oe[t],!0):this._attacked(this._turn,oe[t],!0)}_isKingAttacked(t){const e=this._kings[t];return e===-1?!1:this._attacked(qt(t),e)}hash(){return this._hash.toString(16)}isAttacked(t,e){return this._attacked(e,oe[t])}isCheck(){return this._isKingAttacked(this._turn)}inCheck(){return this.isCheck()}isCheckmate(){return this.isCheck()&&this._moves().length===0}isStalemate(){return!this.isCheck()&&this._moves().length===0}isInsufficientMaterial(){const t={b:0,n:0,r:0,q:0,k:0,p:0},e=[];let d=0,b=0;for(let c=oe.a8;c<=oe.h1;c++){if(b=(b+1)%2,c&136){c+=7;continue}const l=this._board[c];l&&(t[l.type]=l.type in t?t[l.type]+1:1,l.type===Qt&&e.push(b),d++)}if(d===2)return!0;if(d===3&&(t[Qt]===1||t[pa]===1))return!0;if(d===t[Qt]+2){let c=0;const l=e.length;for(let n=0;n<l;n++)c+=e[n];if(c===0||c===l)return!0}return!1}isThreefoldRepetition(){return this._getPositionCount(this._hash)>=3}isDrawByFiftyMoves(){return this._halfMoves>=100}isDraw(){return this.isDrawByFiftyMoves()||this.isStalemate()||this.isInsufficientMaterial()||this.isThreefoldRepetition()}isGameOver(){return this.isCheckmate()||this.isDraw()}moves({verbose:t=!1,square:e=void 0,piece:d=void 0}={}){const b=this._moves({square:e,piece:d});return t?b.map(c=>new Kt(this,c)):b.map(c=>this._moveToSan(c,b))}_moves({legal:t=!0,piece:e=void 0,square:d=void 0}={}){const b=d?d.toLowerCase():void 0,c=e?.toLowerCase(),l=[],n=this._turn,z=qt(n);let W=oe.a8,S=oe.h1,E=!1;if(b)if(b in oe)W=S=oe[b],E=!0;else return[];for(let N=W;N<=S;N++){if(N&136){N+=7;continue}if(!this._board[N]||this._board[N].color===z)continue;const{type:ge}=this._board[N];let ye;if(ge===je){if(c&&c!==ge)continue;ye=N+sa[n][0],this._board[ye]||(ft(l,n,N,ye,je),ye=N+sa[n][1],Ja[n]===$t(N)&&!this._board[ye]&&ft(l,n,N,ye,je,void 0,se.BIG_PAWN));for(let Ve=2;Ve<4;Ve++)ye=N+sa[n][Ve],!(ye&136)&&(this._board[ye]?.color===z?ft(l,n,N,ye,je,this._board[ye].type,se.CAPTURE):ye===this._epSquare&&ft(l,n,N,ye,je,je,se.EP_CAPTURE))}else{if(c&&c!==ge)continue;for(let Ve=0,tt=va[ge].length;Ve<tt;Ve++){const rt=va[ge][Ve];for(ye=N;ye+=rt,!(ye&136);){if(!this._board[ye])ft(l,n,N,ye,ge);else{if(this._board[ye].color===n)break;ft(l,n,N,ye,ge,this._board[ye].type,se.CAPTURE);break}if(ge===pa||ge===He)break}}}}if((c===void 0||c===He)&&(!E||S===this._kings[n])){if(this._castling[n]&se.KSIDE_CASTLE){const N=this._kings[n],ge=N+2;!this._board[N+1]&&!this._board[ge]&&!this._attacked(z,this._kings[n])&&!this._attacked(z,N+1)&&!this._attacked(z,ge)&&ft(l,n,this._kings[n],ge,He,void 0,se.KSIDE_CASTLE)}if(this._castling[n]&se.QSIDE_CASTLE){const N=this._kings[n],ge=N-2;!this._board[N-1]&&!this._board[N-2]&&!this._board[N-3]&&!this._attacked(z,this._kings[n])&&!this._attacked(z,N-1)&&!this._attacked(z,ge)&&ft(l,n,this._kings[n],ge,He,void 0,se.QSIDE_CASTLE)}}if(!t||this._kings[n]===-1)return l;const j=[];for(let N=0,ge=l.length;N<ge;N++)this._makeMove(l[N]),this._isKingAttacked(n)||j.push(l[N]),this._undoMove();return j}move(t,{strict:e=!1}={}){let d=null;if(typeof t=="string")d=this._moveFromSan(t,e);else if(t===null)d=this._moveFromSan(la,e);else if(typeof t=="object"){const c=this._moves();for(let l=0,n=c.length;l<n;l++)if(t.from===Ke(c[l].from)&&t.to===Ke(c[l].to)&&(!("promotion"in c[l])||t.promotion===c[l].promotion)){d=c[l];break}}if(!d)throw typeof t=="string"?new Error(`Invalid move: ${t}`):new Error(`Invalid move: ${JSON.stringify(t)}`);if(this.isCheck()&&d.flags&se.NULL_MOVE)throw new Error("Null move not allowed when in check");const b=new Kt(this,d);return this._makeMove(d),this._incPositionCount(),b}_push(t){this._history.push({move:t,kings:{b:this._kings.b,w:this._kings.w},turn:this._turn,castling:{b:this._castling.b,w:this._castling.w},epSquare:this._epSquare,halfMoves:this._halfMoves,moveNumber:this._moveNumber})}_movePiece(t,e){this._hash^=this._pieceKey(t),this._board[e]=this._board[t],delete this._board[t],this._hash^=this._pieceKey(e)}_makeMove(t){const e=this._turn,d=qt(e);if(this._push(t),t.flags&se.NULL_MOVE){e===it&&this._moveNumber++,this._halfMoves++,this._turn=d,this._epSquare=Ye;return}if(this._hash^=this._epKey(),this._hash^=this._castlingKey(),t.captured&&(this._hash^=this._pieceKey(t.to)),this._movePiece(t.from,t.to),t.flags&se.EP_CAPTURE&&(this._turn===it?this._clear(t.to-16):this._clear(t.to+16)),t.promotion&&(this._clear(t.to),this._set(t.to,{type:t.promotion,color:e})),this._board[t.to].type===He){if(this._kings[e]=t.to,t.flags&se.KSIDE_CASTLE){const b=t.to-1,c=t.to+1;this._movePiece(c,b)}else if(t.flags&se.QSIDE_CASTLE){const b=t.to+1,c=t.to-2;this._movePiece(c,b)}this._castling[e]=0}if(this._castling[e]){for(let b=0,c=bt[e].length;b<c;b++)if(t.from===bt[e][b].square&&this._castling[e]&bt[e][b].flag){this._castling[e]^=bt[e][b].flag;break}}if(this._castling[d]){for(let b=0,c=bt[d].length;b<c;b++)if(t.to===bt[d][b].square&&this._castling[d]&bt[d][b].flag){this._castling[d]^=bt[d][b].flag;break}}if(this._hash^=this._castlingKey(),t.flags&se.BIG_PAWN){let b;e===it?b=t.to-16:b=t.to+16,!(t.to-1&136)&&this._board[t.to-1]?.type===je&&this._board[t.to-1]?.color===d||!(t.to+1&136)&&this._board[t.to+1]?.type===je&&this._board[t.to+1]?.color===d?(this._epSquare=b,this._hash^=this._epKey()):this._epSquare=Ye}else this._epSquare=Ye;t.piece===je?this._halfMoves=0:t.flags&(se.CAPTURE|se.EP_CAPTURE)?this._halfMoves=0:this._halfMoves++,e===it&&this._moveNumber++,this._turn=d,this._hash^=oa}undo(){const t=this._hash,e=this._undoMove();if(e){const d=new Kt(this,e);return this._decPositionCount(t),d}return null}_undoMove(){const t=this._history.pop();if(t===void 0)return null;this._hash^=this._epKey(),this._hash^=this._castlingKey();const e=t.move;this._kings=t.kings,this._turn=t.turn,this._castling=t.castling,this._epSquare=t.epSquare,this._halfMoves=t.halfMoves,this._moveNumber=t.moveNumber,this._hash^=this._epKey(),this._hash^=this._castlingKey(),this._hash^=oa;const d=this._turn,b=qt(d);if(e.flags&se.NULL_MOVE)return e;if(this._movePiece(e.to,e.from),e.piece&&(this._clear(e.from),this._set(e.from,{type:e.piece,color:d})),e.captured)if(e.flags&se.EP_CAPTURE){let c;d===it?c=e.to-16:c=e.to+16,this._set(c,{type:je,color:b})}else this._set(e.to,{type:e.captured,color:b});if(e.flags&(se.KSIDE_CASTLE|se.QSIDE_CASTLE)){let c,l;e.flags&se.KSIDE_CASTLE?(c=e.to+1,l=e.to-1):(c=e.to-2,l=e.to+1),this._movePiece(l,c)}return e}pgn({newline:t=`
+`,maxWidth:e=0}={}){const d=[];let b=!1;for(const j in this._header)this._header[j]&&d.push(`[${j} "${this._header[j]}"]`+t),b=!0;b&&this._history.length&&d.push(t);const c=j=>{const N=this._comments[this.fen()];if(typeof N<"u"){const ge=j.length>0?" ":"";j=`${j}${ge}{${N}}`}return j},l=[];for(;this._history.length>0;)l.push(this._undoMove());const n=[];let z="";for(l.length===0&&n.push(c(""));l.length>0;){z=c(z);const j=l.pop();if(!j)break;if(!this._history.length&&j.color==="b"){const N=`${this._moveNumber}. ...`;z=z?`${z} ${N}`:N}else j.color==="w"&&(z.length&&n.push(z),z=this._moveNumber+".");z=z+" "+this._moveToSan(j,this._moves({legal:!0})),this._makeMove(j)}if(z.length&&n.push(c(z)),n.push(this._header.Result||"*"),e===0)return d.join("")+n.join(" ");const W=function(){return d.length>0&&d[d.length-1]===" "?(d.pop(),!0):!1},S=function(j,N){for(const ge of N.split(" "))if(ge){if(j+ge.length>e){for(;W();)j--;d.push(t),j=0}d.push(ge),j+=ge.length,d.push(" "),j++}return W()&&j--,j};let E=0;for(let j=0;j<n.length;j++){if(E+n[j].length>e&&n[j].includes("{")){E=S(E,n[j]);continue}E+n[j].length>e&&j!==0?(d[d.length-1]===" "&&d.pop(),d.push(t),E=0):j!==0&&(d.push(" "),E++),d.push(n[j]),E+=n[j].length}return d.join("")}header(...t){for(let e=0;e<t.length;e+=2)typeof t[e]=="string"&&typeof t[e+1]=="string"&&(this._header[t[e]]=t[e+1]);return this._header}setHeader(t,e){return this._header[t]=e??ua[t]??null,this.getHeaders()}removeHeader(t){return t in this._header?(this._header[t]=ua[t]||null,!0):!1}getHeaders(){const t={};for(const[e,d]of Object.entries(this._header))d!==null&&(t[e]=d);return t}loadPgn(t,{strict:e=!1,newlineChar:d=`\r?
 `}={}){d!==`\r?
 `&&(t=t.replace(new RegExp(d,"g"),`
-`));const b=qa(t);this.reset();const c=b.headers;let l="";for(const W in c)W.toLowerCase()==="fen"&&(l=c[W]),this.header(W,c[W]);if(!e)l&&this.load(l,{preserveHeaders:!0});else if(c.SetUp==="1"){if(!("FEN"in c))throw new Error("Invalid PGN: FEN tag must be supplied with SetUp tag");this.load(c.FEN,{preserveHeaders:!0})}let n=b.root;for(;n;){if(n.move){const W=this._moveFromSan(n.move,e);if(W==null)throw new Error(`Invalid move in PGN: ${n.move}`);this._makeMove(W),this._incPositionCount()}n.comment!==void 0&&(this._comments[this.fen()]=n.comment),n=n.variations[0]}const z=b.result;z&&Object.keys(this._header).length&&this._header.Result!==z&&this.setHeader("Result",z)}_moveToSan(t,e){let d="";if(t.flags&se.KSIDE_CASTLE)d="O-O";else if(t.flags&se.QSIDE_CASTLE)d="O-O-O";else{if(t.flags&se.NULL_MOVE)return la;if(t.piece!==Ne){const b=Xa(t,e);d+=t.piece.toUpperCase()+b}t.flags&(se.CAPTURE|se.EP_CAPTURE)&&(t.piece===Ne&&(d+=Ke(t.from)[0]),d+="x"),d+=Ke(t.to),t.promotion&&(d+="="+t.promotion.toUpperCase())}return this._makeMove(t),this.isCheck()&&(this.isCheckmate()?d+="#":d+="+"),this._undoMove(),d}_moveFromSan(t,e=!1){let d=da(t);if(e||(d==="0-0"?d="O-O":d==="0-0-0"&&(d="O-O-O")),d==la)return{color:this._turn,from:0,to:0,piece:"k",flags:se.NULL_MOVE};let b=ya(d),c=this._moves({legal:!0,piece:b});for(let N=0,j=c.length;N<j;N++)if(d===da(this._moveToSan(c[N],c)))return c[N];if(e)return null;let l,n,z,W,S,E=!1;if(n=d.match(/([pnbrqkPNBRQK])?([a-h][1-8])x?-?([a-h][1-8])([qrbnQRBN])?/),n?(l=n[1],z=n[2],W=n[3],S=n[4],z.length==1&&(E=!0)):(n=d.match(/([pnbrqkPNBRQK])?([a-h]?[1-8]?)x?-?([a-h][1-8])([qrbnQRBN])?/),n&&(l=n[1],z=n[2],W=n[3],S=n[4],z.length==1&&(E=!0))),b=ya(d),c=this._moves({legal:!0,piece:l||b}),!W)return null;for(let N=0,j=c.length;N<j;N++)if(z){if((!l||l.toLowerCase()==c[N].piece)&&oe[z]==c[N].from&&oe[W]==c[N].to&&(!S||S.toLowerCase()==c[N].promotion))return c[N];if(E){const ge=Ke(c[N].from);if((!l||l.toLowerCase()==c[N].piece)&&oe[W]==c[N].to&&(z==ge[0]||z==ge[1])&&(!S||S.toLowerCase()==c[N].promotion))return c[N]}}else if(d===da(this._moveToSan(c[N],c)).replace("x",""))return c[N];return null}ascii(){let t=`   +------------------------+
+`));const b=qa(t);this.reset();const c=b.headers;let l="";for(const W in c)W.toLowerCase()==="fen"&&(l=c[W]),this.header(W,c[W]);if(!e)l&&this.load(l,{preserveHeaders:!0});else if(c.SetUp==="1"){if(!("FEN"in c))throw new Error("Invalid PGN: FEN tag must be supplied with SetUp tag");this.load(c.FEN,{preserveHeaders:!0})}let n=b.root;for(;n;){if(n.move){const W=this._moveFromSan(n.move,e);if(W==null)throw new Error(`Invalid move in PGN: ${n.move}`);this._makeMove(W),this._incPositionCount()}n.comment!==void 0&&(this._comments[this.fen()]=n.comment),n=n.variations[0]}const z=b.result;z&&Object.keys(this._header).length&&this._header.Result!==z&&this.setHeader("Result",z)}_moveToSan(t,e){let d="";if(t.flags&se.KSIDE_CASTLE)d="O-O";else if(t.flags&se.QSIDE_CASTLE)d="O-O-O";else{if(t.flags&se.NULL_MOVE)return la;if(t.piece!==je){const b=Xa(t,e);d+=t.piece.toUpperCase()+b}t.flags&(se.CAPTURE|se.EP_CAPTURE)&&(t.piece===je&&(d+=Ke(t.from)[0]),d+="x"),d+=Ke(t.to),t.promotion&&(d+="="+t.promotion.toUpperCase())}return this._makeMove(t),this.isCheck()&&(this.isCheckmate()?d+="#":d+="+"),this._undoMove(),d}_moveFromSan(t,e=!1){let d=da(t);if(e||(d==="0-0"?d="O-O":d==="0-0-0"&&(d="O-O-O")),d==la)return{color:this._turn,from:0,to:0,piece:"k",flags:se.NULL_MOVE};let b=ya(d),c=this._moves({legal:!0,piece:b});for(let j=0,N=c.length;j<N;j++)if(d===da(this._moveToSan(c[j],c)))return c[j];if(e)return null;let l,n,z,W,S,E=!1;if(n=d.match(/([pnbrqkPNBRQK])?([a-h][1-8])x?-?([a-h][1-8])([qrbnQRBN])?/),n?(l=n[1],z=n[2],W=n[3],S=n[4],z.length==1&&(E=!0)):(n=d.match(/([pnbrqkPNBRQK])?([a-h]?[1-8]?)x?-?([a-h][1-8])([qrbnQRBN])?/),n&&(l=n[1],z=n[2],W=n[3],S=n[4],z.length==1&&(E=!0))),b=ya(d),c=this._moves({legal:!0,piece:l||b}),!W)return null;for(let j=0,N=c.length;j<N;j++)if(z){if((!l||l.toLowerCase()==c[j].piece)&&oe[z]==c[j].from&&oe[W]==c[j].to&&(!S||S.toLowerCase()==c[j].promotion))return c[j];if(E){const ge=Ke(c[j].from);if((!l||l.toLowerCase()==c[j].piece)&&oe[W]==c[j].to&&(z==ge[0]||z==ge[1])&&(!S||S.toLowerCase()==c[j].promotion))return c[j]}}else if(d===da(this._moveToSan(c[j],c)).replace("x",""))return c[j];return null}ascii(){let t=`   +------------------------+
 `;for(let e=oe.a8;e<=oe.h1;e++){if(Rt(e)===0&&(t+=" "+"87654321"[$t(e)]+" |"),this._board[e]){const d=this._board[e].type,c=this._board[e].color===Je?d.toUpperCase():d.toLowerCase();t+=" "+c+" "}else t+=" . ";e+1&136&&(t+=`|
 `,e+=8)}return t+=`   +------------------------+
-`,t+="     a  b  c  d  e  f  g  h",t}perft(t){const e=this._moves({legal:!1});let d=0;const b=this._turn;for(let c=0,l=e.length;c<l;c++)this._makeMove(e[c]),this._isKingAttacked(b)||(t-1>0?d+=this.perft(t-1):d++),this._undoMove();return d}setTurn(t){return this._turn==t?!1:(this.move("--"),!0)}turn(){return this._turn}board(){const t=[];let e=[];for(let d=oe.a8;d<=oe.h1;d++)this._board[d]==null?e.push(null):e.push({square:Ke(d),type:this._board[d].type,color:this._board[d].color}),d+1&136&&(t.push(e),e=[],d+=8);return t}squareColor(t){if(t in oe){const e=oe[t];return($t(e)+Rt(e))%2===0?"light":"dark"}return null}history({verbose:t=!1}={}){const e=[],d=[];for(;this._history.length>0;)e.push(this._undoMove());for(;;){const b=e.pop();if(!b)break;t?d.push(new Kt(this,b)):d.push(this._moveToSan(b,this._moves())),this._makeMove(b)}return d}_getPositionCount(t){return this._positionCount.get(t)??0}_incPositionCount(){this._positionCount.set(this._hash,(this._positionCount.get(this._hash)??0)+1)}_decPositionCount(t){const e=this._positionCount.get(t)??0;e===1?this._positionCount.delete(t):this._positionCount.set(t,e-1)}_pruneComments(){const t=[],e={},d=b=>{b in this._comments&&(e[b]=this._comments[b])};for(;this._history.length>0;)t.push(this._undoMove());for(d(this.fen());;){const b=t.pop();if(!b)break;this._makeMove(b),d(this.fen())}this._comments=e}getComment(){return this._comments[this.fen()]}setComment(t){this._comments[this.fen()]=t.replace("{","[").replace("}","]")}deleteComment(){return this.removeComment()}removeComment(){const t=this._comments[this.fen()];return delete this._comments[this.fen()],t}getComments(){return this._pruneComments(),Object.keys(this._comments).map(t=>({fen:t,comment:this._comments[t]}))}deleteComments(){return this.removeComments()}removeComments(){return this._pruneComments(),Object.keys(this._comments).map(t=>{const e=this._comments[t];return delete this._comments[t],{fen:t,comment:e}})}setCastlingRights(t,e){for(const b of[He,ft])e[b]!==void 0&&(e[b]?this._castling[t]|=Vt[b]:this._castling[t]&=~Vt[b]);this._updateCastlingRights();const d=this.getCastlingRights(t);return(e[He]===void 0||e[He]===d[He])&&(e[ft]===void 0||e[ft]===d[ft])}getCastlingRights(t){return{[He]:(this._castling[t]&Vt[He])!==0,[ft]:(this._castling[t]&Vt[ft])!==0}}moveNumber(){return this._moveNumber}}async function ai(i,t={}){const e=t.currentUser||{},d=t.userRole||e?.role||"employee";let b="chat",c=[],l=null,n=[],z=[],W=null,S=null,E=!1,N=null,j=null;i.innerHTML=`
+`,t+="     a  b  c  d  e  f  g  h",t}perft(t){const e=this._moves({legal:!1});let d=0;const b=this._turn;for(let c=0,l=e.length;c<l;c++)this._makeMove(e[c]),this._isKingAttacked(b)||(t-1>0?d+=this.perft(t-1):d++),this._undoMove();return d}setTurn(t){return this._turn==t?!1:(this.move("--"),!0)}turn(){return this._turn}board(){const t=[];let e=[];for(let d=oe.a8;d<=oe.h1;d++)this._board[d]==null?e.push(null):e.push({square:Ke(d),type:this._board[d].type,color:this._board[d].color}),d+1&136&&(t.push(e),e=[],d+=8);return t}squareColor(t){if(t in oe){const e=oe[t];return($t(e)+Rt(e))%2===0?"light":"dark"}return null}history({verbose:t=!1}={}){const e=[],d=[];for(;this._history.length>0;)e.push(this._undoMove());for(;;){const b=e.pop();if(!b)break;t?d.push(new Kt(this,b)):d.push(this._moveToSan(b,this._moves())),this._makeMove(b)}return d}_getPositionCount(t){return this._positionCount.get(t)??0}_incPositionCount(){this._positionCount.set(this._hash,(this._positionCount.get(this._hash)??0)+1)}_decPositionCount(t){const e=this._positionCount.get(t)??0;e===1?this._positionCount.delete(t):this._positionCount.set(t,e-1)}_pruneComments(){const t=[],e={},d=b=>{b in this._comments&&(e[b]=this._comments[b])};for(;this._history.length>0;)t.push(this._undoMove());for(d(this.fen());;){const b=t.pop();if(!b)break;this._makeMove(b),d(this.fen())}this._comments=e}getComment(){return this._comments[this.fen()]}setComment(t){this._comments[this.fen()]=t.replace("{","[").replace("}","]")}deleteComment(){return this.removeComment()}removeComment(){const t=this._comments[this.fen()];return delete this._comments[this.fen()],t}getComments(){return this._pruneComments(),Object.keys(this._comments).map(t=>({fen:t,comment:this._comments[t]}))}deleteComments(){return this.removeComments()}removeComments(){return this._pruneComments(),Object.keys(this._comments).map(t=>{const e=this._comments[t];return delete this._comments[t],{fen:t,comment:e}})}setCastlingRights(t,e){for(const b of[He,mt])e[b]!==void 0&&(e[b]?this._castling[t]|=Vt[b]:this._castling[t]&=~Vt[b]);this._updateCastlingRights();const d=this.getCastlingRights(t);return(e[He]===void 0||e[He]===d[He])&&(e[mt]===void 0||e[mt]===d[mt])}getCastlingRights(t){return{[He]:(this._castling[t]&Vt[He])!==0,[mt]:(this._castling[t]&Vt[mt])!==0}}moveNumber(){return this._moveNumber}}async function ai(i,t={}){const e=t.currentUser||{},d=t.userRole||e?.role||"employee";let b="chat",c=[],l=null,n=[],z=[],W=null,S=null,E=!1,j=null,N=null;i.innerHTML=`
     <div class="bonding-wrap" id="bonding-app-root">
       <!-- Top Navigation & Header Bar -->
       <div class="bonding-nav-bar">
@@ -2841,7 +2890,7 @@ import{c as Re,k as y,e as h,v as Xe,l as Ze,p as Gt,m as Yt,j as Ce,w as ga,x a
 
     <!-- Modals container -->
     <div id="bonding-modals-root"></div>
-  `,Za(),await it(),Me();const ge=i.querySelector("#tab-nav-chat"),ye=i.querySelector("#tab-nav-lounge"),Ve=i.querySelector("#bonding-chat-main-wrap"),et=i.querySelector("#bonding-lounge-main-wrap");ge?.addEventListener("click",()=>{b="chat",ge.classList.add("active"),ye.classList.remove("active"),Ve.style.display="grid",et.style.display="none",Me()}),ye?.addEventListener("click",async()=>{b="lounge_games",ye.classList.add("active"),ge.classList.remove("active"),Ve.style.display="none",et.style.display="block",await P()}),i.querySelector("#btn-top-new-chat")?.addEventListener("click",X),i.querySelector("#btn-top-new-group")?.addEventListener("click",ee),i.querySelector("#btn-top-challenge")?.addEventListener("click",()=>R());const rt=i.querySelector("#bonding-search-input");rt&&rt.addEventListener("input",u=>{const f=u.target.value.toLowerCase().trim();i.querySelectorAll(".bonding-channel-item").forEach(o=>{const x=o.textContent.toLowerCase();o.style.display=x.includes(f)?"flex":"none"})}),ut(),new MutationObserver((u,f)=>{document.body.contains(i)||(S&&clearInterval(S),j&&clearInterval(j),f.disconnect())}).observe(document.body,{childList:!0,subtree:!0});async function it(){try{const[u,f]=await Promise.all([Re("/bonding/channels").catch(()=>[]),Re("/bonding/colleagues").catch(()=>[])]);c=u,n=f,!l&&c.length>0&&(l=c.find(r=>r.name.includes("Lounge"))||c[0]),Oe(),l&&await Fe(l._id)}catch(u){console.error("Failed to load bonding data",u)}}async function Fe(u,f=!1){if(u)try{z=await Re(`/bonding/channels/${u}/messages`),f?s():T()}catch(r){console.error("Failed to load messages",r)}}let nt=0;function ut(){S&&clearInterval(S),S=setInterval(async()=>{try{if(!document.body.contains(i)){clearInterval(S);return}if(nt++,nt%2===0){const u=await Re("/bonding/channels").catch(()=>null);u&&JSON.stringify(u.map(f=>f._id+f.lastMessage?.sentAt))!==JSON.stringify(c.map(f=>f._id+f.lastMessage?.sentAt))&&(c=u,Oe())}b==="chat"&&l?await Fe(l._id,!0):b==="lounge_games"&&await P(!0)}catch{}},3e3)}function Oe(){const u=i.querySelector("#bonding-group-list"),f=i.querySelector("#bonding-direct-list");if(!u||!f)return;const r=c.filter(x=>x.type==="group"),o=c.filter(x=>x.type==="direct");if(r.length===0)u.innerHTML='<div class="bonding-empty-text">No group lounges yet. Click + New Group to start one!</div>';else{const x=e?._id||e?.id,B=d==="superadmin"||e?.role==="superadmin";u.innerHTML=r.map(C=>{const O=l&&l._id===C._id,F=C.createdBy&&C.createdBy.userId&&String(C.createdBy.userId)===String(x)||B;return`
+  `,Za(),await nt(),Me();const ge=i.querySelector("#tab-nav-chat"),ye=i.querySelector("#tab-nav-lounge"),Ve=i.querySelector("#bonding-chat-main-wrap"),tt=i.querySelector("#bonding-lounge-main-wrap");ge?.addEventListener("click",()=>{b="chat",ge.classList.add("active"),ye.classList.remove("active"),Ve.style.display="grid",tt.style.display="none",Me()}),ye?.addEventListener("click",async()=>{b="lounge_games",ye.classList.add("active"),ge.classList.remove("active"),Ve.style.display="none",tt.style.display="block",await P()}),i.querySelector("#btn-top-new-chat")?.addEventListener("click",X),i.querySelector("#btn-top-new-group")?.addEventListener("click",ee),i.querySelector("#btn-top-challenge")?.addEventListener("click",()=>R());const rt=i.querySelector("#bonding-search-input");rt&&rt.addEventListener("input",u=>{const m=u.target.value.toLowerCase().trim();i.querySelectorAll(".bonding-channel-item").forEach(r=>{const x=r.textContent.toLowerCase();r.style.display=x.includes(m)?"flex":"none"})}),ut(),new MutationObserver((u,m)=>{document.body.contains(i)||(S&&clearInterval(S),N&&clearInterval(N),m.disconnect())}).observe(document.body,{childList:!0,subtree:!0});async function nt(){try{const[u,m]=await Promise.all([Re("/bonding/channels").catch(()=>[]),Re("/bonding/colleagues").catch(()=>[])]);c=u,n=m,!l&&c.length>0&&(l=c.find(s=>s.name.includes("Lounge"))||c[0]),Oe(),l&&await Fe(l._id)}catch(u){console.error("Failed to load bonding data",u)}}async function Fe(u,m=!1){if(u)try{z=await Re(`/bonding/channels/${u}/messages`),m?o():T()}catch(s){console.error("Failed to load messages",s)}}let ot=0;function ut(){S&&clearInterval(S),S=setInterval(async()=>{try{if(!document.body.contains(i)){clearInterval(S);return}if(ot++,ot%2===0){const u=await Re("/bonding/channels").catch(()=>null);u&&JSON.stringify(u.map(m=>m._id+m.lastMessage?.sentAt))!==JSON.stringify(c.map(m=>m._id+m.lastMessage?.sentAt))&&(c=u,Oe())}b==="chat"&&l?await Fe(l._id,!0):b==="lounge_games"&&await P(!0)}catch{}},3e3)}function Oe(){const u=i.querySelector("#bonding-group-list"),m=i.querySelector("#bonding-direct-list");if(!u||!m)return;const s=c.filter(x=>x.type==="group"),r=c.filter(x=>x.type==="direct");if(s.length===0)u.innerHTML='<div class="bonding-empty-text">No group lounges yet. Click + New Group to start one!</div>';else{const x=e?._id||e?.id,B=d==="superadmin"||e?.role==="superadmin";u.innerHTML=s.map(C=>{const O=l&&l._id===C._id,F=C.createdBy&&C.createdBy.userId&&String(C.createdBy.userId)===String(x)||B;return`
           <div class="bonding-channel-item ${O?"active":""}" data-channel-id="${C._id}">
             <div class="bonding-channel-icon">${C.avatar||"👥"}</div>
             <div class="bonding-channel-info">
@@ -2866,7 +2915,7 @@ import{c as Re,k as y,e as h,v as Xe,l as Ze,p as Gt,m as Yt,j as Ce,w as ga,x a
               </button>
             `}
           </div>
-        `}).join("")}o.length===0?f.innerHTML='<div class="bonding-empty-text">No direct messages yet. Click + New Chat to start a conversation!</div>':f.innerHTML=o.map(x=>{const B=l&&l._id===x._id,C=x.displayName||x.name||"Colleague",O=C.slice(0,1).toUpperCase();return`
+        `}).join("")}r.length===0?m.innerHTML='<div class="bonding-empty-text">No direct messages yet. Click + New Chat to start a conversation!</div>':m.innerHTML=r.map(x=>{const B=l&&l._id===x._id,C=x.displayName||x.name||"Colleague",O=C.slice(0,1).toUpperCase();return`
           <div class="bonding-channel-item ${B?"active":""}" data-channel-id="${x._id}">
             <div class="bonding-channel-avatar">${O}</div>
             <div class="bonding-channel-info">
@@ -2880,20 +2929,20 @@ import{c as Re,k as y,e as h,v as Xe,l as Ze,p as Gt,m as Yt,j as Ce,w as ga,x a
               </svg>
             </button>
           </div>
-        `}).join(""),ct()}function ct(){const u=i.querySelectorAll(".bonding-channel-item");u.forEach(f=>{f.onclick=async r=>{if(r.target.closest(".bonding-channel-del-btn")||r.target.closest(".bonding-channel-leave-btn"))return;const o=f.dataset.channelId,x=c.find(B=>B._id===o);x&&(l=x,u.forEach(B=>B.classList.remove("active")),f.classList.add("active"),Me(),await Fe(x._id))}}),i.querySelectorAll(".bonding-channel-leave-btn").forEach(f=>{f.onclick=async r=>{r.stopPropagation();const o=f.dataset.channelId,B=c.find(C=>C._id===o)?.name||"this group";if(confirm(`Are you sure you want to leave the group "${B}"?`))try{f.disabled=!0,await Ce(`/bonding/channels/${o}/leave`,{}),y(`You left "${B}"`,"info"),c=c.filter(C=>C._id!==o),l&&l._id===o&&(l=c.find(C=>C.type==="group")||c[0]||null,Me(),l&&await Fe(l._id)),Oe()}catch(C){y(C.message||"Failed to leave group","error"),f.disabled=!1}}}),i.querySelectorAll(".bonding-channel-del-btn").forEach(f=>{f.onclick=async r=>{r.stopPropagation();const o=f.dataset.channelId,x=c.find(O=>O._id===o),B=x&&x.type==="direct",C=B?"this 1-on-1 chat":`the group "${x?.name||""}"`;if(confirm(`Are you sure you want to delete ${C}? All messages will be permanently removed.`))try{f.disabled=!0,await Ze(`/bonding/channels/${o}`),y(B?"1-on-1 chat deleted":"Group deleted","success"),c=c.filter(O=>O._id!==o),l&&l._id===o&&(l=c[0]||null,Me(),l&&await Fe(l._id)),Oe()}catch(O){y(O.message||"Failed to delete conversation","error"),f.disabled=!1}}}),i.querySelector("#btn-create-group")?.addEventListener("click",ee),i.querySelector("#btn-new-direct-chat")?.addEventListener("click",X)}function Me(){const u=i.querySelector("#bonding-chat-panel");if(!u)return;if(!l){u.innerHTML=`
+        `}).join(""),ct()}function ct(){const u=i.querySelectorAll(".bonding-channel-item");u.forEach(m=>{m.onclick=async s=>{if(s.target.closest(".bonding-channel-del-btn")||s.target.closest(".bonding-channel-leave-btn"))return;const r=m.dataset.channelId,x=c.find(B=>B._id===r);x&&(l=x,u.forEach(B=>B.classList.remove("active")),m.classList.add("active"),Me(),await Fe(x._id))}}),i.querySelectorAll(".bonding-channel-leave-btn").forEach(m=>{m.onclick=async s=>{s.stopPropagation();const r=m.dataset.channelId,B=c.find(C=>C._id===r)?.name||"this group";if(confirm(`Are you sure you want to leave the group "${B}"?`))try{m.disabled=!0,await Ce(`/bonding/channels/${r}/leave`,{}),y(`You left "${B}"`,"info"),c=c.filter(C=>C._id!==r),l&&l._id===r&&(l=c.find(C=>C.type==="group")||c[0]||null,Me(),l&&await Fe(l._id)),Oe()}catch(C){y(C.message||"Failed to leave group","error"),m.disabled=!1}}}),i.querySelectorAll(".bonding-channel-del-btn").forEach(m=>{m.onclick=async s=>{s.stopPropagation();const r=m.dataset.channelId,x=c.find(O=>O._id===r),B=x&&x.type==="direct",C=B?"this 1-on-1 chat":`the group "${x?.name||""}"`;if(confirm(`Are you sure you want to delete ${C}? All messages will be permanently removed.`))try{m.disabled=!0,await et(`/bonding/channels/${r}`),y(B?"1-on-1 chat deleted":"Group deleted","success"),c=c.filter(O=>O._id!==r),l&&l._id===r&&(l=c[0]||null,Me(),l&&await Fe(l._id)),Oe()}catch(O){y(O.message||"Failed to delete conversation","error"),m.disabled=!1}}}),i.querySelector("#btn-create-group")?.addEventListener("click",ee),i.querySelector("#btn-new-direct-chat")?.addEventListener("click",X)}function Me(){const u=i.querySelector("#bonding-chat-panel");if(!u)return;if(!l){u.innerHTML=`
         <div class="bonding-empty-feed">
           <div class="bonding-empty-icon">💬</div>
           <h4>Select a Conversation</h4>
           <p>Choose a group lounge or direct message on the left to start chatting with your colleagues.</p>
         </div>
-      `;return}const f=h(l.displayName||l.name),r=(l.members||[]).length,o=l.type==="group",x=e?._id||e?.id,B=o?null:(l.members||[]).find(F=>F.userId?.toString()!==x?.toString()),C=l.createdBy&&l.createdBy.userId&&String(l.createdBy.userId)===String(x),O=d==="superadmin"||e?.role==="superadmin",ne=C||O;u.innerHTML=`
+      `;return}const m=h(l.displayName||l.name),s=(l.members||[]).length,r=l.type==="group",x=e?._id||e?.id,B=r?null:(l.members||[]).find(F=>F.userId?.toString()!==x?.toString()),C=l.createdBy&&l.createdBy.userId&&String(l.createdBy.userId)===String(x),O=d==="superadmin"||e?.role==="superadmin",ne=C||O;u.innerHTML=`
       <div class="bonding-chat-header">
         <div class="bonding-chat-header-info">
-          <div class="bonding-chat-header-avatar">${o?l.avatar||"👥":"👤"}</div>
+          <div class="bonding-chat-header-avatar">${r?l.avatar||"👥":"👤"}</div>
           <div>
-            <div class="bonding-chat-title">${f}</div>
+            <div class="bonding-chat-title">${m}</div>
             <div class="bonding-chat-sub">
-              ${o?`<span>${r} members</span> · <span>${h(l.description||"Public Lounge")}</span>`:'<span>Direct 1-on-1 Personal Chat</span> · <span class="status-online">🟢 Active</span>'}
+              ${r?`<span>${s} members</span> · <span>${h(l.description||"Public Lounge")}</span>`:'<span>Direct 1-on-1 Personal Chat</span> · <span class="status-online">🟢 Active</span>'}
             </div>
           </div>
         </div>
@@ -2909,9 +2958,9 @@ import{c as Re,k as y,e as h,v as Xe,l as Ze,p as Gt,m as Yt,j as Ce,w as ga,x a
             <span>🧹</span> <span>Clear Chat</span>
           </button>
 
-          ${o?`
+          ${r?`
             <button class="bonding-header-btn" id="btn-manage-members">
-              <span>👥</span> <span>Members (${r})</span>
+              <span>👥</span> <span>Members (${s})</span>
             </button>
             ${ne?`
               <button class="bonding-header-btn danger" id="btn-delete-group" title="Delete this group (Creator only)">
@@ -2955,27 +3004,27 @@ import{c as Re,k as y,e as h,v as Xe,l as Ze,p as Gt,m as Yt,j as Ce,w as ga,x a
           </svg>
         </button>
       </div>
-    `,st(B),ve(B),g(),a()}function ze(){if(!z||z.length===0)return`
+    `,st(B),ve(B),p(),a()}function ze(){if(!z||z.length===0)return`
         <div class="bonding-empty-feed">
           <div class="bonding-empty-icon">👋</div>
           <h4>No messages yet</h4>
           <p>Be the first to say hello or challenge a colleague to a multiplayer game!</p>
         </div>
-      `;const u=e?._id||e?.id;return z.map(f=>{const r=f.sender&&f.sender.userId&&u&&f.sender.userId.toString()===u.toString();if(f.type==="system")return`
-          <div class="bonding-msg-system" data-msg-id="${f._id}">
-            <span>ℹ️</span> <span>${h(f.content)}</span>
-            <button class="bonding-msg-del-btn mini" data-msg-id="${f._id}" title="Delete Message">&times;</button>
+      `;const u=e?._id||e?.id;return z.map(m=>{const s=m.sender&&m.sender.userId&&u&&m.sender.userId.toString()===u.toString();if(m.type==="system")return`
+          <div class="bonding-msg-system" data-msg-id="${m._id}">
+            <span>ℹ️</span> <span>${h(m.content)}</span>
+            <button class="bonding-msg-del-btn mini" data-msg-id="${m._id}" title="Delete Message">&times;</button>
           </div>
-        `;if(f.type==="challenge"&&f.challengeData){const C=f.challengeData;if(C.status==="declined"||C.status==="cancelled")return"";const O=C.gameTitle||"Game Challenge",ne=C.gameType||"chess",F=ne==="chess"?"♟️":ne==="ludo"?"🎲":"❌",q=C.gameState?.invitationId,Y=C.targetUserId?.toString(),_e=f.sender?.userId?.toString(),fe=u&&Y===u.toString(),le=u&&_e===u.toString();return`
-          <div class="bonding-msg-row ${r?"self":"other"}" data-msg-id="${f._id}">
-            <div class="bonding-msg-avatar" title="${h(f.sender?.name||"Teammate")}">
-              ${(f.sender?.name||"U").slice(0,1).toUpperCase()}
+        `;if(m.type==="challenge"&&m.challengeData){const C=m.challengeData;if(C.status==="declined"||C.status==="cancelled")return"";const O=C.gameTitle||"Game Challenge",ne=C.gameType||"chess",F=ne==="chess"?"♟️":ne==="ludo"?"🎲":"❌",q=C.gameState?.invitationId,Y=C.targetUserId?.toString(),_e=m.sender?.userId?.toString(),me=u&&Y===u.toString(),le=u&&_e===u.toString();return`
+          <div class="bonding-msg-row ${s?"self":"other"}" data-msg-id="${m._id}">
+            <div class="bonding-msg-avatar" title="${h(m.sender?.name||"Teammate")}">
+              ${(m.sender?.name||"U").slice(0,1).toUpperCase()}
             </div>
             <div class="bonding-msg-bubble-wrap">
               <div class="bonding-msg-meta">
-                <span class="bonding-msg-sender">${h(f.sender?.name||"Teammate")}</span>
-                <span class="bonding-msg-time">${Q(f.createdAt)}</span>
-                <button class="bonding-msg-del-btn" data-msg-id="${f._id}" title="Delete Challenge Message">
+                <span class="bonding-msg-sender">${h(m.sender?.name||"Teammate")}</span>
+                <span class="bonding-msg-time">${Q(m.createdAt)}</span>
+                <button class="bonding-msg-del-btn" data-msg-id="${m._id}" title="Delete Challenge Message">
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <polyline points="3 6 5 6 21 6"></polyline>
                     <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -2989,7 +3038,7 @@ import{c as Re,k as y,e as h,v as Xe,l as Ze,p as Gt,m as Yt,j as Ce,w as ga,x a
                   <div class="game-bubble-icon">${F}</div>
                   <div class="game-bubble-details">
                     <h4 class="game-bubble-title">${h(O)}</h4>
-                    <p class="game-bubble-desc">${h(f.content)}</p>
+                    <p class="game-bubble-desc">${h(m.content)}</p>
                   </div>
                 </div>
 
@@ -2998,7 +3047,7 @@ import{c as Re,k as y,e as h,v as Xe,l as Ze,p as Gt,m as Yt,j as Ce,w as ga,x a
                 </div>
 
                 <div class="game-bubble-actions">
-                  ${C.status==="pending"&&fe?`
+                  ${C.status==="pending"&&me?`
                       <button class="game-btn-accept btn-respond-invite" data-invite-id="${q}" data-action="accept">
                         ⚔️ Accept Challenge
                       </button>
@@ -3018,17 +3067,17 @@ import{c as Re,k as y,e as h,v as Xe,l as Ze,p as Gt,m as Yt,j as Ce,w as ga,x a
                 </div>
               </div>
 
-              ${ce(f)}
+              ${ce(m)}
             </div>
           </div>
-        `}const o=h(f.sender?.name||"Teammate"),x=Q(f.createdAt),B=ce(f);return`
-        <div class="bonding-msg-row ${r?"self":"other"}" data-msg-id="${f._id}">
-          <div class="bonding-msg-avatar" title="${o}">${o.slice(0,1).toUpperCase()}</div>
+        `}const r=h(m.sender?.name||"Teammate"),x=Q(m.createdAt),B=ce(m);return`
+        <div class="bonding-msg-row ${s?"self":"other"}" data-msg-id="${m._id}">
+          <div class="bonding-msg-avatar" title="${r}">${r.slice(0,1).toUpperCase()}</div>
           <div class="bonding-msg-bubble-wrap">
             <div class="bonding-msg-meta">
-              <span class="bonding-msg-sender">${o}</span>
+              <span class="bonding-msg-sender">${r}</span>
               <span class="bonding-msg-time">${x}</span>
-              <button class="bonding-msg-del-btn" data-msg-id="${f._id}" title="Delete Message">
+              <button class="bonding-msg-del-btn" data-msg-id="${m._id}" title="Delete Message">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <polyline points="3 6 5 6 21 6"></polyline>
                   <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -3036,44 +3085,44 @@ import{c as Re,k as y,e as h,v as Xe,l as Ze,p as Gt,m as Yt,j as Ce,w as ga,x a
               </button>
             </div>
             <div class="bonding-msg-bubble">
-              ${h(f.content).replace(/\n/g,"<br/>")}
+              ${h(m.content).replace(/\n/g,"<br/>")}
             </div>
             ${B}
           </div>
         </div>
       `}).join("")}function ce(u){return`
       <div class="bonding-reactions-row">
-        ${(u.reactions||[]).map(o=>{const x=e?._id||e?.id;return`
-        <button class="bonding-rxn-tag ${(o.users||[]).some(C=>C.toString()===x?.toString())?"active":""}" data-msg-id="${u._id}" data-emoji="${o.emoji}">
-          <span>${o.emoji}</span> <span>${o.users?o.users.length:1}</span>
+        ${(u.reactions||[]).map(r=>{const x=e?._id||e?.id;return`
+        <button class="bonding-rxn-tag ${(r.users||[]).some(C=>C.toString()===x?.toString())?"active":""}" data-msg-id="${u._id}" data-emoji="${r.emoji}">
+          <span>${r.emoji}</span> <span>${r.users?r.users.length:1}</span>
         </button>
       `}).join("")}
         <button class="bonding-add-rxn-btn" data-msg-id="${u._id}" title="Add reaction">
           <span>+😀</span>
         </button>
       </div>
-    `}function st(u){const f=i.querySelector("#btn-chat-challenge");f&&(f.onclick=()=>{u?R(null,u.userId||u._id):R()});const r=i.querySelector("#btn-manage-members");r&&(r.onclick=G);const o=i.querySelector("#btn-delete-group");o&&(o.onclick=M);const x=i.querySelector("#btn-leave-group");x&&(x.onclick=v);const B=i.querySelector("#btn-delete-direct");B&&(B.onclick=async()=>{if(l&&confirm("Are you sure you want to delete this 1-on-1 chat? All messages will be permanently removed."))try{B.disabled=!0,await Ze(`/bonding/channels/${l._id}`),y("1-on-1 chat deleted successfully","success");const O=l._id;c=c.filter(ne=>ne._id!==O),l=c[0]||null,Oe(),Me(),l&&await Fe(l._id)}catch(O){y(O.message||"Could not delete 1-on-1 chat","error"),B.disabled=!1}});const C=i.querySelector("#btn-clear-chat");C&&(C.onclick=async()=>{if(l&&confirm("Are you sure you want to clear all messages in this conversation?"))try{C.disabled=!0,await Ze(`/bonding/channels/${l._id}/messages`),y("Chat messages cleared","success"),z=[],T()}catch(O){y(O.message||"Could not clear chat messages","error")}finally{C.disabled=!1}})}function ve(u){const f=i.querySelector("#bonding-message-input"),r=i.querySelector("#btn-send-message"),o=i.querySelector("#btn-quick-emoji"),x=i.querySelector("#btn-input-challenge");f&&f.addEventListener("keydown",B=>{B.key==="Enter"&&!B.shiftKey&&(B.preventDefault(),_())}),r&&(r.onclick=_),x&&(x.onclick=()=>{u?R(null,u.userId||u._id):R()}),o&&(o.onclick=()=>{if(!f)return;const B=["👍","🎉","🔥","💪","🚀","❤️","😂","👏","✨"],C=B[Math.floor(Math.random()*B.length)];f.value+=(f.value?" ":"")+C,f.focus()})}function g(){i.querySelectorAll(".btn-respond-invite").forEach(o=>{o.onclick=async()=>{const x=o.dataset.inviteId,B=o.dataset.action;await A(x,B)}}),i.querySelectorAll(".btn-launch-match-from-card").forEach(o=>{o.onclick=async()=>{const x=o.dataset.inviteId;try{o.disabled=!0;const B=await Re("/bonding/invitations"),C=(B.incoming||[]).concat(B.sent||[]).find(O=>O._id===x);C&&C.matchId?U(C.matchId):y("Match has not started yet or has expired","warning")}catch(B){y(B.message||"Could not load match","error")}finally{o.disabled=!1}}}),i.querySelectorAll(".bonding-msg-del-btn").forEach(o=>{o.onclick=async x=>{x.stopPropagation();const B=o.dataset.msgId;if(confirm("Are you sure you want to delete this message?"))try{o.disabled=!0,await Ze(`/bonding/messages/${B}`),z=z.filter(C=>C._id!==B),s(),y("Message deleted","success")}catch(C){y(C.message||"Failed to delete message","error"),o.disabled=!1}}}),i.querySelectorAll(".bonding-rxn-tag").forEach(o=>{o.onclick=async()=>{const x=o.dataset.msgId,B=o.dataset.emoji;await I(x,B)}}),i.querySelectorAll(".bonding-add-rxn-btn").forEach(o=>{o.onclick=x=>{const B=o.dataset.msgId;ie(x.currentTarget,async C=>{await I(B,C)})}})}async function _(){const u=i.querySelector("#bonding-message-input");if(!u||!l||E)return;const f=u.value.trim();if(f)try{E=!0,u.value="";const r=await Ce(`/bonding/channels/${l._id}/messages`,{content:f,type:"text"});z.push(r),T(),a()}catch(r){y(r.message||"Failed to send message","error")}finally{E=!1,u.focus()}}async function I(u,f){try{const r=await Ce(`/bonding/messages/${u}/react`,{emoji:f}),o=z.find(x=>x._id===u);o&&(o.reactions=r,s())}catch(r){y(r.message||"Failed to react","error")}}function a(){const u=i.querySelector("#bonding-messages-feed");u&&(u.scrollTop=u.scrollHeight)}function s(){const u=i.querySelector("#bonding-messages-feed");if(!u)return;const f=u.scrollHeight-u.scrollTop<=u.clientHeight+80;u.innerHTML=ze(),g(),f&&a()}function T(){const u=i.querySelector("#bonding-messages-feed");u&&(u.innerHTML=ze(),g())}async function P(u=!1){const f=i.querySelector("#bonding-lounge-main-wrap");if(f){u||(f.innerHTML='<div class="bonding-loading-text" style="padding:40px;text-align:center">Loading Games Arena & Live Matches...</div>');try{const r=await Re("/bonding/games/overview");W=r;const o=r.myStats||{},x=r.availableGames||[],B=r.incomingChallenges||[],C=r.sentChallenges||[],O=r.activeMatches||[],ne=r.recentMatches||[],F=e?._id||e?.id;f.innerHTML=`
+    `}function st(u){const m=i.querySelector("#btn-chat-challenge");m&&(m.onclick=()=>{u?R(null,u.userId||u._id):R()});const s=i.querySelector("#btn-manage-members");s&&(s.onclick=G);const r=i.querySelector("#btn-delete-group");r&&(r.onclick=M);const x=i.querySelector("#btn-leave-group");x&&(x.onclick=v);const B=i.querySelector("#btn-delete-direct");B&&(B.onclick=async()=>{if(l&&confirm("Are you sure you want to delete this 1-on-1 chat? All messages will be permanently removed."))try{B.disabled=!0,await et(`/bonding/channels/${l._id}`),y("1-on-1 chat deleted successfully","success");const O=l._id;c=c.filter(ne=>ne._id!==O),l=c[0]||null,Oe(),Me(),l&&await Fe(l._id)}catch(O){y(O.message||"Could not delete 1-on-1 chat","error"),B.disabled=!1}});const C=i.querySelector("#btn-clear-chat");C&&(C.onclick=async()=>{if(l&&confirm("Are you sure you want to clear all messages in this conversation?"))try{C.disabled=!0,await et(`/bonding/channels/${l._id}/messages`),y("Chat messages cleared","success"),z=[],T()}catch(O){y(O.message||"Could not clear chat messages","error")}finally{C.disabled=!1}})}function ve(u){const m=i.querySelector("#bonding-message-input"),s=i.querySelector("#btn-send-message"),r=i.querySelector("#btn-quick-emoji"),x=i.querySelector("#btn-input-challenge");m&&m.addEventListener("keydown",B=>{B.key==="Enter"&&!B.shiftKey&&(B.preventDefault(),_())}),s&&(s.onclick=_),x&&(x.onclick=()=>{u?R(null,u.userId||u._id):R()}),r&&(r.onclick=()=>{if(!m)return;const B=["👍","🎉","🔥","💪","🚀","❤️","😂","👏","✨"],C=B[Math.floor(Math.random()*B.length)];m.value+=(m.value?" ":"")+C,m.focus()})}function p(){i.querySelectorAll(".btn-respond-invite").forEach(r=>{r.onclick=async()=>{const x=r.dataset.inviteId,B=r.dataset.action;await A(x,B)}}),i.querySelectorAll(".btn-launch-match-from-card").forEach(r=>{r.onclick=async()=>{const x=r.dataset.inviteId;try{r.disabled=!0;const B=await Re("/bonding/invitations"),C=(B.incoming||[]).concat(B.sent||[]).find(O=>O._id===x);C&&C.matchId?U(C.matchId):y("Match has not started yet or has expired","warning")}catch(B){y(B.message||"Could not load match","error")}finally{r.disabled=!1}}}),i.querySelectorAll(".bonding-msg-del-btn").forEach(r=>{r.onclick=async x=>{x.stopPropagation();const B=r.dataset.msgId;if(confirm("Are you sure you want to delete this message?"))try{r.disabled=!0,await et(`/bonding/messages/${B}`),z=z.filter(C=>C._id!==B),o(),y("Message deleted","success")}catch(C){y(C.message||"Failed to delete message","error"),r.disabled=!1}}}),i.querySelectorAll(".bonding-rxn-tag").forEach(r=>{r.onclick=async()=>{const x=r.dataset.msgId,B=r.dataset.emoji;await I(x,B)}}),i.querySelectorAll(".bonding-add-rxn-btn").forEach(r=>{r.onclick=x=>{const B=r.dataset.msgId;te(x.currentTarget,async C=>{await I(B,C)})}})}async function _(){const u=i.querySelector("#bonding-message-input");if(!u||!l||E)return;const m=u.value.trim();if(m)try{E=!0,u.value="";const s=await Ce(`/bonding/channels/${l._id}/messages`,{content:m,type:"text"});z.push(s),T(),a()}catch(s){y(s.message||"Failed to send message","error")}finally{E=!1,u.focus()}}async function I(u,m){try{const s=await Ce(`/bonding/messages/${u}/react`,{emoji:m}),r=z.find(x=>x._id===u);r&&(r.reactions=s,o())}catch(s){y(s.message||"Failed to react","error")}}function a(){const u=i.querySelector("#bonding-messages-feed");u&&(u.scrollTop=u.scrollHeight)}function o(){const u=i.querySelector("#bonding-messages-feed");if(!u)return;const m=u.scrollHeight-u.scrollTop<=u.clientHeight+80;u.innerHTML=ze(),p(),m&&a()}function T(){const u=i.querySelector("#bonding-messages-feed");u&&(u.innerHTML=ze(),p())}async function P(u=!1){const m=i.querySelector("#bonding-lounge-main-wrap");if(m){u||(m.innerHTML='<div class="bonding-loading-text" style="padding:40px;text-align:center">Loading Games Arena & Live Matches...</div>');try{const s=await Re("/bonding/games/overview");W=s;const r=s.myStats||{},x=s.availableGames||[],B=s.incomingChallenges||[],C=s.sentChallenges||[],O=s.activeMatches||[],ne=s.recentMatches||[],F=e?._id||e?.id;m.innerHTML=`
         <div class="lounge-container">
           <!-- Top Stats Ribbon -->
           <div class="lounge-stats-ribbon">
             <div class="lounge-stat-card">
-              <span class="stat-num">${o.gamesPlayed||0}</span>
+              <span class="stat-num">${r.gamesPlayed||0}</span>
               <span class="stat-lbl">Matches Played</span>
             </div>
             <div class="lounge-stat-card highlight">
-              <span class="stat-num">${o.wins||0}</span>
+              <span class="stat-num">${r.wins||0}</span>
               <span class="stat-lbl">Victories 🏆</span>
             </div>
             <div class="lounge-stat-card">
-              <span class="stat-num">${o.losses||0}</span>
+              <span class="stat-num">${r.losses||0}</span>
               <span class="stat-lbl">Losses</span>
             </div>
             <div class="lounge-stat-card">
-              <span class="stat-num">${o.draws||0}</span>
+              <span class="stat-num">${r.draws||0}</span>
               <span class="stat-lbl">Draws</span>
             </div>
             <div class="lounge-stat-card">
-              <span class="stat-num">${o.gamesPlayed>0?Math.round((o.wins||0)/o.gamesPlayed*100):0}%</span>
+              <span class="stat-num">${r.gamesPlayed>0?Math.round((r.wins||0)/r.gamesPlayed*100):0}%</span>
               <span class="stat-lbl">Win Rate</span>
             </div>
           </div>
@@ -3174,7 +3223,7 @@ import{c as Re,k as y,e as h,v as Xe,l as Ze,p as Gt,m as Yt,j as Ce,w as ga,x a
 
               ${O.length===0?'<div class="box-empty-text" style="padding: 24px 0">No active matches in progress right now. Accept an invitation or challenge a teammate to begin!</div>':`
                   <div class="lounge-active-matches-list">
-                    ${O.map(q=>{const _e=(q.players||q.gameState?.players||[q.player1,q.player2].filter(Boolean)).filter(K=>K.userId&&K.userId.toString()!==F?.toString()),fe=q.player1?.userId?.toString()===F?.toString()?q.player2:q.player1,le=_e.length>0?_e.map(K=>h(K.name)).join(", "):fe?.name?h(fe.name):"Colleagues",ue=F&&q.currentTurnUserId&&q.currentTurnUserId.toString()===F.toString();return`
+                    ${O.map(q=>{const _e=(q.players||q.gameState?.players||[q.player1,q.player2].filter(Boolean)).filter(K=>K.userId&&K.userId.toString()!==F?.toString()),me=q.player1?.userId?.toString()===F?.toString()?q.player2:q.player1,le=_e.length>0?_e.map(K=>h(K.name)).join(", "):me?.name?h(me.name):"Colleagues",ue=F&&q.currentTurnUserId&&q.currentTurnUserId.toString()===F.toString();return`
                         <div class="lounge-active-match-card ${ue?"turn-active":""}">
                           <div class="active-match-left">
                             <span class="match-game-icon">${q.gameType==="chess"?"♟️":q.gameType==="ludo"?"🎲":"❌"}</span>
@@ -3225,7 +3274,7 @@ import{c as Re,k as y,e as h,v as Xe,l as Ze,p as Gt,m as Yt,j as Ce,w as ga,x a
 
             ${ne.length===0?'<div class="box-empty-text">No recently completed matches found.</div>':`
                 <div class="lounge-recent-matches-grid">
-                  ${ne.map(q=>{const _e=F&&q.player1.userId.toString()===F.toString()?q.player2:q.player1,fe=F&&q.winnerId&&q.winnerId.toString()===F.toString(),le=q.status==="draw";return`
+                  ${ne.map(q=>{const _e=F&&q.player1.userId.toString()===F.toString()?q.player2:q.player1,me=F&&q.winnerId&&q.winnerId.toString()===F.toString(),le=q.status==="draw";return`
                       <div class="recent-match-card">
                         <div class="recent-card-head">
                           <span class="recent-game-title">${h(q.gameTitle)}</span>
@@ -3239,8 +3288,8 @@ import{c as Re,k as y,e as h,v as Xe,l as Ze,p as Gt,m as Yt,j as Ce,w as ga,x a
                         </div>
                         <div class="recent-card-body">
                           <div>Opponent: <strong>${h(_e.name)}</strong></div>
-                          <div class="recent-outcome ${fe?"win":le?"draw":"loss"}">
-                            ${fe?"🏆 VICTORY":le?"🤝 DRAW":"DEFEAT"}
+                          <div class="recent-outcome ${me?"win":le?"draw":"loss"}">
+                            ${me?"🏆 VICTORY":le?"🤝 DRAW":"DEFEAT"}
                             <span style="font-size:11px;font-weight:normal;color:var(--text-3)">(${h(q.winningReason||q.status)})</span>
                           </div>
                         </div>
@@ -3258,13 +3307,13 @@ import{c as Re,k as y,e as h,v as Xe,l as Ze,p as Gt,m as Yt,j as Ce,w as ga,x a
               `}
           </div>
         </div>
-      `,$()}catch(r){f.innerHTML=`
+      `,$()}catch(s){m.innerHTML=`
         <div class="bonding-empty-feed">
           <div class="bonding-empty-icon">⚠️</div>
           <h4>Failed to load Games Arena</h4>
-          <p>${h(r.message)}</p>
+          <p>${h(s.message)}</p>
         </div>
-      `}}}function $(){i.querySelectorAll(".btn-challenge-game").forEach(f=>{f.onclick=()=>{const r=f.dataset.gameId;R(r)}}),i.querySelectorAll(".btn-respond-invite").forEach(f=>{f.onclick=async()=>{const r=f.dataset.inviteId,o=f.dataset.action;await A(r,o),await P()}}),i.querySelectorAll(".btn-resume-match").forEach(f=>{f.onclick=()=>{const r=f.dataset.matchId;U(r)}}),i.querySelectorAll(".btn-recent-rematch").forEach(f=>{f.onclick=async()=>{const r=f.dataset.matchId;try{f.disabled=!0;const o=await Ce(`/bonding/matches/${r}/action`,{action:"rematch"});o.match&&(y("Rematch created! Opening arena ⚔️","success"),U(o.match._id))}catch(o){y(o.message||"Could not start rematch","error")}finally{f.disabled=!1}}}),i.querySelectorAll(".btn-delete-match").forEach(f=>{f.onclick=async r=>{r.stopPropagation();const o=f.dataset.matchId;if(confirm("Are you sure you want to delete this match record?"))try{f.disabled=!0,await Ze(`/bonding/matches/${o}`),y("Match deleted successfully","success"),await P()}catch(x){y(x.message||"Failed to delete match","error")}finally{f.disabled=!1}}});const u=i.querySelector("#btn-clear-matches");u&&(u.onclick=async()=>{if(confirm("Are you sure you want to delete all completed matches in history?"))try{u.disabled=!0,await Ze("/bonding/matches?filter=completed"),y("Completed matches history cleared","success"),await P()}catch(f){y(f.message||"Failed to clear matches","error")}finally{u.disabled=!1}})}function R(u=null,f=null){const r=i.querySelector("#bonding-modals-root"),o=e?._id||e?.id,x=new Set(["employee","admin","superadmin"]),B=n.filter(fe=>!fe.isSelf&&fe._id.toString()!==o?.toString()&&x.has(fe.role));let C=u||"chess",O=f?f.toString():null,ne=2,F=O?[O]:[],q="none";function Y(){const fe=B.find(re=>re._id.toString()===O),le=C==="ludo",ue=ne-1,K=F.length===ue;r.innerHTML=`
+      `}}}function $(){i.querySelectorAll(".btn-challenge-game").forEach(m=>{m.onclick=()=>{const s=m.dataset.gameId;R(s)}}),i.querySelectorAll(".btn-respond-invite").forEach(m=>{m.onclick=async()=>{const s=m.dataset.inviteId,r=m.dataset.action;await A(s,r),await P()}}),i.querySelectorAll(".btn-resume-match").forEach(m=>{m.onclick=()=>{const s=m.dataset.matchId;U(s)}}),i.querySelectorAll(".btn-recent-rematch").forEach(m=>{m.onclick=async()=>{const s=m.dataset.matchId;try{m.disabled=!0;const r=await Ce(`/bonding/matches/${s}/action`,{action:"rematch"});r.match&&(y("Rematch created! Opening arena ⚔️","success"),U(r.match._id))}catch(r){y(r.message||"Could not start rematch","error")}finally{m.disabled=!1}}}),i.querySelectorAll(".btn-delete-match").forEach(m=>{m.onclick=async s=>{s.stopPropagation();const r=m.dataset.matchId;if(confirm("Are you sure you want to delete this match record?"))try{m.disabled=!0,await et(`/bonding/matches/${r}`),y("Match deleted successfully","success"),await P()}catch(x){y(x.message||"Failed to delete match","error")}finally{m.disabled=!1}}});const u=i.querySelector("#btn-clear-matches");u&&(u.onclick=async()=>{if(confirm("Are you sure you want to delete all completed matches in history?"))try{u.disabled=!0,await et("/bonding/matches?filter=completed"),y("Completed matches history cleared","success"),await P()}catch(m){y(m.message||"Failed to clear matches","error")}finally{u.disabled=!1}})}function R(u=null,m=null){const s=i.querySelector("#bonding-modals-root"),r=e?._id||e?.id,x=new Set(["employee","admin","superadmin"]),B=n.filter(me=>!me.isSelf&&me._id.toString()!==r?.toString()&&x.has(me.role));let C=u||"chess",O=m?m.toString():null,ne=2,F=O?[O]:[],q="none";function Y(){const me=B.find(re=>re._id.toString()===O),le=C==="ludo",ue=ne-1,K=F.length===ue;s.innerHTML=`
         <div class="bonding-modal-backdrop">
           <div class="bonding-modal-card challenge-flow-modal">
             <div class="bonding-modal-header">
@@ -3361,7 +3410,7 @@ import{c as Re,k as y,e as h,v as Xe,l as Ze,p as Gt,m as Yt,j as Ce,w as ga,x a
                   ${le?`
                     <div><strong>Opponents:</strong> ${F.length>0?F.map(re=>{const be=B.find(de=>de._id.toString()===re);return be?`<strong>${h(be.name)}</strong>`:"Colleague"}).join(", "):'<span style="color:#ef4444">⚠️ Please select '+ue+" colleague(s)</span>"}</div>
                   `:`
-                    <div><strong>Opponent:</strong> ${fe?`<strong>${h(fe.name)}</strong> (${h(fe.role)})`:'<span style="color:#ef4444">⚠️ No employee selected yet</span>'}</div>
+                    <div><strong>Opponent:</strong> ${me?`<strong>${h(me.name)}</strong> (${h(me.role)})`:'<span style="color:#ef4444">⚠️ No employee selected yet</span>'}</div>
                   `}
                   ${C==="chess"?`<div><strong>Time Control:</strong> ${q==="none"?"Untimed":q}</div>`:""}
                 </div>
@@ -3376,7 +3425,7 @@ import{c as Re,k as y,e as h,v as Xe,l as Ze,p as Gt,m as Yt,j as Ce,w as ga,x a
             </div>
           </div>
         </div>
-      `,_e()}function _e(){r.querySelector(".bonding-modal-close").onclick=()=>{r.innerHTML=""},r.querySelector("#btn-cancel-challenge-flow").onclick=()=>{r.innerHTML=""},r.querySelectorAll(".game-pill-btn").forEach(ue=>{ue.onclick=()=>{C=ue.dataset.game,Y()}}),r.querySelectorAll(".ludo-mode-btn").forEach(ue=>{ue.onclick=()=>{ne=Number(ue.dataset.count),F=F.slice(0,ne-1),Y()}});const fe=r.querySelector("#flow-emp-search");fe&&(fe.oninput=ue=>{const K=ue.target.value.toLowerCase().trim();r.querySelectorAll(".eligible-emp-item").forEach(re=>{const be=re.textContent.toLowerCase();re.style.display=be.includes(K)?"flex":"none"})}),r.querySelectorAll(".eligible-emp-item").forEach(ue=>{ue.onclick=()=>{const K=ue.dataset.userId;if(C==="ludo"){const re=ne-1;F.includes(K)?F=F.filter(be=>be!==K):F.length<re?F.push(K):F[re-1]=K}else O=K;Y()}}),r.querySelectorAll('input[name="timerMode"]').forEach(ue=>{ue.onchange=K=>{q=K.target.value,Y()}});const le=r.querySelector("#btn-submit-challenge-flow");le&&(le.onclick=async()=>{if(C==="ludo"){const ue=ne-1;if(F.length<ue){y(`Please select ${ue} colleague(s) to play with`,"warning");return}try{le.disabled=!0,le.textContent="Launching Match...";const K=await Ce("/bonding/matches/instant-ludo",{playerCount:ne,targetUserIds:F});r.innerHTML="",y(`Ludo match started (${ne} Players)! 🎲`,"success"),K&&K._id&&U(K._id)}catch(K){y(K.message||"Failed to start Ludo match","error"),le.disabled=!1,le.textContent=`Start ${ne}P Ludo Match 🎲`}return}if(!O){y("Please select an employee to challenge","warning");return}try{le.disabled=!0,le.textContent="Sending Challenge...",await Ce("/bonding/invitations",{gameType:C,targetUserId:O,matchSettings:{timerMode:q},channelId:null}),y("Game challenge delivered to personal chat! Awaiting acceptance ⚔️","success"),r.innerHTML="",await loadChannels();const ue=c.find(K=>K.type==="direct"&&K.members?.some(re=>(re.userId||re._id)?.toString()===O));ue?selectChannel(ue):l&&await Fe(l._id),b==="lounge_games"&&await P()}catch(ue){y(ue.message||"Could not send challenge","error"),le.disabled=!1,le.textContent="Send Challenge 🚀"}})}Y()}async function A(u,f){if(!(!u||!f))try{const r=await Yt(`/bonding/invitations/${u}/respond`,{action:f});f==="accept"?(y("Challenge accepted! Entering match arena ⚔️","success"),r.match&&U(r.match._id)):f==="decline"?(y("Challenge declined","info"),i.querySelectorAll(`[data-invite-id="${u}"]`).forEach(o=>{const x=o.closest(".lounge-invite-item")||o.closest(".bonding-msg-row");x&&x.remove()})):f==="cancel"&&(y("Challenge cancelled","info"),i.querySelectorAll(`[data-invite-id="${u}"]`).forEach(o=>{const x=o.closest(".lounge-invite-item")||o.closest(".bonding-msg-row");x&&x.remove()})),l&&await Fe(l._id),b==="lounge_games"&&await P()}catch(r){y(r.message||"Action failed","error")}}async function U(u){if(!u)return;N=u,j&&clearInterval(j);const f=i.querySelector("#bonding-modals-root");let r=null,o=null,x=[],B="",C=null,O=!1;function ne(K){return K?JSON.stringify({status:K.status,turn:K.currentTurnUserId?.toString(),turnColor:K.turn,movesCount:K.moves?.length,dice:K.gameState?.dice,rolled:K.gameState?.rolled,lastRoll:K.gameState?.lastRoll,lastRollColor:K.gameState?.lastRollColor,lastRollBy:K.gameState?.lastRollBy,lastActionText:K.gameState?.lastActionText,tokens:K.gameState?.tokens,board:K.gameState?.board,grid:K.gameState?.grid,fen:K.gameState?.fen,draw:K.drawOfferedBy?.toString()}):""}async function F(){try{return r=await Re(`/bonding/matches/${u}`),r}catch(K){return y(K.message||"Could not load match","error"),q(),null}}if(r=await F(),!r)return;B=ne(r);function q(){j&&clearInterval(j),C&&clearTimeout(C),O=!1,N=null,f.innerHTML="",b==="lounge_games"&&P(!0),l&&Fe(l._id,!0)}j=setInterval(async()=>{if(!N||N!==u){clearInterval(j);return}try{const K=await Re(`/bonding/matches/${u}`);if(!K)return;const re=ne(K);re!==B&&(B=re,r=K,Y())}catch{}},1e3);function Y(){if(!r)return;const K=e?._id||e?.id,re=K&&r.player1.userId.toString()===K.toString(),be=re?r.player1:r.player2,de=re?r.player2:r.player1,he=K&&r.currentTurnUserId&&r.currentTurnUserId.toString()===K.toString(),De=r.status!=="active";f.innerHTML=`
+      `,_e()}function _e(){s.querySelector(".bonding-modal-close").onclick=()=>{s.innerHTML=""},s.querySelector("#btn-cancel-challenge-flow").onclick=()=>{s.innerHTML=""},s.querySelectorAll(".game-pill-btn").forEach(ue=>{ue.onclick=()=>{C=ue.dataset.game,Y()}}),s.querySelectorAll(".ludo-mode-btn").forEach(ue=>{ue.onclick=()=>{ne=Number(ue.dataset.count),F=F.slice(0,ne-1),Y()}});const me=s.querySelector("#flow-emp-search");me&&(me.oninput=ue=>{const K=ue.target.value.toLowerCase().trim();s.querySelectorAll(".eligible-emp-item").forEach(re=>{const be=re.textContent.toLowerCase();re.style.display=be.includes(K)?"flex":"none"})}),s.querySelectorAll(".eligible-emp-item").forEach(ue=>{ue.onclick=()=>{const K=ue.dataset.userId;if(C==="ludo"){const re=ne-1;F.includes(K)?F=F.filter(be=>be!==K):F.length<re?F.push(K):F[re-1]=K}else O=K;Y()}}),s.querySelectorAll('input[name="timerMode"]').forEach(ue=>{ue.onchange=K=>{q=K.target.value,Y()}});const le=s.querySelector("#btn-submit-challenge-flow");le&&(le.onclick=async()=>{if(C==="ludo"){const ue=ne-1;if(F.length<ue){y(`Please select ${ue} colleague(s) to play with`,"warning");return}try{le.disabled=!0,le.textContent="Launching Match...";const K=await Ce("/bonding/matches/instant-ludo",{playerCount:ne,targetUserIds:F});s.innerHTML="",y(`Ludo match started (${ne} Players)! 🎲`,"success"),K&&K._id&&U(K._id)}catch(K){y(K.message||"Failed to start Ludo match","error"),le.disabled=!1,le.textContent=`Start ${ne}P Ludo Match 🎲`}return}if(!O){y("Please select an employee to challenge","warning");return}try{le.disabled=!0,le.textContent="Sending Challenge...",await Ce("/bonding/invitations",{gameType:C,targetUserId:O,matchSettings:{timerMode:q},channelId:null}),y("Game challenge delivered to personal chat! Awaiting acceptance ⚔️","success"),s.innerHTML="",await loadChannels();const ue=c.find(K=>K.type==="direct"&&K.members?.some(re=>(re.userId||re._id)?.toString()===O));ue?selectChannel(ue):l&&await Fe(l._id),b==="lounge_games"&&await P()}catch(ue){y(ue.message||"Could not send challenge","error"),le.disabled=!1,le.textContent="Send Challenge 🚀"}})}Y()}async function A(u,m){if(!(!u||!m))try{const s=await Yt(`/bonding/invitations/${u}/respond`,{action:m});m==="accept"?(y("Challenge accepted! Entering match arena ⚔️","success"),s.match&&U(s.match._id)):m==="decline"?(y("Challenge declined","info"),i.querySelectorAll(`[data-invite-id="${u}"]`).forEach(r=>{const x=r.closest(".lounge-invite-item")||r.closest(".bonding-msg-row");x&&x.remove()})):m==="cancel"&&(y("Challenge cancelled","info"),i.querySelectorAll(`[data-invite-id="${u}"]`).forEach(r=>{const x=r.closest(".lounge-invite-item")||r.closest(".bonding-msg-row");x&&x.remove()})),l&&await Fe(l._id),b==="lounge_games"&&await P()}catch(s){y(s.message||"Action failed","error")}}async function U(u){if(!u)return;j=u,N&&clearInterval(N);const m=i.querySelector("#bonding-modals-root");let s=null,r=null,x=[],B="",C=null,O=!1;function ne(K){return K?JSON.stringify({status:K.status,turn:K.currentTurnUserId?.toString(),turnColor:K.turn,movesCount:K.moves?.length,dice:K.gameState?.dice,rolled:K.gameState?.rolled,lastRoll:K.gameState?.lastRoll,lastRollColor:K.gameState?.lastRollColor,lastRollBy:K.gameState?.lastRollBy,lastActionText:K.gameState?.lastActionText,tokens:K.gameState?.tokens,board:K.gameState?.board,grid:K.gameState?.grid,fen:K.gameState?.fen,draw:K.drawOfferedBy?.toString()}):""}async function F(){try{return s=await Re(`/bonding/matches/${u}`),s}catch(K){return y(K.message||"Could not load match","error"),q(),null}}if(s=await F(),!s)return;B=ne(s);function q(){N&&clearInterval(N),C&&clearTimeout(C),O=!1,j=null,m.innerHTML="",b==="lounge_games"&&P(!0),l&&Fe(l._id,!0)}N=setInterval(async()=>{if(!j||j!==u){clearInterval(N);return}try{const K=await Re(`/bonding/matches/${u}`);if(!K)return;const re=ne(K);re!==B&&(B=re,s=K,Y())}catch{}},1e3);function Y(){if(!s)return;const K=e?._id||e?.id,re=K&&s.player1.userId.toString()===K.toString(),be=re?s.player1:s.player2,de=re?s.player2:s.player1,he=K&&s.currentTurnUserId&&s.currentTurnUserId.toString()===K.toString(),De=s.status!=="active";m.innerHTML=`
         <div class="bonding-modal-backdrop">
           <div class="bonding-modal-card game-arena-modal">
             <!-- Dedicated Top-Right Close Button -->
@@ -3385,12 +3434,12 @@ import{c as Re,k as y,e as h,v as Xe,l as Ze,p as Gt,m as Yt,j as Ce,w as ga,x a
             <!-- Arena Header Bar -->
             <div class="arena-header">
               <div class="arena-title-wrap">
-                <span class="arena-icon">${r.gameType==="ludo"?"🎲":r.gameType==="chess"?"♟️":"❌"}</span>
+                <span class="arena-icon">${s.gameType==="ludo"?"🎲":s.gameType==="chess"?"♟️":"❌"}</span>
                 <div>
-                  <h3 class="arena-title">${h(r.gameTitle)}</h3>
-                  ${r.gameType==="ludo"&&r.gameState?.players?`
+                  <h3 class="arena-title">${h(s.gameTitle)}</h3>
+                  ${s.gameType==="ludo"&&s.gameState?.players?`
                     <div class="arena-players-vs ludo-players-wrap">
-                      ${r.gameState.players.map(Be=>{const Ge=Be.userId&&Be.userId.toString()===K?.toString(),Le={red:"🔴",green:"🟢",yellow:"🟡",blue:"🔵"}[Be.color]||"⚪",pe=(r.gameState?.turnColor||r.turn)===Be.color;return`
+                      ${s.gameState.players.map(Be=>{const Ge=Be.userId&&Be.userId.toString()===K?.toString(),Le={red:"🔴",green:"🟢",yellow:"🟡",blue:"🔵"}[Be.color]||"⚪",pe=(s.gameState?.turnColor||s.turn)===Be.color;return`
                           <span class="player-tag ${Ge?"self":"opp"} ${pe?"turn-active":""}">
                             ${Le} <strong>${h(Be.name)}</strong> ${Ge?"(You)":""}
                           </span>
@@ -3398,9 +3447,9 @@ import{c as Re,k as y,e as h,v as Xe,l as Ze,p as Gt,m as Yt,j as Ce,w as ga,x a
                     </div>
                   `:`
                     <div class="arena-players-vs">
-                      <span class="player-tag self">${h(be.name)} (You · <strong>${r.gameType==="ludo"?be.assignedRole==="red"?"🔴 Red":"🟢 Green":r.gameType==="tictactoe"?be.assignedRole==="X"?"✕":"◯":be.assignedRole}</strong>)</span>
+                      <span class="player-tag self">${h(be.name)} (You · <strong>${s.gameType==="ludo"?be.assignedRole==="red"?"🔴 Red":"🟢 Green":s.gameType==="tictactoe"?be.assignedRole==="X"?"✕":"◯":be.assignedRole}</strong>)</span>
                       <span class="vs-pill">VS</span>
-                      <span class="player-tag opp">${h(de.name)} (<strong>${r.gameType==="ludo"?de.assignedRole==="red"?"🔴 Red":"🟢 Green":r.gameType==="tictactoe"?de.assignedRole==="X"?"✕":"◯":de.assignedRole}</strong>)</span>
+                      <span class="player-tag opp">${h(de.name)} (<strong>${s.gameType==="ludo"?de.assignedRole==="red"?"🔴 Red":"🟢 Green":s.gameType==="tictactoe"?de.assignedRole==="X"?"✕":"◯":de.assignedRole}</strong>)</span>
                     </div>
                   `}
                 </div>
@@ -3408,14 +3457,14 @@ import{c as Re,k as y,e as h,v as Xe,l as Ze,p as Gt,m as Yt,j as Ce,w as ga,x a
 
               <!-- Live Turn Indicator -->
               <div class="arena-turn-banner ${De?"ended":he?"my-turn":"opp-turn"}">
-                ${De?`<span>🏁 Finished (${h(r.winningReason||r.status)})</span>`:he?"<span>⚡ YOUR TURN</span>":`<span>⏳ Waiting for ${h(de.name)}...</span>`}
+                ${De?`<span>🏁 Finished (${h(s.winningReason||s.status)})</span>`:he?"<span>⚡ YOUR TURN</span>":`<span>⏳ Waiting for ${h(de.name)}...</span>`}
               </div>
             </div>
 
             <!-- Sub-Toolbar with Quick Instructions & Draw/Resign Actions -->
             <div class="arena-toolbar">
               <div class="arena-tip-text">
-                ${r.gameType==="ludo"?he?r.gameState?.rolled?"👉 Click one of your glowing tokens to advance!":"🎲 Your turn! Click ROLL DICE to start your move.":"⏳ Opponent is rolling/moving their tokens...":r.gameType==="tictactoe"?he?"👉 Tap any open cell to place your symbol!":"⏳ Opponent is deciding their move...":he?"👉 Click your piece, then click a green target dot to move!":"⏳ Opponent is thinking..."}
+                ${s.gameType==="ludo"?he?s.gameState?.rolled?"👉 Click one of your glowing tokens to advance!":"🎲 Your turn! Click ROLL DICE to start your move.":"⏳ Opponent is rolling/moving their tokens...":s.gameType==="tictactoe"?he?"👉 Tap any open cell to place your symbol!":"⏳ Opponent is deciding their move...":he?"👉 Click your piece, then click a green target dot to move!":"⏳ Opponent is thinking..."}
               </div>
               <div class="arena-action-btns">
                 ${De?"":`
@@ -3427,7 +3476,7 @@ import{c as Re,k as y,e as h,v as Xe,l as Ze,p as Gt,m as Yt,j as Ce,w as ga,x a
             </div>
 
             <!-- Draw Offer Notification -->
-            ${r.drawOfferedBy&&r.drawOfferedBy.toString()!==K?.toString()&&!De?`
+            ${s.drawOfferedBy&&s.drawOfferedBy.toString()!==K?.toString()&&!De?`
               <div class="arena-draw-offer-banner">
                 <span>🤝 ${h(de.name)} has offered a draw. Accept?</span>
                 <button class="btn-accept-draw" id="btn-confirm-accept-draw">Accept Draw</button>
@@ -3437,18 +3486,18 @@ import{c as Re,k as y,e as h,v as Xe,l as Ze,p as Gt,m as Yt,j as Ce,w as ga,x a
 
             <!-- Arena Main Playing Board -->
             <div class="arena-board-wrap">
-              ${r.gameType==="chess"?_e(re):""}
-              ${r.gameType==="tictactoe"?fe():""}
-              ${r.gameType==="ludo"?le(re):""}
+              ${s.gameType==="chess"?_e(re):""}
+              ${s.gameType==="tictactoe"?me():""}
+              ${s.gameType==="ludo"?le(re):""}
             </div>
 
             <!-- Match Result Banner (When finished) -->
             ${De?`
               <div class="arena-game-over-banner">
-                <div class="game-over-icon">${r.winnerId&&r.winnerId.toString()===K?.toString()?"🏆":r.status==="draw"?"🤝":"🎖️"}</div>
+                <div class="game-over-icon">${s.winnerId&&s.winnerId.toString()===K?.toString()?"🏆":s.status==="draw"?"🤝":"🎖️"}</div>
                 <div class="game-over-text">
-                  <h4>${r.winnerId&&r.winnerId.toString()===K?.toString()?"VICTORY!":r.status==="draw"?"STALEMATE / DRAW":`${h(r.winnerName)} Wins!`}</h4>
-                  <p>Reason: ${h(r.winningReason||"Match concluded")}</p>
+                  <h4>${s.winnerId&&s.winnerId.toString()===K?.toString()?"VICTORY!":s.status==="draw"?"STALEMATE / DRAW":`${h(s.winnerName)} Wins!`}</h4>
+                  <p>Reason: ${h(s.winningReason||"Match concluded")}</p>
                 </div>
                 <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
                   <button class="btn-arena-rematch" id="btn-arena-rematch-action">
@@ -3462,11 +3511,11 @@ import{c as Re,k as y,e as h,v as Xe,l as Ze,p as Gt,m as Yt,j as Ce,w as ga,x a
             `:""}
           </div>
         </div>
-      `,ue(he,re,be)}function _e(K){const re=r.gameState?.fen||"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",be=new ka(re),de=K?r.player1.assignedRole==="white":r.player2.assignedRole==="white",he={p:"♟",r:"♜",n:"♞",b:"♝",q:"♛",k:"♚",P:"♙",R:"♖",N:"♘",B:"♗",Q:"♕",K:"♔"},De=de?["a","b","c","d","e","f","g","h"]:["h","g","f","e","d","c","b","a"],Be=de?[8,7,6,5,4,3,2,1]:[1,2,3,4,5,6,7,8];let Ge='<div class="chess-board-grid">';for(const Ee of Be)for(const Ue of De){const je=`${Ue}${Ee}`,Pe=be.get(je),Ae=(Ue.charCodeAt(0)-97+Ee)%2!==0,Ie=o===je,ke=x.includes(je),me=Pe?Pe.color==="w"?he[Pe.type.toUpperCase()]:he[Pe.type]:"";Ge+=`
-            <div class="chess-sq ${Ae?"light":"dark"} ${Ie?"selected":""} ${ke?"legal-dot":""}" data-square="${je}">
-              ${me?`<span class="chess-piece ${Pe.color==="w"?"white-piece":"black-piece"}">${me}</span>`:""}
+      `,ue(he,re,be)}function _e(K){const re=s.gameState?.fen||"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",be=new ka(re),de=K?s.player1.assignedRole==="white":s.player2.assignedRole==="white",he={p:"♟",r:"♜",n:"♞",b:"♝",q:"♛",k:"♚",P:"♙",R:"♖",N:"♘",B:"♗",Q:"♕",K:"♔"},De=de?["a","b","c","d","e","f","g","h"]:["h","g","f","e","d","c","b","a"],Be=de?[8,7,6,5,4,3,2,1]:[1,2,3,4,5,6,7,8];let Ge='<div class="chess-board-grid">';for(const Ee of Be)for(const Ue of De){const Ne=`${Ue}${Ee}`,Pe=be.get(Ne),Ae=(Ue.charCodeAt(0)-97+Ee)%2!==0,Ie=r===Ne,ke=x.includes(Ne),fe=Pe?Pe.color==="w"?he[Pe.type.toUpperCase()]:he[Pe.type]:"";Ge+=`
+            <div class="chess-sq ${Ae?"light":"dark"} ${Ie?"selected":""} ${ke?"legal-dot":""}" data-square="${Ne}">
+              ${fe?`<span class="chess-piece ${Pe.color==="w"?"white-piece":"black-piece"}">${fe}</span>`:""}
             </div>
-          `}Ge+="</div>";const pe=(r.moves||[]).map(Ee=>`
+          `}Ge+="</div>";const pe=(s.moves||[]).map(Ee=>`
         <span class="chess-move-token">${Ee.moveNum}. ${Ee.moveData?.san||""}</span>
       `).join(" ");return`
         <div class="chess-arena-layout">
@@ -3476,7 +3525,7 @@ import{c as Re,k as y,e as h,v as Xe,l as Ze,p as Gt,m as Yt,j as Ce,w as ga,x a
             <div class="notation-feed">${pe||'<span class="muted">No moves yet</span>'}</div>
           </div>
         </div>
-      `}function fe(){const K=r.gameState?.board||Array(9).fill(null),re=r.winningCells||[];return`
+      `}function me(){const K=s.gameState?.board||Array(9).fill(null),re=s.winningCells||[];return`
         <div class="ttt-court">
           <div class="ttt-board-grid">
             ${K.map((be,de)=>{const he=re.includes(de);return`
@@ -3486,9 +3535,9 @@ import{c as Re,k as y,e as h,v as Xe,l as Ze,p as Gt,m as Yt,j as Ce,w as ga,x a
               `}).join("")}
           </div>
         </div>
-      `}function le(K,re,be){const de=r.gameState||{},he=de.activeColors||["red","green"],De=de.players||[{...r.player1,color:"red",assignedRole:"red",isBot:!1},{...r.player2,color:"green",assignedRole:"green",isBot:!1}],Be=de.tokens||{},Ge=D=>{const ae=Be[D]||(D==="red"?de.p1Tokens:D==="green"?de.p2Tokens:[])||[];return Array.from({length:4},(xe,Se)=>ae[Se]||{id:Se,step:-1})},Le=Ge("red"),pe=Ge("green"),Ee=Ge("yellow"),Ue=Ge("blue"),je=e?._id||e?.id,Ae=(De.find(D=>D.userId&&D.userId.toString()===je?.toString())||De[0])?.color||(K?"red":"green"),Ie=de.turnColor||r.turn||"red",ke=Ae===Ie&&r.status==="active",me=!!de.rolled,L=de.dice,H=[[6,1],[6,2],[6,3],[6,4],[6,5],[5,6],[4,6],[3,6],[2,6],[1,6],[0,6],[0,7],[0,8],[1,8],[2,8],[3,8],[4,8],[5,8],[6,9],[6,10],[6,11],[6,12],[6,13],[6,14],[7,14],[8,14],[8,13],[8,12],[8,11],[8,10],[8,9],[9,8],[10,8],[11,8],[12,8],[13,8],[14,8],[14,7],[14,6],[13,6],[12,6],[11,6],[10,6],[9,6],[8,5],[8,4],[8,3],[8,2],[8,1],[8,0],[7,0],[6,0]],p=[[7,1],[7,2],[7,3],[7,4],[7,5]],Te=[[1,7],[2,7],[3,7],[4,7],[5,7]],we=[[7,13],[7,12],[7,11],[7,10],[7,9]],lt=[[13,7],[12,7],[11,7],[10,7],[9,7]],V=[0,8,13,21,26,34,39,47];function ht(D,ae){return ae<0?null:ae>=56?D==="red"?[7,6]:D==="green"?[6,7]:D==="yellow"?[7,8]:[8,7]:D==="red"?ae<=50?H[ae]:p[ae-51]:D==="green"?ae<=50?H[(13+ae)%52]:Te[ae-51]:D==="yellow"?ae<=50?H[(26+ae)%52]:we[ae-51]:ae<=50?H[(39+ae)%52]:lt[ae-51]}function qe(D,ae){return D!==Ae||!ke||!me||!L||r.status!=="active"?!1:ae.step===-1?L===6:ae.step>=0&&ae.step+L<=56}const tt={},Ct=(D,ae)=>{ae.forEach(xe=>{if(xe.step>=0&&xe.step<56){const Se=ht(D,xe.step);if(Se){const m=Se[0]+","+Se[1];(tt[m]=tt[m]||[]).push({color:D,id:xe.id,step:xe.step,movable:qe(D,xe)})}}})};he.includes("red")&&Ct("red",Le),he.includes("green")&&Ct("green",pe),he.includes("yellow")&&Ct("yellow",Ee),he.includes("blue")&&Ct("blue",Ue);const Qe={};H.forEach(([D,ae],xe)=>{Qe[D+","+ae]=xe});const It={};p.forEach(([D,ae],xe)=>{It[D+","+ae]=xe+1});const Dt={};Te.forEach(([D,ae],xe)=>{Dt[D+","+ae]=xe+1});const te={};we.forEach(([D,ae],xe)=>{te[D+","+ae]=xe+1});const Bt={};lt.forEach(([D,ae],xe)=>{Bt[D+","+ae]=xe+1});const Pt=[];for(let D=0;D<15;D++)for(let ae=0;ae<15;ae++){if(D<6&&ae<6||D<6&&ae>8||D>8&&ae<6||D>8&&ae>8||D>=6&&D<=8&&ae>=6&&ae<=8)continue;const xe=D+","+ae,Se=Qe[xe],m=Se!==void 0&&V.includes(Se),w=D===6&&ae===1,k=D===1&&ae===8,J=D===8&&ae===13,Z=D===13&&ae===6,$e=It[xe],pt=Dt[xe],Tt=te[xe],Sa=Bt[xe];let dt="ludo-cell";w?dt+=" cell-red-start":k?dt+=" cell-green-start":J?dt+=" cell-yellow-start":Z?dt+=" cell-blue-start":$e?dt+=" cell-red-stretch":pt?dt+=" cell-green-stretch":Tt?dt+=" cell-yellow-stretch":Sa?dt+=" cell-blue-stretch":m&&(dt+=" cell-safe-star");const Ca=tt[xe]||[];Pt.push(`
-            <div class="${dt}" style="grid-row:${D+1};grid-column:${ae+1}" data-pos="${xe}">
-              ${m?'<span class="cell-star-glyph">⭐</span>':""}
+      `}function le(K,re,be){const de=s.gameState||{},he=de.activeColors||["red","green"],De=de.players||[{...s.player1,color:"red",assignedRole:"red",isBot:!1},{...s.player2,color:"green",assignedRole:"green",isBot:!1}],Be=de.tokens||{},Ge=D=>{const ie=Be[D]||(D==="red"?de.p1Tokens:D==="green"?de.p2Tokens:[])||[];return Array.from({length:4},(xe,Se)=>ie[Se]||{id:Se,step:-1})},Le=Ge("red"),pe=Ge("green"),Ee=Ge("yellow"),Ue=Ge("blue"),Ne=e?._id||e?.id,Ae=(De.find(D=>D.userId&&D.userId.toString()===Ne?.toString())||De[0])?.color||(K?"red":"green"),Ie=de.turnColor||s.turn||"red",ke=Ae===Ie&&s.status==="active",fe=!!de.rolled,L=de.dice,H=[[6,1],[6,2],[6,3],[6,4],[6,5],[5,6],[4,6],[3,6],[2,6],[1,6],[0,6],[0,7],[0,8],[1,8],[2,8],[3,8],[4,8],[5,8],[6,9],[6,10],[6,11],[6,12],[6,13],[6,14],[7,14],[8,14],[8,13],[8,12],[8,11],[8,10],[8,9],[9,8],[10,8],[11,8],[12,8],[13,8],[14,8],[14,7],[14,6],[13,6],[12,6],[11,6],[10,6],[9,6],[8,5],[8,4],[8,3],[8,2],[8,1],[8,0],[7,0],[6,0]],g=[[7,1],[7,2],[7,3],[7,4],[7,5]],Te=[[1,7],[2,7],[3,7],[4,7],[5,7]],we=[[7,13],[7,12],[7,11],[7,10],[7,9]],lt=[[13,7],[12,7],[11,7],[10,7],[9,7]],V=[0,8,13,21,26,34,39,47];function ht(D,ie){return ie<0?null:ie>=56?D==="red"?[7,6]:D==="green"?[6,7]:D==="yellow"?[7,8]:[8,7]:D==="red"?ie<=50?H[ie]:g[ie-51]:D==="green"?ie<=50?H[(13+ie)%52]:Te[ie-51]:D==="yellow"?ie<=50?H[(26+ie)%52]:we[ie-51]:ie<=50?H[(39+ie)%52]:lt[ie-51]}function qe(D,ie){return D!==Ae||!ke||!fe||!L||s.status!=="active"?!1:ie.step===-1?L===6:ie.step>=0&&ie.step+L<=56}const at={},Ct=(D,ie)=>{ie.forEach(xe=>{if(xe.step>=0&&xe.step<56){const Se=ht(D,xe.step);if(Se){const f=Se[0]+","+Se[1];(at[f]=at[f]||[]).push({color:D,id:xe.id,step:xe.step,movable:qe(D,xe)})}}})};he.includes("red")&&Ct("red",Le),he.includes("green")&&Ct("green",pe),he.includes("yellow")&&Ct("yellow",Ee),he.includes("blue")&&Ct("blue",Ue);const Qe={};H.forEach(([D,ie],xe)=>{Qe[D+","+ie]=xe});const It={};g.forEach(([D,ie],xe)=>{It[D+","+ie]=xe+1});const Dt={};Te.forEach(([D,ie],xe)=>{Dt[D+","+ie]=xe+1});const ae={};we.forEach(([D,ie],xe)=>{ae[D+","+ie]=xe+1});const Bt={};lt.forEach(([D,ie],xe)=>{Bt[D+","+ie]=xe+1});const Pt=[];for(let D=0;D<15;D++)for(let ie=0;ie<15;ie++){if(D<6&&ie<6||D<6&&ie>8||D>8&&ie<6||D>8&&ie>8||D>=6&&D<=8&&ie>=6&&ie<=8)continue;const xe=D+","+ie,Se=Qe[xe],f=Se!==void 0&&V.includes(Se),w=D===6&&ie===1,k=D===1&&ie===8,J=D===8&&ie===13,Z=D===13&&ie===6,$e=It[xe],pt=Dt[xe],Tt=ae[xe],Sa=Bt[xe];let dt="ludo-cell";w?dt+=" cell-red-start":k?dt+=" cell-green-start":J?dt+=" cell-yellow-start":Z?dt+=" cell-blue-start":$e?dt+=" cell-red-stretch":pt?dt+=" cell-green-stretch":Tt?dt+=" cell-yellow-stretch":Sa?dt+=" cell-blue-stretch":f&&(dt+=" cell-safe-star");const Ca=at[xe]||[];Pt.push(`
+            <div class="${dt}" style="grid-row:${D+1};grid-column:${ie+1}" data-pos="${xe}">
+              ${f?'<span class="cell-star-glyph">⭐</span>':""}
               ${w||k||J||Z?'<span class="cell-arrow-glyph">➔</span>':""}
               ${Ca.map(yt=>`
                 <div class="ludo-token token-${yt.color} ${yt.movable?"movable":""}" data-token-id="${yt.id}" data-color="${yt.color}" title="${yt.color.toUpperCase()} Pawn ${yt.id+1}">
@@ -3496,34 +3545,34 @@ import{c as Re,k as y,e as h,v as Xe,l as Ze,p as Gt,m as Yt,j as Ce,w as ga,x a
                 </div>
               `).join("")}
             </div>
-          `)}function Zt(D){const ae=Math.max(1,Math.min(6,Number(D)||1)),xe={1:[[30,30,7.5,"#ef4444"]],2:[[16,16,5.5,"#1e293b"],[44,44,5.5,"#1e293b"]],3:[[16,16,5.5,"#1e293b"],[30,30,5.5,"#1e293b"],[44,44,5.5,"#1e293b"]],4:[[16,16,5.5,"#1e293b"],[44,16,5.5,"#1e293b"],[16,44,5.5,"#1e293b"],[44,44,5.5,"#1e293b"]],5:[[16,16,5.5,"#1e293b"],[44,16,5.5,"#1e293b"],[30,30,5.5,"#1e293b"],[16,44,5.5,"#1e293b"],[44,44,5.5,"#1e293b"]],6:[[16,16,5.5,"#1e293b"],[44,16,5.5,"#1e293b"],[16,30,5.5,"#1e293b"],[44,30,5.5,"#1e293b"],[16,44,5.5,"#1e293b"],[44,44,5.5,"#1e293b"]]},m=(xe[ae]||xe[6]).map(([w,k,J,Z])=>`
+          `)}function Zt(D){const ie=Math.max(1,Math.min(6,Number(D)||1)),xe={1:[[30,30,7.5,"#ef4444"]],2:[[16,16,5.5,"#1e293b"],[44,44,5.5,"#1e293b"]],3:[[16,16,5.5,"#1e293b"],[30,30,5.5,"#1e293b"],[44,44,5.5,"#1e293b"]],4:[[16,16,5.5,"#1e293b"],[44,16,5.5,"#1e293b"],[16,44,5.5,"#1e293b"],[44,44,5.5,"#1e293b"]],5:[[16,16,5.5,"#1e293b"],[44,16,5.5,"#1e293b"],[30,30,5.5,"#1e293b"],[16,44,5.5,"#1e293b"],[44,44,5.5,"#1e293b"]],6:[[16,16,5.5,"#1e293b"],[44,16,5.5,"#1e293b"],[16,30,5.5,"#1e293b"],[44,30,5.5,"#1e293b"],[16,44,5.5,"#1e293b"],[44,44,5.5,"#1e293b"]]},f=(xe[ie]||xe[6]).map(([w,k,J,Z])=>`
           <g>
             <circle cx="${w}" cy="${k+1.2}" r="${J}" fill="#94a3b8" opacity="0.5"/>
             <circle cx="${w}" cy="${k}" r="${J}" fill="${Z}"/>
             <circle cx="${w-J*.3}" cy="${k-J*.3}" r="${J*.35}" fill="#ffffff" opacity="0.6"/>
           </g>
         `).join("");return`
-          <svg viewBox="0 0 60 60" width="52" height="52" class="ludo-dice-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Dice face ${ae}">
+          <svg viewBox="0 0 60 60" width="52" height="52" class="ludo-dice-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Dice face ${ie}">
             <g class="die-pips-layer">
-              ${m}
+              ${f}
             </g>
           </svg>
-        `}function vt(D,ae,xe,Se,m){const w=`${D}-yard`;if(!xe)return`
+        `}function vt(D,ie,xe,Se,f){const w=`${D}-yard`;if(!xe)return`
             <div class="ludo-yard ${w}">
               <div class="yard-box decorative">
-                <div class="yard-title">${ae} (Inactive)</div>
+                <div class="yard-title">${ie} (Inactive)</div>
               </div>
             </div>
-          `;const k=m.filter(J=>J.step===56).length;return`
+          `;const k=f.filter(J=>J.step===56).length;return`
           <div class="ludo-yard ${w} ${Ie===D?"yard-active-turn":""}">
             <div class="yard-box">
               <div class="yard-title">
-                <span>${ae}</span>
+                <span>${ie}</span>
                 ${k>0?`<span class="yard-home-badge" title="${k} of 4 pawns reached Home!">👑 ${k}/4 Home</span>`:""}
                 ${Se?`<small class="yard-player-lbl">${h(Se.name)}${Se.isBot?" 🤖":""}</small>`:""}
               </div>
               <div class="yard-slots">
-                ${m.map((J,Z)=>`
+                ${f.map((J,Z)=>`
                   <div class="yard-token-slot ${J.step===56?"slot-home":""}">
                     ${J.step===-1?`
                       <div class="ludo-token token-${D} ${qe(D,J)?"movable":""}" data-token-id="${J.id}" data-color="${D}" title="${D.toUpperCase()} Pawn ${J.id+1}">
@@ -3540,14 +3589,14 @@ import{c as Re,k as y,e as h,v as Xe,l as Ze,p as Gt,m as Yt,j as Ce,w as ga,x a
               </div>
             </div>
           </div>
-        `}const jt=De.find(D=>D.color==="red"),Nt=De.find(D=>D.color==="green"),ea=De.find(D=>D.color==="yellow"),Ot=De.find(D=>D.color==="blue"),Ft=De.find(D=>D.color===Ie)||(Ie==="red"?jt:Nt),_t=Ft?h(Ft.name):Ie.toUpperCase(),Lt={red:"🔴",green:"🟢",yellow:"🟡",blue:"🔵"}[Ie]||"🔴",gt=L||de.lastRoll||6,xt=ke&&!me&&r.status==="active",Ht=Ge(Ae).filter(D=>qe(Ae,D));return`
+        `}const Nt=De.find(D=>D.color==="red"),jt=De.find(D=>D.color==="green"),ea=De.find(D=>D.color==="yellow"),Ot=De.find(D=>D.color==="blue"),Ft=De.find(D=>D.color===Ie)||(Ie==="red"?Nt:jt),_t=Ft?h(Ft.name):Ie.toUpperCase(),Lt={red:"🔴",green:"🟢",yellow:"🟡",blue:"🔵"}[Ie]||"🔴",gt=L||de.lastRoll||6,xt=ke&&!fe&&s.status==="active",Ht=Ge(Ae).filter(D=>qe(Ae,D));return`
         <div class="ludo-arena-layout">
           <div class="ludo-board-grid">
             <!-- 1. Red Base Yard (Top-Left 6x6) -->
-            ${vt("red","🔴 Red Base",he.includes("red"),jt,Le)}
+            ${vt("red","🔴 Red Base",he.includes("red"),Nt,Le)}
 
             <!-- 2. Green Base Yard (Top-Right 6x6) -->
-            ${vt("green","🟢 Green Base",he.includes("green"),Nt,pe)}
+            ${vt("green","🟢 Green Base",he.includes("green"),jt,pe)}
 
             <!-- 3. Blue Base Yard (Bottom-Left 6x6) -->
             ${vt("blue","🔵 Blue Base",he.includes("blue"),Ot,Ue)}
@@ -3590,7 +3639,7 @@ import{c as Re,k as y,e as h,v as Xe,l as Ze,p as Gt,m as Yt,j as Ce,w as ga,x a
           <div class="ludo-interactive-console">
             <div class="ludo-dice-interactive-box">
               <div 
-                class="ludo-3d-dice ${xt?"clickable pulse-roll":""} ${me?"just-rolled":""} border-${Ie}"
+                class="ludo-3d-dice ${xt?"clickable pulse-roll":""} ${fe?"just-rolled":""} border-${Ie}"
                 id="btn-interactive-ludo-dice"
                 role="button"
                 tabindex="${xt?"0":"-1"}"
@@ -3599,7 +3648,7 @@ import{c as Re,k as y,e as h,v as Xe,l as Ze,p as Gt,m as Yt,j as Ce,w as ga,x a
                 ${Zt(gt)}
               </div>
               <div class="ludo-dice-action-badge">
-                ${xt?'<button class="badge-click-roll btn-dice-roll-badge" id="btn-interactive-ludo-dice-badge" type="button" title="Tap to Roll">🎲 TAP TO ROLL</button>':me?`<span class="badge-rolled-val">${Lt} Rolled ${gt}</span>`:de.lastRoll?`<span class="badge-last-roll">${Lt} Rolled ${de.lastRoll}</span>`:'<span class="badge-waiting">Ready</span>'}
+                ${xt?'<button class="badge-click-roll btn-dice-roll-badge" id="btn-interactive-ludo-dice-badge" type="button" title="Tap to Roll">🎲 TAP TO ROLL</button>':fe?`<span class="badge-rolled-val">${Lt} Rolled ${gt}</span>`:de.lastRoll?`<span class="badge-last-roll">${Lt} Rolled ${de.lastRoll}</span>`:'<span class="badge-waiting">Ready</span>'}
               </div>
             </div>
 
@@ -3612,8 +3661,8 @@ import{c as Re,k as y,e as h,v as Xe,l as Ze,p as Gt,m as Yt,j as Ce,w as ga,x a
                 ${ke?'<span class="badge green" style="font-size:10px;padding:2px 6px;">YOUR TURN</span>':`<span class="badge blue" style="font-size:10px;padding:2px 6px;">OPPONENT'S TURN</span>`}
               </div>
 
-              <div class="ludo-guidance-message ${ke&&me?"highlight":""}">
-                ${ke&&!me&&r.status==="active"?"👉 It is your turn! <strong>Click the dice</strong> to roll!":ke&&me&&r.status==="active"?Ht.length>0?Ht.length===1?`🎲 Rolled <strong>${gt}</strong>! Auto-advancing single pawn...`:`🎲 Rolled <strong>${gt}</strong>! Tap your <strong>glowing pawn</strong> to move!`:`🎲 Rolled <strong>${gt}</strong>. No legal moves possible — turn passing...`:r.status==="active"?me||de.lastRoll?`🎲 ${Lt} <strong>${_t}</strong> rolled <strong>${gt}</strong>!`:`⏳ Waiting for <strong>${_t}</strong> to roll the dice...`:"🏁 Match Concluded"}
+              <div class="ludo-guidance-message ${ke&&fe?"highlight":""}">
+                ${ke&&!fe&&s.status==="active"?"👉 It is your turn! <strong>Click the dice</strong> to roll!":ke&&fe&&s.status==="active"?Ht.length>0?Ht.length===1?`🎲 Rolled <strong>${gt}</strong>! Auto-advancing single pawn...`:`🎲 Rolled <strong>${gt}</strong>! Tap your <strong>glowing pawn</strong> to move!`:`🎲 Rolled <strong>${gt}</strong>. No legal moves possible — turn passing...`:s.status==="active"?fe||de.lastRoll?`🎲 ${Lt} <strong>${_t}</strong> rolled <strong>${gt}</strong>!`:`⏳ Waiting for <strong>${_t}</strong> to roll the dice...`:"🏁 Match Concluded"}
               </div>
 
               <div class="ludo-last-action-caption">
@@ -3622,7 +3671,7 @@ import{c as Re,k as y,e as h,v as Xe,l as Ze,p as Gt,m as Yt,j as Ce,w as ga,x a
             </div>
           </div>
         </div>
-      `}function ue(K,re,be){f.querySelector("#btn-close-arena").onclick=q;const de=f.querySelector("#btn-arena-resign");de&&(de.onclick=async()=>{if(confirm("Are you sure you want to resign this match?"))try{de.disabled=!0,await Ce(`/bonding/matches/${u}/action`,{action:"resign"}),await F(),Y()}catch(pe){y(pe.message||"Resign failed","error"),de.disabled=!1}});const he=f.querySelector("#btn-arena-draw");he&&(he.onclick=async()=>{try{await Ce(`/bonding/matches/${u}/action`,{action:"offer_draw"}),y("Draw offer sent to opponent","info"),await F(),Y()}catch(pe){y(pe.message||"Draw offer failed","error")}});const De=f.querySelector("#btn-confirm-accept-draw");De&&(De.onclick=async()=>{try{await Ce(`/bonding/matches/${u}/action`,{action:"accept_draw"}),y("Draw agreed!","info"),await F(),Y()}catch(pe){y(pe.message,"error")}});const Be=f.querySelector("#btn-confirm-decline-draw");Be&&(Be.onclick=async()=>{try{await Ce(`/bonding/matches/${u}/action`,{action:"decline_draw"}),await F(),Y()}catch(pe){y(pe.message,"error")}}),[f.querySelector("#btn-arena-delete-match"),f.querySelector("#btn-arena-delete-match-ended")].filter(Boolean).forEach(pe=>{pe.onclick=async()=>{if(confirm("Are you sure you want to permanently delete this match?"))try{pe.disabled=!0,await Ze(`/bonding/matches/${u}`),y("Match deleted","success"),q(),b==="lounge_games"&&await P()}catch(Ee){y(Ee.message||"Failed to delete match","error"),pe.disabled=!1}}});const Le=f.querySelector("#btn-arena-rematch-action");if(Le&&(Le.onclick=async()=>{try{Le.disabled=!0,Le.textContent="Creating Rematch...";const pe=await Ce(`/bonding/matches/${u}/action`,{action:"rematch"});pe.match&&(y("Rematch created! New match live ⚔️","success"),j&&clearInterval(j),U(pe.match._id))}catch(pe){y(pe.message||"Rematch failed","error"),Le.disabled=!1,Le.textContent="🔄 Request Rematch"}}),r.gameType==="chess"&&K&&r.status==="active"){const pe=r.gameState?.fen||"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",Ee=new ka(pe),Ue=be.assignedRole==="white"?"w":"b";f.querySelectorAll(".chess-sq").forEach(je=>{je.onclick=async()=>{const Pe=je.dataset.square;if(o){if(o===Pe){o=null,x=[],Y();return}if(x.includes(Pe)){const Ie=Ee.get(o);let ke;Ie&&Ie.type==="p"&&(Pe.endsWith("8")||Pe.endsWith("1"))&&(ke=prompt("Pawn Promotion! Choose: q (Queen), r (Rook), b (Bishop), n (Knight)","q")||"q");try{const me={from:o,to:Pe,promotion:ke?ke.toLowerCase():void 0};o=null,x=[],r=await Ce(`/bonding/matches/${u}/move`,{move:me}),Y()}catch(me){y(me.message||"Illegal chess move","error"),o=null,x=[],Y()}return}}const Ae=Ee.get(Pe);Ae&&Ae.color===Ue?(o=Pe,x=Ee.moves({square:Pe,verbose:!0}).map(ke=>ke.to),Y()):(o=null,x=[],Y())}})}if(r.gameType==="tictactoe"&&K&&r.status==="active"&&f.querySelectorAll(".ttt-cell.empty").forEach(pe=>{pe.onclick=async()=>{const Ee=pe.dataset.cellIdx;try{pe.style.opacity="0.5",r=await Ce(`/bonding/matches/${u}/move`,{cellIndex:Number(Ee)}),Y()}catch(Ue){y(Ue.message||"Invalid move","error")}}}),r.gameType==="ludo"&&r.status==="active"){const pe=r.gameState||{},Ee=!!pe.rolled,Ue=pe.turnColor||r.turn||"red",je=r.player1.userId.toString()===myId?.toString()?r.player1.assignedRole||"red":r.player2.userId.toString()===myId?.toString()?r.player2.assignedRole||"green":(pe.players||[]).find(ke=>ke.userId?.toString()===myId?.toString())?.color||"red",Pe=K&&Ue===je,Ae=f.querySelector("#btn-interactive-ludo-dice"),Ie=f.querySelector("#btn-interactive-ludo-dice-badge");if(Pe&&!Ee){const ke=async()=>{if(!(Ae&&Ae.dataset.rolling==="true")){Ae&&(Ae.dataset.rolling="true",Ae.classList.add("rolling")),Ie&&(Ie.disabled=!0);try{const me=await Ce(`/bonding/matches/${u}/move`,{action:"roll"});r=me,B=ne(me),Y()}catch(me){y(me.message||"Failed to roll","error"),Ae&&(Ae.classList.remove("rolling"),delete Ae.dataset.rolling),Ie&&(Ie.disabled=!1)}}};Ae&&(Ae.onclick=ke,Ae.onkeydown=me=>{(me.key==="Enter"||me.key===" ")&&(me.preventDefault(),ke())}),Ie&&(Ie.onclick=ke)}if(Pe&&Ee){const me=(pe.tokens||{})[je]||[],L=pe.dice||pe.lastRoll||0,H=me.filter(p=>p.step===-1&&L===6||p.step>=0&&p.step+L<=56);if(H.length===1&&!O){O=!0;const p=H[0];C&&clearTimeout(C),C=setTimeout(async()=>{try{const Te=await Ce(`/bonding/matches/${u}/move`,{action:"move",tokenId:Number(p.id)});r=Te,B=ne(Te),O=!1,Y()}catch(Te){O=!1,y(Te.message||"Auto-move failed","error")}},400)}}Pe&&Ee&&f.querySelectorAll(".ludo-token.movable").forEach(ke=>{ke.onclick=async me=>{me.stopPropagation();const L=ke.dataset.tokenId;try{ke.style.opacity="0.5";const H=await Ce(`/bonding/matches/${u}/move`,{action:"move",tokenId:Number(L)});r=H,B=ne(H),Y()}catch(H){y(H.message||"Invalid token move","error"),ke.style.opacity="1"}}})}}Y()}function G(){if(!l||l.type==="direct")return;const u=i.querySelector("#bonding-modals-root"),f=F=>F==="employee"||F==="admin"||F==="superadmin",r=l.members||[],o=new Set(r.map(F=>F.userId?.toString())),x=n.filter(F=>f(F.role)&&!o.has(F._id.toString()));u.innerHTML=`
+      `}function ue(K,re,be){m.querySelector("#btn-close-arena").onclick=q;const de=m.querySelector("#btn-arena-resign");de&&(de.onclick=async()=>{if(confirm("Are you sure you want to resign this match?"))try{de.disabled=!0,await Ce(`/bonding/matches/${u}/action`,{action:"resign"}),await F(),Y()}catch(pe){y(pe.message||"Resign failed","error"),de.disabled=!1}});const he=m.querySelector("#btn-arena-draw");he&&(he.onclick=async()=>{try{await Ce(`/bonding/matches/${u}/action`,{action:"offer_draw"}),y("Draw offer sent to opponent","info"),await F(),Y()}catch(pe){y(pe.message||"Draw offer failed","error")}});const De=m.querySelector("#btn-confirm-accept-draw");De&&(De.onclick=async()=>{try{await Ce(`/bonding/matches/${u}/action`,{action:"accept_draw"}),y("Draw agreed!","info"),await F(),Y()}catch(pe){y(pe.message,"error")}});const Be=m.querySelector("#btn-confirm-decline-draw");Be&&(Be.onclick=async()=>{try{await Ce(`/bonding/matches/${u}/action`,{action:"decline_draw"}),await F(),Y()}catch(pe){y(pe.message,"error")}}),[m.querySelector("#btn-arena-delete-match"),m.querySelector("#btn-arena-delete-match-ended")].filter(Boolean).forEach(pe=>{pe.onclick=async()=>{if(confirm("Are you sure you want to permanently delete this match?"))try{pe.disabled=!0,await et(`/bonding/matches/${u}`),y("Match deleted","success"),q(),b==="lounge_games"&&await P()}catch(Ee){y(Ee.message||"Failed to delete match","error"),pe.disabled=!1}}});const Le=m.querySelector("#btn-arena-rematch-action");if(Le&&(Le.onclick=async()=>{try{Le.disabled=!0,Le.textContent="Creating Rematch...";const pe=await Ce(`/bonding/matches/${u}/action`,{action:"rematch"});pe.match&&(y("Rematch created! New match live ⚔️","success"),N&&clearInterval(N),U(pe.match._id))}catch(pe){y(pe.message||"Rematch failed","error"),Le.disabled=!1,Le.textContent="🔄 Request Rematch"}}),s.gameType==="chess"&&K&&s.status==="active"){const pe=s.gameState?.fen||"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",Ee=new ka(pe),Ue=be.assignedRole==="white"?"w":"b";m.querySelectorAll(".chess-sq").forEach(Ne=>{Ne.onclick=async()=>{const Pe=Ne.dataset.square;if(r){if(r===Pe){r=null,x=[],Y();return}if(x.includes(Pe)){const Ie=Ee.get(r);let ke;Ie&&Ie.type==="p"&&(Pe.endsWith("8")||Pe.endsWith("1"))&&(ke=prompt("Pawn Promotion! Choose: q (Queen), r (Rook), b (Bishop), n (Knight)","q")||"q");try{const fe={from:r,to:Pe,promotion:ke?ke.toLowerCase():void 0};r=null,x=[],s=await Ce(`/bonding/matches/${u}/move`,{move:fe}),Y()}catch(fe){y(fe.message||"Illegal chess move","error"),r=null,x=[],Y()}return}}const Ae=Ee.get(Pe);Ae&&Ae.color===Ue?(r=Pe,x=Ee.moves({square:Pe,verbose:!0}).map(ke=>ke.to),Y()):(r=null,x=[],Y())}})}if(s.gameType==="tictactoe"&&K&&s.status==="active"&&m.querySelectorAll(".ttt-cell.empty").forEach(pe=>{pe.onclick=async()=>{const Ee=pe.dataset.cellIdx;try{pe.style.opacity="0.5",s=await Ce(`/bonding/matches/${u}/move`,{cellIndex:Number(Ee)}),Y()}catch(Ue){y(Ue.message||"Invalid move","error")}}}),s.gameType==="ludo"&&s.status==="active"){const pe=s.gameState||{},Ee=!!pe.rolled,Ue=pe.turnColor||s.turn||"red",Ne=s.player1.userId.toString()===myId?.toString()?s.player1.assignedRole||"red":s.player2.userId.toString()===myId?.toString()?s.player2.assignedRole||"green":(pe.players||[]).find(ke=>ke.userId?.toString()===myId?.toString())?.color||"red",Pe=K&&Ue===Ne,Ae=m.querySelector("#btn-interactive-ludo-dice"),Ie=m.querySelector("#btn-interactive-ludo-dice-badge");if(Pe&&!Ee){const ke=async()=>{if(!(Ae&&Ae.dataset.rolling==="true")){Ae&&(Ae.dataset.rolling="true",Ae.classList.add("rolling")),Ie&&(Ie.disabled=!0);try{const fe=await Ce(`/bonding/matches/${u}/move`,{action:"roll"});s=fe,B=ne(fe),Y()}catch(fe){y(fe.message||"Failed to roll","error"),Ae&&(Ae.classList.remove("rolling"),delete Ae.dataset.rolling),Ie&&(Ie.disabled=!1)}}};Ae&&(Ae.onclick=ke,Ae.onkeydown=fe=>{(fe.key==="Enter"||fe.key===" ")&&(fe.preventDefault(),ke())}),Ie&&(Ie.onclick=ke)}if(Pe&&Ee){const fe=(pe.tokens||{})[Ne]||[],L=pe.dice||pe.lastRoll||0,H=fe.filter(g=>g.step===-1&&L===6||g.step>=0&&g.step+L<=56);if(H.length===1&&!O){O=!0;const g=H[0];C&&clearTimeout(C),C=setTimeout(async()=>{try{const Te=await Ce(`/bonding/matches/${u}/move`,{action:"move",tokenId:Number(g.id)});s=Te,B=ne(Te),O=!1,Y()}catch(Te){O=!1,y(Te.message||"Auto-move failed","error")}},400)}}Pe&&Ee&&m.querySelectorAll(".ludo-token.movable").forEach(ke=>{ke.onclick=async fe=>{fe.stopPropagation();const L=ke.dataset.tokenId;try{ke.style.opacity="0.5";const H=await Ce(`/bonding/matches/${u}/move`,{action:"move",tokenId:Number(L)});s=H,B=ne(H),Y()}catch(H){y(H.message||"Invalid token move","error"),ke.style.opacity="1"}}})}}Y()}function G(){if(!l||l.type==="direct")return;const u=i.querySelector("#bonding-modals-root"),m=F=>F==="employee"||F==="admin"||F==="superadmin",s=l.members||[],r=new Set(s.map(F=>F.userId?.toString())),x=n.filter(F=>m(F.role)&&!r.has(F._id.toString()));u.innerHTML=`
       <div class="bonding-modal-backdrop">
         <div class="bonding-modal-card">
           <div class="bonding-modal-header">
@@ -3650,9 +3699,9 @@ import{c as Re,k as y,e as h,v as Xe,l as Ze,p as Gt,m as Yt,j as Ce,w as ga,x a
 
             <!-- Current Members List -->
             <div class="bonding-form-section" style="margin-top: 20px;">
-              <label class="bonding-form-label">Current Members (${r.length}):</label>
+              <label class="bonding-form-label">Current Members (${s.length}):</label>
               <div class="bonding-members-list">
-                ${r.map(F=>{const q=e?._id||e?.id,Y=q&&F.userId&&F.userId.toString()===q.toString(),_e=l.createdBy&&l.createdBy.userId&&String(l.createdBy.userId)===String(q),fe=d==="superadmin"||e?.role==="superadmin",le=_e||fe;return`
+                ${s.map(F=>{const q=e?._id||e?.id,Y=q&&F.userId&&F.userId.toString()===q.toString(),_e=l.createdBy&&l.createdBy.userId&&String(l.createdBy.userId)===String(q),me=d==="superadmin"||e?.role==="superadmin",le=_e||me;return`
                     <div class="bonding-member-item">
                       <div class="bonding-member-left">
                         <div class="bonding-member-avatar">${(F.name||"U").slice(0,1).toUpperCase()}</div>
@@ -3703,9 +3752,9 @@ import{c as Re,k as y,e as h,v as Xe,l as Ze,p as Gt,m as Yt,j as Ce,w as ga,x a
           </div>
         </div>
       </div>
-    `,u.querySelector(".bonding-modal-close").onclick=()=>{u.innerHTML=""};const B=u.querySelector("#btn-modal-delete-group");B&&(B.onclick=()=>{u.innerHTML="",M()});const C=u.querySelector("#btn-modal-leave-group");C&&(C.onclick=()=>{u.innerHTML="",v()}),u.querySelectorAll(".btn-leave-group-action").forEach(F=>{F.onclick=()=>{u.innerHTML="",v()}});const O=u.querySelector("#btn-submit-add-member");O&&(O.onclick=async()=>{const q=u.querySelector("#sel-add-colleague").value;if(!q){y("Please select a colleague to add","warning");return}try{O.disabled=!0,O.textContent="Adding...";const Y=await Yt(`/bonding/channels/${l._id}/members`,{action:"add",userIds:[q]});y("Colleague added to group! 🎉","success"),l=Y.channel,u.innerHTML="",await Fe(l._id),Me()}catch(Y){y(Y.message||"Failed to add member","error"),O.disabled=!1,O.textContent="Add to Group"}}),u.querySelectorAll(".btn-remove-member").forEach(F=>{F.onclick=async()=>{const q=F.dataset.userId,Y=F.dataset.name;if(confirm(`Are you sure you want to remove ${Y} from this group?`))try{F.disabled=!0;const _e=await Yt(`/bonding/channels/${l._id}/members`,{action:"remove",userId:q});y(`${Y} removed from group`,"info"),l=_e.channel,u.innerHTML="",await Fe(l._id),Me()}catch(_e){y(_e.message||"Failed to remove member","error"),F.disabled=!1}}})}async function v(){if(!l||l.type==="direct")return;const u=l.name;if(confirm(`Are you sure you want to leave the group "${u}"?`))try{await Ce(`/bonding/channels/${l._id}/leave`,{}),y(`You left "${u}"`,"info"),c=await Re("/bonding/channels").catch(()=>[]),l=c.find(r=>r.type==="group")||c[0]||null,Oe(),Me(),l&&await Fe(l._id)}catch(r){y(r.message||"Failed to leave group","error")}}async function M(){if(!l||l.type==="direct")return;const u=l.name;if(confirm(`Are you sure you want to delete the group "${u}"?
+    `,u.querySelector(".bonding-modal-close").onclick=()=>{u.innerHTML=""};const B=u.querySelector("#btn-modal-delete-group");B&&(B.onclick=()=>{u.innerHTML="",M()});const C=u.querySelector("#btn-modal-leave-group");C&&(C.onclick=()=>{u.innerHTML="",v()}),u.querySelectorAll(".btn-leave-group-action").forEach(F=>{F.onclick=()=>{u.innerHTML="",v()}});const O=u.querySelector("#btn-submit-add-member");O&&(O.onclick=async()=>{const q=u.querySelector("#sel-add-colleague").value;if(!q){y("Please select a colleague to add","warning");return}try{O.disabled=!0,O.textContent="Adding...";const Y=await Yt(`/bonding/channels/${l._id}/members`,{action:"add",userIds:[q]});y("Colleague added to group! 🎉","success"),l=Y.channel,u.innerHTML="",await Fe(l._id),Me()}catch(Y){y(Y.message||"Failed to add member","error"),O.disabled=!1,O.textContent="Add to Group"}}),u.querySelectorAll(".btn-remove-member").forEach(F=>{F.onclick=async()=>{const q=F.dataset.userId,Y=F.dataset.name;if(confirm(`Are you sure you want to remove ${Y} from this group?`))try{F.disabled=!0;const _e=await Yt(`/bonding/channels/${l._id}/members`,{action:"remove",userId:q});y(`${Y} removed from group`,"info"),l=_e.channel,u.innerHTML="",await Fe(l._id),Me()}catch(_e){y(_e.message||"Failed to remove member","error"),F.disabled=!1}}})}async function v(){if(!l||l.type==="direct")return;const u=l.name;if(confirm(`Are you sure you want to leave the group "${u}"?`))try{await Ce(`/bonding/channels/${l._id}/leave`,{}),y(`You left "${u}"`,"info"),c=await Re("/bonding/channels").catch(()=>[]),l=c.find(s=>s.type==="group")||c[0]||null,Oe(),Me(),l&&await Fe(l._id)}catch(s){y(s.message||"Failed to leave group","error")}}async function M(){if(!l||l.type==="direct")return;const u=l.name;if(confirm(`Are you sure you want to delete the group "${u}"?
 
-All messages in this lounge will be deleted.`))try{await Ze(`/bonding/channels/${l._id}`),y(`Group "${u}" deleted successfully`,"success"),c=await Re("/bonding/channels").catch(()=>[]),l=c.find(r=>r.type==="group")||c[0]||null,Oe(),Me(),l&&await Fe(l._id)}catch(r){y(r.message||"Failed to delete group","error")}}function X(){const u=i.querySelector("#bonding-modals-root"),f=x=>x==="employee"||x==="admin"||x==="superadmin",r=n.filter(x=>!x.isSelf&&f(x.role));u.innerHTML=`
+All messages in this lounge will be deleted.`))try{await et(`/bonding/channels/${l._id}`),y(`Group "${u}" deleted successfully`,"success"),c=await Re("/bonding/channels").catch(()=>[]),l=c.find(s=>s.type==="group")||c[0]||null,Oe(),Me(),l&&await Fe(l._id)}catch(s){y(s.message||"Failed to delete group","error")}}function X(){const u=i.querySelector("#bonding-modals-root"),m=x=>x==="employee"||x==="admin"||x==="superadmin",s=n.filter(x=>!x.isSelf&&m(x.role));u.innerHTML=`
       <div class="bonding-modal-backdrop">
         <div class="bonding-modal-card">
           <div class="bonding-modal-header">
@@ -3715,7 +3764,7 @@ All messages in this lounge will be deleted.`))try{await Ze(`/bonding/channels/$
           <div class="bonding-modal-body">
             <p class="bonding-hint-text">Choose any employee or administrator to start a 1-on-1 private conversation.</p>
             <div class="bonding-user-pick-list">
-              ${r.map(x=>`
+              ${s.map(x=>`
                 <div class="bonding-user-pick-item" data-user-id="${x._id}" data-name="${h(x.name)}">
                   <div class="bonding-member-avatar">${x.name.slice(0,1).toUpperCase()}</div>
                   <div class="bonding-user-pick-info">
@@ -3729,7 +3778,7 @@ All messages in this lounge will be deleted.`))try{await Ze(`/bonding/channels/$
           </div>
         </div>
       </div>
-    `,u.querySelector(".bonding-modal-close").onclick=()=>{u.innerHTML=""},u.querySelectorAll(".bonding-user-pick-item").forEach(x=>{x.onclick=async()=>{const B=x.dataset.userId;try{const C=await Ce("/bonding/channels",{type:"direct",targetUserId:B});u.innerHTML="",c=await Re("/bonding/channels"),l=c.find(O=>O._id===C._id)||C,Oe(),Me(),await Fe(l._id)}catch(C){y(C.message||"Failed to open personal chat","error")}}})}function ee(){const u=i.querySelector("#bonding-modals-root"),f=C=>C==="employee"||C==="admin"||C==="superadmin",r=n.filter(C=>!C.isSelf&&f(C.role));u.innerHTML=`
+    `,u.querySelector(".bonding-modal-close").onclick=()=>{u.innerHTML=""},u.querySelectorAll(".bonding-user-pick-item").forEach(x=>{x.onclick=async()=>{const B=x.dataset.userId;try{const C=await Ce("/bonding/channels",{type:"direct",targetUserId:B});u.innerHTML="",c=await Re("/bonding/channels"),l=c.find(O=>O._id===C._id)||C,Oe(),Me(),await Fe(l._id)}catch(C){y(C.message||"Failed to open personal chat","error")}}})}function ee(){const u=i.querySelector("#bonding-modals-root"),m=C=>C==="employee"||C==="admin"||C==="superadmin",s=n.filter(C=>!C.isSelf&&m(C.role));u.innerHTML=`
       <div class="bonding-modal-backdrop">
         <div class="bonding-modal-card">
           <div class="bonding-modal-header">
@@ -3764,7 +3813,7 @@ All messages in this lounge will be deleted.`))try{await Ze(`/bonding/channels/$
             <div class="bonding-form-section">
               <label class="bonding-form-label">Add Initial Members (Employees & Admins only)</label>
               <div class="bonding-member-checkboxes">
-                ${r.map(C=>`
+                ${s.map(C=>`
                   <label class="bonding-check-label">
                     <input type="checkbox" class="new-group-member-chk" value="${C._id}" />
                     <span>${h(C.name)} (${h(C.role==="superadmin"?"Superadmin":C.role==="admin"?"Admin":"Employee")})</span>
@@ -3780,7 +3829,7 @@ All messages in this lounge will be deleted.`))try{await Ze(`/bonding/channels/$
           </div>
         </div>
       </div>
-    `,u.querySelector(".bonding-modal-close").onclick=()=>{u.innerHTML=""},u.querySelector("#btn-cancel-create-grp").onclick=()=>{u.innerHTML=""};let o="👥";const x=u.querySelectorAll(".avatar-opt");x.forEach(C=>{C.onclick=()=>{x.forEach(O=>O.classList.remove("active")),C.classList.add("active"),o=C.textContent.trim()}});const B=u.querySelector("#btn-confirm-create-grp");B.onclick=async()=>{const C=u.querySelector("#new-group-name"),O=u.querySelector("#new-group-desc"),ne=C.value.trim();if(!ne){y("Please enter a group name","warning"),C.focus();return}const F=u.querySelectorAll(".new-group-member-chk:checked"),q=Array.from(F).map(Y=>Y.value);try{B.disabled=!0,B.textContent="Creating...";const Y=await Ce("/bonding/channels",{type:"group",name:ne,description:O.value.trim(),avatar:o,memberIds:q});y(`Group "${ne}" created! 🎉`,"success"),u.innerHTML="",c=await Re("/bonding/channels"),l=c.find(_e=>_e._id===Y._id)||Y,Oe(),Me(),await Fe(l._id)}catch(Y){y(Y.message||"Failed to create group","error"),B.disabled=!1,B.textContent="Create Group 🎉"}}}function ie(u,f){const r=document.querySelector(".bonding-emoji-popup");r&&r.remove();const o=["👍","❤️","🔥","😂","🎉","👏","🎯","✨","🙌","💯","🚀","💡"],x=document.createElement("div");x.className="bonding-emoji-popup",x.innerHTML=o.map(O=>`<button class="emoji-opt-btn" data-e="${O}">${O}</button>`).join("");const B=u.getBoundingClientRect();x.style.top=`${B.bottom+window.scrollY+6}px`,x.style.left=`${B.left+window.scrollX}px`,document.body.appendChild(x),x.querySelectorAll(".emoji-opt-btn").forEach(O=>{O.onclick=ne=>{ne.stopPropagation(),f(O.dataset.e),x.remove()}});const C=O=>{x.contains(O.target)||(x.remove(),document.removeEventListener("click",C))};setTimeout(()=>document.addEventListener("click",C),10)}function Q(u){if(!u)return"";try{return new Date(u).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})}catch{return""}}}function Za(){const i=document.getElementById("ci360-bonding-styles");i&&i.remove();const t=document.createElement("style");t.id="ci360-bonding-styles",t.textContent=`
+    `,u.querySelector(".bonding-modal-close").onclick=()=>{u.innerHTML=""},u.querySelector("#btn-cancel-create-grp").onclick=()=>{u.innerHTML=""};let r="👥";const x=u.querySelectorAll(".avatar-opt");x.forEach(C=>{C.onclick=()=>{x.forEach(O=>O.classList.remove("active")),C.classList.add("active"),r=C.textContent.trim()}});const B=u.querySelector("#btn-confirm-create-grp");B.onclick=async()=>{const C=u.querySelector("#new-group-name"),O=u.querySelector("#new-group-desc"),ne=C.value.trim();if(!ne){y("Please enter a group name","warning"),C.focus();return}const F=u.querySelectorAll(".new-group-member-chk:checked"),q=Array.from(F).map(Y=>Y.value);try{B.disabled=!0,B.textContent="Creating...";const Y=await Ce("/bonding/channels",{type:"group",name:ne,description:O.value.trim(),avatar:r,memberIds:q});y(`Group "${ne}" created! 🎉`,"success"),u.innerHTML="",c=await Re("/bonding/channels"),l=c.find(_e=>_e._id===Y._id)||Y,Oe(),Me(),await Fe(l._id)}catch(Y){y(Y.message||"Failed to create group","error"),B.disabled=!1,B.textContent="Create Group 🎉"}}}function te(u,m){const s=document.querySelector(".bonding-emoji-popup");s&&s.remove();const r=["👍","❤️","🔥","😂","🎉","👏","🎯","✨","🙌","💯","🚀","💡"],x=document.createElement("div");x.className="bonding-emoji-popup",x.innerHTML=r.map(O=>`<button class="emoji-opt-btn" data-e="${O}">${O}</button>`).join("");const B=u.getBoundingClientRect();x.style.top=`${B.bottom+window.scrollY+6}px`,x.style.left=`${B.left+window.scrollX}px`,document.body.appendChild(x),x.querySelectorAll(".emoji-opt-btn").forEach(O=>{O.onclick=ne=>{ne.stopPropagation(),m(O.dataset.e),x.remove()}});const C=O=>{x.contains(O.target)||(x.remove(),document.removeEventListener("click",C))};setTimeout(()=>document.addEventListener("click",C),10)}function Q(u){if(!u)return"";try{return new Date(u).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})}catch{return""}}}function Za(){const i=document.getElementById("ci360-bonding-styles");i&&i.remove();const t=document.createElement("style");t.id="ci360-bonding-styles",t.textContent=`
     /* Root Wrap */
     .bonding-wrap {
       display: flex;
@@ -7314,7 +7363,7 @@ All messages in this lounge will be deleted.`))try{await Ze(`/bonding/channels/$
       <div style="padding:40px;text-align:center;color:#ef4444;font-size:16px;font-weight:700;">
         ⛔ Access Denied: Support Tickets are internal to company staff only.
       </div>
-    `;return}let l=[],n={},z=[],W=[],S={search:"",status:"all",priority:"all",category:"all",assigneeId:"all",reporterId:"all",scope:"all",jobId:t.initialJobId||"all",myIssuesOnly:!1},E=null,N="comments",j=!1;i.innerHTML=`
+    `;return}let l=[],n={},z=[],W=[],S={search:"",status:"all",priority:"all",category:"all",assigneeId:"all",reporterId:"all",scope:"all",jobId:t.initialJobId||"all",myIssuesOnly:!1},E=null,j="comments",N=!1;i.innerHTML=`
     <div class="ci-360-module-wrap">
       <!-- Top Header Toolbar -->
       <div class="ci-360-header-bar">
@@ -7390,7 +7439,7 @@ All messages in this lounge will be deleted.`))try{await Ze(`/bonding/channels/$
       <!-- Modal Injection Root -->
       <div id="ci-360-modals-root"></div>
     </div>
-  `,await Promise.all([et(),Ve(),rt(),St()]),it(),nt(),Fe(),Me(),b&&st(b);const ge=setInterval(()=>{if(!document.contains(i)){clearInterval(ge);return}!(i.querySelector(".dragging")||i.querySelector("input:focus")||i.querySelector("textarea:focus"))&&!E&&ce()},12e3),ye=()=>{document.contains(i)&&!E&&ce()};window.addEventListener("focus",ye);async function Ve(){try{const a=new URLSearchParams;S.search&&a.set("search",S.search),S.priority!=="all"&&a.set("priority",S.priority),S.category!=="all"&&a.set("category",S.category),S.assigneeId!=="all"&&a.set("assigneeId",S.assigneeId),S.jobId&&S.jobId!=="all"&&a.set("jobId",S.jobId),S.reporterId&&S.reporterId!=="all"&&a.set("reporterId",S.reporterId),S.scope==="created"&&a.set("reporterId",d?._id||d?.id),S.scope==="assigned"&&a.set("assigneeId",d?._id||d?.id),S.myIssuesOnly&&a.set("myIssuesOnly","true");const s=await Re("/tickets?"+a.toString());l=Array.isArray(s)?s:[]}catch(a){y(a.message||"Failed to load tickets",!0),l=[]}}async function et(){try{n=await Re("/tickets/stats")}catch(a){console.warn("Could not fetch ticket stats:",a)}}async function rt(){try{let a;try{a=await Re("/tickets/staff")}catch{a=await Re("/users")}z=(a||[]).filter(s=>s.active!==!1&&s.role!=="client")}catch(a){console.warn("Could not fetch employees:",a),z=[]}}async function St(){try{const a=await Re("/jobs?limit=250");W=Array.isArray(a)?a:a?.jobs||[]}catch(a){console.warn("Could not fetch jobs:",a)}}function it(){const a=i.querySelector("#ci-360-stats-root");a&&(a.innerHTML=`
+  `,await Promise.all([tt(),Ve(),rt(),St()]),nt(),ot(),Fe(),Me(),b&&st(b);const ge=setInterval(()=>{if(!document.contains(i)){clearInterval(ge);return}!(i.querySelector(".dragging")||i.querySelector("input:focus")||i.querySelector("textarea:focus"))&&!E&&ce()},12e3),ye=()=>{document.contains(i)&&!E&&ce()};window.addEventListener("focus",ye);async function Ve(){try{const a=new URLSearchParams;S.search&&a.set("search",S.search),S.priority!=="all"&&a.set("priority",S.priority),S.category!=="all"&&a.set("category",S.category),S.assigneeId!=="all"&&a.set("assigneeId",S.assigneeId),S.jobId&&S.jobId!=="all"&&a.set("jobId",S.jobId),S.reporterId&&S.reporterId!=="all"&&a.set("reporterId",S.reporterId),S.scope==="created"&&a.set("reporterId",d?._id||d?.id),S.scope==="assigned"&&a.set("assigneeId",d?._id||d?.id),S.myIssuesOnly&&a.set("myIssuesOnly","true");const o=await Re("/tickets?"+a.toString());l=Array.isArray(o)?o:[]}catch(a){y(a.message||"Failed to load tickets",!0),l=[]}}async function tt(){try{n=await Re("/tickets/stats")}catch(a){console.warn("Could not fetch ticket stats:",a)}}async function rt(){try{let a;try{a=await Re("/tickets/staff")}catch{a=await Re("/users")}z=(a||[]).filter(o=>o.active!==!1&&o.role!=="client")}catch(a){console.warn("Could not fetch employees:",a),z=[]}}async function St(){try{const a=await Re("/jobs?limit=250");W=Array.isArray(a)?a:a?.jobs||[]}catch(a){console.warn("Could not fetch jobs:",a)}}function nt(){const a=i.querySelector("#ci-360-stats-root");a&&(a.innerHTML=`
       <div class="ci-360-stat-card ${S.status==="all"&&!S.myIssuesOnly?"active":""}" data-stat-filter="all">
         <span class="ci-360-stat-val">${n.total||0}</span>
         <span class="ci-360-stat-lbl">Total Tickets</span>
@@ -7423,7 +7472,7 @@ All messages in this lounge will be deleted.`))try{await Ze(`/bonding/channels/$
         <span class="ci-360-stat-val">${n.overdue||0}</span>
         <span class="ci-360-stat-lbl">Overdue ⚠️</span>
       </div>
-    `,a.querySelectorAll(".ci-360-stat-card").forEach(s=>{s.onclick=async()=>{const T=s.dataset.statFilter;T==="all"?(S.status="all",S.priority="all"):T==="critical"?(S.priority="Critical",S.status="all"):(S.status=T,S.priority="all"),await ce()}}))}function Fe(){const a=i.querySelector("#ci-360-filter-assignee");a&&(a.innerHTML=`
+    `,a.querySelectorAll(".ci-360-stat-card").forEach(o=>{o.onclick=async()=>{const T=o.dataset.statFilter;T==="all"?(S.status="all",S.priority="all"):T==="critical"?(S.priority="Critical",S.status="all"):(S.status=T,S.priority="all"),await ce()}}))}function Fe(){const a=i.querySelector("#ci-360-filter-assignee");a&&(a.innerHTML=`
         <option value="all">Assignee: All</option>
         <option value="unassigned">Unassigned</option>
         ${z.map(T=>`
@@ -7431,14 +7480,14 @@ All messages in this lounge will be deleted.`))try{await Ze(`/bonding/channels/$
             ${h(T.name)} (${h(T.role)})
           </option>
         `).join("")}
-      `);const s=i.querySelector("#ci-360-filter-job");s&&(s.innerHTML=`
+      `);const o=i.querySelector("#ci-360-filter-job");o&&(o.innerHTML=`
         <option value="all">Linked Job: All</option>
         ${W.map(T=>`
           <option value="${T._id}" ${S.jobId===T._id.toString()?"selected":""}>
             📁 ${h(T.title||"Untitled Job")}
           </option>
         `).join("")}
-      `)}function nt(){const a=i.querySelector("#ci-360-board-columns-root");if(!a)return;const s={};ca.forEach(T=>{s[T.key]=[]}),l.forEach(T=>{let P=T.status||"To Do";P==="In Progress"?P="Content":P==="Resolved"?P="Under Review":P==="Closed"&&(P="Ready to Leave"),s[P]||(s[P]=[]),s[P].push(T)}),a.innerHTML=ca.map(T=>{const P=s[T.key]||[];return`
+      `)}function ot(){const a=i.querySelector("#ci-360-board-columns-root");if(!a)return;const o={};ca.forEach(T=>{o[T.key]=[]}),l.forEach(T=>{let P=T.status||"To Do";P==="In Progress"?P="Content":P==="Resolved"?P="Under Review":P==="Closed"&&(P="Ready to Leave"),o[P]||(o[P]=[]),o[P].push(T)}),a.innerHTML=ca.map(T=>{const P=o[T.key]||[];return`
         <div class="ci-360-board-column" data-status="${T.key}">
           <div class="ci-360-column-header">
             <div class="ci-360-col-title-wrap">
@@ -7454,16 +7503,16 @@ All messages in this lounge will be deleted.`))try{await Ze(`/bonding/channels/$
             `:P.map($=>ut($)).join("")}
           </div>
         </div>
-      `}).join(""),Oe(),ct()}function ut(a){const s=wt.find(ee=>ee.key===a.category)||wt[0],T=Mt.find(ee=>ee.key===a.priority)||Mt[2],P=a.dueDate&&new Date(a.dueDate)<new Date&&a.status!=="Ready to Leave"&&a.status!=="Closed",$=(a.subtasks||[]).filter(ee=>ee.completed).length,R=(a.subtasks||[]).length,A=Array.isArray(a.assignees)&&a.assignees.length>0?a.assignees:a.assignee&&a.assignee.userId?[a.assignee]:[],U=d?._id||d?.id,G=a.reporter&&a.reporter.userId&&String(a.reporter.userId)===String(U)||a.userId&&String(a.userId)===String(U),v=e==="superadmin"||d?.role==="superadmin",M=G||v;let X="";if(A.length===0)X='<div class="ci-360-avatar unassigned" title="Unassigned">?</div>';else{const ee=A.slice(0,3),ie=A.length-3;X=`
+      `}).join(""),Oe(),ct()}function ut(a){const o=wt.find(ee=>ee.key===a.category)||wt[0],T=Mt.find(ee=>ee.key===a.priority)||Mt[2],P=a.dueDate&&new Date(a.dueDate)<new Date&&a.status!=="Ready to Leave"&&a.status!=="Closed",$=(a.subtasks||[]).filter(ee=>ee.completed).length,R=(a.subtasks||[]).length,A=Array.isArray(a.assignees)&&a.assignees.length>0?a.assignees:a.assignee&&a.assignee.userId?[a.assignee]:[],U=d?._id||d?.id,G=a.reporter&&a.reporter.userId&&String(a.reporter.userId)===String(U)||a.userId&&String(a.userId)===String(U),v=e==="superadmin"||d?.role==="superadmin",M=G||v;let X="";if(A.length===0)X='<div class="ci-360-avatar unassigned" title="Unassigned">?</div>';else{const ee=A.slice(0,3),te=A.length-3;X=`
         <div class="ci-360-avatar-group">
           ${ee.map(Q=>`
             <div class="ci-360-avatar" title="Assignee: ${h(Q.name||"Member")} (${h(Q.role||"")})">
               ${(Q.avatar||Q.name?.slice(0,1)||"U").toUpperCase()}
             </div>
           `).join("")}
-          ${ie>0?`
-            <div class="ci-360-avatar extra-count" title="${ie} more assignees: ${h(A.slice(3).map(Q=>Q.name).join(", "))}">
-              +${ie}
+          ${te>0?`
+            <div class="ci-360-avatar extra-count" title="${te} more assignees: ${h(A.slice(3).map(Q=>Q.name).join(", "))}">
+              +${te}
             </div>
           `:""}
         </div>
@@ -7471,8 +7520,8 @@ All messages in this lounge will be deleted.`))try{await Ze(`/bonding/channels/$
       <div class="ci-360-card" draggable="true" data-ticket-id="${a._id}">
         <div class="ci-360-card-top">
           <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
-            <span class="ci-360-category-pill ${s.slug}">
-              ${s.icon} ${s.label}
+            <span class="ci-360-category-pill ${o.slug}">
+              ${o.icon} ${o.label}
             </span>
             ${G?`
               <span class="ci-360-reporter-tag" title="You created this ticket">
@@ -7527,20 +7576,20 @@ All messages in this lounge will be deleted.`))try{await Ze(`/bonding/channels/$
           </div>
         </div>
       </div>
-    `}function Oe(){const a=i.querySelectorAll(".ci-360-card"),s=i.querySelectorAll(".ci-360-board-column");a.forEach(T=>{T.ondragstart=P=>{P.dataTransfer.setData("text/plain",T.dataset.ticketId),T.classList.add("dragging")},T.ondragend=()=>{T.classList.remove("dragging")}}),s.forEach(T=>{T.ondragover=P=>{P.preventDefault(),T.classList.add("drag-over")},T.ondragleave=()=>{T.classList.remove("drag-over")},T.ondrop=async P=>{P.preventDefault(),T.classList.remove("drag-over");const $=P.dataTransfer.getData("text/plain"),R=T.dataset.status;if(!$||!R)return;const A=l.find(M=>M._id.toString()===$);if(!A||A.status===R)return;const U=A.status,G=A.assignees?[...A.assignees]:[],v=A.assignee?{...A.assignee}:null;if(A.status=R,R==="Under Review"){const M={name:"John",role:"Staff",email:"john@ci360.local",avatar:"J"};A.assignee=M,A.assignees=[M]}nt();try{const M=await Xe(`/tickets/${$}/status`,{status:R}),X=R==="Under Review"?`Moved ${M.ticketId} to Under Review (Default assigned to John)`:`Moved ${M.ticketId} to ${R}`;y(X,!1),await ce()}catch(M){y(M.message||"Status update failed",!0),A.status=U,A.assignees=G,A.assignee=v,await ce()}}})}function ct(){i.querySelectorAll(".btn-delete-card-ticket").forEach(a=>{a.onclick=async s=>{s.stopPropagation(),s.preventDefault();const T=a.dataset.ticketId,P=a.dataset.ticketNum||"ticket";if(confirm(`Are you sure you want to permanently delete ticket ${P}?`)){a.disabled=!0;try{await Ze(`/tickets/${T}`),y(`Ticket ${P} deleted`,!1),await ce()}catch($){y($.message||"Failed to delete ticket",!0),a.disabled=!1}}}}),i.querySelectorAll(".ci-360-card").forEach(a=>{a.onclick=s=>{if(s.target.tagName==="A"||s.target.closest(".btn-delete-card-ticket"))return;const T=a.dataset.ticketId;st(T)}})}function Me(){const a=i.querySelector("#btn-ci-360-refresh");a&&(a.onclick=async()=>{await ce(),y("Board updated",!1)});const s=i.querySelector("#btn-ci-360-create-ticket");s&&(s.onclick=()=>{I()});const T=i.querySelector("#ci-360-search-input");let P=null;T&&(T.oninput=Q=>{clearTimeout(P),P=setTimeout(async()=>{S.search=Q.target.value.trim(),ze(),await ce()},300)});const $=i.querySelector("#ci-360-filter-priority");$&&($.onchange=async Q=>{S.priority=Q.target.value,ze(),await ce()});const R=i.querySelector("#ci-360-filter-category");R&&(R.onchange=async Q=>{S.category=Q.target.value,ze(),await ce()});const A=i.querySelector("#ci-360-filter-job");A&&(A.onchange=async Q=>{S.jobId=Q.target.value,ze(),await ce()});const U=i.querySelector("#ci-360-filter-assignee");U&&(U.onchange=async Q=>{S.assigneeId=Q.target.value,ze(),await ce()});const G=i.querySelector("#ci-360-pill-my-issues");G&&(G.onclick=async()=>{S.myIssuesOnly=!S.myIssuesOnly,G.classList.toggle("active",S.myIssuesOnly),ze(),await ce()});const v=i.querySelector("#ci-360-pill-scope-all"),M=i.querySelector("#ci-360-pill-scope-assigned"),X=i.querySelector("#ci-360-pill-scope-created"),ee=async Q=>{S.scope=Q,v&&v.classList.toggle("active",Q==="all"),M&&M.classList.toggle("active",Q==="assigned"),X&&X.classList.toggle("active",Q==="created"),ze(),await ce()};v&&(v.onclick=()=>ee("all")),M&&(M.onclick=()=>ee("assigned")),X&&(X.onclick=()=>ee("created"));const ie=i.querySelector("#ci-360-clear-filters");ie&&(ie.onclick=async()=>{S={search:"",status:"all",priority:"all",category:"all",assigneeId:"all",reporterId:"all",scope:"all",jobId:"all",myIssuesOnly:!1},T&&(T.value=""),$&&($.value="all"),R&&(R.value="all");const Q=i.querySelector("#ci-360-filter-job");Q&&(Q.value="all"),U&&(U.value="all"),G&&G.classList.remove("active"),v&&v.classList.add("active"),M&&M.classList.remove("active"),X&&X.classList.remove("active"),ze(),await ce()})}function ze(){const a=i.querySelector("#ci-360-clear-filters");if(!a)return;const s=S.search||S.priority!=="all"||S.category!=="all"||S.jobId&&S.jobId!=="all"||S.assigneeId!=="all"||S.myIssuesOnly||S.scope&&S.scope!=="all";a.style.display=s?"inline":"none"}async function ce(){await Ve(),nt()}async function st(a){const s=i.querySelector("#ci-360-modals-root");if(s){s.innerHTML=`
+    `}function Oe(){const a=i.querySelectorAll(".ci-360-card"),o=i.querySelectorAll(".ci-360-board-column");a.forEach(T=>{T.ondragstart=P=>{P.dataTransfer.setData("text/plain",T.dataset.ticketId),T.classList.add("dragging")},T.ondragend=()=>{T.classList.remove("dragging")}}),o.forEach(T=>{T.ondragover=P=>{P.preventDefault(),T.classList.add("drag-over")},T.ondragleave=()=>{T.classList.remove("drag-over")},T.ondrop=async P=>{P.preventDefault(),T.classList.remove("drag-over");const $=P.dataTransfer.getData("text/plain"),R=T.dataset.status;if(!$||!R)return;const A=l.find(M=>M._id.toString()===$);if(!A||A.status===R)return;const U=A.status,G=A.assignees?[...A.assignees]:[],v=A.assignee?{...A.assignee}:null;if(A.status=R,R==="Under Review"){const M={name:"John",role:"Staff",email:"john@ci360.local",avatar:"J"};A.assignee=M,A.assignees=[M]}ot();try{const M=await Ze(`/tickets/${$}/status`,{status:R}),X=R==="Under Review"?`Moved ${M.ticketId} to Under Review (Default assigned to John)`:`Moved ${M.ticketId} to ${R}`;y(X,!1),await ce()}catch(M){y(M.message||"Status update failed",!0),A.status=U,A.assignees=G,A.assignee=v,await ce()}}})}function ct(){i.querySelectorAll(".btn-delete-card-ticket").forEach(a=>{a.onclick=async o=>{o.stopPropagation(),o.preventDefault();const T=a.dataset.ticketId,P=a.dataset.ticketNum||"ticket";if(confirm(`Are you sure you want to permanently delete ticket ${P}?`)){a.disabled=!0;try{await et(`/tickets/${T}`),y(`Ticket ${P} deleted`,!1),await ce()}catch($){y($.message||"Failed to delete ticket",!0),a.disabled=!1}}}}),i.querySelectorAll(".ci-360-card").forEach(a=>{a.onclick=o=>{if(o.target.tagName==="A"||o.target.closest(".btn-delete-card-ticket"))return;const T=a.dataset.ticketId;st(T)}})}function Me(){const a=i.querySelector("#btn-ci-360-refresh");a&&(a.onclick=async()=>{await ce(),y("Board updated",!1)});const o=i.querySelector("#btn-ci-360-create-ticket");o&&(o.onclick=()=>{I()});const T=i.querySelector("#ci-360-search-input");let P=null;T&&(T.oninput=Q=>{clearTimeout(P),P=setTimeout(async()=>{S.search=Q.target.value.trim(),ze(),await ce()},300)});const $=i.querySelector("#ci-360-filter-priority");$&&($.onchange=async Q=>{S.priority=Q.target.value,ze(),await ce()});const R=i.querySelector("#ci-360-filter-category");R&&(R.onchange=async Q=>{S.category=Q.target.value,ze(),await ce()});const A=i.querySelector("#ci-360-filter-job");A&&(A.onchange=async Q=>{S.jobId=Q.target.value,ze(),await ce()});const U=i.querySelector("#ci-360-filter-assignee");U&&(U.onchange=async Q=>{S.assigneeId=Q.target.value,ze(),await ce()});const G=i.querySelector("#ci-360-pill-my-issues");G&&(G.onclick=async()=>{S.myIssuesOnly=!S.myIssuesOnly,G.classList.toggle("active",S.myIssuesOnly),ze(),await ce()});const v=i.querySelector("#ci-360-pill-scope-all"),M=i.querySelector("#ci-360-pill-scope-assigned"),X=i.querySelector("#ci-360-pill-scope-created"),ee=async Q=>{S.scope=Q,v&&v.classList.toggle("active",Q==="all"),M&&M.classList.toggle("active",Q==="assigned"),X&&X.classList.toggle("active",Q==="created"),ze(),await ce()};v&&(v.onclick=()=>ee("all")),M&&(M.onclick=()=>ee("assigned")),X&&(X.onclick=()=>ee("created"));const te=i.querySelector("#ci-360-clear-filters");te&&(te.onclick=async()=>{S={search:"",status:"all",priority:"all",category:"all",assigneeId:"all",reporterId:"all",scope:"all",jobId:"all",myIssuesOnly:!1},T&&(T.value=""),$&&($.value="all"),R&&(R.value="all");const Q=i.querySelector("#ci-360-filter-job");Q&&(Q.value="all"),U&&(U.value="all"),G&&G.classList.remove("active"),v&&v.classList.add("active"),M&&M.classList.remove("active"),X&&X.classList.remove("active"),ze(),await ce()})}function ze(){const a=i.querySelector("#ci-360-clear-filters");if(!a)return;const o=S.search||S.priority!=="all"||S.category!=="all"||S.jobId&&S.jobId!=="all"||S.assigneeId!=="all"||S.myIssuesOnly||S.scope&&S.scope!=="all";a.style.display=o?"inline":"none"}async function ce(){await Ve(),ot()}async function st(a){const o=i.querySelector("#ci-360-modals-root");if(o){o.innerHTML=`
       <div class="ci-360-modal-backdrop">
         <div class="ci-360-modal-card" style="align-items:center;justify-content:center;">
           <div style="color:#94a3b8;font-size:15px;font-weight:600;">Loading Issue Details...</div>
         </div>
       </div>
-    `;try{E=await Re(`/tickets/${a}`)}catch(T){y(T.message||"Could not load ticket",!0),s.innerHTML="";return}ve()}}function ve(){const a=i.querySelector("#ci-360-modals-root");if(!a||!E)return;const s=E,T=wt.find(o=>o.key===s.category)||wt[0];Mt.find(o=>o.key===s.priority)||Mt[2];const P=s.subtasks||[],$=P.filter(o=>o.completed).length,R=P.length>0?Math.round($/P.length*100):0,A=s.attachments||[],U=s.comments||[],G=(s.history||[]).slice().reverse(),v=s.workLogs||[],M=s.linkedTickets||[],X=d?._id||d?.id,ee=s.reporter&&s.reporter.userId&&String(s.reporter.userId)===String(X)||s.userId&&String(s.userId)===String(X),ie=e==="superadmin"||d?.role==="superadmin",Q=ee||ie,u=Array.isArray(s.assignees)&&s.assignees.length>0?s.assignees:s.assignee&&s.assignee.userId?[s.assignee]:[];u.some(o=>o&&o.userId&&String(o.userId)===String(X));const f=s.jobId?._id?s.jobId._id.toString():s.jobId?s.jobId.toString():"",r=s.jobTitle||s.jobId&&s.jobId.title||"";a.innerHTML=`
+    `;try{E=await Re(`/tickets/${a}`)}catch(T){y(T.message||"Could not load ticket",!0),o.innerHTML="";return}ve()}}function ve(){const a=i.querySelector("#ci-360-modals-root");if(!a||!E)return;const o=E,T=wt.find(r=>r.key===o.category)||wt[0];Mt.find(r=>r.key===o.priority)||Mt[2];const P=o.subtasks||[],$=P.filter(r=>r.completed).length,R=P.length>0?Math.round($/P.length*100):0,A=o.attachments||[],U=o.comments||[],G=(o.history||[]).slice().reverse(),v=o.workLogs||[],M=o.linkedTickets||[],X=d?._id||d?.id,ee=o.reporter&&o.reporter.userId&&String(o.reporter.userId)===String(X)||o.userId&&String(o.userId)===String(X),te=e==="superadmin"||d?.role==="superadmin",Q=ee||te,u=Array.isArray(o.assignees)&&o.assignees.length>0?o.assignees:o.assignee&&o.assignee.userId?[o.assignee]:[];u.some(r=>r&&r.userId&&String(r.userId)===String(X));const m=o.jobId?._id?o.jobId._id.toString():o.jobId?o.jobId.toString():"",s=o.jobTitle||o.jobId&&o.jobId.title||"";a.innerHTML=`
       <div class="ci-360-modal-backdrop" id="ci-360-detail-backdrop">
         <div class="ci-360-modal-card">
           <!-- Top Bar -->
           <div class="ci-360-modal-header">
             <div class="ci-360-modal-title-row">
               <span class="ci-360-category-pill ${T.slug}">${T.icon} ${T.label}</span>
-              <span class="ci-360-ticket-id" style="font-size:13px;color:#38bdf8;">${h(s.ticketId)}</span>
+              <span class="ci-360-ticket-id" style="font-size:13px;color:#38bdf8;">${h(o.ticketId)}</span>
             </div>
             <button class="ci-360-modal-close" id="btn-close-ci-360-modal" title="Close (Esc)">&times;</button>
           </div>
@@ -7551,7 +7600,7 @@ All messages in this lounge will be deleted.`))try{await Ze(`/bonding/channels/$
             <div class="ci-360-detail-main">
               <!-- Issue Title Header -->
               <div class="ci-360-issue-header-wrap">
-                <input type="text" class="ci-360-editable-title" id="inp-detail-title" value="${h(s.title)}" title="Click to edit title" />
+                <input type="text" class="ci-360-editable-title" id="inp-detail-title" value="${h(o.title)}" title="Click to edit title" />
               </div>
 
               <!-- Description Section -->
@@ -7559,25 +7608,25 @@ All messages in this lounge will be deleted.`))try{await Ze(`/bonding/channels/$
                 <div class="ci-360-sec-title">
                   <span>Description</span>
                   <button type="button" class="ci-360-tool-btn" id="btn-toggle-desc-edit">
-                    ${j?"Cancel":"✏️ Edit"}
+                    ${N?"Cancel":"✏️ Edit"}
                   </button>
                 </div>
 
-                ${j?`
+                ${N?`
                   <div class="ci-360-editor-toolbar">
                     <button type="button" class="ci-360-tool-btn" data-fmt="bold"><strong>B</strong></button>
                     <button type="button" class="ci-360-tool-btn" data-fmt="italic"><em>I</em></button>
                     <button type="button" class="ci-360-tool-btn" data-fmt="bullet">• List</button>
                     <button type="button" class="ci-360-tool-btn" data-fmt="code">&lt;/&gt;</button>
                   </div>
-                  <textarea id="inp-detail-desc" class="ci-360-desc-editor" rows="6">${h(s.description||"")}</textarea>
+                  <textarea id="inp-detail-desc" class="ci-360-desc-editor" rows="6">${h(o.description||"")}</textarea>
                   <div style="display:flex;gap:8px;margin-top:6px;">
                     <button class="btn-ci-360-primary" id="btn-save-desc">Save Description</button>
                     <button class="btn-ci-360-secondary" id="btn-cancel-desc">Cancel</button>
                   </div>
                 `:`
                   <div class="ci-360-desc-wrap" id="view-detail-desc">
-                    ${s.description?wa(s.description):'<span style="color:#64748b;font-style:italic;">No description provided. Click "Edit" to add details.</span>'}
+                    ${o.description?wa(o.description):'<span style="color:#64748b;font-style:italic;">No description provided. Click "Edit" to add details.</span>'}
                   </div>
                 `}
               </div>
@@ -7585,7 +7634,7 @@ All messages in this lounge will be deleted.`))try{await Ze(`/bonding/channels/$
               <!-- Reference & External URLs (Figma, Loom, Live App, Docs) -->
               <div class="ci-360-section-block">
                 <div class="ci-360-sec-title">
-                  <span>🔗 Reference &amp; External Links (${(s.links||[]).length+(s.linkUrl&&!(s.links||[]).some(o=>o.url===s.linkUrl)?1:0)})</span>
+                  <span>🔗 Reference &amp; External Links (${(o.links||[]).length+(o.linkUrl&&!(o.links||[]).some(r=>r.url===o.linkUrl)?1:0)})</span>
                   <button type="button" class="btn-ci-360-secondary" id="btn-toggle-add-link" style="font-size:11px;padding:4px 9px;">
                     + Add Link
                   </button>
@@ -7602,42 +7651,42 @@ All messages in this lounge will be deleted.`))try{await Ze(`/bonding/channels/$
                   </div>
                 </div>
 
-                ${s.links&&s.links.length>0||s.linkUrl?`
+                ${o.links&&o.links.length>0||o.linkUrl?`
                   <div class="ci-360-links-list" style="display:flex;flex-direction:column;gap:8px;">
-                    ${s.linkUrl&&!(s.links||[]).some(o=>o.url===s.linkUrl)?`
+                    ${o.linkUrl&&!(o.links||[]).some(r=>r.url===o.linkUrl)?`
                       <div class="ci-360-link-card" style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 12px;border-radius:8px;">
                         <div style="display:flex;align-items:center;gap:8px;min-width:0;flex:1;">
                           <span style="font-size:16px;">🔗</span>
                           <div style="min-width:0;flex:1;">
-                            <a href="${h(s.linkUrl)}" target="_blank" rel="noopener noreferrer" class="ci-360-link-anchor" style="font-size:12.5px;font-weight:700;color:#38bdf8;text-decoration:none;display:inline-flex;align-items:center;gap:4px;word-break:break-all;">
-                              ${h(s.linkUrl)} <span>↗</span>
+                            <a href="${h(o.linkUrl)}" target="_blank" rel="noopener noreferrer" class="ci-360-link-anchor" style="font-size:12.5px;font-weight:700;color:#38bdf8;text-decoration:none;display:inline-flex;align-items:center;gap:4px;word-break:break-all;">
+                              ${h(o.linkUrl)} <span>↗</span>
                             </a>
                             <div style="font-size:11px;color:#94a3b8;">Primary Reference Link</div>
                           </div>
                         </div>
                         <div style="display:flex;align-items:center;gap:6px;">
-                          <button type="button" class="btn-ci-360-secondary btn-copy-link" data-url="${h(s.linkUrl)}" style="font-size:11px;padding:3px 8px;">Copy</button>
-                          <a href="${h(s.linkUrl)}" target="_blank" rel="noopener noreferrer" class="btn-ci-360-primary" style="font-size:11px;padding:3px 9px;text-decoration:none;">Open ↗</a>
+                          <button type="button" class="btn-ci-360-secondary btn-copy-link" data-url="${h(o.linkUrl)}" style="font-size:11px;padding:3px 8px;">Copy</button>
+                          <a href="${h(o.linkUrl)}" target="_blank" rel="noopener noreferrer" class="btn-ci-360-primary" style="font-size:11px;padding:3px 9px;text-decoration:none;">Open ↗</a>
                         </div>
                       </div>
                     `:""}
-                    ${(s.links||[]).map(o=>`
+                    ${(o.links||[]).map(r=>`
                       <div class="ci-360-link-card" style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 12px;border-radius:8px;">
                         <div style="display:flex;align-items:center;gap:8px;min-width:0;flex:1;">
                           <span style="font-size:16px;">🔗</span>
                           <div style="min-width:0;flex:1;">
-                            <a href="${h(o.url)}" target="_blank" rel="noopener noreferrer" class="ci-360-link-anchor" style="font-size:12.5px;font-weight:700;color:#38bdf8;text-decoration:none;display:inline-flex;align-items:center;gap:4px;word-break:break-all;">
-                              ${h(o.title||o.url)} <span>↗</span>
+                            <a href="${h(r.url)}" target="_blank" rel="noopener noreferrer" class="ci-360-link-anchor" style="font-size:12.5px;font-weight:700;color:#38bdf8;text-decoration:none;display:inline-flex;align-items:center;gap:4px;word-break:break-all;">
+                              ${h(r.title||r.url)} <span>↗</span>
                             </a>
                             <div style="font-size:11px;color:#94a3b8;">
-                              ${o.title?`<span style="word-break:break-all;">${h(o.url)}</span> · `:""}Added by ${h(o.addedBy||"Staff")}
+                              ${r.title?`<span style="word-break:break-all;">${h(r.url)}</span> · `:""}Added by ${h(r.addedBy||"Staff")}
                             </div>
                           </div>
                         </div>
                         <div style="display:flex;align-items:center;gap:6px;">
-                          <button type="button" class="btn-ci-360-secondary btn-copy-link" data-url="${h(o.url)}" style="font-size:11px;padding:3px 8px;">Copy</button>
-                          <a href="${h(o.url)}" target="_blank" rel="noopener noreferrer" class="btn-ci-360-primary" style="font-size:11px;padding:3px 9px;text-decoration:none;">Open ↗</a>
-                          <button type="button" class="ci-360-att-del btn-del-link" data-link-id="${o.id}" title="Remove Link">&times;</button>
+                          <button type="button" class="btn-ci-360-secondary btn-copy-link" data-url="${h(r.url)}" style="font-size:11px;padding:3px 8px;">Copy</button>
+                          <a href="${h(r.url)}" target="_blank" rel="noopener noreferrer" class="btn-ci-360-primary" style="font-size:11px;padding:3px 9px;text-decoration:none;">Open ↗</a>
+                          <button type="button" class="ci-360-att-del btn-del-link" data-link-id="${r.id}" title="Remove Link">&times;</button>
                         </div>
                       </div>
                     `).join("")}
@@ -7663,32 +7712,32 @@ All messages in this lounge will be deleted.`))try{await Ze(`/bonding/channels/$
                   <div style="color:#64748b;font-size:12px;font-style:italic;">No attachments yet. Upload MP4 videos (up to 1GB), screen recordings, screenshots, or logs.</div>
                 `:`
                   <div class="ci-360-attachments-grid">
-                    ${A.map(o=>{const x=o.type&&o.type.includes("video")||o.name&&o.name.match(/\.(mp4|mov|webm|avi|mkv)$/i)||o.url&&o.url.match(/\.(mp4|mov|webm|avi|mkv)$/i);return`
+                    ${A.map(r=>{const x=r.type&&r.type.includes("video")||r.name&&r.name.match(/\.(mp4|mov|webm|avi|mkv)$/i)||r.url&&r.url.match(/\.(mp4|mov|webm|avi|mkv)$/i);return`
                         <div class="ci-360-att-card ${x?"is-video":""}" style="${x?"grid-column: 1 / -1; display:flex; flex-direction:column; gap:6px;":""}">
                           <div style="display:flex;align-items:center;justify-content:space-between;width:100%;gap:8px;">
                             <div class="ci-360-att-left">
                               <span style="font-size:${x?"16px":"13px"};">${x?"🎬":"📎"}</span>
                               <div style="display:flex;flex-direction:column;min-width:0;">
-                                <a href="${o.url}" target="_blank" rel="noopener noreferrer" class="ci-360-att-name" title="${h(o.name)}">
-                                  ${h(o.name)}
+                                <a href="${r.url}" target="_blank" rel="noopener noreferrer" class="ci-360-att-name" title="${h(r.name)}">
+                                  ${h(r.name)}
                                 </a>
-                                <span style="font-size:10.5px;color:#94a3b8;">${ga(o.size)} ${x?"• MP4 Video":""}</span>
+                                <span style="font-size:10.5px;color:#94a3b8;">${ga(r.size)} ${x?"• MP4 Video":""}</span>
                               </div>
                             </div>
                             <div style="display:flex;align-items:center;gap:6px;">
                               ${x?`
-                                <button type="button" class="btn-play-att-video" data-slot="video-slot-${o.id}" style="background:#0284c7;color:#fff;border:none;border-radius:4px;padding:3px 9px;font-size:11px;font-weight:600;cursor:pointer;">
+                                <button type="button" class="btn-play-att-video" data-slot="video-slot-${r.id}" style="background:#0284c7;color:#fff;border:none;border-radius:4px;padding:3px 9px;font-size:11px;font-weight:600;cursor:pointer;">
                                   ▶ Play Video
                                 </button>
                               `:""}
-                              <a href="${o.url}" download="${h(o.name)}" class="btn-ci-360-secondary" style="font-size:11px;padding:3px 7px;text-decoration:none;" title="Download">⬇</a>
-                              <button type="button" class="ci-360-att-del btn-del-att" data-att-id="${o.id}" title="Delete file">&times;</button>
+                              <a href="${r.url}" download="${h(r.name)}" class="btn-ci-360-secondary" style="font-size:11px;padding:3px 7px;text-decoration:none;" title="Download">⬇</a>
+                              <button type="button" class="ci-360-att-del btn-del-att" data-att-id="${r.id}" title="Delete file">&times;</button>
                             </div>
                           </div>
                           ${x?`
-                            <div class="ci-360-video-slot" id="video-slot-${o.id}" style="display:none;margin-top:6px;width:100%;">
+                            <div class="ci-360-video-slot" id="video-slot-${r.id}" style="display:none;margin-top:6px;width:100%;">
                               <video controls preload="metadata" style="width:100%;max-height:360px;border-radius:6px;background:#000;">
-                                <source src="${o.url}" type="${o.type||"video/mp4"}">
+                                <source src="${r.url}" type="${r.type||"video/mp4"}">
                                 Your browser does not support HTML5 video streaming.
                               </video>
                             </div>
@@ -7711,13 +7760,13 @@ All messages in this lounge will be deleted.`))try{await Ze(`/bonding/channels/$
                 </div>
 
                 <div class="ci-360-subtask-list">
-                  ${P.map(o=>`
+                  ${P.map(r=>`
                     <div class="ci-360-subtask-item">
                       <div class="ci-360-subtask-left">
-                        <input type="checkbox" class="ci-360-subtask-cb cb-subtask-toggle" data-subtask-id="${o.id}" ${o.completed?"checked":""} />
-                        <span class="ci-360-subtask-title ${o.completed?"done":""}">${h(o.title)}</span>
+                        <input type="checkbox" class="ci-360-subtask-cb cb-subtask-toggle" data-subtask-id="${r.id}" ${r.completed?"checked":""} />
+                        <span class="ci-360-subtask-title ${r.completed?"done":""}">${h(r.title)}</span>
                       </div>
-                      <button type="button" class="ci-360-att-del btn-del-subtask" data-subtask-id="${o.id}" title="Remove subtask">&times;</button>
+                      <button type="button" class="ci-360-att-del btn-del-subtask" data-subtask-id="${r.id}" title="Remove subtask">&times;</button>
                     </div>
                   `).join("")}
                 </div>
@@ -7741,16 +7790,16 @@ All messages in this lounge will be deleted.`))try{await Ze(`/bonding/channels/$
                   <div style="color:#64748b;font-size:12px;font-style:italic;">No linked issues.</div>
                 `:`
                   <div style="display:flex;flex-direction:column;gap:6px;">
-                    ${M.map(o=>`
+                    ${M.map(r=>`
                       <div class="ci-360-subtask-item">
                         <div style="display:flex;align-items:center;gap:8px;">
-                          <span style="font-size:11px;color:#94a3b8;font-weight:700;text-transform:uppercase;">${h(o.relationship)}</span>
-                          <span class="ci-360-ticket-id" style="color:#38bdf8;">${h(o.ticketId)}</span>
-                          <span class="ci-360-linked-title" style="font-size:12.5px;">${h(o.title)}</span>
+                          <span style="font-size:11px;color:#94a3b8;font-weight:700;text-transform:uppercase;">${h(r.relationship)}</span>
+                          <span class="ci-360-ticket-id" style="color:#38bdf8;">${h(r.ticketId)}</span>
+                          <span class="ci-360-linked-title" style="font-size:12.5px;">${h(r.title)}</span>
                         </div>
                         <div style="display:flex;align-items:center;gap:6px;">
-                          <span class="ci-360-col-badge">${h(o.status||"Open")}</span>
-                          <button type="button" class="ci-360-att-del btn-del-link" data-link-id="${o.id}" title="Remove link">&times;</button>
+                          <span class="ci-360-col-badge">${h(r.status||"Open")}</span>
+                          <button type="button" class="ci-360-att-del btn-del-link" data-link-id="${r.id}" title="Remove link">&times;</button>
                         </div>
                       </div>
                     `).join("")}
@@ -7777,16 +7826,16 @@ All messages in this lounge will be deleted.`))try{await Ze(`/bonding/channels/$
                 <div class="ci-360-sec-title">
                   <span style="display:flex;align-items:center;gap:6px;">📁 Linked Internal Job</span>
                   <button type="button" class="ci-360-tool-btn" id="btn-toggle-job-link">
-                    ${r?"✏️ Change Job":"+ Link a Job"}
+                    ${s?"✏️ Change Job":"+ Link a Job"}
                   </button>
                 </div>
-                ${r?`
+                ${s?`
                   <div class="ci-360-linked-job-card">
                     <div style="display:flex;align-items:center;gap:10px;">
                       <span style="font-size:22px;">📁</span>
                       <div>
-                        <div class="ci-360-job-card-title" style="font-weight:700;font-size:13px;">${h(r)}</div>
-                        <div style="font-size:11px;color:#38bdf8;">CI360 Job ID: ${h(f)}</div>
+                        <div class="ci-360-job-card-title" style="font-weight:700;font-size:13px;">${h(s)}</div>
+                        <div style="font-size:11px;color:#38bdf8;">CI360 Job ID: ${h(m)}</div>
                       </div>
                     </div>
                     <button type="button" class="ci-360-tool-btn" id="btn-unlink-job" style="color:#ef4444;border-color:rgba(239,68,68,0.3);" title="Remove job link">
@@ -7804,9 +7853,9 @@ All messages in this lounge will be deleted.`))try{await Ze(`/bonding/channels/$
                   <div style="display:flex;gap:8px;flex-wrap:wrap;">
                     <select id="inp-modal-job-select" class="ci-360-select-field" style="flex:1;min-width:220px;">
                       <option value="">-- Select a Job --</option>
-                      ${W.map(o=>`
-                        <option value="${o._id}" ${f===o._id.toString()?"selected":""}>
-                          📁 ${h(o.title||"Untitled Job")}
+                      ${W.map(r=>`
+                        <option value="${r._id}" ${m===r._id.toString()?"selected":""}>
+                          📁 ${h(r.title||"Untitled Job")}
                         </option>
                       `).join("")}
                     </select>
@@ -7820,31 +7869,31 @@ All messages in this lounge will be deleted.`))try{await Ze(`/bonding/channels/$
               <div class="ci-360-section-block" style="margin-top:10px;">
                 <div class="ci-360-sec-title">Activity</div>
                 <div class="ci-360-activity-tabs">
-                  <button type="button" class="ci-360-act-tab ${N==="comments"?"active":""}" data-act-tab="comments">
+                  <button type="button" class="ci-360-act-tab ${j==="comments"?"active":""}" data-act-tab="comments">
                     Comments (${U.length})
                   </button>
-                  <button type="button" class="ci-360-act-tab ${N==="history"?"active":""}" data-act-tab="history">
+                  <button type="button" class="ci-360-act-tab ${j==="history"?"active":""}" data-act-tab="history">
                     History (${G.length})
                   </button>
-                  <button type="button" class="ci-360-act-tab ${N==="worklog"?"active":""}" data-act-tab="worklog">
+                  <button type="button" class="ci-360-act-tab ${j==="worklog"?"active":""}" data-act-tab="worklog">
                     Work Log (${v.length})
                   </button>
                 </div>
 
                 <!-- A. Comments Tab -->
-                ${N==="comments"?`
+                ${j==="comments"?`
                   <div class="ci-360-comments-feed">
-                    ${U.map(o=>`
+                    ${U.map(r=>`
                       <div class="ci-360-comment-item">
                         <div class="ci-360-avatar" style="background:#2563eb;">
-                          ${(o.userName||"U").slice(0,1).toUpperCase()}
+                          ${(r.userName||"U").slice(0,1).toUpperCase()}
                         </div>
                         <div class="ci-360-comment-main">
                           <div class="ci-360-comment-head">
-                            <span class="ci-360-comment-author">${h(o.userName)} <span style="font-size:10px;color:#94a3b8;font-weight:400;">(${h(o.userRole)})</span></span>
-                            <span class="ci-360-comment-time">${ta(o.createdAt)}</span>
+                            <span class="ci-360-comment-author">${h(r.userName)} <span style="font-size:10px;color:#94a3b8;font-weight:400;">(${h(r.userRole)})</span></span>
+                            <span class="ci-360-comment-time">${ta(r.createdAt)}</span>
                           </div>
-                          <div class="ci-360-comment-body">${wa(o.content)}</div>
+                          <div class="ci-360-comment-body">${wa(r.content)}</div>
                         </div>
                       </div>
                     `).join("")}
@@ -7865,24 +7914,24 @@ All messages in this lounge will be deleted.`))try{await Ze(`/bonding/channels/$
                 `:""}
 
                 <!-- B. History Tab -->
-                ${N==="history"?`
+                ${j==="history"?`
                   <div class="ci-360-history-feed">
                     ${G.length===0?`
                       <div style="color:#64748b;font-size:12px;font-style:italic;">No recorded history.</div>
-                    `:G.map(o=>`
+                    `:G.map(r=>`
                       <div class="ci-360-history-item">
                         <div class="ci-360-avatar unassigned" style="width:20px;height:20px;font-size:9px;">
-                          ${(o.userName||"S").slice(0,1).toUpperCase()}
+                          ${(r.userName||"S").slice(0,1).toUpperCase()}
                         </div>
                         <div class="ci-360-history-main">
                           <div class="ci-360-history-head">
-                            <span class="ci-360-comment-author" style="font-size:12px;">${h(o.userName)}</span>
-                            <span class="ci-360-comment-time">${ta(o.timestamp)}</span>
+                            <span class="ci-360-comment-author" style="font-size:12px;">${h(r.userName)}</span>
+                            <span class="ci-360-comment-time">${ta(r.timestamp)}</span>
                           </div>
                           <div style="font-size:12px;color:#94a3b8;">
-                            Changed <strong class="ci-360-history-field">${h(o.field)}</strong>:
-                            ${o.from?`<span style="text-decoration:line-through;color:#ef4444;">${h(o.from)}</span> ➔ `:""}
-                            <span style="color:#10b981;font-weight:600;">${h(o.to)}</span>
+                            Changed <strong class="ci-360-history-field">${h(r.field)}</strong>:
+                            ${r.from?`<span style="text-decoration:line-through;color:#ef4444;">${h(r.from)}</span> ➔ `:""}
+                            <span style="color:#10b981;font-weight:600;">${h(r.to)}</span>
                           </div>
                         </div>
                       </div>
@@ -7891,10 +7940,10 @@ All messages in this lounge will be deleted.`))try{await Ze(`/bonding/channels/$
                 `:""}
 
                 <!-- C. Work Log Tab -->
-                ${N==="worklog"?`
+                ${j==="worklog"?`
                   <div class="ci-360-worklog-feed">
                     <div style="display:flex;justify-content:space-between;align-items:center;">
-                      <span style="font-size:12px;color:#94a3b8;">Total Logged: <strong>${s.loggedHours||0} hrs</strong></span>
+                      <span style="font-size:12px;color:#94a3b8;">Total Logged: <strong>${o.loggedHours||0} hrs</strong></span>
                       <button class="btn-ci-360-secondary" id="btn-open-worklog-dialog" style="font-size:11px;padding:4px 8px;">
                         ⏱️ Log Work
                       </button>
@@ -7913,17 +7962,17 @@ All messages in this lounge will be deleted.`))try{await Ze(`/bonding/channels/$
 
                     ${v.length===0?`
                       <div style="color:#64748b;font-size:12px;font-style:italic;">No work logged yet.</div>
-                    `:v.map(o=>`
+                    `:v.map(r=>`
                       <div class="ci-360-worklog-item">
                         <div class="ci-360-avatar" style="background:#10b981;width:20px;height:20px;font-size:9px;">
-                          ${(o.userName||"U").slice(0,1).toUpperCase()}
+                          ${(r.userName||"U").slice(0,1).toUpperCase()}
                         </div>
                         <div class="ci-360-worklog-main">
                           <div class="ci-360-worklog-head">
-                            <span class="ci-360-comment-author" style="font-size:12px;">${h(o.userName)} logged <strong style="color:#38bdf8;">${h(o.timeSpent)}</strong></span>
-                            <span class="ci-360-comment-time">${ta(o.loggedAt)}</span>
+                            <span class="ci-360-comment-author" style="font-size:12px;">${h(r.userName)} logged <strong style="color:#38bdf8;">${h(r.timeSpent)}</strong></span>
+                            <span class="ci-360-comment-time">${ta(r.loggedAt)}</span>
                           </div>
-                          ${o.description?`<div class="ci-360-comment-body" style="font-size:12px;">${h(o.description)}</div>`:""}
+                          ${r.description?`<div class="ci-360-comment-body" style="font-size:12px;">${h(r.description)}</div>`:""}
                         </div>
                       </div>
                     `).join("")}
@@ -7938,9 +7987,9 @@ All messages in this lounge will be deleted.`))try{await Ze(`/bonding/channels/$
               <div class="ci-360-side-field">
                 <span class="ci-360-side-lbl">Status</span>
                 <select id="sel-detail-status" class="ci-360-select-field">
-                  ${ca.map(o=>{let x=s.status||"To Do";return x==="In Progress"?x="Content":x==="Resolved"?x="Under Review":x==="Closed"&&(x="Ready to Leave"),`
-                      <option value="${o.key}" ${x===o.key?"selected":""}>
-                        ${o.label}
+                  ${ca.map(r=>{let x=o.status||"To Do";return x==="In Progress"?x="Content":x==="Resolved"?x="Under Review":x==="Closed"&&(x="Ready to Leave"),`
+                      <option value="${r.key}" ${x===r.key?"selected":""}>
+                        ${r.label}
                       </option>
                     `}).join("")}
                 </select>
@@ -7950,9 +7999,9 @@ All messages in this lounge will be deleted.`))try{await Ze(`/bonding/channels/$
               <div class="ci-360-side-field">
                 <span class="ci-360-side-lbl">Priority</span>
                 <select id="sel-detail-priority" class="ci-360-select-field">
-                  ${Mt.map(o=>`
-                    <option value="${o.key}" ${s.priority===o.key?"selected":""}>
-                      ${o.icon} ${o.label}
+                  ${Mt.map(r=>`
+                    <option value="${r.key}" ${o.priority===r.key?"selected":""}>
+                      ${r.icon} ${r.label}
                     </option>
                   `).join("")}
                 </select>
@@ -7972,14 +8021,14 @@ All messages in this lounge will be deleted.`))try{await Ze(`/bonding/channels/$
                 <div class="ci-360-assigned-chips-wrap">
                   ${u.length===0?`
                     <span style="font-size:12px;color:#64748b;font-style:italic;">Unassigned</span>
-                  `:u.map(o=>`
+                  `:u.map(r=>`
                     <div class="ci-360-assignee-chip">
                       <div class="ci-360-avatar" style="width:20px;height:20px;font-size:10px;">
-                        ${(o.avatar||o.name?.slice(0,1)||"U").toUpperCase()}
+                        ${(r.avatar||r.name?.slice(0,1)||"U").toUpperCase()}
                       </div>
-                      <span class="ci-360-assignee-chip-name" title="${h(o.name)}">${h(o.name)}</span>
+                      <span class="ci-360-assignee-chip-name" title="${h(r.name)}">${h(r.name)}</span>
                       ${`
-                        <button type="button" class="ci-360-assignee-chip-remove btn-remove-assignee" data-user-id="${o.userId}" title="Remove ${h(o.name)}">&times;</button>
+                        <button type="button" class="ci-360-assignee-chip-remove btn-remove-assignee" data-user-id="${r.userId}" title="Remove ${h(r.name)}">&times;</button>
                       `}
                     </div>
                   `).join("")}
@@ -7992,12 +8041,12 @@ All messages in this lounge will be deleted.`))try{await Ze(`/bonding/channels/$
                     <button type="button" id="btn-close-detail-assignee-box" style="background:none;border:none;color:#94a3b8;cursor:pointer;font-size:13px;">✕</button>
                   </div>
                   <div class="ci-360-emp-checklist" style="max-height:160px;overflow-y:auto;display:flex;flex-direction:column;gap:4px;">
-                    ${z.map(o=>{const x=u.some(B=>B&&B.userId&&String(B.userId)===String(o._id));return`
+                    ${z.map(r=>{const x=u.some(B=>B&&B.userId&&String(B.userId)===String(r._id));return`
                         <label class="ci-360-emp-check-item ${x?"selected":""}">
-                          <input type="checkbox" class="chk-detail-emp" value="${o._id}" ${x?"checked":""} />
-                          <div class="ci-360-avatar" style="width:18px;height:18px;font-size:9px;">${(o.name||"U").slice(0,1).toUpperCase()}</div>
+                          <input type="checkbox" class="chk-detail-emp" value="${r._id}" ${x?"checked":""} />
+                          <div class="ci-360-avatar" style="width:18px;height:18px;font-size:9px;">${(r.name||"U").slice(0,1).toUpperCase()}</div>
                           <span class="ci-360-emp-name" style="font-size:12px;flex:1;">
-                            ${h(o.name)} <span class="ci-360-emp-role" style="font-size:10.5px;color:#94a3b8;">(${h(o.role)})</span>
+                            ${h(r.name)} <span class="ci-360-emp-role" style="font-size:10.5px;color:#94a3b8;">(${h(r.role)})</span>
                           </span>
                         </label>
                       `}).join("")}
@@ -8015,11 +8064,11 @@ All messages in this lounge will be deleted.`))try{await Ze(`/bonding/channels/$
                 <span class="ci-360-side-lbl">Reporter</span>
                 <div style="display:flex;align-items:center;gap:8px;margin-top:2px;">
                   <div class="ci-360-avatar" style="background:#2563eb;">
-                    ${(s.reporter?.name||"U").slice(0,1).toUpperCase()}
+                    ${(o.reporter?.name||"U").slice(0,1).toUpperCase()}
                   </div>
                   <div>
-                    <div style="font-size:12.5px;font-weight:600;color:#f8fafc;">${h(s.reporter?.name||"Staff")}</div>
-                    <div style="font-size:11px;color:#94a3b8;">${h(s.reporter?.role||"employee")}</div>
+                    <div style="font-size:12.5px;font-weight:600;color:#f8fafc;">${h(o.reporter?.name||"Staff")}</div>
+                    <div style="font-size:11px;color:#94a3b8;">${h(o.reporter?.role||"employee")}</div>
                   </div>
                 </div>
               </div>
@@ -8028,9 +8077,9 @@ All messages in this lounge will be deleted.`))try{await Ze(`/bonding/channels/$
               <div class="ci-360-side-field">
                 <span class="ci-360-side-lbl">Category</span>
                 <select id="sel-detail-category" class="ci-360-select-field">
-                  ${wt.map(o=>`
-                    <option value="${o.key}" ${s.category===o.key?"selected":""}>
-                      ${o.icon} ${o.label}
+                  ${wt.map(r=>`
+                    <option value="${r.key}" ${o.category===r.key?"selected":""}>
+                      ${r.icon} ${r.label}
                     </option>
                   `).join("")}
                 </select>
@@ -8039,7 +8088,7 @@ All messages in this lounge will be deleted.`))try{await Ze(`/bonding/channels/$
               <!-- Due Date -->
               <div class="ci-360-side-field">
                 <span class="ci-360-side-lbl">Due Date</span>
-                <input type="date" id="inp-detail-duedate" class="ci-360-date-field" value="${s.dueDate?new Date(s.dueDate).toISOString().slice(0,10):""}" />
+                <input type="date" id="inp-detail-duedate" class="ci-360-date-field" value="${o.dueDate?new Date(o.dueDate).toISOString().slice(0,10):""}" />
               </div>
 
               <!-- Linked Job / Project -->
@@ -8047,9 +8096,9 @@ All messages in this lounge will be deleted.`))try{await Ze(`/bonding/channels/$
                 <span class="ci-360-side-lbl">Linked Internal Project / Job</span>
                 <select id="sel-detail-job" class="ci-360-select-field">
                   <option value="">None (Workspace General)</option>
-                  ${W.map(o=>`
-                    <option value="${o._id}" ${f===o._id.toString()?"selected":""}>
-                      📁 ${h(o.title||"Untitled Job")}
+                  ${W.map(r=>`
+                    <option value="${r._id}" ${m===r._id.toString()?"selected":""}>
+                      📁 ${h(r.title||"Untitled Job")}
                     </option>
                   `).join("")}
                 </select>
@@ -8059,16 +8108,16 @@ All messages in this lounge will be deleted.`))try{await Ze(`/bonding/channels/$
               <div class="ci-360-side-field">
                 <span class="ci-360-side-lbl">Time Tracking</span>
                 <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:#cbd5e1;">
-                  <span>Logged: <strong>${s.loggedHours||0}h</strong></span>
-                  <span>/ Est: <input type="number" id="inp-detail-esthours" class="ci-360-est-input" value="${s.estimatedHours||0}" />h</span>
+                  <span>Logged: <strong>${o.loggedHours||0}h</strong></span>
+                  <span>/ Est: <input type="number" id="inp-detail-esthours" class="ci-360-est-input" value="${o.estimatedHours||0}" />h</span>
                 </div>
               </div>
 
               <!-- Timestamps -->
               <div style="padding-top:14px;border-top:1px solid #243248;display:flex;flex-direction:column;gap:4px;font-size:11px;color:#64748b;">
-                <div>Created: ${new Date(s.createdAt).toLocaleString()}</div>
-                <div>Updated: ${new Date(s.updatedAt).toLocaleString()}</div>
-                ${s.resolvedAt?`<div style="color:#10b981;">Resolved: ${new Date(s.resolvedAt).toLocaleString()}</div>`:""}
+                <div>Created: ${new Date(o.createdAt).toLocaleString()}</div>
+                <div>Updated: ${new Date(o.updatedAt).toLocaleString()}</div>
+                ${o.resolvedAt?`<div style="color:#10b981;">Resolved: ${new Date(o.resolvedAt).toLocaleString()}</div>`:""}
               </div>
 
               <!-- Actions (Delete - Creator or Superadmin) -->
@@ -8083,7 +8132,7 @@ All messages in this lounge will be deleted.`))try{await Ze(`/bonding/channels/$
           </div>
         </div>
       </div>
-    `,g()}function g(){const a=i.querySelector("#ci-360-modals-root");if(!a||!E)return;const s=a.querySelector("#btn-close-ci-360-modal");s&&(s.onclick=_);const T=a.querySelector("#ci-360-detail-backdrop");T&&(T.onclick=L=>{L.target===T&&_()});const P=a.querySelector("#inp-detail-title");P&&(P.onchange=async()=>{const L=P.value.trim();if(L)try{E=await Xe(`/tickets/${E._id}`,{title:L}),await ce()}catch(H){y(H.message||"Failed to update title",!0)}});const $=a.querySelector("#btn-toggle-desc-edit");$&&($.onclick=()=>{j=!j,ve()});const R=a.querySelector("#btn-cancel-desc");R&&(R.onclick=()=>{j=!1,ve()});const A=a.querySelector("#btn-save-desc");A&&(A.onclick=async()=>{const L=a.querySelector("#inp-detail-desc")?.value;try{E=await Xe(`/tickets/${E._id}`,{description:L}),j=!1,ve(),await ce(),y("Description saved",!1)}catch(H){y(H.message||"Failed to save description",!0)}});const U=a.querySelector("#sel-detail-status");U&&(U.onchange=async L=>{try{const H=await Xe(`/tickets/${E._id}/status`,{status:L.target.value});E=H,ve(),await et(),it(),await ce();const p=H.status==="Under Review"?"Status changed to Under Review (Default assigned to John)":`Status changed to ${H.status}`;y(p,!1)}catch(H){y(H.message||"Status change failed",!0)}});const G=a.querySelector("#sel-detail-priority");G&&(G.onchange=async L=>{try{E=await Xe(`/tickets/${E._id}`,{priority:L.target.value}),ve(),await ce()}catch(H){y(H.message,!0)}});const v=a.querySelector("#btn-toggle-assignee-picker"),M=a.querySelector("#ci-360-detail-assignee-box"),X=a.querySelector("#btn-close-detail-assignee-box"),ee=a.querySelector("#btn-save-detail-assignees");v&&M&&(v.onclick=()=>{const L=M.style.display==="none";M.style.display=L?"block":"none"}),X&&M&&(X.onclick=()=>{M.style.display="none"}),a.querySelectorAll(".chk-detail-emp").forEach(L=>{L.onchange=()=>{L.closest(".ci-360-emp-check-item")?.classList.toggle("selected",L.checked)}}),ee&&(ee.onclick=async()=>{const L=Array.from(a.querySelectorAll(".chk-detail-emp:checked")).map(H=>H.value);try{ee.disabled=!0,E=await Xe(`/tickets/${E._id}`,{assigneeIds:L}),ve(),await ce(),y("Assignees updated!",!1)}catch(H){y(H.message,!0),ee.disabled=!1}}),a.querySelectorAll(".btn-remove-assignee").forEach(L=>{L.onclick=async()=>{const H=L.dataset.userId,Te=(Array.isArray(E.assignees)&&E.assignees.length>0?E.assignees:E.assignee?.userId?[E.assignee]:[]).filter(we=>we&&we.userId&&String(we.userId)!==String(H)).map(we=>String(we.userId));try{E=await Xe(`/tickets/${E._id}`,{assigneeIds:Te}),ve(),await ce(),y("Assignee removed",!1)}catch(we){y(we.message,!0)}}});const ie=a.querySelector("#sel-detail-category");ie&&(ie.onchange=async L=>{try{E=await Xe(`/tickets/${E._id}`,{category:L.target.value}),ve(),await ce()}catch(H){y(H.message,!0)}});const Q=a.querySelector("#inp-detail-duedate");Q&&(Q.onchange=async L=>{try{E=await Xe(`/tickets/${E._id}`,{dueDate:L.target.value||null}),ve(),await ce()}catch(H){y(H.message,!0)}});const u=a.querySelector("#sel-detail-job");u&&(u.onchange=async L=>{try{E=await Xe(`/tickets/${E._id}`,{jobId:L.target.value||null}),ve(),await ce(),y(L.target.value?"Job linked to ticket! 📁":"Job unlinked",!1)}catch(H){y(H.message,!0)}});const f=a.querySelector("#btn-toggle-job-link"),r=a.querySelector("#ci-360-job-link-box");f&&r&&(f.onclick=()=>{r.style.display=r.style.display==="none"?"block":"none"});const o=a.querySelector("#btn-cancel-job-link");o&&r&&(o.onclick=()=>{r.style.display="none"});const x=a.querySelector("#btn-save-job-link");x&&(x.onclick=async()=>{const L=a.querySelector("#inp-modal-job-select")?.value||null;try{E=await Xe(`/tickets/${E._id}`,{jobId:L}),ve(),await ce(),y(L?"Job linked to ticket! 📁":"Job unlinked",!1)}catch(H){y(H.message,!0)}});const B=a.querySelector("#btn-unlink-job");B&&(B.onclick=async()=>{if(confirm("Unlink this job from the support ticket?"))try{E=await Xe(`/tickets/${E._id}`,{jobId:null}),ve(),await ce(),y("Job unlinked",!1)}catch(L){y(L.message,!0)}});const C=a.querySelector("#inp-detail-esthours");C&&(C.onchange=async L=>{try{E=await Xe(`/tickets/${E._id}`,{estimatedHours:Number(L.target.value)||0})}catch(H){y(H.message,!0)}}),a.querySelectorAll(".cb-subtask-toggle").forEach(L=>{L.onchange=async()=>{const H=L.dataset.subtaskId;try{E=await Xe(`/tickets/${E._id}/subtasks/${H}`,{completed:L.checked}),ve(),await ce()}catch(p){y(p.message,!0)}}}),a.querySelectorAll(".btn-del-subtask").forEach(L=>{L.onclick=async()=>{const H=L.dataset.subtaskId;try{E=await Ze(`/tickets/${E._id}/subtasks/${H}`),ve(),await ce()}catch(p){y(p.message,!0)}}});const O=a.querySelector("#inp-new-subtask"),ne=a.querySelector("#btn-add-subtask"),F=async()=>{const L=O?.value.trim();if(L)try{E=await Ce(`/tickets/${E._id}/subtasks`,{title:L}),ve(),await ce()}catch(H){y(H.message,!0)}};ne&&(ne.onclick=F),O&&(O.onkeydown=L=>{L.key==="Enter"&&(L.preventDefault(),F())});const q=a.querySelector("#btn-toggle-add-link"),Y=a.querySelector("#add-link-form"),_e=a.querySelector("#btn-cancel-new-link"),fe=a.querySelector("#btn-save-new-link"),le=a.querySelector("#inp-new-link-url"),ue=a.querySelector("#inp-new-link-title");q&&Y&&(q.onclick=()=>{const L=Y.style.display==="none";Y.style.display=L?"block":"none",L&&le&&le.focus()}),_e&&Y&&(_e.onclick=()=>{Y.style.display="none",le&&(le.value=""),ue&&(ue.value="")}),fe&&le&&(fe.onclick=async()=>{const L=le.value.trim(),H=ue?.value.trim()||"";if(!L){y("Please enter a valid URL link",!0);return}try{fe.disabled=!0,fe.textContent="Saving...",E=await Ce(`/tickets/${E._id}/links`,{url:L,title:H}),ve(),await ce(),y("Reference link added! 🔗",!1)}catch(p){y(p.message||"Failed to save link",!0),fe.disabled=!1,fe.textContent="Save Link 🔗"}}),a.querySelectorAll(".btn-copy-link").forEach(L=>{L.onclick=()=>{const H=L.dataset.url;H&&(navigator.clipboard&&navigator.clipboard.writeText?navigator.clipboard.writeText(H).then(()=>{y("Link copied to clipboard! 📋")}).catch(()=>{y("Link: "+H)}):y("Link: "+H))}}),a.querySelectorAll(".btn-del-link").forEach(L=>{L.onclick=async()=>{const H=L.dataset.linkId;try{E=await Ze(`/tickets/${E._id}/links/${H}`),ve(),await ce(),y("Link removed")}catch(p){y(p.message||"Failed to remove link",!0)}}});const K=a.querySelector("#btn-trigger-detail-upload"),re=a.querySelector("#inp-detail-att-upload"),be=a.querySelector("#detail-att-upload-progress");K&&re&&(K.onclick=L=>{L.preventDefault(),re.click()}),re&&(re.onchange=async()=>{const L=Array.from(re.files||[]);if(re.value="",!!L.length){be&&(be.style.display="block",be.innerHTML=`
+    `,p()}function p(){const a=i.querySelector("#ci-360-modals-root");if(!a||!E)return;const o=a.querySelector("#btn-close-ci-360-modal");o&&(o.onclick=_);const T=a.querySelector("#ci-360-detail-backdrop");T&&(T.onclick=L=>{L.target===T&&_()});const P=a.querySelector("#inp-detail-title");P&&(P.onchange=async()=>{const L=P.value.trim();if(L)try{E=await Ze(`/tickets/${E._id}`,{title:L}),await ce()}catch(H){y(H.message||"Failed to update title",!0)}});const $=a.querySelector("#btn-toggle-desc-edit");$&&($.onclick=()=>{N=!N,ve()});const R=a.querySelector("#btn-cancel-desc");R&&(R.onclick=()=>{N=!1,ve()});const A=a.querySelector("#btn-save-desc");A&&(A.onclick=async()=>{const L=a.querySelector("#inp-detail-desc")?.value;try{E=await Ze(`/tickets/${E._id}`,{description:L}),N=!1,ve(),await ce(),y("Description saved",!1)}catch(H){y(H.message||"Failed to save description",!0)}});const U=a.querySelector("#sel-detail-status");U&&(U.onchange=async L=>{try{const H=await Ze(`/tickets/${E._id}/status`,{status:L.target.value});E=H,ve(),await tt(),nt(),await ce();const g=H.status==="Under Review"?"Status changed to Under Review (Default assigned to John)":`Status changed to ${H.status}`;y(g,!1)}catch(H){y(H.message||"Status change failed",!0)}});const G=a.querySelector("#sel-detail-priority");G&&(G.onchange=async L=>{try{E=await Ze(`/tickets/${E._id}`,{priority:L.target.value}),ve(),await ce()}catch(H){y(H.message,!0)}});const v=a.querySelector("#btn-toggle-assignee-picker"),M=a.querySelector("#ci-360-detail-assignee-box"),X=a.querySelector("#btn-close-detail-assignee-box"),ee=a.querySelector("#btn-save-detail-assignees");v&&M&&(v.onclick=()=>{const L=M.style.display==="none";M.style.display=L?"block":"none"}),X&&M&&(X.onclick=()=>{M.style.display="none"}),a.querySelectorAll(".chk-detail-emp").forEach(L=>{L.onchange=()=>{L.closest(".ci-360-emp-check-item")?.classList.toggle("selected",L.checked)}}),ee&&(ee.onclick=async()=>{const L=Array.from(a.querySelectorAll(".chk-detail-emp:checked")).map(H=>H.value);try{ee.disabled=!0,E=await Ze(`/tickets/${E._id}`,{assigneeIds:L}),ve(),await ce(),y("Assignees updated!",!1)}catch(H){y(H.message,!0),ee.disabled=!1}}),a.querySelectorAll(".btn-remove-assignee").forEach(L=>{L.onclick=async()=>{const H=L.dataset.userId,Te=(Array.isArray(E.assignees)&&E.assignees.length>0?E.assignees:E.assignee?.userId?[E.assignee]:[]).filter(we=>we&&we.userId&&String(we.userId)!==String(H)).map(we=>String(we.userId));try{E=await Ze(`/tickets/${E._id}`,{assigneeIds:Te}),ve(),await ce(),y("Assignee removed",!1)}catch(we){y(we.message,!0)}}});const te=a.querySelector("#sel-detail-category");te&&(te.onchange=async L=>{try{E=await Ze(`/tickets/${E._id}`,{category:L.target.value}),ve(),await ce()}catch(H){y(H.message,!0)}});const Q=a.querySelector("#inp-detail-duedate");Q&&(Q.onchange=async L=>{try{E=await Ze(`/tickets/${E._id}`,{dueDate:L.target.value||null}),ve(),await ce()}catch(H){y(H.message,!0)}});const u=a.querySelector("#sel-detail-job");u&&(u.onchange=async L=>{try{E=await Ze(`/tickets/${E._id}`,{jobId:L.target.value||null}),ve(),await ce(),y(L.target.value?"Job linked to ticket! 📁":"Job unlinked",!1)}catch(H){y(H.message,!0)}});const m=a.querySelector("#btn-toggle-job-link"),s=a.querySelector("#ci-360-job-link-box");m&&s&&(m.onclick=()=>{s.style.display=s.style.display==="none"?"block":"none"});const r=a.querySelector("#btn-cancel-job-link");r&&s&&(r.onclick=()=>{s.style.display="none"});const x=a.querySelector("#btn-save-job-link");x&&(x.onclick=async()=>{const L=a.querySelector("#inp-modal-job-select")?.value||null;try{E=await Ze(`/tickets/${E._id}`,{jobId:L}),ve(),await ce(),y(L?"Job linked to ticket! 📁":"Job unlinked",!1)}catch(H){y(H.message,!0)}});const B=a.querySelector("#btn-unlink-job");B&&(B.onclick=async()=>{if(confirm("Unlink this job from the support ticket?"))try{E=await Ze(`/tickets/${E._id}`,{jobId:null}),ve(),await ce(),y("Job unlinked",!1)}catch(L){y(L.message,!0)}});const C=a.querySelector("#inp-detail-esthours");C&&(C.onchange=async L=>{try{E=await Ze(`/tickets/${E._id}`,{estimatedHours:Number(L.target.value)||0})}catch(H){y(H.message,!0)}}),a.querySelectorAll(".cb-subtask-toggle").forEach(L=>{L.onchange=async()=>{const H=L.dataset.subtaskId;try{E=await Ze(`/tickets/${E._id}/subtasks/${H}`,{completed:L.checked}),ve(),await ce()}catch(g){y(g.message,!0)}}}),a.querySelectorAll(".btn-del-subtask").forEach(L=>{L.onclick=async()=>{const H=L.dataset.subtaskId;try{E=await et(`/tickets/${E._id}/subtasks/${H}`),ve(),await ce()}catch(g){y(g.message,!0)}}});const O=a.querySelector("#inp-new-subtask"),ne=a.querySelector("#btn-add-subtask"),F=async()=>{const L=O?.value.trim();if(L)try{E=await Ce(`/tickets/${E._id}/subtasks`,{title:L}),ve(),await ce()}catch(H){y(H.message,!0)}};ne&&(ne.onclick=F),O&&(O.onkeydown=L=>{L.key==="Enter"&&(L.preventDefault(),F())});const q=a.querySelector("#btn-toggle-add-link"),Y=a.querySelector("#add-link-form"),_e=a.querySelector("#btn-cancel-new-link"),me=a.querySelector("#btn-save-new-link"),le=a.querySelector("#inp-new-link-url"),ue=a.querySelector("#inp-new-link-title");q&&Y&&(q.onclick=()=>{const L=Y.style.display==="none";Y.style.display=L?"block":"none",L&&le&&le.focus()}),_e&&Y&&(_e.onclick=()=>{Y.style.display="none",le&&(le.value=""),ue&&(ue.value="")}),me&&le&&(me.onclick=async()=>{const L=le.value.trim(),H=ue?.value.trim()||"";if(!L){y("Please enter a valid URL link",!0);return}try{me.disabled=!0,me.textContent="Saving...",E=await Ce(`/tickets/${E._id}/links`,{url:L,title:H}),ve(),await ce(),y("Reference link added! 🔗",!1)}catch(g){y(g.message||"Failed to save link",!0),me.disabled=!1,me.textContent="Save Link 🔗"}}),a.querySelectorAll(".btn-copy-link").forEach(L=>{L.onclick=()=>{const H=L.dataset.url;H&&(navigator.clipboard&&navigator.clipboard.writeText?navigator.clipboard.writeText(H).then(()=>{y("Link copied to clipboard! 📋")}).catch(()=>{y("Link: "+H)}):y("Link: "+H))}}),a.querySelectorAll(".btn-del-link").forEach(L=>{L.onclick=async()=>{const H=L.dataset.linkId;try{E=await et(`/tickets/${E._id}/links/${H}`),ve(),await ce(),y("Link removed")}catch(g){y(g.message||"Failed to remove link",!0)}}});const K=a.querySelector("#btn-trigger-detail-upload"),re=a.querySelector("#inp-detail-att-upload"),be=a.querySelector("#detail-att-upload-progress");K&&re&&(K.onclick=L=>{L.preventDefault(),re.click()}),re&&(re.onchange=async()=>{const L=Array.from(re.files||[]);if(re.value="",!!L.length){be&&(be.style.display="block",be.innerHTML=`
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;font-size:11.5px;color:#cbd5e1;">
               <span>Fast uploading <strong>${L.length} file(s)</strong> in parallel...</span>
               <span id="att-prog-pct" style="font-weight:700;color:#38bdf8;">0%</span>
@@ -8091,7 +8140,7 @@ All messages in this lounge will be deleted.`))try{await Ze(`/bonding/channels/$
             <div style="width:100%;height:4px;background:#334155;border-radius:2px;overflow:hidden;">
               <div id="att-prog-bar" style="width:0%;height:100%;background:linear-gradient(90deg, #38bdf8, #0ea5e9);transition:width 0.15s ease;"></div>
             </div>
-          `);try{const p=(await ba(L,Te=>{const we=a.querySelector("#att-prog-pct"),lt=a.querySelector("#att-prog-bar");we&&(we.textContent=`${Te}%`),lt&&(lt.style.width=`${Te}%`)})).map(Te=>({name:Te.name,url:Te.url,size:Te.size||0,type:Te.type||"application/octet-stream"}));p.length&&(E=await Ce(`/tickets/${E._id}/attachments`,{attachments:p}),ve(),y(`Successfully attached ${p.length} file(s)! 📎`,!1))}catch(H){console.error("Upload error:",H),y(`Upload failed: ${H.message}`,!0)}finally{be&&(be.style.display="none")}}}),a.querySelectorAll(".btn-play-att-video").forEach(L=>{L.onclick=()=>{const H=L.dataset.slot,p=a.querySelector("#"+H);if(p){const Te=p.style.display==="none";p.style.display=Te?"block":"none",L.textContent=Te?"⏸ Close Video":"▶ Play Video";const we=p.querySelector("video");we&&Te?we.play().catch(()=>{}):we&&we.pause()}}}),a.querySelectorAll(".btn-del-att").forEach(L=>{L.onclick=async()=>{const H=L.dataset.attId;try{E=await Ze(`/tickets/${E._id}/attachments/${H}`),ve()}catch(p){y(p.message,!0)}}}),a.querySelectorAll(".ci-360-act-tab").forEach(L=>{L.onclick=()=>{N=L.dataset.actTab,ve()}});const de=a.querySelector("#inp-new-comment"),he=a.querySelector("#btn-submit-comment");he&&de&&(he.onclick=async()=>{const L=de.value.trim();if(L)try{he.disabled=!0,he.textContent="Saving...",E=await Ce(`/tickets/${E._id}/comments`,{content:L}),ve(),y("Comment added",!1)}catch(H){y(H.message||"Failed to add comment",!0)}finally{he.disabled=!1}});const De=a.querySelector("#btn-open-link-dialog"),Be=a.querySelector("#ci-360-link-box"),Ge=a.querySelector("#btn-cancel-link"),Le=a.querySelector("#btn-submit-link"),pe=a.querySelector("#inp-link-target"),Ee=a.querySelector("#sel-link-rel");De&&Be&&(De.onclick=()=>{Be.style.display="block"}),Ge&&Be&&(Ge.onclick=()=>{Be.style.display="none"}),Le&&Be&&(Le.onclick=async()=>{const L=pe?.value.trim(),H=Ee?.value||"relates to";if(L)try{Le.disabled=!0,E=await Ce(`/tickets/${E._id}/links`,{targetTicketId:L,relationship:H}),ve(),y(`Linked with ${L}`,!1)}catch(p){y(p.message||"Failed to link ticket",!0)}finally{Le.disabled=!1}}),a.querySelectorAll(".btn-del-link").forEach(L=>{L.onclick=async()=>{const H=L.dataset.linkId;try{E=await Ze(`/tickets/${E._id}/links/${H}`),ve()}catch(p){y(p.message,!0)}}});const Ue=a.querySelector("#btn-open-worklog-dialog"),je=a.querySelector("#ci-360-worklog-box"),Pe=a.querySelector("#btn-cancel-worklog"),Ae=a.querySelector("#btn-submit-worklog"),Ie=a.querySelector("#inp-worklog-time"),ke=a.querySelector("#inp-worklog-desc");Ue&&je&&(Ue.onclick=()=>{je.style.display="block"}),Pe&&je&&(Pe.onclick=()=>{je.style.display="none"}),Ae&&je&&(Ae.onclick=async()=>{const L=Ie?.value.trim(),H=ke?.value.trim();if(!L){y("Enter time spent (e.g. 2h 30m)",!0);return}try{Ae.disabled=!0,E=await Ce(`/tickets/${E._id}/worklogs`,{timeSpent:L,description:H}),ve(),y("Work logged",!1)}catch(p){y(p.message||"Failed to log work",!0)}finally{Ae.disabled=!1}});const me=a.querySelector("#btn-delete-ticket");me&&(me.onclick=async()=>{if(confirm(`Are you sure you want to permanently delete ticket ${E.ticketId}?`))try{me.disabled=!0,await Ze(`/tickets/${E._id}`),y(`Ticket ${E.ticketId} deleted`,!1),_(),await et(),it(),await ce()}catch(L){y(L.message||"Failed to delete ticket",!0),me.disabled=!1}})}function _(){E=null,j=!1;const a=i.querySelector("#ci-360-modals-root");a&&(a.innerHTML="")}function I(a=null){const s=i.querySelector("#ci-360-modals-root");if(!s)return;const T=a||(S.jobId&&S.jobId!=="all"?S.jobId:null);s.innerHTML=`
+          `);try{const g=(await ba(L,Te=>{const we=a.querySelector("#att-prog-pct"),lt=a.querySelector("#att-prog-bar");we&&(we.textContent=`${Te}%`),lt&&(lt.style.width=`${Te}%`)})).map(Te=>({name:Te.name,url:Te.url,size:Te.size||0,type:Te.type||"application/octet-stream"}));g.length&&(E=await Ce(`/tickets/${E._id}/attachments`,{attachments:g}),ve(),y(`Successfully attached ${g.length} file(s)! 📎`,!1))}catch(H){console.error("Upload error:",H),y(`Upload failed: ${H.message}`,!0)}finally{be&&(be.style.display="none")}}}),a.querySelectorAll(".btn-play-att-video").forEach(L=>{L.onclick=()=>{const H=L.dataset.slot,g=a.querySelector("#"+H);if(g){const Te=g.style.display==="none";g.style.display=Te?"block":"none",L.textContent=Te?"⏸ Close Video":"▶ Play Video";const we=g.querySelector("video");we&&Te?we.play().catch(()=>{}):we&&we.pause()}}}),a.querySelectorAll(".btn-del-att").forEach(L=>{L.onclick=async()=>{const H=L.dataset.attId;try{E=await et(`/tickets/${E._id}/attachments/${H}`),ve()}catch(g){y(g.message,!0)}}}),a.querySelectorAll(".ci-360-act-tab").forEach(L=>{L.onclick=()=>{j=L.dataset.actTab,ve()}});const de=a.querySelector("#inp-new-comment"),he=a.querySelector("#btn-submit-comment");he&&de&&(he.onclick=async()=>{const L=de.value.trim();if(L)try{he.disabled=!0,he.textContent="Saving...",E=await Ce(`/tickets/${E._id}/comments`,{content:L}),ve(),y("Comment added",!1)}catch(H){y(H.message||"Failed to add comment",!0)}finally{he.disabled=!1}});const De=a.querySelector("#btn-open-link-dialog"),Be=a.querySelector("#ci-360-link-box"),Ge=a.querySelector("#btn-cancel-link"),Le=a.querySelector("#btn-submit-link"),pe=a.querySelector("#inp-link-target"),Ee=a.querySelector("#sel-link-rel");De&&Be&&(De.onclick=()=>{Be.style.display="block"}),Ge&&Be&&(Ge.onclick=()=>{Be.style.display="none"}),Le&&Be&&(Le.onclick=async()=>{const L=pe?.value.trim(),H=Ee?.value||"relates to";if(L)try{Le.disabled=!0,E=await Ce(`/tickets/${E._id}/links`,{targetTicketId:L,relationship:H}),ve(),y(`Linked with ${L}`,!1)}catch(g){y(g.message||"Failed to link ticket",!0)}finally{Le.disabled=!1}}),a.querySelectorAll(".btn-del-link").forEach(L=>{L.onclick=async()=>{const H=L.dataset.linkId;try{E=await et(`/tickets/${E._id}/links/${H}`),ve()}catch(g){y(g.message,!0)}}});const Ue=a.querySelector("#btn-open-worklog-dialog"),Ne=a.querySelector("#ci-360-worklog-box"),Pe=a.querySelector("#btn-cancel-worklog"),Ae=a.querySelector("#btn-submit-worklog"),Ie=a.querySelector("#inp-worklog-time"),ke=a.querySelector("#inp-worklog-desc");Ue&&Ne&&(Ue.onclick=()=>{Ne.style.display="block"}),Pe&&Ne&&(Pe.onclick=()=>{Ne.style.display="none"}),Ae&&Ne&&(Ae.onclick=async()=>{const L=Ie?.value.trim(),H=ke?.value.trim();if(!L){y("Enter time spent (e.g. 2h 30m)",!0);return}try{Ae.disabled=!0,E=await Ce(`/tickets/${E._id}/worklogs`,{timeSpent:L,description:H}),ve(),y("Work logged",!1)}catch(g){y(g.message||"Failed to log work",!0)}finally{Ae.disabled=!1}});const fe=a.querySelector("#btn-delete-ticket");fe&&(fe.onclick=async()=>{if(confirm(`Are you sure you want to permanently delete ticket ${E.ticketId}?`))try{fe.disabled=!0,await et(`/tickets/${E._id}`),y(`Ticket ${E.ticketId} deleted`,!1),_(),await tt(),nt(),await ce()}catch(L){y(L.message||"Failed to delete ticket",!0),fe.disabled=!1}})}function _(){E=null,N=!1;const a=i.querySelector("#ci-360-modals-root");a&&(a.innerHTML="")}function I(a=null){const o=i.querySelector("#ci-360-modals-root");if(!o)return;const T=a||(S.jobId&&S.jobId!=="all"?S.jobId:null);o.innerHTML=`
       <div class="ci-360-modal-backdrop" id="ci-360-create-backdrop">
         <div class="ci-360-modal-card" style="max-width:680px;height:auto;max-height:92vh;">
           <div class="ci-360-modal-header">
@@ -8106,7 +8155,7 @@ All messages in this lounge will be deleted.`))try{await Ze(`/bonding/channels/$
               <div class="ci-360-form-group">
                 <label class="ci-360-form-label">Issue Type / Category *</label>
                 <select id="create-ticket-cat" class="ci-360-select-field">
-                  ${wt.map(r=>`<option value="${r.key}">${r.icon} ${r.label}</option>`).join("")}
+                  ${wt.map(s=>`<option value="${s.key}">${s.icon} ${s.label}</option>`).join("")}
                 </select>
               </div>
 
@@ -8146,14 +8195,14 @@ All messages in this lounge will be deleted.`))try{await Ze(`/bonding/channels/$
 
               <div class="ci-360-emp-checklist-box">
                 <div class="ci-360-emp-checklist" id="create-emp-checklist">
-                  ${z.map(r=>{const o=d&&String(d._id||d.id)===String(r._id);return`
-                      <label class="ci-360-emp-check-item ${o?"selected":""}">
-                        <input type="checkbox" class="chk-create-emp" value="${r._id}" ${o?"checked":""} />
+                  ${z.map(s=>{const r=d&&String(d._id||d.id)===String(s._id);return`
+                      <label class="ci-360-emp-check-item ${r?"selected":""}">
+                        <input type="checkbox" class="chk-create-emp" value="${s._id}" ${r?"checked":""} />
                         <div class="ci-360-avatar" style="width:20px;height:20px;font-size:10px;">
-                          ${(r.name||"U").slice(0,1).toUpperCase()}
+                          ${(s.name||"U").slice(0,1).toUpperCase()}
                         </div>
                         <span class="ci-360-emp-name" style="font-size:12px;flex:1;">
-                          ${h(r.name)} <span class="ci-360-emp-role" style="font-size:10.5px;color:#94a3b8;">(${h(r.role)})${o?" — (You)":""}</span>
+                          ${h(s.name)} <span class="ci-360-emp-role" style="font-size:10.5px;color:#94a3b8;">(${h(s.role)})${r?" — (You)":""}</span>
                         </span>
                       </label>
                     `}).join("")}
@@ -8174,9 +8223,9 @@ All messages in this lounge will be deleted.`))try{await Ze(`/bonding/channels/$
                 <label class="ci-360-form-label">Related Job / Internal Project (Optional)</label>
                 <select id="create-ticket-job" class="ci-360-select-field">
                   <option value="">None (General Workspace Issue)</option>
-                  ${W.map(r=>`
-                    <option value="${r._id}" ${T&&String(T)===String(r._id)?"selected":""}>
-                      📁 ${h(r.title||"Untitled Job")}
+                  ${W.map(s=>`
+                    <option value="${s._id}" ${T&&String(T)===String(s._id)?"selected":""}>
+                      📁 ${h(s.title||"Untitled Job")}
                     </option>
                   `).join("")}
                 </select>
@@ -8212,23 +8261,23 @@ All messages in this lounge will be deleted.`))try{await Ze(`/bonding/channels/$
           </div>
         </div>
       </div>
-    `;const P=()=>{s.querySelectorAll(".ci-360-emp-check-item").forEach(r=>{const o=r.querySelector(".chk-create-emp");r.classList.toggle("selected",!!o?.checked)})};s.querySelectorAll(".chk-create-emp").forEach(r=>{r.onchange=P});const $=s.querySelector("#btn-create-assign-self");$&&d&&($.onclick=()=>{const r=String(d._id||d.id);s.querySelectorAll(".chk-create-emp").forEach(o=>{o.value===r&&(o.checked=!0)}),P()});const R=s.querySelector("#btn-create-clear-assign");R&&(R.onclick=()=>{s.querySelectorAll(".chk-create-emp").forEach(r=>{r.checked=!1}),P()});const A=[],U=s.querySelector("#inp-create-ticket-att"),G=s.querySelector("#create-att-list"),v=s.querySelector("#create-att-count"),M=s.querySelector("#create-att-progress"),X=()=>{v&&(v.textContent=`${A.length} file(s) attached`),G&&(G.innerHTML=A.map((r,o)=>{const x=r.type&&r.type.includes("video")||r.name&&r.name.match(/\.(mp4|mov|webm|avi|mkv)$/i);return`
+    `;const P=()=>{o.querySelectorAll(".ci-360-emp-check-item").forEach(s=>{const r=s.querySelector(".chk-create-emp");s.classList.toggle("selected",!!r?.checked)})};o.querySelectorAll(".chk-create-emp").forEach(s=>{s.onchange=P});const $=o.querySelector("#btn-create-assign-self");$&&d&&($.onclick=()=>{const s=String(d._id||d.id);o.querySelectorAll(".chk-create-emp").forEach(r=>{r.value===s&&(r.checked=!0)}),P()});const R=o.querySelector("#btn-create-clear-assign");R&&(R.onclick=()=>{o.querySelectorAll(".chk-create-emp").forEach(s=>{s.checked=!1}),P()});const A=[],U=o.querySelector("#inp-create-ticket-att"),G=o.querySelector("#create-att-list"),v=o.querySelector("#create-att-count"),M=o.querySelector("#create-att-progress"),X=()=>{v&&(v.textContent=`${A.length} file(s) attached`),G&&(G.innerHTML=A.map((s,r)=>{const x=s.type&&s.type.includes("video")||s.name&&s.name.match(/\.(mp4|mov|webm|avi|mkv)$/i);return`
           <div class="ci-360-att-card">
             <div class="ci-360-att-left">
               <span>${x?"🎬":"📎"}</span>
               <div style="display:flex;flex-direction:column;min-width:0;">
-                <span class="ci-360-att-name" title="${h(r.name)}">${h(r.name)}</span>
-                <span style="font-size:10px;color:#94a3b8;">${ga(r.size)} ${x?"• MP4":""}</span>
+                <span class="ci-360-att-name" title="${h(s.name)}">${h(s.name)}</span>
+                <span style="font-size:10px;color:#94a3b8;">${ga(s.size)} ${x?"• MP4":""}</span>
               </div>
             </div>
-            <button type="button" class="ci-360-att-del btn-del-pending-att" data-idx="${o}" title="Remove">&times;</button>
+            <button type="button" class="ci-360-att-del btn-del-pending-att" data-idx="${r}" title="Remove">&times;</button>
           </div>
-        `}).join(""),G.querySelectorAll(".btn-del-pending-att").forEach(r=>{r.onclick=()=>{A.splice(Number(r.dataset.idx),1),X()}}))};U&&(U.onchange=async()=>{const r=Array.from(U.files||[]);if(U.value="",!!r.length){M&&(M.style.display="block",M.innerHTML=`
+        `}).join(""),G.querySelectorAll(".btn-del-pending-att").forEach(s=>{s.onclick=()=>{A.splice(Number(s.dataset.idx),1),X()}}))};U&&(U.onchange=async()=>{const s=Array.from(U.files||[]);if(U.value="",!!s.length){M&&(M.style.display="block",M.innerHTML=`
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;font-size:11.5px;color:#cbd5e1;">
-              <span>Fast uploading <strong>${r.length} file(s)</strong> in parallel...</span>
+              <span>Fast uploading <strong>${s.length} file(s)</strong> in parallel...</span>
               <span id="create-prog-pct" style="font-weight:700;color:#38bdf8;">0%</span>
             </div>
             <div style="width:100%;height:4px;background:#334155;border-radius:2px;overflow:hidden;">
               <div id="create-prog-bar" style="width:0%;height:100%;background:linear-gradient(90deg, #38bdf8, #0ea5e9);transition:width 0.15s ease;"></div>
             </div>
-          `);try{(await ba(r,x=>{const B=s.querySelector("#create-prog-pct"),C=s.querySelector("#create-prog-bar");B&&(B.textContent=`${x}%`),C&&(C.style.width=`${x}%`)})).forEach(x=>{A.push({name:x.name,url:x.url,size:x.size||0,type:x.type||"application/octet-stream"})}),X()}catch(o){y(`Failed to upload files: ${o.message}`,!0)}finally{M&&(M.style.display="none"),U.value=""}}});const ee=()=>{s.innerHTML=""},ie=s.querySelector("#btn-close-create-modal");ie&&(ie.onclick=ee);const Q=s.querySelector("#btn-cancel-create-ticket");Q&&(Q.onclick=ee);const u=s.querySelector("#ci-360-create-backdrop");u&&(u.onclick=r=>{r.target===u&&ee()});const f=s.querySelector("#btn-submit-create-ticket");f&&(f.onclick=async()=>{const r=s.querySelector("#create-ticket-title")?.value.trim(),o=s.querySelector("#create-ticket-desc")?.value.trim(),x=s.querySelector("#create-ticket-cat")?.value||"Task",B=s.querySelector("#create-ticket-pri")?.value||"Medium",O=Array.from(s.querySelectorAll(".chk-create-emp:checked")).map(Y=>Y.value),ne=s.querySelector("#create-ticket-duedate")?.value||null,F=s.querySelector("#create-ticket-job")?.value||null,q=s.querySelector("#create-ticket-url")?.value.trim()||"";if(!r){y("Ticket summary / title is required",!0);return}try{f.disabled=!0,f.textContent="Creating...";const Y=await Ce("/tickets",{title:r,description:o,category:x,priority:B,assigneeIds:O,assigneeId:O[0]||null,dueDate:ne,jobId:F,linkUrl:q,attachments:A});y(`Ticket ${Y.ticketId} created! 🎫`,!1),ee(),await et(),it(),await ce(),st(Y._id)}catch(Y){y(Y.message||"Could not create ticket",!0),f.disabled=!1,f.textContent="Create Ticket 🚀"}})}i._openCreateTicketModal=I,i._openTicketDetailModal=st,i._setJobFilter=async a=>{S.jobId=a||"all";const s=i.querySelector("#ci-360-filter-job");s&&(s.value=S.jobId),ze(),await ce()}}export{ii as a,ai as b,ti as i};
+          `);try{(await ba(s,x=>{const B=o.querySelector("#create-prog-pct"),C=o.querySelector("#create-prog-bar");B&&(B.textContent=`${x}%`),C&&(C.style.width=`${x}%`)})).forEach(x=>{A.push({name:x.name,url:x.url,size:x.size||0,type:x.type||"application/octet-stream"})}),X()}catch(r){y(`Failed to upload files: ${r.message}`,!0)}finally{M&&(M.style.display="none"),U.value=""}}});const ee=()=>{o.innerHTML=""},te=o.querySelector("#btn-close-create-modal");te&&(te.onclick=ee);const Q=o.querySelector("#btn-cancel-create-ticket");Q&&(Q.onclick=ee);const u=o.querySelector("#ci-360-create-backdrop");u&&(u.onclick=s=>{s.target===u&&ee()});const m=o.querySelector("#btn-submit-create-ticket");m&&(m.onclick=async()=>{const s=o.querySelector("#create-ticket-title")?.value.trim(),r=o.querySelector("#create-ticket-desc")?.value.trim(),x=o.querySelector("#create-ticket-cat")?.value||"Task",B=o.querySelector("#create-ticket-pri")?.value||"Medium",O=Array.from(o.querySelectorAll(".chk-create-emp:checked")).map(Y=>Y.value),ne=o.querySelector("#create-ticket-duedate")?.value||null,F=o.querySelector("#create-ticket-job")?.value||null,q=o.querySelector("#create-ticket-url")?.value.trim()||"";if(!s){y("Ticket summary / title is required",!0);return}try{m.disabled=!0,m.textContent="Creating...";const Y=await Ce("/tickets",{title:s,description:r,category:x,priority:B,assigneeIds:O,assigneeId:O[0]||null,dueDate:ne,jobId:F,linkUrl:q,attachments:A});y(`Ticket ${Y.ticketId} created! 🎫`,!1),ee(),await tt(),nt(),await ce(),st(Y._id)}catch(Y){y(Y.message||"Could not create ticket",!0),m.disabled=!1,m.textContent="Create Ticket 🚀"}})}i._openCreateTicketModal=I,i._openTicketDetailModal=st,i._setJobFilter=async a=>{S.jobId=a||"all";const o=i.querySelector("#ci-360-filter-job");o&&(o.value=S.jobId),ze(),await ce()}}export{ii as a,ai as b,ti as i};

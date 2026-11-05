@@ -603,6 +603,16 @@ export function initDailyPlanner(container, options = {}) {
                 <option value="Follow-up">Follow-up</option>
               </select>
 
+              ${isSuperadmin ? `
+                <select id="quickAddAssignee" class="ci360-quick-select" title="Assign To Employee" style="max-width:140px;">
+                  <option value="" ${state.selectedPersonnelId === 'all' ? 'selected' : ''}>👤 Myself</option>
+                  <option value="all">👥 All Team</option>
+                  ${state.personnelList.map(p => `
+                    <option value="${p._id}" ${state.selectedPersonnelId === String(p._id) ? 'selected' : ''}>👤 ${escapeHtml(p.name)}</option>
+                  `).join('')}
+                </select>
+              ` : ''}
+
               <button type="button" class="ci360-quick-add-btn" id="btnQuickAddSubmit">
                 <span>+ Add</span>
               </button>
@@ -733,6 +743,13 @@ export function initDailyPlanner(container, options = {}) {
             <span class="ci360-badge completion-badge" title="Target Completion Date: ${compDateStr}">
               📅 Due: ${formatShortDate(compDateStr)}
             </span>
+
+            <!-- Date Changed / Rescheduled Badge (prominently shown when date is changed) -->
+            ${task.rescheduledFrom && task.rescheduledFrom !== compDateStr ? `
+              <span class="ci360-badge date-changed-badge" title="Rescheduled from ${formatShortDate(task.rescheduledFrom)} to ${formatShortDate(compDateStr)} (${task.dateChangeCount || 1} change${(task.dateChangeCount || 1) > 1 ? 's' : ''})">
+                🔄 Date Changed: ${formatShortDate(task.rescheduledFrom)} ➔ ${formatShortDate(compDateStr)}
+              </span>
+            ` : ''}
 
             <!-- Added By Badge (Shows Who Created the Task) -->
             ${addedByName ? `
@@ -1205,8 +1222,16 @@ export function initDailyPlanner(container, options = {}) {
             category: quickCat?.value || 'General',
             status: 'Pending'
           };
-          if (isSuperadmin && state.selectedPersonnelId !== 'all') {
-            payload.personnelId = state.selectedPersonnelId;
+          if (isSuperadmin) {
+            const quickAssignee = document.getElementById('quickAddAssignee')?.value;
+            if (quickAssignee === 'all') {
+              payload.assignAll = true;
+              payload.personnelId = 'all';
+            } else if (quickAssignee) {
+              payload.personnelId = quickAssignee;
+            } else if (state.selectedPersonnelId !== 'all') {
+              payload.personnelId = state.selectedPersonnelId;
+            }
           }
 
           const created = await apiPost('/tasks', payload);
@@ -1484,10 +1509,11 @@ export function initDailyPlanner(container, options = {}) {
             <div class="form-group">
               <label for="taskAssignee">Assign To</label>
               <select id="taskAssignee" class="input">
-                <option value="all" ${!existingTask || existingTask?.assignAll ? 'selected' : ''}>Assign to All Active Team Members</option>
+                <option value="me" ${!existingTask || (!existingTask?.personnelId && !existingTask?.assignAll) ? 'selected' : ''}>Myself (Admin)</option>
+                <option value="all" ${existingTask?.assignAll ? 'selected' : ''}>Assign to All Active Team Members</option>
                 ${state.personnelList.map(p => {
                   const isSel = existingTask?.personnelId?._id === p._id || existingTask?.personnelId === p._id;
-                  return `<option value="${p._id}" ${isSel ? 'selected' : ''}>${escapeHtml(p.name)} (${escapeHtml(p.department || p.role || 'Member')})</option>`;
+                  return `<option value="${p._id}" ${isSel ? 'selected' : ''}>👤 ${escapeHtml(p.name)} (${escapeHtml(p.department || p.role || 'Member')})</option>`;
                 }).join('')}
               </select>
             </div>
@@ -1569,6 +1595,8 @@ export function initDailyPlanner(container, options = {}) {
         if (assignee === 'all') {
           payload.assignAll = true;
           payload.personnelId = 'all';
+        } else if (assignee === 'me') {
+          payload.personnelId = 'me';
         } else if (assignee) {
           payload.personnelId = assignee;
         }
@@ -2405,6 +2433,19 @@ export function initDailyPlanner(container, options = {}) {
             </label>
           </div>
 
+          <!-- Desktop & Laptop Notifications -->
+          <div class="form-group" style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);">
+            <div style="font-weight:600;font-size:13px;margin-bottom:4px;color:var(--text-1);">🔔 Desktop & Laptop Notifications</div>
+            <div style="font-size:12px;color:var(--text-3);margin-bottom:8px;">Receive real-time popups on your laptop and browser when tasks are assigned, dates change, and due alerts arrive.</div>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+              <input type="checkbox" id="setNotifEnabled" ${(typeof window !== 'undefined' && localStorage.getItem('ci360_notif_enabled') !== 'false' && typeof Notification !== 'undefined' && Notification.permission === 'granted') ? 'checked' : ''}>
+              <span>Enable Browser & Laptop Notifications</span>
+            </label>
+            <div style="margin-top:8px;">
+              <button type="button" class="btn ghost small" id="btnPlannerTestNotif" style="padding:4px 10px;font-size:11.5px;">🔔 Send Test Notification</button>
+            </div>
+          </div>
+
           <div class="ci360-modal-footer">
             <button type="button" class="ci360-btn-secondary" id="btnCancelSettings">Cancel</button>
             <button type="submit" class="ci360-btn-primary">Save Preferences</button>
@@ -2419,6 +2460,28 @@ export function initDailyPlanner(container, options = {}) {
     modalBg.querySelector('#btnSettingsClose').onclick = close;
     modalBg.querySelector('#btnCancelSettings').onclick = close;
 
+    const testBtn = modalBg.querySelector('#btnPlannerTestNotif');
+    if (testBtn) {
+      testBtn.onclick = async () => {
+        if ('Notification' in window && Notification.permission !== 'granted') {
+          const granted = await requestNotificationPermission();
+          if (!granted) {
+            flashToast('Please grant notification permission in your browser.', true);
+            return;
+          }
+        }
+        localStorage.setItem('ci360_notif_enabled', 'true');
+        const notifChk = modalBg.querySelector('#setNotifEnabled');
+        if (notifChk) notifChk.checked = true;
+        await triggerSystemNotification({
+          title: 'CI360 Planner Alert 🔔',
+          message: 'Laptop & browser notifications are active and ready!',
+          id: 'ci360-planner-test-' + Date.now()
+        });
+        flashToast('Test notification sent to your laptop/browser! 🔔');
+      };
+    }
+
     modalBg.querySelector('#settingsForm').onsubmit = (e) => {
       e.preventDefault();
       settings.displayName = modalBg.querySelector('#setDisplayName').value.trim() || 'Daily Planner';
@@ -2426,6 +2489,12 @@ export function initDailyPlanner(container, options = {}) {
       settings.defaultPriority = modalBg.querySelector('#setDefaultPriority').value;
       settings.density = modalBg.querySelector('#setDensity').value;
       settings.soundEnabled = modalBg.querySelector('#setSound').checked;
+
+      const notifVal = modalBg.querySelector('#setNotifEnabled')?.checked;
+      localStorage.setItem('ci360_notif_enabled', notifVal ? 'true' : 'false');
+      if (notifVal && 'Notification' in window && Notification.permission === 'default') {
+        requestNotificationPermission();
+      }
 
       saveSettings(settings);
       flashToast('Planner preferences saved! ⚙️');
@@ -3211,6 +3280,18 @@ function ensurePlannerStyles() {
     .ci360-badge.overdue-badge { background: rgba(239, 68, 68, 0.12); color: var(--red-600); }
     .ci360-badge.personnel-badge { background: var(--brand-50); color: var(--brand-600); }
     [data-theme="dark"] .ci360-badge.personnel-badge { background: rgba(99, 102, 241, 0.2); color: var(--brand-400); }
+
+    .ci360-badge.date-changed-badge {
+      background: rgba(245, 158, 11, 0.14);
+      color: #D97706;
+      font-weight: 700;
+      border: 1px solid rgba(245, 158, 11, 0.35);
+    }
+    [data-theme="dark"] .ci360-badge.date-changed-badge {
+      background: rgba(245, 158, 11, 0.22);
+      color: #FBBF24;
+      border-color: rgba(245, 158, 11, 0.45);
+    }
 
     /* Task Actions */
     .ci360-task-actions {
@@ -4164,6 +4245,12 @@ function ensurePlannerStyles() {
       background: #EFF6FF;
       color: #1D4ED8;
       border-color: #BFDBFE;
+    }
+    [data-theme="light"] .ci360-badge.date-changed-badge,
+    html:not([data-theme="dark"]) .ci360-badge.date-changed-badge {
+      background: #FFFBEB;
+      color: #B45309;
+      border-color: #FDE68A;
     }
   `;
   document.head.appendChild(style);

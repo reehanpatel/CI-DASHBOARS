@@ -3150,6 +3150,7 @@ async function tabDailyTasks(c) {
                         </div>
 
                         <div class="daily-actions-hover" style="opacity:1">
+                          ${t.rescheduledFrom && t.rescheduledFrom !== taskDate ? `<span class="task-tag-pill" style="color:#d97706;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.3);font-size:10.5px">🔄 Date Changed: ${t.rescheduledFrom} ➔ ${taskDate}</span>` : ''}
                           ${taskDate ? `<span class="task-tag-pill" style="font-size:10.5px">📅 ${taskDate === todayStr ? 'Today' : taskDate}</span>` : ''}
                           ${t.completedAt ? `<span class="task-tag-pill" style="color:var(--green-600);background:rgba(16,185,129,0.1);font-size:10.5px">Done</span>` : ''}
                           <button type="button" class="btn ghost small" onclick="adminEditTask('${t._id}')" title="Edit this task" style="padding:3px 7px;font-size:11.5px">✏️</button>
@@ -3292,12 +3293,20 @@ window.adminEditTask = async function (id) {
     const tasks = await apiGet('/tasks');
     const t = tasks.find(x => x._id === id);
     if (!t) return;
+    const curDate = t.completionDateStr || t.dateStr || (t.dueDate ? new Date(t.dueDate).toISOString().slice(0, 10) : '');
     const newTitle = prompt('Edit task title:', t.title);
-    if (newTitle !== null && newTitle.trim()) {
-      await apiPut('/tasks/' + id, { title: newTitle.trim() });
-      flashToast('Task updated');
-      renderTab();
+    if (newTitle === null) return;
+    const newDate = prompt('Edit completion date (YYYY-MM-DD):', curDate);
+    const payload = {};
+    if (newTitle.trim()) payload.title = newTitle.trim();
+    if (newDate && newDate.trim()) {
+      payload.completionDateStr = newDate.trim();
+      payload.completionDate = newDate.trim();
+      payload.dateStr = newDate.trim();
     }
+    await apiPut('/tasks/' + id, payload);
+    flashToast('Task updated');
+    renderTab();
   } catch (err) { flashToast(err.message, true); }
 };
 

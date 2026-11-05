@@ -344,10 +344,8 @@ export function triggerPhoneVibration() {
 
 export function isNotificationEnabled() {
   try {
+    if (localStorage.getItem('ci360_notif_enabled') === 'false') return false;
     if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
-      return true;
-    }
-    if (localStorage.getItem('ci360_notif_enabled') === 'true') {
       return true;
     }
   } catch (e) { }
@@ -402,7 +400,20 @@ export async function requestNotificationPermission() {
   return false;
 }
 
+export function setNotificationEnabled(enabled) {
+  if (typeof window === 'undefined') return;
+  localStorage.setItem('ci360_notif_enabled', enabled ? 'true' : 'false');
+  if (enabled && 'Notification' in window && Notification.permission === 'default') {
+    requestNotificationPermission();
+  }
+}
+
 export async function triggerSystemNotification({ title, message, type, id, url }) {
+  // Check if disabled by user setting
+  if (typeof window !== 'undefined' && localStorage.getItem('ci360_notif_enabled') === 'false') {
+    return;
+  }
+
   const strId = id ? String(id) : null;
   loadAlertedNotifIds();
 
@@ -3599,6 +3610,13 @@ export function renderAccountSettingsCard(options = {}) {
   const initial = user.name ? user.name.charAt(0).toUpperCase() : 'U';
   const roleBadge = (user.role || 'user').toUpperCase();
 
+  const notifEnabled = typeof window !== 'undefined'
+    ? (localStorage.getItem('ci360_notif_enabled') !== 'false' && ('Notification' in window && Notification.permission === 'granted'))
+    : true;
+  const permStatusText = typeof window !== 'undefined' && 'Notification' in window
+    ? (Notification.permission === 'granted' ? 'Status: Active on this device' : (Notification.permission === 'denied' ? 'Status: Blocked in browser settings' : 'Status: Ready to enable'))
+    : 'Status: Ready to enable';
+
   return `
     <div class="${showCardWrapper ? 'card' : ''}" style="max-width:100%;margin:0;width:100%;box-sizing:border-box;" id="${formId}-wrap">
       <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border);">
@@ -3667,6 +3685,32 @@ export function renderAccountSettingsCard(options = {}) {
           </div>
         </div>
 
+        <!-- Notifications & Alerts (Browser / Laptop / Web App) -->
+        <div style="padding-top:16px;border-top:1px dashed var(--border);">
+          <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--gold-500,#d4af37);margin-bottom:6px;display:flex;align-items:center;gap:6px;">
+            <span>🔔</span> Laptop & Browser Notifications
+          </div>
+          <div style="font-size:12px;color:var(--text-3);margin-bottom:14px;">
+            Receive real-time desktop popups on your laptop and browser when tasks are assigned, dates change, or jobs update. Works seamlessly in browser tabs and installed web apps.
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;background:var(--bg-2,rgba(255,255,255,0.03));padding:12px 16px;border-radius:10px;border:1px solid var(--border);">
+            <div style="display:flex;align-items:center;gap:12px;">
+              <input type="checkbox" id="${formId}-notifToggle" class="checkbox" ${notifEnabled ? 'checked' : ''} style="width:18px;height:18px;cursor:pointer;">
+              <div>
+                <label for="${formId}-notifToggle" style="font-size:13px;font-weight:600;color:var(--text-1);cursor:pointer;display:block;" id="${formId}-notifStateText">
+                  ${notifEnabled ? 'Notifications Enabled' : 'Notifications Disabled'}
+                </label>
+                <div style="font-size:11.5px;color:var(--text-3);" id="${formId}-notifSubtext">
+                  ${permStatusText}
+                </div>
+              </div>
+            </div>
+            <button type="button" class="btn ghost small" id="${formId}-testNotifBtn" style="padding:6px 12px;font-size:12px;display:inline-flex;align-items:center;gap:6px;">
+              <span>🔔</span> Send Test Alert
+            </button>
+          </div>
+        </div>
+
         <!-- Alert Notice Box -->
         <div id="${formId}-alert" style="display:none;padding:12px 14px;border-radius:8px;font-size:13px;line-height:1.4;"></div>
 
@@ -3698,6 +3742,60 @@ export function bindAccountSettingsCard(container, options = {}) {
       }
     };
   });
+
+  // Notification Toggle & Test Button
+  const notifToggle = root.querySelector('#' + formId + '-notifToggle') || document.getElementById(formId + '-notifToggle');
+  const notifStateText = root.querySelector('#' + formId + '-notifStateText') || document.getElementById(formId + '-notifStateText');
+  const notifSubtext = root.querySelector('#' + formId + '-notifSubtext') || document.getElementById(formId + '-notifSubtext');
+  const testNotifBtn = root.querySelector('#' + formId + '-testNotifBtn') || document.getElementById(formId + '-testNotifBtn');
+
+  if (notifToggle) {
+    notifToggle.onchange = async () => {
+      const isChecked = notifToggle.checked;
+      if (isChecked) {
+        if ('Notification' in window && Notification.permission !== 'granted') {
+          const granted = await requestNotificationPermission();
+          if (!granted) {
+            notifToggle.checked = false;
+            if (notifStateText) notifStateText.textContent = 'Notifications Disabled';
+            if (notifSubtext) notifSubtext.textContent = 'Status: Permission not granted';
+            return;
+          }
+        }
+        localStorage.setItem('ci360_notif_enabled', 'true');
+        if (notifStateText) notifStateText.textContent = 'Notifications Enabled';
+        if (notifSubtext) notifSubtext.textContent = 'Status: Active on this device';
+        flashToast('Notifications enabled on this laptop/device! 🔔');
+      } else {
+        localStorage.setItem('ci360_notif_enabled', 'false');
+        if (notifStateText) notifStateText.textContent = 'Notifications Disabled';
+        if (notifSubtext) notifSubtext.textContent = 'Status: Disabled in settings';
+        flashToast('Notifications disabled on this laptop/device.');
+      }
+    };
+  }
+
+  if (testNotifBtn) {
+    testNotifBtn.onclick = async () => {
+      if ('Notification' in window && Notification.permission !== 'granted') {
+        const granted = await requestNotificationPermission();
+        if (!granted) {
+          flashToast('Please grant notification permission in your browser.', true);
+          return;
+        }
+      }
+      localStorage.setItem('ci360_notif_enabled', 'true');
+      if (notifToggle) notifToggle.checked = true;
+      if (notifStateText) notifStateText.textContent = 'Notifications Enabled';
+      if (notifSubtext) notifSubtext.textContent = 'Status: Active on this device';
+      await triggerSystemNotification({
+        title: 'CI360 Laptop Alert 🔔',
+        message: 'Desktop & downloaded app notifications are active and working!',
+        id: 'ci360-test-' + Date.now()
+      });
+      flashToast('Test notification sent to your laptop/browser! 🔔');
+    };
+  }
 
   const saveBtn = root.querySelector('#' + formId + '-saveBtn') || document.getElementById(formId + '-saveBtn');
   const alertBox = root.querySelector('#' + formId + '-alert') || document.getElementById(formId + '-alert');
@@ -3846,6 +3944,7 @@ Object.assign(window, {
   getTheme, setTheme,
   initServiceWorker, playNotificationChime, triggerPhoneVibration,
   requestNotificationPermission, triggerSystemNotification,
+  isNotificationEnabled, setNotificationEnabled,
   fmtFileSize, formatFileSize, uploadSingleFileDirectly, uploadMultipleFilesFast, getFileCategory, isImageAttachment, openFilePreviewModal,
   renderAttachmentChips, uploadFilesToServer, renderAttachmentUploader,
   bindAttachmentUploader, getUploaderAttachments, setUploaderAttachments,
