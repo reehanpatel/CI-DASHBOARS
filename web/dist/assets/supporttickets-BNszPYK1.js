@@ -1,4 +1,4 @@
-import{c as ze,k as $,e as v,x as at,l as nt,p as qt,m as Jt,j as ve,y as ma,z as ia,A as fa}from"./api-awH_11eJ.js";const ha={displayName:"Daily Planner",weekStartsOn:1,timezone:"Asia/Kolkata",defaultPriority:"Medium",density:"comfortable",soundEnabled:!0};function Ea(){try{const s=localStorage.getItem("ci360_planner_settings");if(s)return Object.assign({},ha,JSON.parse(s))}catch{}return Object.assign({},ha)}function Ta(s){try{localStorage.setItem("ci360_planner_settings",JSON.stringify(s))}catch{}}function Ke(){const s=new Date,a=s.getFullYear(),e=String(s.getMonth()+1).padStart(2,"0"),g=String(s.getDate()).padStart(2,"0");return`${a}-${e}-${g}`}function Kt(s,a){const e=new Date(s+"T00:00:00");e.setDate(e.getDate()+a);const g=e.getFullYear(),h=String(e.getMonth()+1).padStart(2,"0"),b=String(e.getDate()).padStart(2,"0");return`${g}-${h}-${b}`}function Dt(s){return s?new Date(s+"T00:00:00").toLocaleDateString("en-US",{weekday:"long",year:"numeric",month:"long",day:"numeric"}):"—"}function Ge(s){return s?new Date(s+"T00:00:00").toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"}):"—"}function Fa(s){return s?new Date(s+"T00:00:00").toLocaleDateString("en-US",{weekday:"short"}):""}function Bt(s,a=1){const e=new Date(s+"T00:00:00"),g=e.getDay(),h=(g<a?7:0)+g-a,b=new Date(e);b.setDate(e.getDate()-h);const p=[];for(let o=0;o<7;o++){const j=new Date(b);j.setDate(b.getDate()+o);const J=j.getFullYear(),T=String(j.getMonth()+1).padStart(2,"0"),q=String(j.getDate()).padStart(2,"0");p.push(`${J}-${T}-${q}`)}return p}function Pa(){try{const s=window.AudioContext||window.webkitAudioContext;if(!s)return;const a=new s,e=a.currentTime,g=a.createOscillator(),h=a.createGain();g.type="sine",g.frequency.setValueAtTime(523.25,e),g.frequency.exponentialRampToValueAtTime(783.99,e+.15),h.gain.setValueAtTime(.2,e),h.gain.exponentialRampToValueAtTime(.001,e+.35),g.connect(h),h.connect(a.destination),g.start(e),g.stop(e+.35)}catch{}}function sn(s,a={}){const{userRole:e="employee",currentUser:g=null,onNavigate:h=null}=a,b=e==="superadmin"||e==="admin";let p=Ea(),o={selectedDate:Ke(),viewMode:"daily",filterStatus:"all",searchQuery:"",groupByEmployee:b,collapsedEmployees:{},selectedCategory:"all",selectedPersonnelId:"all",reportPersonnelId:"all",tasks:[],personnelList:[],clientList:[],loading:!1};La(),j();async function j(){o.loading=!0,J();try{const l=[ze("/tasks"),ze("/personnel").catch(()=>[]),ze("/clients").catch(()=>[])],[n,r,f]=await Promise.all(l);o.tasks=Array.isArray(n)?n:[],r&&(o.personnelList=Array.isArray(r)?r:[]),f&&(o.clientList=Array.isArray(f)?f:[])}catch(l){$("Failed to load planner tasks: "+l.message,!0)}finally{o.loading=!1,U()}}function J(){s.innerHTML=`
+import{c as ze,k as $,e as v,x as at,l as nt,p as qt,m as Jt,j as ve,y as ma,z as ia,A as fa}from"./api-HIjfYcDT.js";const ha={displayName:"Daily Planner",weekStartsOn:1,timezone:"Asia/Kolkata",defaultPriority:"Medium",density:"comfortable",soundEnabled:!0};function Ea(){try{const s=localStorage.getItem("ci360_planner_settings");if(s)return Object.assign({},ha,JSON.parse(s))}catch{}return Object.assign({},ha)}function Ta(s){try{localStorage.setItem("ci360_planner_settings",JSON.stringify(s))}catch{}}function Ke(){const s=new Date,a=s.getFullYear(),e=String(s.getMonth()+1).padStart(2,"0"),g=String(s.getDate()).padStart(2,"0");return`${a}-${e}-${g}`}function Kt(s,a){const e=new Date(s+"T00:00:00");e.setDate(e.getDate()+a);const g=e.getFullYear(),h=String(e.getMonth()+1).padStart(2,"0"),b=String(e.getDate()).padStart(2,"0");return`${g}-${h}-${b}`}function Dt(s){return s?new Date(s+"T00:00:00").toLocaleDateString("en-US",{weekday:"long",year:"numeric",month:"long",day:"numeric"}):"—"}function Ge(s){return s?new Date(s+"T00:00:00").toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"}):"—"}function Fa(s){return s?new Date(s+"T00:00:00").toLocaleDateString("en-US",{weekday:"short"}):""}function Bt(s,a=1){const e=new Date(s+"T00:00:00"),g=e.getDay(),h=(g<a?7:0)+g-a,b=new Date(e);b.setDate(e.getDate()-h);const p=[];for(let o=0;o<7;o++){const j=new Date(b);j.setDate(b.getDate()+o);const J=j.getFullYear(),T=String(j.getMonth()+1).padStart(2,"0"),q=String(j.getDate()).padStart(2,"0");p.push(`${J}-${T}-${q}`)}return p}function Pa(){try{const s=window.AudioContext||window.webkitAudioContext;if(!s)return;const a=new s,e=a.currentTime,g=a.createOscillator(),h=a.createGain();g.type="sine",g.frequency.setValueAtTime(523.25,e),g.frequency.exponentialRampToValueAtTime(783.99,e+.15),h.gain.setValueAtTime(.2,e),h.gain.exponentialRampToValueAtTime(.001,e+.35),g.connect(h),h.connect(a.destination),g.start(e),g.stop(e+.35)}catch{}}function sn(s,a={}){const{userRole:e="employee",currentUser:g=null,onNavigate:h=null}=a,b=e==="superadmin"||e==="admin";let p=Ea(),o={selectedDate:Ke(),viewMode:"daily",filterStatus:"all",searchQuery:"",groupByEmployee:b,collapsedEmployees:{},selectedCategory:"all",selectedPersonnelId:"all",reportPersonnelId:"all",tasks:[],personnelList:[],clientList:[],loading:!1};La(),j();async function j(){o.loading=!0,J();try{const l=[ze("/tasks"),ze("/personnel").catch(()=>[]),ze("/clients").catch(()=>[])],[n,r,f]=await Promise.all(l);o.tasks=Array.isArray(n)?n:[],r&&(o.personnelList=Array.isArray(r)?r:[]),f&&(o.clientList=Array.isArray(f)?f:[])}catch(l){$("Failed to load planner tasks: "+l.message,!0)}finally{o.loading=!1,U()}}function J(){s.innerHTML=`
       <div class="ci360-planner-wrap">
         <div class="ci360-planner-skeleton" style="padding:24px;background:var(--bg-card);border-radius:var(--r-lg);border:1px solid var(--border-sm)">
           <div style="height:32px;width:240px;background:var(--border-xs);border-radius:6px;margin-bottom:12px;animation:pulse 1.5s infinite"></div>
@@ -1806,48 +1806,57 @@ In Brave or Chrome, click the lock or shield icon on the left of the address bar
       flex-wrap: wrap;
     }
     .ci360-filter-pills {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      background: transparent;
-      border: none;
-      padding: 0;
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 6px !important;
+      background: transparent !important;
+      border: none !important;
+      padding: 0 !important;
+      box-shadow: none !important;
     }
     .filter-pill {
-      background: rgba(0, 0, 0, 0.04);
-      border: 1px solid var(--border-sm);
-      padding: 5px 12px;
-      border-radius: var(--r-full);
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--text-3);
-      cursor: pointer;
-      transition: all var(--t-fast);
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+      padding: 6px 14px !important;
+      border-radius: 999px !important;
+      font-size: 13px !important;
+      font-weight: 600 !important;
+      color: var(--text-3, #64748B) !important;
+      cursor: pointer !important;
+      transition: all var(--t-fast) !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      line-height: 1.2 !important;
     }
     [data-theme="dark"] .filter-pill {
-      background: rgba(255, 255, 255, 0.05);
-      border-color: rgba(56, 189, 248, 0.14);
-      color: #8EA4C8;
+      background: transparent !important;
+      border: none !important;
+      color: #8EA4C8 !important;
     }
     .filter-pill:hover {
-      color: var(--text-1);
+      color: var(--text-1, #0F172A) !important;
+      background: rgba(0, 0, 0, 0.04) !important;
+    }
+    [data-theme="dark"] .filter-pill:hover {
+      color: #F8FAFC !important;
+      background: rgba(255, 255, 255, 0.06) !important;
     }
     .filter-pill.active {
       background: #0070F3 !important;
       color: #FFFFFF !important;
-      border-color: #0070F3 !important;
-      font-weight: 700;
-      box-shadow: 0 2px 8px rgba(0, 112, 243, 0.35);
+      font-weight: 700 !important;
+      box-shadow: 0 2px 8px rgba(0, 112, 243, 0.35) !important;
     }
     [data-theme="dark"] .filter-pill.active {
       background: #0070F3 !important;
       color: #FFFFFF !important;
-      border-color: #0070F3 !important;
-      box-shadow: 0 0 16px rgba(0, 112, 243, 0.45);
+      box-shadow: 0 0 16px rgba(0, 112, 243, 0.45) !important;
     }
     .filter-pill.overdue.active {
-      background: rgba(239, 68, 68, 0.1);
-      color: var(--red-500);
+      background: rgba(239, 68, 68, 0.15) !important;
+      color: #EF4444 !important;
     }
 
     .ci360-search-box {
@@ -3115,23 +3124,27 @@ In Brave or Chrome, click the lock or shield icon on the left of the address bar
     }
     [data-theme="light"] .ci360-filter-pills,
     html:not([data-theme="dark"]) .ci360-filter-pills {
-      background: #FFFFFF;
-      border-color: #CBD5E1;
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
     }
     [data-theme="light"] .filter-pill,
     html:not([data-theme="dark"]) .filter-pill {
-      color: #64748B;
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+      color: #64748B !important;
     }
     [data-theme="light"] .filter-pill:hover,
     html:not([data-theme="dark"]) .filter-pill:hover {
-      background: #F1F5F9;
-      color: #0F172A;
+      background: rgba(0, 0, 0, 0.04) !important;
+      color: #0F172A !important;
     }
     [data-theme="light"] .filter-pill.active,
     html:not([data-theme="dark"]) .filter-pill.active {
       background: #0070F3 !important;
       color: #FFFFFF !important;
-      border-color: #0070F3 !important;
+      box-shadow: 0 2px 8px rgba(0, 112, 243, 0.35) !important;
     }
     [data-theme="light"] .ci360-search-box,
     html:not([data-theme="dark"]) .ci360-search-box {
@@ -8674,7 +8687,12 @@ All messages in this lounge will be deleted.`))try{await nt(`/bonding/channels/$
       <div class="ci-360-filter-bar">
         <div class="ci-360-filter-left">
           <div class="ci-360-search-wrap">
-            <span class="ci-360-search-icon">🔍</span>
+            <span class="ci-360-search-icon">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+            </span>
             <input type="text" id="ci-360-search-input" class="ci-360-search-input" placeholder="Search ticket (ID, title, description)..." />
           </div>
 

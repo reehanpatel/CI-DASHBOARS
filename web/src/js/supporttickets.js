@@ -124,7 +124,12 @@ export async function initSupportTickets(container, options = {}) {
       <div class="ci-360-filter-bar">
         <div class="ci-360-filter-left">
           <div class="ci-360-search-wrap">
-            <span class="ci-360-search-icon">🔍</span>
+            <span class="ci-360-search-icon">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+            </span>
             <input type="text" id="ci-360-search-input" class="ci-360-search-input" placeholder="Search ticket (ID, title, description)..." />
           </div>
 

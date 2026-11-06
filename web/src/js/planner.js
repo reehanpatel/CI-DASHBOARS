@@ -3662,48 +3662,57 @@ function ensurePlannerStyles() {
       flex-wrap: wrap;
     }
     .ci360-filter-pills {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      background: transparent;
-      border: none;
-      padding: 0;
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 6px !important;
+      background: transparent !important;
+      border: none !important;
+      padding: 0 !important;
+      box-shadow: none !important;
     }
     .filter-pill {
-      background: rgba(0, 0, 0, 0.04);
-      border: 1px solid var(--border-sm);
-      padding: 5px 12px;
-      border-radius: var(--r-full);
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--text-3);
-      cursor: pointer;
-      transition: all var(--t-fast);
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+      padding: 6px 14px !important;
+      border-radius: 999px !important;
+      font-size: 13px !important;
+      font-weight: 600 !important;
+      color: var(--text-3, #64748B) !important;
+      cursor: pointer !important;
+      transition: all var(--t-fast) !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      line-height: 1.2 !important;
     }
     [data-theme="dark"] .filter-pill {
-      background: rgba(255, 255, 255, 0.05);
-      border-color: rgba(56, 189, 248, 0.14);
-      color: #8EA4C8;
+      background: transparent !important;
+      border: none !important;
+      color: #8EA4C8 !important;
     }
     .filter-pill:hover {
-      color: var(--text-1);
+      color: var(--text-1, #0F172A) !important;
+      background: rgba(0, 0, 0, 0.04) !important;
+    }
+    [data-theme="dark"] .filter-pill:hover {
+      color: #F8FAFC !important;
+      background: rgba(255, 255, 255, 0.06) !important;
     }
     .filter-pill.active {
       background: #0070F3 !important;
       color: #FFFFFF !important;
-      border-color: #0070F3 !important;
-      font-weight: 700;
-      box-shadow: 0 2px 8px rgba(0, 112, 243, 0.35);
+      font-weight: 700 !important;
+      box-shadow: 0 2px 8px rgba(0, 112, 243, 0.35) !important;
     }
     [data-theme="dark"] .filter-pill.active {
       background: #0070F3 !important;
       color: #FFFFFF !important;
-      border-color: #0070F3 !important;
-      box-shadow: 0 0 16px rgba(0, 112, 243, 0.45);
+      box-shadow: 0 0 16px rgba(0, 112, 243, 0.45) !important;
     }
     .filter-pill.overdue.active {
-      background: rgba(239, 68, 68, 0.1);
-      color: var(--red-500);
+      background: rgba(239, 68, 68, 0.15) !important;
+      color: #EF4444 !important;
     }
 
     .ci360-search-box {
@@ -4971,23 +4980,27 @@ function ensurePlannerStyles() {
     }
     [data-theme="light"] .ci360-filter-pills,
     html:not([data-theme="dark"]) .ci360-filter-pills {
-      background: #FFFFFF;
-      border-color: #CBD5E1;
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
     }
     [data-theme="light"] .filter-pill,
     html:not([data-theme="dark"]) .filter-pill {
-      color: #64748B;
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+      color: #64748B !important;
     }
     [data-theme="light"] .filter-pill:hover,
     html:not([data-theme="dark"]) .filter-pill:hover {
-      background: #F1F5F9;
-      color: #0F172A;
+      background: rgba(0, 0, 0, 0.04) !important;
+      color: #0F172A !important;
     }
     [data-theme="light"] .filter-pill.active,
     html:not([data-theme="dark"]) .filter-pill.active {
       background: #0070F3 !important;
       color: #FFFFFF !important;
-      border-color: #0070F3 !important;
+      box-shadow: 0 2px 8px rgba(0, 112, 243, 0.35) !important;
     }
     [data-theme="light"] .ci360-search-box,
     html:not([data-theme="dark"]) .ci360-search-box {
