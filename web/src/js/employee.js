@@ -167,12 +167,23 @@ async function tabSupportTickets(c) {
 
 async function tabSettings(c) {
   c.innerHTML = `
-    <div style="padding:8px 0 24px 0;">
-      ${renderAccountSettingsCard({
-        title: 'Employee Account & Security',
-        subtitle: 'Manage your personal login email, display name, and password'
-      })}
-    </div>
+    <section class="block">
+      <header class="ci360-hero-banner">
+        <div class="ci360-hero-left">
+          <div class="ci360-hero-icon">⚙️</div>
+          <div class="ci360-hero-title-group">
+            <h1 class="ci360-hero-heading">Settings & Security</h1>
+            <p class="ci360-hero-subheading">Manage your personal login email, display name, and security password</p>
+          </div>
+        </div>
+      </header>
+      <div style="padding:8px 0 24px 0;">
+        ${renderAccountSettingsCard({
+          title: 'Employee Account & Security',
+          subtitle: 'Manage your personal login email, display name, and password'
+        })}
+      </div>
+    </section>
   `;
   bindAccountSettingsCard(c);
 }
@@ -521,7 +532,15 @@ async function tabMyJobs(c, showAll = false){
   if(jobs.length === 0){
     c.innerHTML = `
       <div class="block">
-        <h2>${titleLabel} <span class="eyebrow">No jobs found</span></h2>
+        <header class="ci360-hero-banner">
+          <div class="ci360-hero-left">
+            <div class="ci360-hero-icon">${showAll ? '📁' : '📋'}</div>
+            <div class="ci360-hero-title-group">
+              <h1 class="ci360-hero-heading">${titleLabel}</h1>
+              <p class="ci360-hero-subheading">${showAll ? 'Complete company project deliverable pipeline' : 'Your assigned deliverables, timelines, and status updates'}</p>
+            </div>
+          </div>
+        </header>
         ${renderEmptyState(showAll ? 'No jobs found' : 'No jobs assigned yet', emptyDesc, '📋')}
       </div>`;
     return;
@@ -529,12 +548,18 @@ async function tabMyJobs(c, showAll = false){
 
   c.innerHTML = `
     <div class="block">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
-        <h2 style="margin:0">${titleLabel} <span class="eyebrow">${jobs.length} total</span></h2>
-        <div style="display:flex;gap:8px;align-items:center">
-          <span style="font-size:12px;color:var(--text-3)">Click the date or 💾 to save completion date</span>
+      <header class="ci360-hero-banner">
+        <div class="ci360-hero-left">
+          <div class="ci360-hero-icon">${showAll ? '📁' : '📋'}</div>
+          <div class="ci360-hero-title-group">
+            <h1 class="ci360-hero-heading">${titleLabel}</h1>
+            <p class="ci360-hero-subheading">${showAll ? 'Complete company project deliverable pipeline' : 'Your assigned deliverables, timelines, and status updates'}</p>
+          </div>
         </div>
-      </div>
+        <div class="ci360-hero-actions">
+          <span class="badge" style="background:rgba(0,112,243,0.15);color:#0070F3;font-weight:700;font-size:12px;padding:6px 12px;border-radius:12px;">${jobs.length} jobs</span>
+        </div>
+      </header>
 
       <div style="display:flex;flex-direction:column;gap:14px">
         ${jobs.map(j=>{
@@ -847,10 +872,15 @@ function tabLogJob(c) {
   const totalPercent = logJobDraft.assignments.reduce((s, a) => s + (Number(a.percent) || 0), 0);
   c.innerHTML = `
     <section class="block">
-      <div style="margin-bottom:20px;">
-        <h2 style="font-size:20px;font-weight:800;color:var(--text-1);margin-bottom:4px;border:none;padding:0;">Log New Job & Work Deliverable</h2>
-        <p style="font-size:13px;color:var(--text-3);margin:0;">Record client deliverables, services provided, financial value, and team hour attributions.</p>
-      </div>
+      <header class="ci360-hero-banner">
+        <div class="ci360-hero-left">
+          <div class="ci360-hero-icon">➕</div>
+          <div class="ci360-hero-title-group">
+            <h1 class="ci360-hero-heading">Log New Job & Work Deliverable</h1>
+            <p class="ci360-hero-subheading">Record project deliverables, service hours, and client details</p>
+          </div>
+        </div>
+      </header>
 
       <div class="card log-job-card" style="background:var(--bg-card);border:1px solid var(--border-sm);border-radius:var(--r-md);padding:24px;">
         <div style="margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--border-sm);">
@@ -1119,9 +1149,18 @@ async function tabByClient(c) {
     const dash = await apiGet('/dashboard/admin?period=' + ui.period);
     c.innerHTML = `
       <section class="block">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
-          <h2 style="margin:0;">By Client <span class="eyebrow">${(dash.clients || []).length} clients</span></h2>
-        </div>
+        <header class="ci360-hero-banner">
+          <div class="ci360-hero-left">
+            <div class="ci360-hero-icon">💼</div>
+            <div class="ci360-hero-title-group">
+              <h1 class="ci360-hero-heading">By Client</h1>
+              <p class="ci360-hero-subheading">Track client deliverable volume and team members</p>
+            </div>
+          </div>
+          <div class="ci360-hero-actions">
+            ${periodPicker()}
+          </div>
+        </header>
         <div class="grid grid-3">
           ${(dash.clients || []).map(cl => `
             <div class="card" style="background:var(--bg-card);border:1px solid var(--border-sm);border-radius:var(--r-md);padding:18px;">
@@ -1146,10 +1185,19 @@ async function tabByPerson(c) {
     const dash = await apiGet('/dashboard/admin?period=' + ui.period);
     c.innerHTML = `
       <section class="block">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
-          <h2 style="margin:0;">By Person <span class="eyebrow">${(dash.personnel || []).length} team members</span></h2>
-        </div>
-        <div class="card table-card" style="padding:0;overflow:hidden;background:var(--bg-card);border:1px solid var(--border-sm);border-radius:var(--r-md);">
+        <header class="ci360-hero-banner">
+          <div class="ci360-hero-left">
+            <div class="ci360-hero-icon">👥</div>
+            <div class="ci360-hero-title-group">
+              <h1 class="ci360-hero-heading">Team Performance</h1>
+              <p class="ci360-hero-subheading">Track team members, roles, and utilization</p>
+            </div>
+          </div>
+          <div class="ci360-hero-actions">
+            ${periodPicker()}
+          </div>
+        </header>
+        <div class="card table-card" style="padding:0;overflow:hidden">
           <div class="table-wrapper">
             <table>
               <thead>
@@ -1192,10 +1240,16 @@ async function tabAccounts(c) {
     const roster = await apiGet('/roster');
     c.innerHTML = `
       <section class="block">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
-          <h2 style="margin:0;">Client Roster <span class="eyebrow">${roster.length} accounts</span></h2>
-        </div>
-        <div class="card table-card" style="padding:0;overflow:hidden;background:var(--bg-card);border:1px solid var(--border-sm);border-radius:var(--r-md);">
+        <header class="ci360-hero-banner">
+          <div class="ci360-hero-left">
+            <div class="ci360-hero-icon">🏢</div>
+            <div class="ci360-hero-title-group">
+              <h1 class="ci360-hero-heading">Client Roster & Account Roles</h1>
+              <p class="ci360-hero-subheading">Active client account assignments and service responsibilities</p>
+            </div>
+          </div>
+        </header>
+        <div class="card table-card" style="padding:0;overflow:hidden">
           <div class="table-wrapper">
             <table>
               <thead>
@@ -1250,8 +1304,16 @@ async function tabSalaries(c) {
     const salaries = await apiGet('/salary');
     c.innerHTML = `
       <section class="block">
-        <h2>Salaries &amp; Compensation</h2>
-        <div class="card table-card" style="padding:0;overflow:hidden;background:var(--bg-card);border:1px solid var(--border-sm);border-radius:var(--r-md);">
+        <header class="ci360-hero-banner">
+          <div class="ci360-hero-left">
+            <div class="ci360-hero-icon">💰</div>
+            <div class="ci360-hero-title-group">
+              <h1 class="ci360-hero-heading">Salaries & Compensation</h1>
+              <p class="ci360-hero-subheading">Personnel compensation records and salary grade assignments</p>
+            </div>
+          </div>
+        </header>
+        <div class="card table-card" style="padding:0;overflow:hidden">
           <div class="table-wrapper">
             <table>
               <thead>
@@ -1286,8 +1348,16 @@ async function tabUsers(c) {
     const users = await apiGet('/users');
     c.innerHTML = `
       <section class="block">
-        <h2>Users Directory</h2>
-        <div class="card table-card" style="padding:0;overflow:hidden;background:var(--bg-card);border:1px solid var(--border-sm);border-radius:var(--r-md);">
+        <header class="ci360-hero-banner">
+          <div class="ci360-hero-left">
+            <div class="ci360-hero-icon">👤</div>
+            <div class="ci360-hero-title-group">
+              <h1 class="ci360-hero-heading">Users Directory</h1>
+              <p class="ci360-hero-subheading">Active platform user profiles, contact emails, and access roles</p>
+            </div>
+          </div>
+        </header>
+        <div class="card table-card" style="padding:0;overflow:hidden">
           <div class="table-wrapper">
             <table>
               <thead>
@@ -1818,13 +1888,18 @@ async function tabTargets(c){
 
   c.innerHTML = `
     <div class="block">
-      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px">
-        <div>
-          <h2 style="margin:0 0 2px">My Targets <span class="eyebrow">${escapeHtml(user.name)}</span></h2>
-          <div style="font-size:12.5px;color:var(--text-3)">Track your productivity targets and output quotas assigned by management.</div>
+      <header class="ci360-hero-banner">
+        <div class="ci360-hero-left">
+          <div class="ci360-hero-icon">🎯</div>
+          <div class="ci360-hero-title-group">
+            <h1 class="ci360-hero-heading">My Targets & Quotas</h1>
+            <p class="ci360-hero-subheading">Track your productivity targets and output quotas assigned by management</p>
+          </div>
         </div>
-        ${periodPicker()}
-      </div>
+        <div class="ci360-hero-actions">
+          ${periodPicker()}
+        </div>
+      </header>
 
       <!-- Top Summary Metrics -->
       <div class="grid grid-4" style="margin-bottom:20px">

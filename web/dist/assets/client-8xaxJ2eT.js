@@ -1,8 +1,19 @@
-const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/proposals-BB2JpfyP.js","assets/api-C0kk-1vj.js","assets/api-Bwti405G.css"])))=>i.map(i=>d[i]);
-import{f as j,d as ee,n as te,o as ie}from"./api-C0kk-1vj.js";const ae="modulepreload",se=function(e){return"/"+e},O={},U=function(i,s,r){let t=Promise.resolve();if(s&&s.length>0){let o=function(c){return Promise.all(c.map(d=>Promise.resolve(d).then(p=>({status:"fulfilled",value:p}),p=>({status:"rejected",reason:p}))))};document.getElementsByTagName("link");const l=document.querySelector("meta[property=csp-nonce]"),v=l?.nonce||l?.getAttribute("nonce");t=o(s.map(c=>{if(c=se(c),c in O)return;O[c]=!0;const d=c.endsWith(".css"),p=d?'[rel="stylesheet"]':"";if(document.querySelector(`link[href="${c}"]${p}`))return;const f=document.createElement("link");if(f.rel=d?"stylesheet":ae,d||(f.as="script"),f.crossOrigin="",f.href=c,v&&f.setAttribute("nonce",v),document.head.appendChild(f),d)return new Promise((m,h)=>{f.addEventListener("load",m),f.addEventListener("error",()=>h(new Error(`Unable to preload CSS for ${c}`)))})}))}function n(o){const l=new Event("vite:preloadError",{cancelable:!0});if(l.payload=o,window.dispatchEvent(l),!l.defaultPrevented)throw o}return t.then(o=>{for(const l of o||[])l.status==="rejected"&&n(l.reason);return i().catch(n)})};let $=null,J=[],D=[],g={tab:"dashboard",period:"month"},u={title:"",serviceId:"",date:new Date().toISOString().slice(0,10),completionDate:"",desc:"",priority:"Medium",preferredPersonId:""};const _=[["strategy","Strategy"],["cs","CS"],["website","Website"],["design","Design"],["copy","Copy"],["edit","Edit"],["shoot","Shoot"],["seo","SEO"],["smo","SMO"],["qc","Quality Check"]];async function oe(){if(initTheme(),$=requireAuth("client"),!!$){try{const[e,i]=await Promise.all([apiGet("/services"),apiGet("/personnel"),ee().catch(()=>{})]);J=e,D=i.filter(s=>s.status==="active")}catch{J=[],D=[]}y()}}const ne=[{key:"dashboard",label:"Overview Dashboard",icon:"📊"},{key:"jobs",label:"All Jobs Logged",icon:"📋"},{key:"logjob",label:"Log a Job",icon:"➕"},{key:"delivered",label:"Work Delivered",icon:"📦"},{key:"proposals",label:"Proposals & Scope",icon:"📜"},{key:"billing",label:"Billing & Invoices",icon:"💳"},{key:"team",label:"Our Team",icon:"👥"},{key:"settings",label:"Settings",icon:"⚙️"}];function y(){const e=document.getElementById("app"),i=j("client",ne,!1),s=i.find(r=>r.key===g.tab)||i[0];i.some(r=>r.key===g.tab)||(g.tab=s?s.key:"dashboard"),e.innerHTML=renderAppShell({user:$,currentRole:"client",activeTab:g.tab,tabs:i,title:s?s.label:"Overview Dashboard",subtitle:"Client Portal & Service Requests"}),bindAppShellEvents(r=>{g.tab=r,y()}),C()}window.ci360NavTab=e=>{g.tab=e,y()};async function C(e=!1){const i=document.getElementById("content");if(i){if(g.tab==="logjob"){W(i);return}!e&&!i.dataset.loaded&&(i.innerHTML=renderSkeletonCards(3)),i.dataset.loaded="true";try{const s=await apiGet("/dashboard/client?period="+g.period);g.tab==="dashboard"?await le(i,s):g.tab==="jobs"?de(i,s):g.tab==="delivered"?pe(i,s):g.tab==="proposals"?await me(i,s):g.tab==="billing"?await fe(i):g.tab==="team"?be(i,s):g.tab==="settings"&&re(i)}catch(s){i.innerHTML=renderEmptyState("Something went wrong",s.message,"⚠️")}}}function re(e){e.innerHTML=`
-    <div style="padding:8px 0 24px 0;">
-      ${te({title:"Client Account Credentials",subtitle:"Manage your authorized client portal username, login email, and security password"})}
-    </div>
+const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/proposals-BH880GIa.js","assets/api-0YmhOLOs.js","assets/api-0AA_dKZT.css"])))=>i.map(i=>d[i]);
+import{f as j,d as ee,n as te,o as ie}from"./api-0YmhOLOs.js";const ae="modulepreload",se=function(e){return"/"+e},O={},U=function(i,s,r){let t=Promise.resolve();if(s&&s.length>0){let o=function(c){return Promise.all(c.map(d=>Promise.resolve(d).then(p=>({status:"fulfilled",value:p}),p=>({status:"rejected",reason:p}))))};document.getElementsByTagName("link");const l=document.querySelector("meta[property=csp-nonce]"),v=l?.nonce||l?.getAttribute("nonce");t=o(s.map(c=>{if(c=se(c),c in O)return;O[c]=!0;const d=c.endsWith(".css"),p=d?'[rel="stylesheet"]':"";if(document.querySelector(`link[href="${c}"]${p}`))return;const f=document.createElement("link");if(f.rel=d?"stylesheet":ae,d||(f.as="script"),f.crossOrigin="",f.href=c,v&&f.setAttribute("nonce",v),document.head.appendChild(f),d)return new Promise((m,h)=>{f.addEventListener("load",m),f.addEventListener("error",()=>h(new Error(`Unable to preload CSS for ${c}`)))})}))}function n(o){const l=new Event("vite:preloadError",{cancelable:!0});if(l.payload=o,window.dispatchEvent(l),!l.defaultPrevented)throw o}return t.then(o=>{for(const l of o||[])l.status==="rejected"&&n(l.reason);return i().catch(n)})};let $=null,J=[],D=[],g={tab:"dashboard",period:"month"},u={title:"",serviceId:"",date:new Date().toISOString().slice(0,10),completionDate:"",desc:"",priority:"Medium",preferredPersonId:""};const _=[["strategy","Strategy"],["cs","CS"],["website","Website"],["design","Design"],["copy","Copy"],["edit","Edit"],["shoot","Shoot"],["seo","SEO"],["smo","SMO"],["qc","Quality Check"]];async function oe(){if(initTheme(),$=requireAuth("client"),!!$){try{const[e,i]=await Promise.all([apiGet("/services"),apiGet("/personnel"),ee().catch(()=>{})]);J=e,D=i.filter(s=>s.status==="active")}catch{J=[],D=[]}y()}}const ne=[{key:"dashboard",label:"Overview Dashboard",icon:"📊"},{key:"jobs",label:"All Jobs Logged",icon:"📋"},{key:"logjob",label:"Log a Job",icon:"➕"},{key:"delivered",label:"Work Delivered",icon:"📦"},{key:"proposals",label:"Proposals & Scope",icon:"📜"},{key:"billing",label:"Billing & Invoices",icon:"💳"},{key:"team",label:"Our Team",icon:"👥"},{key:"settings",label:"Settings",icon:"⚙️"}];function y(){const e=document.getElementById("app"),i=j("client",ne,!1),s=i.find(r=>r.key===g.tab)||i[0];i.some(r=>r.key===g.tab)||(g.tab=s?s.key:"dashboard"),e.innerHTML=renderAppShell({user:$,currentRole:"client",activeTab:g.tab,tabs:i,title:s?s.label:"Overview Dashboard",subtitle:"Client Portal & Service Requests"}),bindAppShellEvents(r=>{g.tab=r,y()}),C()}window.ci360NavTab=e=>{g.tab=e,y()};async function C(e=!1){const i=document.getElementById("content");if(i){if(g.tab==="logjob"){W(i);return}!e&&!i.dataset.loaded&&(i.innerHTML=renderSkeletonCards(3)),i.dataset.loaded="true";try{const s=await apiGet("/dashboard/client?period="+g.period);g.tab==="dashboard"?await le(i,s):g.tab==="jobs"?de(i,s):g.tab==="delivered"?pe(i,s):g.tab==="proposals"?await me(i,s):g.tab==="billing"?await fe(i):g.tab==="team"?be(i,s):g.tab==="settings"&&re(i)}catch(s){i.innerHTML=renderEmptyState("Something went wrong",s.message,"⚠️")}}}function re(e){e.innerHTML=`
+    <section class="block">
+      <header class="ci360-hero-banner">
+        <div class="ci360-hero-left">
+          <div class="ci360-hero-icon">⚙️</div>
+          <div class="ci360-hero-title-group">
+            <h1 class="ci360-hero-heading">Account Settings & Security</h1>
+            <p class="ci360-hero-subheading">Manage your authorized client portal username, login email, and security password</p>
+          </div>
+        </div>
+      </header>
+      <div style="padding:8px 0 24px 0;">
+        ${te({title:"Client Account Credentials",subtitle:"Manage your authorized client portal username, login email, and security password"})}
+      </div>
+    </section>
   `,ie(e)}async function le(e,i){const s=i.client?.name||$?.name||"Valued Client",r=i.client?.code||"CI360-ACC",t=i.client?.nature||i.client?.difficulty||"Retainer Account",n=i.jobs||[];let o=[];try{o=((await apiGet("/accounts/client-portal")).invoices||[]).filter(x=>x.status==="overdue"||x.pendingAmount>0&&new Date(x.dueDate)<new Date),o.length>0&&typeof window.showClientOverdueInvoiceModal=="function"&&window.showClientOverdueInvoiceModal(o)}catch{}let l=[];try{l=(await apiGet("/proposals")||[]).filter(b=>["approved","with_client","won","changes"].includes(b.status))}catch{}const v=g.period==="all"?n:n.filter(a=>{if(!a.date)return!0;const b=a.date.slice(0,10);return(!i.from||b>=i.from)&&(!i.to||b<=i.to)}),c=v.length,p=v.filter(a=>a.status==="Completed"||a.clientApproval&&a.clientApproval.status==="Approved"||a.completionDate).length,m=v.filter(a=>!a.completionDate&&a.status!=="Completed"&&(!a.clientApproval||a.clientApproval.status!=="Approved")).length,H=v.filter(a=>a.clientApproval&&a.clientApproval.status==="Revision Requested").length,Y=i.stats?.hours!=null?Number(i.stats.hours):v.reduce((a,b)=>{let x=0;return(b.assignments||[]).forEach(S=>x+=Number(S.hours)||0),a+x},0),z=c>0?Math.round(p/c*100):n.length>0?Math.round(n.filter(a=>a.completionDate).length/n.length*100):100,T=n.filter(a=>(a.deliverables&&a.deliverables.length||a.status==="Completed")&&(!a.clientApproval||a.clientApproval.status==="Pending")&&a.status!=="Denied"&&(!a.clientApproval||a.clientApproval.status!=="Approved")),P={};v.forEach(a=>{(a.serviceNames&&a.serviceNames.length?a.serviceNames:["General Deliverable"]).forEach(x=>{P[x]=(P[x]||0)+1})});const I=Object.entries(P).sort((a,b)=>b[1]-a[1]),Q=v.filter(a=>a.priority==="Urgent").length,K=v.filter(a=>a.priority==="High").length,X=i.roster||[],R=[];X.forEach(a=>{_.forEach(([b,x])=>{String(a.roles?.[b]||"").split(",").map(A=>A.trim()).filter(Boolean).forEach(A=>{R.some(Z=>Z.name===A)||R.push({name:A,role:x})})})});const B=n.slice(0,5);e.innerHTML=`
     <div class="block client-overview-container" style="max-width:1280px;margin:0 auto">
       
@@ -314,7 +325,15 @@ import{f as j,d as ee,n as te,o as ie}from"./api-C0kk-1vj.js";const ae="modulepr
     </div>
   `;const N=document.getElementById("btnHeroLogJob");N&&(N.onclick=()=>{g.tab="logjob",y()});const E=document.getElementById("btnHeroProposals");E&&(E.onclick=()=>{g.tab="proposals",y()});const F=document.getElementById("btnHeroInvoices");F&&(F.onclick=()=>{g.tab="billing",y()});const q=document.getElementById("btnReviewNow");q&&(q.onclick=()=>{g.tab="delivered",y()});const L=document.getElementById("btnMeetTeam");L&&(L.onclick=()=>{g.tab="team",y()});const M=document.getElementById("btnViewAllJobs");M&&(M.onclick=()=>{g.tab="jobs",y()}),document.querySelectorAll("#overviewPeriodWrapper [data-period]").forEach(a=>{a.onclick=()=>{g.period=a.dataset.period,C()}})}function W(e){e.innerHTML=`
     <div class="block">
-      <h2>Log a New Job <span class="eyebrow">Request or record work for your account</span></h2>
+      <header class="ci360-hero-banner">
+        <div class="ci360-hero-left">
+          <div class="ci360-hero-icon">➕</div>
+          <div class="ci360-hero-title-group">
+            <h1 class="ci360-hero-heading">Log a New Job</h1>
+            <p class="ci360-hero-subheading">Request or record project work for your account</p>
+          </div>
+        </div>
+      </header>
       <div class="card form-card">
         <form id="clientLogJobForm" novalidate>
 
@@ -529,15 +548,20 @@ import{f as j,d as ee,n as te,o as ie}from"./api-C0kk-1vj.js";const ae="modulepr
         ${renderEmptyState("No jobs logged yet","Log your first job to request projects, design, campaigns, or services from our team.","📋",`<button class="btn gold" onclick="ui.tab='logjob';render()">➕ Log Your First Job</button>`)}
       </div>`;return}function t(){let d=s;if(w==="inprogress"?d=d.filter(p=>p.status!=="Denied"&&(!p.clientApproval||p.clientApproval.status!=="Approved")):w==="completed"?d=d.filter(p=>p.clientApproval&&p.clientApproval.status==="Approved"&&p.status!=="Denied"):w==="revision"?d=d.filter(p=>p.clientApproval&&p.clientApproval.status==="Revision Requested"&&p.status!=="Denied"):w==="denied"&&(d=d.filter(p=>p.status==="Denied"||p.clientApproval&&p.clientApproval.status==="Denied")),k){const p=k.toLowerCase();d=d.filter(f=>(f.title||"").toLowerCase().includes(p)||(f.description||"").toLowerCase().includes(p)||(f.serviceNames||[]).some(m=>m.toLowerCase().includes(p))||(f.preferredPersonName||"").toLowerCase().includes(p))}return d}const n=s.filter(d=>d.status!=="Denied"&&(!d.clientApproval||d.clientApproval.status!=="Approved")).length,o=s.filter(d=>d.clientApproval&&d.clientApproval.status==="Approved"&&d.status!=="Denied").length,l=s.filter(d=>d.clientApproval&&d.clientApproval.status==="Revision Requested"&&d.status!=="Denied").length,v=s.filter(d=>d.status==="Denied"||d.clientApproval&&d.clientApproval.status==="Denied").length;function c(){const d=t();e.innerHTML=`
       <div class="block">
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:18px">
-          <div>
-            <h2 style="margin-bottom:4px">All Jobs Logged <span class="eyebrow">${s.length} total entries</span></h2>
-            <div style="font-size:12.5px;color:var(--text-3)">Track all projects and requests submitted by your account</div>
+        <header class="ci360-hero-banner">
+          <div class="ci360-hero-left">
+            <div class="ci360-hero-icon">📁</div>
+            <div class="ci360-hero-title-group">
+              <h1 class="ci360-hero-heading">All Jobs Logged</h1>
+              <p class="ci360-hero-subheading">Track all projects and requests submitted by your account</p>
+            </div>
           </div>
-          <button class="btn gold" type="button" id="tabJobsLogNewBtn" style="display:inline-flex;align-items:center;gap:6px">
-            <span>➕</span> Log a New Job
-          </button>
-        </div>
+          <div class="ci360-hero-actions">
+            <button class="btn primary" type="button" id="tabJobsLogNewBtn" style="display:inline-flex;align-items:center;gap:6px;font-weight:700;">
+              <span>➕ Log a New Job</span>
+            </button>
+          </div>
+        </header>
 
         <!-- Metric Badges Row -->
         <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(140px, 1fr));gap:10px;margin-bottom:16px">
@@ -593,10 +617,18 @@ import{f as j,d as ee,n as te,o as ie}from"./api-C0kk-1vj.js";const ae="modulepr
         ${renderEmptyState("No completed deliverables yet","When the team uploads final deliverables and marks work complete, you can review and sign off on them here.","📦",`<button class="btn ghost" onclick="ui.tab='jobs';render()">View All Jobs Logged</button>`)}
       </div>`;return}const n=r.filter(o=>(o.deliverables&&o.deliverables.length||o.status==="Completed")&&(!o.clientApproval||o.clientApproval.status==="Pending")&&o.status!=="Denied"&&(!o.clientApproval||o.clientApproval.status!=="Approved")).length;e.innerHTML=`
     <div class="block">
-      <div style="margin-bottom:18px">
-        <h2 style="margin-bottom:4px">Work Delivered <span class="eyebrow">${r.length} completed deliverables</span></h2>
-        <div style="font-size:12.5px;color:var(--text-3)">Review deliverable files, approve completed projects, or request revisions</div>
-      </div>
+      <header class="ci360-hero-banner">
+        <div class="ci360-hero-left">
+          <div class="ci360-hero-icon">📦</div>
+          <div class="ci360-hero-title-group">
+            <h1 class="ci360-hero-heading">Work Delivered & Approvals</h1>
+            <p class="ci360-hero-subheading">Review deliverable files, approve completed projects, or request revisions</p>
+          </div>
+        </div>
+        <div class="ci360-hero-actions">
+          <span class="badge" style="background:rgba(0,112,243,0.15);color:#0070F3;font-weight:700;font-size:12px;padding:6px 12px;border-radius:12px;">${r.length} deliverables</span>
+        </div>
+      </header>
 
       ${n>0?`
         <div style="background:linear-gradient(135deg,rgba(0,112,243,0.12),rgba(56,189,248,0.06));border:1px solid rgba(0,112,243,0.3);border-radius:var(--r-sm);padding:14px 18px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
@@ -796,9 +828,17 @@ import{f as j,d as ee,n as te,o as ie}from"./api-C0kk-1vj.js";const ae="modulepr
         </div>
       `}
     </div>
-  `,e.querySelectorAll("[data-client-pdf]").forEach(t=>{t.onclick=async()=>{const n=t.dataset.clientPdf,o=r.find(l=>l._id===n);if(o){t.disabled=!0,t.textContent="Generating PDF…";try{const{exportPdfDoc:l}=await U(async()=>{const{exportPdfDoc:c}=await import("./proposals-BB2JpfyP.js");return{exportPdfDoc:c}},__vite__mapDeps([0,1,2])),v=await apiGet("/proposals/ratecard").catch(()=>({}));await l(o,v.settings||{},t)}catch(l){flashToast("Failed to download PDF: "+l.message,!0),t.disabled=!1,t.textContent="📄 Download PDF"}}}}),e.querySelectorAll("[data-client-word]").forEach(t=>{t.onclick=async()=>{const n=t.dataset.clientWord,o=r.find(l=>l._id===n);if(o){t.disabled=!0,t.textContent="Generating Word…";try{const{exportWordDocx:l}=await U(async()=>{const{exportWordDocx:c}=await import("./proposals-BB2JpfyP.js");return{exportWordDocx:c}},__vite__mapDeps([0,1,2])),v=await apiGet("/proposals/ratecard").catch(()=>({}));await l(o,v.settings||{},t)}catch(l){flashToast("Failed to download Word document: "+l.message,!0),t.disabled=!1,t.textContent="📝 Download Word (.docx)"}}}})}function be(e,i){const s=i.roster||[],r=D&&D.length?D:[];e.innerHTML=`
+  `,e.querySelectorAll("[data-client-pdf]").forEach(t=>{t.onclick=async()=>{const n=t.dataset.clientPdf,o=r.find(l=>l._id===n);if(o){t.disabled=!0,t.textContent="Generating PDF…";try{const{exportPdfDoc:l}=await U(async()=>{const{exportPdfDoc:c}=await import("./proposals-BH880GIa.js");return{exportPdfDoc:c}},__vite__mapDeps([0,1,2])),v=await apiGet("/proposals/ratecard").catch(()=>({}));await l(o,v.settings||{},t)}catch(l){flashToast("Failed to download PDF: "+l.message,!0),t.disabled=!1,t.textContent="📄 Download PDF"}}}}),e.querySelectorAll("[data-client-word]").forEach(t=>{t.onclick=async()=>{const n=t.dataset.clientWord,o=r.find(l=>l._id===n);if(o){t.disabled=!0,t.textContent="Generating Word…";try{const{exportWordDocx:l}=await U(async()=>{const{exportWordDocx:c}=await import("./proposals-BH880GIa.js");return{exportWordDocx:c}},__vite__mapDeps([0,1,2])),v=await apiGet("/proposals/ratecard").catch(()=>({}));await l(o,v.settings||{},t)}catch(l){flashToast("Failed to download Word document: "+l.message,!0),t.disabled=!1,t.textContent="📝 Download Word (.docx)"}}}})}function be(e,i){const s=i.roster||[],r=D&&D.length?D:[];e.innerHTML=`
     <div class="block">
-      <h2>Our Team <span class="eyebrow">${r.length} members</span></h2>
+      <header class="ci360-hero-banner">
+        <div class="ci360-hero-left">
+          <div class="ci360-hero-icon">👥</div>
+          <div class="ci360-hero-title-group">
+            <h1 class="ci360-hero-heading">Our Team & Dedicated Leads</h1>
+            <p class="ci360-hero-subheading">Meet your assigned creative and account management team members</p>
+          </div>
+        </div>
+      </header>
 
       ${s.length>0?`
         <div style="margin-bottom:24px">
@@ -836,12 +876,18 @@ import{f as j,d as ee,n as te,o as ie}from"./api-C0kk-1vj.js";const ae="modulepr
       </div>
     </div>`}async function fe(e){const i=await apiGet("/accounts/client-portal"),s=i.summary||{},r=i.invoices||[],t=i.payments||[];e.innerHTML=`
     <div class="block">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px">
-        <div>
-          <h2>Billing & Invoices <span class="eyebrow">${r.length} invoices issued</span></h2>
-          <p style="font-size:13px;color:var(--text-3);margin:0">View your billing invoices, payment history, and pending balances.</p>
+      <header class="ci360-hero-banner">
+        <div class="ci360-hero-left">
+          <div class="ci360-hero-icon">💳</div>
+          <div class="ci360-hero-title-group">
+            <h1 class="ci360-hero-heading">Billing & Invoices</h1>
+            <p class="ci360-hero-subheading">View your billing invoices, payment history, and pending balances</p>
+          </div>
         </div>
-      </div>
+        <div class="ci360-hero-actions">
+          <span class="badge" style="background:rgba(0,112,243,0.15);color:#0070F3;font-weight:700;font-size:12px;padding:6px 12px;border-radius:12px;">${r.length} invoices</span>
+        </div>
+      </header>
 
       <!-- Financial Metric Cards -->
       <div class="grid grid-3" style="margin-bottom:24px">

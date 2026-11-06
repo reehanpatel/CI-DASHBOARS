@@ -147,9 +147,12 @@ async function renderOverviewTab(container) {
   container.innerHTML = `
     <section class="block">
       <div class="accounts-header-banner">
-        <div class="accounts-header-title">
-          <h2>Accounts & Finance Hub ${isEkta ? `<span class="badge" style="background:rgba(0,112,243,0.18);color:#38BDF8;font-size:12px;margin-left:8px;vertical-align:middle;padding:4px 8px;border-radius:6px">Ekta · Finance Manager</span>` : ''}</h2>
-          <div class="accounts-header-subtitle">Real-time revenue tracking, invoice lifecycle, and client pending balances.</div>
+        <div style="display:flex;align-items:center;gap:16px;">
+          <div class="ci360-hero-icon">💳</div>
+          <div class="accounts-header-title">
+            <h2 style="font-size:22px;font-weight:800;color:var(--text-1);margin:0 0 2px 0;">Accounts & Finance Hub ${isEkta ? `<span class="badge" style="background:rgba(0,112,243,0.18);color:#38BDF8;font-size:12px;margin-left:8px;vertical-align:middle;padding:4px 8px;border-radius:6px">Ekta · Finance Manager</span>` : ''}</h2>
+            <div class="accounts-header-subtitle">Real-time revenue tracking, invoice lifecycle, and client pending balances.</div>
+          </div>
         </div>
         <div class="accounts-header-actions">
           ${isSuperadmin ? `

@@ -74,12 +74,23 @@ async function renderTab(skipSkeleton = false){
 
 function tabSettings(c){
   c.innerHTML = `
-    <div style="padding:8px 0 24px 0;">
-      ${renderAccountSettingsCard({
-        title: 'Client Account Credentials',
-        subtitle: 'Manage your authorized client portal username, login email, and security password'
-      })}
-    </div>
+    <section class="block">
+      <header class="ci360-hero-banner">
+        <div class="ci360-hero-left">
+          <div class="ci360-hero-icon">⚙️</div>
+          <div class="ci360-hero-title-group">
+            <h1 class="ci360-hero-heading">Account Settings & Security</h1>
+            <p class="ci360-hero-subheading">Manage your authorized client portal username, login email, and security password</p>
+          </div>
+        </div>
+      </header>
+      <div style="padding:8px 0 24px 0;">
+        ${renderAccountSettingsCard({
+          title: 'Client Account Credentials',
+          subtitle: 'Manage your authorized client portal username, login email, and security password'
+        })}
+      </div>
+    </section>
   `;
   bindAccountSettingsCard(c);
 }
@@ -514,7 +525,15 @@ async function tabDashboardOverview(c, d){
 function tabLogJob(c){
   c.innerHTML = `
     <div class="block">
-      <h2>Log a New Job <span class="eyebrow">Request or record work for your account</span></h2>
+      <header class="ci360-hero-banner">
+        <div class="ci360-hero-left">
+          <div class="ci360-hero-icon">➕</div>
+          <div class="ci360-hero-title-group">
+            <h1 class="ci360-hero-heading">Log a New Job</h1>
+            <p class="ci360-hero-subheading">Request or record project work for your account</p>
+          </div>
+        </div>
+      </header>
       <div class="card form-card">
         <form id="clientLogJobForm" novalidate>
 
@@ -873,15 +892,20 @@ function tabJobs(c, d){
 
     c.innerHTML = `
       <div class="block">
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:18px">
-          <div>
-            <h2 style="margin-bottom:4px">All Jobs Logged <span class="eyebrow">${allJobs.length} total entries</span></h2>
-            <div style="font-size:12.5px;color:var(--text-3)">Track all projects and requests submitted by your account</div>
+        <header class="ci360-hero-banner">
+          <div class="ci360-hero-left">
+            <div class="ci360-hero-icon">📁</div>
+            <div class="ci360-hero-title-group">
+              <h1 class="ci360-hero-heading">All Jobs Logged</h1>
+              <p class="ci360-hero-subheading">Track all projects and requests submitted by your account</p>
+            </div>
           </div>
-          <button class="btn gold" type="button" id="tabJobsLogNewBtn" style="display:inline-flex;align-items:center;gap:6px">
-            <span>➕</span> Log a New Job
-          </button>
-        </div>
+          <div class="ci360-hero-actions">
+            <button class="btn primary" type="button" id="tabJobsLogNewBtn" style="display:inline-flex;align-items:center;gap:6px;font-weight:700;">
+              <span>➕ Log a New Job</span>
+            </button>
+          </div>
+        </header>
 
         <!-- Metric Badges Row -->
         <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(140px, 1fr));gap:10px;margin-bottom:16px">
@@ -981,10 +1005,18 @@ function tabDelivered(c, d){
 
   c.innerHTML = `
     <div class="block">
-      <div style="margin-bottom:18px">
-        <h2 style="margin-bottom:4px">Work Delivered <span class="eyebrow">${deliveredJobs.length} completed deliverables</span></h2>
-        <div style="font-size:12.5px;color:var(--text-3)">Review deliverable files, approve completed projects, or request revisions</div>
-      </div>
+      <header class="ci360-hero-banner">
+        <div class="ci360-hero-left">
+          <div class="ci360-hero-icon">📦</div>
+          <div class="ci360-hero-title-group">
+            <h1 class="ci360-hero-heading">Work Delivered & Approvals</h1>
+            <p class="ci360-hero-subheading">Review deliverable files, approve completed projects, or request revisions</p>
+          </div>
+        </div>
+        <div class="ci360-hero-actions">
+          <span class="badge" style="background:rgba(0,112,243,0.15);color:#0070F3;font-weight:700;font-size:12px;padding:6px 12px;border-radius:12px;">${deliveredJobs.length} deliverables</span>
+        </div>
+      </header>
 
       ${readyForReviewCount > 0 ? `
         <div style="background:linear-gradient(135deg,rgba(0,112,243,0.12),rgba(56,189,248,0.06));border:1px solid rgba(0,112,243,0.3);border-radius:var(--r-sm);padding:14px 18px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
@@ -1354,7 +1386,15 @@ function tabTeam(c, d){
 
   c.innerHTML = `
     <div class="block">
-      <h2>Our Team <span class="eyebrow">${teamList.length} members</span></h2>
+      <header class="ci360-hero-banner">
+        <div class="ci360-hero-left">
+          <div class="ci360-hero-icon">👥</div>
+          <div class="ci360-hero-title-group">
+            <h1 class="ci360-hero-heading">Our Team & Dedicated Leads</h1>
+            <p class="ci360-hero-subheading">Meet your assigned creative and account management team members</p>
+          </div>
+        </div>
+      </header>
 
       ${roster.length > 0 ? `
         <div style="margin-bottom:24px">
@@ -1402,12 +1442,18 @@ async function tabBilling(c){
 
   c.innerHTML = `
     <div class="block">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px">
-        <div>
-          <h2>Billing & Invoices <span class="eyebrow">${invoices.length} invoices issued</span></h2>
-          <p style="font-size:13px;color:var(--text-3);margin:0">View your billing invoices, payment history, and pending balances.</p>
+      <header class="ci360-hero-banner">
+        <div class="ci360-hero-left">
+          <div class="ci360-hero-icon">💳</div>
+          <div class="ci360-hero-title-group">
+            <h1 class="ci360-hero-heading">Billing & Invoices</h1>
+            <p class="ci360-hero-subheading">View your billing invoices, payment history, and pending balances</p>
+          </div>
         </div>
-      </div>
+        <div class="ci360-hero-actions">
+          <span class="badge" style="background:rgba(0,112,243,0.15);color:#0070F3;font-weight:700;font-size:12px;padding:6px 12px;border-radius:12px;">${invoices.length} invoices</span>
+        </div>
+      </header>
 
       <!-- Financial Metric Cards -->
       <div class="grid grid-3" style="margin-bottom:24px">

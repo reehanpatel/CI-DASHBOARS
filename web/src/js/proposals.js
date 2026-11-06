@@ -1329,13 +1329,16 @@ export class ProposalStudioController {
       <div class="ps-wrapper">
         <!-- Top Sub-Navigation Header -->
         <div class="ps-header">
-          <div class="ps-title-block">
-            <div style="display:flex;align-items:center;gap:10px;">
-              <h2 style="margin:0;font-size:22px;font-weight:800;color:var(--text-1);">Proposal Studio</h2>
-              <span class="ps-badge-gold">CI360 Studio</span>
-              <span class="badge green" title="Admin Approval PIN is secured and active">🔐 PIN Protected</span>
+          <div style="display:flex;align-items:center;gap:16px;">
+            <div class="ci360-hero-icon">📜</div>
+            <div class="ps-title-block">
+              <div style="display:flex;align-items:center;gap:10px;">
+                <h2 style="margin:0;font-size:22px;font-weight:800;color:var(--text-1);">Proposal Studio</h2>
+                <span class="ps-badge-gold">CI360 Studio</span>
+                <span class="badge green" title="Admin Approval PIN is secured and active">🔐 PIN Protected</span>
+              </div>
+              <p class="muted small" style="margin:4px 0 0;">Branded proposal generation, comprehensive rate card pricing, and secure Admin PIN authorization audit trail.</p>
             </div>
-            <p class="muted small" style="margin:4px 0 0;">Branded proposal generation, comprehensive rate card pricing, and secure Admin PIN authorization audit trail.</p>
           </div>
 
           <div class="ps-subnav">

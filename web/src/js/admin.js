@@ -319,10 +319,15 @@ function tabLogJob(c) {
   const totalPercent = draft.assignments.reduce((s, a) => s + (Number(a.percent) || 0), 0);
   c.innerHTML = `
     <section class="block">
-      <div style="margin-bottom:20px;">
-        <h2 style="font-size:20px;font-weight:800;color:var(--text-1);margin-bottom:4px;border:none;padding:0;">Log New Job & Work Deliverable</h2>
-        <p style="font-size:13px;color:var(--text-3);margin:0;">Record client deliverables, services provided, financial value, and team hour attributions.</p>
-      </div>
+      <header class="ci360-hero-banner">
+        <div class="ci360-hero-left">
+          <div class="ci360-hero-icon">➕</div>
+          <div class="ci360-hero-title-group">
+            <h1 class="ci360-hero-heading">Log New Job & Work Deliverable</h1>
+            <p class="ci360-hero-subheading">Record client deliverables, services provided, financial value, and team hour attributions.</p>
+          </div>
+        </div>
+      </header>
 
       <div class="card log-job-card">
         <div style="margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--border-sm);">
@@ -667,9 +672,22 @@ async function tabJobs(c) {
   if (ui.jobsFilter === 'done') jobs = jobs.filter(j => j.completionDate);
   c.innerHTML = `
     <section class="block">
-      <h2>All Jobs <span class="eyebrow">${jobs.length} shown</span></h2>
-      <div style="margin-bottom:12px;display:flex;gap:6px;">
-        <button class="pchip ${ui.jobsFilter === 'all' ? 'active' : ''}" data-jf="all">All</button>
+      <header class="ci360-hero-banner">
+        <div class="ci360-hero-left">
+          <div class="ci360-hero-icon">📁</div>
+          <div class="ci360-hero-title-group">
+            <h1 class="ci360-hero-heading">All Jobs & Projects</h1>
+            <p class="ci360-hero-subheading">Comprehensive pipeline of all client deliverables, status, and assigned personnel</p>
+          </div>
+        </div>
+        <div class="ci360-hero-actions">
+          <button class="btn primary" onclick="ui.tab='logjob';render()" type="button" style="font-weight:700;display:inline-flex;align-items:center;gap:6px;">
+            <span>➕ Log New Job</span>
+          </button>
+        </div>
+      </header>
+      <div style="margin-bottom:14px;display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+        <button class="pchip ${ui.jobsFilter === 'all' ? 'active' : ''}" data-jf="all">All (${jobs.length})</button>
         <button class="pchip ${ui.jobsFilter === 'progress' ? 'active' : ''}" data-jf="progress">In Progress</button>
         <button class="pchip ${ui.jobsFilter === 'done' ? 'active' : ''}" data-jf="done">Completed</button>
       </div>
@@ -1261,8 +1279,20 @@ function openEditJobModal(job, onSaveSuccess) {
 /* ---------------- BY CLIENT / BY PERSON ---------------- */
 async function tabByClient(c) {
   dash = await apiGet('/dashboard/admin?period=' + ui.period);
-  c.innerHTML = `${periodPicker()}
-    <section class="block"><h2>By Client</h2>
+  c.innerHTML = `
+    <section class="block">
+      <header class="ci360-hero-banner">
+        <div class="ci360-hero-left">
+          <div class="ci360-hero-icon">💼</div>
+          <div class="ci360-hero-title-group">
+            <h1 class="ci360-hero-heading">Client Breakdown & Analytics</h1>
+            <p class="ci360-hero-subheading">Track portfolio value, deliverable volume, and effort invested by client</p>
+          </div>
+        </div>
+        <div class="ci360-hero-actions">
+          ${periodPicker()}
+        </div>
+      </header>
       <div class="grid grid-3">
         ${dash.clients.map(cl => `
           <div class="card">
@@ -1280,8 +1310,20 @@ async function tabByClient(c) {
 async function tabByPerson(c) {
   dash = await apiGet('/dashboard/admin?period=' + ui.period);
   const isSuperadmin = user?.role === 'superadmin';
-  c.innerHTML = `${periodPicker()}
-    <section class="block"><h2>By Person</h2>
+  c.innerHTML = `
+    <section class="block">
+      <header class="ci360-hero-banner">
+        <div class="ci360-hero-left">
+          <div class="ci360-hero-icon">👥</div>
+          <div class="ci360-hero-title-group">
+            <h1 class="ci360-hero-heading">Team Performance & Personnel</h1>
+            <p class="ci360-hero-subheading">Track team workload, billable utilization, and work credit attribution</p>
+          </div>
+        </div>
+        <div class="ci360-hero-actions">
+          ${periodPicker()}
+        </div>
+      </header>
       <div class="card table-card" style="padding:0;overflow:hidden">
         <div class="table-wrapper">
           <table><thead><tr>
@@ -1369,9 +1411,18 @@ async function tabAccounts(c) {
   const roster = await apiGet('/roster');
   c.innerHTML = `
     <section class="block">
-      <h2>Accounts <span class="eyebrow">${roster.length} accounts</span></h2>
-      <div class="banner">Who owns which function on each account — separate from the job/hours log.</div>
-      <div style="margin-bottom:14px;display:flex;gap:8px;"><button class="btn gold small" id="addAccountBtn">+ Add Account</button></div>
+      <header class="ci360-hero-banner">
+        <div class="ci360-hero-left">
+          <div class="ci360-hero-icon">🏢</div>
+          <div class="ci360-hero-title-group">
+            <h1 class="ci360-hero-heading">Client Roster & Account Ownership</h1>
+            <p class="ci360-hero-subheading">Who owns which function on each client account — separate from the job log</p>
+          </div>
+        </div>
+        <div class="ci360-hero-actions">
+          <button class="btn primary" id="addAccountBtn" type="button" style="font-weight:700;">+ Add Account</button>
+        </div>
+      </header>
       <div class="card table-card" style="padding:0;overflow:hidden">
         <div class="table-wrapper">
           <table><thead><tr><th style="padding-left:22px">Client</th><th>Nature</th>${ROLE_COLUMNS.map(c => `<th>${c[1]}</th>`).join('')}<th class="num">Difficulty</th><th class="num" style="padding-right:22px"></th></tr></thead>
@@ -1442,13 +1493,20 @@ async function tabTargets(c) {
 
   c.innerHTML = `
     <section class="block">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
-        <div>
-          <h2 style="font-size:20px;font-weight:800;color:var(--text-1);margin-bottom:4px;border:none;padding:0;">Output & Productivity Targets</h2>
-          <p style="font-size:13px;color:var(--text-3);margin:0;">Assign and track quotas for team members across reels, stories, posts, deliverables, hours, or any custom unit.</p>
+      <header class="ci360-hero-banner">
+        <div class="ci360-hero-left">
+          <div class="ci360-hero-icon">🎯</div>
+          <div class="ci360-hero-title-group">
+            <h1 class="ci360-hero-heading">Output & Productivity Targets</h1>
+            <p class="ci360-hero-subheading">Assign and track quotas for team members across reels, stories, posts, deliverables, hours, or any custom unit.</p>
+          </div>
         </div>
-        <button class="btn gold small" id="addAdminTargetBtn" type="button">+ Add Target</button>
-      </div>
+        <div class="ci360-hero-actions">
+          <button class="btn primary" id="addAdminTargetBtn" type="button" style="font-weight:700;display:inline-flex;align-items:center;gap:6px;">
+            <span>+ Add Target</span>
+          </button>
+        </div>
+      </header>
 
       <div class="card table-card" style="padding:0;overflow:hidden">
         <div class="table-wrapper">
@@ -1648,8 +1706,18 @@ async function tabSalaries(c) {
   const assignMap = {}; assignments.forEach(a => assignMap[a.personId] = a.gradeId);
   c.innerHTML = `
     <section class="block">
-      <h2>Salary Grades <span class="eyebrow">Admin only</span></h2>
-      <div class="banner">No individual's exact salary is ever entered — each person is placed in a grade band, and only the grade label appears anywhere else in the tool.</div>
+      <header class="ci360-hero-banner">
+        <div class="ci360-hero-left">
+          <div class="ci360-hero-icon">💰</div>
+          <div class="ci360-hero-title-group">
+            <h1 class="ci360-hero-heading">Salary Grades & Compensation Bands</h1>
+            <p class="ci360-hero-subheading">Configure role bands and assign personnel tiers without exposing individual salaries</p>
+          </div>
+        </div>
+        <div class="ci360-hero-actions">
+          <button class="btn primary" id="addGradeBtn" type="button" style="font-weight:700;">+ Add Grade</button>
+        </div>
+      </header>
       <div class="manage-list">${grades.map(g => `<div class="manage-item"><div><strong>${escapeHtml(g.label)}</strong><div class="muted">${fmtINR(g.min)} – ${fmtINR(g.max)} / month</div></div>
         <div><button class="btn ghost small edit-grade" data-id="${g._id}">Edit</button><button class="btn danger small del-grade" data-id="${g._id}">Remove</button></div></div>`).join('') || '<div style="padding:14px;">No grades yet.</div>'}</div>
       <div style="margin:10px 0 24px;"><button class="btn ghost small" id="addGradeBtn">+ Add Grade</button></div>
@@ -1694,6 +1762,16 @@ function tabManage(c) {
 
   c.innerHTML = `
     <section class="block">
+      <header class="ci360-hero-banner">
+        <div class="ci360-hero-left">
+          <div class="ci360-hero-icon">⚙️</div>
+          <div class="ci360-hero-title-group">
+            <h1 class="ci360-hero-heading">Settings & Administration</h1>
+            <p class="ci360-hero-subheading">Manage team members, roles, permissions, and sidebar navigation layout</p>
+          </div>
+        </div>
+      </header>
+
       <!-- Admin Account Settings Card -->
       <div style="margin-bottom:24px;width:100%;max-width:100%;box-sizing:border-box;">
         ${renderAccountSettingsCard({
@@ -2722,13 +2800,18 @@ async function tabUsers(c) {
 
   c.innerHTML = `
     <section class="block">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:12px">
-        <div>
-          <h2 style="font-size:20px;font-weight:800;color:var(--text-1);margin-bottom:4px;border:none;padding:0">User Accounts</h2>
-          <p style="font-size:13px;color:var(--text-3);margin:0">Manage system login credentials for administrators, accounts, employees, and clients.</p>
+      <header class="ci360-hero-banner">
+        <div class="ci360-hero-left">
+          <div class="ci360-hero-icon">👤</div>
+          <div class="ci360-hero-title-group">
+            <h1 class="ci360-hero-heading">User Accounts & Credentials</h1>
+            <p class="ci360-hero-subheading">Manage login access, roles, and security credentials for all team and client users</p>
+          </div>
         </div>
-        <button class="btn gold small" id="addUserBtn" type="button">+ Add User</button>
-      </div>
+        <div class="ci360-hero-actions">
+          <button class="btn primary" id="addUserBtn" type="button" style="font-weight:700;">+ Add User</button>
+        </div>
+      </header>
 
       <!-- Controls: Filter Chips, Search, Sort Dropdown -->
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:12px">
