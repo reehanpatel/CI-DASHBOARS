@@ -37,6 +37,8 @@ export async function initTeamBonding(container, options = {}) {
   let isSending = false;
   let activeMatchModalId = null;
   let matchPollInterval = null;
+  let currentLoungeSubTab = 'multiplayer'; // 'multiplayer' or 'arcade'
+  let currentArcadeGameFilter = 'all'; // 'all', 'snake', '2048', 'memory'
 
   // Render Shell Container with dual Navigation (Chat & Lounge Games)
   container.innerHTML = `
@@ -562,8 +564,8 @@ export async function initTeamBonding(container, options = {}) {
       if (msg.type === 'challenge' && msg.challengeData) {
         const cd = msg.challengeData;
         const gTitle = cd.gameTitle || 'Game Challenge';
-        const gType = cd.gameType || 'chess';
-        const gIcon = gType === 'chess' ? '♟️' : (gType === 'ludo' ? '🎲' : '❌');
+        const gType = cd.gameType || 'dotsboxes';
+        const gIcon = gType === 'dotsboxes' ? '⏹️' : (gType === 'ludo' ? '🎲' : (gType === 'chess' ? '♟️' : '❌'));
         const inviteId = cd.gameState?.invitationId;
         const targetId = cd.targetUserId?.toString();
         const senderId = msg.sender?.userId?.toString();
@@ -796,12 +798,18 @@ export async function initTeamBonding(container, options = {}) {
     }
 
     if (emojiBtn) {
-      emojiBtn.onclick = () => {
+      emojiBtn.onclick = (e) => {
+        e.stopPropagation();
         if (!input) return;
-        const emojis = ['👍', '🎉', '🔥', '💪', '🚀', '❤️', '😂', '👏', '✨'];
-        const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
-        input.value += (input.value ? ' ' : '') + randomEmoji;
-        input.focus();
+        openChatEmojiPicker(emojiBtn, (chosenEmoji) => {
+          const start = input.selectionStart ?? input.value.length;
+          const end = input.selectionEnd ?? input.value.length;
+          const text = input.value;
+          input.value = text.substring(0, start) + chosenEmoji + text.substring(end);
+          input.focus();
+          const newPos = start + chosenEmoji.length;
+          try { input.setSelectionRange(newPos, newPos); } catch (err) {}
+        });
       };
     }
   }
@@ -969,6 +977,14 @@ export async function initTeamBonding(container, options = {}) {
     try {
       const overview = await apiGet('/bonding/games/overview');
       gameOverview = overview;
+      let arcadeData = { leaderboard: [], myBests: [] };
+      if (currentLoungeSubTab === 'arcade') {
+        try {
+          arcadeData = await apiGet('/bonding/arcade/leaderboard?gameId=' + currentArcadeGameFilter);
+        } catch (e) {
+          console.error('Failed to load arcade data:', e);
+        }
+      }
 
       const myStats = overview.myStats || {};
       const availableGames = overview.availableGames || [];
@@ -981,6 +997,17 @@ export async function initTeamBonding(container, options = {}) {
 
       loungeWrap.innerHTML = `
         <div class="lounge-container">
+          <!-- Segmented Navigation: Multiplayer vs Single-Player Arcade -->
+          <div class="lounge-tab-nav-bar" style="display:flex;gap:10px;margin-bottom:20px;border-bottom:1px solid var(--border-sm);padding-bottom:14px;flex-wrap:wrap;">
+            <button class="lounge-subtab-btn ${currentLoungeSubTab === 'multiplayer' ? 'active' : ''}" data-subtab="multiplayer" style="padding:9px 20px;border-radius:var(--r-md);font-weight:700;font-size:13px;display:inline-flex;align-items:center;gap:8px;border:none;cursor:pointer;background:${currentLoungeSubTab === 'multiplayer' ? 'var(--brand-600)' : 'var(--bg-surface)'};color:${currentLoungeSubTab === 'multiplayer' ? '#fff' : 'var(--text-2)'};box-shadow:${currentLoungeSubTab === 'multiplayer' ? '0 2px 8px rgba(99,102,241,0.3)' : 'none'};">
+              <span>⚔️</span> <span>Multiplayer Duels (Dots & Boxes, Ludo, Tic-Tac-Toe)</span>
+            </button>
+            <button class="lounge-subtab-btn ${currentLoungeSubTab === 'arcade' ? 'active' : ''}" data-subtab="arcade" style="padding:9px 20px;border-radius:var(--r-md);font-weight:700;font-size:13px;display:inline-flex;align-items:center;gap:8px;border:none;cursor:pointer;background:${currentLoungeSubTab === 'arcade' ? 'var(--brand-600)' : 'var(--bg-surface)'};color:${currentLoungeSubTab === 'arcade' ? '#fff' : 'var(--text-2)'};box-shadow:${currentLoungeSubTab === 'arcade' ? '0 2px 8px rgba(99,102,241,0.3)' : 'none'};">
+              <span>🕹️</span> <span>Single-Player Arcade & Leaderboard 🏆</span>
+            </button>
+          </div>
+
+          ${currentLoungeSubTab === 'arcade' ? renderArcadeAndLeaderboardHtml(arcadeData, myId) : `
           <!-- Top Stats Ribbon -->
           <div class="lounge-stats-ribbon">
             <div class="lounge-stat-card">
@@ -1021,14 +1048,14 @@ export async function initTeamBonding(container, options = {}) {
                     <p class="game-card-desc">${escapeHtml(g.desc)}</p>
                     <div class="game-card-meta">
                       <span class="meta-pill">⏱️ ${g.duration}</span>
-                      ${g.id === 'ludo'
-          ? '<span class="meta-pill">👥 2P, 3P, 4P Royale</span><span class="meta-pill">🎯 4 Pawns / Base</span>'
+                      ${(g.id === 'ludo' || g.id === 'dotsboxes')
+          ? `<span class="meta-pill">👥 Up to 4 Players</span><span class="meta-pill">${g.id === 'dotsboxes' ? '⏹️ 16 Boxes Grid' : '🎯 4 Pawns / Base'}</span>`
           : '<span class="meta-pill">👥 2 Players</span>'
         }
                     </div>
                   </div>
                   <button class="lounge-card-challenge-btn btn-challenge-game" data-game-id="${g.id}" data-game-title="${escapeHtml(g.name)}">
-                    ${g.id === 'ludo' ? '⚔️ Play Ludo (2P, 3P, 4P)' : '⚔️ Challenge Employee'}
+                    ${g.id === 'dotsboxes' ? '⚔️ Play Dots & Boxes (2P–4P)' : (g.id === 'ludo' ? '⚔️ Play Ludo (2P–4P)' : '⚔️ Challenge Employee')}
                   </button>
                 </div>
               `).join('')}
@@ -1124,7 +1151,7 @@ export async function initTeamBonding(container, options = {}) {
             return `
                         <div class="lounge-active-match-card ${myTurn ? 'turn-active' : ''}">
                           <div class="active-match-left">
-                            <span class="match-game-icon">${m.gameType === 'chess' ? '♟️' : (m.gameType === 'ludo' ? '🎲' : '❌')}</span>
+                            <span class="match-game-icon">${m.gameType === 'dotsboxes' ? '⏹️' : (m.gameType === 'ludo' ? '🎲' : (m.gameType === 'chess' ? '♟️' : '❌'))}</span>
                             <div>
                               <div class="match-game-title">${escapeHtml(m.gameTitle)}</div>
                               <div class="match-opp-text">Opponent(s): <strong>${oppNames}</strong></div>
@@ -1216,6 +1243,8 @@ export async function initTeamBonding(container, options = {}) {
               `
         }
           </div>
+        `
+      }
         </div>
       `;
 
@@ -1233,6 +1262,30 @@ export async function initTeamBonding(container, options = {}) {
 
   function bindLoungeEvents() {
     // Challenge from game card
+        // Subtab switch (multiplayer vs arcade)
+    container.querySelectorAll('.lounge-subtab-btn').forEach(b => {
+      b.onclick = async () => {
+        currentLoungeSubTab = b.dataset.subtab;
+        await renderLoungeGamesView();
+      };
+    });
+
+    // Arcade filter switch
+    container.querySelectorAll('.arcade-filter-pill').forEach(b => {
+      b.onclick = async () => {
+        currentArcadeGameFilter = b.dataset.filter;
+        await renderLoungeGamesView();
+      };
+    });
+
+    // Launch Arcade Game modal
+    container.querySelectorAll('.btn-play-arcade').forEach(b => {
+      b.onclick = () => {
+        const gameId = b.dataset.game;
+        openArcadeGameModal(gameId);
+      };
+    });
+
     container.querySelectorAll('.btn-challenge-game').forEach(b => {
       b.onclick = () => {
         const gId = b.dataset.gameId;
@@ -1329,23 +1382,23 @@ export async function initTeamBonding(container, options = {}) {
       allowedRoles.has(c.role)
     );
 
-    let selectedGame = preselectedGame || 'chess';
+    let selectedGame = preselectedGame || 'dotsboxes';
     let selectedTargetUserId = preselectedUser ? preselectedUser.toString() : null;
-    let selectedLudoPlayerCount = 2; // Default to 2P Duel
-    let selectedLudoTargetUserIds = selectedTargetUserId ? [selectedTargetUserId] : [];
+    let selectedPlayerCount = 2; // Default to 2P Duel
+    let selectedMultiTargetUserIds = selectedTargetUserId ? [selectedTargetUserId] : [];
     let selectedTimerMode = 'none';
 
     function renderModalContent() {
       const targetUserObj = eligibleEmployees.find(e => e._id.toString() === selectedTargetUserId);
-      const isLudo = selectedGame === 'ludo';
-      const neededLudoOpponents = selectedLudoPlayerCount - 1;
-      const hasEnoughLudoOpponents = selectedLudoTargetUserIds.length === neededLudoOpponents;
+      const isMulti = selectedGame === 'dotsboxes' || selectedGame === 'ludo';
+      const neededOpponents = selectedPlayerCount - 1;
+      const hasEnoughOpponents = selectedMultiTargetUserIds.length === neededOpponents;
 
       modalRoot.innerHTML = `
         <div class="bonding-modal-backdrop">
           <div class="bonding-modal-card challenge-flow-modal">
             <div class="bonding-modal-header">
-              <h3>⚔️ ${isLudo ? 'Play Ludo (2P, 3P, 4P)' : 'Multiplayer Game Challenge'}</h3>
+              <h3>⚔️ ${selectedGame === 'dotsboxes' ? 'Play Dots & Boxes (2P, 3P, 4P)' : (selectedGame === 'ludo' ? 'Play Ludo (2P, 3P, 4P)' : 'Multiplayer Game Challenge')}</h3>
               <button class="bonding-modal-close">&times;</button>
             </div>
 
@@ -1354,30 +1407,30 @@ export async function initTeamBonding(container, options = {}) {
               <div class="flow-step-box">
                 <div class="flow-step-lbl">Step 1 — Choose Game</div>
                 <div class="game-select-pills">
-                  <button class="game-pill-btn ${selectedGame === 'chess' ? 'active' : ''}" data-game="chess">
-                    <span>♟️</span> <span>Chess Duel</span>
-                  </button>
-                  <button class="game-pill-btn ${selectedGame === 'tictactoe' ? 'active' : ''}" data-game="tictactoe">
-                    <span>❌</span> <span>Tic-Tac-Toe</span>
+                  <button class="game-pill-btn ${selectedGame === 'dotsboxes' ? 'active' : ''}" data-game="dotsboxes">
+                    <span>⏹️</span> <span>Dots & Boxes</span>
                   </button>
                   <button class="game-pill-btn ${selectedGame === 'ludo' ? 'active' : ''}" data-game="ludo">
                     <span>🎲</span> <span>Ludo Royale</span>
                   </button>
+                  <button class="game-pill-btn ${selectedGame === 'tictactoe' ? 'active' : ''}" data-game="tictactoe">
+                    <span>❌</span> <span>Tic-Tac-Toe</span>
+                  </button>
                 </div>
               </div>
 
-              <!-- LUDO SPECIAL: Step 2 Player Count Selector (2P, 3P, 4P) -->
-              ${isLudo ? `
+              <!-- MULTIPLAYER: Step 2 Player Count Selector (2P, 3P, 4P) -->
+              ${isMulti ? `
                 <div class="flow-step-box">
                   <div class="flow-step-lbl">Step 2 — Select Player Mode</div>
                   <div class="ludo-mode-pills">
-                    <button class="ludo-mode-btn ${selectedLudoPlayerCount === 2 ? 'active' : ''}" data-count="2">
+                    <button class="ludo-mode-btn ${selectedPlayerCount === 2 ? 'active' : ''}" data-count="2">
                       👥 2P Duel (1v1)
                     </button>
-                    <button class="ludo-mode-btn ${selectedLudoPlayerCount === 3 ? 'active' : ''}" data-count="3">
+                    <button class="ludo-mode-btn ${selectedPlayerCount === 3 ? 'active' : ''}" data-count="3">
                       ⚔️ 3P Battle (3 Players)
                     </button>
-                    <button class="ludo-mode-btn ${selectedLudoPlayerCount === 4 ? 'active' : ''}" data-count="4">
+                    <button class="ludo-mode-btn ${selectedPlayerCount === 4 ? 'active' : ''}" data-count="4">
                       👑 4P Royale (4 Players)
                     </button>
                   </div>
@@ -1387,8 +1440,8 @@ export async function initTeamBonding(container, options = {}) {
               <!-- Step: Opponent Selection -->
               <div class="flow-step-box">
                 <div class="flow-step-lbl">
-                  ${isLudo
-          ? `Step 3 — Select Colleagues to Play With (${selectedLudoTargetUserIds.length}/${neededLudoOpponents} Selected) *`
+                  ${isMulti
+          ? `Step ${isMulti ? 3 : 2} — Select Colleagues to Play With (${selectedMultiTargetUserIds.length}/${neededOpponents} Selected) *`
           : 'Step 2 — Select Employee to Challenge *'
         }
                 </div>
@@ -1398,8 +1451,8 @@ export async function initTeamBonding(container, options = {}) {
 
                 <div class="eligible-emp-list" id="eligible-emp-list-wrap">
                   ${eligibleEmployees.map(u => {
-          const isSelected = isLudo
-            ? selectedLudoTargetUserIds.includes(u._id.toString())
+          const isSelected = isMulti
+            ? selectedMultiTargetUserIds.includes(u._id.toString())
             : selectedTargetUserId === u._id.toString();
 
           return `
@@ -1418,52 +1471,30 @@ export async function initTeamBonding(container, options = {}) {
                 </div>
               </div>
 
-              <!-- Step for Chess timers -->
-              ${selectedGame === 'chess' ? `
-                <div class="flow-step-box">
-                  <div class="flow-step-lbl">Step 3 — Time Control Options</div>
-                  <div class="timer-opts-row">
-                    <label class="timer-radio-lbl ${selectedTimerMode === 'none' ? 'active' : ''}">
-                      <input type="radio" name="timerMode" value="none" ${selectedTimerMode === 'none' ? 'checked' : ''} />
-                      <span>Untimed Match (Casual Turn-Based)</span>
-                    </label>
-                    <label class="timer-radio-lbl ${selectedTimerMode === '3m' ? 'active' : ''}">
-                      <input type="radio" name="timerMode" value="3m" ${selectedTimerMode === '3m' ? 'checked' : ''} />
-                      <span>⚡ 3-Minute Blitz</span>
-                    </label>
-                    <label class="timer-radio-lbl ${selectedTimerMode === '5m' ? 'active' : ''}">
-                      <input type="radio" name="timerMode" value="5m" ${selectedTimerMode === '5m' ? 'checked' : ''} />
-                      <span>⏱️ 5-Minute Rapid</span>
-                    </label>
-                  </div>
-                </div>
-              ` : ''}
-
               <!-- Confirmation Card -->
               <div class="flow-confirmation-card">
                 <div class="confirm-head">Match Summary:</div>
                 <div class="confirm-body">
-                  <div><strong>Game:</strong> ${isLudo ? `🎲 Ludo (${selectedLudoPlayerCount} Players · 4 Pawns per base)` : (selectedGame === 'chess' ? '♟️ Chess Duel' : '❌ Tic-Tac-Toe Challenge')}</div>
-                  ${isLudo ? `
-                    <div><strong>Opponents:</strong> ${selectedLudoTargetUserIds.length > 0
-            ? selectedLudoTargetUserIds.map(id => {
+                  <div><strong>Game:</strong> ${selectedGame === 'dotsboxes' ? `⏹️ Dots & Boxes (${selectedPlayerCount} Players)` : (selectedGame === 'ludo' ? `🎲 Ludo (${selectedPlayerCount} Players · 4 Pawns)` : '❌ Tic-Tac-Toe Challenge')}</div>
+                  ${isMulti ? `
+                    <div><strong>Opponents:</strong> ${selectedMultiTargetUserIds.length > 0
+            ? selectedMultiTargetUserIds.map(id => {
               const found = eligibleEmployees.find(e => e._id.toString() === id);
               return found ? `<strong>${escapeHtml(found.name)}</strong>` : 'Colleague';
             }).join(', ')
-            : '<span style="color:#ef4444">⚠️ Please select ' + neededLudoOpponents + ' colleague(s)</span>'
+            : '<span style="color:#ef4444">⚠️ Please select ' + neededOpponents + ' colleague(s)</span>'
           }</div>
                   ` : `
                     <div><strong>Opponent:</strong> ${targetUserObj ? `<strong>${escapeHtml(targetUserObj.name)}</strong> (${escapeHtml(targetUserObj.role)})` : '<span style="color:#ef4444">⚠️ No employee selected yet</span>'}</div>
                   `}
-                  ${selectedGame === 'chess' ? `<div><strong>Time Control:</strong> ${selectedTimerMode === 'none' ? 'Untimed' : selectedTimerMode}</div>` : ''}
                 </div>
               </div>
             </div>
 
             <div class="bonding-modal-footer">
               <button class="bonding-btn-secondary" id="btn-cancel-challenge-flow">Cancel</button>
-              <button class="bonding-btn-primary" id="btn-submit-challenge-flow" ${(isLudo ? !hasEnoughLudoOpponents : !selectedTargetUserId) ? 'disabled' : ''}>
-                ${isLudo ? `Start ${selectedLudoPlayerCount}P Ludo Match 🎲` : 'Send Challenge 🚀'}
+              <button class="bonding-btn-primary" id="btn-submit-challenge-flow" ${(isMulti ? !hasEnoughOpponents : !selectedTargetUserId) ? 'disabled' : ''}>
+                ${selectedGame === 'dotsboxes' ? `Start ${selectedPlayerCount}P Dots & Boxes ⏹️` : (selectedGame === 'ludo' ? `Start ${selectedPlayerCount}P Ludo Match 🎲` : 'Send Challenge 🚀')}
               </button>
             </div>
           </div>
@@ -1485,11 +1516,11 @@ export async function initTeamBonding(container, options = {}) {
         };
       });
 
-      // Ludo mode switch (2P, 3P, 4P)
+      // Multiplayer mode switch (2P, 3P, 4P)
       modalRoot.querySelectorAll('.ludo-mode-btn').forEach(btn => {
         btn.onclick = () => {
-          selectedLudoPlayerCount = Number(btn.dataset.count);
-          selectedLudoTargetUserIds = selectedLudoTargetUserIds.slice(0, selectedLudoPlayerCount - 1);
+          selectedPlayerCount = Number(btn.dataset.count);
+          selectedMultiTargetUserIds = selectedMultiTargetUserIds.slice(0, selectedPlayerCount - 1);
           renderModalContent();
         };
       });
@@ -1510,15 +1541,16 @@ export async function initTeamBonding(container, options = {}) {
       modalRoot.querySelectorAll('.eligible-emp-item').forEach(item => {
         item.onclick = () => {
           const uId = item.dataset.userId;
-          if (selectedGame === 'ludo') {
-            const maxOpponents = selectedLudoPlayerCount - 1;
-            if (selectedLudoTargetUserIds.includes(uId)) {
-              selectedLudoTargetUserIds = selectedLudoTargetUserIds.filter(id => id !== uId);
+          const isMulti = selectedGame === 'dotsboxes' || selectedGame === 'ludo';
+          if (isMulti) {
+            const maxOpponents = selectedPlayerCount - 1;
+            if (selectedMultiTargetUserIds.includes(uId)) {
+              selectedMultiTargetUserIds = selectedMultiTargetUserIds.filter(id => id !== uId);
             } else {
-              if (selectedLudoTargetUserIds.length < maxOpponents) {
-                selectedLudoTargetUserIds.push(uId);
+              if (selectedMultiTargetUserIds.length < maxOpponents) {
+                selectedMultiTargetUserIds.push(uId);
               } else {
-                selectedLudoTargetUserIds[maxOpponents - 1] = uId;
+                selectedMultiTargetUserIds[maxOpponents - 1] = uId;
               }
             }
           } else {
@@ -1528,21 +1560,41 @@ export async function initTeamBonding(container, options = {}) {
         };
       });
 
-      // Timer switch
-      modalRoot.querySelectorAll('input[name="timerMode"]').forEach(r => {
-        r.onchange = (e) => {
-          selectedTimerMode = e.target.value;
-          renderModalContent();
-        };
-      });
-
       // Submit challenge / launch match
       const submitBtn = modalRoot.querySelector('#btn-submit-challenge-flow');
       if (submitBtn) {
         submitBtn.onclick = async () => {
+          if (selectedGame === 'dotsboxes') {
+            const needed = selectedPlayerCount - 1;
+            if (selectedMultiTargetUserIds.length < needed) {
+              flashToast(`Please select ${needed} colleague(s) to play with`, 'warning');
+              return;
+            }
+
+            try {
+              submitBtn.disabled = true;
+              submitBtn.textContent = 'Launching Dots & Boxes...';
+              const res = await apiPost('/bonding/matches/instant-dotsboxes', {
+                playerCount: selectedPlayerCount,
+                targetUserIds: selectedMultiTargetUserIds
+              });
+
+              modalRoot.innerHTML = '';
+              flashToast(`Dots & Boxes match started (${selectedPlayerCount} Players)! ⏹️`, 'success');
+              if (res && res._id) {
+                openGameMatchModal(res._id);
+              }
+            } catch (err) {
+              flashToast(err.message || 'Failed to start Dots & Boxes match', 'error');
+              submitBtn.disabled = false;
+              submitBtn.textContent = `Start ${selectedPlayerCount}P Dots & Boxes ⏹️`;
+            }
+            return;
+          }
+
           if (selectedGame === 'ludo') {
-            const needed = selectedLudoPlayerCount - 1;
-            if (selectedLudoTargetUserIds.length < needed) {
+            const needed = selectedPlayerCount - 1;
+            if (selectedMultiTargetUserIds.length < needed) {
               flashToast(`Please select ${needed} colleague(s) to play with`, 'warning');
               return;
             }
@@ -1551,19 +1603,19 @@ export async function initTeamBonding(container, options = {}) {
               submitBtn.disabled = true;
               submitBtn.textContent = 'Launching Match...';
               const res = await apiPost('/bonding/matches/instant-ludo', {
-                playerCount: selectedLudoPlayerCount,
-                targetUserIds: selectedLudoTargetUserIds
+                playerCount: selectedPlayerCount,
+                targetUserIds: selectedMultiTargetUserIds
               });
 
               modalRoot.innerHTML = '';
-              flashToast(`Ludo match started (${selectedLudoPlayerCount} Players)! 🎲`, 'success');
+              flashToast(`Ludo match started (${selectedPlayerCount} Players)! 🎲`, 'success');
               if (res && res._id) {
                 openGameMatchModal(res._id);
               }
             } catch (err) {
               flashToast(err.message || 'Failed to start Ludo match', 'error');
               submitBtn.disabled = false;
-              submitBtn.textContent = `Start ${selectedLudoPlayerCount}P Ludo Match 🎲`;
+              submitBtn.textContent = `Start ${selectedPlayerCount}P Ludo Match 🎲`;
             }
             return;
           }
@@ -1581,7 +1633,7 @@ export async function initTeamBonding(container, options = {}) {
               gameType: selectedGame,
               targetUserId: selectedTargetUserId,
               matchSettings: { timerMode: selectedTimerMode },
-              channelId: null // Always deliver strictly to personal 1-on-1 direct chat
+              channelId: null
             });
 
             flashToast('Game challenge delivered to personal chat! Awaiting acceptance ⚔️', 'success');
@@ -1679,6 +1731,10 @@ export async function initTeamBonding(container, options = {}) {
         board: m.gameState?.board,
         grid: m.gameState?.grid,
         fen: m.gameState?.fen,
+        hLines: m.gameState?.hLines,
+        vLines: m.gameState?.vLines,
+        boxes: m.gameState?.boxes,
+        scores: m.gameState?.scores,
         draw: m.drawOfferedBy?.toString(),
         rematchOfferedBy: m.rematchOfferedBy?.toString(),
         rematchDeclined: !!m.rematchDeclined
@@ -1756,14 +1812,14 @@ export async function initTeamBonding(container, options = {}) {
             <!-- Arena Header Bar -->
             <div class="arena-header">
               <div class="arena-title-wrap">
-                <span class="arena-icon">${match.gameType === 'ludo' ? '🎲' : (match.gameType === 'chess' ? '♟️' : '❌')}</span>
+                <span class="arena-icon">${match.gameType === 'ludo' ? '🎲' : (match.gameType === 'dotsboxes' ? '⏹️' : (match.gameType === 'chess' ? '♟️' : '❌'))}</span>
                 <div>
                   <h3 class="arena-title">${escapeHtml(match.gameTitle)}</h3>
-                  ${match.gameType === 'ludo' && match.gameState?.players ? `
+                  ${(match.gameType === 'ludo' || match.gameType === 'dotsboxes') && match.gameState?.players ? `
                     <div class="arena-players-vs ludo-players-wrap">
                       ${match.gameState.players.map(p => {
         const isMe = p.userId && p.userId.toString() === myId?.toString();
-        const colorEmoji = { red: '🔴', green: '🟢', yellow: '🟡', blue: '🔵' }[p.color] || '⚪';
+        const colorEmoji = { red: '🔴', green: '🟢', yellow: '🟡', blue: '🔵', amber: '🟠' }[p.color] || '⚪';
         const isTurn = (match.gameState?.turnColor || match.turn) === p.color;
         return `
                           <span class="player-tag ${isMe ? 'self' : 'opp'} ${isTurn ? 'turn-active' : ''}">
@@ -1828,6 +1884,7 @@ export async function initTeamBonding(container, options = {}) {
 
             <!-- Arena Main Playing Board -->
             <div class="arena-board-wrap">
+              ${match.gameType === 'dotsboxes' ? renderDotsBoxesBoardHtml(isP1, me, isMyTurn) : ''}
               ${match.gameType === 'chess' ? renderChessBoardHtml(isP1) : ''}
               ${match.gameType === 'tictactoe' ? renderTicTacToeBoardHtml() : ''}
               ${match.gameType === 'ludo' ? renderLudoBoardHtml(isP1, me, isMyTurn) : ''}
@@ -1869,6 +1926,168 @@ export async function initTeamBonding(container, options = {}) {
       `;
 
       bindArenaEvents(isMyTurn, isP1, me);
+    }
+
+    /* ── DOTS & BOXES BOARD HTML BUILDER (UP TO 4 PLAYERS) ── */
+    function renderDotsBoxesBoardHtml(isP1, me, isMyTurn) {
+      const state = match.gameState || {};
+      const rows = state.rows || 4;
+      const cols = state.cols || 4;
+      const players = state.players || [
+        { ...match.player1, color: 'red', assignedRole: 'red' },
+        { ...match.player2, color: 'blue', assignedRole: 'blue' }
+      ];
+      const activeColors = state.activeColors || ['red', 'blue'];
+      const turnColor = match.turn || state.turnColor || 'red';
+
+      const myId = currentUser?._id || currentUser?.id;
+      const myPlayer = players.find(p => p.userId && p.userId.toString() === myId?.toString()) || players[0];
+      const myColor = myPlayer?.color || (isP1 ? 'red' : 'blue');
+      const isMyCurrentTurn = (myColor === turnColor) && match.status === 'active';
+
+      const scores = state.scores || { red: 0, blue: 0, green: 0, amber: 0 };
+      const hLines = state.hLines || Array(rows + 1).fill(null).map(() => Array(cols).fill(null));
+      const vLines = state.vLines || Array(rows).fill(null).map(() => Array(cols + 1).fill(null));
+      const boxes = state.boxes || Array(rows).fill(null).map(() => Array(cols).fill(null));
+
+      const colorMeta = {
+        red: { name: 'Red', hex: '#ef4444', light: 'rgba(239,68,68,0.18)', border: '#f87171' },
+        blue: { name: 'Blue', hex: '#3b82f6', light: 'rgba(59,130,246,0.18)', border: '#60a5fa' },
+        green: { name: 'Green', hex: '#10b981', light: 'rgba(16,185,129,0.18)', border: '#34d399' },
+        amber: { name: 'Amber', hex: '#f59e0b', light: 'rgba(245,158,11,0.18)', border: '#fbbf24' }
+      };
+
+      const turnPl = players.find(p => p.color === turnColor);
+      const turnPlName = turnPl ? escapeHtml(turnPl.name) : turnColor.toUpperCase();
+
+      // Build 9x9 grid rows
+      let gridCellsHtml = [];
+      for (let r = 0; r <= rows * 2; r++) {
+        for (let c = 0; c <= cols * 2; c++) {
+          const isRowEven = (r % 2 === 0);
+          const isColEven = (c % 2 === 0);
+
+          if (isRowEven && isColEven) {
+            // Dot Intersection
+            gridCellsHtml.push(`
+              <div class="dots-cell dot-intersection" data-r="${r / 2}" data-c="${c / 2}">
+                <span class="dots-dot"></span>
+              </div>
+            `);
+          } else if (isRowEven && !isColEven) {
+            // Horizontal Line
+            const hr = r / 2;
+            const hc = Math.floor(c / 2);
+            const lineData = hLines[hr] && hLines[hr][hc];
+            const isDrawn = !!lineData;
+            const lineColor = lineData?.color || '';
+            const canDraw = isMyCurrentTurn && !isDrawn && match.status === 'active';
+
+            gridCellsHtml.push(`
+              <div 
+                class="dots-cell dots-line h-line ${isDrawn ? 'drawn color-' + lineColor : ''} ${canDraw ? 'clickable my-color-' + myColor : ''}"
+                data-type="h" 
+                data-r="${hr}" 
+                data-c="${hc}"
+                role="button"
+                tabindex="${canDraw ? '0' : '-1'}"
+                title="${isDrawn ? `Drawn by ${escapeHtml(lineData.player || lineColor)}` : (canDraw ? 'Click to draw line' : '')}"
+              >
+                <div class="dots-line-bar"></div>
+              </div>
+            `);
+          } else if (!isRowEven && isColEven) {
+            // Vertical Line
+            const vr = Math.floor(r / 2);
+            const vc = c / 2;
+            const lineData = vLines[vr] && vLines[vr][vc];
+            const isDrawn = !!lineData;
+            const lineColor = lineData?.color || '';
+            const canDraw = isMyCurrentTurn && !isDrawn && match.status === 'active';
+
+            gridCellsHtml.push(`
+              <div 
+                class="dots-cell dots-line v-line ${isDrawn ? 'drawn color-' + lineColor : ''} ${canDraw ? 'clickable my-color-' + myColor : ''}"
+                data-type="v" 
+                data-r="${vr}" 
+                data-c="${vc}"
+                role="button"
+                tabindex="${canDraw ? '0' : '-1'}"
+                title="${isDrawn ? `Drawn by ${escapeHtml(lineData.player || lineColor)}` : (canDraw ? 'Click to draw line' : '')}"
+              >
+                <div class="dots-line-bar"></div>
+              </div>
+            `);
+          } else {
+            // Box
+            const br = Math.floor(r / 2);
+            const bc = Math.floor(c / 2);
+            const boxData = boxes[br] && boxes[br][bc];
+            const isClaimed = !!boxData;
+            const ownerColor = boxData?.owner || '';
+            const ownerInit = boxData?.ownerName ? boxData.ownerName.charAt(0).toUpperCase() : ownerColor.charAt(0).toUpperCase();
+
+            gridCellsHtml.push(`
+              <div class="dots-cell dots-box ${isClaimed ? 'claimed color-' + ownerColor : ''}" data-br="${br}" data-bc="${bc}">
+                ${isClaimed ? `
+                  <div class="dots-box-claim-badge">
+                    <span class="box-owner-initial">${ownerInit}</span>
+                    <span class="box-score-tag">+1</span>
+                  </div>
+                ` : ''}
+              </div>
+            `);
+          }
+        }
+      }
+
+      return `
+        <div class="dotsboxes-arena-layout">
+          <!-- Scoreboard Header for up to 4 Players -->
+          <div class="dotsboxes-scoreboard">
+            ${activeColors.map(colKey => {
+              const p = players.find(x => x.color === colKey) || { name: colorMeta[colKey].name };
+              const isTurn = turnColor === colKey && match.status === 'active';
+              const isMe = p.userId && p.userId.toString() === myId?.toString();
+              const score = scores[colKey] || 0;
+
+              return `
+                <div class="dots-player-card ${colKey} ${isTurn ? 'is-turn-active' : ''}">
+                  <div class="dots-player-header">
+                    <span class="dots-player-dot" style="background:${colorMeta[colKey].hex}"></span>
+                    <span class="dots-player-name">${escapeHtml(p.name)} ${isMe ? '(You)' : ''}</span>
+                    ${isTurn ? `<span class="dots-turn-pill">TURN</span>` : ''}
+                  </div>
+                  <div class="dots-player-score">
+                    <span class="score-val" style="color:${colorMeta[colKey].hex}">${score}</span>
+                    <span class="score-lbl">boxes</span>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+
+          <!-- Board Grid Container (9x9) -->
+          <div class="dotsboxes-board-wrapper">
+            <div class="dotsboxes-grid">
+              ${gridCellsHtml.join('')}
+            </div>
+          </div>
+
+          <!-- Console & Status Bar -->
+          <div class="dotsboxes-console-bar">
+            <div class="dots-guidance ${isMyCurrentTurn ? 'highlight' : ''}">
+              ${isMyCurrentTurn
+                ? `👉 It is your turn (<strong>${colorMeta[myColor].name}</strong>)! Click any open line between two dots to draw.`
+                : `⏳ Waiting for <strong>${turnPlName}</strong> (<strong>${colorMeta[turnColor]?.name || turnColor}</strong>) to draw a line...`
+              }
+            </div>
+            <div class="dots-caption">
+              ${escapeHtml(state.lastActionText || 'Connect 4 sides to claim a box and earn a bonus turn!')}
+            </div>
+          </div>
+        </div>
+      `;
     }
 
     /* ── CHESS BOARD HTML BUILDER ── */
@@ -2432,6 +2651,27 @@ export async function initTeamBonding(container, options = {}) {
         };
       }
 
+      // DOTS & BOXES INTERACTION
+      if (match.gameType === 'dotsboxes' && isMyTurn && match.status === 'active') {
+        modalRoot.querySelectorAll('.dots-line.clickable').forEach(lineEl => {
+          lineEl.onclick = async () => {
+            const type = lineEl.dataset.type;
+            const r = lineEl.dataset.r;
+            const c = lineEl.dataset.c;
+            try {
+              lineEl.style.opacity = '0.5';
+              const updated = await apiPost(`/bonding/matches/${matchId}/move`, { type, r, c });
+              match = updated;
+              prevFingerprint = getMatchFingerprint(updated);
+              renderArena();
+            } catch (err) {
+              lineEl.style.opacity = '1';
+              flashToast(err.message || 'Failed to draw line', 'error');
+            }
+          };
+        });
+      }
+
       // A. CHESS SQUARE INTERACTION
       if (match.gameType === 'chess' && isMyTurn && match.status === 'active') {
         const fen = match.gameState?.fen || 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
@@ -2657,6 +2897,784 @@ export async function initTeamBonding(container, options = {}) {
   /* =========================================================================
      MEMBER MANAGEMENT & GROUPS
      ========================================================================= */
+  
+  /* =========================================================================
+     ARCADE & LEADERBOARD TEMPLATE & ENGINES
+     ========================================================================= */
+  function renderArcadeAndLeaderboardHtml(arcadeData, myId) {
+    const leaderboard = arcadeData?.leaderboard || [];
+    const myBests = arcadeData?.myBests || [];
+
+    const bestMap = {};
+    myBests.forEach(b => { bestMap[b.gameId] = b.highScore; });
+
+    const arcadeGames = [
+      {
+        id: 'snake',
+        title: 'Retro Snake',
+        icon: '🐍',
+        tag: 'Speed & Reflexes',
+        desc: 'Classic 90s arcade nostalgia! Eat apples, grow longer, avoid collisions, and climb the company rank.',
+        best: bestMap['snake'] !== undefined ? bestMap['snake'] + ' pts' : 'Unranked'
+      },
+      {
+        id: '2048',
+        title: '2048 Puzzle',
+        icon: '🔢',
+        tag: 'Strategy & Logic',
+        desc: 'Slide matching tiles together, merge numbers from 2 to 2048 and beyond. Addictive break puzzle!',
+        best: bestMap['2048'] !== undefined ? bestMap['2048'] + ' pts' : 'Unranked'
+      },
+      {
+        id: 'memory',
+        title: 'Memory Card Match',
+        icon: '🃏',
+        tag: 'Focus & Speed',
+        desc: 'Flip and match 8 pairs of company emoji cards. Fast times and minimal moves yield massive high scores.',
+        best: bestMap['memory'] !== undefined ? bestMap['memory'] + ' pts' : 'Unranked'
+      }
+    ];
+
+    const filterOptions = [
+      { id: 'all', label: '🌐 All Games' },
+      { id: 'snake', label: '🐍 Retro Snake' },
+      { id: '2048', label: '🔢 2048 Puzzle' },
+      { id: 'memory', label: '🃏 Memory Match' }
+    ];
+
+    return `
+      <!-- Arcade Games Grid -->
+      <div class="lounge-section">
+        <div class="lounge-section-head">
+          <h3>🕹️ Single-Player Break Arcade</h3>
+          <p>Instant-play casual single-player challenges. Play anytime during break time to climb the company leaderboard!</p>
+        </div>
+
+        <div class="arcade-games-grid">
+          ${arcadeGames.map(g => `
+            <div class="arcade-game-card">
+              <div class="arcade-card-top">
+                <span class="arcade-card-icon">${g.icon}</span>
+                <span class="arcade-card-badge">${g.tag}</span>
+              </div>
+              <h4 class="arcade-card-title">${g.title}</h4>
+              <p class="arcade-card-desc">${g.desc}</p>
+              <div class="arcade-card-best">
+                <span>Personal Best:</span> <strong>${g.best}</strong>
+              </div>
+              <button class="arcade-play-btn btn-play-arcade" data-game="${g.id}">
+                <span>▶ Play ${g.title}</span>
+              </button>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+      <!-- Global Leaderboard Section -->
+      <div class="lounge-section" style="margin-top:28px;">
+        <div class="lounge-section-head" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+          <div>
+            <h3>🏆 CI360 Global Arcade Leaderboard</h3>
+            <p>Top scores across all departments. Play games to earn bragging rights and bonding points!</p>
+          </div>
+          <!-- Filter pills -->
+          <div class="arcade-filter-pills" style="display:flex;gap:6px;flex-wrap:wrap;">
+            ${filterOptions.map(f => `
+              <button class="arcade-filter-pill ${currentArcadeGameFilter === f.id ? 'active' : ''}" data-filter="${f.id}">
+                ${f.label}
+              </button>
+            `).join('')}
+          </div>
+        </div>
+
+        <div class="arcade-leaderboard-box">
+          ${leaderboard.length === 0 ? `
+            <div class="box-empty-text" style="padding:40px;text-align:center;">
+              <span style="font-size:32px;display:block;margin-bottom:8px;">🕹️</span>
+              No high scores recorded for this game yet. Be the first employee to play and claim Rank #1!
+            </div>
+          ` : `
+            <div class="arcade-leaderboard-table-wrap">
+              <table class="arcade-leaderboard-table">
+                <thead>
+                  <tr>
+                    <th style="width:70px;text-align:center;">Rank</th>
+                    <th>Colleague</th>
+                    <th>Game</th>
+                    <th style="text-align:right;">High Score</th>
+                    <th style="text-align:right;">Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${leaderboard.map(entry => {
+                    const isMe = myId && entry.userId && entry.userId.toString() === myId.toString();
+                    const rankMedal = entry.rank === 1 ? '🥇' : (entry.rank === 2 ? '🥈' : (entry.rank === 3 ? '🥉' : `#${entry.rank}`));
+                    const gameIcons = { snake: '🐍', '2048': '🔢', memory: '🃏' };
+                    return `
+                      <tr class="${isMe ? 'is-my-row' : ''}">
+                        <td style="text-align:center;">
+                          <span class="leaderboard-rank-badge rank-${entry.rank}">${rankMedal}</span>
+                        </td>
+                        <td>
+                          <div class="leaderboard-user-cell">
+                            <div class="leaderboard-avatar">${(entry.userName || 'U').charAt(0).toUpperCase()}</div>
+                            <div>
+                              <span class="leaderboard-user-name">${escapeHtml(entry.userName)} ${isMe ? '<strong style="color:#6366f1;">(You)</strong>' : ''}</span>
+                              <span class="leaderboard-user-role">${escapeHtml(entry.userRole || 'Team Member')}</span>
+                            </div>
+                          </div>
+                        </td>
+                        <td>
+                          <span class="leaderboard-game-tag">
+                            <span>${gameIcons[entry.gameId] || '🎮'}</span>
+                            <span>${escapeHtml(entry.gameTitle)}</span>
+                          </span>
+                        </td>
+                        <td style="text-align:right;">
+                          <span class="leaderboard-score-val">${entry.score.toLocaleString()}</span>
+                        </td>
+                        <td style="text-align:right;color:var(--text-3);font-size:12px;">
+                          ${new Date(entry.date).toLocaleDateString([], { month: 'short', day: 'numeric' })}
+                        </td>
+                      </tr>
+                    `;
+                  }).join('')}
+                </tbody>
+              </table>
+            </div>
+          `}
+        </div>
+      </div>
+    `;
+  }
+
+  function openArcadeGameModal(gameId) {
+    const modalRoot = container.querySelector('#bonding-modals-root');
+    let cleanupCurrentGame = null;
+
+    const gameTitles = {
+      snake: { title: 'Retro Snake', icon: '🐍', desc: 'Use Arrow Keys or on-screen controls to eat apples and grow!' },
+      2048: { title: '2048 Puzzle', icon: '🔢', desc: 'Slide and combine tiles. Reach 2048 to win!' },
+      memory: { title: 'Memory Match', icon: '🃏', desc: 'Flip and match 8 pairs of company cards with fewest moves!' }
+    };
+    const info = gameTitles[gameId] || gameTitles.snake;
+
+    function closeArcadeModal() {
+      if (typeof cleanupCurrentGame === 'function') cleanupCurrentGame();
+      modalRoot.innerHTML = '';
+      if (currentView === 'lounge_games') renderLoungeGamesView(true);
+    }
+
+    modalRoot.innerHTML = `
+      <div class="bonding-modal-backdrop">
+        <div class="bonding-modal-card arcade-game-modal-card" style="max-width:440px;width:95%;">
+          <div class="bonding-modal-header">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <span style="font-size:24px;">${info.icon}</span>
+              <div>
+                <h3 style="margin:0;font-size:16px;">${info.title}</h3>
+                <span style="font-size:11.5px;color:var(--text-3);">${info.desc}</span>
+              </div>
+            </div>
+            <button class="bonding-modal-close" id="btn-close-arcade">&times;</button>
+          </div>
+
+          <div class="bonding-modal-body arcade-game-body" id="arcade-game-container" style="padding:16px;">
+            <!-- Dynamic Game Canvas / Board injected here -->
+          </div>
+        </div>
+      </div>
+    `;
+
+    modalRoot.querySelector('#btn-close-arcade').onclick = closeArcadeModal;
+    const gameContainer = modalRoot.querySelector('#arcade-game-container');
+
+    if (gameId === 'snake') {
+      cleanupCurrentGame = launchSnakeGame(gameContainer, closeArcadeModal);
+    } else if (gameId === '2048') {
+      cleanupCurrentGame = launch2048Game(gameContainer, closeArcadeModal);
+    } else if (gameId === 'memory') {
+      cleanupCurrentGame = launchMemoryGame(gameContainer, closeArcadeModal);
+    }
+  }
+
+  function launchSnakeGame(containerEl, onClose) {
+    containerEl.innerHTML = `
+      <div class="arcade-play-area">
+        <div class="arcade-score-bar">
+          <div class="arcade-score-box">
+            <span class="lbl">Score</span>
+            <span class="val" id="snake-live-score">0</span>
+          </div>
+          <button class="arcade-restart-btn" id="btn-restart-snake">🔄 Restart</button>
+        </div>
+        <div class="arcade-canvas-wrap" style="position:relative;margin:10px auto;max-width:320px;">
+          <canvas id="snakeCanvas" width="320" height="320" style="background:#0f172a;border-radius:12px;border:2px solid #334155;display:block;margin:0 auto;box-shadow:0 8px 24px rgba(0,0,0,0.4);"></canvas>
+          <div class="arcade-game-over-overlay" id="snake-over-overlay" style="display:none;position:absolute;inset:0;background:rgba(15,23,42,0.9);border-radius:12px;display:flex;align-items:center;justify-content:center;text-align:center;padding:20px;">
+            <div class="over-content">
+              <h3 style="color:#ef4444;margin:0 0 8px;">GAME OVER 💥</h3>
+              <p style="margin:0 0 8px;font-size:14px;color:#fff;">Your Score: <strong id="snake-final-score" style="font-size:22px;color:#facc15;">0</strong></p>
+              <div id="snake-rank-msg" style="font-size:13px;color:#10b981;margin:8px 0;font-weight:700;"></div>
+              <button class="bonding-btn-primary" id="btn-snake-play-again" style="margin-top:8px;">Play Again 🔄</button>
+            </div>
+          </div>
+        </div>
+        <div class="arcade-dpad">
+          <button class="dpad-btn up" data-dir="up">▲</button>
+          <div class="dpad-middle">
+            <button class="dpad-btn left" data-dir="left">◀</button>
+            <button class="dpad-btn down" data-dir="down">▼</button>
+            <button class="dpad-btn right" data-dir="right">▶</button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    const canvas = containerEl.querySelector('#snakeCanvas');
+    const ctx = canvas.getContext('2d');
+    const scoreEl = containerEl.querySelector('#snake-live-score');
+    const overOverlay = containerEl.querySelector('#snake-over-overlay');
+    const finalScoreEl = containerEl.querySelector('#snake-final-score');
+    const rankMsgEl = containerEl.querySelector('#snake-rank-msg');
+    const restartBtn = containerEl.querySelector('#btn-restart-snake');
+    const playAgainBtn = containerEl.querySelector('#btn-snake-play-again');
+
+    const gridSize = 16;
+    const tileCount = 20; // 320 / 16 = 20 tiles
+    let snake = [{ x: 10, y: 10 }, { x: 9, y: 10 }, { x: 8, y: 10 }];
+    let dir = { x: 1, y: 0 };
+    let nextDir = { x: 1, y: 0 };
+    let food = { x: 15, y: 10 };
+    let score = 0;
+    let isGameOver = false;
+    let loopTimer = null;
+
+    function spawnFood() {
+      while (true) {
+        const fx = Math.floor(Math.random() * tileCount);
+        const fy = Math.floor(Math.random() * tileCount);
+        if (!snake.some(s => s.x === fx && s.y === fy)) {
+          food = { x: fx, y: fy };
+          break;
+        }
+      }
+    }
+
+    function draw() {
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.strokeStyle = '#1e293b';
+      ctx.lineWidth = 0.5;
+      for (let i = 0; i <= canvas.width; i += gridSize) {
+        ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, canvas.height); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(canvas.width, i); ctx.stroke();
+      }
+
+      // Draw food
+      ctx.fillStyle = '#ef4444';
+      ctx.beginPath();
+      ctx.arc(food.x * gridSize + gridSize / 2, food.y * gridSize + gridSize / 2, gridSize / 2.3, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Food leaf
+      ctx.fillStyle = '#4ade80';
+      ctx.fillRect(food.x * gridSize + gridSize / 2 - 1, food.y * gridSize + 1, 2, 3);
+
+      // Draw snake
+      snake.forEach((seg, i) => {
+        ctx.fillStyle = i === 0 ? '#10b981' : (i % 2 === 0 ? '#34d399' : '#059669');
+        const x = seg.x * gridSize + 1;
+        const y = seg.y * gridSize + 1;
+        const w = gridSize - 2;
+        const h = gridSize - 2;
+        ctx.fillRect(x, y, w, h);
+
+        if (i === 0) {
+          ctx.fillStyle = '#0f172a';
+          ctx.beginPath();
+          ctx.arc(x + 4, y + 4, 1.5, 0, Math.PI * 2);
+          ctx.arc(x + w - 4, y + 4, 1.5, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      });
+    }
+
+    async function handleGameOver() {
+      isGameOver = true;
+      if (loopTimer) clearInterval(loopTimer);
+      finalScoreEl.textContent = score;
+      overOverlay.style.display = 'flex';
+
+      try {
+        const res = await apiPost('/bonding/arcade/score', {
+          gameId: 'snake',
+          gameTitle: 'Retro Snake',
+          score,
+          metrics: { length: snake.length }
+        });
+        if (res.isNewPersonalBest) {
+          rankMsgEl.textContent = `🎉 NEW PERSONAL BEST! Leaderboard Rank: #${res.rank}`;
+          flashToast(`New Personal Best on Snake! Rank #${res.rank} 🏆`, 'success');
+        } else {
+          rankMsgEl.textContent = `Leaderboard Rank: #${res.rank}`;
+        }
+      } catch (err) {
+        console.error('Failed to submit score:', err);
+      }
+    }
+
+    function step() {
+      if (isGameOver) return;
+      dir = nextDir;
+      const head = { x: snake[0].x + dir.x, y: snake[0].y + dir.y };
+
+      if (head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount) {
+        handleGameOver();
+        return;
+      }
+
+      if (snake.some(s => s.x === head.x && s.y === head.y)) {
+        handleGameOver();
+        return;
+      }
+
+      snake.unshift(head);
+
+      if (head.x === food.x && head.y === food.y) {
+        score += 10;
+        scoreEl.textContent = score;
+        spawnFood();
+      } else {
+        snake.pop();
+      }
+
+      draw();
+    }
+
+    function changeDir(newD) {
+      if (newD === 'up' && dir.y !== 1) nextDir = { x: 0, y: -1 };
+      else if (newD === 'down' && dir.y !== -1) nextDir = { x: 0, y: 1 };
+      else if (newD === 'left' && dir.x !== 1) nextDir = { x: -1, y: 0 };
+      else if (newD === 'right' && dir.x !== -1) nextDir = { x: 1, y: 0 };
+    }
+
+    function handleKey(e) {
+      if (['ArrowUp', 'KeyW'].includes(e.code)) { e.preventDefault(); changeDir('up'); }
+      else if (['ArrowDown', 'KeyS'].includes(e.code)) { e.preventDefault(); changeDir('down'); }
+      else if (['ArrowLeft', 'KeyA'].includes(e.code)) { e.preventDefault(); changeDir('left'); }
+      else if (['ArrowRight', 'KeyD'].includes(e.code)) { e.preventDefault(); changeDir('right'); }
+    }
+
+    window.addEventListener('keydown', handleKey);
+
+    containerEl.querySelectorAll('.dpad-btn').forEach(btn => {
+      btn.onclick = (e) => {
+        e.preventDefault();
+        changeDir(btn.dataset.dir);
+      };
+    });
+
+    function resetGame() {
+      if (loopTimer) clearInterval(loopTimer);
+      snake = [{ x: 10, y: 10 }, { x: 9, y: 10 }, { x: 8, y: 10 }];
+      dir = { x: 1, y: 0 };
+      nextDir = { x: 1, y: 0 };
+      score = 0;
+      scoreEl.textContent = '0';
+      isGameOver = false;
+      overOverlay.style.display = 'none';
+      spawnFood();
+      draw();
+      loopTimer = setInterval(step, 115);
+    }
+
+    restartBtn.onclick = resetGame;
+    playAgainBtn.onclick = resetGame;
+
+    resetGame();
+
+    return () => {
+      if (loopTimer) clearInterval(loopTimer);
+      window.removeEventListener('keydown', handleKey);
+    };
+  }
+
+  function launch2048Game(containerEl, onClose) {
+    containerEl.innerHTML = `
+      <div class="arcade-play-area">
+        <div class="arcade-score-bar">
+          <div class="arcade-score-box">
+            <span class="lbl">Score</span>
+            <span class="val" id="g2048-live-score">0</span>
+          </div>
+          <button class="arcade-restart-btn" id="btn-restart-2048">🔄 New Game</button>
+        </div>
+        <div class="arcade-canvas-wrap" style="position:relative;margin:10px auto;max-width:320px;">
+          <div class="g2048-grid" id="g2048Board"></div>
+          <div class="arcade-game-over-overlay" id="g2048-over-overlay" style="display:none;position:absolute;inset:0;background:rgba(15,23,42,0.92);border-radius:12px;display:flex;align-items:center;justify-content:center;text-align:center;padding:20px;">
+            <div class="over-content">
+              <h3 style="color:#ef4444;margin:0 0 8px;">GAME OVER 💥</h3>
+              <p style="margin:0 0 8px;font-size:14px;color:#fff;">Final Score: <strong id="g2048-final-score" style="font-size:22px;color:#facc15;">0</strong></p>
+              <div id="g2048-rank-msg" style="font-size:13px;color:#10b981;margin:8px 0;font-weight:700;"></div>
+              <button class="bonding-btn-primary" id="btn-g2048-play-again" style="margin-top:8px;">Play Again 🔄</button>
+            </div>
+          </div>
+        </div>
+        <div class="arcade-dpad">
+          <button class="dpad-btn up" data-dir="up">▲</button>
+          <div class="dpad-middle">
+            <button class="dpad-btn left" data-dir="left">◀</button>
+            <button class="dpad-btn down" data-dir="down">▼</button>
+            <button class="dpad-btn right" data-dir="right">▶</button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    const boardEl = containerEl.querySelector('#g2048Board');
+    const scoreEl = containerEl.querySelector('#g2048-live-score');
+    const overOverlay = containerEl.querySelector('#g2048-over-overlay');
+    const finalScoreEl = containerEl.querySelector('#g2048-final-score');
+    const rankMsgEl = containerEl.querySelector('#g2048-rank-msg');
+    const restartBtn = containerEl.querySelector('#btn-restart-2048');
+    const playAgainBtn = containerEl.querySelector('#btn-g2048-play-again');
+
+    let grid = Array(4).fill(null).map(() => Array(4).fill(0));
+    let score = 0;
+    let isGameOver = false;
+
+    function renderBoard() {
+      scoreEl.textContent = score;
+      boardEl.innerHTML = '';
+      for (let r = 0; r < 4; r++) {
+        for (let c = 0; c < 4; c++) {
+          const val = grid[r][c];
+          const tile = document.createElement('div');
+          tile.className = `g2048-tile val-${val}`;
+          tile.textContent = val > 0 ? val : '';
+          boardEl.appendChild(tile);
+        }
+      }
+    }
+
+    function addRandomTile() {
+      const empty = [];
+      for (let r = 0; r < 4; r++) {
+        for (let c = 0; c < 4; c++) {
+          if (grid[r][c] === 0) empty.push({ r, c });
+        }
+      }
+      if (empty.length === 0) return;
+      const spot = empty[Math.floor(Math.random() * empty.length)];
+      grid[spot.r][spot.c] = Math.random() < 0.9 ? 2 : 4;
+    }
+
+    function slideRow(row) {
+      let filtered = row.filter(x => x !== 0);
+      let gained = 0;
+      for (let i = 0; i < filtered.length - 1; i++) {
+        if (filtered[i] === filtered[i + 1]) {
+          filtered[i] *= 2;
+          gained += filtered[i];
+          filtered.splice(i + 1, 1);
+        }
+      }
+      while (filtered.length < 4) filtered.push(0);
+      return { row: filtered, gained };
+    }
+
+    function move(dir) {
+      if (isGameOver) return;
+      let moved = false;
+      let gainedTotal = 0;
+
+      if (dir === 'left') {
+        for (let r = 0; r < 4; r++) {
+          const res = slideRow(grid[r]);
+          if (res.row.some((v, i) => v !== grid[r][i])) moved = true;
+          grid[r] = res.row;
+          gainedTotal += res.gained;
+        }
+      } else if (dir === 'right') {
+        for (let r = 0; r < 4; r++) {
+          const rev = [...grid[r]].reverse();
+          const res = slideRow(rev);
+          const finalRow = res.row.reverse();
+          if (finalRow.some((v, i) => v !== grid[r][i])) moved = true;
+          grid[r] = finalRow;
+          gainedTotal += res.gained;
+        }
+      } else if (dir === 'up') {
+        for (let c = 0; c < 4; c++) {
+          const col = [grid[0][c], grid[1][c], grid[2][c], grid[3][c]];
+          const res = slideRow(col);
+          for (let r = 0; r < 4; r++) {
+            if (grid[r][c] !== res.row[r]) moved = true;
+            grid[r][c] = res.row[r];
+          }
+          gainedTotal += res.gained;
+        }
+      } else if (dir === 'down') {
+        for (let c = 0; c < 4; c++) {
+          const col = [grid[3][c], grid[2][c], grid[1][c], grid[0][c]];
+          const res = slideRow(col);
+          const finalCol = res.row.reverse();
+          for (let r = 0; r < 4; r++) {
+            if (grid[r][c] !== finalCol[r]) moved = true;
+            grid[r][c] = finalCol[r];
+          }
+          gainedTotal += res.gained;
+        }
+      }
+
+      if (moved) {
+        score += gainedTotal;
+        addRandomTile();
+        renderBoard();
+        checkGameOver();
+      }
+    }
+
+    async function checkGameOver() {
+      for (let r = 0; r < 4; r++) {
+        for (let c = 0; c < 4; c++) {
+          if (grid[r][c] === 0) return;
+        }
+      }
+      for (let r = 0; r < 4; r++) {
+        for (let c = 0; c < 4; c++) {
+          const v = grid[r][c];
+          if (r < 3 && grid[r + 1][c] === v) return;
+          if (c < 3 && grid[r][c + 1] === v) return;
+        }
+      }
+
+      isGameOver = true;
+      finalScoreEl.textContent = score;
+      overOverlay.style.display = 'flex';
+
+      try {
+        const res = await apiPost('/bonding/arcade/score', {
+          gameId: '2048',
+          gameTitle: '2048 Puzzle',
+          score
+        });
+        if (res.isNewPersonalBest) {
+          rankMsgEl.textContent = `🎉 NEW PERSONAL BEST! Leaderboard Rank: #${res.rank}`;
+          flashToast(`New Personal Best on 2048! Rank #${res.rank} 🏆`, 'success');
+        } else {
+          rankMsgEl.textContent = `Leaderboard Rank: #${res.rank}`;
+        }
+      } catch (err) {
+        console.error('Failed to submit 2048 score:', err);
+      }
+    }
+
+    function handleKey(e) {
+      if (['ArrowUp', 'KeyW'].includes(e.code)) { e.preventDefault(); move('up'); }
+      else if (['ArrowDown', 'KeyS'].includes(e.code)) { e.preventDefault(); move('down'); }
+      else if (['ArrowLeft', 'KeyA'].includes(e.code)) { e.preventDefault(); move('left'); }
+      else if (['ArrowRight', 'KeyD'].includes(e.code)) { e.preventDefault(); move('right'); }
+    }
+
+    window.addEventListener('keydown', handleKey);
+
+    containerEl.querySelectorAll('.dpad-btn').forEach(btn => {
+      btn.onclick = (e) => {
+        e.preventDefault();
+        move(btn.dataset.dir);
+      };
+    });
+
+    function resetGame() {
+      grid = Array(4).fill(null).map(() => Array(4).fill(0));
+      score = 0;
+      isGameOver = false;
+      overOverlay.style.display = 'none';
+      addRandomTile();
+      addRandomTile();
+      renderBoard();
+    }
+
+    restartBtn.onclick = resetGame;
+    playAgainBtn.onclick = resetGame;
+
+    resetGame();
+
+    return () => {
+      window.removeEventListener('keydown', handleKey);
+    };
+  }
+
+  function launchMemoryGame(containerEl, onClose) {
+    containerEl.innerHTML = `
+      <div class="arcade-play-area">
+        <div class="arcade-score-bar">
+          <div class="arcade-score-box">
+            <span class="lbl">Moves</span>
+            <span class="val" id="memory-moves">0</span>
+          </div>
+          <div class="arcade-score-box">
+            <span class="lbl">Time</span>
+            <span class="val" id="memory-timer">00:00</span>
+          </div>
+          <button class="arcade-restart-btn" id="btn-restart-memory">🔄 Shuffle & Restart</button>
+        </div>
+        <div class="arcade-canvas-wrap" style="position:relative;margin:10px auto;max-width:320px;">
+          <div class="memory-grid" id="memoryBoard"></div>
+          <div class="arcade-game-over-overlay" id="memory-over-overlay" style="display:none;position:absolute;inset:0;background:rgba(15,23,42,0.92);border-radius:12px;display:flex;align-items:center;justify-content:center;text-align:center;padding:20px;">
+            <div class="over-content">
+              <h3 style="color:#10b981;margin:0 0 8px;">🎉 VICTORY! ALL MATCHED!</h3>
+              <p style="margin:0 0 8px;font-size:14px;color:#fff;">Final Score: <strong id="memory-final-score" style="font-size:22px;color:#facc15;">0</strong></p>
+              <div id="memory-rank-msg" style="font-size:13px;color:#10b981;margin:8px 0;font-weight:700;"></div>
+              <button class="bonding-btn-primary" id="btn-memory-play-again" style="margin-top:8px;">Play Again 🔄</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    const boardEl = containerEl.querySelector('#memoryBoard');
+    const movesEl = containerEl.querySelector('#memory-moves');
+    const timerEl = containerEl.querySelector('#memory-timer');
+    const overOverlay = containerEl.querySelector('#memory-over-overlay');
+    const finalScoreEl = containerEl.querySelector('#memory-final-score');
+    const rankMsgEl = containerEl.querySelector('#memory-rank-msg');
+    const restartBtn = containerEl.querySelector('#btn-restart-memory');
+    const playAgainBtn = containerEl.querySelector('#btn-memory-play-again');
+
+    const icons = ['🚀', '💻', '☕', '🎯', '🔥', '🏆', '💡', '🎨'];
+    let cards = [];
+    let flippedIndices = [];
+    let moves = 0;
+    let seconds = 0;
+    let timerInterval = null;
+    let isChecking = false;
+    let isFinished = false;
+
+    function initGame() {
+      if (timerInterval) clearInterval(timerInterval);
+      moves = 0;
+      seconds = 0;
+      isChecking = false;
+      isFinished = false;
+      flippedIndices = [];
+      movesEl.textContent = '0';
+      timerEl.textContent = '00:00';
+      overOverlay.style.display = 'none';
+
+      const paired = [...icons, ...icons];
+      for (let i = paired.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [paired[i], paired[j]] = [paired[j], paired[i]];
+      }
+
+      cards = paired.map((icon, idx) => ({
+        id: idx,
+        icon,
+        flipped: false,
+        matched: false
+      }));
+
+      timerInterval = setInterval(() => {
+        seconds++;
+        const mins = String(Math.floor(seconds / 60)).padStart(2, '0');
+        const secs = String(seconds % 60).padStart(2, '0');
+        timerEl.textContent = `${mins}:${secs}`;
+      }, 1000);
+
+      renderMemoryBoard();
+    }
+
+    function renderMemoryBoard() {
+      boardEl.innerHTML = '';
+      cards.forEach((card, idx) => {
+        const cardEl = document.createElement('div');
+        cardEl.className = `memory-card ${card.flipped || card.matched ? 'flipped' : ''} ${card.matched ? 'matched' : ''}`;
+        cardEl.innerHTML = `
+          <div class="card-inner">
+            <div class="card-front">❓</div>
+            <div class="card-back">${card.icon}</div>
+          </div>
+        `;
+        cardEl.onclick = () => onCardClick(idx);
+        boardEl.appendChild(cardEl);
+      });
+    }
+
+    async function onCardClick(idx) {
+      if (isChecking || isFinished) return;
+      const card = cards[idx];
+      if (card.flipped || card.matched) return;
+
+      card.flipped = true;
+      flippedIndices.push(idx);
+      renderMemoryBoard();
+
+      if (flippedIndices.length === 2) {
+        moves++;
+        movesEl.textContent = moves;
+        isChecking = true;
+
+        const [idx1, idx2] = flippedIndices;
+        if (cards[idx1].icon === cards[idx2].icon) {
+          cards[idx1].matched = true;
+          cards[idx2].matched = true;
+          flippedIndices = [];
+          isChecking = false;
+          renderMemoryBoard();
+          checkWin();
+        } else {
+          setTimeout(() => {
+            cards[idx1].flipped = false;
+            cards[idx2].flipped = false;
+            flippedIndices = [];
+            isChecking = false;
+            renderMemoryBoard();
+          }, 700);
+        }
+      }
+    }
+
+    async function checkWin() {
+      if (cards.every(c => c.matched)) {
+        isFinished = true;
+        if (timerInterval) clearInterval(timerInterval);
+
+        const score = Math.max(100, Math.round(1800 - moves * 30 - seconds * 8));
+        finalScoreEl.textContent = score;
+        overOverlay.style.display = 'flex';
+
+        try {
+          const res = await apiPost('/bonding/arcade/score', {
+            gameId: 'memory',
+            gameTitle: 'Memory Match',
+            score,
+            metrics: { moves, seconds }
+          });
+          if (res.isNewPersonalBest) {
+            rankMsgEl.textContent = `🎉 NEW PERSONAL BEST! Leaderboard Rank: #${res.rank}`;
+            flashToast(`New Personal Best on Memory Match! Rank #${res.rank} 🏆`, 'success');
+          } else {
+            rankMsgEl.textContent = `Leaderboard Rank: #${res.rank}`;
+          }
+        } catch (err) {
+          console.error('Failed to submit memory score:', err);
+        }
+      }
+    }
+
+    restartBtn.onclick = initGame;
+    playAgainBtn.onclick = initGame;
+
+    initGame();
+
+    return () => {
+      if (timerInterval) clearInterval(timerInterval);
+    };
+  }
+
   function openManageMembersModal() {
     if (!activeChannel || activeChannel.type === 'direct') return;
 
@@ -3056,6 +4074,99 @@ export async function initTeamBonding(container, options = {}) {
         submitBtn.textContent = 'Create Group 🎉';
       }
     };
+  }
+
+  /* ── CHAT EMOJI PICKER (ORGANIZED PALETTE - NEVER RANDOM) ── */
+  function openChatEmojiPicker(targetBtn, onSelect) {
+    const old = document.querySelector('.bonding-chat-emoji-palette');
+    if (old) { old.remove(); return; }
+
+    const categories = [
+      {
+        name: 'Smileys & Faces',
+        icon: '😀',
+        emojis: ['😀','😃','😄','😁','😆','😅','😂','🤣','😊','😇','🙂','😉','😍','🥰','😘','😋','😎','🤔','🤨','😐','😴','🤯','🥳','🥺']
+      },
+      {
+        name: 'Hands & People',
+        icon: '👍',
+        emojis: ['👍','👎','👏','🙌','👐','🤝','✌️','🤞','🤟','🤘','🤙','👈','👉','👆','👇','💪','🫡','🙏','🙋','🙆']
+      },
+      {
+        name: 'Celebration & Work',
+        icon: '🎉',
+        emojis: ['🎉','🎊','🔥','✨','💯','🚀','🎯','🏆','🥇','⭐','🌟','💡','📌','💼','📊','📈','⏱️','⏳','✅','❌','⚡']
+      },
+      {
+        name: 'Break & Fun',
+        icon: '☕',
+        emojis: ['☕','🍵','🍕','🍔','🍟','🎂','🍰','🍩','🍿','🍺','🍻','🎮','🎲','⏹️','🧩','🎵','🏖️','⚽','❤️','💖','💙']
+      }
+    ];
+
+    let activeCatIdx = 0;
+    const palette = document.createElement('div');
+    palette.className = 'bonding-chat-emoji-palette';
+
+    function renderPalette() {
+      const cat = categories[activeCatIdx];
+      palette.innerHTML = `
+        <div class="emoji-palette-tabs">
+          ${categories.map((c, i) => `
+            <button class="emoji-tab-btn ${i === activeCatIdx ? 'active' : ''}" data-cat-idx="${i}" title="${c.name}">
+              ${c.icon}
+            </button>
+          `).join('')}
+        </div>
+        <div class="emoji-palette-header">
+          <span>${cat.name}</span>
+          <button class="emoji-palette-close" type="button">&times;</button>
+        </div>
+        <div class="emoji-palette-grid">
+          ${cat.emojis.map(e => `
+            <button class="chat-emoji-cell" data-e="${e}" type="button">${e}</button>
+          `).join('')}
+        </div>
+      `;
+
+      palette.querySelectorAll('.emoji-tab-btn').forEach(btn => {
+        btn.onclick = (e) => {
+          e.stopPropagation();
+          activeCatIdx = Number(btn.dataset.catIdx);
+          renderPalette();
+        };
+      });
+
+      palette.querySelector('.emoji-palette-close').onclick = (e) => {
+        e.stopPropagation();
+        palette.remove();
+      };
+
+      palette.querySelectorAll('.chat-emoji-cell').forEach(btn => {
+        btn.onclick = (e) => {
+          e.stopPropagation();
+          onSelect(btn.dataset.e);
+          palette.remove();
+        };
+      });
+    }
+
+    renderPalette();
+
+    const rect = targetBtn.getBoundingClientRect();
+    palette.style.position = 'fixed';
+    palette.style.bottom = `${window.innerHeight - rect.top + 8}px`;
+    palette.style.left = `${Math.max(12, Math.min(window.innerWidth - 300, rect.left - 40))}px`;
+
+    document.body.appendChild(palette);
+
+    const closeHandler = (e) => {
+      if (!palette.contains(e.target) && e.target !== targetBtn && !targetBtn.contains(e.target)) {
+        palette.remove();
+        document.removeEventListener('click', closeHandler);
+      }
+    };
+    setTimeout(() => document.addEventListener('click', closeHandler), 10);
   }
 
   function openEmojiPicker(targetBtn, onSelect) {
@@ -6678,7 +7789,307 @@ function injectBondingStyles() {
     [data-theme="dark"] .emoji-opt-btn:hover {
       background: #2a374f;
     }
+    /* Dots & Boxes 4x4 Arena */
+    .dots-board-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      padding: 16px;
+      background: rgba(15, 23, 42, 0.4);
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      max-width: 440px;
+      margin: 0 auto;
+    }
+    .dots-scoreboard {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      width: 100%;
+    }
+    .dots-player-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 700;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(30, 41, 59, 0.7);
+    }
+    .dots-player-pill.active-turn {
+      outline: 2px solid #38bdf8;
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
+    }
+    .dots-grid-container {
+      position: relative;
+      padding: 12px;
+      background: rgba(15, 23, 42, 0.85);
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.4);
+    }
+    .dots-board-9x9 {
+      display: grid;
+      grid-template-columns: repeat(4, 18px 46px) 18px;
+      grid-template-rows: repeat(4, 18px 46px) 18px;
+      align-items: center;
+      justify-items: center;
+      user-select: none;
+    }
+    .dot-node {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #f8fafc;
+      box-shadow: 0 0 6px rgba(255, 255, 255, 0.8);
+      z-index: 5;
+    }
+    .dots-line {
+      transition: all 0.15s ease;
+      border-radius: 4px;
+      z-index: 3;
+    }
+    .dots-line.h-line {
+      width: 44px;
+      height: 10px;
+    }
+    .dots-line.v-line {
+      width: 10px;
+      height: 44px;
+    }
+    .dots-line.empty {
+      background: rgba(255, 255, 255, 0.08);
+    }
+    .dots-line.clickable {
+      cursor: pointer;
+    }
+    .dots-line.clickable:hover {
+      background: rgba(56, 189, 248, 0.7) !important;
+      transform: scale(1.08);
+      box-shadow: 0 0 8px #38bdf8;
+    }
+    .dots-line.drawn.c-red { background: #ef4444; box-shadow: 0 0 8px rgba(239, 68, 68, 0.6); }
+    .dots-line.drawn.c-blue { background: #3b82f6; box-shadow: 0 0 8px rgba(59, 130, 246, 0.6); }
+    .dots-line.drawn.c-green { background: #10b981; box-shadow: 0 0 8px rgba(16, 185, 129, 0.6); }
+    .dots-line.drawn.c-amber { background: #f59e0b; box-shadow: 0 0 8px rgba(245, 158, 11, 0.6); }
+
+    .dots-box-cell {
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 800;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+      z-index: 1;
+    }
+    .dots-box-cell.closed.c-red { background: rgba(239, 68, 68, 0.25); color: #f87171; border: 1px dashed rgba(239, 68, 68, 0.4); }
+    .dots-box-cell.closed.c-blue { background: rgba(59, 130, 246, 0.25); color: #60a5fa; border: 1px dashed rgba(59, 130, 246, 0.4); }
+    .dots-box-cell.closed.c-green { background: rgba(16, 185, 129, 0.25); color: #34d399; border: 1px dashed rgba(16, 185, 129, 0.4); }
+    .dots-box-cell.closed.c-amber { background: rgba(245, 158, 11, 0.25); color: #fbbf24; border: 1px dashed rgba(245, 158, 11, 0.4); }
+
+    /* Chat Emoji Palette Popover */
+    .chat-emoji-picker-popover {
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 10px;
+      width: 290px;
+      max-height: 260px;
+      background: var(--bg-surface, #1e293b);
+      border: 1px solid var(--border-color, rgba(255, 255, 255, 0.12));
+      border-radius: 14px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+      z-index: 10005;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      animation: popoverFadeIn 0.15s ease-out;
+    }
+    @keyframes popoverFadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .emoji-picker-nav {
+      display: flex;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(0, 0, 0, 0.15);
+      padding: 4px;
+      gap: 2px;
+    }
+    .emoji-picker-tab {
+      flex: 1;
+      padding: 4px;
+      font-size: 15px;
+      background: transparent;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      text-align: center;
+      transition: background 0.12s;
+    }
+    .emoji-picker-tab:hover, .emoji-picker-tab.active {
+      background: rgba(255, 255, 255, 0.12);
+    }
+    .emoji-picker-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px;
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 4px;
+    }
+    .emoji-picker-btn {
+      background: transparent;
+      border: none;
+      font-size: 20px;
+      padding: 6px 2px;
+      border-radius: 6px;
+      cursor: pointer;
+      text-align: center;
+      transition: transform 0.1s, background 0.1s;
+    }
+    .emoji-picker-btn:hover {
+      background: rgba(255, 255, 255, 0.12);
+      transform: scale(1.2);
+    }
+
+    /* Single-Player Arcade Styles */
+    .arcade-hero-banner {
+      background: linear-gradient(135deg, rgba(79, 70, 229, 0.15) 0%, rgba(236, 72, 153, 0.12) 100%);
+      border: 1px solid rgba(99, 102, 241, 0.25);
+      border-radius: 16px;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .arcade-game-card {
+      background: var(--bg-surface, #1e293b);
+      border: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
+      border-radius: 14px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: transform 0.15s ease, border-color 0.15s ease;
+    }
+    .arcade-game-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(99, 102, 241, 0.4);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    }
+    .arcade-leaderboard-card {
+      background: var(--bg-surface, #1e293b);
+      border: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
+      border-radius: 14px;
+      overflow: hidden;
+    }
+    .arcade-modal-card {
+      background: #0f172a;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 18px;
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6);
+      max-width: 520px;
+      width: 95%;
+      margin: 30px auto;
+      overflow: hidden;
+      color: #f8fafc;
+    }
+    .arcade-modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(15, 23, 42, 0.8);
+    }
+    .arcade-modal-body {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    /* 2048 Board */
+    .grid-2048 {
+      display: grid;
+      grid-template-columns: repeat(4, 70px);
+      grid-template-rows: repeat(4, 70px);
+      gap: 8px;
+      background: #bbada0;
+      padding: 8px;
+      border-radius: 10px;
+    }
+    .cell-2048 {
+      background: rgba(238, 228, 218, 0.35);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      font-weight: 800;
+      color: #776e65;
+      user-select: none;
+      transition: all 0.1s ease;
+    }
+    .cell-2048.val-2 { background: #eee4da; color: #776e65; }
+    .cell-2048.val-4 { background: #ede0c8; color: #776e65; }
+    .cell-2048.val-8 { background: #f2b179; color: #f9f6f2; }
+    .cell-2048.val-16 { background: #f59563; color: #f9f6f2; }
+    .cell-2048.val-32 { background: #f67c5f; color: #f9f6f2; }
+    .cell-2048.val-64 { background: #f65e3b; color: #f9f6f2; }
+    .cell-2048.val-128 { background: #edcf72; color: #f9f6f2; font-size: 20px; box-shadow: 0 0 8px rgba(237, 207, 114, 0.5); }
+    .cell-2048.val-256 { background: #edcc61; color: #f9f6f2; font-size: 20px; box-shadow: 0 0 10px rgba(237, 204, 97, 0.6); }
+    .cell-2048.val-512 { background: #edc850; color: #f9f6f2; font-size: 20px; box-shadow: 0 0 12px rgba(237, 200, 80, 0.7); }
+    .cell-2048.val-1024 { background: #edc53f; color: #f9f6f2; font-size: 16px; box-shadow: 0 0 14px rgba(237, 197, 63, 0.8); }
+    .cell-2048.val-2048 { background: #edc22e; color: #f9f6f2; font-size: 16px; box-shadow: 0 0 18px rgba(237, 194, 46, 0.9); }
+
+    /* Memory Match Grid */
+    .memory-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 68px);
+      gap: 10px;
+      user-select: none;
+    }
+    .memory-card {
+      width: 68px;
+      height: 68px;
+      border-radius: 10px;
+      background: #1e293b;
+      border: 2px solid rgba(255, 255, 255, 0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .memory-card:hover:not(.flipped):not(.matched) {
+      border-color: #38bdf8;
+      transform: scale(1.04);
+    }
+    .memory-card.flipped {
+      background: #334155;
+      border-color: #38bdf8;
+      transform: rotateY(180deg);
+    }
+    .memory-card.matched {
+      background: rgba(16, 185, 129, 0.2);
+      border-color: #10b981;
+      cursor: default;
+    }
+
   `;
 
-  document.head.appendChild(style);
+document.head.appendChild(style);
 }

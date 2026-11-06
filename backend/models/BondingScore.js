@@ -20,7 +20,8 @@ const BondingScoreSchema = new mongoose.Schema({
   gameStats: {
     chess: { type: GameStatSchema, default: () => ({}) },
     tictactoe: { type: GameStatSchema, default: () => ({}) },
-    ludo: { type: GameStatSchema, default: () => ({}) }
+    ludo: { type: GameStatSchema, default: () => ({}) },
+    dotsboxes: { type: GameStatSchema, default: () => ({}) }
   },
   badges: [{ type: String }],
   lastPlayedAt: { type: Date, default: Date.now }

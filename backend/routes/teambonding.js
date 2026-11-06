@@ -6,6 +6,7 @@ const BondingScore = mongoose.models.BondingScore || require('../models/BondingS
 const GameInvitation = mongoose.models.GameInvitation || require('../models/GameInvitation');
 const GameMatch = mongoose.models.GameMatch || require('../models/GameMatch');
 const User = mongoose.models.User || require('../models/User');
+const ArcadeScore = mongoose.models.ArcadeScore || require('../models/ArcadeScore');
 const Notification = mongoose.models.Notification || require('../models/Notification');
 const { Chess } = require('chess.js');
 const { verifyToken } = require('../middleware/auth');
@@ -1020,20 +1021,12 @@ router.get('/games/overview', async (req, res) => {
   try {
     const availableGames = [
       {
-        id: 'chess',
-        name: 'Chess Duel',
-        icon: '♟️',
-        desc: 'Classic 8×8 two-player chess with full legal rules: castling, en passant, promotion, and checkmate.',
-        duration: '10–20 mins',
-        modes: ['Untimed', '3 mins', '5 mins']
-      },
-      {
-        id: 'tictactoe',
-        name: 'Tic-Tac-Toe Challenge',
-        icon: '❌',
-        desc: 'Fast-paced 3×3 strategic duel. Match three in a row to win before your opponent blocks you.',
-        duration: '1–3 mins',
-        modes: ['Classic Turn-Based']
+        id: 'dotsboxes',
+        name: 'Dots & Boxes',
+        icon: '⏹️',
+        desc: 'Connect dots, complete boxes, and claim territory! Strategic 2 to 4 player duel with your team.',
+        duration: '3–6 mins',
+        modes: ['2 Players', '3 Players', '4 Players']
       },
       {
         id: 'ludo',
@@ -1042,6 +1035,14 @@ router.get('/games/overview', async (req, res) => {
         desc: 'Classic Ludo with 4 pawns per base! Play 2P, 3P & 4P multiplayer matches with your colleagues.',
         duration: '3–8 mins',
         modes: ['2P Duel', '3P Battle', '4P Royale']
+      },
+      {
+        id: 'tictactoe',
+        name: 'Tic-Tac-Toe Challenge',
+        icon: '❌',
+        desc: 'Fast-paced 3×3 strategic duel. Match three in a row to win before your opponent blocks you.',
+        duration: '1–3 mins',
+        modes: ['Classic Turn-Based']
       }
     ];
 
@@ -1277,13 +1278,178 @@ router.post('/matches/instant-ludo', async (req, res) => {
   }
 });
 
+// POST /api/bonding/matches/instant-dotsboxes - Instant launch for 2P, 3P, or 4P Dots & Boxes
+router.post('/matches/instant-dotsboxes', async (req, res) => {
+  try {
+    const { playerCount = 2, targetUserIds = [] } = req.body;
+    const numPlayers = Math.min(4, Math.max(2, Number(playerCount) || 2));
+    const now = new Date();
+
+    const activeColors = numPlayers === 2
+      ? ['red', 'blue']
+      : (numPlayers === 3
+        ? ['red', 'blue', 'green']
+        : ['red', 'blue', 'green', 'amber']);
+
+    const playersList = [];
+    playersList.push({
+      userId: req.user._id,
+      name: req.user.name,
+      role: req.user.role,
+      color: 'red',
+      assignedRole: 'red'
+    });
+
+    for (let i = 1; i < activeColors.length; i++) {
+      const col = activeColors[i];
+      const targetId = targetUserIds[i - 1];
+      let targetUser = null;
+      if (targetId) {
+        targetUser = await User.findById(targetId);
+      }
+
+      if (targetUser && targetUser.active) {
+        playersList.push({
+          userId: targetUser._id,
+          name: targetUser.name,
+          role: targetUser.role,
+          color: col,
+          assignedRole: col
+        });
+      } else {
+        playersList.push({
+          userId: req.user._id,
+          name: `Colleague ${i + 1}`,
+          role: 'employee',
+          color: col,
+          assignedRole: col
+        });
+      }
+    }
+
+    const rows = 4;
+    const cols = 4;
+    const initialGameState = {
+      rows,
+      cols,
+      playerCount: numPlayers,
+      activeColors,
+      players: playersList,
+      turnColor: 'red',
+      scores: { red: 0, blue: 0, green: 0, amber: 0 },
+      hLines: Array(rows + 1).fill(null).map(() => Array(cols).fill(null)),
+      vLines: Array(rows).fill(null).map(() => Array(cols + 1).fill(null)),
+      boxes: Array(rows).fill(null).map(() => Array(cols).fill(null)),
+      totalBoxes: rows * cols,
+      claimedBoxesCount: 0,
+      lastActionText: `Dots & Boxes (${numPlayers} Players)! Red starts first.`
+    };
+
+    const match = new GameMatch({
+      gameType: 'dotsboxes',
+      gameTitle: `Dots & Boxes ${numPlayers}P Battle`,
+      player1: {
+        userId: playersList[0].userId,
+        name: playersList[0].name,
+        role: playersList[0].role,
+        assignedRole: 'red'
+      },
+      player2: {
+        userId: playersList[1].userId,
+        name: playersList[1].name,
+        role: playersList[1].role,
+        assignedRole: playersList[1].color
+      },
+      players: playersList,
+      playerCount: numPlayers,
+      status: 'active',
+      turn: 'red',
+      currentTurnUserId: req.user._id,
+      gameState: initialGameState,
+      matchSettings: {
+        timerMode: 'none',
+        lastMoveTime: now
+      },
+      moves: []
+    });
+
+    await match.save();
+
+    for (const pl of playersList.slice(1)) {
+      if (pl.userId && pl.userId.toString() !== req.user._id.toString()) {
+        let directChan = await BondingChannel.findOne({
+          type: 'direct',
+          isArchived: { $ne: true },
+          $and: [
+            { 'members.userId': req.user._id },
+            { 'members.userId': pl.userId }
+          ]
+        });
+
+        if (!directChan) {
+          const targetUser = await User.findById(pl.userId);
+          if (targetUser) {
+            directChan = new BondingChannel({
+              name: `${req.user.name} & ${targetUser.name}`,
+              type: 'direct',
+              members: [
+                { userId: req.user._id, name: req.user.name, role: req.user.role, email: req.user.email },
+                { userId: targetUser._id, name: targetUser.name, role: targetUser.role, email: targetUser.email }
+              ]
+            });
+            await directChan.save();
+          }
+        }
+
+        if (directChan) {
+          const cardMsg = new BondingMessage({
+            channelId: directChan._id,
+            sender: {
+              userId: req.user._id,
+              name: req.user.name,
+              role: req.user.role,
+              email: req.user.email
+            },
+            type: 'challenge',
+            content: `⏹️ ${req.user.name} challenged you to a ${numPlayers}P Dots & Boxes match!`,
+            challengeData: {
+              gameType: 'dotsboxes',
+              gameTitle: `Dots & Boxes (${numPlayers}P)`,
+              status: 'active',
+              targetUserId: pl.userId,
+              targetUserName: pl.name,
+              gameState: {
+                matchId: match._id
+              }
+            }
+          });
+          await cardMsg.save();
+        }
+
+        createNotificationForGameChallenge({
+          title: '🎮 Dots & Boxes Match Started!',
+          message: `${req.user.name} challenged you to a ${numPlayers}P Dots & Boxes match! Tap to enter arena.`,
+          targetUserId: pl.userId,
+          channelId: directChan?._id || null,
+          gameType: 'dotsboxes'
+        }).catch(() => {});
+      }
+    }
+
+    recordSyncUpdate('bonding');
+    res.json({ success: true, match, _id: match._id });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // POST /api/bonding/invitations - Create and deliver a game challenge
 router.post('/invitations', async (req, res) => {
   try {
     const { gameType, targetUserId, matchSettings, channelId } = req.body;
 
-    if (!['chess', 'tictactoe', 'ludo'].includes(gameType)) {
-      return res.status(400).json({ error: 'Invalid game type. Choose chess, tictactoe, or ludo.' });
+    if (!['dotsboxes', 'tictactoe', 'ludo', 'chess'].includes(gameType)) {
+      return res.status(400).json({ error: 'Invalid game type. Choose dotsboxes, tictactoe, or ludo.' });
     }
 
     if (!targetUserId) {
@@ -1318,9 +1484,10 @@ router.post('/invitations', async (req, res) => {
     }
 
     const titleMap = {
-      chess: 'Chess Duel',
+      dotsboxes: 'Dots & Boxes',
       tictactoe: 'Tic-Tac-Toe Challenge',
-      ludo: 'Ludo Duel'
+      ludo: 'Ludo Duel',
+      chess: 'Chess Duel'
     };
     const gameTitle = titleMap[gameType] || 'Game Challenge';
 
@@ -1570,6 +1737,40 @@ router.put('/invitations/:id/respond', async (req, res) => {
           lastRoll: null,
           extraRoll: false,
           lastActionText: `Match started (${pCount}P)! Red rolls first.`
+        };
+      } else if (invitation.gameType === 'dotsboxes') {
+        const pCount = Math.max(2, Math.min(4, Number(invitation.matchSettings?.playerCount) || 2));
+        const activeColors = pCount === 4 ? ['red', 'blue', 'green', 'amber'] : (pCount === 3 ? ['red', 'blue', 'green'] : ['red', 'blue']);
+        p1Role = 'red';
+        p2Role = 'blue';
+        initialTurn = 'red';
+
+        const playersList = [
+          { userId: invitation.sender.userId, name: invitation.sender.name, role: invitation.sender.role, color: 'red', assignedRole: 'red', isBot: false },
+          { userId: invitation.recipient.userId, name: invitation.recipient.name, role: invitation.recipient.role, color: 'blue', assignedRole: 'blue', isBot: false }
+        ];
+
+        if (pCount >= 3) {
+          playersList.push({ userId: null, name: 'AI Colleague 1', role: 'employee', color: 'green', assignedRole: 'green', isBot: true });
+        }
+        if (pCount >= 4) {
+          playersList.push({ userId: null, name: 'AI Colleague 2', role: 'employee', color: 'amber', assignedRole: 'amber', isBot: true });
+        }
+
+        initialGameState = {
+          rows: 4,
+          cols: 4,
+          playerCount: pCount,
+          activeColors,
+          players: playersList,
+          turnColor: 'red',
+          scores: { red: 0, blue: 0, green: 0, amber: 0 },
+          hLines: Array(5).fill(null).map(() => Array(4).fill(null)),
+          vLines: Array(4).fill(null).map(() => Array(5).fill(null)),
+          boxes: Array(4).fill(null).map(() => Array(4).fill(null)),
+          totalBoxes: 16,
+          claimedBoxesCount: 0,
+          lastActionText: `Dots & Boxes (${pCount} Players)! Red starts first.`
         };
       }
 
@@ -2084,6 +2285,154 @@ router.post('/matches/:id/move', async (req, res) => {
       }
     }
 
+    /* ── D. DOTS & BOXES (UP TO 4 PLAYERS) MOVE ── */
+    else if (match.gameType === 'dotsboxes') {
+      const { type, r, c } = req.body;
+      const row = Number(r);
+      const col = Number(c);
+
+      if (type !== 'h' && type !== 'v') {
+        return res.status(400).json({ error: 'Line type must be "h" (horizontal) or "v" (vertical)' });
+      }
+
+      const state = match.gameState || {};
+      const rows = state.rows || 4; // 4x4 boxes = 5x5 dots
+      const cols = state.cols || 4;
+      const players = state.players || [match.player1, match.player2];
+      const activeColors = state.activeColors || ['red', 'blue'];
+      const turnColor = match.turn || state.turnColor || 'red';
+
+      // Ensure data arrays exist
+      if (!Array.isArray(state.hLines)) {
+        state.hLines = Array(rows + 1).fill(null).map(() => Array(cols).fill(null));
+      }
+      if (!Array.isArray(state.vLines)) {
+        state.vLines = Array(rows).fill(null).map(() => Array(cols + 1).fill(null));
+      }
+      if (!Array.isArray(state.boxes)) {
+        state.boxes = Array(rows).fill(null).map(() => Array(cols).fill(null));
+      }
+      if (!state.scores) {
+        state.scores = { red: 0, blue: 0, green: 0, amber: 0 };
+      }
+
+      // Bounds validation
+      if (type === 'h') {
+        if (row < 0 || row > rows || col < 0 || col >= cols) {
+          return res.status(400).json({ error: 'Invalid horizontal line coordinates' });
+        }
+        if (state.hLines[row][col]) {
+          return res.status(400).json({ error: 'This horizontal line is already drawn!' });
+        }
+        state.hLines[row][col] = { color: turnColor, player: req.user.name };
+      } else {
+        if (row < 0 || row >= rows || col < 0 || col > cols) {
+          return res.status(400).json({ error: 'Invalid vertical line coordinates' });
+        }
+        if (state.vLines[row][col]) {
+          return res.status(400).json({ error: 'This vertical line is already drawn!' });
+        }
+        state.vLines[row][col] = { color: turnColor, player: req.user.name };
+      }
+
+      // Check newly completed boxes (can complete up to 2 boxes)
+      const newlyCompletedBoxes = [];
+      const isBoxComplete = (br, bc) => {
+        if (br < 0 || br >= rows || bc < 0 || bc >= cols) return false;
+        return !!(state.hLines[br][bc] && state.hLines[br + 1][bc] && state.vLines[br][bc] && state.vLines[br][bc + 1]);
+      };
+
+      const candidateBoxes = [];
+      if (type === 'h') {
+        if (row > 0) candidateBoxes.push([row - 1, col]); // box above
+        if (row < rows) candidateBoxes.push([row, col]); // box below
+      } else {
+        if (col > 0) candidateBoxes.push([row, col - 1]); // box to left
+        if (col < cols) candidateBoxes.push([row, col]); // box to right
+      }
+
+      candidateBoxes.forEach(([br, bc]) => {
+        if (!state.boxes[br][bc] && isBoxComplete(br, bc)) {
+          state.boxes[br][bc] = {
+            owner: turnColor,
+            ownerName: req.user.name,
+            color: turnColor
+          };
+          newlyCompletedBoxes.push([br, bc]);
+        }
+      });
+
+      match.moves.push({
+        moveNum: match.moves.length + 1,
+        playerId: req.user._id,
+        playerRole: turnColor,
+        moveData: { type, r: row, c: col, completedBoxesCount: newlyCompletedBoxes.length },
+        timestamp: now
+      });
+
+      let bonusTurn = false;
+      if (newlyCompletedBoxes.length > 0) {
+        bonusTurn = true;
+        state.scores[turnColor] = (state.scores[turnColor] || 0) + newlyCompletedBoxes.length;
+        state.claimedBoxesCount = (state.claimedBoxesCount || 0) + newlyCompletedBoxes.length;
+        state.lastActionText = `${req.user.name} completed ${newlyCompletedBoxes.length} box(es) and gets a bonus turn! 🎁`;
+      } else {
+        state.lastActionText = `${req.user.name} drew a line.`;
+      }
+
+      // Total boxes = rows * cols (16)
+      const totalBoxes = rows * cols;
+      if ((state.claimedBoxesCount || 0) >= totalBoxes) {
+        // Match finished! Determine winner
+        match.status = 'completed';
+        match.completedAt = now;
+
+        let maxScore = -1;
+        let winners = [];
+        activeColors.forEach(colKey => {
+          const sc = state.scores[colKey] || 0;
+          if (sc > maxScore) {
+            maxScore = sc;
+            winners = [colKey];
+          } else if (sc === maxScore) {
+            winners.push(colKey);
+          }
+        });
+
+        if (winners.length === 1) {
+          const winColor = winners[0];
+          const winPlayer = players.find(p => p.color === winColor) || (winColor === 'red' ? match.player1 : match.player2);
+          match.winnerId = winPlayer?.userId || req.user._id;
+          match.winnerName = winPlayer?.name || req.user.name;
+          match.winnerRole = winColor;
+          match.winningReason = `Claimed ${maxScore} of ${totalBoxes} boxes! 🏆`;
+        } else {
+          match.status = 'draw';
+          match.winningReason = `Tie game with ${maxScore} boxes each! 🤝`;
+        }
+        await awardGameMatchResult(match);
+      } else {
+        // If no bonus turn, rotate turn to next player
+        if (!bonusTurn) {
+          const curIdx = activeColors.indexOf(turnColor);
+          const nextIdx = (curIdx + 1) % activeColors.length;
+          const nextColor = activeColors[nextIdx];
+          match.turn = nextColor;
+          state.turnColor = nextColor;
+
+          const nextPlayer = players.find(p => p.color === nextColor);
+          if (nextPlayer && nextPlayer.userId) {
+            match.currentTurnUserId = nextPlayer.userId;
+          } else {
+            // In 2P match without extra player object, toggle between player1 and player2
+            match.currentTurnUserId = opponentUserId;
+          }
+        }
+      }
+
+      match.gameState = state;
+    }
+
     match.drawOfferedBy = null;
     match.markModified('gameState');
     match.markModified('matchSettings');
@@ -2245,6 +2594,28 @@ router.post('/matches/:id/action', async (req, res) => {
           lastRoll: null,
           lastActionText: 'Rematch started! Red rolls first.'
         };
+      } else if (match.gameType === 'dotsboxes') {
+        initialTurn = 'red';
+        const numP = match.playerCount || 2;
+        const activeColors = numP === 4 ? ['red', 'blue', 'green', 'amber'] : (numP === 3 ? ['red', 'blue', 'green'] : ['red', 'blue']);
+        initialGameState = {
+          rows: 4,
+          cols: 4,
+          playerCount: numP,
+          activeColors,
+          players: match.players && match.players.length ? match.players : [
+            { userId: match.player1.userId, name: match.player1.name, role: match.player1.role, color: 'red', assignedRole: 'red', isBot: false },
+            { userId: match.player2.userId, name: match.player2.name, role: match.player2.role, color: 'blue', assignedRole: 'blue', isBot: false }
+          ],
+          turnColor: 'red',
+          scores: { red: 0, blue: 0, green: 0, amber: 0 },
+          hLines: Array(5).fill(null).map(() => Array(4).fill(null)),
+          vLines: Array(4).fill(null).map(() => Array(5).fill(null)),
+          boxes: Array(4).fill(null).map(() => Array(4).fill(null)),
+          totalBoxes: 16,
+          claimedBoxesCount: 0,
+          lastActionText: 'Rematch started! Red plays first.'
+        };
       }
 
       match.turn = initialTurn;
@@ -2389,6 +2760,122 @@ router.get('/leaderboard', async (req, res) => {
     res.json(leaders);
   } catch (err) {
     res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/bonding/arcade/score - Record single player game score
+router.post('/arcade/score', async (req, res) => {
+  try {
+    const { gameId, gameTitle, score, metrics } = req.body;
+    if (!gameId || typeof score !== 'number') {
+      return res.status(400).json({ error: 'gameId and numeric score required' });
+    }
+
+    const titleMap = {
+      snake: 'Retro Snake',
+      2048: '2048 Puzzle',
+      memory: 'Memory Match'
+    };
+    const title = gameTitle || titleMap[gameId] || 'Arcade Game';
+
+    const newScore = new ArcadeScore({
+      userId: req.user._id,
+      userName: req.user.name,
+      userRole: req.user.role,
+      gameId,
+      gameTitle: title,
+      score: Math.round(score),
+      metrics: metrics || {}
+    });
+    await newScore.save();
+
+    // Check if new personal best
+    const myScores = await ArcadeScore.find({ userId: req.user._id, gameId }).sort({ score: -1 }).limit(2);
+    const isNewPersonalBest = myScores.length === 1 || (myScores.length > 1 && myScores[0]._id.toString() === newScore._id.toString() && myScores[0].score > myScores[1].score);
+
+    // Calculate current rank
+    const higherScoresCount = await ArcadeScore.aggregate([
+      { $match: { gameId } },
+      { $group: { _id: '$userId', maxScore: { $max: '$score' } } },
+      { $match: { maxScore: { $gt: Math.round(score) } } },
+      { $count: 'count' }
+    ]);
+    const rank = (higherScoresCount[0]?.count || 0) + 1;
+
+    // Award bonus points for arcade play
+    await awardPoints(req.user._id, req.user.name, req.user.role, 15, isNewPersonalBest, 'arcade');
+
+    res.status(201).json({
+      success: true,
+      score: newScore,
+      isNewPersonalBest,
+      rank
+    });
+  } catch (err) {
+    console.error('Error recording arcade score:', err);
+    res.status(500).json({ error: 'Failed to record arcade score: ' + err.message });
+  }
+});
+
+// GET /api/bonding/arcade/leaderboard - Retrieve arcade leaderboard
+router.get('/arcade/leaderboard', async (req, res) => {
+  try {
+    const { gameId } = req.query;
+    const matchFilter = (gameId && gameId !== 'all') ? { gameId } : {};
+
+    // Get highest score per user for the game
+    const topPerUser = await ArcadeScore.aggregate([
+      { $match: matchFilter },
+      { $sort: { score: -1 } },
+      {
+        $group: {
+          _id: { userId: '$userId', gameId: '$gameId' },
+          docId: { $first: '$_id' },
+          userId: { $first: '$userId' },
+          userName: { $first: '$userName' },
+          userRole: { $first: '$userRole' },
+          gameId: { $first: '$gameId' },
+          gameTitle: { $first: '$gameTitle' },
+          highScore: { $max: '$score' },
+          createdAt: { $first: '$createdAt' }
+        }
+      },
+      { $sort: { highScore: -1 } },
+      { $limit: 30 }
+    ]);
+
+    const leaderboard = topPerUser.map((entry, index) => ({
+      rank: index + 1,
+      id: entry.docId,
+      userId: entry.userId,
+      userName: entry.userName,
+      userRole: entry.userRole,
+      gameId: entry.gameId,
+      gameTitle: entry.gameTitle,
+      score: entry.highScore,
+      date: entry.createdAt
+    }));
+
+    const myBests = await ArcadeScore.aggregate([
+      { $match: { userId: req.user._id } },
+      {
+        $group: {
+          _id: '$gameId',
+          gameId: { $first: '$gameId' },
+          gameTitle: { $first: '$gameTitle' },
+          highScore: { $max: '$score' },
+          lastPlayed: { $max: '$createdAt' }
+        }
+      }
+    ]);
+
+    res.json({
+      leaderboard,
+      myBests
+    });
+  } catch (err) {
+    console.error('Error fetching arcade leaderboard:', err);
+    res.status(500).json({ error: 'Failed to fetch leaderboard: ' + err.message });
   }
 });
 
