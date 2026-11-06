@@ -19,3 +19,4 @@ const ArcadeScoreSchema = new mongoose.Schema({
 ArcadeScoreSchema.index({ gameId: 1, score: -1 });
 
 module.exports = mongoose.models.ArcadeScore || mongoose.model('ArcadeScore', ArcadeScoreSchema);
+

@@ -2149,6 +2149,9 @@ router.post('/matches/:id/move', async (req, res) => {
         if (movable.length === 0) {
           state.rolled = false;
           state.dice = null;
+          state.lastRoll = null;
+          state.lastRollColor = null;
+          state.lastRollBy = null;
           state.lastActionText = `${req.user.name} (${turnColor.toUpperCase()}) rolled a ${dice} — No legal moves. Turn passed!`;
 
           match.moves.push({
@@ -2270,6 +2273,9 @@ router.post('/matches/:id/move', async (req, res) => {
           state.lastActionText = `${req.user.name} moved Pawn ${tId + 1}. ${reason} Bonus roll awarded! 🎲`;
         } else {
           state.lastActionText = `${req.user.name} moved Pawn ${tId + 1}.`;
+          state.lastRoll = null;
+          state.lastRollColor = null;
+          state.lastRollBy = null;
           const curIdx = activeColors.indexOf(turnColor);
           const nextColor = activeColors[(curIdx + 1) % activeColors.length];
           state.turnColor = nextColor;

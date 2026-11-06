@@ -2339,7 +2339,14 @@ export async function initTeamBonding(container, options = {}) {
         }
       }
 
-      function renderNumberDisplay(val) {
+      function renderNumberDisplay(val, isWaiting = false) {
+        if (isWaiting || !val) {
+          return `
+            <div class="ludo-direct-number-box num-prompt" role="img" aria-label="Dice ready">
+              <span class="ludo-direct-num prompt-icon" style="font-size:30px;line-height:1;">🎲</span>
+            </div>
+          `;
+        }
         const v = Math.max(1, Math.min(6, Number(val) || 1));
         return `
           <div class="ludo-direct-number-box num-${v}" role="img" aria-label="Number ${v}">
@@ -2401,8 +2408,9 @@ export async function initTeamBonding(container, options = {}) {
       const turnColorEmoji = { red: '🔴', green: '🟢', yellow: '🟡', blue: '🔵' }[currentTurnColor] || '🔴';
       const myColorEmoji = { red: '🔴', green: '🟢', yellow: '🟡', blue: '🔵' }[myColor] || '🔴';
 
-      const displayDice = dice || state.lastRoll || 6;
-      const canClickRoll = isMyCurrentTurn && !rolled && match.status === 'active';
+      const hasRolled = Boolean(rolled && (dice || (state.lastRoll && state.lastRollColor === currentTurnColor)));
+      const displayDice = dice || (hasRolled ? state.lastRoll : null);
+      const canClickRoll = isMyCurrentTurn && !hasRolled && match.status === 'active';
       const myTokens = getTokensForColor(myColor);
       const movableTokens = myTokens.filter(t => isTokenMovable(myColor, t));
 
@@ -2461,14 +2469,14 @@ export async function initTeamBonding(container, options = {}) {
           <div class="ludo-interactive-console">
             <div class="ludo-dice-interactive-box">
               <div 
-                class="ludo-3d-dice ${canClickRoll ? 'clickable' : ''} ${rolled ? 'just-rolled' : ''} border-${currentTurnColor}"
+                class="ludo-3d-dice ${canClickRoll ? 'clickable' : ''} ${hasRolled ? 'just-rolled' : ''} border-${currentTurnColor}"
                 id="btn-interactive-ludo-dice"
                 role="button"
                 tabindex="${canClickRoll ? '0' : '-1'}"
-                title="${canClickRoll ? 'Tap dice to roll!' : (isMyCurrentTurn ? 'Choose a pawn to move' : `${turnPlName}'s turn`)}"
+                title="${canClickRoll ? 'Tap dice to roll!' : (isMyCurrentTurn ? 'Choose a pawn to move' : (hasRolled ? `${turnPlName} rolled ${displayDice}` : `Waiting for ${turnPlName} to roll`))}"
                 style="${canClickRoll ? 'cursor:pointer;touch-action:manipulation;' : ''}"
               >
-                ${renderNumberDisplay(displayDice)}
+                ${renderNumberDisplay(displayDice, !hasRolled)}
               </div>
             </div>
 
@@ -2484,17 +2492,17 @@ export async function initTeamBonding(container, options = {}) {
         }
               </div>
 
-              <div class="ludo-guidance-message ${isMyCurrentTurn && rolled ? 'highlight' : ''}">
-                ${isMyCurrentTurn && !rolled && match.status === 'active'
+              <div class="ludo-guidance-message ${isMyCurrentTurn && hasRolled ? 'highlight' : ''}">
+                ${isMyCurrentTurn && !hasRolled && match.status === 'active'
           ? '👉 It is your turn! <strong>Click the dice</strong> to roll!'
-          : (isMyCurrentTurn && rolled && match.status === 'active'
+          : (isMyCurrentTurn && hasRolled && match.status === 'active'
             ? (movableTokens.length > 0
               ? (movableTokens.length === 1
                 ? `🎲 Rolled <strong>${displayDice}</strong>! Auto-advancing single pawn...`
                 : `🎲 Rolled <strong>${displayDice}</strong>! Tap your <strong>glowing pawn</strong> to move!`)
               : `🎲 Rolled <strong>${displayDice}</strong>. No legal moves possible — turn passing...`)
             : (match.status === 'active'
-              ? (rolled || state.lastRoll
+              ? (hasRolled
                 ? `🎲 ${turnColorEmoji} <strong>${turnPlName}</strong> rolled <strong>${displayDice}</strong>!`
                 : `⏳ Waiting for <strong>${turnPlName}</strong> to roll the dice...`)
               : '🏁 Match Concluded')
@@ -2762,6 +2770,7 @@ export async function initTeamBonding(container, options = {}) {
         const state = match.gameState || {};
         const rolled = !!state.rolled;
         const currentTurnColor = state.turnColor || match.turn || 'red';
+        const hasRolled = Boolean(rolled && (state.dice || (state.lastRoll && state.lastRollColor === currentTurnColor)));
         const myId = currentUser?._id || currentUser?.id;
         const players = state.players || [
           { ...match.player1, color: 'red', assignedRole: 'red', isBot: false },
@@ -2786,7 +2795,7 @@ export async function initTeamBonding(container, options = {}) {
               flashToast(`${turnPlName}'s turn right now`, 'info');
               return;
             }
-            if (rolled) {
+            if (hasRolled) {
               flashToast('Dice already rolled! Tap your glowing pawn to move.', 'info');
               return;
             }
@@ -2838,7 +2847,7 @@ export async function initTeamBonding(container, options = {}) {
         }
 
         // Automatic pawn movement when only 1 pawn is movable
-        if (isMyCurrentTurn && rolled) {
+        if (isMyCurrentTurn && hasRolled) {
           const allTokens = state.tokens || {};
           const myTokensList = allTokens[myColor] || [];
           const diceVal = state.dice || state.lastRoll || 0;
@@ -7017,6 +7026,12 @@ function injectBondingStyles() {
 
     .ludo-3d-dice.clickable {
       cursor: pointer !important;
+      animation: ludoDicePulse 1.8s ease-in-out infinite alternate !important;
+    }
+
+    @keyframes ludoDicePulse {
+      0% { transform: scale(0.98); }
+      100% { transform: scale(1.04); }
     }
 
     .ludo-3d-dice.clickable:hover {
