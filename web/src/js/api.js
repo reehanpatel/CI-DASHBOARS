@@ -1865,7 +1865,6 @@ export function renderAppShell({ user, currentRole, activeTab, tabs, title, subt
           </button>
         </div>
         <nav class="sidebar-nav" role="navigation" aria-label="Main navigation">
-          <div class="nav-group-label">Navigation</div>
           ${effectiveTabs.map(t => t.href ? `
             <a href="${t.href}" class="sidebar-item ${activeTab === t.key ? 'active' : ''}" data-tab="${t.key}" aria-current="${activeTab === t.key ? 'page' : 'false'}" style="text-decoration:none;">
               <span class="icon">${t.icon || '📌'}</span>

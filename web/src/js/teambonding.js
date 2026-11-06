@@ -1756,125 +1756,172 @@ export async function initTeamBonding(container, options = {}) {
       const isMyTurn = myId && match.currentTurnUserId && match.currentTurnUserId.toString() === myId.toString();
       const isEnded = match.status !== 'active';
 
+      // Determine player list for the left sidebar
+      let playersList = [];
+      if (match.gameState?.players && Array.isArray(match.gameState.players) && match.gameState.players.length > 0) {
+        playersList = match.gameState.players;
+      } else {
+        playersList = [match.player1, match.player2].filter(Boolean);
+      }
+
+      const animalPersonas = [
+        { emoji: '🐻', name: 'Gentle Bear' },
+        { emoji: '🦌', name: 'Clever Deer' },
+        { emoji: '🦊', name: 'Swift Fox' },
+        { emoji: '🦁', name: 'Mighty Lion' }
+      ];
+
       modalRoot.innerHTML = `
         <div class="bonding-modal-backdrop">
-          <div class="bonding-modal-card game-arena-modal">
+          <div class="bonding-modal-card game-arena-modal arena-split-layout">
             <!-- Dedicated Top-Right Close Button -->
             <button class="arena-close-btn" id="btn-close-arena" title="Exit Match">&times;</button>
 
-            <!-- Arena Header Bar -->
-            <div class="arena-header">
-              <div class="arena-title-wrap">
-                <span class="arena-icon">${match.gameType === 'ludo' ? '🎲' : (match.gameType === 'dotsboxes' ? '⏹️' : (match.gameType === 'chess' ? '♟️' : '❌'))}</span>
-                <div>
-                  <h3 class="arena-title">${escapeHtml(match.gameTitle)}</h3>
-                  ${(match.gameType === 'ludo' || match.gameType === 'dotsboxes') && match.gameState?.players ? `
-                    <div class="arena-players-vs ludo-players-wrap">
-                      ${match.gameState.players.map(p => {
-        const isMe = p.userId && p.userId.toString() === myId?.toString();
-        const colorEmoji = { red: '🔴', green: '🟢', yellow: '🟡', blue: '🔵', amber: '🟠' }[p.color] || '⚪';
-        const isTurn = (match.gameState?.turnColor || match.turn) === p.color;
-        return `
-                          <span class="player-tag ${isMe ? 'self' : 'opp'} ${isTurn ? 'turn-active' : ''}">
-                            ${colorEmoji} <strong>${escapeHtml(p?.name || 'Player')}</strong> ${isMe ? '(You)' : ''}
-                          </span>
-                        `;
-      }).join('<span class="vs-pill">vs</span>')}
+            <!-- Left Sidebar Panel with Players & Controls -->
+            <aside class="arena-sidebar-panel">
+              <div class="arena-sidebar-players">
+                ${playersList.map((p, idx) => {
+                  const persona = animalPersonas[idx] || { emoji: '🎮', name: 'Challenger' };
+                  const isMe = p.userId && myId && p.userId.toString() === myId.toString();
+
+                  // Turn Detection & Indicator Symbol
+                  let isTurn = false;
+                  let turnSymbol = '✕';
+                  if (match.gameType === 'tictactoe') {
+                    const assigned = p.assignedRole || (idx === 0 ? 'X' : 'O');
+                    isTurn = ((match.turn === assigned) || (match.currentTurnUserId && p.userId && match.currentTurnUserId.toString() === p.userId.toString())) && !isEnded;
+                    turnSymbol = assigned === 'O' ? '◯' : '✕';
+                  } else if (match.gameType === 'dotsboxes') {
+                    const turnColor = match.turn || match.gameState?.turnColor;
+                    isTurn = (((p.color && p.color === turnColor) || (match.gameState?.turnIndex !== undefined && match.gameState.turnIndex === idx)) || (match.currentTurnUserId && p.userId && match.currentTurnUserId.toString() === p.userId.toString())) && !isEnded;
+                    turnSymbol = '⏹';
+                  } else if (match.gameType === 'ludo') {
+                    const turnColor = match.turn || match.gameState?.turnColor;
+                    isTurn = ((p.color && p.color === turnColor) || (match.currentTurnUserId && p.userId && match.currentTurnUserId.toString() === p.userId.toString())) && !isEnded;
+                    turnSymbol = '🎲';
+                  } else {
+                    const assigned = p.assignedRole || (idx === 0 ? 'white' : 'black');
+                    isTurn = ((match.turn === assigned) || (match.currentTurnUserId && p.userId && match.currentTurnUserId.toString() === p.userId.toString())) && !isEnded;
+                    turnSymbol = '♟';
+                  }
+
+                  // Additional score or token status
+                  let extraDetail = '';
+                  if (match.gameType === 'dotsboxes' && match.gameState?.scores) {
+                    const score = match.gameState.scores[p.color] || 0;
+                    extraDetail = ` · ${score} pts`;
+                  } else if (match.gameType === 'ludo' && match.gameState?.tokens) {
+                    const tokens = match.gameState.tokens[p.color] || [];
+                    const finished = tokens.filter(t => t.step >= 57).length;
+                    extraDetail = ` · ${finished}/4 Home`;
+                  }
+
+                  const displayName = p.name ? p.name : persona.name;
+                  const displayRole = isMe ? 'You' : 'Opponent';
+
+                  return `
+                    <div class="game-sidebar-player-row ${isTurn ? 'active-turn' : ''}">
+                      <div class="turn-indicator-slot">
+                        ${isTurn ? `
+                          <div class="turn-pointer-pill">
+                            <span class="pill-sym">${turnSymbol}</span>
+                            <span class="pill-txt">Turn</span>
+                          </div>
+                        ` : ''}
+                      </div>
+                      <div class="game-player-avatar-circle p-color-${idx}">
+                        <span class="avatar-emoji">${persona.emoji}</span>
+                      </div>
+                      <div class="game-player-meta">
+                        <div class="game-player-name" title="${escapeHtml(displayName)}">${escapeHtml(displayName)}</div>
+                        <div class="game-player-role">${displayRole}${extraDetail}</div>
+                      </div>
                     </div>
+                  `;
+                }).join('')}
+              </div>
+
+              <!-- Sidebar Bottom Footer -->
+              <div class="arena-sidebar-footer">
+                <div class="game-code-display">Game code: <strong>${(match._id || '7370').slice(-4).toUpperCase()}</strong></div>
+                <div class="arena-sidebar-divider"></div>
+                <div class="arena-sidebar-actions">
+                  <button class="sidebar-action-item" id="btn-arena-settings" type="button" title="Game Settings">
+                    <span class="action-icon">⚙️</span>
+                    <span>Settings</span>
+                  </button>
+                  ${!isEnded ? `
+                    <button class="sidebar-action-item" id="btn-arena-resign" type="button" title="Surrender Match">
+                      <span class="action-icon">🤝</span>
+                      <span>Surrender</span>
+                    </button>
                   ` : `
-                    <div class="arena-players-vs">
-                      <span class="player-tag self">${escapeHtml(me?.name || 'You')} (You · <strong>${match.gameType === 'ludo' ? (me?.assignedRole === 'red' ? '🔴 Red' : '🟢 Green') : (match.gameType === 'tictactoe' ? (me?.assignedRole === 'X' ? '✕' : '◯') : (me?.assignedRole || ''))}</strong>)</span>
-                      <span class="vs-pill">VS</span>
-                      <span class="player-tag opp">${escapeHtml(opp?.name || 'Opponent')} (<strong>${match.gameType === 'ludo' ? (opp?.assignedRole === 'red' ? '🔴 Red' : '🟢 Green') : (match.gameType === 'tictactoe' ? (opp?.assignedRole === 'X' ? '✕' : '◯') : (opp?.assignedRole || ''))}</strong>)</span>
-                    </div>
+                    <button class="sidebar-action-item danger" id="btn-arena-delete-match" type="button" title="Delete Match">
+                      <span class="action-icon">🗑️</span>
+                      <span>Delete Match</span>
+                    </button>
                   `}
-                </div>
-              </div>
-
-              <!-- Live Turn Indicator -->
-              <div class="arena-turn-banner ${isEnded ? 'ended' : (isMyTurn ? 'my-turn' : 'opp-turn')}">
-                ${isEnded
-          ? `<span>🏁 Finished (${escapeHtml(match.winningReason || match.status)})</span>`
-          : (isMyTurn
-            ? `<span>⚡ YOUR TURN</span>`
-            : `<span>⏳ Waiting for ${escapeHtml(opp?.name || 'Opponent')}...</span>`
-          )
-        }
-              </div>
-            </div>
-
-            <!-- Sub-Toolbar with Quick Instructions & Draw/Resign Actions -->
-            <div class="arena-toolbar">
-              <div class="arena-tip-text">
-                ${match.gameType === 'dotsboxes'
-          ? (isMyTurn ? '👉 Tap any open line between two dots to draw!' : '⏳ Opponent is deciding their move...')
-          : (match.gameType === 'ludo'
-            ? (isMyTurn
-              ? (match.gameState?.rolled
-                ? '👉 Click one of your glowing tokens to advance!'
-                : '🎲 Your turn! Tap the dice to roll.')
-              : '⏳ Opponent is rolling/moving their tokens...')
-            : (match.gameType === 'tictactoe'
-              ? (isMyTurn ? '👉 Tap any open cell to place your symbol!' : '⏳ Opponent is deciding their move...')
-              : (isMyTurn ? '👉 Click your piece, then click a green target dot to move!' : '⏳ Opponent is thinking...')))}
-              </div>
-              <div class="arena-action-btns">
-                ${!isEnded ? `
-                  <button class="btn-arena-action" id="btn-arena-draw" title="Offer a Draw">🤝 Offer Draw</button>
-                  <button class="btn-arena-action danger" id="btn-arena-resign" title="Resign Match">🏳️ Resign</button>
-                ` : ''}
-                <button class="btn-arena-action danger" id="btn-arena-delete-match" title="Delete Match">🗑️ Delete</button>
-              </div>
-            </div>
-
-            <!-- Draw Offer Notification -->
-            ${match.drawOfferedBy && match.drawOfferedBy.toString() !== myId?.toString() && !isEnded ? `
-              <div class="arena-draw-offer-banner">
-                <span>🤝 ${escapeHtml(opp?.name || 'Opponent')} has offered a draw. Accept?</span>
-                <button class="btn-accept-draw" id="btn-confirm-accept-draw">Accept Draw</button>
-                <button class="btn-decline-draw" id="btn-confirm-decline-draw">Decline</button>
-              </div>
-            ` : ''}
-
-            <!-- Arena Main Playing Board -->
-            <div class="arena-board-wrap">
-              ${match.gameType === 'dotsboxes' ? renderDotsBoxesBoardHtml(isP1, me, isMyTurn) : ''}
-              ${match.gameType === 'chess' ? renderChessBoardHtml(isP1) : ''}
-              ${match.gameType === 'tictactoe' ? renderTicTacToeBoardHtml() : ''}
-              ${match.gameType === 'ludo' ? renderLudoBoardHtml(isP1, me, isMyTurn) : ''}
-            </div>
-
-            <!-- Match Result Banner (When finished) -->
-            ${isEnded ? `
-              <div class="arena-game-over-banner">
-                <div class="game-over-icon">${match.winnerId && match.winnerId.toString() === myId?.toString() ? '🏆' : (match.status === 'draw' ? '🤝' : '🎖️')}</div>
-                <div class="game-over-text">
-                  <h4>${match.winnerId && match.winnerId.toString() === myId?.toString() ? 'VICTORY!' : (match.status === 'draw' ? 'STALEMATE / DRAW' : `${escapeHtml(match.winnerName)} Wins!`)}</h4>
-                  <p>Reason: ${escapeHtml(match.winningReason || 'Match concluded')}</p>
-                </div>
-                <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-                  ${match.rematchOfferedBy && match.rematchOfferedBy.toString() === myId?.toString() ? `
-                    <div class="game-pending-text" style="font-size:12px;color:var(--text-2);padding:6px 12px;background:var(--bg-surface);border-radius:var(--r-md);border:1px solid var(--border-sm);">
-                      ⏳ Rematch requested. Waiting for opponent...
-                    </div>
-                  ` : (match.rematchOfferedBy ? `
-                    <button class="btn-arena-rematch" id="btn-arena-accept-rematch" style="background:#10b981;border-color:#10b981;">
-                      ✅ Accept Rematch
-                    </button>
-                    <button class="btn-arena-action" id="btn-arena-decline-rematch" style="border:1px solid var(--border-sm);">
-                      ❌ Decline
-                    </button>
-                  ` : `
-                    <button class="btn-arena-rematch" id="btn-arena-rematch-action">
-                      🔄 Request Rematch
-                    </button>
-                  `)}
-                  <button class="btn-arena-action danger" id="btn-arena-delete-match-ended">
-                    🗑️ Delete Match
+                  <button class="sidebar-action-item" id="btn-sidebar-leave" type="button" title="Exit Match">
+                    <span class="action-icon">🚪</span>
+                    <span>Leave Game</span>
                   </button>
                 </div>
               </div>
-            ` : ''}
+            </aside>
+
+            <!-- Right Main Arena Canvas -->
+            <main class="arena-main-content">
+              <!-- Draw Offer Notification -->
+              ${match.drawOfferedBy && match.drawOfferedBy.toString() !== myId?.toString() && !isEnded ? `
+                <div class="arena-draw-offer-banner">
+                  <span>🤝 ${escapeHtml(opp?.name || 'Opponent')} has offered a draw. Accept?</span>
+                  <div style="display:flex;gap:8px;">
+                    <button class="btn-accept-draw" id="btn-confirm-accept-draw">Accept Draw</button>
+                    <button class="btn-decline-draw" id="btn-confirm-decline-draw">Decline</button>
+                  </div>
+                </div>
+              ` : ''}
+
+              <!-- Main Playing Board -->
+              <div class="arena-board-wrap">
+                ${match.gameType === 'dotsboxes' ? renderDotsBoxesBoardHtml(isP1, me, isMyTurn) : ''}
+                ${match.gameType === 'chess' ? renderChessBoardHtml(isP1) : ''}
+                ${match.gameType === 'tictactoe' ? renderTicTacToeBoardHtml() : ''}
+                ${match.gameType === 'ludo' ? renderLudoBoardHtml(isP1, me, isMyTurn) : ''}
+              </div>
+
+              <!-- Match Result Banner (When finished) -->
+              ${isEnded ? `
+                <div class="arena-game-over-banner">
+                  <div class="game-over-icon">${match.winnerId && match.winnerId.toString() === myId?.toString() ? '🏆' : (match.status === 'draw' ? '🤝' : '🎖️')}</div>
+                  <div class="game-over-text">
+                    <h4>${match.winnerId && match.winnerId.toString() === myId?.toString() ? 'VICTORY!' : (match.status === 'draw' ? 'STALEMATE / DRAW' : `${escapeHtml(match.winnerName)} Wins!`)}</h4>
+                    <p>Reason: ${escapeHtml(match.winningReason || 'Match concluded')}</p>
+                  </div>
+                  <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                    ${match.rematchOfferedBy && match.rematchOfferedBy.toString() === myId?.toString() ? `
+                      <div class="game-pending-text" style="font-size:12px;color:var(--text-2);padding:6px 12px;background:rgba(255,255,255,0.06);border-radius:var(--r-md);border:1px solid rgba(255,255,255,0.1);">
+                        ⏳ Rematch requested. Waiting for opponent...
+                      </div>
+                    ` : (match.rematchOfferedBy ? `
+                      <button class="btn-arena-rematch" id="btn-arena-accept-rematch" style="background:#10b981;border-color:#10b981;">
+                        ✅ Accept Rematch
+                      </button>
+                      <button class="btn-arena-action" id="btn-arena-decline-rematch" style="border:1px solid rgba(255,255,255,0.15);">
+                        ❌ Decline
+                      </button>
+                    ` : `
+                      <button class="btn-arena-rematch" id="btn-arena-rematch-action">
+                        🔄 Request Rematch
+                      </button>
+                    `)}
+                    <button class="btn-arena-action danger" id="btn-arena-delete-match-ended">
+                      🗑️ Delete Match
+                    </button>
+                  </div>
+                </div>
+              ` : ''}
+            </main>
           </div>
         </div>
       `;
@@ -2101,16 +2148,31 @@ export async function initTeamBonding(container, options = {}) {
       const winningCells = match.winningCells || [];
 
       return `
-        <div class="ttt-court">
-          <div class="ttt-board-grid">
+        <div class="ttt-modern-court">
+          <div class="ttt-modern-grid">
             ${board.map((cell, idx) => {
-        const isWinCell = winningCells.includes(idx);
-        return `
-                <div class="ttt-cell ${cell ? 'filled' : 'empty'} ${isWinCell ? 'win-cell' : ''}" data-cell-idx="${idx}">
-                  ${cell === 'X' ? '<span class="ttt-x">✕</span>' : (cell === 'O' ? '<span class="ttt-o">◯</span>' : '')}
+              const isWinCell = winningCells.includes(idx);
+              let symbolSvg = '';
+              if (cell === 'X') {
+                symbolSvg = `
+                  <svg class="ttt-svg-symbol x" width="58" height="58" viewBox="0 0 58 58" fill="none">
+                    <line x1="15" y1="15" x2="43" y2="43" stroke="#2563EB" stroke-width="8" stroke-linecap="round"/>
+                    <line x1="43" y1="15" x2="15" y2="43" stroke="#2563EB" stroke-width="8" stroke-linecap="round"/>
+                  </svg>
+                `;
+              } else if (cell === 'O') {
+                symbolSvg = `
+                  <svg class="ttt-svg-symbol o" width="58" height="58" viewBox="0 0 58 58" fill="none">
+                    <circle cx="29" cy="29" r="16" stroke="#FF2A5F" stroke-width="8" fill="none"/>
+                  </svg>
+                `;
+              }
+              return `
+                <div class="ttt-cell ttt-modern-tile ${cell ? 'filled' : 'empty'} ${isWinCell ? 'win-cell' : ''}" data-cell-idx="${idx}">
+                  ${symbolSvg}
                 </div>
               `;
-      }).join('')}
+            }).join('')}
           </div>
         </div>
       `;
@@ -2474,9 +2536,20 @@ export async function initTeamBonding(container, options = {}) {
     }
 
     function bindArenaEvents(isMyTurn, isP1, me) {
-      modalRoot.querySelector('#btn-close-arena').onclick = closeMatchModal;
+      const btnClose = modalRoot.querySelector('#btn-close-arena');
+      if (btnClose) btnClose.onclick = closeMatchModal;
 
-      // Resign
+      const btnSidebarLeave = modalRoot.querySelector('#btn-sidebar-leave');
+      if (btnSidebarLeave) btnSidebarLeave.onclick = closeMatchModal;
+
+      const btnSettings = modalRoot.querySelector('#btn-arena-settings');
+      if (btnSettings) {
+        btnSettings.onclick = () => {
+          flashToast(`🎮 ${match.gameTitle} • Code ${(match._id || '7370').slice(-4).toUpperCase()} • Audio & Visual cues enabled`, 'info');
+        };
+      }
+
+      // Resign / Surrender
       const btnResign = modalRoot.querySelector('#btn-arena-resign');
       if (btnResign) {
         btnResign.onclick = async () => {
@@ -5010,26 +5083,293 @@ function injectBondingStyles() {
     }
 
     /* =========================================================================
-       LIVE GAME ARENA MODAL & BOARDS (CHESS, TIC-TAC-TOE, CONNECT FOUR)
+       LIVE GAME ARENA MODAL & SPLIT LAYOUT (DARK THEME WITH LEFT SIDEBAR)
        ========================================================================= */
-    /* =========================================================================
-       LIVE GAME ARENA MODAL & BOARDS (CHESS, TIC-TAC-TOE, CONNECT FOUR)
-       ========================================================================= */
-    .game-arena-modal {
-      width: 660px;
-      max-width: 95vw;
-      padding: 24px;
-      position: relative;
-      background: var(--bg-card, #ffffff);
-      border: 1px solid var(--border-sm, #e2e8f0);
-      border-radius: 20px;
-      box-shadow: 0 25px 60px rgba(0,0,0,0.22);
+    .game-arena-modal.arena-split-layout {
+      width: 740px !important;
+      max-width: 95vw !important;
+      min-height: 480px !important;
+      max-height: 90vh !important;
+      padding: 0 !important;
+      background: #13151b !important;
+      border: 1px solid rgba(255, 255, 255, 0.08) !important;
+      border-radius: 22px !important;
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8) !important;
+      display: flex !important;
+      flex-direction: row !important;
+      overflow: hidden !important;
+      position: relative !important;
     }
 
-    [data-theme="dark"] .game-arena-modal {
-      background: #0f172a;
-      border-color: #1e293b;
-      box-shadow: 0 25px 60px rgba(0,0,0,0.7);
+    [data-theme="dark"] .game-arena-modal.arena-split-layout {
+      background: #111319 !important;
+      border-color: rgba(255, 255, 255, 0.08) !important;
+    }
+
+    /* Left Sidebar Panel */
+    .arena-sidebar-panel {
+      width: 250px !important;
+      flex-shrink: 0 !important;
+      background: #161922 !important;
+      border-right: 1px solid rgba(255, 255, 255, 0.06) !important;
+      padding: 24px 18px !important;
+      display: flex !important;
+      flex-direction: column !important;
+      box-sizing: border-box !important;
+      position: relative !important;
+    }
+
+    .arena-sidebar-players {
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 16px !important;
+    }
+
+    .game-sidebar-player-row {
+      display: flex !important;
+      align-items: center !important;
+      gap: 10px !important;
+      position: relative !important;
+    }
+
+    .turn-indicator-slot {
+      width: 70px !important;
+      display: flex !important;
+      justify-content: flex-end !important;
+      align-items: center !important;
+      flex-shrink: 0 !important;
+    }
+
+    .turn-pointer-pill {
+      position: relative !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 4px !important;
+      background: #0070F3 !important;
+      color: #ffffff !important;
+      font-size: 11px !important;
+      font-weight: 800 !important;
+      padding: 4px 8px !important;
+      border-radius: 6px !important;
+      letter-spacing: 0.2px !important;
+      box-shadow: 0 2px 8px rgba(0, 112, 243, 0.4) !important;
+    }
+
+    .turn-pointer-pill::after {
+      content: '' !important;
+      position: absolute !important;
+      right: -5px !important;
+      top: 50% !important;
+      transform: translateY(-50%) !important;
+      width: 0 !important;
+      height: 0 !important;
+      border-top: 5px solid transparent !important;
+      border-bottom: 5px solid transparent !important;
+      border-left: 5px solid #0070F3 !important;
+    }
+
+    .turn-pointer-pill .pill-sym {
+      font-size: 11px !important;
+      line-height: 1 !important;
+    }
+
+    .turn-pointer-pill .pill-txt {
+      font-size: 11px !important;
+      line-height: 1 !important;
+      text-transform: capitalize !important;
+    }
+
+    .game-player-avatar-circle {
+      width: 42px !important;
+      height: 42px !important;
+      border-radius: 50% !important;
+      background: #202531 !important;
+      border: 2px solid rgba(255, 255, 255, 0.12) !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      font-size: 20px !important;
+      flex-shrink: 0 !important;
+      transition: all 0.2s ease !important;
+    }
+
+    .game-sidebar-player-row.active-turn .game-player-avatar-circle {
+      border-color: #0070F3 !important;
+      box-shadow: 0 0 14px rgba(0, 112, 243, 0.45) !important;
+    }
+
+    .game-player-meta {
+      display: flex !important;
+      flex-direction: column !important;
+      min-width: 0 !important;
+    }
+
+    .game-player-name {
+      font-size: 13.5px !important;
+      font-weight: 700 !important;
+      color: #f1f5f9 !important;
+      white-space: nowrap !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+    }
+
+    .game-player-role {
+      font-size: 11.5px !important;
+      color: #94a3b8 !important;
+      font-weight: 500 !important;
+    }
+
+    /* Sidebar Footer */
+    .arena-sidebar-footer {
+      margin-top: auto !important;
+      padding-top: 24px !important;
+    }
+
+    .game-code-display {
+      font-size: 12.5px !important;
+      color: #94a3b8 !important;
+      margin-bottom: 12px !important;
+      font-weight: 500 !important;
+    }
+
+    .game-code-display strong {
+      color: #f1f5f9 !important;
+      letter-spacing: 0.5px !important;
+    }
+
+    .arena-sidebar-divider {
+      height: 1px !important;
+      background: rgba(255, 255, 255, 0.08) !important;
+      margin-bottom: 12px !important;
+    }
+
+    .arena-sidebar-actions {
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 4px !important;
+    }
+
+    .sidebar-action-item {
+      display: flex !important;
+      align-items: center !important;
+      gap: 10px !important;
+      padding: 8px 10px !important;
+      border-radius: 8px !important;
+      background: transparent !important;
+      border: none !important;
+      color: #cbd5e1 !important;
+      font-size: 13px !important;
+      font-weight: 500 !important;
+      cursor: pointer !important;
+      text-align: left !important;
+      transition: all 0.15s ease !important;
+      width: 100% !important;
+    }
+
+    .sidebar-action-item:hover {
+      background: rgba(255, 255, 255, 0.06) !important;
+      color: #ffffff !important;
+    }
+
+    .sidebar-action-item.danger:hover {
+      background: rgba(239, 68, 68, 0.15) !important;
+      color: #ef4444 !important;
+    }
+
+    .sidebar-action-item .action-icon {
+      font-size: 15px !important;
+      opacity: 0.85 !important;
+    }
+
+    /* Right Main Content Area */
+    .arena-main-content {
+      flex: 1 !important;
+      background: #13151b !important;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      justify-content: center !important;
+      padding: 24px !important;
+      box-sizing: border-box !important;
+      position: relative !important;
+      overflow-y: auto !important;
+    }
+
+    /* Modern Tic-Tac-Toe Court & Tiles matching screenshot */
+    .ttt-modern-court {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      user-select: none !important;
+    }
+
+    .ttt-modern-grid {
+      display: grid !important;
+      grid-template-columns: repeat(3, 104px) !important;
+      grid-template-rows: repeat(3, 104px) !important;
+      gap: 14px !important;
+      padding: 12px !important;
+      box-sizing: border-box !important;
+    }
+
+    .ttt-modern-tile {
+      width: 104px !important;
+      height: 104px !important;
+      border-radius: 18px !important;
+      background: #1c202a !important;
+      border: 1px solid rgba(255, 255, 255, 0.04) !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25) !important;
+      transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1) !important;
+      cursor: default !important;
+    }
+
+    .ttt-modern-tile.empty {
+      cursor: pointer !important;
+    }
+
+    .ttt-modern-tile.empty:hover {
+      background: #242938 !important;
+      border-color: #2563EB !important;
+      transform: scale(1.03) !important;
+      box-shadow: 0 0 20px rgba(37, 99, 235, 0.35) !important;
+    }
+
+    .ttt-modern-tile.win-cell {
+      background: rgba(37, 99, 235, 0.2) !important;
+      border-color: #38BDF8 !important;
+      box-shadow: 0 0 25px rgba(56, 189, 248, 0.6) !important;
+      animation: tttWinGlow 1s infinite alternate !important;
+    }
+
+    .ttt-svg-symbol {
+      display: block !important;
+      filter: drop-shadow(0 2px 8px rgba(0,0,0,0.4)) !important;
+    }
+
+    @media (max-width: 680px) {
+      .game-arena-modal.arena-split-layout {
+        flex-direction: column !important;
+        height: auto !important;
+        max-height: 92vh !important;
+      }
+      .arena-sidebar-panel {
+        width: 100% !important;
+        border-right: none !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+        padding: 16px !important;
+      }
+      .ttt-modern-grid {
+        grid-template-columns: repeat(3, 84px) !important;
+        grid-template-rows: repeat(3, 84px) !important;
+        gap: 8px !important;
+      }
+      .ttt-modern-tile {
+        width: 84px !important;
+        height: 84px !important;
+      }
     }
 
     /* Dedicated Top-Right Close Button */
@@ -5040,9 +5380,9 @@ function injectBondingStyles() {
       width: 32px;
       height: 32px;
       border-radius: 8px;
-      background: rgba(0,0,0,0.06);
+      background: rgba(255,255,255,0.08);
       border: none;
-      color: var(--text-3, #94a3b8);
+      color: #94a3b8;
       font-size: 22px;
       line-height: 1;
       display: flex;
@@ -5057,11 +5397,6 @@ function injectBondingStyles() {
       background: rgba(239, 68, 68, 0.15);
       color: #ef4444;
       transform: scale(1.08);
-    }
-
-    [data-theme="dark"] .arena-close-btn {
-      background: rgba(255,255,255,0.08);
-      color: #94a3b8;
     }
 
     /* Arena Header */
