@@ -8,6 +8,13 @@ const ChecklistItemSchema = new mongoose.Schema({
 const TaskSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   personnelId: { type: mongoose.Schema.Types.ObjectId, ref: 'Personnel', default: null },
+  coOwners: [{
+    personnelId: { type: mongoose.Schema.Types.ObjectId, ref: 'Personnel', default: null },
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+    name: { type: String, default: '' },
+    role: { type: String, default: '' },
+    department: { type: String, default: '' }
+  }],
   title: { type: String, required: true, trim: true },
   description: { type: String, default: '', trim: true },
   status: { 

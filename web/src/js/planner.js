@@ -200,10 +200,15 @@ export function initDailyPlanner(container, options = {}) {
       // Filter out soft deleted
       if (t.isDeleted === true) return false;
 
-      // Personnel filter for admin
+      // Personnel filter for admin (checks primary assignee and co-owners)
       if (isSuperadmin && state.selectedPersonnelId !== 'all') {
         const pId = t.personnelId?._id || t.personnelId;
-        if (String(pId) !== String(state.selectedPersonnelId)) return false;
+        const matchesPrimary = String(pId) === String(state.selectedPersonnelId);
+        const matchesCoOwner = Array.isArray(t.coOwners) && t.coOwners.some(c => {
+          const cId = c.personnelId?._id || c.personnelId || c.userId?._id || c.userId;
+          return String(cId) === String(state.selectedPersonnelId);
+        });
+        if (!matchesPrimary && !matchesCoOwner) return false;
       }
 
       // Date matching logic
@@ -320,7 +325,14 @@ export function initDailyPlanner(container, options = {}) {
                   <span class="icon">📄</span>
                   <div class="meta">
                     <strong>Download Weekly Report (PDF)</strong>
-                    <small>Formatted summary report</small>
+                    <small>Summary report with job owner</small>
+                  </div>
+                </button>
+                <button type="button" class="ci360-menu-item" id="btnActionAdminReport">
+                  <span class="icon">📊</span>
+                  <div class="meta">
+                    <strong>Admin Detailed Report (PDF & CSV)</strong>
+                    <small>With Client Name & Description</small>
                   </div>
                 </button>
                 <div class="ci360-dropdown-divider"></div>
@@ -479,7 +491,9 @@ export function initDailyPlanner(container, options = {}) {
         const cat = (t.category || '').toLowerCase();
         const empName = (t.personnelId?.name || t.userId?.name || '').toLowerCase();
         const creatorName = (t.createdByName || t.createdBy?.name || (t.createdBy?.email ? t.createdBy.email.split('@')[0] : '')).toLowerCase();
-        return title.includes(q) || desc.includes(q) || cat.includes(q) || empName.includes(q) || creatorName.includes(q);
+        const coOwners = Array.isArray(t.coOwners) ? t.coOwners.map(c => (c.name || '').toLowerCase()).join(' ') : '';
+        const client = (t.clientId?.name || t.jobId?.clientId?.name || '').toLowerCase();
+        return title.includes(q) || desc.includes(q) || cat.includes(q) || empName.includes(q) || creatorName.includes(q) || coOwners.includes(q) || client.includes(q);
       });
     }
 
@@ -801,6 +815,20 @@ export function initDailyPlanner(container, options = {}) {
                 👤 Assigned: ${escapeHtml(task.personnelId?.name || task.userId?.name)}
               </span>
             ` : ''}
+
+            <!-- Co-Owners Badge (Multiple People) -->
+            ${Array.isArray(task.coOwners) && task.coOwners.length > 0 ? `
+              <span class="ci360-badge coowner-badge" style="background:rgba(99,102,241,0.12);color:var(--accent);border:1px solid rgba(99,102,241,0.25);" title="Co-Owners: ${task.coOwners.map(c => c.name).filter(Boolean).join(', ')}">
+                👥 Co-Owners: ${escapeHtml(task.coOwners.map(c => c.name).filter(Boolean).join(', '))}
+              </span>
+            ` : ''}
+
+            <!-- Client Badge -->
+            ${(task.clientId?.name || task.jobId?.clientId?.name) ? `
+              <span class="ci360-badge client-badge" style="background:rgba(16,185,129,0.1);color:#10b981;border:1px solid rgba(16,185,129,0.25);" title="Client: ${escapeHtml(task.clientId?.name || task.jobId?.clientId?.name)}">
+                🏢 ${escapeHtml(task.clientId?.name || task.jobId?.clientId?.name)}
+              </span>
+            ` : ''}
           </div>
         </div>
 
@@ -948,9 +976,12 @@ export function initDailyPlanner(container, options = {}) {
             <div style="font-size:13px;color:var(--text-3)">Week Period: ${startStr} – ${endStr}</div>
           </div>
 
-          <div style="display:flex;gap:10px">
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
             <button type="button" class="ci360-btn-primary" id="btnDownloadWeeklyPdf">
               📄 Download Weekly Report PDF
+            </button>
+            <button type="button" class="ci360-btn-secondary" id="btnOpenAdminReportModal" style="background:rgba(99,102,241,0.12);color:var(--accent);border:1px solid rgba(99,102,241,0.25);font-weight:700;">
+              📊 Specific Admin Report (with Description & Client)
             </button>
           </div>
         </div>
@@ -1154,6 +1185,12 @@ export function initDailyPlanner(container, options = {}) {
       exportWeeklyPdf();
     };
 
+    const btnAdminReport = document.getElementById('btnActionAdminReport');
+    if (btnAdminReport) btnAdminReport.onclick = () => {
+      toolsDropdown?.classList.add('hidden');
+      openAdminReportModal();
+    };
+
     const btnBackup = document.getElementById('btnActionBackup');
     if (btnBackup) btnBackup.onclick = () => {
       toolsDropdown?.classList.add('hidden');
@@ -1351,7 +1388,9 @@ export function initDailyPlanner(container, options = {}) {
     // 3. Weekly Report Controls
     if (state.viewMode === 'report') {
       const btnDl = document.getElementById('btnDownloadWeeklyPdf');
-      if (btnDl) btnDl.onclick = exportWeeklyPdf;
+      if (btnDl) btnDl.onclick = () => exportWeeklyPdf();
+      const btnAdminDl = document.getElementById('btnOpenAdminReportModal');
+      if (btnAdminDl) btnAdminDl.onclick = () => openAdminReportModal();
     }
 
     // Common Task Card Actions: Toggle, Edit, Delete
@@ -1519,7 +1558,7 @@ export function initDailyPlanner(container, options = {}) {
           <!-- Superadmin Assign To -->
           ${isSuperadmin ? `
             <div class="form-group">
-              <label for="taskAssignee">Assign To</label>
+              <label for="taskAssignee">Primary Assignee / Owner</label>
               <select id="taskAssignee" class="input">
                 <option value="me" ${!existingTask || (!existingTask?.personnelId && !existingTask?.assignAll) ? 'selected' : ''}>Myself (Admin)</option>
                 <option value="all" ${existingTask?.assignAll ? 'selected' : ''}>Assign to All Active Team Members</option>
@@ -1530,6 +1569,21 @@ export function initDailyPlanner(container, options = {}) {
               </select>
             </div>
           ` : ''}
+
+          <!-- Co-Owners / Multiple Collaborators -->
+          <div class="form-group" style="margin-top:10px;">
+            <label style="display:flex;justify-content:space-between;align-items:center;">
+              <span>Co-Owners / Additional People</span>
+              <small style="color:var(--text-3);font-size:11px;">Add multiple collaborators for this task</small>
+            </label>
+            <div id="coOwnersSelectedContainer" style="display:flex;flex-wrap:wrap;gap:6px;min-height:28px;margin:4px 0 8px;"></div>
+            <select id="taskCoOwnerSelect" class="input">
+              <option value="">+ Add Co-Owner / Collaborator...</option>
+              ${state.personnelList.map(p => `
+                <option value="${p._id}">+ 👤 ${escapeHtml(p.name)} (${escapeHtml(p.department || p.role || 'Member')})</option>
+              `).join('')}
+            </select>
+          </div>
 
           <div class="ci360-modal-footer" style="display:flex;justify-content:space-between;align-items:center;">
             <div>
@@ -1561,6 +1615,66 @@ export function initDailyPlanner(container, options = {}) {
       delTaskBtn.onclick = async () => {
         closeModal();
         await deleteTaskWithConfirm(existingTask._id);
+      };
+    }
+
+    // Co-Owners state and rendering
+    let currentCoOwners = [];
+    if (existingTask && Array.isArray(existingTask.coOwners)) {
+      currentCoOwners = existingTask.coOwners.map(c => ({
+        personnelId: c.personnelId?._id || c.personnelId || null,
+        userId: c.userId?._id || c.userId || null,
+        name: c.name || (c.personnelId?.name || ''),
+        role: c.role || (c.personnelId?.role || ''),
+        department: c.department || (c.personnelId?.department || '')
+      })).filter(c => c.personnelId || c.name);
+    }
+
+    const coContainer = modalBg.querySelector('#coOwnersSelectedContainer');
+    const coSelect = modalBg.querySelector('#taskCoOwnerSelect');
+
+    const renderCoOwnersChips = () => {
+      if (!coContainer) return;
+      if (currentCoOwners.length === 0) {
+        coContainer.innerHTML = '<span style="font-size:11.5px;color:var(--text-4);font-style:italic;">No co-owners added yet</span>';
+        return;
+      }
+      coContainer.innerHTML = currentCoOwners.map((c, i) => `
+        <span class="co-owner-chip" style="display:inline-flex;align-items:center;gap:6px;background:rgba(99,102,241,0.12);color:var(--accent);border:1px solid rgba(99,102,241,0.25);border-radius:16px;padding:3px 10px;font-size:12px;font-weight:600;">
+          👤 ${escapeHtml(c.name)}
+          <button type="button" class="btn-remove-co" data-idx="${i}" style="background:transparent;border:none;color:var(--accent);cursor:pointer;font-size:14px;line-height:1;padding:0;margin-left:2px;font-weight:bold;" title="Remove co-owner">×</button>
+        </span>
+      `).join('');
+
+      coContainer.querySelectorAll('.btn-remove-co').forEach(btn => {
+        btn.onclick = () => {
+          const idx = parseInt(btn.dataset.idx, 10);
+          currentCoOwners.splice(idx, 1);
+          renderCoOwnersChips();
+        };
+      });
+    };
+
+    renderCoOwnersChips();
+
+    if (coSelect) {
+      coSelect.onchange = () => {
+        const selId = coSelect.value;
+        if (!selId) return;
+        const pers = state.personnelList.find(p => String(p._id) === String(selId));
+        if (pers) {
+          const already = currentCoOwners.some(c => String(c.personnelId) === String(pers._id));
+          if (!already) {
+            currentCoOwners.push({
+              personnelId: pers._id,
+              name: pers.name,
+              role: pers.role || '',
+              department: pers.department || ''
+            });
+            renderCoOwnersChips();
+          }
+        }
+        coSelect.value = '';
       };
     }
 
@@ -1599,7 +1713,8 @@ export function initDailyPlanner(container, options = {}) {
         dueTime: '',
         priority,
         status,
-        category
+        category,
+        coOwners: currentCoOwners
       };
 
       if (isSuperadmin) {
@@ -2106,20 +2221,46 @@ export function initDailyPlanner(container, options = {}) {
   /**
    * 6. WEEKLY REPORT & PDF EXPORT
    */
-  function exportWeeklyPdf() {
+  function exportWeeklyPdf(customOptions = {}) {
     const weekDates = getWeekDates(state.selectedDate, settings.weekStartsOn);
     const startStr = formatFullDate(weekDates[0]);
     const endStr = formatFullDate(weekDates[6]);
     const todayStr = getTodayStr();
 
-    const weeklyTasks = state.tasks.filter(t => {
+    let targetTasks = state.tasks.filter(t => {
       if (t.isDeleted === true) return false;
-      const tDate = t.dateStr || (t.dueDate ? new Date(t.dueDate).toISOString().slice(0, 10) : '');
-      return weekDates.includes(tDate);
+      const dueDateStr = t.completionDateStr || t.dateStr || (t.dueDate ? new Date(t.dueDate).toISOString().slice(0, 10) : '');
+      const assignDateStr = t.assignedDateStr || (t.assignedDate ? new Date(t.assignedDate).toISOString().slice(0, 10) : '') || dueDateStr;
+
+      if (customOptions.scope === 'today') {
+        return dueDateStr === todayStr || assignDateStr === todayStr;
+      }
+      if (customOptions.scope === 'all') {
+        return true;
+      }
+      // Default: current selected week (including multi-day in-progress tasks)
+      if (t.status === 'In Progress' && assignDateStr && dueDateStr) {
+        return weekDates.some(d => d >= assignDateStr && d <= dueDateStr);
+      }
+      return weekDates.includes(dueDateStr) || weekDates.includes(assignDateStr);
     });
 
-    const total = weeklyTasks.length;
-    const completed = weeklyTasks.filter(t => t.status === 'Completed').length;
+    if (customOptions.personnelId && customOptions.personnelId !== 'all') {
+      targetTasks = targetTasks.filter(t => {
+        const pId = String(t.personnelId?._id || t.personnelId || '');
+        const inCo = Array.isArray(t.coOwners) && t.coOwners.some(c => String(c.personnelId?._id || c.personnelId || c.userId?._id || c.userId || '') === String(customOptions.personnelId));
+        return pId === String(customOptions.personnelId) || inCo;
+      });
+    }
+
+    if (customOptions.status && customOptions.status !== 'all') {
+      targetTasks = targetTasks.filter(t => t.status === customOptions.status);
+    }
+
+    const total = targetTasks.length;
+    const completed = targetTasks.filter(t => t.status === 'Completed').length;
+    const inProgress = targetTasks.filter(t => t.status === 'In Progress').length;
+    const pending = total - completed - inProgress;
     const compRate = total > 0 ? Math.round((completed / total) * 100) : 0;
 
     // Create a print window
@@ -2129,33 +2270,54 @@ export function initDailyPlanner(container, options = {}) {
       return;
     }
 
+    const reportTitle = customOptions.title || (customOptions.isAdminReport ? 'CI360 Admin Detailed Executive Report' : 'Weekly Productivity Report');
+    const periodText = customOptions.scope === 'today'
+      ? `Date: ${formatFullDate(todayStr)}`
+      : (customOptions.scope === 'all' ? 'All Active & Historical Tasks' : `${startStr} – ${endStr}`);
+
     const reportHtml = `
       <!DOCTYPE html>
       <html>
       <head>
         <meta charset="utf-8">
-        <title>Weekly Planner Report — ${startStr}</title>
+        <title>${escapeHtml(reportTitle)} — ${periodText}</title>
         <style>
-          @page { size: A4 portrait; margin: 15mm; }
-          body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color: #1e293b; line-height: 1.4; padding: 10px; }
-          .header { border-bottom: 2px solid #4f46e5; padding-bottom: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-end; }
-          .brand { font-size: 11px; font-weight: bold; color: #4f46e5; letter-spacing: 0.5px; text-transform: uppercase; }
-          h1 { margin: 4px 0 0; font-size: 22px; color: #0f172a; }
-          .period { font-size: 13px; color: #64748b; }
-          .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
-          .kpi { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; }
-          .kpi-num { font-size: 22px; font-weight: bold; color: #0f172a; margin-top: 4px; }
-          .kpi-label { font-size: 11px; color: #64748b; text-transform: uppercase; font-weight: 600; }
-          table { width: 100%; border-collapse: collapse; margin-top: 14px; font-size: 12px; }
-          th { text-align: left; background: #f1f5f9; padding: 8px 10px; border-bottom: 1px solid #cbd5e1; font-weight: 600; }
-          td { padding: 8px 10px; border-bottom: 1px solid #e2e8f0; }
-          .done { color: #10b981; font-weight: bold; }
-          .badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 600; }
-          .badge-urgent { background: #fee2e2; color: #dc2626; }
-          .badge-high { background: #fef3c7; color: #d97706; }
+          @page { size: A4 landscape; margin: 10mm; }
+          * { box-sizing: border-box; }
+          body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color: #0f172a; line-height: 1.4; padding: 12px; margin: 0; }
+          .header { border-bottom: 2.5px solid #4f46e5; padding-bottom: 12px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: flex-end; }
+          .brand { font-size: 11px; font-weight: 800; color: #4f46e5; letter-spacing: 0.6px; text-transform: uppercase; }
+          h1 { margin: 4px 0 2px; font-size: 22px; color: #0f172a; }
+          .period { font-size: 13px; color: #475569; font-weight: 500; }
+          .filter-tag { display: inline-block; font-size: 11px; color: #4338ca; background: #e0e7ff; padding: 2px 8px; border-radius: 4px; font-weight: 600; margin-left: 8px; }
+          
+          .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 18px; }
+          .kpi { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 14px; }
+          .kpi-num { font-size: 22px; font-weight: 800; color: #0f172a; margin-top: 3px; }
+          .kpi-label { font-size: 10.5px; color: #64748b; text-transform: uppercase; font-weight: 700; letter-spacing: 0.3px; }
+          
+          table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 11.5px; }
+          th { text-align: left; background: #f1f5f9; padding: 8px 10px; border: 1px solid #cbd5e1; font-weight: 700; color: #334155; font-size: 11px; text-transform: uppercase; letter-spacing: 0.3px; }
+          td { padding: 8px 10px; border: 1px solid #e2e8f0; vertical-align: top; }
+          tr:nth-child(even) td { background: #fbfcfe; }
+          
+          .client-tag { display: inline-block; background: #ecfdf5; color: #047857; font-weight: 700; padding: 2px 6px; border-radius: 4px; font-size: 10.5px; border: 1px solid #a7f3d0; }
+          .owner-tag { font-weight: 700; color: #1e293b; }
+          .co-owner-sub { font-size: 10px; color: #6366f1; font-weight: 600; display: block; margin-top: 2px; }
+          .desc-text { font-size: 10.5px; color: #475569; white-space: pre-wrap; line-height: 1.35; max-width: 280px; word-break: break-word; }
+          
+          .badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 700; }
+          .badge-urgent { background: #fee2e2; color: #b91c1c; }
+          .badge-high { background: #fef3c7; color: #b45309; }
           .badge-med { background: #e0e7ff; color: #4338ca; }
-          .badge-low { background: #ecfdf5; color: #059669; }
-          .footer { margin-top: 30px; font-size: 10px; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 8px; text-align: center; }
+          .badge-low { background: #ecfdf5; color: #047857; }
+          
+          .status-tag { display: inline-block; padding: 2px 7px; border-radius: 4px; font-size: 10.5px; font-weight: 700; }
+          .status-completed { background: #dcfce7; color: #15803d; }
+          .status-in-progress { background: #fef3c7; color: #b45309; }
+          .status-pending { background: #f1f5f9; color: #475569; }
+          
+          .footer { margin-top: 24px; font-size: 10.5px; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 8px; display: flex; justify-content: space-between; }
           @media print {
             body { padding: 0; }
             .no-print { display: none; }
@@ -2165,12 +2327,15 @@ export function initDailyPlanner(container, options = {}) {
       <body>
         <div class="header">
           <div>
-            <div class="brand">CI360 Intelligence Suite · Productivity Report</div>
-            <h1>Weekly Planner Report</h1>
-            <div class="period">${startStr} – ${endStr}</div>
+            <div class="brand">CI360 Intelligence Productivity Suite · Official Report</div>
+            <h1>${escapeHtml(reportTitle)}</h1>
+            <div class="period">
+              ${periodText}
+              ${customOptions.filterSummary ? `<span class="filter-tag">${escapeHtml(customOptions.filterSummary)}</span>` : ''}
+            </div>
           </div>
-          <div style="text-align:right">
-            <button class="no-print" onclick="window.print()" style="padding:8px 16px;background:#4f46e5;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:600">Print / Save as PDF</button>
+          <div style="text-align:right" class="no-print">
+            <button onclick="window.print()" style="padding:8px 16px;background:#4f46e5;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:700;font-size:13px;box-shadow:0 2px 4px rgba(79,70,229,0.3);">🖨️ Print / Save as PDF</button>
           </div>
         </div>
 
@@ -2184,8 +2349,8 @@ export function initDailyPlanner(container, options = {}) {
             <div class="kpi-num" style="color:#10b981">${completed}</div>
           </div>
           <div class="kpi">
-            <div class="kpi-label">Pending / Active</div>
-            <div class="kpi-num">${total - completed}</div>
+            <div class="kpi-label">In Progress</div>
+            <div class="kpi-num" style="color:#f59e0b">${inProgress}</div>
           </div>
           <div class="kpi">
             <div class="kpi-label">Completion Rate</div>
@@ -2193,40 +2358,72 @@ export function initDailyPlanner(container, options = {}) {
           </div>
         </div>
 
-        <h3 style="font-size:14px;margin:18px 0 8px">Daily Tasks Breakdown</h3>
         <table>
           <thead>
             <tr>
-              <th>Date</th>
-              <th>Task Title</th>
-              <th>Priority</th>
-              <th>Category</th>
-              <th>Time</th>
-              <th>Status</th>
+              <th style="width:11%">Date</th>
+              <th style="width:13%">Client Name</th>
+              <th style="width:15%">Job Owner / Assignee</th>
+              <th style="width:18%">Task Title</th>
+              <th style="width:23%">Description / Deliverables</th>
+              <th style="width:8%">Priority</th>
+              <th style="width:12%">Status</th>
             </tr>
           </thead>
           <tbody>
-            ${weekDates.map(dStr => {
-              const tasks = getTasksForDate(dStr);
-              if (tasks.length === 0) {
-                return `<tr><td><strong>${formatShortDate(dStr)}</strong></td><td colspan="5" style="color:#94a3b8">No scheduled tasks</td></tr>`;
-              }
-              return tasks.map(t => `
+            ${targetTasks.length === 0 ? `
+              <tr><td colspan="7" style="text-align:center;padding:30px;color:#94a3b8;font-weight:600">No scheduled tasks match the selected criteria.</td></tr>
+            ` : targetTasks.map(t => {
+              const dueDateStr = t.completionDateStr || t.dateStr || (t.dueDate ? new Date(t.dueDate).toISOString().slice(0, 10) : '—');
+              const assignDateStr = t.assignedDateStr || (t.assignedDate ? new Date(t.assignedDate).toISOString().slice(0, 10) : '');
+              const dateDisplay = (t.status === 'In Progress' && assignDateStr && dueDateStr && assignDateStr !== dueDateStr)
+                ? `${formatShortDate(assignDateStr)} ➔ ${formatShortDate(dueDateStr)}`
+                : formatShortDate(dueDateStr);
+
+              // 1. Job Owner Name (from linked job preferred person, assignments, or primary task assignee)
+              const jobOwner = t.jobId?.preferredPersonName 
+                || (t.jobId?.assignments && t.jobId.assignments[0]?.personId?.name) 
+                || t.personnelId?.name 
+                || t.userId?.name 
+                || t.createdByName 
+                || '—';
+
+              // 2. Client Name
+              const clientName = t.clientId?.name || t.jobId?.clientId?.name || (t.clientId?.company || '') || '—';
+
+              // 3. Description
+              const desc = t.description ? escapeHtml(t.description) : '<span style="color:#cbd5e1">—</span>';
+
+              // 4. Co-Owners
+              const coOwnerNames = Array.isArray(t.coOwners) && t.coOwners.length > 0 
+                ? t.coOwners.map(c => c.name).filter(Boolean).join(', ') 
+                : '';
+
+              const pri = (t.priority || 'medium').toLowerCase();
+              const badgeClass = pri === 'urgent' ? 'badge-urgent' : (pri === 'high' ? 'badge-high' : (pri === 'low' ? 'badge-low' : 'badge-med'));
+              const statusClass = (t.status || 'pending').toLowerCase().replace(/\s+/g, '-');
+
+              return `
                 <tr>
-                  <td><strong>${formatShortDate(dStr)}</strong></td>
-                  <td>${escapeHtml(t.title)}</td>
-                  <td><span class="badge badge-${(t.priority || 'medium').toLowerCase().slice(0,3)}">${t.priority || 'Medium'}</span></td>
-                  <td>${escapeHtml(t.category || 'General')}</td>
-                  <td>${t.dueTime || t.startTime || '—'}</td>
-                  <td class="${t.status === 'Completed' ? 'done' : ''}">${t.status || 'Pending'}</td>
+                  <td><strong>${dateDisplay}</strong></td>
+                  <td><span class="client-tag">${escapeHtml(clientName)}</span></td>
+                  <td>
+                    <span class="owner-tag">${escapeHtml(jobOwner)}</span>
+                    ${coOwnerNames ? `<span class="co-owner-sub">👥 Co: ${escapeHtml(coOwnerNames)}</span>` : ''}
+                  </td>
+                  <td><strong>${escapeHtml(t.title)}</strong></td>
+                  <td><div class="desc-text">${desc}</div></td>
+                  <td><span class="badge ${badgeClass}">${escapeHtml(t.priority || 'Medium')}</span></td>
+                  <td><span class="status-tag status-${statusClass}">${escapeHtml(t.status || 'Pending')}</span></td>
                 </tr>
-              `).join('');
+              `;
             }).join('')}
           </tbody>
         </table>
 
         <div class="footer">
-          Generated automatically by CI360 Daily Planner on ${new Date().toLocaleString()}
+          <span>Generated automatically by CI360 Daily Planner & Task Manager</span>
+          <span>Printed on: ${new Date().toLocaleString()}</span>
         </div>
 
         <script>
@@ -2240,7 +2437,213 @@ export function initDailyPlanner(container, options = {}) {
 
     printWindow.document.write(reportHtml);
     printWindow.document.close();
-    flashToast('Weekly PDF report generated for printing! 📄');
+    flashToast('Report generated for printing & PDF download! 📄');
+  }
+
+  /**
+   * SPECIFIC REPORT FOR ADMIN MODAL (PDF & CSV EXPORT)
+   */
+  function openAdminReportModal() {
+    const todayStr = getTodayStr();
+    const weekDates = getWeekDates(state.selectedDate, settings.weekStartsOn);
+    const startStr = formatShortDate(weekDates[0]);
+    const endStr = formatShortDate(weekDates[6]);
+
+    const modalHtml = `
+      <div class="ci360-planner-modal" style="max-width:540px;">
+        <div class="ci360-modal-header">
+          <h3>📊 Download Specific Admin Report</h3>
+          <button type="button" class="ci360-modal-close" id="btnAdminRepClose">×</button>
+        </div>
+
+        <div class="ci360-modal-form">
+          <p style="font-size:12.5px;color:var(--text-3);margin:0 0 16px;">
+            Export a comprehensive administrative report containing full <strong>Task Descriptions</strong>, <strong>Client Names</strong>, <strong>Job Owners</strong>, and <strong>Co-Owners</strong>.
+          </p>
+
+          <!-- Report Scope -->
+          <div class="form-group">
+            <label for="admRepScope">Date Range / Scope</label>
+            <select id="admRepScope" class="input">
+              <option value="week" selected>Current Week (${startStr} – ${endStr})</option>
+              <option value="today">Today Only (${formatShortDate(todayStr)})</option>
+              <option value="all">All Available Tasks</option>
+            </select>
+          </div>
+
+          <!-- Employee Filter -->
+          <div class="form-group">
+            <label for="admRepPersonnel">Filter by Employee / Person</label>
+            <select id="admRepPersonnel" class="input">
+              <option value="all">👥 All Team Members</option>
+              ${state.personnelList.map(p => `
+                <option value="${p._id}">👤 ${escapeHtml(p.name)} (${escapeHtml(p.department || p.role || 'Member')})</option>
+              `).join('')}
+            </select>
+          </div>
+
+          <!-- Status Filter -->
+          <div class="form-group">
+            <label for="admRepStatus">Filter by Status</label>
+            <select id="admRepStatus" class="input">
+              <option value="all" selected>All Statuses</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Completed">Completed</option>
+              <option value="Pending">Pending</option>
+            </select>
+          </div>
+
+          <!-- Feature Highlights Checklist -->
+          <div style="background:var(--bg-hover);border:1px solid var(--border-sm);border-radius:var(--r-md);padding:10px 14px;margin-bottom:18px;font-size:12px;color:var(--text-2);">
+            <div style="font-weight:700;margin-bottom:4px;color:var(--text-1);">Included in this export:</div>
+            <div>✓ <strong>Job Owner Name</strong> & Primary Assignee</div>
+            <div>✓ <strong>Client Name</strong> & Account association</div>
+            <div>✓ Full <strong>Task Description / Notes</strong></div>
+            <div>✓ Multiple <strong>Co-Owners & Collaborators</strong></div>
+            <div>✓ Priority, Category, and Real-time Status</div>
+          </div>
+
+          <div class="ci360-modal-footer" style="display:flex;justify-content:space-between;align-items:center;">
+            <button type="button" class="ci360-btn-secondary" id="btnAdminRepCancel">Cancel</button>
+            <div style="display:flex;gap:8px;">
+              <button type="button" class="btn small" id="btnAdminRepCsv" style="background:#059669;color:#fff;font-weight:700;border:none;border-radius:var(--r-sm);padding:8px 14px;cursor:pointer;">
+                📊 Export CSV / Excel
+              </button>
+              <button type="button" class="ci360-btn-primary" id="btnAdminRepPdf" style="font-weight:700;padding:8px 16px;">
+                📄 Download Admin PDF
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    const modalBg = openModal(modalHtml);
+    const closeBtn = modalBg.querySelector('#btnAdminRepClose');
+    const cancelBtn = modalBg.querySelector('#btnAdminRepCancel');
+    const pdfBtn = modalBg.querySelector('#btnAdminRepPdf');
+    const csvBtn = modalBg.querySelector('#btnAdminRepCsv');
+
+    const closeModal = () => modalBg.remove();
+    if (closeBtn) closeBtn.onclick = closeModal;
+    if (cancelBtn) cancelBtn.onclick = closeModal;
+
+    const getFilterValues = () => {
+      const scope = modalBg.querySelector('#admRepScope')?.value || 'week';
+      const personnelId = modalBg.querySelector('#admRepPersonnel')?.value || 'all';
+      const status = modalBg.querySelector('#admRepStatus')?.value || 'all';
+      
+      let filterSummary = '';
+      if (personnelId !== 'all') {
+        const pers = state.personnelList.find(p => String(p._id) === String(personnelId));
+        if (pers) filterSummary += `Person: ${pers.name} · `;
+      }
+      if (status !== 'all') {
+        filterSummary += `Status: ${status}`;
+      }
+
+      return { scope, personnelId, status, filterSummary: filterSummary.replace(/\s*·\s*$/, '') };
+    };
+
+    if (pdfBtn) {
+      pdfBtn.onclick = () => {
+        const filters = getFilterValues();
+        closeModal();
+        exportWeeklyPdf({
+          ...filters,
+          isAdminReport: true,
+          title: 'CI360 Admin Detailed Executive Task Report'
+        });
+      };
+    }
+
+    if (csvBtn) {
+      csvBtn.onclick = () => {
+        const filters = getFilterValues();
+        closeModal();
+        exportAdminCsv(filters);
+      };
+    }
+  }
+
+  /**
+   * EXPORT ADMIN CSV WITH DESCRIPTION, CLIENT NAME, JOB OWNER, CO-OWNERS
+   */
+  function exportAdminCsv(filters = {}) {
+    const weekDates = getWeekDates(state.selectedDate, settings.weekStartsOn);
+    const todayStr = getTodayStr();
+
+    let targetTasks = state.tasks.filter(t => {
+      if (t.isDeleted === true) return false;
+      const dueDateStr = t.completionDateStr || t.dateStr || (t.dueDate ? new Date(t.dueDate).toISOString().slice(0, 10) : '');
+      const assignDateStr = t.assignedDateStr || (t.assignedDate ? new Date(t.assignedDate).toISOString().slice(0, 10) : '') || dueDateStr;
+
+      if (filters.scope === 'today') {
+        return dueDateStr === todayStr || assignDateStr === todayStr;
+      }
+      if (filters.scope === 'all') {
+        return true;
+      }
+      if (t.status === 'In Progress' && assignDateStr && dueDateStr) {
+        return weekDates.some(d => d >= assignDateStr && d <= dueDateStr);
+      }
+      return weekDates.includes(dueDateStr) || weekDates.includes(assignDateStr);
+    });
+
+    if (filters.personnelId && filters.personnelId !== 'all') {
+      targetTasks = targetTasks.filter(t => {
+        const pId = String(t.personnelId?._id || t.personnelId || '');
+        const inCo = Array.isArray(t.coOwners) && t.coOwners.some(c => String(c.personnelId?._id || c.personnelId || '') === String(filters.personnelId));
+        return pId === String(filters.personnelId) || inCo;
+      });
+    }
+
+    if (filters.status && filters.status !== 'all') {
+      targetTasks = targetTasks.filter(t => t.status === filters.status);
+    }
+
+    const headers = ['Date', 'Client Name', 'Job Owner', 'Primary Assignee', 'Co-Owners', 'Task Title', 'Description', 'Priority', 'Category', 'Status', 'Created By'];
+    const rows = targetTasks.map(t => {
+      const dueDateStr = t.completionDateStr || t.dateStr || (t.dueDate ? new Date(t.dueDate).toISOString().slice(0, 10) : '');
+      const jobOwner = t.jobId?.preferredPersonName || (t.jobId?.assignments && t.jobId.assignments[0]?.personId?.name) || t.personnelId?.name || t.userId?.name || t.createdByName || '';
+      const clientName = t.clientId?.name || t.jobId?.clientId?.name || t.clientId?.company || '';
+      const assigneeName = t.personnelId?.name || t.userId?.name || '';
+      const coOwners = Array.isArray(t.coOwners) ? t.coOwners.map(c => c.name).filter(Boolean).join('; ') : '';
+      const title = t.title || '';
+      const desc = t.description || '';
+      const pri = t.priority || 'Medium';
+      const cat = t.category || 'General';
+      const st = t.status || 'Pending';
+      const createdBy = t.createdByName || t.createdBy?.name || '';
+
+      const clean = str => `"${String(str || '').replace(/"/g, '""').replace(/\r?\n/g, ' ')}"`;
+
+      return [
+        clean(dueDateStr),
+        clean(clientName),
+        clean(jobOwner),
+        clean(assigneeName),
+        clean(coOwners),
+        clean(title),
+        clean(desc),
+        clean(pri),
+        clean(cat),
+        clean(st),
+        clean(createdBy)
+      ].join(',');
+    });
+
+    const csvContent = '\uFEFF' + [headers.join(','), ...rows].join('\r\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `ci360-admin-report-${todayStr}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    flashToast('Admin CSV report downloaded! 📊');
   }
 
   /**
@@ -3096,7 +3499,7 @@ function ensurePlannerStyles() {
       align-items: center;
       gap: 10px;
       background: var(--bg-card);
-      border: 1px dashed var(--border-md);
+      border: 1px solid var(--border-sm);
       border-radius: var(--r-lg);
       padding: 10px 16px;
       box-shadow: var(--shadow-xs);
@@ -4095,7 +4498,7 @@ function ensurePlannerStyles() {
     [data-theme="light"] .ci360-quick-add-bar,
     html:not([data-theme="dark"]) .ci360-quick-add-bar {
       background: #FFFFFF;
-      border: 1.5px dashed #CBD5E1;
+      border: 1px solid #E2E8F0;
       box-shadow: 0 1px 3px rgba(0,0,0,0.03);
     }
     [data-theme="light"] .ci360-quick-input,

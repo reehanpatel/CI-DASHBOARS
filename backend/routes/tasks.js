@@ -10,18 +10,85 @@ router.use(verifyToken);
 
 const isAdminRole = (user) => user && (user.role === 'superadmin' || user.role === 'admin');
 
+// Helper to parse and populate co-owners
+async function parseCoOwners(rawList) {
+  if (!Array.isArray(rawList)) return [];
+  const coOwners = [];
+  const Personnel = mongoose.models.Personnel || require('../models/Personnel');
+  const User = mongoose.models.User || require('../models/User');
+
+  for (const item of rawList) {
+    if (!item) continue;
+    let persId = null;
+    let uId = null;
+    let name = '';
+    let role = '';
+    let department = '';
+
+    if (typeof item === 'string') {
+      persId = item;
+    } else {
+      persId = item.personnelId || item._id || item.id || null;
+      uId = item.userId || null;
+      name = item.name || '';
+      role = item.role || '';
+      department = item.department || '';
+    }
+
+    if (persId) {
+      try {
+        const p = await Personnel.findById(persId).lean();
+        if (p) {
+          name = name || p.name;
+          role = role || p.role;
+          department = department || p.department;
+          if (!uId) {
+            const u = await User.findOne({ personnelId: p._id }).select('_id name email role').lean();
+            if (u) uId = u._id;
+          }
+        }
+      } catch (e) {}
+    }
+
+    if (uId && !name) {
+      try {
+        const u = await User.findById(uId).select('_id name email role').lean();
+        if (u) name = u.name;
+      } catch (e) {}
+    }
+
+    if (name || persId || uId) {
+      coOwners.push({
+        personnelId: persId || null,
+        userId: uId || null,
+        name: name || 'Team Member',
+        role: role || '',
+        department: department || ''
+      });
+    }
+  }
+  return coOwners;
+}
+
 // GET /api/tasks
 router.get('/', async (req, res) => {
   try {
     const filter = { isDeleted: { $ne: true } };
 
     if (!isAdminRole(req.user) || req.query.mine === 'true') {
-      const userConditions = [{ userId: req.user._id }];
-      if (req.user.personnelId) {
-        userConditions.push({ personnelId: req.user.personnelId });
-      } else if (req.user.name) {
+      const userConditions = [
+        { userId: req.user._id },
+        { 'coOwners.userId': req.user._id },
+        { createdBy: req.user._id }
+      ];
+      let pId = req.user.personnelId;
+      if (!pId && req.user.name) {
         const p = await Personnel.findOne({ name: new RegExp('^' + req.user.name + '$', 'i') });
-        if (p) userConditions.push({ personnelId: p._id });
+        if (p) pId = p._id;
+      }
+      if (pId) {
+        userConditions.push({ personnelId: pId });
+        userConditions.push({ 'coOwners.personnelId': pId });
       }
       filter.$or = userConditions;
     } else {
@@ -96,9 +163,11 @@ router.get('/', async (req, res) => {
     const tasks = await Task.find(filter)
       .populate('userId', 'name email role')
       .populate('personnelId', 'name role department status')
+      .populate('coOwners.personnelId', 'name role department')
+      .populate('coOwners.userId', 'name email role')
       .populate('createdBy', 'name email role')
-      .populate('jobId', 'title clientApproval status date')
-      .populate('clientId', 'name')
+      .populate('jobId', 'title clientApproval status date preferredPersonName assignments clientId')
+      .populate('clientId', 'name company')
       .sort({ createdAt: -1 })
       .lean();
 
@@ -131,6 +200,7 @@ router.post('/', async (req, res) => {
       checklists,
       tags,
       personnelId: reqPersonnelId,
+      coOwners: reqCoOwners,
       assignAll
     } = req.body;
 
@@ -157,6 +227,7 @@ router.post('/', async (req, res) => {
     const dStr = effectiveCompletionDateStr;
     const calculatedDueDate = effectiveCompletionDate;
     const isCompleted = status === 'Completed';
+    const parsedCoOwners = await parseCoOwners(reqCoOwners);
 
     // Handle Admin bulk assignment to all team members
     if (isAdminRole(req.user) && (assignAll === true || reqPersonnelId === 'all')) {
@@ -228,6 +299,7 @@ router.post('/', async (req, res) => {
     const task = new Task({
       userId: targetUserId,
       personnelId,
+      coOwners: parsedCoOwners,
       title: title.trim(),
       description: description ? description.trim() : '',
       status: status || 'Pending',
@@ -276,9 +348,11 @@ router.post('/', async (req, res) => {
     const populated = await Task.findById(task._id)
       .populate('userId', 'name email role')
       .populate('personnelId', 'name role department status')
+      .populate('coOwners.personnelId', 'name role department')
+      .populate('coOwners.userId', 'name email role')
       .populate('createdBy', 'name email role')
-      .populate('jobId', 'title clientApproval status date')
-      .populate('clientId', 'name');
+      .populate('jobId', 'title clientApproval status date preferredPersonName assignments clientId')
+      .populate('clientId', 'name company');
 
     res.status(201).json(populated);
   } catch (err) {
@@ -315,7 +389,8 @@ router.put('/:id', async (req, res) => {
       checklists,
       timeSpent,
       tags,
-      personnelId
+      personnelId,
+      coOwners: reqCoOwners
     } = req.body;
 
     const wasCompleted = task.status === 'Completed';
@@ -417,6 +492,9 @@ router.put('/:id', async (req, res) => {
     if (checklists !== undefined) task.checklists = checklists;
     if (timeSpent !== undefined) task.timeSpent = Number(timeSpent) || 0;
     if (tags !== undefined) task.tags = tags;
+    if (reqCoOwners !== undefined) {
+      task.coOwners = await parseCoOwners(reqCoOwners);
+    }
 
     await task.save();
 
@@ -461,9 +539,11 @@ router.put('/:id', async (req, res) => {
     const populated = await Task.findById(task._id)
       .populate('userId', 'name email role')
       .populate('personnelId', 'name role department status')
+      .populate('coOwners.personnelId', 'name role department')
+      .populate('coOwners.userId', 'name email role')
       .populate('createdBy', 'name email role')
-      .populate('jobId', 'title clientApproval status date')
-      .populate('clientId', 'name');
+      .populate('jobId', 'title clientApproval status date preferredPersonName assignments clientId')
+      .populate('clientId', 'name company');
 
     res.json(populated);
   } catch (err) {

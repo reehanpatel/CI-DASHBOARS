@@ -2481,12 +2481,26 @@ export async function initTeamBonding(container, options = {}) {
               diceBtn.classList.add('rolling');
             }
             if (diceBadge) diceBadge.disabled = true;
+
+            // Safe fallback timer so button never gets stuck
+            const safetyTimeout = setTimeout(() => {
+              if (diceBtn) {
+                diceBtn.classList.remove('rolling');
+                delete diceBtn.dataset.rolling;
+              }
+              if (diceBadge) diceBadge.disabled = false;
+            }, 2000);
+
             try {
-              const updated = await apiPost(`/bonding/matches/${matchId}/move`, { action: 'roll' });
+              const rollPromise = apiPost(`/bonding/matches/${matchId}/move`, { action: 'roll' });
+              const animationDelay = new Promise(resolve => setTimeout(resolve, 350));
+              const [updated] = await Promise.all([rollPromise, animationDelay]);
+              clearTimeout(safetyTimeout);
               match = updated;
               prevFingerprint = getMatchFingerprint(updated);
               renderArena();
             } catch (err) {
+              clearTimeout(safetyTimeout);
               flashToast(err.message || 'Failed to roll', 'error');
               if (diceBtn) {
                 diceBtn.classList.remove('rolling');
@@ -5810,51 +5824,46 @@ function injectBondingStyles() {
     }
 
     .ludo-3d-dice.pulse-roll {
-      animation: diceGlowPulse 1.1s infinite alternate cubic-bezier(0.4, 0, 0.2, 1);
+      animation: diceGlowPulse 1s infinite alternate ease-in-out;
     }
 
     .ludo-3d-dice.border-red {
       border-color: #ef4444 !important;
-      box-shadow: 0 6px 0 #dc2626, 0 10px 22px rgba(239, 68, 68, 0.35), inset 0 2px 2px rgba(255, 255, 255, 0.95) !important;
+      box-shadow: 0 4px 0 #dc2626, 0 8px 18px rgba(239, 68, 68, 0.35) !important;
     }
     .ludo-3d-dice.border-green {
       border-color: #10b981 !important;
-      box-shadow: 0 6px 0 #059669, 0 10px 22px rgba(16, 185, 129, 0.35), inset 0 2px 2px rgba(255, 255, 255, 0.95) !important;
+      box-shadow: 0 4px 0 #059669, 0 8px 18px rgba(16, 185, 129, 0.35) !important;
     }
     .ludo-3d-dice.border-yellow {
       border-color: #f59e0b !important;
-      box-shadow: 0 6px 0 #d97706, 0 10px 22px rgba(245, 158, 11, 0.35), inset 0 2px 2px rgba(255, 255, 255, 0.95) !important;
+      box-shadow: 0 4px 0 #d97706, 0 8px 18px rgba(245, 158, 11, 0.35) !important;
     }
     .ludo-3d-dice.border-blue {
       border-color: #3b82f6 !important;
-      box-shadow: 0 6px 0 #2563eb, 0 10px 22px rgba(59, 130, 246, 0.35), inset 0 2px 2px rgba(255, 255, 255, 0.95) !important;
+      box-shadow: 0 4px 0 #2563eb, 0 8px 18px rgba(59, 130, 246, 0.35) !important;
     }
 
     @keyframes diceGlowPulse {
       0% {
-        transform: translateY(0) scale(1);
-        filter: drop-shadow(0 0 3px rgba(59, 130, 246, 0.3));
-      }
-      50% {
-        transform: translateY(-4px) scale(1.06) rotate(-2deg);
-        filter: drop-shadow(0 0 14px rgba(59, 130, 246, 0.8));
+        transform: scale(1);
+        filter: drop-shadow(0 2px 4px rgba(59, 130, 246, 0.3));
       }
       100% {
-        transform: translateY(0) scale(1) rotate(2deg);
-        filter: drop-shadow(0 0 3px rgba(59, 130, 246, 0.3));
+        transform: scale(1.06);
+        filter: drop-shadow(0 4px 14px rgba(59, 130, 246, 0.65));
       }
     }
 
     .ludo-3d-dice.rolling {
-      animation: diceRollingSpin 0.55s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      animation: diceSimpleRoll 0.35s ease-in-out;
     }
 
-    @keyframes diceRollingSpin {
-      0% { transform: scale(1) rotate(0deg); }
-      25% { transform: scale(1.2) rotate(120deg) translateY(-8px); }
-      50% { transform: scale(0.88) rotate(240deg) translateY(4px); }
-      75% { transform: scale(1.12) rotate(320deg) translateY(-2px); }
-      100% { transform: scale(1) rotate(360deg) translateY(0); }
+    @keyframes diceSimpleRoll {
+      0% { transform: scale(0.92) rotate(0deg); }
+      35% { transform: scale(1.15) rotate(140deg); }
+      70% { transform: scale(0.96) rotate(260deg); }
+      100% { transform: scale(1) rotate(360deg); }
     }
 
     .ludo-dice-svg {
