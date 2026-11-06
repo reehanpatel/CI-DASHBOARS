@@ -2083,31 +2083,12 @@ export async function initTeamBonding(container, options = {}) {
         }
       }
 
-      function renderDiceSvg(val) {
+      function renderNumberDisplay(val) {
         const v = Math.max(1, Math.min(6, Number(val) || 1));
-        const pipCoords = {
-          1: [[30, 30, 7.5, '#ef4444']],
-          2: [[16, 16, 5.5, '#1e293b'], [44, 44, 5.5, '#1e293b']],
-          3: [[16, 16, 5.5, '#1e293b'], [30, 30, 5.5, '#1e293b'], [44, 44, 5.5, '#1e293b']],
-          4: [[16, 16, 5.5, '#1e293b'], [44, 16, 5.5, '#1e293b'], [16, 44, 5.5, '#1e293b'], [44, 44, 5.5, '#1e293b']],
-          5: [[16, 16, 5.5, '#1e293b'], [44, 16, 5.5, '#1e293b'], [30, 30, 5.5, '#1e293b'], [16, 44, 5.5, '#1e293b'], [44, 44, 5.5, '#1e293b']],
-          6: [[16, 16, 5.5, '#1e293b'], [44, 16, 5.5, '#1e293b'], [16, 30, 5.5, '#1e293b'], [44, 30, 5.5, '#1e293b'], [16, 44, 5.5, '#1e293b'], [44, 44, 5.5, '#1e293b']]
-        };
-        const pips = pipCoords[v] || pipCoords[6];
-        const pipsSvg = pips.map(([cx, cy, r, fill]) => `
-          <g>
-            <circle cx="${cx}" cy="${cy + 1.2}" r="${r}" fill="#94a3b8" opacity="0.5"/>
-            <circle cx="${cx}" cy="${cy}" r="${r}" fill="${fill}"/>
-            <circle cx="${cx - r * 0.3}" cy="${cy - r * 0.3}" r="${r * 0.35}" fill="#ffffff" opacity="0.6"/>
-          </g>
-        `).join('');
-
         return `
-          <svg viewBox="0 0 60 60" width="52" height="52" class="ludo-dice-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Dice face ${v}">
-            <g class="die-pips-layer">
-              ${pipsSvg}
-            </g>
-          </svg>
+          <div class="ludo-direct-number-box num-${v}" role="img" aria-label="Number ${v}">
+            <span class="ludo-direct-num">${v}</span>
+          </div>
         `;
       }
 
@@ -2228,9 +2209,9 @@ export async function initTeamBonding(container, options = {}) {
                 id="btn-interactive-ludo-dice"
                 role="button"
                 tabindex="${canClickRoll ? '0' : '-1'}"
-                title="${canClickRoll ? 'Click Dice to Roll!' : (isMyCurrentTurn ? 'Choose a pawn to move' : `${turnPlName}'s turn`)}"
+                title="${canClickRoll ? 'Click to Roll Number!' : (isMyCurrentTurn ? 'Choose a pawn to move' : `${turnPlName}'s turn`)}"
               >
-                ${renderDiceSvg(displayDice)}
+                ${renderNumberDisplay(displayDice)}
               </div>
               <div class="ludo-dice-action-badge">
                 ${canClickRoll
@@ -2498,13 +2479,13 @@ export async function initTeamBonding(container, options = {}) {
               diceBadge.classList.add('is-rolling');
             }
 
-            // Rapidly shuffle random dice faces (1-6) every 60ms so the dice visibly tumbles
+            // Rapidly cycle direct numbers (1-6) every 45ms with direct number flipping animation
             const shuffleInterval = setInterval(() => {
               if (diceBtn) {
                 const randVal = Math.floor(Math.random() * 6) + 1;
-                diceBtn.innerHTML = renderDiceSvg(randVal);
+                diceBtn.innerHTML = renderNumberDisplay(randVal);
               }
-            }, 60);
+            }, 45);
 
             // Safe fallback timer so button never gets permanently stuck
             const safetyTimeout = setTimeout(() => {
@@ -5913,28 +5894,54 @@ function injectBondingStyles() {
       }
     }
 
+    .ludo-direct-number-box {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      width: 100% !important;
+      height: 100% !important;
+      user-select: none !important;
+      pointer-events: none !important;
+    }
+
+    .ludo-direct-num {
+      font-size: 38px !important;
+      font-weight: 900 !important;
+      line-height: 1 !important;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, system-ui, sans-serif !important;
+      color: #0f172a !important;
+      letter-spacing: -1px;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
+    }
+
+    [data-theme="dark"] .ludo-direct-num {
+      color: #0f172a !important;
+    }
+
+    .ludo-direct-number-box.num-6 .ludo-direct-num {
+      color: #ef4444 !important;
+      text-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+    }
+
     .ludo-3d-dice.rolling {
-      animation: diceRollTumble 0.45s cubic-bezier(0.4, 0, 0.2, 1) infinite !important;
+      animation: numberDirectRoll 0.22s ease-in-out infinite alternate !important;
       transform-origin: center center !important;
       pointer-events: none !important;
     }
 
-    @keyframes diceRollTumble {
-      0% { transform: scale(0.9) rotate(0deg); }
-      25% { transform: scale(1.15) rotate(90deg); }
-      50% { transform: scale(0.92) rotate(180deg); }
-      75% { transform: scale(1.12) rotate(270deg); }
-      100% { transform: scale(1) rotate(360deg); }
+    @keyframes numberDirectRoll {
+      0% { transform: scale(0.92); }
+      100% { transform: scale(1.15); }
     }
 
     .ludo-3d-dice.just-rolled {
-      animation: dicePopBounce 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+      animation: numberPopBounce 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
       transform-origin: center center !important;
     }
 
-    @keyframes dicePopBounce {
-      0% { transform: scale(0.85); }
-      50% { transform: scale(1.22); }
+    @keyframes numberPopBounce {
+      0% { transform: scale(0.8); }
+      50% { transform: scale(1.25); }
       100% { transform: scale(1); }
     }
 

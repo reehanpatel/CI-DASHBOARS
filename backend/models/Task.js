@@ -40,6 +40,7 @@ const TaskSchema = new mongoose.Schema({
   startTime: { type: String, default: '', trim: true },
   dueTime: { type: String, default: '', trim: true },
   category: { type: String, default: 'General', trim: true },
+  clientName: { type: String, default: '', trim: true },
   jobId: { type: mongoose.Schema.Types.ObjectId, ref: 'Job', default: null },
   clientId: { type: mongoose.Schema.Types.ObjectId, ref: 'Client', default: null },
   checklists: [ChecklistItemSchema],

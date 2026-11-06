@@ -195,6 +195,7 @@ router.post('/', async (req, res) => {
       startTime,
       dueTime,
       category,
+      clientName,
       jobId,
       clientId,
       checklists,
@@ -256,7 +257,8 @@ router.post('/', async (req, res) => {
           originalDateStr: dStr,
           startTime: startTime ? startTime.trim() : '',
           dueTime: dueTime ? dueTime.trim() : '',
-          category: category ? category.trim() : 'General',
+          category: clientName ? clientName.trim() : (category ? category.trim() : 'General'),
+          clientName: clientName ? clientName.trim() : '',
           jobId: jobId || null,
           clientId: clientId || null,
           checklists: Array.isArray(checklists) ? checklists : [],
@@ -313,7 +315,8 @@ router.post('/', async (req, res) => {
       originalDateStr: dStr,
       startTime: startTime ? startTime.trim() : '',
       dueTime: dueTime ? dueTime.trim() : '',
-      category: category ? category.trim() : 'General',
+      category: clientName ? clientName.trim() : (category ? category.trim() : 'General'),
+      clientName: clientName ? clientName.trim() : '',
       jobId: jobId || null,
       clientId: clientId || null,
       checklists: Array.isArray(checklists) ? checklists : [],
@@ -384,6 +387,7 @@ router.put('/:id', async (req, res) => {
       startTime,
       dueTime,
       category,
+      clientName,
       jobId,
       clientId,
       checklists,
@@ -486,6 +490,10 @@ router.put('/:id', async (req, res) => {
 
     if (startTime !== undefined) task.startTime = startTime.trim();
     if (dueTime !== undefined) task.dueTime = dueTime.trim();
+    if (clientName !== undefined) {
+      task.clientName = clientName.trim();
+      if (!category) task.category = clientName.trim() || 'General';
+    }
     if (category !== undefined) task.category = category.trim();
     if (jobId !== undefined) task.jobId = jobId || null;
     if (clientId !== undefined) task.clientId = clientId || null;

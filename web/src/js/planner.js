@@ -148,6 +148,7 @@ export function initDailyPlanner(container, options = {}) {
     reportPersonnelId: 'all',
     tasks: [],
     personnelList: [],
+    clientList: [],
     loading: false
   };
 
@@ -162,14 +163,16 @@ export function initDailyPlanner(container, options = {}) {
     renderSkeleton();
 
     try {
-      const promises = [apiGet('/tasks')];
-      if (isSuperadmin) {
-        promises.push(apiGet('/personnel').catch(() => []));
-      }
+      const promises = [
+        apiGet('/tasks'),
+        apiGet('/personnel').catch(() => []),
+        apiGet('/clients').catch(() => [])
+      ];
 
-      const [tasks, personnel] = await Promise.all(promises);
+      const [tasks, personnel, clients] = await Promise.all(promises);
       state.tasks = Array.isArray(tasks) ? tasks : [];
       if (personnel) state.personnelList = Array.isArray(personnel) ? personnel : [];
+      if (clients) state.clientList = Array.isArray(clients) ? clients : [];
     } catch (err) {
       flashToast('Failed to load planner tasks: ' + err.message, true);
     } finally {
@@ -490,11 +493,12 @@ export function initDailyPlanner(container, options = {}) {
         const title = (t.title || '').toLowerCase();
         const desc = (t.description || '').toLowerCase();
         const cat = (t.category || '').toLowerCase();
+        const clientName = (t.clientName || '').toLowerCase();
         const empName = (t.personnelId?.name || t.userId?.name || '').toLowerCase();
         const creatorName = (t.createdByName || t.createdBy?.name || (t.createdBy?.email ? t.createdBy.email.split('@')[0] : '')).toLowerCase();
         const coOwners = Array.isArray(t.coOwners) ? t.coOwners.map(c => (c.name || '').toLowerCase()).join(' ') : '';
         const client = (t.clientId?.name || t.jobId?.clientId?.name || '').toLowerCase();
-        return title.includes(q) || desc.includes(q) || cat.includes(q) || empName.includes(q) || creatorName.includes(q) || coOwners.includes(q) || client.includes(q);
+        return title.includes(q) || desc.includes(q) || cat.includes(q) || clientName.includes(q) || empName.includes(q) || creatorName.includes(q) || coOwners.includes(q) || client.includes(q);
       });
     }
 
@@ -593,7 +597,7 @@ export function initDailyPlanner(container, options = {}) {
             <!-- Search Bar with employee search support -->
             <div class="ci360-search-box">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-              <input type="text" id="plannerTaskSearchInp" placeholder="Search tasks, category or employee..." value="${escapeHtml(state.searchQuery)}">
+              <input type="text" id="plannerTaskSearchInp" placeholder="Search tasks, client name, employee or co-owner..." value="${escapeHtml(state.searchQuery)}">
               ${state.searchQuery ? `<button type="button" id="btnClearSearch" class="clear-search-btn">×</button>` : ''}
             </div>
           </div>
@@ -787,9 +791,9 @@ export function initDailyPlanner(container, options = {}) {
             ` : ''}
 
             <!-- Client Badge -->
-            ${(task.clientId?.name || task.jobId?.clientId?.name) ? `
-              <span class="ci360-badge client-badge" style="background:rgba(16,185,129,0.1);color:#10b981;border:1px solid rgba(16,185,129,0.25);" title="Client: ${escapeHtml(task.clientId?.name || task.jobId?.clientId?.name)}">
-                🏢 ${escapeHtml(task.clientId?.name || task.jobId?.clientId?.name)}
+            ${(task.clientName || task.clientId?.name || task.jobId?.clientId?.name || (task.category && task.category !== 'General' ? task.category : '')) ? `
+              <span class="ci360-badge client-badge" style="background:rgba(16,185,129,0.1);color:#10b981;border:1px solid rgba(16,185,129,0.25);" title="Client: ${escapeHtml(task.clientName || task.clientId?.name || task.jobId?.clientId?.name || task.category)}">
+                🏢 ${escapeHtml(task.clientName || task.clientId?.name || task.jobId?.clientId?.name || task.category)}
               </span>
             ` : ''}
           </div>
@@ -1222,8 +1226,17 @@ export function initDailyPlanner(container, options = {}) {
       const searchInp = document.getElementById('plannerTaskSearchInp');
       if (searchInp) {
         searchInp.oninput = (e) => {
-          state.searchQuery = e.target.value;
+          const val = e.target.value;
+          state.searchQuery = val;
+          const pos = e.target.selectionStart;
           render();
+          const nextInp = document.getElementById('plannerTaskSearchInp');
+          if (nextInp) {
+            nextInp.focus();
+            if (pos !== null) {
+              try { nextInp.setSelectionRange(pos, pos); } catch (err) {}
+            }
+          }
         };
       }
       const btnClearSearch = document.getElementById('btnClearSearch');
@@ -1562,16 +1575,12 @@ export function initDailyPlanner(container, options = {}) {
             </div>
 
             <div class="form-group flex-1">
-              <label for="taskCategory">Category / Label</label>
-              <input type="text" id="taskCategory" class="input" list="categoryOptions" placeholder="e.g. Design, Meeting" value="${escapeHtml(existingTask?.category || 'General')}">
-              <datalist id="categoryOptions">
+              <label for="taskClientName">Client Name</label>
+              <input type="text" id="taskClientName" class="input" list="clientOptions" placeholder="Enter or select client name..." value="${escapeHtml(existingTask?.clientName || (existingTask?.category && existingTask.category !== 'General' ? existingTask.category : ''))}">
+              <datalist id="clientOptions">
+                ${(state.clientList || []).map(c => `<option value="${escapeHtml(c.name)}">`).join('')}
+                <option value="Internal CI">
                 <option value="General">
-                <option value="Client Work">
-                <option value="Development">
-                <option value="Design">
-                <option value="Meeting">
-                <option value="Review">
-                <option value="Urgent">
               </datalist>
             </div>
           </div>
@@ -1709,7 +1718,8 @@ export function initDailyPlanner(container, options = {}) {
       const finalCompletionDate = compDateInput || assignedDate || state.selectedDate;
       const priority = modalBg.querySelector('#taskPriority').value;
       const status = modalBg.querySelector('#taskStatus').value;
-      const category = modalBg.querySelector('#taskCategory').value.trim() || 'General';
+      const clientName = (modalBg.querySelector('#taskClientName')?.value || modalBg.querySelector('#taskCategory')?.value || '').trim();
+      const category = clientName || 'General';
 
       if (!title) {
         flashToast('Task title is required', true);
@@ -1735,6 +1745,7 @@ export function initDailyPlanner(container, options = {}) {
         priority,
         status,
         category,
+        clientName,
         coOwners: currentCoOwners
       };
 
