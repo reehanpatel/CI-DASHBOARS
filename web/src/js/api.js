@@ -2723,10 +2723,42 @@ export function renderProgressBar(pct, type = 'indigo') {
     </div>`;
 }
 
-/* ── PERIOD PICKER ───────────────────────────────────────────── */
+/* ── PERIOD PICKER & DROPDOWN ────────────────────────────────── */
 export function renderPeriodPicker(currentPeriod) {
   const periods = [['all', 'All Time'], ['today', 'Today'], ['week', 'This Week'], ['month', 'This Month'], ['quarter', 'This Quarter']];
   return `<div class="period-row">${periods.map(([k, l]) => `<button class="pchip ${currentPeriod === k ? 'active' : ''}" data-period="${k}">${l}</button>`).join('')}</div>`;
+}
+
+export function renderPeriodDropdown(currentPeriod, selectId = 'dashPeriodSelect') {
+  const periods = [
+    ['all', 'All Time'],
+    ['today', 'Today'],
+    ['week', 'Weekly'],
+    ['month', 'Monthly'],
+    ['quarter', 'Quarterly']
+  ];
+  return `
+    <div class="period-dropdown-wrap" style="display:inline-flex;align-items:center;gap:8px;">
+      <div style="position:relative;display:inline-block;">
+        <select id="${selectId}" class="input period-select-dropdown" style="padding:7px 32px 7px 14px;font-size:13px;font-weight:700;border-radius:var(--r-md);min-width:150px;background:var(--bg-surface);color:var(--text-1);border:1px solid var(--border-sm);cursor:pointer;appearance:none;-webkit-appearance:none;box-shadow:var(--shadow-xs);">
+          ${periods.map(([k, l]) => `<option value="${k}" ${currentPeriod === k ? 'selected' : ''}>${l}</option>`).join('')}
+        </select>
+        <span style="position:absolute;right:12px;top:50%;transform:translateY(-50%);pointer-events:none;color:var(--text-3);font-size:10px;">▼</span>
+      </div>
+    </div>
+  `;
+}
+
+export function getTimeGreeting(name) {
+  const hr = new Date().getHours();
+  let greet = 'Good Evening';
+  if (hr >= 5 && hr < 12) {
+    greet = 'Good Morning';
+  } else if (hr >= 12 && hr < 17) {
+    greet = 'Good Afternoon';
+  }
+  const cleanName = (name || '').trim();
+  return cleanName ? `${greet}, ${cleanName} 👋` : `${greet} 👋`;
 }
 
 /* ── SUPPORT TICKET HELPERS ──────────────────────────────────── */

@@ -11,6 +11,8 @@ import {
   resetSidebarNavConfig,
   filterTabsForDashboard,
   saveUserModulePermissions,
+  renderPeriodDropdown,
+  getTimeGreeting,
   DEFAULT_SIDEBAR_CONFIG
 } from './api.js';
 
@@ -172,6 +174,13 @@ function periodPicker() {
 }
 function bindPeriodPicker() {
   document.querySelectorAll('[data-period]').forEach(b => { b.onclick = () => { ui.period = b.dataset.period; renderTab(); }; });
+  const periodSel = document.getElementById('dashPeriodSelect');
+  if (periodSel) {
+    periodSel.onchange = (e) => {
+      ui.period = e.target.value;
+      renderTab();
+    };
+  }
 }
 
 /* ---------------- DASHBOARD ---------------- */
@@ -179,12 +188,14 @@ async function tabDashboard(c) {
   dash = await apiGet('/dashboard/admin?period=' + ui.period);
   const o = dash.overview;
   c.innerHTML = `
-    <div class="dash-overview-header">
+    <div class="dash-overview-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-bottom:24px;">
       <div class="dash-overview-title-wrap">
-        <h2 style="font-size:22px;font-weight:700;color:var(--navy-900);margin:0 0 2px 0;">Dashboard Overview</h2>
+        <h2 style="font-size:24px;font-weight:800;color:var(--text-1);margin:0 0 4px 0;letter-spacing:-0.4px;">${getTimeGreeting(user?.name || 'Admin')}</h2>
         <p style="font-size:13px;color:var(--text-3);margin:0;">Real-time workload, capacity, and deliverable performance</p>
       </div>
-      ${periodPicker()}
+      <div class="dash-period-dropdown-wrap" style="display:inline-flex;align-items:center;gap:8px;">
+        ${renderPeriodDropdown(ui.period, 'dashPeriodSelect')}
+      </div>
     </div>
 
     <section class="block block-kpi-grid">

@@ -2,7 +2,14 @@ import { initProposalStudio } from './proposals.js';
 import { initDailyPlanner } from './planner.js';
 import { initTeamBonding } from './teambonding.js';
 import { initSupportTickets } from './supporttickets.js';
-import { renderAccountSettingsCard, bindAccountSettingsCard, fetchSidebarNavConfig, filterTabsForDashboard } from './api.js';
+import {
+  renderAccountSettingsCard,
+  bindAccountSettingsCard,
+  fetchSidebarNavConfig,
+  filterTabsForDashboard,
+  renderPeriodDropdown,
+  getTimeGreeting
+} from './api.js';
 
 let user = null;
 let cache = { personnel: [], clients: [], services: [] };
@@ -178,6 +185,13 @@ function bindPeriodPicker(){
   document.querySelectorAll('[data-period]').forEach(b=>{
     b.onclick = ()=>{ ui.period = b.dataset.period; renderTab(); };
   });
+  const sel = document.getElementById('empDashPeriodSelect');
+  if (sel) {
+    sel.onchange = (e) => {
+      ui.period = e.target.value;
+      renderTab();
+    };
+  }
 }
 
 /* ════════════════════════════ EMPLOYEE DASHBOARD OVERVIEW ═══════════════════ */
@@ -228,7 +242,7 @@ async function tabEmployeeDashboard(c){
             </div>
             <div>
               <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:4px">
-                <h1 style="font-size:24px;font-weight:800;color:var(--text-1);margin:0;letter-spacing:-0.5px">${escapeHtml(empName)}</h1>
+                <h1 style="font-size:24px;font-weight:800;color:var(--text-1);margin:0;letter-spacing:-0.5px">${getTimeGreeting(empName)}</h1>
                 <span class="badge blue" style="font-size:11px;font-weight:700">${escapeHtml(duties)}</span>
                 <span class="badge ${stats.badge || 'green'}" style="font-size:11px;font-weight:700">● ${escapeHtml(stats.label || 'Optimal Pace')}</span>
               </div>
@@ -257,7 +271,7 @@ async function tabEmployeeDashboard(c){
             Period Performance Scope
           </div>
           <div id="empOverviewPeriodWrapper">
-            ${renderPeriodPicker(ui.period)}
+            ${renderPeriodDropdown(ui.period, 'empDashPeriodSelect')}
           </div>
         </div>
       </div>
@@ -283,9 +297,9 @@ async function tabEmployeeDashboard(c){
         </div>
       ` : ''}
 
-      <!-- 4 KPI Summary Cards -->
+      <!-- 3 KPI Summary Cards -->
       <section class="block block-kpi-grid" style="margin-bottom:24px">
-        <div class="grid grid-4" style="gap:16px">
+        <div class="grid grid-3" style="gap:16px">
 
           <div class="card kpi" style="border-top:3px solid var(--brand-500);padding:20px">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
@@ -312,15 +326,6 @@ async function tabEmployeeDashboard(c){
             </div>
             <div class="value" style="font-size:32px;font-weight:900;color:var(--green-500);line-height:1">${todayDone.length} <span style="font-size:18px;font-weight:600;color:var(--text-4)">/ ${todayTasks.length}</span></div>
             <div class="sub" style="font-size:12px;color:var(--text-4);margin-top:6px">${taskProgressPct}% of today's checklist completed</div>
-          </div>
-
-          <div class="card kpi" style="border-top:3px solid #8B5CF6;padding:20px">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-              <div class="label" style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--text-3)">Value Output Tracked</div>
-              <div style="font-size:20px">💰</div>
-            </div>
-            <div class="value" style="font-size:32px;font-weight:900;color:#8B5CF6;line-height:1">${fmtINR(stats.revenue || 0)}</div>
-            <div class="sub" style="font-size:12px;color:var(--text-4);margin-top:6px">Revenue deliverable contribution</div>
           </div>
 
         </div>
