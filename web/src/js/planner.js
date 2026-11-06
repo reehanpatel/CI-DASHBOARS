@@ -13,7 +13,15 @@ import {
   apiDelete,
   escapeHtml,
   flashToast,
-  openModal
+  openModal,
+  uploadMultipleFilesFast,
+  uploadSingleFileDirectly,
+  renderAttachmentUploader,
+  bindAttachmentUploader,
+  getUploaderAttachments,
+  setUploaderAttachments,
+  openFilePreviewModal,
+  fmtFileSize
 } from './api.js';
 
 // Default Settings
@@ -310,6 +318,15 @@ export function initDailyPlanner(container, options = {}) {
               `}
             </button>
 
+            <!-- Recent Tasks Button -->
+            <button type="button" class="ci360-btn-secondary" id="btnOpenRecentModal" title="See latest added, completed, or changed tasks" style="display:inline-flex;align-items:center;gap:6px;font-weight:600;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+              <span>Recent</span>
+            </button>
+
             <!-- Actions Dropdown Button -->
             <div class="ci360-dropdown-wrap">
               <button type="button" class="ci360-btn-secondary" id="btnPlannerActionsMenu" title="More Tools & Exports">
@@ -515,6 +532,8 @@ export function initDailyPlanner(container, options = {}) {
       visibleTasks = visibleTasks.filter(t => t.status === 'Completed');
     } else if (state.filterStatus === 'overdue') {
       visibleTasks = visibleTasks.filter(t => isOverdue(t, todayStr));
+    } else if (state.filterStatus === 'recent') {
+      visibleTasks = [...dayTasks].sort((a, b) => new Date(b.updatedAt || b.createdAt || 0) - new Date(a.updatedAt || a.createdAt || 0));
     }
 
     if (state.searchQuery) {
@@ -532,13 +551,15 @@ export function initDailyPlanner(container, options = {}) {
       });
     }
 
-    // Sort: Pending/In Progress first by priority, completed at bottom
-    visibleTasks.sort((a, b) => {
-      if (a.status === 'Completed' && b.status !== 'Completed') return 1;
-      if (a.status !== 'Completed' && b.status === 'Completed') return -1;
-      const priOrder = { Urgent: 0, High: 1, Medium: 2, Low: 3 };
-      return (priOrder[a.priority] || 2) - (priOrder[b.priority] || 2);
-    });
+    // Sort: If not sorted by recent, sort Pending/In Progress first by priority, completed at bottom
+    if (state.filterStatus !== 'recent') {
+      visibleTasks.sort((a, b) => {
+        if (a.status === 'Completed' && b.status !== 'Completed') return 1;
+        if (a.status !== 'Completed' && b.status === 'Completed') return -1;
+        const priOrder = { Urgent: 0, High: 1, Medium: 2, Low: 3 };
+        return (priOrder[a.priority] || 2) - (priOrder[b.priority] || 2);
+      });
+    }
 
     // Group tasks by employee when in admin mode with grouping active
     const employeeMap = new Map();
@@ -606,6 +627,7 @@ export function initDailyPlanner(container, options = {}) {
               <button type="button" class="filter-pill ${state.filterStatus === 'pending' ? 'active' : ''}" data-f="pending">Pending (${stats.pending})</button>
               <button type="button" class="filter-pill ${state.filterStatus === 'in_progress' ? 'active' : ''}" data-f="in_progress">In Progress (${stats.inProgress})</button>
               <button type="button" class="filter-pill ${state.filterStatus === 'completed' ? 'active' : ''}" data-f="completed">Completed (${stats.completed})</button>
+              <button type="button" class="filter-pill ${state.filterStatus === 'recent' ? 'active' : ''}" data-f="recent" title="Latest added, completed, or changed tasks">🕒 Recent</button>
               ${stats.overdue > 0 ? `
                 <button type="button" class="filter-pill overdue ${state.filterStatus === 'overdue' ? 'active' : ''}" data-f="overdue">Overdue (${stats.overdue})</button>
               ` : ''}
@@ -792,8 +814,8 @@ export function initDailyPlanner(container, options = {}) {
               </span>
             ` : ''}
 
-            <!-- Category -->
-            ${task.category ? `
+            <!-- Category (Hide if empty or General) -->
+            ${task.category && task.category.trim() && task.category.trim().toLowerCase() !== 'general' ? `
               <span class="ci360-badge category-badge">
                 #${escapeHtml(task.category)}
               </span>
@@ -821,12 +843,33 @@ export function initDailyPlanner(container, options = {}) {
             ` : ''}
 
             <!-- Client Badge -->
-            ${(task.clientName || task.clientId?.name || task.jobId?.clientId?.name || (task.category && task.category !== 'General' ? task.category : '')) ? `
-              <span class="ci360-badge client-badge" style="background:rgba(16,185,129,0.1);color:#10b981;border:1px solid rgba(16,185,129,0.25);" title="Client: ${escapeHtml(task.clientName || task.clientId?.name || task.jobId?.clientId?.name || task.category)}">
-                🏢 ${escapeHtml(task.clientName || task.clientId?.name || task.jobId?.clientId?.name || task.category)}
+            ${(task.clientName || task.clientId?.name || task.jobId?.clientId?.name) ? `
+              <span class="ci360-badge client-badge" style="background:rgba(16,185,129,0.1);color:#10b981;border:1px solid rgba(16,185,129,0.25);" title="Client: ${escapeHtml(task.clientName || task.clientId?.name || task.jobId?.clientId?.name)}">
+                🏢 ${escapeHtml(task.clientName || task.clientId?.name || task.jobId?.clientId?.name)}
+              </span>
+            ` : ''}
+
+            <!-- Attachments Badge -->
+            ${Array.isArray(task.attachments) && task.attachments.length > 0 ? `
+              <span class="ci360-badge attachments-badge btn-view-task-atts" data-id="${task._id}" style="background:rgba(59,130,246,0.12);color:#2563eb;border:1px solid rgba(59,130,246,0.25);cursor:pointer;" title="Click to view/edit ${task.attachments.length} attachment(s)">
+                📎 ${task.attachments.length} file${task.attachments.length === 1 ? '' : 's'}
               </span>
             ` : ''}
           </div>
+
+          <!-- Image Thumbnails Strip if any -->
+          ${Array.isArray(task.attachments) && task.attachments.some(a => (a.type && a.type.startsWith('image/')) || (a.name && a.name.match(/\.(png|jpe?g|gif|webp|svg)$/i))) ? `
+            <div class="ci360-task-thumb-strip">
+              ${task.attachments.filter(a => (a.type && a.type.startsWith('image/')) || (a.name && a.name.match(/\.(png|jpe?g|gif|webp|svg)$/i))).slice(0, 6).map(att => `
+                <div class="ci360-att-thumb-box btn-preview-task-att" data-url="${escapeHtml(att.url)}" data-name="${escapeHtml(att.name)}" title="${escapeHtml(att.name)}">
+                  <img src="${escapeHtml(att.url)}" alt="${escapeHtml(att.name)}" loading="lazy" />
+                </div>
+              `).join('')}
+              ${task.attachments.filter(a => (a.type && a.type.startsWith('image/')) || (a.name && a.name.match(/\.(png|jpe?g|gif|webp|svg)$/i))).length > 6 ? `
+                <span class="att-more-count">+${task.attachments.filter(a => (a.type && a.type.startsWith('image/')) || (a.name && a.name.match(/\.(png|jpe?g|gif|webp|svg)$/i))).length - 6} more</span>
+              ` : ''}
+            </div>
+          ` : ''}
         </div>
 
         <!-- Task Actions Menu: Previous tasks can be edited, deleted, changed by all -->
@@ -1256,6 +1299,14 @@ export function initDailyPlanner(container, options = {}) {
       };
     }
 
+    // Recent Tasks Modal
+    const btnRecent = document.getElementById('btnOpenRecentModal');
+    if (btnRecent) {
+      btnRecent.onclick = () => {
+        openRecentActivityModal();
+      };
+    }
+
     // Tools & Actions Dropdown
     const btnTools = document.getElementById('btnPlannerActionsMenu');
     const toolsDropdown = document.getElementById('plannerActionsDropdown');
@@ -1555,6 +1606,25 @@ export function initDailyPlanner(container, options = {}) {
         await deleteTaskWithConfirm(id);
       };
     });
+
+    // Attachment thumbnail and badge previews
+    container.querySelectorAll('.btn-preview-task-att').forEach(btn => {
+      btn.onclick = (e) => {
+        e.stopPropagation();
+        const url = btn.dataset.url;
+        const name = btn.dataset.name;
+        if (url) openFilePreviewModal({ url, name });
+      };
+    });
+
+    container.querySelectorAll('.btn-view-task-atts').forEach(btn => {
+      btn.onclick = (e) => {
+        e.stopPropagation();
+        const id = btn.dataset.id;
+        const task = state.tasks.find(t => t._id === id);
+        if (task) openAddEditTaskModal(task);
+      };
+    });
   }
 
   /**
@@ -1683,7 +1753,6 @@ export function initDailyPlanner(container, options = {}) {
               <datalist id="clientOptions">
                 ${(state.clientList || []).map(c => `<option value="${escapeHtml(c.name)}">`).join('')}
                 <option value="Internal CI">
-                <option value="General">
               </datalist>
             </div>
           </div>
@@ -1716,6 +1785,19 @@ export function initDailyPlanner(container, options = {}) {
                 <option value="${p._id}">+ 👤 ${escapeHtml(p.name)} (${escapeHtml(p.department || p.role || 'Member')})</option>
               `).join('')}
             </select>
+          </div>
+
+          <!-- Attachments & Paste Screenshot Section -->
+          <div class="form-group" style="margin-top:14px;">
+            ${renderAttachmentUploader({
+              id: 'task-attachments-uploader',
+              label: 'Attachments & Screenshots',
+              subtitle: 'Drag & drop files, browse local files, or paste screenshot anywhere with Ctrl+V'
+            })}
+            <div class="task-paste-notice">
+              <span style="font-size:14px;">📋</span>
+              <span><strong>Paste anywhere:</strong> Press <strong>Ctrl + V</strong> in this window to immediately attach a screenshot or image from your clipboard.</span>
+            </div>
           </div>
 
           <div class="ci360-modal-footer" style="display:flex;justify-content:space-between;align-items:center;">
@@ -1811,6 +1893,47 @@ export function initDailyPlanner(container, options = {}) {
       };
     }
 
+    // Bind Attachment Uploader
+    bindAttachmentUploader('task-attachments-uploader', {
+      existing: Array.isArray(existingTask?.attachments) ? existingTask.attachments : []
+    });
+
+    // Paste event handler for screenshots
+    const pasteHandler = async (e) => {
+      const items = e.clipboardData?.items;
+      if (!items || !items.length) return;
+      const imageFiles = [];
+      for (let i = 0; i < items.length; i++) {
+        if (items[i].type && items[i].type.startsWith('image/')) {
+          const blob = items[i].getAsFile();
+          if (blob) {
+            const ext = blob.type.split('/')[1] || 'png';
+            const now = new Date();
+            const dateStr = now.toISOString().replace(/[:.]/g, '-').slice(0, 19);
+            const file = new File([blob], `screenshot-${dateStr}.${ext}`, { type: blob.type });
+            imageFiles.push(file);
+          }
+        }
+      }
+      if (imageFiles.length > 0) {
+        e.preventDefault();
+        flashToast(`Pasting ${imageFiles.length} screenshot(s)... 📸`);
+        for (const f of imageFiles) {
+          try {
+            const uploaded = await uploadSingleFileDirectly(f);
+            if (uploaded) {
+              const current = getUploaderAttachments('task-attachments-uploader');
+              setUploaderAttachments('task-attachments-uploader', [...current, uploaded]);
+              flashToast('Screenshot attached successfully! 📸');
+            }
+          } catch (err) {
+            flashToast('Failed to paste screenshot: ' + (err.message || 'Error'), true);
+          }
+        }
+      }
+    };
+    modalBg.addEventListener('paste', pasteHandler);
+
     form.onsubmit = async (e) => {
       e.preventDefault();
       const title = modalBg.querySelector('#taskTitle').value.trim();
@@ -1822,7 +1945,8 @@ export function initDailyPlanner(container, options = {}) {
       const priority = modalBg.querySelector('#taskPriority').value;
       const status = modalBg.querySelector('#taskStatus').value;
       const clientName = (modalBg.querySelector('#taskClientName')?.value || modalBg.querySelector('#taskCategory')?.value || '').trim();
-      const category = clientName || 'General';
+      const category = clientName || '';
+      const attachments = getUploaderAttachments('task-attachments-uploader');
 
       if (!title) {
         flashToast('Task title is required', true);
@@ -1849,6 +1973,7 @@ export function initDailyPlanner(container, options = {}) {
         status,
         category,
         clientName,
+        attachments,
         coOwners: currentCoOwners
       };
 
@@ -1891,6 +2016,184 @@ export function initDailyPlanner(container, options = {}) {
         saveBtn.textContent = isEdit ? 'Save Changes' : 'Create Task';
       }
     };
+  }
+
+  /**
+   * 3B. RECENT TASK ACTIVITY MODAL
+   * Displays the latest added, completed, and rescheduled/changed tasks with live filters.
+   */
+  async function openRecentActivityModal() {
+    let recentTasks = [];
+    let activeFilter = 'all'; // 'all' | 'added' | 'completed' | 'changed'
+    let searchQuery = '';
+
+    const modalHtml = `
+      <div class="ci360-planner-modal recent-tasks-modal" style="max-width:860px;width:95vw;">
+        <div class="ci360-modal-header" style="border-bottom:1px solid var(--border-sm);padding-bottom:12px;">
+          <div>
+            <h3 style="display:flex;align-items:center;gap:8px;margin:0;">
+              <span>🕒</span>
+              <span>Recent Task Activity</span>
+            </h3>
+            <p style="font-size:12px;color:var(--text-3);margin:4px 0 0">
+              Live stream of latest added, completed, and rescheduled or edited tasks.
+            </p>
+          </div>
+          <button type="button" class="ci360-modal-close" id="btnRecentModalClose">×</button>
+        </div>
+
+        <div style="padding:16px 20px;">
+          <!-- Filter Tabs & Quick Search -->
+          <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px;">
+            <div class="recent-modal-header-tabs" style="display:flex;gap:6px;flex-wrap:wrap;margin:0;padding:0;border:none;">
+              <button type="button" class="recent-tab-btn active" data-tab="all">⚡ All Recent</button>
+              <button type="button" class="recent-tab-btn" data-tab="added">➕ Newly Added</button>
+              <button type="button" class="recent-tab-btn" data-tab="completed">✅ Completed</button>
+              <button type="button" class="recent-tab-btn" data-tab="changed">🔄 Changed / Rescheduled</button>
+            </div>
+            <div style="position:relative;min-width:220px;flex:1;max-width:320px;">
+              <input type="text" id="recentTaskSearch" class="input" placeholder="Search tasks, client, or assignee..." style="padding:7px 12px;font-size:12px;border-radius:20px;">
+            </div>
+          </div>
+
+          <!-- Task List Body -->
+          <div id="recentTasksListContainer" style="max-height:480px;overflow-y:auto;padding-right:4px;">
+            <div style="text-align:center;padding:48px;color:var(--text-3);">
+              <div style="font-size:24px;margin-bottom:8px;">⏳</div>
+              <div>Loading recent activity...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    const modalBg = openModal(modalHtml);
+    const closeBtn = modalBg.querySelector('#btnRecentModalClose');
+    if (closeBtn) closeBtn.onclick = () => modalBg.remove();
+
+    const listContainer = modalBg.querySelector('#recentTasksListContainer');
+    const searchInput = modalBg.querySelector('#recentTaskSearch');
+
+    try {
+      const data = await apiGet('/tasks/recent');
+      recentTasks = Array.isArray(data) ? data : (state.tasks || []);
+    } catch (err) {
+      console.warn('Fallback to local state tasks for recent:', err);
+      recentTasks = [...(state.tasks || [])].sort((a, b) => new Date(b.updatedAt || b.createdAt || 0) - new Date(a.updatedAt || a.createdAt || 0));
+    }
+
+    const renderList = () => {
+      if (!listContainer) return;
+      let filtered = [...recentTasks];
+
+      if (activeFilter === 'completed') {
+        filtered = filtered.filter(t => t.status === 'Completed' || t.completedAt);
+        filtered.sort((a, b) => new Date(b.completedAt || b.updatedAt || 0) - new Date(a.completedAt || a.updatedAt || 0));
+      } else if (activeFilter === 'changed') {
+        filtered = filtered.filter(t => t.rescheduledFrom || (t.dateChangeCount && t.dateChangeCount > 0) || (t.updatedAt && t.createdAt && new Date(t.updatedAt).getTime() - new Date(t.createdAt).getTime() > 10000));
+        filtered.sort((a, b) => new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0));
+      } else if (activeFilter === 'added') {
+        filtered.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+      }
+
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase();
+        filtered = filtered.filter(t =>
+          (t.title && t.title.toLowerCase().includes(q)) ||
+          (t.description && t.description.toLowerCase().includes(q)) ||
+          (t.clientName && t.clientName.toLowerCase().includes(q)) ||
+          (t.personnelId?.name && t.personnelId.name.toLowerCase().includes(q)) ||
+          (t.createdBy?.name && t.createdBy.name.toLowerCase().includes(q))
+        );
+      }
+
+      if (!filtered.length) {
+        listContainer.innerHTML = `
+          <div style="text-align:center;padding:48px 20px;color:var(--text-4);">
+            <div style="font-size:32px;margin-bottom:8px;">🔍</div>
+            <div style="font-size:14px;font-weight:600;color:var(--text-2);">No matching recent tasks found</div>
+            <div style="font-size:12px;margin-top:4px;">Try selecting another filter or adjusting your search term.</div>
+          </div>
+        `;
+        return;
+      }
+
+      listContainer.innerHTML = filtered.map(t => {
+        const isDone = t.status === 'Completed';
+        const assignedStr = formatShortDate(t.assignedDateStr || t.assignedDate || (t.createdAt ? new Date(t.createdAt).toISOString().slice(0, 10) : ''));
+        const compStr = formatShortDate(t.completionDateStr || t.completionDate || t.dueDate || '');
+        const updatedAgo = t.updatedAt ? new Date(t.updatedAt).toLocaleString('en-IN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
+        const createdOn = t.createdAt ? new Date(t.createdAt).toLocaleString('en-IN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
+        const creatorName = t.createdBy?.name || (typeof t.createdBy === 'string' ? t.createdBy : '');
+        const assigneeName = t.personnelId?.name || t.userId?.name || '';
+        const hasAtts = Array.isArray(t.attachments) && t.attachments.length > 0;
+
+        return `
+          <div class="recent-task-row">
+            <div style="display:flex;align-items:flex-start;gap:12px;min-width:0;flex:1;">
+              <span class="status-dot" style="width:10px;height:10px;border-radius:50%;margin-top:6px;flex-shrink:0;background:${isDone ? '#10b981' : (t.status === 'In Progress' ? '#3b82f6' : '#f59e0b')};box-shadow:0 0 6px ${isDone ? 'rgba(16,185,129,0.5)' : (t.status === 'In Progress' ? 'rgba(59,130,246,0.5)' : 'rgba(245,158,11,0.5)')};"></span>
+              <div style="min-width:0;flex:1;">
+                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px;">
+                  <span style="font-size:13.5px;font-weight:700;color:var(--text-1);${isDone ? 'text-decoration:line-through;color:var(--text-3);' : ''}">${escapeHtml(t.title)}</span>
+                  <span class="ci360-badge priority-${(t.priority || 'medium').toLowerCase()}" style="font-size:10px;padding:2px 6px;">${escapeHtml(t.priority || 'Medium')}</span>
+                  <span class="ci360-badge" style="font-size:10px;padding:2px 6px;background:${isDone ? 'rgba(16,185,129,0.1)' : 'rgba(59,130,246,0.1)'};color:${isDone ? '#10b981' : '#3b82f6'};">${isDone ? 'Completed' : (escapeHtml(t.status) || 'Pending')}</span>
+                  ${t.clientName ? `<span class="ci360-badge" style="background:rgba(16,185,129,0.1);color:#10b981;font-size:10px;padding:2px 6px;">🏢 ${escapeHtml(t.clientName)}</span>` : ''}
+                  ${hasAtts ? `<span class="ci360-badge" style="background:rgba(59,130,246,0.12);color:#2563eb;font-size:10px;padding:2px 6px;">📎 ${t.attachments.length} file(s)</span>` : ''}
+                </div>
+
+                <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;font-size:11.5px;color:var(--text-3);">
+                  ${t.rescheduledFrom ? `
+                    <span style="color:#d97706;font-weight:600;">🔄 Rescheduled: ${formatShortDate(t.rescheduledFrom)} ➔ ${compStr}</span>
+                  ` : `
+                    <span>📅 Due: ${compStr || assignedStr}</span>
+                  `}
+                  ${creatorName ? `<span>✍️ By: <strong>${escapeHtml(creatorName)}</strong></span>` : ''}
+                  ${assigneeName ? `<span>👤 Assigned: <strong>${escapeHtml(assigneeName)}</strong></span>` : ''}
+                  ${updatedAgo ? `<span style="color:var(--text-4);">🕒 Updated ${updatedAgo}</span>` : ''}
+                </div>
+              </div>
+            </div>
+
+            <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
+              <button type="button" class="btn secondary small btn-open-recent-task" data-id="${t._id}" style="padding:5px 12px;font-size:11.5px;font-weight:600;display:inline-flex;align-items:center;gap:4px;">
+                <span>✏️ Edit</span>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      listContainer.querySelectorAll('.btn-open-recent-task').forEach(btn => {
+        btn.onclick = () => {
+          const id = btn.dataset.id;
+          const task = recentTasks.find(t => String(t._id) === String(id)) || state.tasks.find(t => String(t._id) === String(id));
+          if (task) {
+            modalBg.remove();
+            openAddEditTaskModal(task);
+          }
+        };
+      });
+    };
+
+    renderList();
+
+    // Tab buttons
+    modalBg.querySelectorAll('.recent-tab-btn').forEach(btn => {
+      btn.onclick = () => {
+        modalBg.querySelectorAll('.recent-tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        activeFilter = btn.dataset.tab;
+        renderList();
+      };
+    });
+
+    // Search input
+    if (searchInput) {
+      searchInput.oninput = (e) => {
+        searchQuery = e.target.value.trim();
+        renderList();
+      };
+    }
   }
 
   /**
@@ -5197,6 +5500,121 @@ function ensurePlannerStyles() {
       background: #FFFBEB;
       color: #B45309;
       border-color: #FDE68A;
+    }
+
+    /* Task Thumbnails Strip */
+    .ci360-task-thumb-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+      align-items: center;
+    }
+    .ci360-att-thumb-box {
+      width: 44px;
+      height: 44px;
+      border-radius: 6px;
+      overflow: hidden;
+      border: 1px solid var(--border-sm);
+      background: var(--bg-hover);
+      cursor: pointer;
+      transition: transform 0.15s ease, border-color 0.15s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .ci360-att-thumb-box:hover {
+      transform: scale(1.06);
+      border-color: var(--accent);
+    }
+    .ci360-att-thumb-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .att-more-count {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-3);
+      padding: 4px 6px;
+    }
+
+    /* Recent Tasks Modal & Activity Rows */
+    .recent-tasks-modal {
+      max-width: 860px !important;
+      width: 95vw;
+    }
+    .recent-modal-header-tabs {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .recent-tab-btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border-sm);
+      color: var(--text-2);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+    .recent-tab-btn:hover {
+      background: var(--bg-hover);
+      color: var(--text-1);
+    }
+    .recent-tab-btn.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+    .recent-task-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 14px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-sm);
+      border-radius: var(--r-md);
+      margin-bottom: 8px;
+      gap: 12px;
+      transition: all 0.15s ease;
+    }
+    .recent-task-row:hover {
+      border-color: var(--accent);
+      transform: translateY(-1px);
+    }
+    .task-paste-notice {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      background: rgba(0, 112, 243, 0.08);
+      border: 1px dashed rgba(0, 112, 243, 0.3);
+      border-radius: 6px;
+      font-size: 11.5px;
+      color: var(--text-2);
+      margin-top: 8px;
+    }
+    [data-theme="light"] .recent-task-row,
+    html:not([data-theme="dark"]) .recent-task-row {
+      background: #FFFFFF;
+      border-color: #E2E8F0;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    [data-theme="light"] .recent-tab-btn,
+    html:not([data-theme="dark"]) .recent-tab-btn {
+      background: #F8FAFC;
+      border-color: #E2E8F0;
+      color: #475569;
+    }
+    [data-theme="light"] .recent-tab-btn.active,
+    html:not([data-theme="dark"]) .recent-tab-btn.active {
+      background: #2563EB;
+      color: #FFFFFF;
+      border-color: #2563EB;
     }
   `;
   document.head.appendChild(style);

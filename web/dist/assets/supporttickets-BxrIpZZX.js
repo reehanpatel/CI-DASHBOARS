@@ -1,4 +1,4 @@
-import{c as ze,k as $,e as v,x as at,l as nt,p as qt,m as Jt,j as ve,y as ma,z as oa,A as fa}from"./api-CrB3lAvb.js";const ha={displayName:"Daily Planner",weekStartsOn:1,timezone:"Asia/Kolkata",defaultPriority:"Medium",density:"comfortable",soundEnabled:!0};function Ea(){try{const s=localStorage.getItem("ci360_planner_settings");if(s)return Object.assign({},ha,JSON.parse(s))}catch{}return Object.assign({},ha)}function Ta(s){try{localStorage.setItem("ci360_planner_settings",JSON.stringify(s))}catch{}}function Ke(){const s=new Date,a=s.getFullYear(),e=String(s.getMonth()+1).padStart(2,"0"),g=String(s.getDate()).padStart(2,"0");return`${a}-${e}-${g}`}function Kt(s,a){const e=new Date(s+"T00:00:00");e.setDate(e.getDate()+a);const g=e.getFullYear(),h=String(e.getMonth()+1).padStart(2,"0"),b=String(e.getDate()).padStart(2,"0");return`${g}-${h}-${b}`}function Dt(s){return s?new Date(s+"T00:00:00").toLocaleDateString("en-US",{weekday:"long",year:"numeric",month:"long",day:"numeric"}):"—"}function Ge(s){return s?new Date(s+"T00:00:00").toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"}):"—"}function Fa(s){return s?new Date(s+"T00:00:00").toLocaleDateString("en-US",{weekday:"short"}):""}function Bt(s,a=1){const e=new Date(s+"T00:00:00"),g=e.getDay(),h=(g<a?7:0)+g-a,b=new Date(e);b.setDate(e.getDate()-h);const p=[];for(let i=0;i<7;i++){const R=new Date(b);R.setDate(b.getDate()+i);const J=R.getFullYear(),T=String(R.getMonth()+1).padStart(2,"0"),q=String(R.getDate()).padStart(2,"0");p.push(`${J}-${T}-${q}`)}return p}function Pa(){try{const s=window.AudioContext||window.webkitAudioContext;if(!s)return;const a=new s,e=a.currentTime,g=a.createOscillator(),h=a.createGain();g.type="sine",g.frequency.setValueAtTime(523.25,e),g.frequency.exponentialRampToValueAtTime(783.99,e+.15),h.gain.setValueAtTime(.2,e),h.gain.exponentialRampToValueAtTime(.001,e+.35),g.connect(h),h.connect(a.destination),g.start(e),g.stop(e+.35)}catch{}}function sn(s,a={}){const{userRole:e="employee",currentUser:g=null,onNavigate:h=null}=a,b=e==="superadmin"||e==="admin";let p=Ea(),i={selectedDate:Ke(),viewMode:"daily",filterStatus:"all",searchQuery:"",groupByEmployee:b,collapsedEmployees:{},selectedCategory:"all",selectedPersonnelId:"all",reportPersonnelId:"all",tasks:[],personnelList:[],clientList:[],loading:!1};La(),R();async function R(){i.loading=!0,J();try{const l=[ze("/tasks"),ze("/personnel").catch(()=>[]),ze("/clients").catch(()=>[])],[n,r,f]=await Promise.all(l);i.tasks=Array.isArray(n)?n:[],r&&(i.personnelList=Array.isArray(r)?r:[]),f&&(i.clientList=Array.isArray(f)?f:[])}catch(l){$("Failed to load planner tasks: "+l.message,!0)}finally{i.loading=!1,U()}}function J(){s.innerHTML=`
+import{c as ze,k as S,e as v,x as Ta,y as tt,l as at,z as Fa,p as Lt,A as Pa,B as ma,m as Jt,j as xe,C as La,E as za,F as fa,G as ia,H as ha}from"./api-B8IKLPry.js";const xa={displayName:"Daily Planner",weekStartsOn:1,timezone:"Asia/Kolkata",defaultPriority:"Medium",density:"comfortable",soundEnabled:!0};function Ma(){try{const s=localStorage.getItem("ci360_planner_settings");if(s)return Object.assign({},xa,JSON.parse(s))}catch{}return Object.assign({},xa)}function qa(s){try{localStorage.setItem("ci360_planner_settings",JSON.stringify(s))}catch{}}function Ge(){const s=new Date,n=s.getFullYear(),a=String(s.getMonth()+1).padStart(2,"0"),g=String(s.getDate()).padStart(2,"0");return`${n}-${a}-${g}`}function Kt(s,n){const a=new Date(s+"T00:00:00");a.setDate(a.getDate()+n);const g=a.getFullYear(),k=String(a.getMonth()+1).padStart(2,"0"),f=String(a.getDate()).padStart(2,"0");return`${g}-${k}-${f}`}function Dt(s){return s?new Date(s+"T00:00:00").toLocaleDateString("en-US",{weekday:"long",year:"numeric",month:"long",day:"numeric"}):"—"}function Le(s){return s?new Date(s+"T00:00:00").toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"}):"—"}function Ba(s){return s?new Date(s+"T00:00:00").toLocaleDateString("en-US",{weekday:"short"}):""}function Bt(s,n=1){const a=new Date(s+"T00:00:00"),g=a.getDay(),k=(g<n?7:0)+g-n,f=new Date(a);f.setDate(a.getDate()-k);const c=[];for(let r=0;r<7;r++){const N=new Date(f);N.setDate(f.getDate()+r);const Q=N.getFullYear(),E=String(N.getMonth()+1).padStart(2,"0"),B=String(N.getDate()).padStart(2,"0");c.push(`${Q}-${E}-${B}`)}return c}function ja(){try{const s=window.AudioContext||window.webkitAudioContext;if(!s)return;const n=new s,a=n.currentTime,g=n.createOscillator(),k=n.createGain();g.type="sine",g.frequency.setValueAtTime(523.25,a),g.frequency.exponentialRampToValueAtTime(783.99,a+.15),k.gain.setValueAtTime(.2,a),k.gain.exponentialRampToValueAtTime(.001,a+.35),g.connect(k),k.connect(n.destination),g.start(a),g.stop(a+.35)}catch{}}function un(s,n={}){const{userRole:a="employee",currentUser:g=null,onNavigate:k=null}=n,f=a==="superadmin"||a==="admin";let c=Ma(),r={selectedDate:Ge(),viewMode:"daily",filterStatus:"all",searchQuery:"",groupByEmployee:f,collapsedEmployees:{},selectedCategory:"all",selectedPersonnelId:"all",reportPersonnelId:"all",tasks:[],personnelList:[],clientList:[],loading:!1};Ra(),N();async function N(){r.loading=!0,Q();try{const e=[ze("/tasks"),ze("/personnel").catch(()=>[]),ze("/clients").catch(()=>[])],[o,m,y]=await Promise.all(e);r.tasks=Array.isArray(o)?o:[],m&&(r.personnelList=Array.isArray(m)?m:[]),y&&(r.clientList=Array.isArray(y)?y:[])}catch(e){S("Failed to load planner tasks: "+e.message,!0)}finally{r.loading=!1,H()}}function Q(){s.innerHTML=`
       <div class="ci360-planner-wrap">
         <div class="ci360-planner-skeleton" style="padding:24px;background:var(--bg-card);border-radius:var(--r-lg);border:1px solid var(--border-sm)">
           <div style="height:32px;width:240px;background:var(--border-xs);border-radius:6px;margin-bottom:12px;animation:pulse 1.5s infinite"></div>
@@ -12,8 +12,8 @@ import{c as ze,k as $,e as v,x as at,l as nt,p as qt,m as Jt,j as ve,y as ma,z a
           <div style="height:200px;background:var(--border-xs);border-radius:12px"></div>
         </div>
       </div>
-    `}function T(l){return i.tasks.filter(n=>{if(n.isDeleted===!0)return!1;if(b&&i.selectedPersonnelId!=="all"){const y=n.personnelId?._id||n.personnelId,z=String(y)===String(i.selectedPersonnelId),N=Array.isArray(n.coOwners)&&n.coOwners.some(S=>{const P=S.personnelId?._id||S.personnelId||S.userId?._id||S.userId;return String(P)===String(i.selectedPersonnelId)});if(!z&&!N)return!1}const r=n.completionDateStr||n.dateStr||(n.dueDate?new Date(n.dueDate).toISOString().slice(0,10):""),f=n.assignedDateStr||(n.assignedDate?new Date(n.assignedDate).toISOString().slice(0,10):"")||(n.createdAt?new Date(n.createdAt).toISOString().slice(0,10):"")||r;if(n.status==="In Progress"){const y=f&&r&&f<=r?f:r||f,z=f&&r&&f<=r?r:f||r;if(y&&z){if(l>=y&&l<=z)return!0}else{if(r&&r===l)return!0;if(f&&f===l)return!0}}return r&&r===l||n.status!=="Completed"&&f&&f===l?!0:!r&&!f?l===Ke():!1})}function q(l,n){if(l.status==="Completed")return!1;const r=l.completionDateStr||l.dateStr||(l.dueDate?new Date(l.dueDate).toISOString().slice(0,10):"");return r?r<n:!1}function W(l,n){const r=l.length,f=l.filter(P=>P.status==="Completed").length,y=l.filter(P=>P.status==="In Progress").length,z=l.filter(P=>P.status==="Pending"||P.status==="Todo").length,N=l.filter(P=>q(P,n)).length,S=r>0?Math.round(f/r*100):0;return{total:r,completed:f,inProgress:y,pending:z,overdue:N,percent:S}}function U(){const l=Ke(),n=i.selectedDate===l,r=T(i.selectedDate),f=W(r,l);s.innerHTML=`
-      <div class="ci360-planner-wrap ${p.density==="compact"?"is-compact":""}">
+    `}function E(e){return r.tasks.filter(o=>{if(o.isDeleted===!0)return!1;if(f&&r.selectedPersonnelId!=="all"){const A=o.personnelId?._id||o.personnelId,F=String(A)===String(r.selectedPersonnelId),j=Array.isArray(o.coOwners)&&o.coOwners.some(C=>{const L=C.personnelId?._id||C.personnelId||C.userId?._id||C.userId;return String(L)===String(r.selectedPersonnelId)});if(!F&&!j)return!1}const m=o.completionDateStr||o.dateStr||(o.dueDate?new Date(o.dueDate).toISOString().slice(0,10):""),y=o.assignedDateStr||(o.assignedDate?new Date(o.assignedDate).toISOString().slice(0,10):"")||(o.createdAt?new Date(o.createdAt).toISOString().slice(0,10):"")||m;if(o.status==="In Progress"){const A=y&&m&&y<=m?y:m||y,F=y&&m&&y<=m?m:y||m;if(A&&F){if(e>=A&&e<=F)return!0}else{if(m&&m===e)return!0;if(y&&y===e)return!0}}return m&&m===e||o.status!=="Completed"&&y&&y===e?!0:!m&&!y?e===Ge():!1})}function B(e,o){if(e.status==="Completed")return!1;const m=e.completionDateStr||e.dateStr||(e.dueDate?new Date(e.dueDate).toISOString().slice(0,10):"");return m?m<o:!1}function W(e,o){const m=e.length,y=e.filter(L=>L.status==="Completed").length,A=e.filter(L=>L.status==="In Progress").length,F=e.filter(L=>L.status==="Pending"||L.status==="Todo").length,j=e.filter(L=>B(L,o)).length,C=m>0?Math.round(y/m*100):0;return{total:m,completed:y,inProgress:A,pending:F,overdue:j,percent:C}}function H(){const e=Ge(),o=r.selectedDate===e,m=E(r.selectedDate),y=W(m,e);s.innerHTML=`
+      <div class="ci360-planner-wrap ${c.density==="compact"?"is-compact":""}">
         
         <!-- Planner Main Header (Hero Card) -->
         <header class="ci360-planner-header">
@@ -28,7 +28,7 @@ import{c as ze,k as $,e as v,x as at,l as nt,p as qt,m as Jt,j as ve,y as ma,z a
               </svg>
             </div>
             <div class="ci360-planner-title-group">
-              <h1 class="ci360-planner-heading">${v(p.displayName||"Daily Planner")}</h1>
+              <h1 class="ci360-planner-heading">${v(c.displayName||"Daily Planner")}</h1>
               <p class="ci360-planner-subheading">Plan your day. Track your progress.</p>
             </div>
           </div>
@@ -36,26 +36,35 @@ import{c as ze,k as $,e as v,x as at,l as nt,p as qt,m as Jt,j as ve,y as ma,z a
           <div class="ci360-planner-header-actions">
             <!-- View Mode Switcher -->
             <div class="ci360-view-switcher" role="tablist">
-              <button type="button" class="ci360-switch-btn ${i.viewMode==="daily"?"active":""}" id="btnViewDaily" title="Daily View">
+              <button type="button" class="ci360-switch-btn ${r.viewMode==="daily"?"active":""}" id="btnViewDaily" title="Daily View">
                 <span>📅 Daily</span>
               </button>
-              <button type="button" class="ci360-switch-btn ${i.viewMode==="weekly"?"active":""}" id="btnViewWeekly" title="Weekly View">
+              <button type="button" class="ci360-switch-btn ${r.viewMode==="weekly"?"active":""}" id="btnViewWeekly" title="Weekly View">
                 <span>🗓️ Weekly</span>
               </button>
-              <button type="button" class="ci360-switch-btn ${i.viewMode==="report"?"active":""}" id="btnViewReport" title="Weekly Analytics & Report">
+              <button type="button" class="ci360-switch-btn ${r.viewMode==="report"?"active":""}" id="btnViewReport" title="Weekly Analytics & Report">
                 <span>📊 Report</span>
               </button>
             </div>
 
             <!-- Primary Add Task Button -->
-            <button type="button" class="ci360-btn-primary ${i.selectedDate<l?"is-locked-past":""}" id="btnOpenAddTaskModal" title="${i.selectedDate<l?"Cannot add tasks on previous dates (switch to today or later)":"Add Task"}">
-              ${i.selectedDate<l?`
+            <button type="button" class="ci360-btn-primary ${r.selectedDate<e?"is-locked-past":""}" id="btnOpenAddTaskModal" title="${r.selectedDate<e?"Cannot add tasks on previous dates (switch to today or later)":"Add Task"}">
+              ${r.selectedDate<e?`
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                 <span>Add Task (Past Date)</span>
               `:`
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                 <span>Add Task</span>
               `}
+            </button>
+
+            <!-- Recent Tasks Button -->
+            <button type="button" class="ci360-btn-secondary" id="btnOpenRecentModal" title="See latest added, completed, or changed tasks" style="display:inline-flex;align-items:center;gap:6px;font-weight:600;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+              <span>Recent</span>
             </button>
 
             <!-- Actions Dropdown Button -->
@@ -121,28 +130,28 @@ import{c as ze,k as $,e as v,x as at,l as nt,p as qt,m as Jt,j as ve,y as ma,z a
 
             <div class="ci360-date-picker-badge" id="datePickerBadge">
               <span class="calendar-icon">📅</span>
-              <span class="date-text" id="displayDateLabel">${Dt(i.selectedDate)}</span>
-              <input type="date" class="ci360-hidden-date-input" id="hiddenDateInput" value="${i.selectedDate}">
+              <span class="date-text" id="displayDateLabel">${Dt(r.selectedDate)}</span>
+              <input type="date" class="ci360-hidden-date-input" id="hiddenDateInput" value="${r.selectedDate}">
             </div>
 
             <button type="button" class="ci360-nav-arrow" id="btnNextDay" title="Next Day">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="9 18 15 12 9 6"/></svg>
             </button>
 
-            <button type="button" class="ci360-today-btn ${n?"is-current":""}" id="btnJumpToday">
+            <button type="button" class="ci360-today-btn ${o?"is-current":""}" id="btnJumpToday">
               Today
             </button>
           </div>
 
           <!-- Superadmin Team Filter -->
-          ${b?`
+          ${f?`
             <div class="ci360-team-filter-wrap">
               <label for="admTeamSelect" class="ci360-label-inline">Team:</label>
               <select id="admTeamSelect" class="ci360-select-inline">
-                <option value="all" ${i.selectedPersonnelId==="all"?"selected":""}>All Team Members</option>
-                ${i.personnelList.map(y=>`
-                  <option value="${y._id}" ${i.selectedPersonnelId===String(y._id)?"selected":""}>
-                    ${v(y.name)} (${v(y.department||y.role||"Team")})
+                <option value="all" ${r.selectedPersonnelId==="all"?"selected":""}>All Team Members</option>
+                ${r.personnelList.map(A=>`
+                  <option value="${A._id}" ${r.selectedPersonnelId===String(A._id)?"selected":""}>
+                    ${v(A.name)} (${v(A.department||A.role||"Team")})
                   </option>
                 `).join("")}
               </select>
@@ -154,13 +163,13 @@ import{c as ze,k as $,e as v,x as at,l as nt,p as qt,m as Jt,j as ve,y as ma,z a
         <section class="ci360-progress-summary-card">
           <div class="ci360-summary-main">
             <div class="ci360-ring-stat">
-              <div class="ci360-circular-progress" style="--val: ${f.percent};">
+              <div class="ci360-circular-progress" style="--val: ${y.percent};">
                 <svg viewBox="0 0 36 36" class="ci360-circular-svg">
                   <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                  <path class="circle-fill" stroke-dasharray="${f.percent}, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                  <path class="circle-fill" stroke-dasharray="${y.percent}, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
                 </svg>
                 <div class="ring-text">
-                  <span class="ring-num">${f.percent}%</span>
+                  <span class="ring-num">${y.percent}%</span>
                   <span class="ring-label">Done</span>
                 </div>
               </div>
@@ -172,7 +181,7 @@ import{c as ze,k as $,e as v,x as at,l as nt,p as qt,m as Jt,j as ve,y as ma,z a
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
                 </div>
                 <div class="kpi-text-wrap">
-                  <span class="kpi-num">${f.total}</span>
+                  <span class="kpi-num">${y.total}</span>
                   <span class="kpi-label">Total Tasks</span>
                 </div>
               </div>
@@ -181,7 +190,7 @@ import{c as ze,k as $,e as v,x as at,l as nt,p as qt,m as Jt,j as ve,y as ma,z a
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
                 </div>
                 <div class="kpi-text-wrap">
-                  <span class="kpi-num">${f.completed}</span>
+                  <span class="kpi-num">${y.completed}</span>
                   <span class="kpi-label">Completed</span>
                 </div>
               </div>
@@ -190,7 +199,7 @@ import{c as ze,k as $,e as v,x as at,l as nt,p as qt,m as Jt,j as ve,y as ma,z a
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
                 </div>
                 <div class="kpi-text-wrap">
-                  <span class="kpi-num">${f.inProgress}</span>
+                  <span class="kpi-num">${y.inProgress}</span>
                   <span class="kpi-label">In Progress</span>
                 </div>
               </div>
@@ -199,17 +208,17 @@ import{c as ze,k as $,e as v,x as at,l as nt,p as qt,m as Jt,j as ve,y as ma,z a
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 22h14M5 2h14m-2 20v-5a5 5 0 0 0-2.83-4.5A5 5 0 0 0 17 7V2M7 22v-5a5 5 0 0 1 2.83-4.5A5 5 0 0 1 7 7V2"/></svg>
                 </div>
                 <div class="kpi-text-wrap">
-                  <span class="kpi-num">${f.pending}</span>
+                  <span class="kpi-num">${y.pending}</span>
                   <span class="kpi-label">Pending</span>
                 </div>
               </div>
-              ${f.overdue>0?`
+              ${y.overdue>0?`
                 <div class="kpi-box overdue">
                   <div class="kpi-icon-wrap overdue">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
                   </div>
                   <div class="kpi-text-wrap">
-                    <span class="kpi-num">${f.overdue}</span>
+                    <span class="kpi-num">${y.overdue}</span>
                     <span class="kpi-label">Overdue</span>
                   </div>
                 </div>
@@ -219,17 +228,17 @@ import{c as ze,k as $,e as v,x as at,l as nt,p as qt,m as Jt,j as ve,y as ma,z a
 
           <!-- Progress Bar Ribbon -->
           <div class="ci360-linear-progress-wrap">
-            <div class="ci360-linear-bar" style="width: ${f.percent}%"></div>
+            <div class="ci360-linear-bar" style="width: ${y.percent}%"></div>
           </div>
         </section>
 
         <!-- View Content Area (Daily, Weekly, or Report) -->
         <main class="ci360-planner-content" id="plannerContentArea">
-          ${me(r,f)}
+          ${be(m,y)}
         </main>
 
       </div>
-    `,lt(),Le()}function me(l,n){return i.viewMode==="weekly"?mt():i.viewMode==="report"?Ft():$e(l,n)}function $e(l,n){const r=Ke(),f=i.selectedDate<r;let y=l;if(i.filterStatus==="pending"?y=y.filter(S=>S.status==="Pending"||S.status==="Todo"):i.filterStatus==="in_progress"?y=y.filter(S=>S.status==="In Progress"):i.filterStatus==="completed"?y=y.filter(S=>S.status==="Completed"):i.filterStatus==="overdue"&&(y=y.filter(S=>q(S,r))),i.searchQuery){const S=i.searchQuery.toLowerCase().trim();y=y.filter(P=>{const H=(P.title||"").toLowerCase(),F=(P.description||"").toLowerCase(),j=(P.category||"").toLowerCase(),x=(P.clientName||"").toLowerCase(),E=(P.personnelId?.name||P.userId?.name||"").toLowerCase(),X=(P.createdByName||P.createdBy?.name||(P.createdBy?.email?P.createdBy.email.split("@")[0]:"")).toLowerCase(),I=Array.isArray(P.coOwners)?P.coOwners.map(c=>(c.name||"").toLowerCase()).join(" "):"",L=(P.clientId?.name||P.jobId?.clientId?.name||"").toLowerCase();return H.includes(S)||F.includes(S)||j.includes(S)||x.includes(S)||E.includes(S)||X.includes(S)||I.includes(S)||L.includes(S)})}y.sort((S,P)=>{if(S.status==="Completed"&&P.status!=="Completed")return 1;if(S.status!=="Completed"&&P.status==="Completed")return-1;const H={Urgent:0,High:1,Medium:2,Low:3};return(H[S.priority]||2)-(H[P.priority]||2)});const z=new Map;y.forEach(S=>{let P="unassigned",H="Unassigned / Team",F="",j="";S.personnelId&&typeof S.personnelId=="object"&&S.personnelId._id?(P=String(S.personnelId._id),H=S.personnelId.name||"Team Member",j=S.personnelId.role||"Personnel",F=S.personnelId.department||""):S.userId&&typeof S.userId=="object"&&S.userId._id?(P=String(S.userId._id),H=S.userId.name||"User",j=S.userId.role||"Member"):(S.createdByName||S.createdBy&&S.createdBy.name)&&(H=S.createdByName||S.createdBy.name,P="creator_"+H.toLowerCase().replace(/[^a-z0-9]/g,"_"),j="Creator"),z.has(P)||z.set(P,{key:P,name:H,department:F,role:j,tasks:[]}),z.get(P).tasks.push(S)});const N=Array.from(z.values()).sort((S,P)=>S.key==="unassigned"?1:P.key==="unassigned"?-1:S.name.localeCompare(P.name));return`
+    `,lt(),Me()}function be(e,o){return r.viewMode==="weekly"?bt():r.viewMode==="report"?Ft():$e(e,o)}function $e(e,o){const m=Ge(),y=r.selectedDate<m;let A=e;if(r.filterStatus==="pending"?A=A.filter(C=>C.status==="Pending"||C.status==="Todo"):r.filterStatus==="in_progress"?A=A.filter(C=>C.status==="In Progress"):r.filterStatus==="completed"?A=A.filter(C=>C.status==="Completed"):r.filterStatus==="overdue"?A=A.filter(C=>B(C,m)):r.filterStatus==="recent"&&(A=[...e].sort((C,L)=>new Date(L.updatedAt||L.createdAt||0)-new Date(C.updatedAt||C.createdAt||0))),r.searchQuery){const C=r.searchQuery.toLowerCase().trim();A=A.filter(L=>{const z=(L.title||"").toLowerCase(),p=(L.description||"").toLowerCase(),q=(L.category||"").toLowerCase(),h=(L.clientName||"").toLowerCase(),T=(L.personnelId?.name||L.userId?.name||"").toLowerCase(),U=(L.createdByName||L.createdBy?.name||(L.createdBy?.email?L.createdBy.email.split("@")[0]:"")).toLowerCase(),_=Array.isArray(L.coOwners)?L.coOwners.map(i=>(i.name||"").toLowerCase()).join(" "):"",d=(L.clientId?.name||L.jobId?.clientId?.name||"").toLowerCase();return z.includes(C)||p.includes(C)||q.includes(C)||h.includes(C)||T.includes(C)||U.includes(C)||_.includes(C)||d.includes(C)})}r.filterStatus!=="recent"&&A.sort((C,L)=>{if(C.status==="Completed"&&L.status!=="Completed")return 1;if(C.status!=="Completed"&&L.status==="Completed")return-1;const z={Urgent:0,High:1,Medium:2,Low:3};return(z[C.priority]||2)-(z[L.priority]||2)});const F=new Map;A.forEach(C=>{let L="unassigned",z="Unassigned / Team",p="",q="";C.personnelId&&typeof C.personnelId=="object"&&C.personnelId._id?(L=String(C.personnelId._id),z=C.personnelId.name||"Team Member",q=C.personnelId.role||"Personnel",p=C.personnelId.department||""):C.userId&&typeof C.userId=="object"&&C.userId._id?(L=String(C.userId._id),z=C.userId.name||"User",q=C.userId.role||"Member"):(C.createdByName||C.createdBy&&C.createdBy.name)&&(z=C.createdByName||C.createdBy.name,L="creator_"+z.toLowerCase().replace(/[^a-z0-9]/g,"_"),q="Creator"),F.has(L)||F.set(L,{key:L,name:z,department:p,role:q,tasks:[]}),F.get(L).tasks.push(C)});const j=Array.from(F.values()).sort((C,L)=>C.key==="unassigned"?1:L.key==="unassigned"?-1:C.name.localeCompare(L.name));return`
       <div class="ci360-today-focus-section">
         
         <!-- Section Header with Search & Filter Chips -->
@@ -237,10 +246,10 @@ import{c as ze,k as $,e as v,x as at,l as nt,p as qt,m as Jt,j as ve,y as ma,z a
           <div class="ci360-focus-title-wrap" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
             <h2 class="ci360-focus-title" style="margin:0;">
               <span class="accent-dot"></span>
-              ${f?"Focus Archive":"Today's Focus"}
+              ${y?"Focus Archive":"Today's Focus"}
             </h2>
-            <span class="ci360-task-count-badge">${y.length} ${y.length===1?"task":"tasks"}</span>
-            ${f?"":`
+            <span class="ci360-task-count-badge">${A.length} ${A.length===1?"task":"tasks"}</span>
+            ${y?"":`
               <button type="button" class="ci360-btn-primary" id="btnFocusAddTask" style="padding:6px 14px;font-size:12.5px;font-weight:700;display:inline-flex;align-items:center;gap:6px;border-radius:var(--r-md);margin-left:4px;cursor:pointer;box-shadow:0 2px 6px rgba(0,112,243,0.25);">
                 <span style="font-size:15px;line-height:1;font-weight:800;">+</span> Add Task
               </button>
@@ -250,22 +259,23 @@ import{c as ze,k as $,e as v,x as at,l as nt,p as qt,m as Jt,j as ve,y as ma,z a
           <div class="ci360-focus-controls">
             <!-- Filter Pills -->
             <div class="ci360-filter-pills">
-              <button type="button" class="filter-pill ${i.filterStatus==="all"?"active":""}" data-f="all">All (${n.total})</button>
-              <button type="button" class="filter-pill ${i.filterStatus==="pending"?"active":""}" data-f="pending">Pending (${n.pending})</button>
-              <button type="button" class="filter-pill ${i.filterStatus==="in_progress"?"active":""}" data-f="in_progress">In Progress (${n.inProgress})</button>
-              <button type="button" class="filter-pill ${i.filterStatus==="completed"?"active":""}" data-f="completed">Completed (${n.completed})</button>
-              ${n.overdue>0?`
-                <button type="button" class="filter-pill overdue ${i.filterStatus==="overdue"?"active":""}" data-f="overdue">Overdue (${n.overdue})</button>
+              <button type="button" class="filter-pill ${r.filterStatus==="all"?"active":""}" data-f="all">All (${o.total})</button>
+              <button type="button" class="filter-pill ${r.filterStatus==="pending"?"active":""}" data-f="pending">Pending (${o.pending})</button>
+              <button type="button" class="filter-pill ${r.filterStatus==="in_progress"?"active":""}" data-f="in_progress">In Progress (${o.inProgress})</button>
+              <button type="button" class="filter-pill ${r.filterStatus==="completed"?"active":""}" data-f="completed">Completed (${o.completed})</button>
+              <button type="button" class="filter-pill ${r.filterStatus==="recent"?"active":""}" data-f="recent" title="Latest added, completed, or changed tasks">🕒 Recent</button>
+              ${o.overdue>0?`
+                <button type="button" class="filter-pill overdue ${r.filterStatus==="overdue"?"active":""}" data-f="overdue">Overdue (${o.overdue})</button>
               `:""}
             </div>
 
             <!-- Admin Employee Grouping Controls -->
-            ${b?`
+            ${f?`
               <div class="ci360-admin-emp-controls" style="display:flex;align-items:center;gap:6px;">
-                <button type="button" class="filter-pill ${i.groupByEmployee?"active":""}" id="btnToggleEmpGrouping" title="Group and collapse tasks by employee">
-                  👥 ${i.groupByEmployee?"By Employee":"Flat List"}
+                <button type="button" class="filter-pill ${r.groupByEmployee?"active":""}" id="btnToggleEmpGrouping" title="Group and collapse tasks by employee">
+                  👥 ${r.groupByEmployee?"By Employee":"Flat List"}
                 </button>
-                ${i.groupByEmployee&&N.length>0?`
+                ${r.groupByEmployee&&j.length>0?`
                   <button type="button" class="filter-pill" id="btnExpandAllEmp" title="Expand all employee tasks">⊞ Expand</button>
                   <button type="button" class="filter-pill" id="btnCollapseAllEmp" title="Collapse all employee tasks">⊟ Collapse</button>
                 `:""}
@@ -275,18 +285,18 @@ import{c as ze,k as $,e as v,x as at,l as nt,p as qt,m as Jt,j as ve,y as ma,z a
             <!-- Search Bar with employee search support -->
             <div class="ci360-search-box">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-              <input type="text" id="plannerTaskSearchInp" placeholder="Search tasks, client name, employee or co-owner..." value="${v(i.searchQuery)}">
-              ${i.searchQuery?'<button type="button" id="btnClearSearch" class="clear-search-btn">×</button>':""}
+              <input type="text" id="plannerTaskSearchInp" placeholder="Search tasks, client name, employee or co-owner..." value="${v(r.searchQuery)}">
+              ${r.searchQuery?'<button type="button" id="btnClearSearch" class="clear-search-btn">×</button>':""}
             </div>
           </div>
         </div>
 
         <!-- Past Date Banner (Only for Previous Dates) -->
-        ${f?`
+        ${y?`
           <div class="ci360-past-date-banner">
             <div class="past-banner-icon">🔒</div>
             <div class="past-banner-body">
-              <div class="past-banner-title">Previous Date (${Ge(i.selectedDate)})</div>
+              <div class="past-banner-title">Previous Date (${Le(r.selectedDate)})</div>
               <div class="past-banner-desc">
                 Adding new tasks on previous dates is restricted. You can edit existing tasks, adjust completion dates, or mark tasks as completed.
               </div>
@@ -296,35 +306,35 @@ import{c as ze,k as $,e as v,x as at,l as nt,p as qt,m as Jt,j as ve,y as ma,z a
 
         <!-- Task List or Empty State -->
         <div class="ci360-tasks-container">
-          ${y.length===0?Qe(f):b&&i.groupByEmployee?`
+          ${A.length===0?Je(y):f&&r.groupByEmployee?`
               <div class="ci360-emp-groups-container">
-                ${N.map(S=>{const P=!!i.collapsedEmployees[S.key],H=S.tasks.filter(E=>E.status==="Completed").length,F=S.tasks.filter(E=>E.status==="In Progress").length,j=S.tasks.filter(E=>E.status==="Pending"||E.status==="Todo").length,x=S.tasks.length>0?Math.round(H/S.tasks.length*100):0;return`
-                    <div class="ci360-emp-group-card ${P?"is-collapsed":""}" data-emp-key="${S.key}">
-                      <div class="ci360-emp-group-header" data-action="toggle-emp-group" data-emp-key="${S.key}" role="button" tabindex="0">
+                ${j.map(C=>{const L=!!r.collapsedEmployees[C.key],z=C.tasks.filter(T=>T.status==="Completed").length,p=C.tasks.filter(T=>T.status==="In Progress").length,q=C.tasks.filter(T=>T.status==="Pending"||T.status==="Todo").length,h=C.tasks.length>0?Math.round(z/C.tasks.length*100):0;return`
+                    <div class="ci360-emp-group-card ${L?"is-collapsed":""}" data-emp-key="${C.key}">
+                      <div class="ci360-emp-group-header" data-action="toggle-emp-group" data-emp-key="${C.key}" role="button" tabindex="0">
                         <div class="emp-group-left">
-                          <span class="emp-collapse-icon">${P?"▶":"▼"}</span>
-                          <div class="emp-avatar">${v((S.name||"U").charAt(0).toUpperCase())}</div>
+                          <span class="emp-collapse-icon">${L?"▶":"▼"}</span>
+                          <div class="emp-avatar">${v((C.name||"U").charAt(0).toUpperCase())}</div>
                           <div class="emp-info">
-                            <span class="emp-name">${v(S.name)}</span>
-                            ${S.department||S.role?`<span class="emp-subtitle">${v(S.department?S.department+" · "+S.role:S.role)}</span>`:""}
+                            <span class="emp-name">${v(C.name)}</span>
+                            ${C.department||C.role?`<span class="emp-subtitle">${v(C.department?C.department+" · "+C.role:C.role)}</span>`:""}
                           </div>
                         </div>
 
                         <div class="emp-group-right">
-                          <span class="emp-stat-pill total">${S.tasks.length} ${S.tasks.length===1?"task":"tasks"}</span>
-                          <span class="emp-stat-pill done">${H} done</span>
-                          ${F>0?`<span class="emp-stat-pill in-prog">${F} in progress</span>`:""}
-                          ${j>0?`<span class="emp-stat-pill pending">${j} pending</span>`:""}
-                          <div class="emp-mini-bar-wrap" title="${x}% completed">
-                            <div class="emp-mini-bar-fill" style="width:${x}%;"></div>
+                          <span class="emp-stat-pill total">${C.tasks.length} ${C.tasks.length===1?"task":"tasks"}</span>
+                          <span class="emp-stat-pill done">${z} done</span>
+                          ${p>0?`<span class="emp-stat-pill in-prog">${p} in progress</span>`:""}
+                          ${q>0?`<span class="emp-stat-pill pending">${q} pending</span>`:""}
+                          <div class="emp-mini-bar-wrap" title="${h}% completed">
+                            <div class="emp-mini-bar-fill" style="width:${h}%;"></div>
                           </div>
                         </div>
                       </div>
 
-                      ${P?"":`
+                      ${L?"":`
                         <div class="ci360-emp-group-body">
                           <div class="ci360-task-list">
-                            ${S.tasks.map(E=>ot(E,r)).join("")}
+                            ${C.tasks.map(T=>nt(T,m)).join("")}
                           </div>
                         </div>
                       `}
@@ -333,18 +343,18 @@ import{c as ze,k as $,e as v,x as at,l as nt,p as qt,m as Jt,j as ve,y as ma,z a
               </div>
             `:`
               <div class="ci360-task-list">
-                ${y.map(S=>ot(S,r)).join("")}
+                ${A.map(C=>nt(C,m)).join("")}
               </div>
             `}
         </div>
 
       </div>
-    `}function Qe(l=!1){return`
+    `}function Je(e=!1){return`
       <div class="ci360-empty-focus-state">
-        <div class="empty-icon-wrap">${l?"📜":"✨"}</div>
-        <h3>No tasks found for ${Ge(i.selectedDate)}</h3>
-        <p>${l?"No scheduled tasks were recorded on this past date.":"Your schedule is clean and ready. Add your first priority task above or import your daily agenda."}</p>
-        ${l?"":`
+        <div class="empty-icon-wrap">${e?"📜":"✨"}</div>
+        <h3>No tasks found for ${Le(r.selectedDate)}</h3>
+        <p>${e?"No scheduled tasks were recorded on this past date.":"Your schedule is clean and ready. Add your first priority task above or import your daily agenda."}</p>
+        ${e?"":`
           <div style="display:flex;gap:10px;justify-content:center;margin-top:14px">
             <button type="button" class="ci360-btn-primary" id="btnEmptyStateAddTask">
               + Add Task
@@ -355,11 +365,11 @@ import{c as ze,k as $,e as v,x as at,l as nt,p as qt,m as Jt,j as ve,y as ma,z a
           </div>
         `}
       </div>
-    `}function ot(l,n){const r=l.status==="Completed",f=q(l,n),y=l.completionDateStr||l.dateStr||(l.dueDate?new Date(l.dueDate).toISOString().slice(0,10):n),z=l.assignedDateStr||(l.assignedDate?new Date(l.assignedDate).toISOString().slice(0,10):"")||(l.createdAt?new Date(l.createdAt).toISOString().slice(0,10):""),N=l.status==="In Progress"&&z&&y&&z!==y,S=`pri-${(l.priority||"medium").toLowerCase()}`,P=`status-${(l.status||"pending").toLowerCase().replace(/\s+/g,"-")}`,H=l.createdByName||l.createdBy?.name||(l.createdBy?.email?l.createdBy.email.split("@")[0]:"")||l.personnelId?.name||l.userId?.name||"";return`
-      <div class="ci360-task-card ${r?"is-completed":""} ${f?"is-overdue":""}" data-id="${l._id}">
+    `}function nt(e,o){const m=e.status==="Completed",y=B(e,o),A=e.completionDateStr||e.dateStr||(e.dueDate?new Date(e.dueDate).toISOString().slice(0,10):o),F=e.assignedDateStr||(e.assignedDate?new Date(e.assignedDate).toISOString().slice(0,10):"")||(e.createdAt?new Date(e.createdAt).toISOString().slice(0,10):""),j=e.status==="In Progress"&&F&&A&&F!==A,C=`pri-${(e.priority||"medium").toLowerCase()}`,L=`status-${(e.status||"pending").toLowerCase().replace(/\s+/g,"-")}`,z=e.createdByName||e.createdBy?.name||(e.createdBy?.email?e.createdBy.email.split("@")[0]:"")||e.personnelId?.name||e.userId?.name||"";return`
+      <div class="ci360-task-card ${m?"is-completed":""} ${y?"is-overdue":""}" data-id="${e._id}">
         
         <!-- Completion Checkbox -->
-        <button type="button" class="ci360-task-check ${r?"checked":""}" data-action="toggle" data-id="${l._id}" title="${r?"Reopen task":"Mark as done"}">
+        <button type="button" class="ci360-task-check ${m?"checked":""}" data-action="toggle" data-id="${e._id}" title="${m?"Reopen task":"Mark as done"}">
           <svg class="check-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
             <polyline points="20 6 9 17 4 12"/>
           </svg>
@@ -368,107 +378,128 @@ import{c as ze,k as $,e as v,x as at,l as nt,p as qt,m as Jt,j as ve,y as ma,z a
         <!-- Main Task Info -->
         <div class="ci360-task-body">
           <div class="ci360-task-title-row">
-            <span class="ci360-task-title">${v(l.title)}</span>
+            <span class="ci360-task-title">${v(e.title)}</span>
           </div>
 
-          ${l.description?`
-            <div class="ci360-task-desc">${v(l.description)}</div>
+          ${e.description?`
+            <div class="ci360-task-desc">${v(e.description)}</div>
           `:""}
 
           <!-- Metadata Badges -->
           <div class="ci360-task-badges">
             <!-- Priority Badge -->
-            <span class="ci360-badge ${S}">
+            <span class="ci360-badge ${C}">
               <span class="badge-dot"></span>
-              ${v(l.priority||"Medium")}
+              ${v(e.priority||"Medium")}
             </span>
 
             <!-- Status Badge -->
-            <span class="ci360-badge ${P}">
-              ${v(l.status||"Pending")}
+            <span class="ci360-badge ${L}">
+              ${v(e.status||"Pending")}
             </span>
 
             <!-- Completion Date / Date Span Badge (Always Visible & Prominent) -->
-            ${N?`
-              <span class="ci360-badge completion-badge" style="background:rgba(59,130,246,0.15);color:#3b82f6;border-color:rgba(59,130,246,0.3);" title="In Progress from ${Ge(z)} to ${Ge(y)}">
-                📅 ${Ge(z)} ➔ Due: ${Ge(y)}
+            ${j?`
+              <span class="ci360-badge completion-badge" style="background:rgba(59,130,246,0.15);color:#3b82f6;border-color:rgba(59,130,246,0.3);" title="In Progress from ${Le(F)} to ${Le(A)}">
+                📅 ${Le(F)} ➔ Due: ${Le(A)}
               </span>
             `:`
-              <span class="ci360-badge completion-badge" title="Target Completion Date: ${y}">
-                📅 Due: ${Ge(y)}
+              <span class="ci360-badge completion-badge" title="Target Completion Date: ${A}">
+                📅 Due: ${Le(A)}
               </span>
             `}
 
             <!-- Date Changed / Rescheduled Badge (prominently shown when date is changed) -->
-            ${l.rescheduledFrom&&l.rescheduledFrom!==y?`
-              <span class="ci360-badge date-changed-badge" title="Rescheduled from ${Ge(l.rescheduledFrom)} to ${Ge(y)} (${l.dateChangeCount||1} change${(l.dateChangeCount||1)>1?"s":""})">
-                🔄 Date Changed: ${Ge(l.rescheduledFrom)} ➔ ${Ge(y)}
+            ${e.rescheduledFrom&&e.rescheduledFrom!==A?`
+              <span class="ci360-badge date-changed-badge" title="Rescheduled from ${Le(e.rescheduledFrom)} to ${Le(A)} (${e.dateChangeCount||1} change${(e.dateChangeCount||1)>1?"s":""})">
+                🔄 Date Changed: ${Le(e.rescheduledFrom)} ➔ ${Le(A)}
               </span>
             `:""}
 
             <!-- Added By Badge (Shows Who Created the Task) -->
-            ${H?`
-              <span class="ci360-badge creator-badge" title="Created / Added by: ${v(H)}">
-                ✍️ Added by: ${v(H)}
+            ${z?`
+              <span class="ci360-badge creator-badge" title="Created / Added by: ${v(z)}">
+                ✍️ Added by: ${v(z)}
               </span>
             `:""}
 
-            <!-- Category -->
-            ${l.category?`
+            <!-- Category (Hide if empty or General) -->
+            ${e.category&&e.category.trim()&&e.category.trim().toLowerCase()!=="general"?`
               <span class="ci360-badge category-badge">
-                #${v(l.category)}
+                #${v(e.category)}
               </span>
             `:""}
 
             <!-- Overdue Warning -->
-            ${f?`
+            ${y?`
               <span class="ci360-badge overdue-badge">
                 ⚠️ Past Due
               </span>
             `:""}
 
             <!-- Superadmin assigned employee name (if different from addedByName) -->
-            ${b&&(l.personnelId?.name||l.userId?.name)&&(l.personnelId?.name||l.userId?.name)!==H?`
+            ${f&&(e.personnelId?.name||e.userId?.name)&&(e.personnelId?.name||e.userId?.name)!==z?`
               <span class="ci360-badge personnel-badge" title="Assigned Employee">
-                👤 Assigned: ${v(l.personnelId?.name||l.userId?.name)}
+                👤 Assigned: ${v(e.personnelId?.name||e.userId?.name)}
               </span>
             `:""}
 
             <!-- Co-Owners Badge (Multiple People) -->
-            ${Array.isArray(l.coOwners)&&l.coOwners.length>0?`
-              <span class="ci360-badge coowner-badge" style="background:rgba(0,112,243,0.12);color:var(--accent);border:1px solid rgba(0,112,243,0.25);" title="Co-Owners: ${l.coOwners.map(F=>F.name).filter(Boolean).join(", ")}">
-                👥 Co-Owners: ${v(l.coOwners.map(F=>F.name).filter(Boolean).join(", "))}
+            ${Array.isArray(e.coOwners)&&e.coOwners.length>0?`
+              <span class="ci360-badge coowner-badge" style="background:rgba(0,112,243,0.12);color:var(--accent);border:1px solid rgba(0,112,243,0.25);" title="Co-Owners: ${e.coOwners.map(p=>p.name).filter(Boolean).join(", ")}">
+                👥 Co-Owners: ${v(e.coOwners.map(p=>p.name).filter(Boolean).join(", "))}
               </span>
             `:""}
 
             <!-- Client Badge -->
-            ${l.clientName||l.clientId?.name||l.jobId?.clientId?.name||l.category&&l.category!=="General"&&l.category?`
-              <span class="ci360-badge client-badge" style="background:rgba(16,185,129,0.1);color:#10b981;border:1px solid rgba(16,185,129,0.25);" title="Client: ${v(l.clientName||l.clientId?.name||l.jobId?.clientId?.name||l.category)}">
-                🏢 ${v(l.clientName||l.clientId?.name||l.jobId?.clientId?.name||l.category)}
+            ${e.clientName||e.clientId?.name||e.jobId?.clientId?.name?`
+              <span class="ci360-badge client-badge" style="background:rgba(16,185,129,0.1);color:#10b981;border:1px solid rgba(16,185,129,0.25);" title="Client: ${v(e.clientName||e.clientId?.name||e.jobId?.clientId?.name)}">
+                🏢 ${v(e.clientName||e.clientId?.name||e.jobId?.clientId?.name)}
+              </span>
+            `:""}
+
+            <!-- Attachments Badge -->
+            ${Array.isArray(e.attachments)&&e.attachments.length>0?`
+              <span class="ci360-badge attachments-badge btn-view-task-atts" data-id="${e._id}" style="background:rgba(59,130,246,0.12);color:#2563eb;border:1px solid rgba(59,130,246,0.25);cursor:pointer;" title="Click to view/edit ${e.attachments.length} attachment(s)">
+                📎 ${e.attachments.length} file${e.attachments.length===1?"":"s"}
               </span>
             `:""}
           </div>
+
+          <!-- Image Thumbnails Strip if any -->
+          ${Array.isArray(e.attachments)&&e.attachments.some(p=>p.type&&p.type.startsWith("image/")||p.name&&p.name.match(/\.(png|jpe?g|gif|webp|svg)$/i))?`
+            <div class="ci360-task-thumb-strip">
+              ${e.attachments.filter(p=>p.type&&p.type.startsWith("image/")||p.name&&p.name.match(/\.(png|jpe?g|gif|webp|svg)$/i)).slice(0,6).map(p=>`
+                <div class="ci360-att-thumb-box btn-preview-task-att" data-url="${v(p.url)}" data-name="${v(p.name)}" title="${v(p.name)}">
+                  <img src="${v(p.url)}" alt="${v(p.name)}" loading="lazy" />
+                </div>
+              `).join("")}
+              ${e.attachments.filter(p=>p.type&&p.type.startsWith("image/")||p.name&&p.name.match(/\.(png|jpe?g|gif|webp|svg)$/i)).length>6?`
+                <span class="att-more-count">+${e.attachments.filter(p=>p.type&&p.type.startsWith("image/")||p.name&&p.name.match(/\.(png|jpe?g|gif|webp|svg)$/i)).length-6} more</span>
+              `:""}
+            </div>
+          `:""}
         </div>
 
         <!-- Task Actions Menu: Previous tasks can be edited, deleted, changed by all -->
         <div class="ci360-task-actions">
-          <button type="button" class="task-action-btn edit" data-action="edit" data-id="${l._id}" title="Edit task">
+          <button type="button" class="task-action-btn edit" data-action="edit" data-id="${e._id}" title="Edit task">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
           </button>
-          <button type="button" class="task-action-btn delete" data-action="delete" data-id="${l._id}" title="Delete task">
+          <button type="button" class="task-action-btn delete" data-action="delete" data-id="${e._id}" title="Delete task">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
           </button>
         </div>
 
       </div>
-    `}function mt(){const l=Bt(i.selectedDate,p.weekStartsOn),n=Ge(l[0]),r=Ge(l[6]),f=Ke(),y=l.flatMap(P=>T(P)),z=new Map;y.forEach(P=>{const H=P._id?String(P._id):JSON.stringify(P);z.set(H,P)});const N=Array.from(z.values()),S=W(N,f);return`
+    `}function bt(){const e=Bt(r.selectedDate,c.weekStartsOn),o=Le(e[0]),m=Le(e[6]),y=Ge(),A=e.flatMap(L=>E(L)),F=new Map;A.forEach(L=>{const z=L._id?String(L._id):JSON.stringify(L);F.set(z,L)});const j=Array.from(F.values()),C=W(j,y);return`
       <div class="ci360-weekly-planner-section">
         
         <!-- Week Navigator Banner -->
         <div class="ci360-week-banner">
           <div class="week-title-wrap">
             <h2 class="week-title">Weekly Schedule</h2>
-            <span class="week-range-text">${n} – ${r}</span>
+            <span class="week-range-text">${o} – ${m}</span>
           </div>
 
           <div class="week-controls">
@@ -480,25 +511,25 @@ import{c as ze,k as $,e as v,x as at,l as nt,p as qt,m as Jt,j as ve,y as ma,z a
 
         <!-- 8-Card Modern Weekly Grid (7 Days + Week at a Glance) -->
         <div class="ci360-week-grid modern-grid">
-          ${l.map(P=>{const H=P===f,F=P===i.selectedDate,j=T(P),x=W(j,f),E=new Date(P+"T00:00:00"),X=E.toLocaleDateString("en-US",{weekday:"short"}),I=E.toLocaleDateString("en-US",{weekday:"long"}),L=E.toLocaleDateString("en-US",{month:"short"}),c=E.getDate();return`
-              <div class="ci360-weekly-day-card ${H?"is-today":""} ${F?"is-selected":""}" data-date="${P}">
+          ${e.map(L=>{const z=L===y,p=L===r.selectedDate,q=E(L),h=W(q,y),T=new Date(L+"T00:00:00"),U=T.toLocaleDateString("en-US",{weekday:"short"}),_=T.toLocaleDateString("en-US",{weekday:"long"}),d=T.toLocaleDateString("en-US",{month:"short"}),i=T.getDate();return`
+              <div class="ci360-weekly-day-card ${z?"is-today":""} ${p?"is-selected":""}" data-date="${L}">
                 
                 <!-- Day Card Header -->
-                <div class="weekly-day-header ${H?"today-banner":""}">
+                <div class="weekly-day-header ${z?"today-banner":""}">
                   <div class="day-badge-box">
-                    <span class="day-badge-name">${X}</span>
-                    <span class="day-badge-num">${c}</span>
+                    <span class="day-badge-name">${U}</span>
+                    <span class="day-badge-num">${i}</span>
                   </div>
                   <div class="day-header-meta">
-                    <div class="day-full-name">${I}, ${L} ${c}</div>
+                    <div class="day-full-name">${_}, ${d} ${i}</div>
                     <div class="day-header-stats-row">
-                      <span class="day-done-label">${x.completed}/${x.total} Done</span>
+                      <span class="day-done-label">${h.completed}/${h.total} Done</span>
                       <div class="day-progress-track">
-                        <div class="day-progress-bar" style="width: ${x.percent}%"></div>
+                        <div class="day-progress-bar" style="width: ${h.percent}%"></div>
                       </div>
                     </div>
                   </div>
-                  <button type="button" class="day-action-clipboard-btn" data-action="add-day" data-date="${P}" title="Add/Manage tasks for ${I}">
+                  <button type="button" class="day-action-clipboard-btn" data-action="add-day" data-date="${L}" title="Add/Manage tasks for ${_}">
                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                       <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
                       <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
@@ -508,24 +539,24 @@ import{c as ze,k as $,e as v,x as at,l as nt,p as qt,m as Jt,j as ve,y as ma,z a
 
                 <!-- Day Card Tasks List -->
                 <div class="weekly-day-tasks">
-                  ${j.length===0?`
+                  ${q.length===0?`
                     <div class="weekly-empty-state">
                       <span>No tasks scheduled</span>
                     </div>
-                  `:j.map(o=>{const t=o.status==="Completed",k=(o.priority||"medium").toLowerCase(),A=o.priority?o.priority.charAt(0).toUpperCase()+o.priority.slice(1).toLowerCase():"Medium";return`
-                      <div class="weekly-task-item ${t?"done":""}" data-id="${o._id}">
-                        <button type="button" class="weekly-check-btn ${t?"checked":""}" data-action="toggle" data-id="${o._id}" title="Mark ${t?"Incomplete":"Complete"}">
-                          ${t?`
+                  `:q.map(t=>{const b=t.status==="Completed",D=(t.priority||"medium").toLowerCase(),M=t.priority?t.priority.charAt(0).toUpperCase()+t.priority.slice(1).toLowerCase():"Medium";return`
+                      <div class="weekly-task-item ${b?"done":""}" data-id="${t._id}">
+                        <button type="button" class="weekly-check-btn ${b?"checked":""}" data-action="toggle" data-id="${t._id}" title="Mark ${b?"Incomplete":"Complete"}">
+                          ${b?`
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
                               <polyline points="20 6 9 17 4 12"></polyline>
                             </svg>
                           `:""}
                         </button>
-                        <span class="weekly-task-title ${t?"strike":""}" data-action="edit" data-id="${o._id}" title="${v(o.title)}">
-                          ${v(o.title)}
+                        <span class="weekly-task-title ${b?"strike":""}" data-action="edit" data-id="${t._id}" title="${v(t.title)}">
+                          ${v(t.title)}
                         </span>
-                        <span class="weekly-pri-badge pri-${k}">
-                          ${A}
+                        <span class="weekly-pri-badge pri-${D}">
+                          ${M}
                         </span>
                       </div>
                     `}).join("")}
@@ -545,28 +576,28 @@ import{c as ze,k as $,e as v,x as at,l as nt,p as qt,m as Jt,j as ve,y as ma,z a
               <div class="glance-metric-item">
                 <span class="glance-m-icon total">📋</span>
                 <div class="glance-m-data">
-                  <div class="glance-m-val">${S.total}</div>
+                  <div class="glance-m-val">${C.total}</div>
                   <div class="glance-m-lbl">Total Tasks</div>
                 </div>
               </div>
               <div class="glance-metric-item">
                 <span class="glance-m-icon completed">✅</span>
                 <div class="glance-m-data">
-                  <div class="glance-m-val">${S.completed}</div>
+                  <div class="glance-m-val">${C.completed}</div>
                   <div class="glance-m-lbl">Completed</div>
                 </div>
               </div>
               <div class="glance-metric-item">
                 <span class="glance-m-icon in-progress">🔄</span>
                 <div class="glance-m-data">
-                  <div class="glance-m-val">${S.inProgress}</div>
+                  <div class="glance-m-val">${C.inProgress}</div>
                   <div class="glance-m-lbl">In Progress</div>
                 </div>
               </div>
               <div class="glance-metric-item">
                 <span class="glance-m-icon pending">⏳</span>
                 <div class="glance-m-data">
-                  <div class="glance-m-val">${S.pending}</div>
+                  <div class="glance-m-val">${C.pending}</div>
                   <div class="glance-m-lbl">Pending</div>
                 </div>
               </div>
@@ -574,10 +605,10 @@ import{c as ze,k as $,e as v,x as at,l as nt,p as qt,m as Jt,j as ve,y as ma,z a
 
             <div class="glance-footer">
               <div class="glance-progress-track">
-                <div class="glance-progress-bar" style="width: ${S.percent}%"></div>
+                <div class="glance-progress-bar" style="width: ${C.percent}%"></div>
               </div>
               <div class="glance-progress-caption">
-                ${S.completed} / ${S.total} Tasks (${S.percent}% Complete)
+                ${C.completed} / ${C.total} Tasks (${C.percent}% Complete)
               </div>
             </div>
           </div>
@@ -585,16 +616,16 @@ import{c as ze,k as $,e as v,x as at,l as nt,p as qt,m as Jt,j as ve,y as ma,z a
         </div>
 
       </div>
-    `}function Ft(){const l=Bt(i.selectedDate,p.weekStartsOn),n=Dt(l[0]),r=Dt(l[6]),f=Ke(),y=i.reportPersonnelId||"all",z=i.personnelList.find(E=>String(E._id)===String(y)),N=z?z.name:"",S=i.tasks.filter(E=>{if(E.isDeleted===!0)return!1;const X=E.completionDateStr||E.dateStr||(E.dueDate?new Date(E.dueDate).toISOString().slice(0,10):""),I=E.assignedDateStr||(E.assignedDate?new Date(E.assignedDate).toISOString().slice(0,10):"")||X;if(!(E.status==="In Progress"&&I&&X?l.some(c=>c>=I&&c<=X):l.includes(X)||l.includes(I)))return!1;if(y!=="all"){const c=String(E.personnelId?._id||E.personnelId||""),o=Array.isArray(E.coOwners)&&E.coOwners.some(t=>String(t.personnelId?._id||t.personnelId||t.userId?._id||t.userId||"")===String(y));return c===String(y)||o}return!0}),P=S.length,H=S.filter(E=>E.status==="Completed").length,F=S.filter(E=>E.status==="In Progress").length,j=P>0?Math.round(H/P*100):0,x={Urgent:0,High:0,Medium:0,Low:0};return S.forEach(E=>{const X=E.priority||"Medium";x[X]!==void 0&&x[X]++}),`
+    `}function Ft(){const e=Bt(r.selectedDate,c.weekStartsOn),o=Dt(e[0]),m=Dt(e[6]),y=Ge(),A=r.reportPersonnelId||"all",F=r.personnelList.find(T=>String(T._id)===String(A)),j=F?F.name:"",C=r.tasks.filter(T=>{if(T.isDeleted===!0)return!1;const U=T.completionDateStr||T.dateStr||(T.dueDate?new Date(T.dueDate).toISOString().slice(0,10):""),_=T.assignedDateStr||(T.assignedDate?new Date(T.assignedDate).toISOString().slice(0,10):"")||U;if(!(T.status==="In Progress"&&_&&U?e.some(i=>i>=_&&i<=U):e.includes(U)||e.includes(_)))return!1;if(A!=="all"){const i=String(T.personnelId?._id||T.personnelId||""),t=Array.isArray(T.coOwners)&&T.coOwners.some(b=>String(b.personnelId?._id||b.personnelId||b.userId?._id||b.userId||"")===String(A));return i===String(A)||t}return!0}),L=C.length,z=C.filter(T=>T.status==="Completed").length,p=C.filter(T=>T.status==="In Progress").length,q=L>0?Math.round(z/L*100):0,h={Urgent:0,High:0,Medium:0,Low:0};return C.forEach(T=>{const U=T.priority||"Medium";h[U]!==void 0&&h[U]++}),`
       <div class="ci360-report-section">
         
         <div class="ci360-report-banner" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;">
           <div>
             <h2 style="font-size:22px;margin:0 0 4px">Weekly Productivity Report</h2>
             <div style="font-size:13px;color:var(--text-3);display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-              <span>Week Period: ${n} – ${r}</span>
-              ${y!=="all"&&N?`
-                <span class="badge blue" style="font-size:11.5px;padding:2px 8px;font-weight:700;">👤 Employee: ${v(N)}</span>
+              <span>Week Period: ${o} – ${m}</span>
+              ${A!=="all"&&j?`
+                <span class="badge blue" style="font-size:11.5px;padding:2px 8px;font-weight:700;">👤 Employee: ${v(j)}</span>
               `:`
                 <span class="badge gray" style="font-size:11.5px;padding:2px 8px;font-weight:600;">👥 All Team Members</span>
               `}
@@ -602,14 +633,14 @@ import{c as ze,k as $,e as v,x as at,l as nt,p as qt,m as Jt,j as ve,y as ma,z a
           </div>
 
           <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-            ${b?`
+            ${f?`
               <div style="display:inline-flex;align-items:center;gap:6px;">
                 <label for="selectWeeklyReportEmployee" style="font-size:12px;font-weight:700;color:var(--text-2);white-space:nowrap;">Whose Report:</label>
                 <select id="selectWeeklyReportEmployee" class="input" style="padding:6px 12px;font-size:12.5px;font-weight:600;min-width:180px;height:36px;border-radius:var(--r-md);background:var(--bg-surface);color:var(--text-1);border:1px solid var(--border-sm);">
-                  <option value="all" ${y==="all"?"selected":""}>👥 All Team Members</option>
-                  ${i.personnelList.map(E=>`
-                    <option value="${E._id}" ${String(E._id)===String(y)?"selected":""}>
-                      👤 ${v(E.name)} (${v(E.department||E.role||"Member")})
+                  <option value="all" ${A==="all"?"selected":""}>👥 All Team Members</option>
+                  ${r.personnelList.map(T=>`
+                    <option value="${T._id}" ${String(T._id)===String(A)?"selected":""}>
+                      👤 ${v(T.name)} (${v(T.department||T.role||"Member")})
                     </option>
                   `).join("")}
                 </select>
@@ -629,19 +660,19 @@ import{c as ze,k as $,e as v,x as at,l as nt,p as qt,m as Jt,j as ve,y as ma,z a
         <div class="ci360-report-kpis">
           <div class="card kpi">
             <span class="label">Total Weekly Tasks</span>
-            <span class="value" style="font-size:28px">${P}</span>
+            <span class="value" style="font-size:28px">${L}</span>
           </div>
           <div class="card kpi">
             <span class="label">Completed Tasks</span>
-            <span class="value" style="font-size:28px;color:var(--green-500)">${H}</span>
+            <span class="value" style="font-size:28px;color:var(--green-500)">${z}</span>
           </div>
           <div class="card kpi">
             <span class="label">In Progress</span>
-            <span class="value" style="font-size:28px;color:var(--amber-500)">${F}</span>
+            <span class="value" style="font-size:28px;color:var(--amber-500)">${p}</span>
           </div>
           <div class="card kpi">
             <span class="label">Weekly Completion</span>
-            <span class="value" style="font-size:28px;color:var(--brand-600)">${j}%</span>
+            <span class="value" style="font-size:28px;color:var(--brand-600)">${q}%</span>
           </div>
         </div>
 
@@ -661,19 +692,19 @@ import{c as ze,k as $,e as v,x as at,l as nt,p as qt,m as Jt,j as ve,y as ma,z a
                 </tr>
               </thead>
               <tbody>
-                ${l.map(E=>{const X=T(E),I=W(X,f);return`
+                ${e.map(T=>{const U=E(T),_=W(U,y);return`
                     <tr>
-                      <td><strong>${Fa(E)}</strong></td>
-                      <td>${Ge(E)}</td>
-                      <td>${I.total}</td>
-                      <td style="color:var(--green-500);font-weight:600">${I.completed}</td>
-                      <td>${I.pending+I.inProgress}</td>
+                      <td><strong>${Ba(T)}</strong></td>
+                      <td>${Le(T)}</td>
+                      <td>${_.total}</td>
+                      <td style="color:var(--green-500);font-weight:600">${_.completed}</td>
+                      <td>${_.pending+_.inProgress}</td>
                       <td>
                         <div style="display:flex;align-items:center;gap:8px">
                           <div style="flex:1;height:6px;background:var(--border-sm);border-radius:4px;overflow:hidden">
-                            <div style="height:100%;background:var(--brand-600);width:${I.percent}%"></div>
+                            <div style="height:100%;background:var(--brand-600);width:${_.percent}%"></div>
                           </div>
-                          <span style="font-size:12px;font-weight:600">${I.percent}%</span>
+                          <span style="font-size:12px;font-weight:600">${_.percent}%</span>
                         </div>
                       </td>
                     </tr>
@@ -689,29 +720,29 @@ import{c as ze,k as $,e as v,x as at,l as nt,p as qt,m as Jt,j as ve,y as ma,z a
           <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(130px, 1fr));gap:12px">
             <div class="kpi-box pri-urgent" style="padding:14px;border-radius:8px">
               <div style="font-size:12px;color:var(--red-600)">Urgent</div>
-              <div style="font-size:22px;font-weight:700">${x.Urgent}</div>
+              <div style="font-size:22px;font-weight:700">${h.Urgent}</div>
             </div>
             <div class="kpi-box pri-high" style="padding:14px;border-radius:8px">
               <div style="font-size:12px;color:var(--amber-600)">High</div>
-              <div style="font-size:22px;font-weight:700">${x.High}</div>
+              <div style="font-size:22px;font-weight:700">${h.High}</div>
             </div>
             <div class="kpi-box pri-medium" style="padding:14px;border-radius:8px">
               <div style="font-size:12px;color:var(--blue-600)">Medium</div>
-              <div style="font-size:22px;font-weight:700">${x.Medium}</div>
+              <div style="font-size:22px;font-weight:700">${h.Medium}</div>
             </div>
             <div class="kpi-box pri-low" style="padding:14px;border-radius:8px">
               <div style="font-size:12px;color:var(--green-600)">Low</div>
-              <div style="font-size:22px;font-weight:700">${x.Low}</div>
+              <div style="font-size:22px;font-weight:700">${h.Low}</div>
             </div>
           </div>
         </div>
 
       </div>
-    `}function lt(){const l=document.getElementById("btnViewDaily"),n=document.getElementById("btnViewWeekly"),r=document.getElementById("btnViewReport");l&&(l.onclick=()=>{i.viewMode="daily",U()}),n&&(n.onclick=()=>{i.viewMode="weekly",U()}),r&&(r.onclick=()=>{i.viewMode="report",U()});const f=document.getElementById("btnPrevDay"),y=document.getElementById("btnNextDay"),z=document.getElementById("btnJumpToday"),N=document.getElementById("hiddenDateInput"),S=document.getElementById("datePickerBadge");f&&(f.onclick=()=>{i.selectedDate=Kt(i.selectedDate,-1),U()}),y&&(y.onclick=()=>{i.selectedDate=Kt(i.selectedDate,1),U()}),z&&(z.onclick=()=>{i.selectedDate=Ke(),U()}),S&&N&&(S.onclick=()=>{try{typeof N.showPicker=="function"?N.showPicker():N.focus()}catch{N.focus()}},N.onchange=o=>{o.target.value&&(i.selectedDate=o.target.value,U())});const P=document.getElementById("admTeamSelect");P&&(P.onchange=o=>{i.selectedPersonnelId=o.target.value,U()});const H=document.getElementById("btnOpenAddTaskModal");H&&(H.onclick=()=>{if(i.selectedDate<Ke()){$("Cannot add tasks on previous dates. Please select Today or a future date to schedule a new task.",!0);return}Be()});const F=document.getElementById("btnPlannerActionsMenu"),j=document.getElementById("plannerActionsDropdown");F&&j&&(F.onclick=o=>{o.stopPropagation(),j.classList.toggle("hidden")},document.addEventListener("click",o=>{!j.contains(o.target)&&o.target!==F&&j.classList.add("hidden")}));const x=document.getElementById("btnActionImport");x&&(x.onclick=()=>{j?.classList.add("hidden"),vt()});const E=document.getElementById("btnActionExportPng");E&&(E.onclick=()=>{j?.classList.add("hidden"),je()});const X=document.getElementById("btnActionExportPdf");X&&(X.onclick=()=>{j?.classList.add("hidden"),de()});const I=document.getElementById("btnActionAdminReport");I&&(I.onclick=()=>{j?.classList.add("hidden"),ct()});const L=document.getElementById("btnActionBackup");L&&(L.onclick=()=>{j?.classList.add("hidden"),ft()});const c=document.getElementById("btnActionSettings");c&&(c.onclick=()=>{j?.classList.add("hidden"),pt()})}function Le(l){if(i.viewMode==="daily"){document.querySelectorAll(".filter-pill").forEach(I=>{I.onclick=()=>{i.filterStatus=I.dataset.f,U()}});const n=document.getElementById("plannerTaskSearchInp");n&&(n.oninput=I=>{const L=I.target.value;i.searchQuery=L;const c=I.target.selectionStart;U();const o=document.getElementById("plannerTaskSearchInp");if(o&&(o.focus(),c!==null))try{o.setSelectionRange(c,c)}catch{}});const r=document.getElementById("btnClearSearch");r&&(r.onclick=()=>{i.searchQuery="",U()});const f=document.getElementById("btnFocusAddTask");f&&(f.onclick=()=>{Be(null,i.selectedDate)});const y=document.getElementById("btnEmptyStateAddTask");y&&(y.onclick=()=>{Be(null,i.selectedDate)});const z=document.getElementById("quickAddTitleInp"),N=document.getElementById("quickAddCompletionDate"),S=document.getElementById("quickAddPriority"),P=document.getElementById("quickAddCategory"),H=document.getElementById("btnQuickAddSubmit"),F=async()=>{const I=Ke();if(i.selectedDate<I){$("Cannot add tasks on previous dates. You can only view, edit, or mark existing tasks complete.",!0);return}const L=(z?.value||"").trim();if(!L){$("Please enter a task title",!0),z?.focus();return}const c=(N?.value||"").trim()||i.selectedDate;if(c<I){$("Cannot set completion date on a previous date.",!0);return}try{const o={title:L,assignedDate:i.selectedDate,assignedDateStr:i.selectedDate,dateStr:c,completionDate:c,completionDateStr:c,dueDate:c,priority:S?.value||p.defaultPriority,category:P?.value||"General",status:"Pending"};if(b){const k=document.getElementById("quickAddAssignee")?.value;k==="all"?(o.assignAll=!0,o.personnelId="all"):k?o.personnelId=k:i.selectedPersonnelId!=="all"&&(o.personnelId=i.selectedPersonnelId)}const t=await ve("/tasks",o);i.tasks.unshift(t),$("Task added to today's focus! ✨"),z&&(z.value="",z.focus()),U()}catch(o){$(o.message,!0)}};H&&(H.onclick=F),z&&(z.onkeydown=I=>{I.key==="Enter"&&F()}),document.querySelectorAll('[data-action="toggle-emp-group"]').forEach(I=>{I.onclick=()=>{const L=I.dataset.empKey;i.collapsedEmployees[L]=!i.collapsedEmployees[L],U()}});const j=document.getElementById("btnToggleEmpGrouping");j&&(j.onclick=()=>{i.groupByEmployee=!i.groupByEmployee,U()});const x=document.getElementById("btnExpandAllEmp");x&&(x.onclick=()=>{i.collapsedEmployees={},U()});const E=document.getElementById("btnCollapseAllEmp");E&&(E.onclick=()=>{document.querySelectorAll(".ci360-emp-group-card").forEach(I=>{const L=I.dataset.empKey;L&&(i.collapsedEmployees[L]=!0)}),U()});const X=document.getElementById("btnEmptyStateImport");X&&(X.onclick=()=>vt())}if(i.viewMode==="weekly"){const n=document.getElementById("btnPrevWeek"),r=document.getElementById("btnNextWeek"),f=document.getElementById("btnThisWeek");n&&(n.onclick=()=>{i.selectedDate=Kt(i.selectedDate,-7),U()}),r&&(r.onclick=()=>{i.selectedDate=Kt(i.selectedDate,7),U()}),f&&(f.onclick=()=>{i.selectedDate=Ke(),U()}),document.querySelectorAll(".day-col-header").forEach(y=>{y.onclick=()=>{i.selectedDate=y.dataset.date,i.viewMode="daily",U()}}),document.querySelectorAll('[data-action="add-day"]').forEach(y=>{y.onclick=()=>{Be(null,y.dataset.date)}})}if(i.viewMode==="report"){const n=document.getElementById("selectWeeklyReportEmployee");n&&(n.onchange=y=>{i.reportPersonnelId=y.target.value,U()});const r=document.getElementById("btnDownloadWeeklyPdf");r&&(r.onclick=()=>de({personnelId:i.reportPersonnelId||"all"}));const f=document.getElementById("btnOpenAdminReportModal");f&&(f.onclick=()=>ct())}s.querySelectorAll('[data-action="toggle"]').forEach(n=>{n.onclick=async r=>{r.stopPropagation();const f=n.dataset.id;await dt(f)}}),s.querySelectorAll('[data-action="edit"]').forEach(n=>{n.onclick=r=>{r.stopPropagation();const f=n.dataset.id,y=i.tasks.find(z=>z._id===f);y&&Be(y)}}),s.querySelectorAll('[data-action="delete"]').forEach(n=>{n.onclick=async r=>{r.stopPropagation();const f=n.dataset.id;await wt(f)}})}async function dt(l){const n=i.tasks.find(f=>f._id===l);if(!n)return;const r=n.status!=="Completed";try{const f=await at(`/tasks/${l}/toggle`,{}),y=i.tasks.findIndex(z=>z._id===l);y!==-1&&(i.tasks[y]=f),r?(p.soundEnabled&&Pa(),$("Task marked as completed! 🎉")):$("Task reopened as pending."),U()}catch(f){$(f.message,!0)}}async function wt(l){const n=i.tasks.find(r=>r._id===l);if(n&&confirm(`Are you sure you want to remove "${n.title}" from your planner?
-(It will be safely retained in the database archive.)`))try{await nt(`/tasks/${l}`),i.tasks=i.tasks.filter(r=>r._id!==l),$("Task removed from planner (safely stored in database archive)"),U()}catch(r){$(r.message,!0)}}function Be(l=null,n=null){const r=!!l,f=Ke(),y=l?l.assignedDateStr||(l.assignedDate?new Date(l.assignedDate).toISOString().slice(0,10):"")||l.dateStr||(l.createdAt?new Date(l.createdAt).toISOString().slice(0,10):i.selectedDate):n&&n>=f?n:i.selectedDate>=f?i.selectedDate:f;l?l.completionDateStr||l.dueDate&&new Date(l.dueDate).toISOString().slice(0,10):n&&n>=f||i.selectedDate>=f&&i.selectedDate;const z=`
+    `}function lt(){const e=document.getElementById("btnViewDaily"),o=document.getElementById("btnViewWeekly"),m=document.getElementById("btnViewReport");e&&(e.onclick=()=>{r.viewMode="daily",H()}),o&&(o.onclick=()=>{r.viewMode="weekly",H()}),m&&(m.onclick=()=>{r.viewMode="report",H()});const y=document.getElementById("btnPrevDay"),A=document.getElementById("btnNextDay"),F=document.getElementById("btnJumpToday"),j=document.getElementById("hiddenDateInput"),C=document.getElementById("datePickerBadge");y&&(y.onclick=()=>{r.selectedDate=Kt(r.selectedDate,-1),H()}),A&&(A.onclick=()=>{r.selectedDate=Kt(r.selectedDate,1),H()}),F&&(F.onclick=()=>{r.selectedDate=Ge(),H()}),C&&j&&(C.onclick=()=>{try{typeof j.showPicker=="function"?j.showPicker():j.focus()}catch{j.focus()}},j.onchange=b=>{b.target.value&&(r.selectedDate=b.target.value,H())});const L=document.getElementById("admTeamSelect");L&&(L.onchange=b=>{r.selectedPersonnelId=b.target.value,H()});const z=document.getElementById("btnOpenAddTaskModal");z&&(z.onclick=()=>{if(r.selectedDate<Ge()){S("Cannot add tasks on previous dates. Please select Today or a future date to schedule a new task.",!0);return}qe()});const p=document.getElementById("btnOpenRecentModal");p&&(p.onclick=()=>{wt()});const q=document.getElementById("btnPlannerActionsMenu"),h=document.getElementById("plannerActionsDropdown");q&&h&&(q.onclick=b=>{b.stopPropagation(),h.classList.toggle("hidden")},document.addEventListener("click",b=>{!h.contains(b.target)&&b.target!==q&&h.classList.add("hidden")}));const T=document.getElementById("btnActionImport");T&&(T.onclick=()=>{h?.classList.add("hidden"),Re()});const U=document.getElementById("btnActionExportPng");U&&(U.onclick=()=>{h?.classList.add("hidden"),Ve()});const _=document.getElementById("btnActionExportPdf");_&&(_.onclick=()=>{h?.classList.add("hidden"),st()});const d=document.getElementById("btnActionAdminReport");d&&(d.onclick=()=>{h?.classList.add("hidden"),ve()});const i=document.getElementById("btnActionBackup");i&&(i.onclick=()=>{h?.classList.add("hidden"),ct()});const t=document.getElementById("btnActionSettings");t&&(t.onclick=()=>{h?.classList.add("hidden"),ft()})}function Me(e){if(r.viewMode==="daily"){document.querySelectorAll(".filter-pill").forEach(_=>{_.onclick=()=>{r.filterStatus=_.dataset.f,H()}});const o=document.getElementById("plannerTaskSearchInp");o&&(o.oninput=_=>{const d=_.target.value;r.searchQuery=d;const i=_.target.selectionStart;H();const t=document.getElementById("plannerTaskSearchInp");if(t&&(t.focus(),i!==null))try{t.setSelectionRange(i,i)}catch{}});const m=document.getElementById("btnClearSearch");m&&(m.onclick=()=>{r.searchQuery="",H()});const y=document.getElementById("btnFocusAddTask");y&&(y.onclick=()=>{qe(null,r.selectedDate)});const A=document.getElementById("btnEmptyStateAddTask");A&&(A.onclick=()=>{qe(null,r.selectedDate)});const F=document.getElementById("quickAddTitleInp"),j=document.getElementById("quickAddCompletionDate"),C=document.getElementById("quickAddPriority"),L=document.getElementById("quickAddCategory"),z=document.getElementById("btnQuickAddSubmit"),p=async()=>{const _=Ge();if(r.selectedDate<_){S("Cannot add tasks on previous dates. You can only view, edit, or mark existing tasks complete.",!0);return}const d=(F?.value||"").trim();if(!d){S("Please enter a task title",!0),F?.focus();return}const i=(j?.value||"").trim()||r.selectedDate;if(i<_){S("Cannot set completion date on a previous date.",!0);return}try{const t={title:d,assignedDate:r.selectedDate,assignedDateStr:r.selectedDate,dateStr:i,completionDate:i,completionDateStr:i,dueDate:i,priority:C?.value||c.defaultPriority,category:L?.value||"General",status:"Pending"};if(f){const D=document.getElementById("quickAddAssignee")?.value;D==="all"?(t.assignAll=!0,t.personnelId="all"):D?t.personnelId=D:r.selectedPersonnelId!=="all"&&(t.personnelId=r.selectedPersonnelId)}const b=await xe("/tasks",t);r.tasks.unshift(b),S("Task added to today's focus! ✨"),F&&(F.value="",F.focus()),H()}catch(t){S(t.message,!0)}};z&&(z.onclick=p),F&&(F.onkeydown=_=>{_.key==="Enter"&&p()}),document.querySelectorAll('[data-action="toggle-emp-group"]').forEach(_=>{_.onclick=()=>{const d=_.dataset.empKey;r.collapsedEmployees[d]=!r.collapsedEmployees[d],H()}});const q=document.getElementById("btnToggleEmpGrouping");q&&(q.onclick=()=>{r.groupByEmployee=!r.groupByEmployee,H()});const h=document.getElementById("btnExpandAllEmp");h&&(h.onclick=()=>{r.collapsedEmployees={},H()});const T=document.getElementById("btnCollapseAllEmp");T&&(T.onclick=()=>{document.querySelectorAll(".ci360-emp-group-card").forEach(_=>{const d=_.dataset.empKey;d&&(r.collapsedEmployees[d]=!0)}),H()});const U=document.getElementById("btnEmptyStateImport");U&&(U.onclick=()=>Re())}if(r.viewMode==="weekly"){const o=document.getElementById("btnPrevWeek"),m=document.getElementById("btnNextWeek"),y=document.getElementById("btnThisWeek");o&&(o.onclick=()=>{r.selectedDate=Kt(r.selectedDate,-7),H()}),m&&(m.onclick=()=>{r.selectedDate=Kt(r.selectedDate,7),H()}),y&&(y.onclick=()=>{r.selectedDate=Ge(),H()}),document.querySelectorAll(".day-col-header").forEach(A=>{A.onclick=()=>{r.selectedDate=A.dataset.date,r.viewMode="daily",H()}}),document.querySelectorAll('[data-action="add-day"]').forEach(A=>{A.onclick=()=>{qe(null,A.dataset.date)}})}if(r.viewMode==="report"){const o=document.getElementById("selectWeeklyReportEmployee");o&&(o.onchange=A=>{r.reportPersonnelId=A.target.value,H()});const m=document.getElementById("btnDownloadWeeklyPdf");m&&(m.onclick=()=>st({personnelId:r.reportPersonnelId||"all"}));const y=document.getElementById("btnOpenAdminReportModal");y&&(y.onclick=()=>ve())}s.querySelectorAll('[data-action="toggle"]').forEach(o=>{o.onclick=async m=>{m.stopPropagation();const y=o.dataset.id;await dt(y)}}),s.querySelectorAll('[data-action="edit"]').forEach(o=>{o.onclick=m=>{m.stopPropagation();const y=o.dataset.id,A=r.tasks.find(F=>F._id===y);A&&qe(A)}}),s.querySelectorAll('[data-action="delete"]').forEach(o=>{o.onclick=async m=>{m.stopPropagation();const y=o.dataset.id;await kt(y)}}),s.querySelectorAll(".btn-preview-task-att").forEach(o=>{o.onclick=m=>{m.stopPropagation();const y=o.dataset.url,A=o.dataset.name;y&&Ta({url:y,name:A})}}),s.querySelectorAll(".btn-view-task-atts").forEach(o=>{o.onclick=m=>{m.stopPropagation();const y=o.dataset.id,A=r.tasks.find(F=>F._id===y);A&&qe(A)}})}async function dt(e){const o=r.tasks.find(y=>y._id===e);if(!o)return;const m=o.status!=="Completed";try{const y=await tt(`/tasks/${e}/toggle`,{}),A=r.tasks.findIndex(F=>F._id===e);A!==-1&&(r.tasks[A]=y),m?(c.soundEnabled&&ja(),S("Task marked as completed! 🎉")):S("Task reopened as pending."),H()}catch(y){S(y.message,!0)}}async function kt(e){const o=r.tasks.find(m=>m._id===e);if(o&&confirm(`Are you sure you want to remove "${o.title}" from your planner?
+(It will be safely retained in the database archive.)`))try{await at(`/tasks/${e}`),r.tasks=r.tasks.filter(m=>m._id!==e),S("Task removed from planner (safely stored in database archive)"),H()}catch(m){S(m.message,!0)}}function qe(e=null,o=null){const m=!!e,y=Ge(),A=e?e.assignedDateStr||(e.assignedDate?new Date(e.assignedDate).toISOString().slice(0,10):"")||e.dateStr||(e.createdAt?new Date(e.createdAt).toISOString().slice(0,10):r.selectedDate):o&&o>=y?o:r.selectedDate>=y?r.selectedDate:y;e?e.completionDateStr||e.dueDate&&new Date(e.dueDate).toISOString().slice(0,10):o&&o>=y||r.selectedDate>=y&&r.selectedDate;const F=`
       <div class="ci360-planner-modal">
         <div class="ci360-modal-header">
-          <h3>${r?"Edit Task":"Add New Task"}</h3>
+          <h3>${m?"Edit Task":"Add New Task"}</h3>
           <button type="button" class="ci360-modal-close" id="btnModalClose">×</button>
         </div>
 
@@ -719,25 +750,25 @@ import{c as ze,k as $,e as v,x as at,l as nt,p as qt,m as Jt,j as ve,y as ma,z a
           <!-- Title -->
           <div class="form-group">
             <label for="taskTitle" class="required">Task Title</label>
-            <input type="text" id="taskTitle" class="input" placeholder="e.g. Prepare client deck for review" value="${v(l?.title||"")}" required autofocus>
+            <input type="text" id="taskTitle" class="input" placeholder="e.g. Prepare client deck for review" value="${v(e?.title||"")}" required autofocus>
           </div>
 
           <!-- Description -->
           <div class="form-group">
             <label for="taskDesc">Description / Notes</label>
-            <textarea id="taskDesc" class="input" rows="3" placeholder="Key deliverables, context, or checklist details...">${v(l?.description||"")}</textarea>
+            <textarea id="taskDesc" class="input" rows="3" placeholder="Key deliverables, context, or checklist details...">${v(e?.description||"")}</textarea>
           </div>
 
           <!-- Date Row -->
           <div class="form-row">
             <div class="form-group flex-1">
               <label for="taskDate">Assigned Date</label>
-              <input type="date" id="taskDate" class="input" value="${y}" ${r?"":`min="${f}"`}>
+              <input type="date" id="taskDate" class="input" value="${A}" ${m?"":`min="${y}"`}>
             </div>
             <div class="form-group flex-1">
               <label for="taskCompletionDate">Completion Date</label>
-              <input type="date" id="taskCompletionDate" class="input" value="${l?.completionDateStr||(l?.dueDate?new Date(l.dueDate).toISOString().slice(0,10):"")}" ${r?"":`min="${f}"`} placeholder="Defaults to that day">
-              <small style="color:var(--text-3);font-size:11px;">If left blank, will default to that day (${y})</small>
+              <input type="date" id="taskCompletionDate" class="input" value="${e?.completionDateStr||(e?.dueDate?new Date(e.dueDate).toISOString().slice(0,10):"")}" ${m?"":`min="${y}"`} placeholder="Defaults to that day">
+              <small style="color:var(--text-3);font-size:11px;">If left blank, will default to that day (${A})</small>
             </div>
           </div>
 
@@ -746,41 +777,40 @@ import{c as ze,k as $,e as v,x as at,l as nt,p as qt,m as Jt,j as ve,y as ma,z a
             <div class="form-group flex-1">
               <label for="taskPriority">Priority</label>
               <select id="taskPriority" class="input">
-                <option value="Low" ${l?.priority==="Low"?"selected":""}>Low</option>
-                <option value="Medium" ${!l&&p.defaultPriority==="Medium"||l?.priority==="Medium"?"selected":""}>Medium</option>
-                <option value="High" ${!l&&p.defaultPriority==="High"||l?.priority==="High"?"selected":""}>High</option>
-                <option value="Urgent" ${l?.priority==="Urgent"?"selected":""}>Urgent</option>
+                <option value="Low" ${e?.priority==="Low"?"selected":""}>Low</option>
+                <option value="Medium" ${!e&&c.defaultPriority==="Medium"||e?.priority==="Medium"?"selected":""}>Medium</option>
+                <option value="High" ${!e&&c.defaultPriority==="High"||e?.priority==="High"?"selected":""}>High</option>
+                <option value="Urgent" ${e?.priority==="Urgent"?"selected":""}>Urgent</option>
               </select>
             </div>
 
             <div class="form-group flex-1">
               <label for="taskStatus">Status</label>
               <select id="taskStatus" class="input">
-                <option value="Pending" ${l?.status==="Pending"||l?.status==="Todo"||!l?"selected":""}>Pending</option>
-                <option value="In Progress" ${l?.status==="In Progress"?"selected":""}>In Progress</option>
-                <option value="Completed" ${l?.status==="Completed"?"selected":""}>Completed</option>
+                <option value="Pending" ${e?.status==="Pending"||e?.status==="Todo"||!e?"selected":""}>Pending</option>
+                <option value="In Progress" ${e?.status==="In Progress"?"selected":""}>In Progress</option>
+                <option value="Completed" ${e?.status==="Completed"?"selected":""}>Completed</option>
               </select>
             </div>
 
             <div class="form-group flex-1">
               <label for="taskClientName">Client Name</label>
-              <input type="text" id="taskClientName" class="input" list="clientOptions" placeholder="Enter or select client name..." value="${v(l?.clientName||(l?.category&&l.category!=="General"?l.category:""))}">
+              <input type="text" id="taskClientName" class="input" list="clientOptions" placeholder="Enter or select client name..." value="${v(e?.clientName||(e?.category&&e.category!=="General"?e.category:""))}">
               <datalist id="clientOptions">
-                ${(i.clientList||[]).map(L=>`<option value="${v(L.name)}">`).join("")}
+                ${(r.clientList||[]).map(i=>`<option value="${v(i.name)}">`).join("")}
                 <option value="Internal CI">
-                <option value="General">
               </datalist>
             </div>
           </div>
 
           <!-- Superadmin Assign To -->
-          ${b?`
+          ${f?`
             <div class="form-group">
               <label for="taskAssignee">Primary Assignee / Owner</label>
               <select id="taskAssignee" class="input">
-                <option value="me" ${!l||!l?.personnelId&&!l?.assignAll?"selected":""}>Myself (Admin)</option>
-                <option value="all" ${l?.assignAll?"selected":""}>Assign to All Active Team Members</option>
-                ${i.personnelList.map(L=>{const c=l?.personnelId?._id===L._id||l?.personnelId===L._id;return`<option value="${L._id}" ${c?"selected":""}>👤 ${v(L.name)} (${v(L.department||L.role||"Member")})</option>`}).join("")}
+                <option value="me" ${!e||!e?.personnelId&&!e?.assignAll?"selected":""}>Myself (Admin)</option>
+                <option value="all" ${e?.assignAll?"selected":""}>Assign to All Active Team Members</option>
+                ${r.personnelList.map(i=>{const t=e?.personnelId?._id===i._id||e?.personnelId===i._id;return`<option value="${i._id}" ${t?"selected":""}>👤 ${v(i.name)} (${v(i.department||i.role||"Member")})</option>`}).join("")}
               </select>
             </div>
           `:""}
@@ -794,33 +824,118 @@ import{c as ze,k as $,e as v,x as at,l as nt,p as qt,m as Jt,j as ve,y as ma,z a
             <div id="coOwnersSelectedContainer" style="display:flex;flex-wrap:wrap;gap:6px;min-height:28px;margin:4px 0 8px;"></div>
             <select id="taskCoOwnerSelect" class="input">
               <option value="">+ Add Co-Owner / Collaborator...</option>
-              ${i.personnelList.map(L=>`
-                <option value="${L._id}">+ 👤 ${v(L.name)} (${v(L.department||L.role||"Member")})</option>
+              ${r.personnelList.map(i=>`
+                <option value="${i._id}">+ 👤 ${v(i.name)} (${v(i.department||i.role||"Member")})</option>
               `).join("")}
             </select>
           </div>
 
+          <!-- Attachments & Paste Screenshot Section -->
+          <div class="form-group" style="margin-top:14px;">
+            ${Fa({id:"task-attachments-uploader",label:"Attachments & Screenshots",subtitle:"Drag & drop files, browse local files, or paste screenshot anywhere with Ctrl+V"})}
+            <div class="task-paste-notice">
+              <span style="font-size:14px;">📋</span>
+              <span><strong>Paste anywhere:</strong> Press <strong>Ctrl + V</strong> in this window to immediately attach a screenshot or image from your clipboard.</span>
+            </div>
+          </div>
+
           <div class="ci360-modal-footer" style="display:flex;justify-content:space-between;align-items:center;">
             <div>
-              ${r?`
+              ${m?`
                 <button type="button" class="btn danger small" id="btnModalDeleteTask" style="padding:6px 12px;background:#ef4444;color:#fff;border-radius:var(--r-sm);border:none;cursor:pointer;font-weight:700;font-size:12px;">🗑️ Delete Task</button>
               `:""}
             </div>
             <div style="display:flex;gap:8px;">
               <button type="button" class="ci360-btn-secondary" id="btnCancelModal">Cancel</button>
               <button type="submit" class="ci360-btn-primary" id="btnSaveTask">
-                ${r?"Save Changes":"Create Task"}
+                ${m?"Save Changes":"Create Task"}
               </button>
             </div>
           </div>
         </form>
       </div>
-    `,N=qt(z),S=N.querySelector("#taskForm"),P=N.querySelector("#btnModalClose"),H=N.querySelector("#btnCancelModal"),F=N.querySelector("#btnModalDeleteTask"),j=()=>N.remove();P&&(P.onclick=j),H&&(H.onclick=j),F&&l&&(F.onclick=async()=>{j(),await wt(l._id)});let x=[];l&&Array.isArray(l.coOwners)&&(x=l.coOwners.map(L=>({personnelId:L.personnelId?._id||L.personnelId||null,userId:L.userId?._id||L.userId||null,name:L.name||L.personnelId?.name||"",role:L.role||L.personnelId?.role||"",department:L.department||L.personnelId?.department||""})).filter(L=>L.personnelId||L.name));const E=N.querySelector("#coOwnersSelectedContainer"),X=N.querySelector("#taskCoOwnerSelect"),I=()=>{if(E){if(x.length===0){E.innerHTML='<span style="font-size:11.5px;color:var(--text-4);font-style:italic;">No co-owners added yet</span>';return}E.innerHTML=x.map((L,c)=>`
+    `,j=Lt(F),C=j.querySelector("#taskForm"),L=j.querySelector("#btnModalClose"),z=j.querySelector("#btnCancelModal"),p=j.querySelector("#btnModalDeleteTask"),q=()=>j.remove();L&&(L.onclick=q),z&&(z.onclick=q),p&&e&&(p.onclick=async()=>{q(),await kt(e._id)});let h=[];e&&Array.isArray(e.coOwners)&&(h=e.coOwners.map(i=>({personnelId:i.personnelId?._id||i.personnelId||null,userId:i.userId?._id||i.userId||null,name:i.name||i.personnelId?.name||"",role:i.role||i.personnelId?.role||"",department:i.department||i.personnelId?.department||""})).filter(i=>i.personnelId||i.name));const T=j.querySelector("#coOwnersSelectedContainer"),U=j.querySelector("#taskCoOwnerSelect"),_=()=>{if(T){if(h.length===0){T.innerHTML='<span style="font-size:11.5px;color:var(--text-4);font-style:italic;">No co-owners added yet</span>';return}T.innerHTML=h.map((i,t)=>`
         <span class="co-owner-chip" style="display:inline-flex;align-items:center;gap:6px;background:rgba(0,112,243,0.12);color:var(--accent);border:1px solid rgba(0,112,243,0.25);border-radius:16px;padding:3px 10px;font-size:12px;font-weight:600;">
-          👤 ${v(L.name)}
-          <button type="button" class="btn-remove-co" data-idx="${c}" style="background:transparent;border:none;color:var(--accent);cursor:pointer;font-size:14px;line-height:1;padding:0;margin-left:2px;font-weight:bold;" title="Remove co-owner">×</button>
+          👤 ${v(i.name)}
+          <button type="button" class="btn-remove-co" data-idx="${t}" style="background:transparent;border:none;color:var(--accent);cursor:pointer;font-size:14px;line-height:1;padding:0;margin-left:2px;font-weight:bold;" title="Remove co-owner">×</button>
         </span>
-      `).join(""),E.querySelectorAll(".btn-remove-co").forEach(L=>{L.onclick=()=>{const c=parseInt(L.dataset.idx,10);x.splice(c,1),I()}})}};I(),X&&(X.onchange=()=>{const L=X.value;if(!L)return;const c=i.personnelList.find(o=>String(o._id)===String(L));c&&(x.some(t=>String(t.personnelId)===String(c._id))||(x.push({personnelId:c._id,name:c.name,role:c.role||"",department:c.department||""}),I())),X.value=""}),S.onsubmit=async L=>{L.preventDefault();const c=N.querySelector("#taskTitle").value.trim(),o=N.querySelector("#taskDesc").value.trim(),t=N.querySelector("#taskDate").value||y,A=N.querySelector("#taskCompletionDate")?.value?.trim()||t||i.selectedDate,M=N.querySelector("#taskPriority").value,D=N.querySelector("#taskStatus").value,Y=(N.querySelector("#taskClientName")?.value||N.querySelector("#taskCategory")?.value||"").trim(),ee=Y||"General";if(!c){$("Task title is required",!0);return}if(!r&&(A<f||t<f)){$("Cannot add tasks on previous dates. New tasks can only be scheduled for today or future dates.",!0);return}const O={title:c,description:o,assignedDate:t,assignedDateStr:t,dateStr:A,completionDate:A,completionDateStr:A,dueDate:A,startTime:"",dueTime:"",priority:M,status:D,category:ee,clientName:Y,coOwners:x};if(b){const Q=N.querySelector("#taskAssignee")?.value;Q==="all"?(O.assignAll=!0,O.personnelId="all"):Q==="me"?O.personnelId="me":Q&&(O.personnelId=Q)}const _=N.querySelector("#btnSaveTask");_.disabled=!0,_.textContent="Saving...";try{if(r){const Q=await Jt(`/tasks/${l._id}`,O),oe=i.tasks.findIndex(ae=>ae._id===l._id);oe!==-1&&(i.tasks[oe]=Q),$("Task updated successfully! ✍️")}else{const Q=await ve("/tasks",O);Array.isArray(Q.tasks)?Q.tasks.forEach(oe=>i.tasks.unshift(oe)):i.tasks.unshift(Q),$("Task created successfully! ✨")}j(),U()}catch(Q){$(Q.message,!0),_.disabled=!1,_.textContent=r?"Save Changes":"Create Task"}}}function vt(){let l=[];const n=`
+      `).join(""),T.querySelectorAll(".btn-remove-co").forEach(i=>{i.onclick=()=>{const t=parseInt(i.dataset.idx,10);h.splice(t,1),_()}})}};_(),U&&(U.onchange=()=>{const i=U.value;if(!i)return;const t=r.personnelList.find(b=>String(b._id)===String(i));t&&(h.some(D=>String(D.personnelId)===String(t._id))||(h.push({personnelId:t._id,name:t.name,role:t.role||"",department:t.department||""}),_())),U.value=""}),Pa("task-attachments-uploader",{existing:Array.isArray(e?.attachments)?e.attachments:[]});const d=async i=>{const t=i.clipboardData?.items;if(!t||!t.length)return;const b=[];for(let D=0;D<t.length;D++)if(t[D].type&&t[D].type.startsWith("image/")){const M=t[D].getAsFile();if(M){const $=M.type.split("/")[1]||"png",Z=new Date().toISOString().replace(/[:.]/g,"-").slice(0,19),O=new File([M],`screenshot-${Z}.${$}`,{type:M.type});b.push(O)}}if(b.length>0){i.preventDefault(),S(`Pasting ${b.length} screenshot(s)... 📸`);for(const D of b)try{const M=await La(D);if(M){const $=ma("task-attachments-uploader");za("task-attachments-uploader",[...$,M]),S("Screenshot attached successfully! 📸")}}catch(M){S("Failed to paste screenshot: "+(M.message||"Error"),!0)}}};j.addEventListener("paste",d),C.onsubmit=async i=>{i.preventDefault();const t=j.querySelector("#taskTitle").value.trim(),b=j.querySelector("#taskDesc").value.trim(),D=j.querySelector("#taskDate").value||A,$=j.querySelector("#taskCompletionDate")?.value?.trim()||D||r.selectedDate,K=j.querySelector("#taskPriority").value,Z=j.querySelector("#taskStatus").value,O=(j.querySelector("#taskClientName")?.value||j.querySelector("#taskCategory")?.value||"").trim(),P=O||"",J=ma("task-attachments-uploader");if(!t){S("Task title is required",!0);return}if(!m&&($<y||D<y)){S("Cannot add tasks on previous dates. New tasks can only be scheduled for today or future dates.",!0);return}const ie={title:t,description:b,assignedDate:D,assignedDateStr:D,dateStr:$,completionDate:$,completionDateStr:$,dueDate:$,startTime:"",dueTime:"",priority:K,status:Z,category:P,clientName:O,attachments:J,coOwners:h};if(f){const ae=j.querySelector("#taskAssignee")?.value;ae==="all"?(ie.assignAll=!0,ie.personnelId="all"):ae==="me"?ie.personnelId="me":ae&&(ie.personnelId=ae)}const X=j.querySelector("#btnSaveTask");X.disabled=!0,X.textContent="Saving...";try{if(m){const ae=await Jt(`/tasks/${e._id}`,ie),ce=r.tasks.findIndex(se=>se._id===e._id);ce!==-1&&(r.tasks[ce]=ae),S("Task updated successfully! ✍️")}else{const ae=await xe("/tasks",ie);Array.isArray(ae.tasks)?ae.tasks.forEach(ce=>r.tasks.unshift(ce)):r.tasks.unshift(ae),S("Task created successfully! ✨")}q(),H()}catch(ae){S(ae.message,!0),X.disabled=!1,X.textContent=m?"Save Changes":"Create Task"}}}async function wt(){let e=[],o="all",m="";const A=Lt(`
+      <div class="ci360-planner-modal recent-tasks-modal" style="max-width:860px;width:95vw;">
+        <div class="ci360-modal-header" style="border-bottom:1px solid var(--border-sm);padding-bottom:12px;">
+          <div>
+            <h3 style="display:flex;align-items:center;gap:8px;margin:0;">
+              <span>🕒</span>
+              <span>Recent Task Activity</span>
+            </h3>
+            <p style="font-size:12px;color:var(--text-3);margin:4px 0 0">
+              Live stream of latest added, completed, and rescheduled or edited tasks.
+            </p>
+          </div>
+          <button type="button" class="ci360-modal-close" id="btnRecentModalClose">×</button>
+        </div>
+
+        <div style="padding:16px 20px;">
+          <!-- Filter Tabs & Quick Search -->
+          <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px;">
+            <div class="recent-modal-header-tabs" style="display:flex;gap:6px;flex-wrap:wrap;margin:0;padding:0;border:none;">
+              <button type="button" class="recent-tab-btn active" data-tab="all">⚡ All Recent</button>
+              <button type="button" class="recent-tab-btn" data-tab="added">➕ Newly Added</button>
+              <button type="button" class="recent-tab-btn" data-tab="completed">✅ Completed</button>
+              <button type="button" class="recent-tab-btn" data-tab="changed">🔄 Changed / Rescheduled</button>
+            </div>
+            <div style="position:relative;min-width:220px;flex:1;max-width:320px;">
+              <input type="text" id="recentTaskSearch" class="input" placeholder="Search tasks, client, or assignee..." style="padding:7px 12px;font-size:12px;border-radius:20px;">
+            </div>
+          </div>
+
+          <!-- Task List Body -->
+          <div id="recentTasksListContainer" style="max-height:480px;overflow-y:auto;padding-right:4px;">
+            <div style="text-align:center;padding:48px;color:var(--text-3);">
+              <div style="font-size:24px;margin-bottom:8px;">⏳</div>
+              <div>Loading recent activity...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `),F=A.querySelector("#btnRecentModalClose");F&&(F.onclick=()=>A.remove());const j=A.querySelector("#recentTasksListContainer"),C=A.querySelector("#recentTaskSearch");try{const z=await ze("/tasks/recent");e=Array.isArray(z)?z:r.tasks||[]}catch(z){console.warn("Fallback to local state tasks for recent:",z),e=[...r.tasks||[]].sort((p,q)=>new Date(q.updatedAt||q.createdAt||0)-new Date(p.updatedAt||p.createdAt||0))}const L=()=>{if(!j)return;let z=[...e];if(o==="completed"?(z=z.filter(p=>p.status==="Completed"||p.completedAt),z.sort((p,q)=>new Date(q.completedAt||q.updatedAt||0)-new Date(p.completedAt||p.updatedAt||0))):o==="changed"?(z=z.filter(p=>p.rescheduledFrom||p.dateChangeCount&&p.dateChangeCount>0||p.updatedAt&&p.createdAt&&new Date(p.updatedAt).getTime()-new Date(p.createdAt).getTime()>1e4),z.sort((p,q)=>new Date(q.updatedAt||0)-new Date(p.updatedAt||0))):o==="added"&&z.sort((p,q)=>new Date(q.createdAt||0)-new Date(p.createdAt||0)),m){const p=m.toLowerCase();z=z.filter(q=>q.title&&q.title.toLowerCase().includes(p)||q.description&&q.description.toLowerCase().includes(p)||q.clientName&&q.clientName.toLowerCase().includes(p)||q.personnelId?.name&&q.personnelId.name.toLowerCase().includes(p)||q.createdBy?.name&&q.createdBy.name.toLowerCase().includes(p))}if(!z.length){j.innerHTML=`
+          <div style="text-align:center;padding:48px 20px;color:var(--text-4);">
+            <div style="font-size:32px;margin-bottom:8px;">🔍</div>
+            <div style="font-size:14px;font-weight:600;color:var(--text-2);">No matching recent tasks found</div>
+            <div style="font-size:12px;margin-top:4px;">Try selecting another filter or adjusting your search term.</div>
+          </div>
+        `;return}j.innerHTML=z.map(p=>{const q=p.status==="Completed",h=Le(p.assignedDateStr||p.assignedDate||(p.createdAt?new Date(p.createdAt).toISOString().slice(0,10):"")),T=Le(p.completionDateStr||p.completionDate||p.dueDate||""),U=p.updatedAt?new Date(p.updatedAt).toLocaleString("en-IN",{month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"}):"";p.createdAt&&new Date(p.createdAt).toLocaleString("en-IN",{month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"});const _=p.createdBy?.name||(typeof p.createdBy=="string"?p.createdBy:""),d=p.personnelId?.name||p.userId?.name||"",i=Array.isArray(p.attachments)&&p.attachments.length>0;return`
+          <div class="recent-task-row">
+            <div style="display:flex;align-items:flex-start;gap:12px;min-width:0;flex:1;">
+              <span class="status-dot" style="width:10px;height:10px;border-radius:50%;margin-top:6px;flex-shrink:0;background:${q?"#10b981":p.status==="In Progress"?"#3b82f6":"#f59e0b"};box-shadow:0 0 6px ${q?"rgba(16,185,129,0.5)":p.status==="In Progress"?"rgba(59,130,246,0.5)":"rgba(245,158,11,0.5)"};"></span>
+              <div style="min-width:0;flex:1;">
+                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px;">
+                  <span style="font-size:13.5px;font-weight:700;color:var(--text-1);${q?"text-decoration:line-through;color:var(--text-3);":""}">${v(p.title)}</span>
+                  <span class="ci360-badge priority-${(p.priority||"medium").toLowerCase()}" style="font-size:10px;padding:2px 6px;">${v(p.priority||"Medium")}</span>
+                  <span class="ci360-badge" style="font-size:10px;padding:2px 6px;background:${q?"rgba(16,185,129,0.1)":"rgba(59,130,246,0.1)"};color:${q?"#10b981":"#3b82f6"};">${q?"Completed":v(p.status)||"Pending"}</span>
+                  ${p.clientName?`<span class="ci360-badge" style="background:rgba(16,185,129,0.1);color:#10b981;font-size:10px;padding:2px 6px;">🏢 ${v(p.clientName)}</span>`:""}
+                  ${i?`<span class="ci360-badge" style="background:rgba(59,130,246,0.12);color:#2563eb;font-size:10px;padding:2px 6px;">📎 ${p.attachments.length} file(s)</span>`:""}
+                </div>
+
+                <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;font-size:11.5px;color:var(--text-3);">
+                  ${p.rescheduledFrom?`
+                    <span style="color:#d97706;font-weight:600;">🔄 Rescheduled: ${Le(p.rescheduledFrom)} ➔ ${T}</span>
+                  `:`
+                    <span>📅 Due: ${T||h}</span>
+                  `}
+                  ${_?`<span>✍️ By: <strong>${v(_)}</strong></span>`:""}
+                  ${d?`<span>👤 Assigned: <strong>${v(d)}</strong></span>`:""}
+                  ${U?`<span style="color:var(--text-4);">🕒 Updated ${U}</span>`:""}
+                </div>
+              </div>
+            </div>
+
+            <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
+              <button type="button" class="btn secondary small btn-open-recent-task" data-id="${p._id}" style="padding:5px 12px;font-size:11.5px;font-weight:600;display:inline-flex;align-items:center;gap:4px;">
+                <span>✏️ Edit</span>
+              </button>
+            </div>
+          </div>
+        `}).join(""),j.querySelectorAll(".btn-open-recent-task").forEach(p=>{p.onclick=()=>{const q=p.dataset.id,h=e.find(T=>String(T._id)===String(q))||r.tasks.find(T=>String(T._id)===String(q));h&&(A.remove(),qe(h))}})};L(),A.querySelectorAll(".recent-tab-btn").forEach(z=>{z.onclick=()=>{A.querySelectorAll(".recent-tab-btn").forEach(p=>p.classList.remove("active")),z.classList.add("active"),o=z.dataset.tab,L()}}),C&&(C.oninput=z=>{m=z.target.value.trim(),L()})}function Re(){let e=[];const o=`
       <div class="ci360-planner-modal import-modal" style="max-width:680px">
         <div class="ci360-modal-header">
           <div>
@@ -835,7 +950,7 @@ import{c as ze,k as $,e as v,x as at,l as nt,p as qt,m as Jt,j as ve,y as ma,z a
           <div class="form-row">
             <div class="form-group flex-1">
               <label for="importTargetDate" class="required">Target Date for Tasks</label>
-              <input type="date" id="importTargetDate" class="input" value="${i.selectedDate<Ke()?Ke():i.selectedDate}" min="${Ke()}">
+              <input type="date" id="importTargetDate" class="input" value="${r.selectedDate<Ge()?Ge():r.selectedDate}" min="${Ge()}">
             </div>
 
             <div class="form-group flex-1">
@@ -892,18 +1007,18 @@ import{c as ze,k as $,e as v,x as at,l as nt,p as qt,m as Jt,j as ve,y as ma,z a
 
         </div>
       </div>
-    `,r=qt(n),f=()=>r.remove();r.querySelector("#btnImportClose").onclick=f,r.querySelector("#btnCancelImport").onclick=f;const y=r.querySelector("#importTextarea"),z=r.querySelector("#importFileInput"),N=r.querySelector("#importDropzone"),S=r.querySelector("#previewListArea"),P=r.querySelector("#previewCountLabel"),H=r.querySelector("#btnConfirmImport"),F=r.querySelector("#importFileInfo");function j(E){if(!E)return[];const X=E.split(/\r?\n/),I=[];for(let L of X)L=L.trim(),L&&(L=L.replace(/^-\s*\[\s*[xX ]?\s*\]\s*/,""),L=L.replace(/^[-*•]\s+/,""),L=L.replace(/^\d+[\.\)]\s+/,""),L=L.trim(),L&&I.push(L));return I}function x(){const E=y.value,X=j(E),I=r.querySelector("#importTargetDate").value,L=T(I),c=new Set(L.map(o=>(o.title||"").trim().toLowerCase()));l=[];for(const o of X){const t=c.has(o.toLowerCase());l.push({title:o,isDuplicate:t})}if(P.textContent=`Preview (${l.length} ${l.length===1?"task":"tasks"} found)`,H.disabled=l.length===0,H.textContent=`Import ${l.length} ${l.length===1?"Task":"Tasks"}`,l.length===0){S.innerHTML='<div style="padding:16px;text-align:center;color:var(--text-4);font-size:12px">No tasks found. Paste text above to preview.</div>';return}S.innerHTML=l.map((o,t)=>`
-        <div class="preview-item ${o.isDuplicate?"is-duplicate":""}">
-          <span class="preview-index">${t+1}.</span>
-          <span class="preview-title">${v(o.title)}</span>
-          ${o.isDuplicate?'<span class="badge overdue-badge" style="font-size:10px">Already on this date</span>':""}
+    `,m=Lt(o),y=()=>m.remove();m.querySelector("#btnImportClose").onclick=y,m.querySelector("#btnCancelImport").onclick=y;const A=m.querySelector("#importTextarea"),F=m.querySelector("#importFileInput"),j=m.querySelector("#importDropzone"),C=m.querySelector("#previewListArea"),L=m.querySelector("#previewCountLabel"),z=m.querySelector("#btnConfirmImport"),p=m.querySelector("#importFileInfo");function q(T){if(!T)return[];const U=T.split(/\r?\n/),_=[];for(let d of U)d=d.trim(),d&&(d=d.replace(/^-\s*\[\s*[xX ]?\s*\]\s*/,""),d=d.replace(/^[-*•]\s+/,""),d=d.replace(/^\d+[\.\)]\s+/,""),d=d.trim(),d&&_.push(d));return _}function h(){const T=A.value,U=q(T),_=m.querySelector("#importTargetDate").value,d=E(_),i=new Set(d.map(t=>(t.title||"").trim().toLowerCase()));e=[];for(const t of U){const b=i.has(t.toLowerCase());e.push({title:t,isDuplicate:b})}if(L.textContent=`Preview (${e.length} ${e.length===1?"task":"tasks"} found)`,z.disabled=e.length===0,z.textContent=`Import ${e.length} ${e.length===1?"Task":"Tasks"}`,e.length===0){C.innerHTML='<div style="padding:16px;text-align:center;color:var(--text-4);font-size:12px">No tasks found. Paste text above to preview.</div>';return}C.innerHTML=e.map((t,b)=>`
+        <div class="preview-item ${t.isDuplicate?"is-duplicate":""}">
+          <span class="preview-index">${b+1}.</span>
+          <span class="preview-title">${v(t.title)}</span>
+          ${t.isDuplicate?'<span class="badge overdue-badge" style="font-size:10px">Already on this date</span>':""}
         </div>
-      `).join("")}y.oninput=x,N.onclick=()=>z.click(),z.onchange=E=>{const X=E.target.files[0];if(!X)return;F.textContent=`File selected: ${X.name} (${Math.round(X.size/1024)} KB)`;const I=new FileReader;I.onload=L=>{y.value=L.target.result,x()},I.readAsText(X)},N.ondragover=E=>{E.preventDefault(),N.classList.add("dragover")},N.ondragleave=()=>N.classList.remove("dragover"),N.ondrop=E=>{E.preventDefault(),N.classList.remove("dragover");const X=E.dataTransfer.files[0];if(X&&(X.type==="text/plain"||X.name.endsWith(".txt"))){F.textContent=`File dropped: ${X.name}`;const I=new FileReader;I.onload=L=>{y.value=L.target.result,x()},I.readAsText(X)}else $("Please drop a valid .txt plain-text file",!0)},H.onclick=async()=>{if(l.length===0)return;H.disabled=!0,H.textContent="Importing...";const E=r.querySelector("#importTargetDate").value;if(E<Ke()){$("Cannot import tasks for previous dates. Target date must be today or later.",!0),H.disabled=!1,H.textContent=`Import ${l.length} ${l.length===1?"Task":"Tasks"}`;return}const X=r.querySelector("#importPriority").value,I=r.querySelector("#importCategory").value.trim()||"General",L={date:E,tasks:l.map(c=>({title:c.title,priority:X,category:I,status:"Pending"}))};b&&i.selectedPersonnelId!=="all"&&(L.personnelId=i.selectedPersonnelId);try{const c=await ve("/tasks/bulk-import",L);Array.isArray(c.tasks)&&c.tasks.forEach(o=>i.tasks.unshift(o)),$(`Imported ${c.importedCount} tasks successfully! (${c.skippedCount} skipped duplicates)`),f(),i.selectedDate=E,U()}catch(c){$(c.message,!0),H.disabled=!1,H.textContent="Retry Import"}}}async function je(){const l=T(i.selectedDate),n=W(l,Ke()),r=Dt(i.selectedDate),f=2,y=800,z=160,N=90,S=74,P=70,H=Math.max(120,l.length*S),F=z+N+H+P,j=document.createElement("canvas");j.width=y*f,j.height=F*f;const x=j.getContext("2d");x.scale(f,f);const E=document.documentElement.getAttribute("data-theme")==="dark",X=E?"#020713":"#F0F6FF",I=E?"#081226":"#FFFFFF",L=E?"rgba(56, 189, 248, 0.16)":"#E2E8F0",c=E?"#F8FAFC":"#0F172A",o=E?"#8EA4C8":"#475569",t="#0070F3",k="#10B981",A="#F59E0B";x.fillStyle=X,x.fillRect(0,0,y,F),x.fillStyle=I,Re(x,24,20,y-48,z-30,16),x.fill(),x.strokeStyle=L,x.lineWidth=1,x.stroke(),x.fillStyle=t,x.font="bold 12px Inter, sans-serif",x.fillText("CI360 INTELLIGENCE SUITE · DAILY PLANNER",44,52),x.fillStyle=c,x.font='bold 22px "Plus Jakarta Sans", Inter, sans-serif',x.fillText(r,44,86),x.fillStyle=o,x.font="13px Inter, sans-serif",x.fillText(`Planned focus list · ${n.completed} of ${n.total} tasks completed (${n.percent}%)`,44,114);const M=z+6;x.fillStyle=I,Re(x,24,M,y-48,N-16,12),x.fill(),x.stroke();const D=[{label:"TOTAL TASKS",val:String(n.total),color:c},{label:"COMPLETED",val:String(n.completed),color:k},{label:"IN PROGRESS",val:String(n.inProgress),color:A},{label:"PENDING",val:String(n.pending),color:o},{label:"PROGRESS",val:`${n.percent}%`,color:t}],Y=(y-48)/D.length;D.forEach((_,Q)=>{const oe=24+Q*Y+20;x.fillStyle=_.color,x.font="bold 20px Inter, sans-serif",x.fillText(_.val,oe,M+36),x.fillStyle=o,x.font="10px Inter, sans-serif",x.fillText(_.label,oe,M+54)});const ee=M+N;x.fillStyle=I,Re(x,24,ee,y-48,H+10,16),x.fill(),x.stroke(),l.length===0?(x.fillStyle=o,x.font="14px Inter, sans-serif",x.textAlign="center",x.fillText("No scheduled tasks recorded for this date.",y/2,ee+60),x.textAlign="left"):l.forEach((_,Q)=>{const oe=ee+16+Q*S,ae=_.status==="Completed";x.beginPath(),x.arc(48,oe+14,10,0,Math.PI*2),ae?(x.fillStyle=k,x.fill(),x.strokeStyle="#FFFFFF",x.lineWidth=2,x.beginPath(),x.moveTo(44,oe+14),x.lineTo(47,oe+17),x.lineTo(52,oe+11),x.stroke()):(x.strokeStyle=L,x.lineWidth=2,x.stroke()),x.fillStyle=ae?o:c,x.font=`${ae?"normal":"500"} 14px Inter, sans-serif`;const pe=_.title.length>55?_.title.slice(0,52)+"...":_.title;if(x.fillText(pe,70,oe+18),ae){const ue=x.measureText(pe);x.strokeStyle=o,x.lineWidth=1.2,x.beginPath(),x.moveTo(70,oe+14),x.lineTo(70+ue.width,oe+14),x.stroke()}const ge=_.priority||"Medium";let le="#E2E8F0",xe="#334155";ge==="Urgent"?(le="#FEE2E2",xe="#DC2626"):ge==="High"?(le="#FEF3C7",xe="#D97706"):ge==="Low"&&(le="#ECFDF5",xe="#059669"),x.fillStyle=le,Re(x,y-150,oe+4,60,20,10),x.fill(),x.fillStyle=xe,x.font="bold 10px Inter, sans-serif",x.fillText(ge,y-138,oe+18);const We=_.createdByName||_.createdBy?.name||(_.createdBy?.email?_.createdBy.email.split("@")[0]:"")||_.personnelId?.name||_.userId?.name||"Member",Z=_.completionDateStr||_.dateStr||"",De=[];De.push(`✍️ Added by: ${We}`),Z&&De.push(`📅 Due: ${Ge(Z)}`),_.dueTime&&De.push(`🕒 ${_.dueTime}`),_.category&&_.category!=="General"&&De.push(`#${_.category}`);const Ne=De.join("   ·   ");x.fillStyle=o,x.font="11px Inter, sans-serif",x.fillText(Ne,70,oe+36),Q<l.length-1&&(x.strokeStyle=L,x.lineWidth=.6,x.beginPath(),x.moveTo(40,oe+54),x.lineTo(y-40,oe+54),x.stroke())});const O=F-35;x.fillStyle=o,x.font="11px Inter, sans-serif",x.fillText(`Generated by CI360 Productivity Suite · Dayfolio Native Module · ${new Date().toLocaleDateString()}`,44,O);try{const _=j.toDataURL("image/png"),Q=document.createElement("a");Q.href=_,Q.download=`ci360-daily-planner-${i.selectedDate}.png`,document.body.appendChild(Q),Q.click(),Q.remove(),$("Daily Planner image exported! 🖼️")}catch(_){$("Failed to export image: "+_.message,!0)}}function Re(l,n,r,f,y,z){l.beginPath(),l.moveTo(n+z,r),l.lineTo(n+f-z,r),l.quadraticCurveTo(n+f,r,n+f,r+z),l.lineTo(n+f,r+y-z),l.quadraticCurveTo(n+f,r+y,n+f-z,r+y),l.lineTo(n+z,r+y),l.quadraticCurveTo(n,r+y,n,r+y-z),l.lineTo(n,r+z),l.quadraticCurveTo(n,r,n+z,r),l.closePath()}function de(l={}){const n=Bt(i.selectedDate,p.weekStartsOn),r=Dt(n[0]),f=Dt(n[6]),y=Ke();let z=i.tasks.filter(I=>{if(I.isDeleted===!0)return!1;const L=I.completionDateStr||I.dateStr||(I.dueDate?new Date(I.dueDate).toISOString().slice(0,10):""),c=I.assignedDateStr||(I.assignedDate?new Date(I.assignedDate).toISOString().slice(0,10):"")||L;return l.scope==="today"?L===y||c===y:l.scope==="all"?!0:I.status==="In Progress"&&c&&L?n.some(o=>o>=c&&o<=L):n.includes(L)||n.includes(c)});l.personnelId&&l.personnelId!=="all"&&(z=z.filter(I=>{const L=String(I.personnelId?._id||I.personnelId||""),c=Array.isArray(I.coOwners)&&I.coOwners.some(o=>String(o.personnelId?._id||o.personnelId||o.userId?._id||o.userId||"")===String(l.personnelId));return L===String(l.personnelId)||c})),l.status&&l.status!=="all"&&(z=z.filter(I=>I.status===l.status));const N=z.length,S=z.filter(I=>I.status==="Completed").length,P=z.filter(I=>I.status==="In Progress").length,H=N>0?Math.round(S/N*100):0,F=window.open("","_blank");if(!F){$("Pop-up blocked. Please allow pop-ups to print the PDF report.",!0);return}const j=l.title||(l.isAdminReport?"CI360 Admin Detailed Executive Report":"Weekly Productivity Report"),x=l.scope==="today"?`Date: ${Dt(y)}`:l.scope==="all"?"All Active & Historical Tasks":`${r} – ${f}`;let E="";if(l.personnelId&&l.personnelId!=="all"){const I=i.personnelList.find(L=>String(L._id)===String(l.personnelId));I&&(E=`👤 Employee: ${I.name} (${I.department||I.role||"Member"})`)}const X=`
+      `).join("")}A.oninput=h,j.onclick=()=>F.click(),F.onchange=T=>{const U=T.target.files[0];if(!U)return;p.textContent=`File selected: ${U.name} (${Math.round(U.size/1024)} KB)`;const _=new FileReader;_.onload=d=>{A.value=d.target.result,h()},_.readAsText(U)},j.ondragover=T=>{T.preventDefault(),j.classList.add("dragover")},j.ondragleave=()=>j.classList.remove("dragover"),j.ondrop=T=>{T.preventDefault(),j.classList.remove("dragover");const U=T.dataTransfer.files[0];if(U&&(U.type==="text/plain"||U.name.endsWith(".txt"))){p.textContent=`File dropped: ${U.name}`;const _=new FileReader;_.onload=d=>{A.value=d.target.result,h()},_.readAsText(U)}else S("Please drop a valid .txt plain-text file",!0)},z.onclick=async()=>{if(e.length===0)return;z.disabled=!0,z.textContent="Importing...";const T=m.querySelector("#importTargetDate").value;if(T<Ge()){S("Cannot import tasks for previous dates. Target date must be today or later.",!0),z.disabled=!1,z.textContent=`Import ${e.length} ${e.length===1?"Task":"Tasks"}`;return}const U=m.querySelector("#importPriority").value,_=m.querySelector("#importCategory").value.trim()||"General",d={date:T,tasks:e.map(i=>({title:i.title,priority:U,category:_,status:"Pending"}))};f&&r.selectedPersonnelId!=="all"&&(d.personnelId=r.selectedPersonnelId);try{const i=await xe("/tasks/bulk-import",d);Array.isArray(i.tasks)&&i.tasks.forEach(t=>r.tasks.unshift(t)),S(`Imported ${i.importedCount} tasks successfully! (${i.skippedCount} skipped duplicates)`),y(),r.selectedDate=T,H()}catch(i){S(i.message,!0),z.disabled=!1,z.textContent="Retry Import"}}}async function Ve(){const e=E(r.selectedDate),o=W(e,Ge()),m=Dt(r.selectedDate),y=2,A=800,F=160,j=90,C=74,L=70,z=Math.max(120,e.length*C),p=F+j+z+L,q=document.createElement("canvas");q.width=A*y,q.height=p*y;const h=q.getContext("2d");h.scale(y,y);const T=document.documentElement.getAttribute("data-theme")==="dark",U=T?"#020713":"#F0F6FF",_=T?"#081226":"#FFFFFF",d=T?"rgba(56, 189, 248, 0.16)":"#E2E8F0",i=T?"#F8FAFC":"#0F172A",t=T?"#8EA4C8":"#475569",b="#0070F3",D="#10B981",M="#F59E0B";h.fillStyle=U,h.fillRect(0,0,A,p),h.fillStyle=_,de(h,24,20,A-48,F-30,16),h.fill(),h.strokeStyle=d,h.lineWidth=1,h.stroke(),h.fillStyle=b,h.font="bold 12px Inter, sans-serif",h.fillText("CI360 INTELLIGENCE SUITE · DAILY PLANNER",44,52),h.fillStyle=i,h.font='bold 22px "Plus Jakarta Sans", Inter, sans-serif',h.fillText(m,44,86),h.fillStyle=t,h.font="13px Inter, sans-serif",h.fillText(`Planned focus list · ${o.completed} of ${o.total} tasks completed (${o.percent}%)`,44,114);const $=F+6;h.fillStyle=_,de(h,24,$,A-48,j-16,12),h.fill(),h.stroke();const K=[{label:"TOTAL TASKS",val:String(o.total),color:i},{label:"COMPLETED",val:String(o.completed),color:D},{label:"IN PROGRESS",val:String(o.inProgress),color:M},{label:"PENDING",val:String(o.pending),color:t},{label:"PROGRESS",val:`${o.percent}%`,color:b}],Z=(A-48)/K.length;K.forEach((J,ie)=>{const X=24+ie*Z+20;h.fillStyle=J.color,h.font="bold 20px Inter, sans-serif",h.fillText(J.val,X,$+36),h.fillStyle=t,h.font="10px Inter, sans-serif",h.fillText(J.label,X,$+54)});const O=$+j;h.fillStyle=_,de(h,24,O,A-48,z+10,16),h.fill(),h.stroke(),e.length===0?(h.fillStyle=t,h.font="14px Inter, sans-serif",h.textAlign="center",h.fillText("No scheduled tasks recorded for this date.",A/2,O+60),h.textAlign="left"):e.forEach((J,ie)=>{const X=O+16+ie*C,ae=J.status==="Completed";h.beginPath(),h.arc(48,X+14,10,0,Math.PI*2),ae?(h.fillStyle=D,h.fill(),h.strokeStyle="#FFFFFF",h.lineWidth=2,h.beginPath(),h.moveTo(44,X+14),h.lineTo(47,X+17),h.lineTo(52,X+11),h.stroke()):(h.strokeStyle=d,h.lineWidth=2,h.stroke()),h.fillStyle=ae?t:i,h.font=`${ae?"normal":"500"} 14px Inter, sans-serif`;const ce=J.title.length>55?J.title.slice(0,52)+"...":J.title;if(h.fillText(ce,70,X+18),ae){const ye=h.measureText(ce);h.strokeStyle=t,h.lineWidth=1.2,h.beginPath(),h.moveTo(70,X+14),h.lineTo(70+ye.width,X+14),h.stroke()}const se=J.priority||"Medium";let he="#E2E8F0",Be="#334155";se==="Urgent"?(he="#FEE2E2",Be="#DC2626"):se==="High"?(he="#FEF3C7",Be="#D97706"):se==="Low"&&(he="#ECFDF5",Be="#059669"),h.fillStyle=he,de(h,A-150,X+4,60,20,10),h.fill(),h.fillStyle=Be,h.font="bold 10px Inter, sans-serif",h.fillText(se,A-138,X+18);const ee=J.createdByName||J.createdBy?.name||(J.createdBy?.email?J.createdBy.email.split("@")[0]:"")||J.personnelId?.name||J.userId?.name||"Member",Fe=J.completionDateStr||J.dateStr||"",De=[];De.push(`✍️ Added by: ${ee}`),Fe&&De.push(`📅 Due: ${Le(Fe)}`),J.dueTime&&De.push(`🕒 ${J.dueTime}`),J.category&&J.category!=="General"&&De.push(`#${J.category}`);const ge=De.join("   ·   ");h.fillStyle=t,h.font="11px Inter, sans-serif",h.fillText(ge,70,X+36),ie<e.length-1&&(h.strokeStyle=d,h.lineWidth=.6,h.beginPath(),h.moveTo(40,X+54),h.lineTo(A-40,X+54),h.stroke())});const P=p-35;h.fillStyle=t,h.font="11px Inter, sans-serif",h.fillText(`Generated by CI360 Productivity Suite · Dayfolio Native Module · ${new Date().toLocaleDateString()}`,44,P);try{const J=q.toDataURL("image/png"),ie=document.createElement("a");ie.href=J,ie.download=`ci360-daily-planner-${r.selectedDate}.png`,document.body.appendChild(ie),ie.click(),ie.remove(),S("Daily Planner image exported! 🖼️")}catch(J){S("Failed to export image: "+J.message,!0)}}function de(e,o,m,y,A,F){e.beginPath(),e.moveTo(o+F,m),e.lineTo(o+y-F,m),e.quadraticCurveTo(o+y,m,o+y,m+F),e.lineTo(o+y,m+A-F),e.quadraticCurveTo(o+y,m+A,o+y-F,m+A),e.lineTo(o+F,m+A),e.quadraticCurveTo(o,m+A,o,m+A-F),e.lineTo(o,m+F),e.quadraticCurveTo(o,m,o+F,m),e.closePath()}function st(e={}){const o=Bt(r.selectedDate,c.weekStartsOn),m=Dt(o[0]),y=Dt(o[6]),A=Ge();let F=r.tasks.filter(_=>{if(_.isDeleted===!0)return!1;const d=_.completionDateStr||_.dateStr||(_.dueDate?new Date(_.dueDate).toISOString().slice(0,10):""),i=_.assignedDateStr||(_.assignedDate?new Date(_.assignedDate).toISOString().slice(0,10):"")||d;return e.scope==="today"?d===A||i===A:e.scope==="all"?!0:_.status==="In Progress"&&i&&d?o.some(t=>t>=i&&t<=d):o.includes(d)||o.includes(i)});e.personnelId&&e.personnelId!=="all"&&(F=F.filter(_=>{const d=String(_.personnelId?._id||_.personnelId||""),i=Array.isArray(_.coOwners)&&_.coOwners.some(t=>String(t.personnelId?._id||t.personnelId||t.userId?._id||t.userId||"")===String(e.personnelId));return d===String(e.personnelId)||i})),e.status&&e.status!=="all"&&(F=F.filter(_=>_.status===e.status));const j=F.length,C=F.filter(_=>_.status==="Completed").length,L=F.filter(_=>_.status==="In Progress").length,z=j>0?Math.round(C/j*100):0,p=window.open("","_blank");if(!p){S("Pop-up blocked. Please allow pop-ups to print the PDF report.",!0);return}const q=e.title||(e.isAdminReport?"CI360 Admin Detailed Executive Report":"Weekly Productivity Report"),h=e.scope==="today"?`Date: ${Dt(A)}`:e.scope==="all"?"All Active & Historical Tasks":`${m} – ${y}`;let T="";if(e.personnelId&&e.personnelId!=="all"){const _=r.personnelList.find(d=>String(d._id)===String(e.personnelId));_&&(T=`👤 Employee: ${_.name} (${_.department||_.role||"Member"})`)}const U=`
       <!DOCTYPE html>
       <html>
       <head>
         <meta charset="utf-8">
-        <title>${v(j)} — ${x}</title>
+        <title>${v(q)} — ${h}</title>
         <style>
           @page { size: A4 landscape; margin: 10mm; }
           * { box-sizing: border-box; }
@@ -951,11 +1066,11 @@ import{c as ze,k as $,e as v,x as at,l as nt,p as qt,m as Jt,j as ve,y as ma,z a
         <div class="header">
           <div>
             <div class="brand">CI360 Intelligence Productivity Suite · Official Report</div>
-            <h1>${v(j)}</h1>
+            <h1>${v(q)}</h1>
             <div class="period">
-              ${x}
-              ${E?`<span class="filter-tag" style="background:#dbeafe;color:#1e40af;font-weight:700;">${v(E)}</span>`:""}
-              ${l.filterSummary?`<span class="filter-tag">${v(l.filterSummary)}</span>`:""}
+              ${h}
+              ${T?`<span class="filter-tag" style="background:#dbeafe;color:#1e40af;font-weight:700;">${v(T)}</span>`:""}
+              ${e.filterSummary?`<span class="filter-tag">${v(e.filterSummary)}</span>`:""}
             </div>
           </div>
           <div style="text-align:right" class="no-print">
@@ -966,19 +1081,19 @@ import{c as ze,k as $,e as v,x as at,l as nt,p as qt,m as Jt,j as ve,y as ma,z a
         <div class="kpis">
           <div class="kpi">
             <div class="kpi-label">Total Tasks</div>
-            <div class="kpi-num">${N}</div>
+            <div class="kpi-num">${j}</div>
           </div>
           <div class="kpi">
             <div class="kpi-label">Completed</div>
-            <div class="kpi-num" style="color:#10b981">${S}</div>
+            <div class="kpi-num" style="color:#10b981">${C}</div>
           </div>
           <div class="kpi">
             <div class="kpi-label">In Progress</div>
-            <div class="kpi-num" style="color:#f59e0b">${P}</div>
+            <div class="kpi-num" style="color:#f59e0b">${L}</div>
           </div>
           <div class="kpi">
             <div class="kpi-label">Completion Rate</div>
-            <div class="kpi-num" style="color:#0070F3">${H}%</div>
+            <div class="kpi-num" style="color:#0070F3">${z}%</div>
           </div>
         </div>
 
@@ -995,20 +1110,20 @@ import{c as ze,k as $,e as v,x as at,l as nt,p as qt,m as Jt,j as ve,y as ma,z a
             </tr>
           </thead>
           <tbody>
-            ${z.length===0?`
+            ${F.length===0?`
               <tr><td colspan="7" style="text-align:center;padding:30px;color:#94a3b8;font-weight:600">No scheduled tasks match the selected criteria.</td></tr>
-            `:z.map(I=>{const L=I.completionDateStr||I.dateStr||(I.dueDate?new Date(I.dueDate).toISOString().slice(0,10):"—"),c=I.assignedDateStr||(I.assignedDate?new Date(I.assignedDate).toISOString().slice(0,10):""),o=I.status==="In Progress"&&c&&L&&c!==L?`${Ge(c)} ➔ ${Ge(L)}`:Ge(L),t=I.jobId?.preferredPersonName||I.jobId?.assignments&&I.jobId.assignments[0]?.personId?.name||I.personnelId?.name||I.userId?.name||I.createdByName||"—",k=I.clientId?.name||I.jobId?.clientId?.name||I.clientId?.company||""||"—",A=I.description?v(I.description):'<span style="color:#cbd5e1">—</span>',M=Array.isArray(I.coOwners)&&I.coOwners.length>0?I.coOwners.map(O=>O.name).filter(Boolean).join(", "):"",D=(I.priority||"medium").toLowerCase(),Y=D==="urgent"?"badge-urgent":D==="high"?"badge-high":D==="low"?"badge-low":"badge-med",ee=(I.status||"pending").toLowerCase().replace(/\s+/g,"-");return`
+            `:F.map(_=>{const d=_.completionDateStr||_.dateStr||(_.dueDate?new Date(_.dueDate).toISOString().slice(0,10):"—"),i=_.assignedDateStr||(_.assignedDate?new Date(_.assignedDate).toISOString().slice(0,10):""),t=_.status==="In Progress"&&i&&d&&i!==d?`${Le(i)} ➔ ${Le(d)}`:Le(d),b=_.jobId?.preferredPersonName||_.jobId?.assignments&&_.jobId.assignments[0]?.personId?.name||_.personnelId?.name||_.userId?.name||_.createdByName||"—",D=_.clientId?.name||_.jobId?.clientId?.name||_.clientId?.company||""||"—",M=_.description?v(_.description):'<span style="color:#cbd5e1">—</span>',$=Array.isArray(_.coOwners)&&_.coOwners.length>0?_.coOwners.map(P=>P.name).filter(Boolean).join(", "):"",K=(_.priority||"medium").toLowerCase(),Z=K==="urgent"?"badge-urgent":K==="high"?"badge-high":K==="low"?"badge-low":"badge-med",O=(_.status||"pending").toLowerCase().replace(/\s+/g,"-");return`
                 <tr>
-                  <td><strong>${o}</strong></td>
-                  <td><span class="client-tag">${v(k)}</span></td>
+                  <td><strong>${t}</strong></td>
+                  <td><span class="client-tag">${v(D)}</span></td>
                   <td>
-                    <span class="owner-tag">${v(t)}</span>
-                    ${M?`<span class="co-owner-sub">👥 Co: ${v(M)}</span>`:""}
+                    <span class="owner-tag">${v(b)}</span>
+                    ${$?`<span class="co-owner-sub">👥 Co: ${v($)}</span>`:""}
                   </td>
-                  <td><strong>${v(I.title)}</strong></td>
-                  <td><div class="desc-text">${A}</div></td>
-                  <td><span class="badge ${Y}">${v(I.priority||"Medium")}</span></td>
-                  <td><span class="status-tag status-${ee}">${v(I.status||"Pending")}</span></td>
+                  <td><strong>${v(_.title)}</strong></td>
+                  <td><div class="desc-text">${M}</div></td>
+                  <td><span class="badge ${Z}">${v(_.priority||"Medium")}</span></td>
+                  <td><span class="status-tag status-${O}">${v(_.status||"Pending")}</span></td>
                 </tr>
               `}).join("")}
           </tbody>
@@ -1026,7 +1141,7 @@ import{c as ze,k as $,e as v,x as at,l as nt,p as qt,m as Jt,j as ve,y as ma,z a
         <\/script>
       </body>
       </html>
-    `;F.document.write(X),F.document.close(),$("Report generated for printing & PDF download! 📄")}function ct(){const l=Ke(),n=Bt(i.selectedDate,p.weekStartsOn),r=Ge(n[0]),f=Ge(n[6]),y=`
+    `;p.document.write(U),p.document.close(),S("Report generated for printing & PDF download! 📄")}function ve(){const e=Ge(),o=Bt(r.selectedDate,c.weekStartsOn),m=Le(o[0]),y=Le(o[6]),A=`
       <div class="ci360-planner-modal" style="max-width:540px;">
         <div class="ci360-modal-header">
           <h3>📊 Download Specific Admin Report</h3>
@@ -1042,8 +1157,8 @@ import{c as ze,k as $,e as v,x as at,l as nt,p as qt,m as Jt,j as ve,y as ma,z a
           <div class="form-group">
             <label for="admRepScope">Date Range / Scope</label>
             <select id="admRepScope" class="input">
-              <option value="week" selected>Current Week (${r} – ${f})</option>
-              <option value="today">Today Only (${Ge(l)})</option>
+              <option value="week" selected>Current Week (${m} – ${y})</option>
+              <option value="today">Today Only (${Le(e)})</option>
               <option value="all">All Available Tasks</option>
             </select>
           </div>
@@ -1052,9 +1167,9 @@ import{c as ze,k as $,e as v,x as at,l as nt,p as qt,m as Jt,j as ve,y as ma,z a
           <div class="form-group">
             <label for="admRepPersonnel">Filter by Employee / Person</label>
             <select id="admRepPersonnel" class="input">
-              <option value="all" ${!i.reportPersonnelId||i.reportPersonnelId==="all"?"selected":""}>👥 All Team Members</option>
-              ${i.personnelList.map(x=>`
-                <option value="${x._id}" ${String(x._id)===String(i.reportPersonnelId)?"selected":""}>👤 ${v(x.name)} (${v(x.department||x.role||"Member")})</option>
+              <option value="all" ${!r.reportPersonnelId||r.reportPersonnelId==="all"?"selected":""}>👥 All Team Members</option>
+              ${r.personnelList.map(h=>`
+                <option value="${h._id}" ${String(h._id)===String(r.reportPersonnelId)?"selected":""}>👤 ${v(h.name)} (${v(h.department||h.role||"Member")})</option>
               `).join("")}
             </select>
           </div>
@@ -1093,8 +1208,8 @@ import{c as ze,k as $,e as v,x as at,l as nt,p as qt,m as Jt,j as ve,y as ma,z a
           </div>
         </div>
       </div>
-    `,z=qt(y),N=z.querySelector("#btnAdminRepClose"),S=z.querySelector("#btnAdminRepCancel"),P=z.querySelector("#btnAdminRepPdf"),H=z.querySelector("#btnAdminRepCsv"),F=()=>z.remove();N&&(N.onclick=F),S&&(S.onclick=F);const j=()=>{const x=z.querySelector("#admRepScope")?.value||"week",E=z.querySelector("#admRepPersonnel")?.value||"all",X=z.querySelector("#admRepStatus")?.value||"all";let I="";if(E!=="all"){const L=i.personnelList.find(c=>String(c._id)===String(E));L&&(I+=`Person: ${L.name} · `)}return X!=="all"&&(I+=`Status: ${X}`),{scope:x,personnelId:E,status:X,filterSummary:I.replace(/\s*·\s*$/,"")}};P&&(P.onclick=()=>{const x=j();F(),de({...x,isAdminReport:!0,title:"CI360 Admin Detailed Executive Task Report"})}),H&&(H.onclick=()=>{const x=j();F(),we(x)})}function we(l={}){const n=Bt(i.selectedDate,p.weekStartsOn),r=Ke();let f=i.tasks.filter(F=>{if(F.isDeleted===!0)return!1;const j=F.completionDateStr||F.dateStr||(F.dueDate?new Date(F.dueDate).toISOString().slice(0,10):""),x=F.assignedDateStr||(F.assignedDate?new Date(F.assignedDate).toISOString().slice(0,10):"")||j;return l.scope==="today"?j===r||x===r:l.scope==="all"?!0:F.status==="In Progress"&&x&&j?n.some(E=>E>=x&&E<=j):n.includes(j)||n.includes(x)});l.personnelId&&l.personnelId!=="all"&&(f=f.filter(F=>{const j=String(F.personnelId?._id||F.personnelId||""),x=Array.isArray(F.coOwners)&&F.coOwners.some(E=>String(E.personnelId?._id||E.personnelId||"")===String(l.personnelId));return j===String(l.personnelId)||x})),l.status&&l.status!=="all"&&(f=f.filter(F=>F.status===l.status));const y=["Date","Client Name","Job Owner","Primary Assignee","Co-Owners","Task Title","Description","Priority","Category","Status","Created By"],z=f.map(F=>{const j=F.completionDateStr||F.dateStr||(F.dueDate?new Date(F.dueDate).toISOString().slice(0,10):""),x=F.jobId?.preferredPersonName||F.jobId?.assignments&&F.jobId.assignments[0]?.personId?.name||F.personnelId?.name||F.userId?.name||F.createdByName||"",E=F.clientId?.name||F.jobId?.clientId?.name||F.clientId?.company||"",X=F.personnelId?.name||F.userId?.name||"",I=Array.isArray(F.coOwners)?F.coOwners.map(D=>D.name).filter(Boolean).join("; "):"",L=F.title||"",c=F.description||"",o=F.priority||"Medium",t=F.category||"General",k=F.status||"Pending",A=F.createdByName||F.createdBy?.name||"",M=D=>`"${String(D||"").replace(/"/g,'""').replace(/\r?\n/g," ")}"`;return[M(j),M(E),M(x),M(X),M(I),M(L),M(c),M(o),M(t),M(k),M(A)].join(",")}),N="\uFEFF"+[y.join(","),...z].join(`\r
-`),S=new Blob([N],{type:"text/csv;charset=utf-8;"}),P=URL.createObjectURL(S),H=document.createElement("a");H.href=P,H.download=`ci360-admin-report-${r}.csv`,document.body.appendChild(H),H.click(),document.body.removeChild(H),URL.revokeObjectURL(P),$("Admin CSV report downloaded! 📊")}function ft(){const n=qt(`
+    `,F=Lt(A),j=F.querySelector("#btnAdminRepClose"),C=F.querySelector("#btnAdminRepCancel"),L=F.querySelector("#btnAdminRepPdf"),z=F.querySelector("#btnAdminRepCsv"),p=()=>F.remove();j&&(j.onclick=p),C&&(C.onclick=p);const q=()=>{const h=F.querySelector("#admRepScope")?.value||"week",T=F.querySelector("#admRepPersonnel")?.value||"all",U=F.querySelector("#admRepStatus")?.value||"all";let _="";if(T!=="all"){const d=r.personnelList.find(i=>String(i._id)===String(T));d&&(_+=`Person: ${d.name} · `)}return U!=="all"&&(_+=`Status: ${U}`),{scope:h,personnelId:T,status:U,filterSummary:_.replace(/\s*·\s*$/,"")}};L&&(L.onclick=()=>{const h=q();p(),st({...h,isAdminReport:!0,title:"CI360 Admin Detailed Executive Task Report"})}),z&&(z.onclick=()=>{const h=q();p(),mt(h)})}function mt(e={}){const o=Bt(r.selectedDate,c.weekStartsOn),m=Ge();let y=r.tasks.filter(p=>{if(p.isDeleted===!0)return!1;const q=p.completionDateStr||p.dateStr||(p.dueDate?new Date(p.dueDate).toISOString().slice(0,10):""),h=p.assignedDateStr||(p.assignedDate?new Date(p.assignedDate).toISOString().slice(0,10):"")||q;return e.scope==="today"?q===m||h===m:e.scope==="all"?!0:p.status==="In Progress"&&h&&q?o.some(T=>T>=h&&T<=q):o.includes(q)||o.includes(h)});e.personnelId&&e.personnelId!=="all"&&(y=y.filter(p=>{const q=String(p.personnelId?._id||p.personnelId||""),h=Array.isArray(p.coOwners)&&p.coOwners.some(T=>String(T.personnelId?._id||T.personnelId||"")===String(e.personnelId));return q===String(e.personnelId)||h})),e.status&&e.status!=="all"&&(y=y.filter(p=>p.status===e.status));const A=["Date","Client Name","Job Owner","Primary Assignee","Co-Owners","Task Title","Description","Priority","Category","Status","Created By"],F=y.map(p=>{const q=p.completionDateStr||p.dateStr||(p.dueDate?new Date(p.dueDate).toISOString().slice(0,10):""),h=p.jobId?.preferredPersonName||p.jobId?.assignments&&p.jobId.assignments[0]?.personId?.name||p.personnelId?.name||p.userId?.name||p.createdByName||"",T=p.clientId?.name||p.jobId?.clientId?.name||p.clientId?.company||"",U=p.personnelId?.name||p.userId?.name||"",_=Array.isArray(p.coOwners)?p.coOwners.map(K=>K.name).filter(Boolean).join("; "):"",d=p.title||"",i=p.description||"",t=p.priority||"Medium",b=p.category||"General",D=p.status||"Pending",M=p.createdByName||p.createdBy?.name||"",$=K=>`"${String(K||"").replace(/"/g,'""').replace(/\r?\n/g," ")}"`;return[$(q),$(T),$(h),$(U),$(_),$(d),$(i),$(t),$(b),$(D),$(M)].join(",")}),j="\uFEFF"+[A.join(","),...F].join(`\r
+`),C=new Blob([j],{type:"text/csv;charset=utf-8;"}),L=URL.createObjectURL(C),z=document.createElement("a");z.href=L,z.download=`ci360-admin-report-${m}.csv`,document.body.appendChild(z),z.click(),document.body.removeChild(z),URL.revokeObjectURL(L),S("Admin CSV report downloaded! 📊")}function ct(){const o=Lt(`
       <div class="ci360-planner-modal" style="max-width:560px">
         <div class="ci360-modal-header">
           <h3>Backup & Restore Planner</h3>
@@ -1146,7 +1261,7 @@ import{c as ze,k as $,e as v,x as at,l as nt,p as qt,m as Jt,j as ve,y as ma,z a
 
         </div>
       </div>
-    `),r=()=>n.remove();n.querySelector("#btnBackupClose").onclick=r;const f=n.querySelector("#btnDownloadBackupJson");f.onclick=async()=>{f.disabled=!0,f.textContent="Generating backup...";try{const H=await ze("/tasks/backup"),F=new Blob([JSON.stringify(H,null,2)],{type:"application/json"}),j=URL.createObjectURL(F),x=document.createElement("a");x.href=j,x.download=`ci360-planner-backup-${Ke()}.json`,document.body.appendChild(x),x.click(),x.remove(),$("Planner backup downloaded successfully! 💾")}catch(H){$("Backup export failed: "+H.message,!0)}finally{f.disabled=!1,f.textContent="Download JSON Backup"}};const y=n.querySelector("#restoreFileInput"),z=n.querySelector("#restorePreviewArea"),N=n.querySelector("#restoreCountText"),S=n.querySelector("#btnExecuteRestore");let P=null;y.onchange=H=>{const F=H.target.files[0];if(!F)return;const j=new FileReader;j.onload=x=>{try{const E=JSON.parse(x.target.result),X=Array.isArray(E.tasks)?E.tasks:Array.isArray(E)?E:null;if(!X||X.length===0){$("Invalid backup file: No tasks found",!0);return}P=X,z.style.display="block",N.textContent=`Valid backup: ${X.length} tasks ready to restore.`,S.disabled=!1}catch(E){$("Error parsing JSON backup file: "+E.message,!0),z.style.display="none",S.disabled=!0}},j.readAsText(F)},S.onclick=async()=>{if(!P||P.length===0)return;S.disabled=!0,S.textContent="Restoring...";const H=n.querySelector('input[name="restoreMode"]:checked')?.value||"merge";try{const F=await ve("/tasks/restore",{tasks:P,mode:H});$(`Restored ${F.restoredCount} tasks! (${F.skippedCount} skipped) ✨`),r(),await R()}catch(F){$("Restore failed: "+F.message,!0),S.disabled=!1,S.textContent="Retry Restore"}}}function pt(){const l=`
+    `),m=()=>o.remove();o.querySelector("#btnBackupClose").onclick=m;const y=o.querySelector("#btnDownloadBackupJson");y.onclick=async()=>{y.disabled=!0,y.textContent="Generating backup...";try{const z=await ze("/tasks/backup"),p=new Blob([JSON.stringify(z,null,2)],{type:"application/json"}),q=URL.createObjectURL(p),h=document.createElement("a");h.href=q,h.download=`ci360-planner-backup-${Ge()}.json`,document.body.appendChild(h),h.click(),h.remove(),S("Planner backup downloaded successfully! 💾")}catch(z){S("Backup export failed: "+z.message,!0)}finally{y.disabled=!1,y.textContent="Download JSON Backup"}};const A=o.querySelector("#restoreFileInput"),F=o.querySelector("#restorePreviewArea"),j=o.querySelector("#restoreCountText"),C=o.querySelector("#btnExecuteRestore");let L=null;A.onchange=z=>{const p=z.target.files[0];if(!p)return;const q=new FileReader;q.onload=h=>{try{const T=JSON.parse(h.target.result),U=Array.isArray(T.tasks)?T.tasks:Array.isArray(T)?T:null;if(!U||U.length===0){S("Invalid backup file: No tasks found",!0);return}L=U,F.style.display="block",j.textContent=`Valid backup: ${U.length} tasks ready to restore.`,C.disabled=!1}catch(T){S("Error parsing JSON backup file: "+T.message,!0),F.style.display="none",C.disabled=!0}},q.readAsText(p)},C.onclick=async()=>{if(!L||L.length===0)return;C.disabled=!0,C.textContent="Restoring...";const z=o.querySelector('input[name="restoreMode"]:checked')?.value||"merge";try{const p=await xe("/tasks/restore",{tasks:L,mode:z});S(`Restored ${p.restoredCount} tasks! (${p.skippedCount} skipped) ✨`),m(),await N()}catch(p){S("Restore failed: "+p.message,!0),C.disabled=!1,C.textContent="Retry Restore"}}}function ft(){const e=`
       <div class="ci360-planner-modal" style="max-width:520px">
         <div class="ci360-modal-header">
           <h3>Planner Preferences</h3>
@@ -1156,21 +1271,21 @@ import{c as ze,k as $,e as v,x as at,l as nt,p as qt,m as Jt,j as ve,y as ma,z a
         <form id="settingsForm" class="ci360-modal-form">
           <div class="form-group">
             <label for="setDisplayName">Planner Display Title</label>
-            <input type="text" id="setDisplayName" class="input" value="${v(p.displayName||"Daily Planner")}">
+            <input type="text" id="setDisplayName" class="input" value="${v(c.displayName||"Daily Planner")}">
           </div>
 
           <div class="form-row">
             <div class="form-group flex-1">
               <label for="setWeekStart">Week Starts On</label>
               <select id="setWeekStart" class="input">
-                <option value="1" ${p.weekStartsOn===1?"selected":""}>Monday</option>
-                <option value="0" ${p.weekStartsOn===0?"selected":""}>Sunday</option>
+                <option value="1" ${c.weekStartsOn===1?"selected":""}>Monday</option>
+                <option value="0" ${c.weekStartsOn===0?"selected":""}>Sunday</option>
               </select>
             </div>
 
             <div class="form-group flex-1">
               <label for="setTimezone">Timezone</label>
-              <input type="text" id="setTimezone" class="input" value="${v(p.timezone||"Asia/Kolkata")}" readonly>
+              <input type="text" id="setTimezone" class="input" value="${v(c.timezone||"Asia/Kolkata")}" readonly>
             </div>
           </div>
 
@@ -1178,25 +1293,25 @@ import{c as ze,k as $,e as v,x as at,l as nt,p as qt,m as Jt,j as ve,y as ma,z a
             <div class="form-group flex-1">
               <label for="setDefaultPriority">Default Task Priority</label>
               <select id="setDefaultPriority" class="input">
-                <option value="Low" ${p.defaultPriority==="Low"?"selected":""}>Low</option>
-                <option value="Medium" ${p.defaultPriority==="Medium"?"selected":""}>Medium</option>
-                <option value="High" ${p.defaultPriority==="High"?"selected":""}>High</option>
-                <option value="Urgent" ${p.defaultPriority==="Urgent"?"selected":""}>Urgent</option>
+                <option value="Low" ${c.defaultPriority==="Low"?"selected":""}>Low</option>
+                <option value="Medium" ${c.defaultPriority==="Medium"?"selected":""}>Medium</option>
+                <option value="High" ${c.defaultPriority==="High"?"selected":""}>High</option>
+                <option value="Urgent" ${c.defaultPriority==="Urgent"?"selected":""}>Urgent</option>
               </select>
             </div>
 
             <div class="form-group flex-1">
               <label for="setDensity">Card Density</label>
               <select id="setDensity" class="input">
-                <option value="comfortable" ${p.density==="comfortable"?"selected":""}>Comfortable</option>
-                <option value="compact" ${p.density==="compact"?"selected":""}>Compact</option>
+                <option value="comfortable" ${c.density==="comfortable"?"selected":""}>Comfortable</option>
+                <option value="compact" ${c.density==="compact"?"selected":""}>Compact</option>
               </select>
             </div>
           </div>
 
           <div class="form-group" style="margin-top:8px">
             <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
-              <input type="checkbox" id="setSound" ${p.soundEnabled?"checked":""}>
+              <input type="checkbox" id="setSound" ${c.soundEnabled?"checked":""}>
               <span>Play subtle audio chime when completing a task</span>
             </label>
           </div>
@@ -1224,9 +1339,9 @@ import{c as ze,k as $,e as v,x as at,l as nt,p as qt,m as Jt,j as ve,y as ma,z a
           </div>
         </form>
       </div>
-    `,n=qt(l),r=()=>n.remove();n.querySelector("#btnSettingsClose").onclick=r,n.querySelector("#btnCancelSettings").onclick=r;const f=n.querySelector("#btnPlannerTestNotif");f&&(f.onclick=async()=>{if("Notification"in window&&Notification.permission!=="granted"&&!await requestNotificationPermission()){Notification.permission==="denied"?alert(`Notifications are blocked by your browser.
+    `,o=Lt(e),m=()=>o.remove();o.querySelector("#btnSettingsClose").onclick=m,o.querySelector("#btnCancelSettings").onclick=m;const y=o.querySelector("#btnPlannerTestNotif");y&&(y.onclick=async()=>{if("Notification"in window&&Notification.permission!=="granted"&&!await requestNotificationPermission()){Notification.permission==="denied"?alert(`Notifications are blocked by your browser.
 
-In Brave or Chrome, click the lock or shield icon on the left of the address bar, set Notifications to "Allow", and reload.`):$("Please grant notification permission in your browser.",!0);return}localStorage.setItem("ci360_notif_enabled","true");const y=n.querySelector("#setNotifEnabled");y&&(y.checked=!0);const z=n.querySelector("#plannerNotifStatusLabel");z&&(z.textContent="🟢 Active on this laptop"),await triggerSystemNotification({title:"CI360 Planner Alert 🔔",message:"Laptop & browser notifications are active and ready!",id:"ci360-planner-test-"+Date.now()}),$("Test notification sent to your laptop/browser! 🔔")}),n.querySelector("#settingsForm").onsubmit=y=>{y.preventDefault(),p.displayName=n.querySelector("#setDisplayName").value.trim()||"Daily Planner",p.weekStartsOn=Number(n.querySelector("#setWeekStart").value),p.defaultPriority=n.querySelector("#setDefaultPriority").value,p.density=n.querySelector("#setDensity").value,p.soundEnabled=n.querySelector("#setSound").checked;const z=n.querySelector("#setNotifEnabled")?.checked;localStorage.setItem("ci360_notif_enabled",z?"true":"false"),z&&"Notification"in window&&Notification.permission==="default"&&requestNotificationPermission(),Ta(p),$("Planner preferences saved! ⚙️"),r(),U()}}}function La(){if(document.getElementById("ci360-planner-styles"))return;const s=document.createElement("style");s.id="ci360-planner-styles",s.textContent=`
+In Brave or Chrome, click the lock or shield icon on the left of the address bar, set Notifications to "Allow", and reload.`):S("Please grant notification permission in your browser.",!0);return}localStorage.setItem("ci360_notif_enabled","true");const A=o.querySelector("#setNotifEnabled");A&&(A.checked=!0);const F=o.querySelector("#plannerNotifStatusLabel");F&&(F.textContent="🟢 Active on this laptop"),await triggerSystemNotification({title:"CI360 Planner Alert 🔔",message:"Laptop & browser notifications are active and ready!",id:"ci360-planner-test-"+Date.now()}),S("Test notification sent to your laptop/browser! 🔔")}),o.querySelector("#settingsForm").onsubmit=A=>{A.preventDefault(),c.displayName=o.querySelector("#setDisplayName").value.trim()||"Daily Planner",c.weekStartsOn=Number(o.querySelector("#setWeekStart").value),c.defaultPriority=o.querySelector("#setDefaultPriority").value,c.density=o.querySelector("#setDensity").value,c.soundEnabled=o.querySelector("#setSound").checked;const F=o.querySelector("#setNotifEnabled")?.checked;localStorage.setItem("ci360_notif_enabled",F?"true":"false"),F&&"Notification"in window&&Notification.permission==="default"&&requestNotificationPermission(),qa(c),S("Planner preferences saved! ⚙️"),m(),H()}}}function Ra(){if(document.getElementById("ci360-planner-styles"))return;const s=document.createElement("style");s.id="ci360-planner-styles",s.textContent=`
     /* CI360 Dayfolio Planner Module Styles */
     .ci360-planner-wrap,
     .ci360-planner-wrap * {
@@ -3342,14 +3457,129 @@ In Brave or Chrome, click the lock or shield icon on the left of the address bar
       color: #B45309;
       border-color: #FDE68A;
     }
-  `,document.head.appendChild(s)}function Ma(s){return s!==null?{comment:s,variations:[]}:{variations:[]}}function za(s,a,e,g,h){const b={move:s,variations:h};return a&&(b.suffix=a),e&&(b.nag=e),g!==null&&(b.comment=g),b}function qa(...s){const[a,...e]=s;let g=a;for(const h of e)h!==null&&(g.variations=[h,...h.variations],h.variations=[],g=h);return a}function Ba(s,a){if(a.marker&&a.marker.comment){let e=a.root;for(;;){const g=e.variations[0];if(!g){e.comment=a.marker.comment;break}e=g}}return{headers:s,root:a.root,result:(a.marker&&a.marker.result)??void 0}}function ja(s,a){function e(){this.constructor=s}e.prototype=a.prototype,s.prototype=new e}function Lt(s,a,e,g){var h=Error.call(this,s);return Object.setPrototypeOf&&Object.setPrototypeOf(h,Lt.prototype),h.expected=a,h.found=e,h.location=g,h.name="SyntaxError",h}ja(Lt,Error);function ia(s,a,e){return e=e||" ",s.length>a?s:(a-=s.length,e+=e.repeat(a),s+e.slice(0,a))}Lt.prototype.format=function(s){var a="Error: "+this.message;if(this.location){var e=null,g;for(g=0;g<s.length;g++)if(s[g].source===this.location.source){e=s[g].text.split(/\r\n|\n|\r/g);break}var h=this.location.start,b=this.location.source&&typeof this.location.source.offset=="function"?this.location.source.offset(h):h,p=this.location.source+":"+b.line+":"+b.column;if(e){var i=this.location.end,R=ia("",b.line.toString().length," "),J=e[h.line-1],T=h.line===i.line?i.column:J.length+1,q=T-h.column||1;a+=`
- --> `+p+`
-`+R+` |
-`+b.line+" | "+J+`
-`+R+" | "+ia("",h.column-1," ")+ia("",q,"^")}else a+=`
- at `+p}return a};Lt.buildMessage=function(s,a){var e={literal:function(J){return'"'+h(J.text)+'"'},class:function(J){var T=J.parts.map(function(q){return Array.isArray(q)?b(q[0])+"-"+b(q[1]):b(q)});return"["+(J.inverted?"^":"")+T.join("")+"]"},any:function(){return"any character"},end:function(){return"end of input"},other:function(J){return J.description}};function g(J){return J.charCodeAt(0).toString(16).toUpperCase()}function h(J){return J.replace(/\\/g,"\\\\").replace(/"/g,'\\"').replace(/\0/g,"\\0").replace(/\t/g,"\\t").replace(/\n/g,"\\n").replace(/\r/g,"\\r").replace(/[\x00-\x0F]/g,function(T){return"\\x0"+g(T)}).replace(/[\x10-\x1F\x7F-\x9F]/g,function(T){return"\\x"+g(T)})}function b(J){return J.replace(/\\/g,"\\\\").replace(/\]/g,"\\]").replace(/\^/g,"\\^").replace(/-/g,"\\-").replace(/\0/g,"\\0").replace(/\t/g,"\\t").replace(/\n/g,"\\n").replace(/\r/g,"\\r").replace(/[\x00-\x0F]/g,function(T){return"\\x0"+g(T)}).replace(/[\x10-\x1F\x7F-\x9F]/g,function(T){return"\\x"+g(T)})}function p(J){return e[J.type](J)}function i(J){var T=J.map(p),q,W;if(T.sort(),T.length>0){for(q=1,W=1;q<T.length;q++)T[q-1]!==T[q]&&(T[W]=T[q],W++);T.length=W}switch(T.length){case 1:return T[0];case 2:return T[0]+" or "+T[1];default:return T.slice(0,-1).join(", ")+", or "+T[T.length-1]}}function R(J){return J?'"'+h(J)+'"':"end of input"}return"Expected "+i(s)+" but "+R(a)+" found."};function Ra(s,a){a=a!==void 0?a:{};var e={},g=a.grammarSource,h={pgn:Ae},b=Ae,p="[",i='"',R="]",J=".",T="O-O-O",q="O-O",W="0-0-0",U="0-0",me="$",$e="{",Qe="}",ot=";",mt="(",Ft=")",lt="1-0",Le="0-1",dt="1/2-1/2",wt="*",Be=/^[a-zA-Z]/,vt=/^[^"]/,je=/^[0-9]/,Re=/^[.]/,de=/^[a-zA-Z1-8\-=]/,ct=/^[+#]/,we=/^[!?]/,ft=/^[^}]/,pt=/^[^\r\n]/,l=/^[ \t\r\n]/,n=Ce("tag pair"),r=be("[",!1),f=be('"',!1),y=be("]",!1),z=Ce("tag name"),N=Fe([["a","z"],["A","Z"]],!1,!1),S=Ce("tag value"),P=Fe(['"'],!0,!1),H=Ce("move number"),F=Fe([["0","9"]],!1,!1),j=be(".",!1),x=Fe(["."],!1,!1),E=Ce("standard algebraic notation"),X=be("O-O-O",!1),I=be("O-O",!1),L=be("0-0-0",!1),c=be("0-0",!1),o=Fe([["a","z"],["A","Z"],["1","8"],"-","="],!1,!1),t=Fe(["+","#"],!1,!1),k=Ce("suffix annotation"),A=Fe(["!","?"],!1,!1),M=Ce("NAG"),D=be("$",!1),Y=Ce("brace comment"),ee=be("{",!1),O=Fe(["}"],!0,!1),_=be("}",!1),Q=Ce("rest of line comment"),oe=be(";",!1),ae=Fe(["\r",`
-`],!0,!1),pe=Ce("variation"),ge=be("(",!1),le=be(")",!1),xe=Ce("game termination marker"),We=be("1-0",!1),Z=be("0-1",!1),De=be("1/2-1/2",!1),Ne=be("*",!1),ue=Ce("whitespace"),Se=Fe([" ","	","\r",`
-`],!1,!1),ye=function(w,d){return Ba(w,d)},Oe=function(w){return Object.fromEntries(w)},Ue=function(w,d){return[w,d]},ce=function(w,d){return{root:w,marker:d}},Me=function(w,d){return qa(Ma(w),...d.flat())},qe=function(w,d,m,K,te){return za(w,d,m,K,te)},Ee=function(w){return w},Ie=function(w){return w.replace(/[\r\n]+/g," ")},Pe=function(w){return w.trim()},C=function(w){return w},B=function(w,d){return{result:w,comment:d}},u=a.peg$currPos|0,ie=[{line:1,column:1}],ne=u,Te=a.peg$maxFailExpected||[],G=a.peg$silentFails|0,he;if(a.startRule){if(!(a.startRule in h))throw new Error(`Can't start parsing from rule "`+a.startRule+'".');b=h[a.startRule]}function be(w,d){return{type:"literal",text:w,ignoreCase:d}}function Fe(w,d,m){return{type:"class",parts:w,inverted:d,ignoreCase:m}}function gt(){return{type:"end"}}function Ce(w){return{type:"other",description:w}}function _e(w){var d=ie[w],m;if(d)return d;if(w>=ie.length)m=ie.length-1;else for(m=w;!ie[--m];);for(d=ie[m],d={line:d.line,column:d.column};m<w;)s.charCodeAt(m)===10?(d.line++,d.column=1):d.column++,m++;return ie[w]=d,d}function ke(w,d,m){var K=_e(w),te=_e(d),fe={source:g,start:{offset:w,line:K.line,column:K.column},end:{offset:d,line:te.line,column:te.column}};return fe}function V(w){u<ne||(u>ne&&(ne=u,Te=[]),Te.push(w))}function He(w,d,m){return new Lt(Lt.buildMessage(w,d),w,d,m)}function Ae(){var w,d,m;return w=u,d=Xe(),m=ea(),w=ye(d,m),w}function Xe(){var w,d,m;for(w=u,d=[],m=ht();m!==e;)d.push(m),m=ht();return m=et(),w=Oe(d),w}function ht(){var w,d,m,K,te,fe,rt;return G++,w=u,et(),s.charCodeAt(u)===91?(d=p,u++):(d=e,G===0&&V(r)),d!==e?(et(),m=Ut(),m!==e?(et(),s.charCodeAt(u)===34?(K=i,u++):(K=e,G===0&&V(f)),K!==e?(te=Ht(),s.charCodeAt(u)===34?(fe=i,u++):(fe=e,G===0&&V(f)),fe!==e?(et(),s.charCodeAt(u)===93?(rt=R,u++):(rt=e,G===0&&V(y)),rt!==e?w=Ue(m,te):(u=w,w=e)):(u=w,w=e)):(u=w,w=e)):(u=w,w=e)):(u=w,w=e),G--,w===e&&G===0&&V(n),w}function Ut(){var w,d,m;if(G++,w=u,d=[],m=s.charAt(u),Be.test(m)?u++:(m=e,G===0&&V(N)),m!==e)for(;m!==e;)d.push(m),m=s.charAt(u),Be.test(m)?u++:(m=e,G===0&&V(N));else d=e;return d!==e?w=s.substring(w,u):w=d,G--,w===e&&(d=e,G===0&&V(z)),w}function Ht(){var w,d,m;for(G++,w=u,d=[],m=s.charAt(u),vt.test(m)?u++:(m=e,G===0&&V(P));m!==e;)d.push(m),m=s.charAt(u),vt.test(m)?u++:(m=e,G===0&&V(P));return w=s.substring(w,u),G--,d=e,G===0&&V(S),w}function ea(){var w,d,m;return w=u,d=It(),et(),m=Pt(),m===e&&(m=null),et(),w=ce(d,m),w}function It(){var w,d,m,K;for(w=u,d=yt(),d===e&&(d=null),m=[],K=Mt();K!==e;)m.push(K),K=Mt();return w=Me(d,m),w}function Mt(){var w,d,m,K,te,fe,rt,bt;if(w=u,et(),Gt(),et(),d=ta(),d!==e){for(m=aa(),m===e&&(m=null),K=[],te=zt();te!==e;)K.push(te),te=zt();for(te=et(),fe=yt(),fe===e&&(fe=null),rt=[],bt=kt();bt!==e;)rt.push(bt),bt=kt();w=qe(d,m,K,fe,rt)}else u=w,w=e;return w}function Gt(){var w,d,m,K,te,fe;for(G++,w=u,d=[],m=s.charAt(u),je.test(m)?u++:(m=e,G===0&&V(F));m!==e;)d.push(m),m=s.charAt(u),je.test(m)?u++:(m=e,G===0&&V(F));if(s.charCodeAt(u)===46?(m=J,u++):(m=e,G===0&&V(j)),m!==e){for(K=et(),te=[],fe=s.charAt(u),Re.test(fe)?u++:(fe=e,G===0&&V(x));fe!==e;)te.push(fe),fe=s.charAt(u),Re.test(fe)?u++:(fe=e,G===0&&V(x));d=[d,m,K,te],w=d}else u=w,w=e;return G--,w===e&&(d=e,G===0&&V(H)),w}function ta(){var w,d,m,K,te,fe;if(G++,w=u,d=u,s.substr(u,5)===T?(m=T,u+=5):(m=e,G===0&&V(X)),m===e&&(s.substr(u,3)===q?(m=q,u+=3):(m=e,G===0&&V(I)),m===e&&(s.substr(u,5)===W?(m=W,u+=5):(m=e,G===0&&V(L)),m===e&&(s.substr(u,3)===U?(m=U,u+=3):(m=e,G===0&&V(c)),m===e))))if(m=u,K=s.charAt(u),Be.test(K)?u++:(K=e,G===0&&V(N)),K!==e){if(te=[],fe=s.charAt(u),de.test(fe)?u++:(fe=e,G===0&&V(o)),fe!==e)for(;fe!==e;)te.push(fe),fe=s.charAt(u),de.test(fe)?u++:(fe=e,G===0&&V(o));else te=e;te!==e?(K=[K,te],m=K):(u=m,m=e)}else u=m,m=e;return m!==e?(K=s.charAt(u),ct.test(K)?u++:(K=e,G===0&&V(t)),K===e&&(K=null),m=[m,K],d=m):(u=d,d=e),d!==e?w=s.substring(w,u):w=d,G--,w===e&&(d=e,G===0&&V(E)),w}function aa(){var w,d,m;for(G++,w=u,d=[],m=s.charAt(u),we.test(m)?u++:(m=e,G===0&&V(A));m!==e;)d.push(m),d.length>=2?m=e:(m=s.charAt(u),we.test(m)?u++:(m=e,G===0&&V(A)));return d.length<1?(u=w,w=e):w=d,G--,w===e&&(d=e,G===0&&V(k)),w}function zt(){var w,d,m,K,te;if(G++,w=u,et(),s.charCodeAt(u)===36?(d=me,u++):(d=e,G===0&&V(D)),d!==e){if(m=u,K=[],te=s.charAt(u),je.test(te)?u++:(te=e,G===0&&V(F)),te!==e)for(;te!==e;)K.push(te),te=s.charAt(u),je.test(te)?u++:(te=e,G===0&&V(F));else K=e;K!==e?m=s.substring(m,u):m=K,m!==e?w=Ee(m):(u=w,w=e)}else u=w,w=e;return G--,w===e&&G===0&&V(M),w}function yt(){var w;return w=na(),w===e&&(w=ut()),w}function na(){var w,d,m,K,te;if(G++,w=u,s.charCodeAt(u)===123?(d=$e,u++):(d=e,G===0&&V(ee)),d!==e){for(m=u,K=[],te=s.charAt(u),ft.test(te)?u++:(te=e,G===0&&V(O));te!==e;)K.push(te),te=s.charAt(u),ft.test(te)?u++:(te=e,G===0&&V(O));m=s.substring(m,u),s.charCodeAt(u)===125?(K=Qe,u++):(K=e,G===0&&V(_)),K!==e?w=Ie(m):(u=w,w=e)}else u=w,w=e;return G--,w===e&&(d=e,G===0&&V(Y)),w}function ut(){var w,d,m,K,te;if(G++,w=u,s.charCodeAt(u)===59?(d=ot,u++):(d=e,G===0&&V(oe)),d!==e){for(m=u,K=[],te=s.charAt(u),pt.test(te)?u++:(te=e,G===0&&V(ae));te!==e;)K.push(te),te=s.charAt(u),pt.test(te)?u++:(te=e,G===0&&V(ae));m=s.substring(m,u),w=Pe(m)}else u=w,w=e;return G--,w===e&&(d=e,G===0&&V(Q)),w}function kt(){var w,d,m,K;return G++,w=u,et(),s.charCodeAt(u)===40?(d=mt,u++):(d=e,G===0&&V(ge)),d!==e?(m=It(),m!==e?(et(),s.charCodeAt(u)===41?(K=Ft,u++):(K=e,G===0&&V(le)),K!==e?w=C(m):(u=w,w=e)):(u=w,w=e)):(u=w,w=e),G--,w===e&&G===0&&V(pe),w}function Pt(){var w,d,m;return G++,w=u,s.substr(u,3)===lt?(d=lt,u+=3):(d=e,G===0&&V(We)),d===e&&(s.substr(u,3)===Le?(d=Le,u+=3):(d=e,G===0&&V(Z)),d===e&&(s.substr(u,7)===dt?(d=dt,u+=7):(d=e,G===0&&V(De)),d===e&&(s.charCodeAt(u)===42?(d=wt,u++):(d=e,G===0&&V(Ne))))),d!==e?(et(),m=yt(),m===e&&(m=null),w=B(d,m)):(u=w,w=e),G--,w===e&&(d=e,G===0&&V(xe)),w}function et(){var w,d;for(G++,w=[],d=s.charAt(u),l.test(d)?u++:(d=e,G===0&&V(Se));d!==e;)w.push(d),d=s.charAt(u),l.test(d)?u++:(d=e,G===0&&V(Se));return G--,d=e,G===0&&V(ue),w}if(he=b(),a.peg$library)return{peg$result:he,peg$currPos:u,peg$FAILED:e,peg$maxFailExpected:Te,peg$maxFailPos:ne};if(he!==e&&u===s.length)return he;throw he!==e&&u<s.length&&V(gt()),He(Te,ne<s.length?s.charAt(ne):null,ne<s.length?ke(ne,ne+1):ke(ne,ne))}/**
+
+    /* Task Thumbnails Strip */
+    .ci360-task-thumb-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+      align-items: center;
+    }
+    .ci360-att-thumb-box {
+      width: 44px;
+      height: 44px;
+      border-radius: 6px;
+      overflow: hidden;
+      border: 1px solid var(--border-sm);
+      background: var(--bg-hover);
+      cursor: pointer;
+      transition: transform 0.15s ease, border-color 0.15s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .ci360-att-thumb-box:hover {
+      transform: scale(1.06);
+      border-color: var(--accent);
+    }
+    .ci360-att-thumb-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .att-more-count {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-3);
+      padding: 4px 6px;
+    }
+
+    /* Recent Tasks Modal & Activity Rows */
+    .recent-tasks-modal {
+      max-width: 860px !important;
+      width: 95vw;
+    }
+    .recent-modal-header-tabs {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .recent-tab-btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border-sm);
+      color: var(--text-2);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+    .recent-tab-btn:hover {
+      background: var(--bg-hover);
+      color: var(--text-1);
+    }
+    .recent-tab-btn.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+    .recent-task-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 14px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-sm);
+      border-radius: var(--r-md);
+      margin-bottom: 8px;
+      gap: 12px;
+      transition: all 0.15s ease;
+    }
+    .recent-task-row:hover {
+      border-color: var(--accent);
+      transform: translateY(-1px);
+    }
+    .task-paste-notice {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      background: rgba(0, 112, 243, 0.08);
+      border: 1px dashed rgba(0, 112, 243, 0.3);
+      border-radius: 6px;
+      font-size: 11.5px;
+      color: var(--text-2);
+      margin-top: 8px;
+    }
+    [data-theme="light"] .recent-task-row,
+    html:not([data-theme="dark"]) .recent-task-row {
+      background: #FFFFFF;
+      border-color: #E2E8F0;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    [data-theme="light"] .recent-tab-btn,
+    html:not([data-theme="dark"]) .recent-tab-btn {
+      background: #F8FAFC;
+      border-color: #E2E8F0;
+      color: #475569;
+    }
+    [data-theme="light"] .recent-tab-btn.active,
+    html:not([data-theme="dark"]) .recent-tab-btn.active {
+      background: #2563EB;
+      color: #FFFFFF;
+      border-color: #2563EB;
+    }
+  `,document.head.appendChild(s)}function Na(s){return s!==null?{comment:s,variations:[]}:{variations:[]}}function Oa(s,n,a,g,k){const f={move:s,variations:k};return n&&(f.suffix=n),a&&(f.nag=a),g!==null&&(f.comment=g),f}function Ua(...s){const[n,...a]=s;let g=n;for(const k of a)k!==null&&(g.variations=[k,...k.variations],k.variations=[],g=k);return n}function Ha(s,n){if(n.marker&&n.marker.comment){let a=n.root;for(;;){const g=a.variations[0];if(!g){a.comment=n.marker.comment;break}a=g}}return{headers:s,root:n.root,result:(n.marker&&n.marker.result)??void 0}}function Ga(s,n){function a(){this.constructor=s}a.prototype=n.prototype,s.prototype=new a}function zt(s,n,a,g){var k=Error.call(this,s);return Object.setPrototypeOf&&Object.setPrototypeOf(k,zt.prototype),k.expected=n,k.found=a,k.location=g,k.name="SyntaxError",k}Ga(zt,Error);function oa(s,n,a){return a=a||" ",s.length>n?s:(n-=s.length,a+=a.repeat(n),s+a.slice(0,n))}zt.prototype.format=function(s){var n="Error: "+this.message;if(this.location){var a=null,g;for(g=0;g<s.length;g++)if(s[g].source===this.location.source){a=s[g].text.split(/\r\n|\n|\r/g);break}var k=this.location.start,f=this.location.source&&typeof this.location.source.offset=="function"?this.location.source.offset(k):k,c=this.location.source+":"+f.line+":"+f.column;if(a){var r=this.location.end,N=oa("",f.line.toString().length," "),Q=a[k.line-1],E=k.line===r.line?r.column:Q.length+1,B=E-k.column||1;n+=`
+ --> `+c+`
+`+N+` |
+`+f.line+" | "+Q+`
+`+N+" | "+oa("",k.column-1," ")+oa("",B,"^")}else n+=`
+ at `+c}return n};zt.buildMessage=function(s,n){var a={literal:function(Q){return'"'+k(Q.text)+'"'},class:function(Q){var E=Q.parts.map(function(B){return Array.isArray(B)?f(B[0])+"-"+f(B[1]):f(B)});return"["+(Q.inverted?"^":"")+E.join("")+"]"},any:function(){return"any character"},end:function(){return"end of input"},other:function(Q){return Q.description}};function g(Q){return Q.charCodeAt(0).toString(16).toUpperCase()}function k(Q){return Q.replace(/\\/g,"\\\\").replace(/"/g,'\\"').replace(/\0/g,"\\0").replace(/\t/g,"\\t").replace(/\n/g,"\\n").replace(/\r/g,"\\r").replace(/[\x00-\x0F]/g,function(E){return"\\x0"+g(E)}).replace(/[\x10-\x1F\x7F-\x9F]/g,function(E){return"\\x"+g(E)})}function f(Q){return Q.replace(/\\/g,"\\\\").replace(/\]/g,"\\]").replace(/\^/g,"\\^").replace(/-/g,"\\-").replace(/\0/g,"\\0").replace(/\t/g,"\\t").replace(/\n/g,"\\n").replace(/\r/g,"\\r").replace(/[\x00-\x0F]/g,function(E){return"\\x0"+g(E)}).replace(/[\x10-\x1F\x7F-\x9F]/g,function(E){return"\\x"+g(E)})}function c(Q){return a[Q.type](Q)}function r(Q){var E=Q.map(c),B,W;if(E.sort(),E.length>0){for(B=1,W=1;B<E.length;B++)E[B-1]!==E[B]&&(E[W]=E[B],W++);E.length=W}switch(E.length){case 1:return E[0];case 2:return E[0]+" or "+E[1];default:return E.slice(0,-1).join(", ")+", or "+E[E.length-1]}}function N(Q){return Q?'"'+k(Q)+'"':"end of input"}return"Expected "+r(s)+" but "+N(n)+" found."};function Wa(s,n){n=n!==void 0?n:{};var a={},g=n.grammarSource,k={pgn:Ae},f=Ae,c="[",r='"',N="]",Q=".",E="O-O-O",B="O-O",W="0-0-0",H="0-0",be="$",$e="{",Je="}",nt=";",bt="(",Ft=")",lt="1-0",Me="0-1",dt="1/2-1/2",kt="*",qe=/^[a-zA-Z]/,wt=/^[^"]/,Re=/^[0-9]/,Ve=/^[.]/,de=/^[a-zA-Z1-8\-=]/,st=/^[+#]/,ve=/^[!?]/,mt=/^[^}]/,ct=/^[^\r\n]/,ft=/^[ \t\r\n]/,e=Se("tag pair"),o=ue("[",!1),m=ue('"',!1),y=ue("]",!1),A=Se("tag name"),F=Te([["a","z"],["A","Z"]],!1,!1),j=Se("tag value"),C=Te(['"'],!0,!1),L=Se("move number"),z=Te([["0","9"]],!1,!1),p=ue(".",!1),q=Te(["."],!1,!1),h=Se("standard algebraic notation"),T=ue("O-O-O",!1),U=ue("O-O",!1),_=ue("0-0-0",!1),d=ue("0-0",!1),i=Te([["a","z"],["A","Z"],["1","8"],"-","="],!1,!1),t=Te(["+","#"],!1,!1),b=Se("suffix annotation"),D=Te(["!","?"],!1,!1),M=Se("NAG"),$=ue("$",!1),K=Se("brace comment"),Z=ue("{",!1),O=Te(["}"],!0,!1),P=ue("}",!1),J=Se("rest of line comment"),ie=ue(";",!1),X=Te(["\r",`
+`],!0,!1),ae=Se("variation"),ce=ue("(",!1),se=ue(")",!1),he=Se("game termination marker"),Be=ue("1-0",!1),ee=ue("0-1",!1),Fe=ue("1/2-1/2",!1),De=ue("*",!1),ge=Se("whitespace"),ye=Te([" ","	","\r",`
+`],!1,!1),ke=function(w,l){return Ha(w,l)},Oe=function(w){return Object.fromEntries(w)},Ue=function(w,l){return[w,l]},pe=function(w,l){return{root:w,marker:l}},je=function(w,l){return Ua(Na(w),...l.flat())},Ne=function(w,l,x,V,te){return Oa(w,l,x,V,te)},_e=function(w){return w},Ce=function(w){return w.replace(/[\r\n]+/g," ")},Pe=function(w){return w.trim()},I=function(w){return w},R=function(w,l){return{result:w,comment:l}},u=n.peg$currPos|0,oe=[{line:1,column:1}],ne=u,Ee=n.peg$maxFailExpected||[],G=n.peg$silentFails|0,fe;if(n.startRule){if(!(n.startRule in k))throw new Error(`Can't start parsing from rule "`+n.startRule+'".');f=k[n.startRule]}function ue(w,l){return{type:"literal",text:w,ignoreCase:l}}function Te(w,l,x){return{type:"class",parts:w,inverted:l,ignoreCase:x}}function pt(){return{type:"end"}}function Se(w){return{type:"other",description:w}}function Ie(w){var l=oe[w],x;if(l)return l;if(w>=oe.length)x=oe.length-1;else for(x=w;!oe[--x];);for(l=oe[x],l={line:l.line,column:l.column};x<w;)s.charCodeAt(x)===10?(l.line++,l.column=1):l.column++,x++;return oe[w]=l,l}function we(w,l,x){var V=Ie(w),te=Ie(l),me={source:g,start:{offset:w,line:V.line,column:V.column},end:{offset:l,line:te.line,column:te.column}};return me}function Y(w){u<ne||(u>ne&&(ne=u,Ee=[]),Ee.push(w))}function He(w,l,x){return new zt(zt.buildMessage(w,l),w,l,x)}function Ae(){var w,l,x;return w=u,l=Qe(),x=ea(),w=ke(l,x),w}function Qe(){var w,l,x;for(w=u,l=[],x=ht();x!==a;)l.push(x),x=ht();return x=Ze(),w=Oe(l),w}function ht(){var w,l,x,V,te,me,ot;return G++,w=u,Ze(),s.charCodeAt(u)===91?(l=c,u++):(l=a,G===0&&Y(o)),l!==a?(Ze(),x=Ut(),x!==a?(Ze(),s.charCodeAt(u)===34?(V=r,u++):(V=a,G===0&&Y(m)),V!==a?(te=Ht(),s.charCodeAt(u)===34?(me=r,u++):(me=a,G===0&&Y(m)),me!==a?(Ze(),s.charCodeAt(u)===93?(ot=N,u++):(ot=a,G===0&&Y(y)),ot!==a?w=Ue(x,te):(u=w,w=a)):(u=w,w=a)):(u=w,w=a)):(u=w,w=a)):(u=w,w=a),G--,w===a&&G===0&&Y(e),w}function Ut(){var w,l,x;if(G++,w=u,l=[],x=s.charAt(u),qe.test(x)?u++:(x=a,G===0&&Y(F)),x!==a)for(;x!==a;)l.push(x),x=s.charAt(u),qe.test(x)?u++:(x=a,G===0&&Y(F));else l=a;return l!==a?w=s.substring(w,u):w=l,G--,w===a&&(l=a,G===0&&Y(A)),w}function Ht(){var w,l,x;for(G++,w=u,l=[],x=s.charAt(u),wt.test(x)?u++:(x=a,G===0&&Y(C));x!==a;)l.push(x),x=s.charAt(u),wt.test(x)?u++:(x=a,G===0&&Y(C));return w=s.substring(w,u),G--,l=a,G===0&&Y(j),w}function ea(){var w,l,x;return w=u,l=It(),Ze(),x=Pt(),x===a&&(x=null),Ze(),w=pe(l,x),w}function It(){var w,l,x,V;for(w=u,l=vt(),l===a&&(l=null),x=[],V=Mt();V!==a;)x.push(V),V=Mt();return w=je(l,x),w}function Mt(){var w,l,x,V,te,me,ot,ut;if(w=u,Ze(),Gt(),Ze(),l=ta(),l!==a){for(x=aa(),x===a&&(x=null),V=[],te=qt();te!==a;)V.push(te),te=qt();for(te=Ze(),me=vt(),me===a&&(me=null),ot=[],ut=yt();ut!==a;)ot.push(ut),ut=yt();w=Ne(l,x,V,me,ot)}else u=w,w=a;return w}function Gt(){var w,l,x,V,te,me;for(G++,w=u,l=[],x=s.charAt(u),Re.test(x)?u++:(x=a,G===0&&Y(z));x!==a;)l.push(x),x=s.charAt(u),Re.test(x)?u++:(x=a,G===0&&Y(z));if(s.charCodeAt(u)===46?(x=Q,u++):(x=a,G===0&&Y(p)),x!==a){for(V=Ze(),te=[],me=s.charAt(u),Ve.test(me)?u++:(me=a,G===0&&Y(q));me!==a;)te.push(me),me=s.charAt(u),Ve.test(me)?u++:(me=a,G===0&&Y(q));l=[l,x,V,te],w=l}else u=w,w=a;return G--,w===a&&(l=a,G===0&&Y(L)),w}function ta(){var w,l,x,V,te,me;if(G++,w=u,l=u,s.substr(u,5)===E?(x=E,u+=5):(x=a,G===0&&Y(T)),x===a&&(s.substr(u,3)===B?(x=B,u+=3):(x=a,G===0&&Y(U)),x===a&&(s.substr(u,5)===W?(x=W,u+=5):(x=a,G===0&&Y(_)),x===a&&(s.substr(u,3)===H?(x=H,u+=3):(x=a,G===0&&Y(d)),x===a))))if(x=u,V=s.charAt(u),qe.test(V)?u++:(V=a,G===0&&Y(F)),V!==a){if(te=[],me=s.charAt(u),de.test(me)?u++:(me=a,G===0&&Y(i)),me!==a)for(;me!==a;)te.push(me),me=s.charAt(u),de.test(me)?u++:(me=a,G===0&&Y(i));else te=a;te!==a?(V=[V,te],x=V):(u=x,x=a)}else u=x,x=a;return x!==a?(V=s.charAt(u),st.test(V)?u++:(V=a,G===0&&Y(t)),V===a&&(V=null),x=[x,V],l=x):(u=l,l=a),l!==a?w=s.substring(w,u):w=l,G--,w===a&&(l=a,G===0&&Y(h)),w}function aa(){var w,l,x;for(G++,w=u,l=[],x=s.charAt(u),ve.test(x)?u++:(x=a,G===0&&Y(D));x!==a;)l.push(x),l.length>=2?x=a:(x=s.charAt(u),ve.test(x)?u++:(x=a,G===0&&Y(D)));return l.length<1?(u=w,w=a):w=l,G--,w===a&&(l=a,G===0&&Y(b)),w}function qt(){var w,l,x,V,te;if(G++,w=u,Ze(),s.charCodeAt(u)===36?(l=be,u++):(l=a,G===0&&Y($)),l!==a){if(x=u,V=[],te=s.charAt(u),Re.test(te)?u++:(te=a,G===0&&Y(z)),te!==a)for(;te!==a;)V.push(te),te=s.charAt(u),Re.test(te)?u++:(te=a,G===0&&Y(z));else V=a;V!==a?x=s.substring(x,u):x=V,x!==a?w=_e(x):(u=w,w=a)}else u=w,w=a;return G--,w===a&&G===0&&Y(M),w}function vt(){var w;return w=na(),w===a&&(w=gt()),w}function na(){var w,l,x,V,te;if(G++,w=u,s.charCodeAt(u)===123?(l=$e,u++):(l=a,G===0&&Y(Z)),l!==a){for(x=u,V=[],te=s.charAt(u),mt.test(te)?u++:(te=a,G===0&&Y(O));te!==a;)V.push(te),te=s.charAt(u),mt.test(te)?u++:(te=a,G===0&&Y(O));x=s.substring(x,u),s.charCodeAt(u)===125?(V=Je,u++):(V=a,G===0&&Y(P)),V!==a?w=Ce(x):(u=w,w=a)}else u=w,w=a;return G--,w===a&&(l=a,G===0&&Y(K)),w}function gt(){var w,l,x,V,te;if(G++,w=u,s.charCodeAt(u)===59?(l=nt,u++):(l=a,G===0&&Y(ie)),l!==a){for(x=u,V=[],te=s.charAt(u),ct.test(te)?u++:(te=a,G===0&&Y(X));te!==a;)V.push(te),te=s.charAt(u),ct.test(te)?u++:(te=a,G===0&&Y(X));x=s.substring(x,u),w=Pe(x)}else u=w,w=a;return G--,w===a&&(l=a,G===0&&Y(J)),w}function yt(){var w,l,x,V;return G++,w=u,Ze(),s.charCodeAt(u)===40?(l=bt,u++):(l=a,G===0&&Y(ce)),l!==a?(x=It(),x!==a?(Ze(),s.charCodeAt(u)===41?(V=Ft,u++):(V=a,G===0&&Y(se)),V!==a?w=I(x):(u=w,w=a)):(u=w,w=a)):(u=w,w=a),G--,w===a&&G===0&&Y(ae),w}function Pt(){var w,l,x;return G++,w=u,s.substr(u,3)===lt?(l=lt,u+=3):(l=a,G===0&&Y(Be)),l===a&&(s.substr(u,3)===Me?(l=Me,u+=3):(l=a,G===0&&Y(ee)),l===a&&(s.substr(u,7)===dt?(l=dt,u+=7):(l=a,G===0&&Y(Fe)),l===a&&(s.charCodeAt(u)===42?(l=kt,u++):(l=a,G===0&&Y(De))))),l!==a?(Ze(),x=vt(),x===a&&(x=null),w=R(l,x)):(u=w,w=a),G--,w===a&&(l=a,G===0&&Y(he)),w}function Ze(){var w,l;for(G++,w=[],l=s.charAt(u),ft.test(l)?u++:(l=a,G===0&&Y(ye));l!==a;)w.push(l),l=s.charAt(u),ft.test(l)?u++:(l=a,G===0&&Y(ye));return G--,l=a,G===0&&Y(ge),w}if(fe=f(),n.peg$library)return{peg$result:fe,peg$currPos:u,peg$FAILED:a,peg$maxFailExpected:Ee,peg$maxFailPos:ne};if(fe!==a&&u===s.length)return fe;throw fe!==a&&u<s.length&&Y(pt()),He(Ee,ne<s.length?s.charAt(ne):null,ne<s.length?we(ne,ne+1):we(ne,ne))}/**
  * @license
  * Copyright (c) 2025, Jeff Hlywa (jhlywa@gmail.com)
  * All rights reserved.
@@ -3374,14 +3604,14 @@ In Brave or Chrome, click the lock or shield icon on the left of the address bar
  * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
- */const Qt=0xffffffffffffffffn;function ra(s,a){return(s<<a|s>>64n-a)&0xffffffffffffffffn}function xa(s,a){return s*a&Qt}function Na(s){return function(){let a=BigInt(s&Qt),e=BigInt(s>>64n&Qt);const g=xa(ra(xa(a,5n),7n),9n);return e^=a,a=(ra(a,24n)^e^e<<16n)&Qt,e=ra(e,37n),s=e<<64n|a,g}}const Zt=Na(0xa187eb39cdcaed8f31c4b365b102e01en),Oa=Array.from({length:2},()=>Array.from({length:6},()=>Array.from({length:128},()=>Zt()))),Ua=Array.from({length:8},()=>Zt()),Ha=Array.from({length:16},()=>Zt()),sa=Zt(),tt="w",st="b",Ve="p",ua="n",Xt="b",Nt="r",Ct="q",Ye="k",la="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";class Vt{color;from;to;piece;captured;promotion;flags;san;lan;before;after;constructor(a,e){const{color:g,piece:h,from:b,to:p,flags:i,captured:R,promotion:J}=e,T=Je(b),q=Je(p);this.color=g,this.piece=h,this.from=T,this.to=q,this.san=a._moveToSan(e,a._moves({legal:!0})),this.lan=T+q,this.before=a.fen(),a._makeMove(e),this.after=a.fen(),a._undoMove(),this.flags="";for(const W in se)se[W]&i&&(this.flags+=At[W]);R&&(this.captured=R),J&&(this.promotion=J,this.lan+=J)}isCapture(){return this.flags.indexOf(At.CAPTURE)>-1}isPromotion(){return this.flags.indexOf(At.PROMOTION)>-1}isEnPassant(){return this.flags.indexOf(At.EP_CAPTURE)>-1}isKingsideCastle(){return this.flags.indexOf(At.KSIDE_CASTLE)>-1}isQueensideCastle(){return this.flags.indexOf(At.QSIDE_CASTLE)>-1}isBigPawn(){return this.flags.indexOf(At.BIG_PAWN)>-1}}const Ze=-1,At={NORMAL:"n",CAPTURE:"c",BIG_PAWN:"b",EP_CAPTURE:"e",PROMOTION:"p",KSIDE_CASTLE:"k",QSIDE_CASTLE:"q",NULL_MOVE:"-"},se={NORMAL:1,CAPTURE:2,BIG_PAWN:4,EP_CAPTURE:8,PROMOTION:16,KSIDE_CASTLE:32,QSIDE_CASTLE:64,NULL_MOVE:128},ba={Event:"?",Site:"?",Date:"????.??.??",Round:"?",White:"?",Black:"?",Result:"*"},Ga={WhiteTitle:null,BlackTitle:null,WhiteElo:null,BlackElo:null,WhiteUSCF:null,BlackUSCF:null,WhiteNA:null,BlackNA:null,WhiteType:null,BlackType:null,EventDate:null,EventSponsor:null,Section:null,Stage:null,Board:null,Opening:null,Variation:null,SubVariation:null,ECO:null,NIC:null,Time:null,UTCTime:null,UTCDate:null,TimeControl:null,SetUp:null,FEN:null,Termination:null,Annotator:null,Mode:null,PlyCount:null},Wa={...ba,...Ga},re={a8:0,b8:1,c8:2,d8:3,e8:4,f8:5,g8:6,h8:7,a7:16,b7:17,c7:18,d7:19,e7:20,f7:21,g7:22,h7:23,a6:32,b6:33,c6:34,d6:35,e6:36,f6:37,g6:38,h6:39,a5:48,b5:49,c5:50,d5:51,e5:52,f5:53,g5:54,h5:55,a4:64,b4:65,c4:66,d4:67,e4:68,f4:69,g4:70,h4:71,a3:80,b3:81,c3:82,d3:83,e3:84,f3:85,g3:86,h3:87,a2:96,b2:97,c2:98,d2:99,e2:100,f2:101,g2:102,h2:103,a1:112,b1:113,c1:114,d1:115,e1:116,f1:117,g1:118,h1:119},da={b:[16,32,17,15],w:[-16,-32,-17,-15]},va={n:[-18,-33,-31,-14,18,33,31,14],b:[-17,-15,17,15],r:[-16,1,16,-1],q:[-17,-16,-15,1,17,16,15,-1],k:[-17,-16,-15,1,17,16,15,-1]},Ka=[20,0,0,0,0,0,0,24,0,0,0,0,0,0,20,0,0,20,0,0,0,0,0,24,0,0,0,0,0,20,0,0,0,0,20,0,0,0,0,24,0,0,0,0,20,0,0,0,0,0,0,20,0,0,0,24,0,0,0,20,0,0,0,0,0,0,0,0,20,0,0,24,0,0,20,0,0,0,0,0,0,0,0,0,0,20,2,24,2,20,0,0,0,0,0,0,0,0,0,0,0,2,53,56,53,2,0,0,0,0,0,0,24,24,24,24,24,24,56,0,56,24,24,24,24,24,24,0,0,0,0,0,0,2,53,56,53,2,0,0,0,0,0,0,0,0,0,0,0,20,2,24,2,20,0,0,0,0,0,0,0,0,0,0,20,0,0,24,0,0,20,0,0,0,0,0,0,0,0,20,0,0,0,24,0,0,0,20,0,0,0,0,0,0,20,0,0,0,0,24,0,0,0,0,20,0,0,0,0,20,0,0,0,0,0,24,0,0,0,0,0,20,0,0,20,0,0,0,0,0,0,24,0,0,0,0,0,0,20],Va=[17,0,0,0,0,0,0,16,0,0,0,0,0,0,15,0,0,17,0,0,0,0,0,16,0,0,0,0,0,15,0,0,0,0,17,0,0,0,0,16,0,0,0,0,15,0,0,0,0,0,0,17,0,0,0,16,0,0,0,15,0,0,0,0,0,0,0,0,17,0,0,16,0,0,15,0,0,0,0,0,0,0,0,0,0,17,0,16,0,15,0,0,0,0,0,0,0,0,0,0,0,0,17,16,15,0,0,0,0,0,0,0,1,1,1,1,1,1,1,0,-1,-1,-1,-1,-1,-1,-1,0,0,0,0,0,0,0,-15,-16,-17,0,0,0,0,0,0,0,0,0,0,0,0,-15,0,-16,0,-17,0,0,0,0,0,0,0,0,0,0,-15,0,0,-16,0,0,-17,0,0,0,0,0,0,0,0,-15,0,0,0,-16,0,0,0,-17,0,0,0,0,0,0,-15,0,0,0,0,-16,0,0,0,0,-17,0,0,0,0,-15,0,0,0,0,0,-16,0,0,0,0,0,-17,0,0,-15,0,0,0,0,0,0,-16,0,0,0,0,0,0,-17],Ya={p:1,n:2,b:4,r:8,q:16,k:32},Ja="pnbrqkPNBRQK",ya=[ua,Xt,Nt,Ct],Qa=7,Xa=6,Za=1,en=0,Yt={[Ye]:se.KSIDE_CASTLE,[Ct]:se.QSIDE_CASTLE},$t={w:[{square:re.a1,flag:se.QSIDE_CASTLE},{square:re.h1,flag:se.KSIDE_CASTLE}],b:[{square:re.a8,flag:se.QSIDE_CASTLE},{square:re.h8,flag:se.KSIDE_CASTLE}]},tn={b:Za,w:Xa},ca="--";function Tt(s){return s>>4}function Ot(s){return s&15}function Sa(s){return"0123456789".indexOf(s)!==-1}function Je(s){const a=Ot(s),e=Tt(s);return"abcdefgh".substring(a,a+1)+"87654321".substring(e,e+1)}function jt(s){return s===tt?st:tt}function an(s){const a=s.split(/\s+/);if(a.length!==6)return{ok:!1,error:"Invalid FEN: must contain six space-delimited fields"};const e=parseInt(a[5],10);if(isNaN(e)||e<=0)return{ok:!1,error:"Invalid FEN: move number must be a positive integer"};const g=parseInt(a[4],10);if(isNaN(g)||g<0)return{ok:!1,error:"Invalid FEN: half move counter number must be a non-negative integer"};if(!/^(-|[abcdefgh][36])$/.test(a[3]))return{ok:!1,error:"Invalid FEN: en-passant square is invalid"};if(/[^kKqQ-]/.test(a[2]))return{ok:!1,error:"Invalid FEN: castling availability is invalid"};if(!/^(w|b)$/.test(a[1]))return{ok:!1,error:"Invalid FEN: side-to-move is invalid"};const h=a[0].split("/");if(h.length!==8)return{ok:!1,error:"Invalid FEN: piece data does not contain 8 '/'-delimited rows"};for(let p=0;p<h.length;p++){let i=0,R=!1;for(let J=0;J<h[p].length;J++)if(Sa(h[p][J])){if(R)return{ok:!1,error:"Invalid FEN: piece data is invalid (consecutive number)"};i+=parseInt(h[p][J],10),R=!0}else{if(!/^[prnbqkPRNBQK]$/.test(h[p][J]))return{ok:!1,error:"Invalid FEN: piece data is invalid (invalid piece)"};i+=1,R=!1}if(i!==8)return{ok:!1,error:"Invalid FEN: piece data is invalid (too many squares in rank)"}}if(a[3][1]=="3"&&a[1]=="w"||a[3][1]=="6"&&a[1]=="b")return{ok:!1,error:"Invalid FEN: illegal en-passant square"};const b=[{color:"white",regex:/K/g},{color:"black",regex:/k/g}];for(const{color:p,regex:i}of b){if(!i.test(a[0]))return{ok:!1,error:`Invalid FEN: missing ${p} king`};if((a[0].match(i)||[]).length>1)return{ok:!1,error:`Invalid FEN: too many ${p} kings`}}return Array.from(h[0]+h[7]).some(p=>p.toUpperCase()==="P")?{ok:!1,error:"Invalid FEN: some pawns are on the edge rows"}:{ok:!0}}function nn(s,a){const e=s.from,g=s.to,h=s.piece;let b=0,p=0,i=0;for(let R=0,J=a.length;R<J;R++){const T=a[R].from,q=a[R].to,W=a[R].piece;h===W&&e!==T&&g===q&&(b++,Tt(e)===Tt(T)&&p++,Ot(e)===Ot(T)&&i++)}return b>0?p>0&&i>0?Je(e):i>0?Je(e).charAt(1):Je(e).charAt(0):""}function St(s,a,e,g,h,b=void 0,p=se.NORMAL){const i=Tt(g);if(h===Ve&&(i===Qa||i===en))for(let R=0;R<ya.length;R++){const J=ya[R];s.push({color:a,from:e,to:g,piece:h,captured:b,promotion:J,flags:p|se.PROMOTION})}else s.push({color:a,from:e,to:g,piece:h,captured:b,flags:p})}function ka(s){let a=s.charAt(0);return a>="a"&&a<="h"?s.match(/[a-h]\d.*[a-h]\d/)?void 0:Ve:(a=a.toLowerCase(),a==="o"?Ye:a)}function pa(s){return s.replace(/=/,"").replace(/[+#]?[?!]*$/,"")}class wa{_board=new Array(128);_turn=tt;_header={};_kings={w:Ze,b:Ze};_epSquare=-1;_halfMoves=0;_moveNumber=0;_history=[];_comments={};_castling={w:0,b:0};_hash=0n;_positionCount=new Map;constructor(a=la,{skipValidation:e=!1}={}){this.load(a,{skipValidation:e})}clear({preserveHeaders:a=!1}={}){this._board=new Array(128),this._kings={w:Ze,b:Ze},this._turn=tt,this._castling={w:0,b:0},this._epSquare=Ze,this._halfMoves=0,this._moveNumber=1,this._history=[],this._comments={},this._header=a?this._header:{...Wa},this._hash=this._computeHash(),this._positionCount=new Map,this._header.SetUp=null,this._header.FEN=null}load(a,{skipValidation:e=!1,preserveHeaders:g=!1}={}){let h=a.split(/\s+/);if(h.length>=2&&h.length<6){const i=["-","-","0","1"];a=h.concat(i.slice(-(6-h.length))).join(" ")}if(h=a.split(/\s+/),!e){const{ok:i,error:R}=an(a);if(!i)throw new Error(R)}const b=h[0];let p=0;this.clear({preserveHeaders:g});for(let i=0;i<b.length;i++){const R=b.charAt(i);if(R==="/")p+=8;else if(Sa(R))p+=parseInt(R,10);else{const J=R<"a"?tt:st;this._put({type:R.toLowerCase(),color:J},Je(p)),p++}}this._turn=h[1],h[2].indexOf("K")>-1&&(this._castling.w|=se.KSIDE_CASTLE),h[2].indexOf("Q")>-1&&(this._castling.w|=se.QSIDE_CASTLE),h[2].indexOf("k")>-1&&(this._castling.b|=se.KSIDE_CASTLE),h[2].indexOf("q")>-1&&(this._castling.b|=se.QSIDE_CASTLE),this._epSquare=h[3]==="-"?Ze:re[h[3]],this._halfMoves=parseInt(h[4],10),this._moveNumber=parseInt(h[5],10),this._hash=this._computeHash(),this._updateSetup(a),this._incPositionCount()}fen({forceEnpassantSquare:a=!1}={}){let e=0,g="";for(let p=re.a8;p<=re.h1;p++){if(this._board[p]){e>0&&(g+=e,e=0);const{color:i,type:R}=this._board[p];g+=i===tt?R.toUpperCase():R.toLowerCase()}else e++;p+1&136&&(e>0&&(g+=e),p!==re.h1&&(g+="/"),e=0,p+=8)}let h="";this._castling[tt]&se.KSIDE_CASTLE&&(h+="K"),this._castling[tt]&se.QSIDE_CASTLE&&(h+="Q"),this._castling[st]&se.KSIDE_CASTLE&&(h+="k"),this._castling[st]&se.QSIDE_CASTLE&&(h+="q"),h=h||"-";let b="-";if(this._epSquare!==Ze)if(a)b=Je(this._epSquare);else{const p=this._epSquare+(this._turn===tt?16:-16),i=[p+1,p-1];for(const R of i){if(R&136)continue;const J=this._turn;if(this._board[R]?.color===J&&this._board[R]?.type===Ve){this._makeMove({color:J,from:R,to:this._epSquare,piece:Ve,captured:Ve,flags:se.EP_CAPTURE});const T=!this._isKingAttacked(J);if(this._undoMove(),T){b=Je(this._epSquare);break}}}}return[g,this._turn,h,b,this._halfMoves,this._moveNumber].join(" ")}_pieceKey(a){if(!this._board[a])return 0n;const{color:e,type:g}=this._board[a],h={w:0,b:1}[e],b={p:0,n:1,b:2,r:3,q:4,k:5}[g];return Oa[h][b][a]}_epKey(){return this._epSquare===Ze?0n:Ua[this._epSquare&7]}_castlingKey(){const a=this._castling.w>>5|this._castling.b>>3;return Ha[a]}_computeHash(){let a=0n;for(let e=re.a8;e<=re.h1;e++){if(e&136){e+=7;continue}this._board[e]&&(a^=this._pieceKey(e))}return a^=this._epKey(),a^=this._castlingKey(),this._turn==="b"&&(a^=sa),a}_updateSetup(a){this._history.length>0||(a!==la?(this._header.SetUp="1",this._header.FEN=a):(this._header.SetUp=null,this._header.FEN=null))}reset(){this.load(la)}get(a){return this._board[re[a]]}findPiece(a){const e=[];for(let g=re.a8;g<=re.h1;g++){if(g&136){g+=7;continue}!this._board[g]||this._board[g]?.color!==a.color||this._board[g].color===a.color&&this._board[g].type===a.type&&e.push(Je(g))}return e}put({type:a,color:e},g){return this._put({type:a,color:e},g)?(this._updateCastlingRights(),this._updateEnPassantSquare(),this._updateSetup(this.fen()),!0):!1}_set(a,e){this._hash^=this._pieceKey(a),this._board[a]=e,this._hash^=this._pieceKey(a)}_put({type:a,color:e},g){if(Ja.indexOf(a.toLowerCase())===-1||!(g in re))return!1;const h=re[g];if(a==Ye&&!(this._kings[e]==Ze||this._kings[e]==h))return!1;const b=this._board[h];return b&&b.type===Ye&&(this._kings[b.color]=Ze),this._set(h,{type:a,color:e}),a===Ye&&(this._kings[e]=h),!0}_clear(a){this._hash^=this._pieceKey(a),delete this._board[a]}remove(a){const e=this.get(a);return this._clear(re[a]),e&&e.type===Ye&&(this._kings[e.color]=Ze),this._updateCastlingRights(),this._updateEnPassantSquare(),this._updateSetup(this.fen()),e}_updateCastlingRights(){this._hash^=this._castlingKey();const a=this._board[re.e1]?.type===Ye&&this._board[re.e1]?.color===tt,e=this._board[re.e8]?.type===Ye&&this._board[re.e8]?.color===st;(!a||this._board[re.a1]?.type!==Nt||this._board[re.a1]?.color!==tt)&&(this._castling.w&=-65),(!a||this._board[re.h1]?.type!==Nt||this._board[re.h1]?.color!==tt)&&(this._castling.w&=-33),(!e||this._board[re.a8]?.type!==Nt||this._board[re.a8]?.color!==st)&&(this._castling.b&=-65),(!e||this._board[re.h8]?.type!==Nt||this._board[re.h8]?.color!==st)&&(this._castling.b&=-33),this._hash^=this._castlingKey()}_updateEnPassantSquare(){if(this._epSquare===Ze)return;const a=this._epSquare+(this._turn===tt?-16:16),e=this._epSquare+(this._turn===tt?16:-16),g=[e+1,e-1];if(this._board[a]!==null||this._board[this._epSquare]!==null||this._board[e]?.color!==jt(this._turn)||this._board[e]?.type!==Ve){this._hash^=this._epKey(),this._epSquare=Ze;return}const h=b=>!(b&136)&&this._board[b]?.color===this._turn&&this._board[b]?.type===Ve;g.some(h)||(this._hash^=this._epKey(),this._epSquare=Ze)}_attacked(a,e,g){const h=[];for(let b=re.a8;b<=re.h1;b++){if(b&136){b+=7;continue}if(this._board[b]===void 0||this._board[b].color!==a)continue;const p=this._board[b],i=b-e;if(i===0)continue;const R=i+119;if(Ka[R]&Ya[p.type]){if(p.type===Ve){if(i>0&&p.color===tt||i<=0&&p.color===st)if(g)h.push(Je(b));else return!0;continue}if(p.type==="n"||p.type==="k")if(g){h.push(Je(b));continue}else return!0;const J=Va[R];let T=b+J,q=!1;for(;T!==e;){if(this._board[T]!=null){q=!0;break}T+=J}if(!q)if(g){h.push(Je(b));continue}else return!0}}return g?h:!1}attackers(a,e){return e?this._attacked(e,re[a],!0):this._attacked(this._turn,re[a],!0)}_isKingAttacked(a){const e=this._kings[a];return e===-1?!1:this._attacked(jt(a),e)}hash(){return this._hash.toString(16)}isAttacked(a,e){return this._attacked(e,re[a])}isCheck(){return this._isKingAttacked(this._turn)}inCheck(){return this.isCheck()}isCheckmate(){return this.isCheck()&&this._moves().length===0}isStalemate(){return!this.isCheck()&&this._moves().length===0}isInsufficientMaterial(){const a={b:0,n:0,r:0,q:0,k:0,p:0},e=[];let g=0,h=0;for(let b=re.a8;b<=re.h1;b++){if(h=(h+1)%2,b&136){b+=7;continue}const p=this._board[b];p&&(a[p.type]=p.type in a?a[p.type]+1:1,p.type===Xt&&e.push(h),g++)}if(g===2)return!0;if(g===3&&(a[Xt]===1||a[ua]===1))return!0;if(g===a[Xt]+2){let b=0;const p=e.length;for(let i=0;i<p;i++)b+=e[i];if(b===0||b===p)return!0}return!1}isThreefoldRepetition(){return this._getPositionCount(this._hash)>=3}isDrawByFiftyMoves(){return this._halfMoves>=100}isDraw(){return this.isDrawByFiftyMoves()||this.isStalemate()||this.isInsufficientMaterial()||this.isThreefoldRepetition()}isGameOver(){return this.isCheckmate()||this.isDraw()}moves({verbose:a=!1,square:e=void 0,piece:g=void 0}={}){const h=this._moves({square:e,piece:g});return a?h.map(b=>new Vt(this,b)):h.map(b=>this._moveToSan(b,h))}_moves({legal:a=!0,piece:e=void 0,square:g=void 0}={}){const h=g?g.toLowerCase():void 0,b=e?.toLowerCase(),p=[],i=this._turn,R=jt(i);let J=re.a8,T=re.h1,q=!1;if(h)if(h in re)J=T=re[h],q=!0;else return[];for(let U=J;U<=T;U++){if(U&136){U+=7;continue}if(!this._board[U]||this._board[U].color===R)continue;const{type:me}=this._board[U];let $e;if(me===Ve){if(b&&b!==me)continue;$e=U+da[i][0],this._board[$e]||(St(p,i,U,$e,Ve),$e=U+da[i][1],tn[i]===Tt(U)&&!this._board[$e]&&St(p,i,U,$e,Ve,void 0,se.BIG_PAWN));for(let Qe=2;Qe<4;Qe++)$e=U+da[i][Qe],!($e&136)&&(this._board[$e]?.color===R?St(p,i,U,$e,Ve,this._board[$e].type,se.CAPTURE):$e===this._epSquare&&St(p,i,U,$e,Ve,Ve,se.EP_CAPTURE))}else{if(b&&b!==me)continue;for(let Qe=0,ot=va[me].length;Qe<ot;Qe++){const mt=va[me][Qe];for($e=U;$e+=mt,!($e&136);){if(!this._board[$e])St(p,i,U,$e,me);else{if(this._board[$e].color===i)break;St(p,i,U,$e,me,this._board[$e].type,se.CAPTURE);break}if(me===ua||me===Ye)break}}}}if((b===void 0||b===Ye)&&(!q||T===this._kings[i])){if(this._castling[i]&se.KSIDE_CASTLE){const U=this._kings[i],me=U+2;!this._board[U+1]&&!this._board[me]&&!this._attacked(R,this._kings[i])&&!this._attacked(R,U+1)&&!this._attacked(R,me)&&St(p,i,this._kings[i],me,Ye,void 0,se.KSIDE_CASTLE)}if(this._castling[i]&se.QSIDE_CASTLE){const U=this._kings[i],me=U-2;!this._board[U-1]&&!this._board[U-2]&&!this._board[U-3]&&!this._attacked(R,this._kings[i])&&!this._attacked(R,U-1)&&!this._attacked(R,me)&&St(p,i,this._kings[i],me,Ye,void 0,se.QSIDE_CASTLE)}}if(!a||this._kings[i]===-1)return p;const W=[];for(let U=0,me=p.length;U<me;U++)this._makeMove(p[U]),this._isKingAttacked(i)||W.push(p[U]),this._undoMove();return W}move(a,{strict:e=!1}={}){let g=null;if(typeof a=="string")g=this._moveFromSan(a,e);else if(a===null)g=this._moveFromSan(ca,e);else if(typeof a=="object"){const b=this._moves();for(let p=0,i=b.length;p<i;p++)if(a.from===Je(b[p].from)&&a.to===Je(b[p].to)&&(!("promotion"in b[p])||a.promotion===b[p].promotion)){g=b[p];break}}if(!g)throw typeof a=="string"?new Error(`Invalid move: ${a}`):new Error(`Invalid move: ${JSON.stringify(a)}`);if(this.isCheck()&&g.flags&se.NULL_MOVE)throw new Error("Null move not allowed when in check");const h=new Vt(this,g);return this._makeMove(g),this._incPositionCount(),h}_push(a){this._history.push({move:a,kings:{b:this._kings.b,w:this._kings.w},turn:this._turn,castling:{b:this._castling.b,w:this._castling.w},epSquare:this._epSquare,halfMoves:this._halfMoves,moveNumber:this._moveNumber})}_movePiece(a,e){this._hash^=this._pieceKey(a),this._board[e]=this._board[a],delete this._board[a],this._hash^=this._pieceKey(e)}_makeMove(a){const e=this._turn,g=jt(e);if(this._push(a),a.flags&se.NULL_MOVE){e===st&&this._moveNumber++,this._halfMoves++,this._turn=g,this._epSquare=Ze;return}if(this._hash^=this._epKey(),this._hash^=this._castlingKey(),a.captured&&(this._hash^=this._pieceKey(a.to)),this._movePiece(a.from,a.to),a.flags&se.EP_CAPTURE&&(this._turn===st?this._clear(a.to-16):this._clear(a.to+16)),a.promotion&&(this._clear(a.to),this._set(a.to,{type:a.promotion,color:e})),this._board[a.to].type===Ye){if(this._kings[e]=a.to,a.flags&se.KSIDE_CASTLE){const h=a.to-1,b=a.to+1;this._movePiece(b,h)}else if(a.flags&se.QSIDE_CASTLE){const h=a.to+1,b=a.to-2;this._movePiece(b,h)}this._castling[e]=0}if(this._castling[e]){for(let h=0,b=$t[e].length;h<b;h++)if(a.from===$t[e][h].square&&this._castling[e]&$t[e][h].flag){this._castling[e]^=$t[e][h].flag;break}}if(this._castling[g]){for(let h=0,b=$t[g].length;h<b;h++)if(a.to===$t[g][h].square&&this._castling[g]&$t[g][h].flag){this._castling[g]^=$t[g][h].flag;break}}if(this._hash^=this._castlingKey(),a.flags&se.BIG_PAWN){let h;e===st?h=a.to-16:h=a.to+16,!(a.to-1&136)&&this._board[a.to-1]?.type===Ve&&this._board[a.to-1]?.color===g||!(a.to+1&136)&&this._board[a.to+1]?.type===Ve&&this._board[a.to+1]?.color===g?(this._epSquare=h,this._hash^=this._epKey()):this._epSquare=Ze}else this._epSquare=Ze;a.piece===Ve?this._halfMoves=0:a.flags&(se.CAPTURE|se.EP_CAPTURE)?this._halfMoves=0:this._halfMoves++,e===st&&this._moveNumber++,this._turn=g,this._hash^=sa}undo(){const a=this._hash,e=this._undoMove();if(e){const g=new Vt(this,e);return this._decPositionCount(a),g}return null}_undoMove(){const a=this._history.pop();if(a===void 0)return null;this._hash^=this._epKey(),this._hash^=this._castlingKey();const e=a.move;this._kings=a.kings,this._turn=a.turn,this._castling=a.castling,this._epSquare=a.epSquare,this._halfMoves=a.halfMoves,this._moveNumber=a.moveNumber,this._hash^=this._epKey(),this._hash^=this._castlingKey(),this._hash^=sa;const g=this._turn,h=jt(g);if(e.flags&se.NULL_MOVE)return e;if(this._movePiece(e.to,e.from),e.piece&&(this._clear(e.from),this._set(e.from,{type:e.piece,color:g})),e.captured)if(e.flags&se.EP_CAPTURE){let b;g===st?b=e.to-16:b=e.to+16,this._set(b,{type:Ve,color:h})}else this._set(e.to,{type:e.captured,color:h});if(e.flags&(se.KSIDE_CASTLE|se.QSIDE_CASTLE)){let b,p;e.flags&se.KSIDE_CASTLE?(b=e.to+1,p=e.to-1):(b=e.to-2,p=e.to+1),this._movePiece(p,b)}return e}pgn({newline:a=`
-`,maxWidth:e=0}={}){const g=[];let h=!1;for(const W in this._header)this._header[W]&&g.push(`[${W} "${this._header[W]}"]`+a),h=!0;h&&this._history.length&&g.push(a);const b=W=>{const U=this._comments[this.fen()];if(typeof U<"u"){const me=W.length>0?" ":"";W=`${W}${me}{${U}}`}return W},p=[];for(;this._history.length>0;)p.push(this._undoMove());const i=[];let R="";for(p.length===0&&i.push(b(""));p.length>0;){R=b(R);const W=p.pop();if(!W)break;if(!this._history.length&&W.color==="b"){const U=`${this._moveNumber}. ...`;R=R?`${R} ${U}`:U}else W.color==="w"&&(R.length&&i.push(R),R=this._moveNumber+".");R=R+" "+this._moveToSan(W,this._moves({legal:!0})),this._makeMove(W)}if(R.length&&i.push(b(R)),i.push(this._header.Result||"*"),e===0)return g.join("")+i.join(" ");const J=function(){return g.length>0&&g[g.length-1]===" "?(g.pop(),!0):!1},T=function(W,U){for(const me of U.split(" "))if(me){if(W+me.length>e){for(;J();)W--;g.push(a),W=0}g.push(me),W+=me.length,g.push(" "),W++}return J()&&W--,W};let q=0;for(let W=0;W<i.length;W++){if(q+i[W].length>e&&i[W].includes("{")){q=T(q,i[W]);continue}q+i[W].length>e&&W!==0?(g[g.length-1]===" "&&g.pop(),g.push(a),q=0):W!==0&&(g.push(" "),q++),g.push(i[W]),q+=i[W].length}return g.join("")}header(...a){for(let e=0;e<a.length;e+=2)typeof a[e]=="string"&&typeof a[e+1]=="string"&&(this._header[a[e]]=a[e+1]);return this._header}setHeader(a,e){return this._header[a]=e??ba[a]??null,this.getHeaders()}removeHeader(a){return a in this._header?(this._header[a]=ba[a]||null,!0):!1}getHeaders(){const a={};for(const[e,g]of Object.entries(this._header))g!==null&&(a[e]=g);return a}loadPgn(a,{strict:e=!1,newlineChar:g=`\r?
+ */const Qt=0xffffffffffffffffn;function ra(s,n){return(s<<n|s>>64n-n)&0xffffffffffffffffn}function va(s,n){return s*n&Qt}function Ka(s){return function(){let n=BigInt(s&Qt),a=BigInt(s>>64n&Qt);const g=va(ra(va(n,5n),7n),9n);return a^=n,n=(ra(n,24n)^a^a<<16n)&Qt,a=ra(a,37n),s=a<<64n|n,g}}const Zt=Ka(0xa187eb39cdcaed8f31c4b365b102e01en),Va=Array.from({length:2},()=>Array.from({length:6},()=>Array.from({length:128},()=>Zt()))),Ya=Array.from({length:8},()=>Zt()),Ja=Array.from({length:16},()=>Zt()),sa=Zt(),et="w",rt="b",We="p",ua="n",Xt="b",Nt="r",Ct="q",Ke="k",la="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";class Vt{color;from;to;piece;captured;promotion;flags;san;lan;before;after;constructor(n,a){const{color:g,piece:k,from:f,to:c,flags:r,captured:N,promotion:Q}=a,E=Ye(f),B=Ye(c);this.color=g,this.piece=k,this.from=E,this.to=B,this.san=n._moveToSan(a,n._moves({legal:!0})),this.lan=E+B,this.before=n.fen(),n._makeMove(a),this.after=n.fen(),n._undoMove(),this.flags="";for(const W in le)le[W]&r&&(this.flags+=_t[W]);N&&(this.captured=N),Q&&(this.promotion=Q,this.lan+=Q)}isCapture(){return this.flags.indexOf(_t.CAPTURE)>-1}isPromotion(){return this.flags.indexOf(_t.PROMOTION)>-1}isEnPassant(){return this.flags.indexOf(_t.EP_CAPTURE)>-1}isKingsideCastle(){return this.flags.indexOf(_t.KSIDE_CASTLE)>-1}isQueensideCastle(){return this.flags.indexOf(_t.QSIDE_CASTLE)>-1}isBigPawn(){return this.flags.indexOf(_t.BIG_PAWN)>-1}}const Xe=-1,_t={NORMAL:"n",CAPTURE:"c",BIG_PAWN:"b",EP_CAPTURE:"e",PROMOTION:"p",KSIDE_CASTLE:"k",QSIDE_CASTLE:"q",NULL_MOVE:"-"},le={NORMAL:1,CAPTURE:2,BIG_PAWN:4,EP_CAPTURE:8,PROMOTION:16,KSIDE_CASTLE:32,QSIDE_CASTLE:64,NULL_MOVE:128},ba={Event:"?",Site:"?",Date:"????.??.??",Round:"?",White:"?",Black:"?",Result:"*"},Qa={WhiteTitle:null,BlackTitle:null,WhiteElo:null,BlackElo:null,WhiteUSCF:null,BlackUSCF:null,WhiteNA:null,BlackNA:null,WhiteType:null,BlackType:null,EventDate:null,EventSponsor:null,Section:null,Stage:null,Board:null,Opening:null,Variation:null,SubVariation:null,ECO:null,NIC:null,Time:null,UTCTime:null,UTCDate:null,TimeControl:null,SetUp:null,FEN:null,Termination:null,Annotator:null,Mode:null,PlyCount:null},Xa={...ba,...Qa},re={a8:0,b8:1,c8:2,d8:3,e8:4,f8:5,g8:6,h8:7,a7:16,b7:17,c7:18,d7:19,e7:20,f7:21,g7:22,h7:23,a6:32,b6:33,c6:34,d6:35,e6:36,f6:37,g6:38,h6:39,a5:48,b5:49,c5:50,d5:51,e5:52,f5:53,g5:54,h5:55,a4:64,b4:65,c4:66,d4:67,e4:68,f4:69,g4:70,h4:71,a3:80,b3:81,c3:82,d3:83,e3:84,f3:85,g3:86,h3:87,a2:96,b2:97,c2:98,d2:99,e2:100,f2:101,g2:102,h2:103,a1:112,b1:113,c1:114,d1:115,e1:116,f1:117,g1:118,h1:119},da={b:[16,32,17,15],w:[-16,-32,-17,-15]},ya={n:[-18,-33,-31,-14,18,33,31,14],b:[-17,-15,17,15],r:[-16,1,16,-1],q:[-17,-16,-15,1,17,16,15,-1],k:[-17,-16,-15,1,17,16,15,-1]},Za=[20,0,0,0,0,0,0,24,0,0,0,0,0,0,20,0,0,20,0,0,0,0,0,24,0,0,0,0,0,20,0,0,0,0,20,0,0,0,0,24,0,0,0,0,20,0,0,0,0,0,0,20,0,0,0,24,0,0,0,20,0,0,0,0,0,0,0,0,20,0,0,24,0,0,20,0,0,0,0,0,0,0,0,0,0,20,2,24,2,20,0,0,0,0,0,0,0,0,0,0,0,2,53,56,53,2,0,0,0,0,0,0,24,24,24,24,24,24,56,0,56,24,24,24,24,24,24,0,0,0,0,0,0,2,53,56,53,2,0,0,0,0,0,0,0,0,0,0,0,20,2,24,2,20,0,0,0,0,0,0,0,0,0,0,20,0,0,24,0,0,20,0,0,0,0,0,0,0,0,20,0,0,0,24,0,0,0,20,0,0,0,0,0,0,20,0,0,0,0,24,0,0,0,0,20,0,0,0,0,20,0,0,0,0,0,24,0,0,0,0,0,20,0,0,20,0,0,0,0,0,0,24,0,0,0,0,0,0,20],en=[17,0,0,0,0,0,0,16,0,0,0,0,0,0,15,0,0,17,0,0,0,0,0,16,0,0,0,0,0,15,0,0,0,0,17,0,0,0,0,16,0,0,0,0,15,0,0,0,0,0,0,17,0,0,0,16,0,0,0,15,0,0,0,0,0,0,0,0,17,0,0,16,0,0,15,0,0,0,0,0,0,0,0,0,0,17,0,16,0,15,0,0,0,0,0,0,0,0,0,0,0,0,17,16,15,0,0,0,0,0,0,0,1,1,1,1,1,1,1,0,-1,-1,-1,-1,-1,-1,-1,0,0,0,0,0,0,0,-15,-16,-17,0,0,0,0,0,0,0,0,0,0,0,0,-15,0,-16,0,-17,0,0,0,0,0,0,0,0,0,0,-15,0,0,-16,0,0,-17,0,0,0,0,0,0,0,0,-15,0,0,0,-16,0,0,0,-17,0,0,0,0,0,0,-15,0,0,0,0,-16,0,0,0,0,-17,0,0,0,0,-15,0,0,0,0,0,-16,0,0,0,0,0,-17,0,0,-15,0,0,0,0,0,0,-16,0,0,0,0,0,0,-17],tn={p:1,n:2,b:4,r:8,q:16,k:32},an="pnbrqkPNBRQK",ka=[ua,Xt,Nt,Ct],nn=7,on=6,rn=1,sn=0,Yt={[Ke]:le.KSIDE_CASTLE,[Ct]:le.QSIDE_CASTLE},$t={w:[{square:re.a1,flag:le.QSIDE_CASTLE},{square:re.h1,flag:le.KSIDE_CASTLE}],b:[{square:re.a8,flag:le.QSIDE_CASTLE},{square:re.h8,flag:le.KSIDE_CASTLE}]},ln={b:rn,w:on},ca="--";function Tt(s){return s>>4}function Ot(s){return s&15}function Ca(s){return"0123456789".indexOf(s)!==-1}function Ye(s){const n=Ot(s),a=Tt(s);return"abcdefgh".substring(n,n+1)+"87654321".substring(a,a+1)}function jt(s){return s===et?rt:et}function dn(s){const n=s.split(/\s+/);if(n.length!==6)return{ok:!1,error:"Invalid FEN: must contain six space-delimited fields"};const a=parseInt(n[5],10);if(isNaN(a)||a<=0)return{ok:!1,error:"Invalid FEN: move number must be a positive integer"};const g=parseInt(n[4],10);if(isNaN(g)||g<0)return{ok:!1,error:"Invalid FEN: half move counter number must be a non-negative integer"};if(!/^(-|[abcdefgh][36])$/.test(n[3]))return{ok:!1,error:"Invalid FEN: en-passant square is invalid"};if(/[^kKqQ-]/.test(n[2]))return{ok:!1,error:"Invalid FEN: castling availability is invalid"};if(!/^(w|b)$/.test(n[1]))return{ok:!1,error:"Invalid FEN: side-to-move is invalid"};const k=n[0].split("/");if(k.length!==8)return{ok:!1,error:"Invalid FEN: piece data does not contain 8 '/'-delimited rows"};for(let c=0;c<k.length;c++){let r=0,N=!1;for(let Q=0;Q<k[c].length;Q++)if(Ca(k[c][Q])){if(N)return{ok:!1,error:"Invalid FEN: piece data is invalid (consecutive number)"};r+=parseInt(k[c][Q],10),N=!0}else{if(!/^[prnbqkPRNBQK]$/.test(k[c][Q]))return{ok:!1,error:"Invalid FEN: piece data is invalid (invalid piece)"};r+=1,N=!1}if(r!==8)return{ok:!1,error:"Invalid FEN: piece data is invalid (too many squares in rank)"}}if(n[3][1]=="3"&&n[1]=="w"||n[3][1]=="6"&&n[1]=="b")return{ok:!1,error:"Invalid FEN: illegal en-passant square"};const f=[{color:"white",regex:/K/g},{color:"black",regex:/k/g}];for(const{color:c,regex:r}of f){if(!r.test(n[0]))return{ok:!1,error:`Invalid FEN: missing ${c} king`};if((n[0].match(r)||[]).length>1)return{ok:!1,error:`Invalid FEN: too many ${c} kings`}}return Array.from(k[0]+k[7]).some(c=>c.toUpperCase()==="P")?{ok:!1,error:"Invalid FEN: some pawns are on the edge rows"}:{ok:!0}}function cn(s,n){const a=s.from,g=s.to,k=s.piece;let f=0,c=0,r=0;for(let N=0,Q=n.length;N<Q;N++){const E=n[N].from,B=n[N].to,W=n[N].piece;k===W&&a!==E&&g===B&&(f++,Tt(a)===Tt(E)&&c++,Ot(a)===Ot(E)&&r++)}return f>0?c>0&&r>0?Ye(a):r>0?Ye(a).charAt(1):Ye(a).charAt(0):""}function St(s,n,a,g,k,f=void 0,c=le.NORMAL){const r=Tt(g);if(k===We&&(r===nn||r===sn))for(let N=0;N<ka.length;N++){const Q=ka[N];s.push({color:n,from:a,to:g,piece:k,captured:f,promotion:Q,flags:c|le.PROMOTION})}else s.push({color:n,from:a,to:g,piece:k,captured:f,flags:c})}function wa(s){let n=s.charAt(0);return n>="a"&&n<="h"?s.match(/[a-h]\d.*[a-h]\d/)?void 0:We:(n=n.toLowerCase(),n==="o"?Ke:n)}function pa(s){return s.replace(/=/,"").replace(/[+#]?[?!]*$/,"")}class $a{_board=new Array(128);_turn=et;_header={};_kings={w:Xe,b:Xe};_epSquare=-1;_halfMoves=0;_moveNumber=0;_history=[];_comments={};_castling={w:0,b:0};_hash=0n;_positionCount=new Map;constructor(n=la,{skipValidation:a=!1}={}){this.load(n,{skipValidation:a})}clear({preserveHeaders:n=!1}={}){this._board=new Array(128),this._kings={w:Xe,b:Xe},this._turn=et,this._castling={w:0,b:0},this._epSquare=Xe,this._halfMoves=0,this._moveNumber=1,this._history=[],this._comments={},this._header=n?this._header:{...Xa},this._hash=this._computeHash(),this._positionCount=new Map,this._header.SetUp=null,this._header.FEN=null}load(n,{skipValidation:a=!1,preserveHeaders:g=!1}={}){let k=n.split(/\s+/);if(k.length>=2&&k.length<6){const r=["-","-","0","1"];n=k.concat(r.slice(-(6-k.length))).join(" ")}if(k=n.split(/\s+/),!a){const{ok:r,error:N}=dn(n);if(!r)throw new Error(N)}const f=k[0];let c=0;this.clear({preserveHeaders:g});for(let r=0;r<f.length;r++){const N=f.charAt(r);if(N==="/")c+=8;else if(Ca(N))c+=parseInt(N,10);else{const Q=N<"a"?et:rt;this._put({type:N.toLowerCase(),color:Q},Ye(c)),c++}}this._turn=k[1],k[2].indexOf("K")>-1&&(this._castling.w|=le.KSIDE_CASTLE),k[2].indexOf("Q")>-1&&(this._castling.w|=le.QSIDE_CASTLE),k[2].indexOf("k")>-1&&(this._castling.b|=le.KSIDE_CASTLE),k[2].indexOf("q")>-1&&(this._castling.b|=le.QSIDE_CASTLE),this._epSquare=k[3]==="-"?Xe:re[k[3]],this._halfMoves=parseInt(k[4],10),this._moveNumber=parseInt(k[5],10),this._hash=this._computeHash(),this._updateSetup(n),this._incPositionCount()}fen({forceEnpassantSquare:n=!1}={}){let a=0,g="";for(let c=re.a8;c<=re.h1;c++){if(this._board[c]){a>0&&(g+=a,a=0);const{color:r,type:N}=this._board[c];g+=r===et?N.toUpperCase():N.toLowerCase()}else a++;c+1&136&&(a>0&&(g+=a),c!==re.h1&&(g+="/"),a=0,c+=8)}let k="";this._castling[et]&le.KSIDE_CASTLE&&(k+="K"),this._castling[et]&le.QSIDE_CASTLE&&(k+="Q"),this._castling[rt]&le.KSIDE_CASTLE&&(k+="k"),this._castling[rt]&le.QSIDE_CASTLE&&(k+="q"),k=k||"-";let f="-";if(this._epSquare!==Xe)if(n)f=Ye(this._epSquare);else{const c=this._epSquare+(this._turn===et?16:-16),r=[c+1,c-1];for(const N of r){if(N&136)continue;const Q=this._turn;if(this._board[N]?.color===Q&&this._board[N]?.type===We){this._makeMove({color:Q,from:N,to:this._epSquare,piece:We,captured:We,flags:le.EP_CAPTURE});const E=!this._isKingAttacked(Q);if(this._undoMove(),E){f=Ye(this._epSquare);break}}}}return[g,this._turn,k,f,this._halfMoves,this._moveNumber].join(" ")}_pieceKey(n){if(!this._board[n])return 0n;const{color:a,type:g}=this._board[n],k={w:0,b:1}[a],f={p:0,n:1,b:2,r:3,q:4,k:5}[g];return Va[k][f][n]}_epKey(){return this._epSquare===Xe?0n:Ya[this._epSquare&7]}_castlingKey(){const n=this._castling.w>>5|this._castling.b>>3;return Ja[n]}_computeHash(){let n=0n;for(let a=re.a8;a<=re.h1;a++){if(a&136){a+=7;continue}this._board[a]&&(n^=this._pieceKey(a))}return n^=this._epKey(),n^=this._castlingKey(),this._turn==="b"&&(n^=sa),n}_updateSetup(n){this._history.length>0||(n!==la?(this._header.SetUp="1",this._header.FEN=n):(this._header.SetUp=null,this._header.FEN=null))}reset(){this.load(la)}get(n){return this._board[re[n]]}findPiece(n){const a=[];for(let g=re.a8;g<=re.h1;g++){if(g&136){g+=7;continue}!this._board[g]||this._board[g]?.color!==n.color||this._board[g].color===n.color&&this._board[g].type===n.type&&a.push(Ye(g))}return a}put({type:n,color:a},g){return this._put({type:n,color:a},g)?(this._updateCastlingRights(),this._updateEnPassantSquare(),this._updateSetup(this.fen()),!0):!1}_set(n,a){this._hash^=this._pieceKey(n),this._board[n]=a,this._hash^=this._pieceKey(n)}_put({type:n,color:a},g){if(an.indexOf(n.toLowerCase())===-1||!(g in re))return!1;const k=re[g];if(n==Ke&&!(this._kings[a]==Xe||this._kings[a]==k))return!1;const f=this._board[k];return f&&f.type===Ke&&(this._kings[f.color]=Xe),this._set(k,{type:n,color:a}),n===Ke&&(this._kings[a]=k),!0}_clear(n){this._hash^=this._pieceKey(n),delete this._board[n]}remove(n){const a=this.get(n);return this._clear(re[n]),a&&a.type===Ke&&(this._kings[a.color]=Xe),this._updateCastlingRights(),this._updateEnPassantSquare(),this._updateSetup(this.fen()),a}_updateCastlingRights(){this._hash^=this._castlingKey();const n=this._board[re.e1]?.type===Ke&&this._board[re.e1]?.color===et,a=this._board[re.e8]?.type===Ke&&this._board[re.e8]?.color===rt;(!n||this._board[re.a1]?.type!==Nt||this._board[re.a1]?.color!==et)&&(this._castling.w&=-65),(!n||this._board[re.h1]?.type!==Nt||this._board[re.h1]?.color!==et)&&(this._castling.w&=-33),(!a||this._board[re.a8]?.type!==Nt||this._board[re.a8]?.color!==rt)&&(this._castling.b&=-65),(!a||this._board[re.h8]?.type!==Nt||this._board[re.h8]?.color!==rt)&&(this._castling.b&=-33),this._hash^=this._castlingKey()}_updateEnPassantSquare(){if(this._epSquare===Xe)return;const n=this._epSquare+(this._turn===et?-16:16),a=this._epSquare+(this._turn===et?16:-16),g=[a+1,a-1];if(this._board[n]!==null||this._board[this._epSquare]!==null||this._board[a]?.color!==jt(this._turn)||this._board[a]?.type!==We){this._hash^=this._epKey(),this._epSquare=Xe;return}const k=f=>!(f&136)&&this._board[f]?.color===this._turn&&this._board[f]?.type===We;g.some(k)||(this._hash^=this._epKey(),this._epSquare=Xe)}_attacked(n,a,g){const k=[];for(let f=re.a8;f<=re.h1;f++){if(f&136){f+=7;continue}if(this._board[f]===void 0||this._board[f].color!==n)continue;const c=this._board[f],r=f-a;if(r===0)continue;const N=r+119;if(Za[N]&tn[c.type]){if(c.type===We){if(r>0&&c.color===et||r<=0&&c.color===rt)if(g)k.push(Ye(f));else return!0;continue}if(c.type==="n"||c.type==="k")if(g){k.push(Ye(f));continue}else return!0;const Q=en[N];let E=f+Q,B=!1;for(;E!==a;){if(this._board[E]!=null){B=!0;break}E+=Q}if(!B)if(g){k.push(Ye(f));continue}else return!0}}return g?k:!1}attackers(n,a){return a?this._attacked(a,re[n],!0):this._attacked(this._turn,re[n],!0)}_isKingAttacked(n){const a=this._kings[n];return a===-1?!1:this._attacked(jt(n),a)}hash(){return this._hash.toString(16)}isAttacked(n,a){return this._attacked(a,re[n])}isCheck(){return this._isKingAttacked(this._turn)}inCheck(){return this.isCheck()}isCheckmate(){return this.isCheck()&&this._moves().length===0}isStalemate(){return!this.isCheck()&&this._moves().length===0}isInsufficientMaterial(){const n={b:0,n:0,r:0,q:0,k:0,p:0},a=[];let g=0,k=0;for(let f=re.a8;f<=re.h1;f++){if(k=(k+1)%2,f&136){f+=7;continue}const c=this._board[f];c&&(n[c.type]=c.type in n?n[c.type]+1:1,c.type===Xt&&a.push(k),g++)}if(g===2)return!0;if(g===3&&(n[Xt]===1||n[ua]===1))return!0;if(g===n[Xt]+2){let f=0;const c=a.length;for(let r=0;r<c;r++)f+=a[r];if(f===0||f===c)return!0}return!1}isThreefoldRepetition(){return this._getPositionCount(this._hash)>=3}isDrawByFiftyMoves(){return this._halfMoves>=100}isDraw(){return this.isDrawByFiftyMoves()||this.isStalemate()||this.isInsufficientMaterial()||this.isThreefoldRepetition()}isGameOver(){return this.isCheckmate()||this.isDraw()}moves({verbose:n=!1,square:a=void 0,piece:g=void 0}={}){const k=this._moves({square:a,piece:g});return n?k.map(f=>new Vt(this,f)):k.map(f=>this._moveToSan(f,k))}_moves({legal:n=!0,piece:a=void 0,square:g=void 0}={}){const k=g?g.toLowerCase():void 0,f=a?.toLowerCase(),c=[],r=this._turn,N=jt(r);let Q=re.a8,E=re.h1,B=!1;if(k)if(k in re)Q=E=re[k],B=!0;else return[];for(let H=Q;H<=E;H++){if(H&136){H+=7;continue}if(!this._board[H]||this._board[H].color===N)continue;const{type:be}=this._board[H];let $e;if(be===We){if(f&&f!==be)continue;$e=H+da[r][0],this._board[$e]||(St(c,r,H,$e,We),$e=H+da[r][1],ln[r]===Tt(H)&&!this._board[$e]&&St(c,r,H,$e,We,void 0,le.BIG_PAWN));for(let Je=2;Je<4;Je++)$e=H+da[r][Je],!($e&136)&&(this._board[$e]?.color===N?St(c,r,H,$e,We,this._board[$e].type,le.CAPTURE):$e===this._epSquare&&St(c,r,H,$e,We,We,le.EP_CAPTURE))}else{if(f&&f!==be)continue;for(let Je=0,nt=ya[be].length;Je<nt;Je++){const bt=ya[be][Je];for($e=H;$e+=bt,!($e&136);){if(!this._board[$e])St(c,r,H,$e,be);else{if(this._board[$e].color===r)break;St(c,r,H,$e,be,this._board[$e].type,le.CAPTURE);break}if(be===ua||be===Ke)break}}}}if((f===void 0||f===Ke)&&(!B||E===this._kings[r])){if(this._castling[r]&le.KSIDE_CASTLE){const H=this._kings[r],be=H+2;!this._board[H+1]&&!this._board[be]&&!this._attacked(N,this._kings[r])&&!this._attacked(N,H+1)&&!this._attacked(N,be)&&St(c,r,this._kings[r],be,Ke,void 0,le.KSIDE_CASTLE)}if(this._castling[r]&le.QSIDE_CASTLE){const H=this._kings[r],be=H-2;!this._board[H-1]&&!this._board[H-2]&&!this._board[H-3]&&!this._attacked(N,this._kings[r])&&!this._attacked(N,H-1)&&!this._attacked(N,be)&&St(c,r,this._kings[r],be,Ke,void 0,le.QSIDE_CASTLE)}}if(!n||this._kings[r]===-1)return c;const W=[];for(let H=0,be=c.length;H<be;H++)this._makeMove(c[H]),this._isKingAttacked(r)||W.push(c[H]),this._undoMove();return W}move(n,{strict:a=!1}={}){let g=null;if(typeof n=="string")g=this._moveFromSan(n,a);else if(n===null)g=this._moveFromSan(ca,a);else if(typeof n=="object"){const f=this._moves();for(let c=0,r=f.length;c<r;c++)if(n.from===Ye(f[c].from)&&n.to===Ye(f[c].to)&&(!("promotion"in f[c])||n.promotion===f[c].promotion)){g=f[c];break}}if(!g)throw typeof n=="string"?new Error(`Invalid move: ${n}`):new Error(`Invalid move: ${JSON.stringify(n)}`);if(this.isCheck()&&g.flags&le.NULL_MOVE)throw new Error("Null move not allowed when in check");const k=new Vt(this,g);return this._makeMove(g),this._incPositionCount(),k}_push(n){this._history.push({move:n,kings:{b:this._kings.b,w:this._kings.w},turn:this._turn,castling:{b:this._castling.b,w:this._castling.w},epSquare:this._epSquare,halfMoves:this._halfMoves,moveNumber:this._moveNumber})}_movePiece(n,a){this._hash^=this._pieceKey(n),this._board[a]=this._board[n],delete this._board[n],this._hash^=this._pieceKey(a)}_makeMove(n){const a=this._turn,g=jt(a);if(this._push(n),n.flags&le.NULL_MOVE){a===rt&&this._moveNumber++,this._halfMoves++,this._turn=g,this._epSquare=Xe;return}if(this._hash^=this._epKey(),this._hash^=this._castlingKey(),n.captured&&(this._hash^=this._pieceKey(n.to)),this._movePiece(n.from,n.to),n.flags&le.EP_CAPTURE&&(this._turn===rt?this._clear(n.to-16):this._clear(n.to+16)),n.promotion&&(this._clear(n.to),this._set(n.to,{type:n.promotion,color:a})),this._board[n.to].type===Ke){if(this._kings[a]=n.to,n.flags&le.KSIDE_CASTLE){const k=n.to-1,f=n.to+1;this._movePiece(f,k)}else if(n.flags&le.QSIDE_CASTLE){const k=n.to+1,f=n.to-2;this._movePiece(f,k)}this._castling[a]=0}if(this._castling[a]){for(let k=0,f=$t[a].length;k<f;k++)if(n.from===$t[a][k].square&&this._castling[a]&$t[a][k].flag){this._castling[a]^=$t[a][k].flag;break}}if(this._castling[g]){for(let k=0,f=$t[g].length;k<f;k++)if(n.to===$t[g][k].square&&this._castling[g]&$t[g][k].flag){this._castling[g]^=$t[g][k].flag;break}}if(this._hash^=this._castlingKey(),n.flags&le.BIG_PAWN){let k;a===rt?k=n.to-16:k=n.to+16,!(n.to-1&136)&&this._board[n.to-1]?.type===We&&this._board[n.to-1]?.color===g||!(n.to+1&136)&&this._board[n.to+1]?.type===We&&this._board[n.to+1]?.color===g?(this._epSquare=k,this._hash^=this._epKey()):this._epSquare=Xe}else this._epSquare=Xe;n.piece===We?this._halfMoves=0:n.flags&(le.CAPTURE|le.EP_CAPTURE)?this._halfMoves=0:this._halfMoves++,a===rt&&this._moveNumber++,this._turn=g,this._hash^=sa}undo(){const n=this._hash,a=this._undoMove();if(a){const g=new Vt(this,a);return this._decPositionCount(n),g}return null}_undoMove(){const n=this._history.pop();if(n===void 0)return null;this._hash^=this._epKey(),this._hash^=this._castlingKey();const a=n.move;this._kings=n.kings,this._turn=n.turn,this._castling=n.castling,this._epSquare=n.epSquare,this._halfMoves=n.halfMoves,this._moveNumber=n.moveNumber,this._hash^=this._epKey(),this._hash^=this._castlingKey(),this._hash^=sa;const g=this._turn,k=jt(g);if(a.flags&le.NULL_MOVE)return a;if(this._movePiece(a.to,a.from),a.piece&&(this._clear(a.from),this._set(a.from,{type:a.piece,color:g})),a.captured)if(a.flags&le.EP_CAPTURE){let f;g===rt?f=a.to-16:f=a.to+16,this._set(f,{type:We,color:k})}else this._set(a.to,{type:a.captured,color:k});if(a.flags&(le.KSIDE_CASTLE|le.QSIDE_CASTLE)){let f,c;a.flags&le.KSIDE_CASTLE?(f=a.to+1,c=a.to-1):(f=a.to-2,c=a.to+1),this._movePiece(c,f)}return a}pgn({newline:n=`
+`,maxWidth:a=0}={}){const g=[];let k=!1;for(const W in this._header)this._header[W]&&g.push(`[${W} "${this._header[W]}"]`+n),k=!0;k&&this._history.length&&g.push(n);const f=W=>{const H=this._comments[this.fen()];if(typeof H<"u"){const be=W.length>0?" ":"";W=`${W}${be}{${H}}`}return W},c=[];for(;this._history.length>0;)c.push(this._undoMove());const r=[];let N="";for(c.length===0&&r.push(f(""));c.length>0;){N=f(N);const W=c.pop();if(!W)break;if(!this._history.length&&W.color==="b"){const H=`${this._moveNumber}. ...`;N=N?`${N} ${H}`:H}else W.color==="w"&&(N.length&&r.push(N),N=this._moveNumber+".");N=N+" "+this._moveToSan(W,this._moves({legal:!0})),this._makeMove(W)}if(N.length&&r.push(f(N)),r.push(this._header.Result||"*"),a===0)return g.join("")+r.join(" ");const Q=function(){return g.length>0&&g[g.length-1]===" "?(g.pop(),!0):!1},E=function(W,H){for(const be of H.split(" "))if(be){if(W+be.length>a){for(;Q();)W--;g.push(n),W=0}g.push(be),W+=be.length,g.push(" "),W++}return Q()&&W--,W};let B=0;for(let W=0;W<r.length;W++){if(B+r[W].length>a&&r[W].includes("{")){B=E(B,r[W]);continue}B+r[W].length>a&&W!==0?(g[g.length-1]===" "&&g.pop(),g.push(n),B=0):W!==0&&(g.push(" "),B++),g.push(r[W]),B+=r[W].length}return g.join("")}header(...n){for(let a=0;a<n.length;a+=2)typeof n[a]=="string"&&typeof n[a+1]=="string"&&(this._header[n[a]]=n[a+1]);return this._header}setHeader(n,a){return this._header[n]=a??ba[n]??null,this.getHeaders()}removeHeader(n){return n in this._header?(this._header[n]=ba[n]||null,!0):!1}getHeaders(){const n={};for(const[a,g]of Object.entries(this._header))g!==null&&(n[a]=g);return n}loadPgn(n,{strict:a=!1,newlineChar:g=`\r?
 `}={}){g!==`\r?
-`&&(a=a.replace(new RegExp(g,"g"),`
-`));const h=Ra(a);this.reset();const b=h.headers;let p="";for(const J in b)J.toLowerCase()==="fen"&&(p=b[J]),this.header(J,b[J]);if(!e)p&&this.load(p,{preserveHeaders:!0});else if(b.SetUp==="1"){if(!("FEN"in b))throw new Error("Invalid PGN: FEN tag must be supplied with SetUp tag");this.load(b.FEN,{preserveHeaders:!0})}let i=h.root;for(;i;){if(i.move){const J=this._moveFromSan(i.move,e);if(J==null)throw new Error(`Invalid move in PGN: ${i.move}`);this._makeMove(J),this._incPositionCount()}i.comment!==void 0&&(this._comments[this.fen()]=i.comment),i=i.variations[0]}const R=h.result;R&&Object.keys(this._header).length&&this._header.Result!==R&&this.setHeader("Result",R)}_moveToSan(a,e){let g="";if(a.flags&se.KSIDE_CASTLE)g="O-O";else if(a.flags&se.QSIDE_CASTLE)g="O-O-O";else{if(a.flags&se.NULL_MOVE)return ca;if(a.piece!==Ve){const h=nn(a,e);g+=a.piece.toUpperCase()+h}a.flags&(se.CAPTURE|se.EP_CAPTURE)&&(a.piece===Ve&&(g+=Je(a.from)[0]),g+="x"),g+=Je(a.to),a.promotion&&(g+="="+a.promotion.toUpperCase())}return this._makeMove(a),this.isCheck()&&(this.isCheckmate()?g+="#":g+="+"),this._undoMove(),g}_moveFromSan(a,e=!1){let g=pa(a);if(e||(g==="0-0"?g="O-O":g==="0-0-0"&&(g="O-O-O")),g==ca)return{color:this._turn,from:0,to:0,piece:"k",flags:se.NULL_MOVE};let h=ka(g),b=this._moves({legal:!0,piece:h});for(let W=0,U=b.length;W<U;W++)if(g===pa(this._moveToSan(b[W],b)))return b[W];if(e)return null;let p,i,R,J,T,q=!1;if(i=g.match(/([pnbrqkPNBRQK])?([a-h][1-8])x?-?([a-h][1-8])([qrbnQRBN])?/),i?(p=i[1],R=i[2],J=i[3],T=i[4],R.length==1&&(q=!0)):(i=g.match(/([pnbrqkPNBRQK])?([a-h]?[1-8]?)x?-?([a-h][1-8])([qrbnQRBN])?/),i&&(p=i[1],R=i[2],J=i[3],T=i[4],R.length==1&&(q=!0))),h=ka(g),b=this._moves({legal:!0,piece:p||h}),!J)return null;for(let W=0,U=b.length;W<U;W++)if(R){if((!p||p.toLowerCase()==b[W].piece)&&re[R]==b[W].from&&re[J]==b[W].to&&(!T||T.toLowerCase()==b[W].promotion))return b[W];if(q){const me=Je(b[W].from);if((!p||p.toLowerCase()==b[W].piece)&&re[J]==b[W].to&&(R==me[0]||R==me[1])&&(!T||T.toLowerCase()==b[W].promotion))return b[W]}}else if(g===pa(this._moveToSan(b[W],b)).replace("x",""))return b[W];return null}ascii(){let a=`   +------------------------+
-`;for(let e=re.a8;e<=re.h1;e++){if(Ot(e)===0&&(a+=" "+"87654321"[Tt(e)]+" |"),this._board[e]){const g=this._board[e].type,b=this._board[e].color===tt?g.toUpperCase():g.toLowerCase();a+=" "+b+" "}else a+=" . ";e+1&136&&(a+=`|
-`,e+=8)}return a+=`   +------------------------+
-`,a+="     a  b  c  d  e  f  g  h",a}perft(a){const e=this._moves({legal:!1});let g=0;const h=this._turn;for(let b=0,p=e.length;b<p;b++)this._makeMove(e[b]),this._isKingAttacked(h)||(a-1>0?g+=this.perft(a-1):g++),this._undoMove();return g}setTurn(a){return this._turn==a?!1:(this.move("--"),!0)}turn(){return this._turn}board(){const a=[];let e=[];for(let g=re.a8;g<=re.h1;g++)this._board[g]==null?e.push(null):e.push({square:Je(g),type:this._board[g].type,color:this._board[g].color}),g+1&136&&(a.push(e),e=[],g+=8);return a}squareColor(a){if(a in re){const e=re[a];return(Tt(e)+Ot(e))%2===0?"light":"dark"}return null}history({verbose:a=!1}={}){const e=[],g=[];for(;this._history.length>0;)e.push(this._undoMove());for(;;){const h=e.pop();if(!h)break;a?g.push(new Vt(this,h)):g.push(this._moveToSan(h,this._moves())),this._makeMove(h)}return g}_getPositionCount(a){return this._positionCount.get(a)??0}_incPositionCount(){this._positionCount.set(this._hash,(this._positionCount.get(this._hash)??0)+1)}_decPositionCount(a){const e=this._positionCount.get(a)??0;e===1?this._positionCount.delete(a):this._positionCount.set(a,e-1)}_pruneComments(){const a=[],e={},g=h=>{h in this._comments&&(e[h]=this._comments[h])};for(;this._history.length>0;)a.push(this._undoMove());for(g(this.fen());;){const h=a.pop();if(!h)break;this._makeMove(h),g(this.fen())}this._comments=e}getComment(){return this._comments[this.fen()]}setComment(a){this._comments[this.fen()]=a.replace("{","[").replace("}","]")}deleteComment(){return this.removeComment()}removeComment(){const a=this._comments[this.fen()];return delete this._comments[this.fen()],a}getComments(){return this._pruneComments(),Object.keys(this._comments).map(a=>({fen:a,comment:this._comments[a]}))}deleteComments(){return this.removeComments()}removeComments(){return this._pruneComments(),Object.keys(this._comments).map(a=>{const e=this._comments[a];return delete this._comments[a],{fen:a,comment:e}})}setCastlingRights(a,e){for(const h of[Ye,Ct])e[h]!==void 0&&(e[h]?this._castling[a]|=Yt[h]:this._castling[a]&=~Yt[h]);this._updateCastlingRights();const g=this.getCastlingRights(a);return(e[Ye]===void 0||e[Ye]===g[Ye])&&(e[Ct]===void 0||e[Ct]===g[Ct])}getCastlingRights(a){return{[Ye]:(this._castling[a]&Yt[Ye])!==0,[Ct]:(this._castling[a]&Yt[Ct])!==0}}moveNumber(){return this._moveNumber}}async function ln(s,a={}){const e=a.currentUser||{},g=a.userRole||e?.role||"employee";let h="chat",b=[],p=null,i=[],R=[],J=null,T=null,q=!1,W=null,U=null;s.innerHTML=`
+`&&(n=n.replace(new RegExp(g,"g"),`
+`));const k=Wa(n);this.reset();const f=k.headers;let c="";for(const Q in f)Q.toLowerCase()==="fen"&&(c=f[Q]),this.header(Q,f[Q]);if(!a)c&&this.load(c,{preserveHeaders:!0});else if(f.SetUp==="1"){if(!("FEN"in f))throw new Error("Invalid PGN: FEN tag must be supplied with SetUp tag");this.load(f.FEN,{preserveHeaders:!0})}let r=k.root;for(;r;){if(r.move){const Q=this._moveFromSan(r.move,a);if(Q==null)throw new Error(`Invalid move in PGN: ${r.move}`);this._makeMove(Q),this._incPositionCount()}r.comment!==void 0&&(this._comments[this.fen()]=r.comment),r=r.variations[0]}const N=k.result;N&&Object.keys(this._header).length&&this._header.Result!==N&&this.setHeader("Result",N)}_moveToSan(n,a){let g="";if(n.flags&le.KSIDE_CASTLE)g="O-O";else if(n.flags&le.QSIDE_CASTLE)g="O-O-O";else{if(n.flags&le.NULL_MOVE)return ca;if(n.piece!==We){const k=cn(n,a);g+=n.piece.toUpperCase()+k}n.flags&(le.CAPTURE|le.EP_CAPTURE)&&(n.piece===We&&(g+=Ye(n.from)[0]),g+="x"),g+=Ye(n.to),n.promotion&&(g+="="+n.promotion.toUpperCase())}return this._makeMove(n),this.isCheck()&&(this.isCheckmate()?g+="#":g+="+"),this._undoMove(),g}_moveFromSan(n,a=!1){let g=pa(n);if(a||(g==="0-0"?g="O-O":g==="0-0-0"&&(g="O-O-O")),g==ca)return{color:this._turn,from:0,to:0,piece:"k",flags:le.NULL_MOVE};let k=wa(g),f=this._moves({legal:!0,piece:k});for(let W=0,H=f.length;W<H;W++)if(g===pa(this._moveToSan(f[W],f)))return f[W];if(a)return null;let c,r,N,Q,E,B=!1;if(r=g.match(/([pnbrqkPNBRQK])?([a-h][1-8])x?-?([a-h][1-8])([qrbnQRBN])?/),r?(c=r[1],N=r[2],Q=r[3],E=r[4],N.length==1&&(B=!0)):(r=g.match(/([pnbrqkPNBRQK])?([a-h]?[1-8]?)x?-?([a-h][1-8])([qrbnQRBN])?/),r&&(c=r[1],N=r[2],Q=r[3],E=r[4],N.length==1&&(B=!0))),k=wa(g),f=this._moves({legal:!0,piece:c||k}),!Q)return null;for(let W=0,H=f.length;W<H;W++)if(N){if((!c||c.toLowerCase()==f[W].piece)&&re[N]==f[W].from&&re[Q]==f[W].to&&(!E||E.toLowerCase()==f[W].promotion))return f[W];if(B){const be=Ye(f[W].from);if((!c||c.toLowerCase()==f[W].piece)&&re[Q]==f[W].to&&(N==be[0]||N==be[1])&&(!E||E.toLowerCase()==f[W].promotion))return f[W]}}else if(g===pa(this._moveToSan(f[W],f)).replace("x",""))return f[W];return null}ascii(){let n=`   +------------------------+
+`;for(let a=re.a8;a<=re.h1;a++){if(Ot(a)===0&&(n+=" "+"87654321"[Tt(a)]+" |"),this._board[a]){const g=this._board[a].type,f=this._board[a].color===et?g.toUpperCase():g.toLowerCase();n+=" "+f+" "}else n+=" . ";a+1&136&&(n+=`|
+`,a+=8)}return n+=`   +------------------------+
+`,n+="     a  b  c  d  e  f  g  h",n}perft(n){const a=this._moves({legal:!1});let g=0;const k=this._turn;for(let f=0,c=a.length;f<c;f++)this._makeMove(a[f]),this._isKingAttacked(k)||(n-1>0?g+=this.perft(n-1):g++),this._undoMove();return g}setTurn(n){return this._turn==n?!1:(this.move("--"),!0)}turn(){return this._turn}board(){const n=[];let a=[];for(let g=re.a8;g<=re.h1;g++)this._board[g]==null?a.push(null):a.push({square:Ye(g),type:this._board[g].type,color:this._board[g].color}),g+1&136&&(n.push(a),a=[],g+=8);return n}squareColor(n){if(n in re){const a=re[n];return(Tt(a)+Ot(a))%2===0?"light":"dark"}return null}history({verbose:n=!1}={}){const a=[],g=[];for(;this._history.length>0;)a.push(this._undoMove());for(;;){const k=a.pop();if(!k)break;n?g.push(new Vt(this,k)):g.push(this._moveToSan(k,this._moves())),this._makeMove(k)}return g}_getPositionCount(n){return this._positionCount.get(n)??0}_incPositionCount(){this._positionCount.set(this._hash,(this._positionCount.get(this._hash)??0)+1)}_decPositionCount(n){const a=this._positionCount.get(n)??0;a===1?this._positionCount.delete(n):this._positionCount.set(n,a-1)}_pruneComments(){const n=[],a={},g=k=>{k in this._comments&&(a[k]=this._comments[k])};for(;this._history.length>0;)n.push(this._undoMove());for(g(this.fen());;){const k=n.pop();if(!k)break;this._makeMove(k),g(this.fen())}this._comments=a}getComment(){return this._comments[this.fen()]}setComment(n){this._comments[this.fen()]=n.replace("{","[").replace("}","]")}deleteComment(){return this.removeComment()}removeComment(){const n=this._comments[this.fen()];return delete this._comments[this.fen()],n}getComments(){return this._pruneComments(),Object.keys(this._comments).map(n=>({fen:n,comment:this._comments[n]}))}deleteComments(){return this.removeComments()}removeComments(){return this._pruneComments(),Object.keys(this._comments).map(n=>{const a=this._comments[n];return delete this._comments[n],{fen:n,comment:a}})}setCastlingRights(n,a){for(const k of[Ke,Ct])a[k]!==void 0&&(a[k]?this._castling[n]|=Yt[k]:this._castling[n]&=~Yt[k]);this._updateCastlingRights();const g=this.getCastlingRights(n);return(a[Ke]===void 0||a[Ke]===g[Ke])&&(a[Ct]===void 0||a[Ct]===g[Ct])}getCastlingRights(n){return{[Ke]:(this._castling[n]&Yt[Ke])!==0,[Ct]:(this._castling[n]&Yt[Ct])!==0}}moveNumber(){return this._moveNumber}}async function bn(s,n={}){const a=n.currentUser||{},g=n.userRole||a?.role||"employee";let k="chat",f=[],c=null,r=[],N=[],Q=null,E=null,B=!1,W=null,H=null;s.innerHTML=`
     <div class="bonding-wrap" id="bonding-app-root">
       <!-- Top Navigation & Header Bar -->
       <div class="bonding-nav-bar">
@@ -3461,23 +3691,23 @@ In Brave or Chrome, click the lock or shield icon on the left of the address bar
 
     <!-- Modals container -->
     <div id="bonding-modals-root"></div>
-  `,on(),await lt(),je();const me=s.querySelector("#tab-nav-chat"),$e=s.querySelector("#tab-nav-lounge"),Qe=s.querySelector("#bonding-chat-main-wrap"),ot=s.querySelector("#bonding-lounge-main-wrap");me?.addEventListener("click",async()=>{h="chat",me.classList.add("active"),$e.classList.remove("active"),Qe.style.display="grid",ot.style.display="none",je(),p&&await Le(p._id)}),$e?.addEventListener("click",async()=>{h="lounge_games",$e.classList.add("active"),me.classList.remove("active"),Qe.style.display="none",ot.style.display="block",await y()}),s.querySelector("#btn-top-new-chat")?.addEventListener("click",x),s.querySelector("#btn-top-new-group")?.addEventListener("click",E),s.querySelector("#btn-top-challenge")?.addEventListener("click",()=>N());const mt=s.querySelector("#bonding-search-input");mt&&mt.addEventListener("input",c=>{const o=c.target.value.toLowerCase().trim();s.querySelectorAll(".bonding-channel-item").forEach(k=>{const A=k.textContent.toLowerCase();k.style.display=A.includes(o)?"flex":"none"})}),wt(),new MutationObserver((c,o)=>{document.body.contains(s)||(T&&clearInterval(T),U&&clearInterval(U),o.disconnect())}).observe(document.body,{childList:!0,subtree:!0});async function lt(){try{const[c,o]=await Promise.all([ze("/bonding/channels").catch(()=>[]),ze("/bonding/colleagues").catch(()=>[])]);if(b=c,i=o,b.length>0){const t=localStorage.getItem("ci360_bonding_active_channel");t&&b.some(k=>k._id===t)?p=b.find(k=>k._id===t):p||(p=b.find(k=>k.name.includes("Lounge"))||b[0])}Be(),p&&await Le(p._id)}catch(c){console.error("Failed to load bonding data",c)}}async function Le(c,o=!1){if(c)try{localStorage.setItem("ci360_bonding_active_channel",c),R=await ze(`/bonding/channels/${c}/messages`),o?r():f()}catch(t){console.error("Failed to load messages",t)}}let dt=0;function wt(){T&&clearInterval(T),T=setInterval(async()=>{try{if(!document.body.contains(s)){clearInterval(T);return}if(dt++,dt%2===0){const c=await ze("/bonding/channels").catch(()=>null);c&&JSON.stringify(c.map(o=>o._id+o.lastMessage?.sentAt))!==JSON.stringify(b.map(o=>o._id+o.lastMessage?.sentAt))&&(b=c,Be())}h==="chat"&&p?await Le(p._id,!0):h==="lounge_games"&&await y(!0)}catch{}},3e3)}function Be(){const c=s.querySelector("#bonding-group-list"),o=s.querySelector("#bonding-direct-list");if(!c||!o)return;const t=b.filter(A=>A.type==="group"),k=b.filter(A=>A.type==="direct");if(t.length===0)c.innerHTML='<div class="bonding-empty-text">No group lounges yet. Click + New Group to start one!</div>';else{const A=e?._id||e?.id,M=g==="superadmin"||e?.role==="superadmin";c.innerHTML=t.map(D=>{const Y=p&&p._id===D._id,O=D.createdBy&&D.createdBy.userId&&String(D.createdBy.userId)===String(A)||M;return`
-          <div class="bonding-channel-item ${Y?"active":""}" data-channel-id="${D._id}">
-            <div class="bonding-channel-icon">${D.avatar||"👥"}</div>
+  `,pn(),await lt(),Re();const be=s.querySelector("#tab-nav-chat"),$e=s.querySelector("#tab-nav-lounge"),Je=s.querySelector("#bonding-chat-main-wrap"),nt=s.querySelector("#bonding-lounge-main-wrap");be?.addEventListener("click",async()=>{k="chat",be.classList.add("active"),$e.classList.remove("active"),Je.style.display="grid",nt.style.display="none",Re(),c&&await Me(c._id)}),$e?.addEventListener("click",async()=>{k="lounge_games",$e.classList.add("active"),be.classList.remove("active"),Je.style.display="none",nt.style.display="block",await y()}),s.querySelector("#btn-top-new-chat")?.addEventListener("click",q),s.querySelector("#btn-top-new-group")?.addEventListener("click",h),s.querySelector("#btn-top-challenge")?.addEventListener("click",()=>F());const bt=s.querySelector("#bonding-search-input");bt&&bt.addEventListener("input",d=>{const i=d.target.value.toLowerCase().trim();s.querySelectorAll(".bonding-channel-item").forEach(b=>{const D=b.textContent.toLowerCase();b.style.display=D.includes(i)?"flex":"none"})}),kt(),new MutationObserver((d,i)=>{document.body.contains(s)||(E&&clearInterval(E),H&&clearInterval(H),i.disconnect())}).observe(document.body,{childList:!0,subtree:!0});async function lt(){try{const[d,i]=await Promise.all([ze("/bonding/channels").catch(()=>[]),ze("/bonding/colleagues").catch(()=>[])]);if(f=d,r=i,f.length>0){const t=localStorage.getItem("ci360_bonding_active_channel");t&&f.some(b=>b._id===t)?c=f.find(b=>b._id===t):c||(c=f.find(b=>b.name.includes("Lounge"))||f[0])}qe(),c&&await Me(c._id)}catch(d){console.error("Failed to load bonding data",d)}}async function Me(d,i=!1){if(d)try{localStorage.setItem("ci360_bonding_active_channel",d),N=await ze(`/bonding/channels/${d}/messages`),i?o():m()}catch(t){console.error("Failed to load messages",t)}}let dt=0;function kt(){E&&clearInterval(E),E=setInterval(async()=>{try{if(!document.body.contains(s)){clearInterval(E);return}if(dt++,dt%2===0){const d=await ze("/bonding/channels").catch(()=>null);d&&JSON.stringify(d.map(i=>i._id+i.lastMessage?.sentAt))!==JSON.stringify(f.map(i=>i._id+i.lastMessage?.sentAt))&&(f=d,qe())}k==="chat"&&c?await Me(c._id,!0):k==="lounge_games"&&await y(!0)}catch{}},3e3)}function qe(){const d=s.querySelector("#bonding-group-list"),i=s.querySelector("#bonding-direct-list");if(!d||!i)return;const t=f.filter(D=>D.type==="group"),b=f.filter(D=>D.type==="direct");if(t.length===0)d.innerHTML='<div class="bonding-empty-text">No group lounges yet. Click + New Group to start one!</div>';else{const D=a?._id||a?.id,M=g==="superadmin"||a?.role==="superadmin";d.innerHTML=t.map($=>{const K=c&&c._id===$._id,O=$.createdBy&&$.createdBy.userId&&String($.createdBy.userId)===String(D)||M;return`
+          <div class="bonding-channel-item ${K?"active":""}" data-channel-id="${$._id}">
+            <div class="bonding-channel-icon">${$.avatar||"👥"}</div>
             <div class="bonding-channel-info">
-              <div class="bonding-channel-name">${v(D.name)}</div>
-              <div class="bonding-channel-preview">${v(D.lastMessage?.content||"No messages yet")}</div>
+              <div class="bonding-channel-name">${v($.name)}</div>
+              <div class="bonding-channel-preview">${v($.lastMessage?.content||"No messages yet")}</div>
             </div>
             
             ${O?`
-              <button class="bonding-channel-del-btn" data-channel-id="${D._id}" title="Delete Group (Creator only)">
+              <button class="bonding-channel-del-btn" data-channel-id="${$._id}" title="Delete Group (Creator only)">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <polyline points="3 6 5 6 21 6"></polyline>
                   <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
                 </svg>
               </button>
             `:`
-              <button class="bonding-channel-leave-btn" data-channel-id="${D._id}" title="Leave Group">
+              <button class="bonding-channel-leave-btn" data-channel-id="${$._id}" title="Leave Group">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
                   <polyline points="16 17 21 12 16 7"></polyline>
@@ -3486,34 +3716,34 @@ In Brave or Chrome, click the lock or shield icon on the left of the address bar
               </button>
             `}
           </div>
-        `}).join("")}k.length===0?o.innerHTML='<div class="bonding-empty-text">No direct messages yet. Click + New Chat to start a conversation!</div>':o.innerHTML=k.map(A=>{const M=p&&p._id===A._id,D=A.displayName||A.name||"Colleague",Y=D.slice(0,1).toUpperCase();return`
-          <div class="bonding-channel-item ${M?"active":""}" data-channel-id="${A._id}">
-            <div class="bonding-channel-avatar">${Y}</div>
+        `}).join("")}b.length===0?i.innerHTML='<div class="bonding-empty-text">No direct messages yet. Click + New Chat to start a conversation!</div>':i.innerHTML=b.map(D=>{const M=c&&c._id===D._id,$=D.displayName||D.name||"Colleague",K=$.slice(0,1).toUpperCase();return`
+          <div class="bonding-channel-item ${M?"active":""}" data-channel-id="${D._id}">
+            <div class="bonding-channel-avatar">${K}</div>
             <div class="bonding-channel-info">
-              <div class="bonding-channel-name">${v(D)}</div>
-              <div class="bonding-channel-preview">${v(A.lastMessage?.content||"Say hello...")}</div>
+              <div class="bonding-channel-name">${v($)}</div>
+              <div class="bonding-channel-preview">${v(D.lastMessage?.content||"Say hello...")}</div>
             </div>
-            <button class="bonding-channel-del-btn" data-channel-id="${A._id}" title="Delete 1-on-1 Chat">
+            <button class="bonding-channel-del-btn" data-channel-id="${D._id}" title="Delete 1-on-1 Chat">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <polyline points="3 6 5 6 21 6"></polyline>
                 <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
               </svg>
             </button>
           </div>
-        `}).join(""),vt()}function vt(){const c=s.querySelectorAll(".bonding-channel-item");c.forEach(o=>{o.onclick=async t=>{if(t.target.closest(".bonding-channel-del-btn")||t.target.closest(".bonding-channel-leave-btn"))return;const k=o.dataset.channelId,A=b.find(M=>M._id===k);A&&(p=A,c.forEach(M=>M.classList.remove("active")),o.classList.add("active"),je(),await Le(A._id))}}),s.querySelectorAll(".bonding-channel-leave-btn").forEach(o=>{o.onclick=async t=>{t.stopPropagation();const k=o.dataset.channelId,M=b.find(D=>D._id===k)?.name||"this group";if(confirm(`Are you sure you want to leave the group "${M}"?`))try{o.disabled=!0,await ve(`/bonding/channels/${k}/leave`,{}),$(`You left "${M}"`,"info"),b=b.filter(D=>D._id!==k),p&&p._id===k&&(p=b.find(D=>D.type==="group")||b[0]||null,je(),p&&await Le(p._id)),Be()}catch(D){$(D.message||"Failed to leave group","error"),o.disabled=!1}}}),s.querySelectorAll(".bonding-channel-del-btn").forEach(o=>{o.onclick=async t=>{t.stopPropagation();const k=o.dataset.channelId,A=b.find(Y=>Y._id===k),M=A&&A.type==="direct",D=M?"this 1-on-1 chat":`the group "${A?.name||""}"`;if(confirm(`Are you sure you want to delete ${D}? All messages will be permanently removed.`))try{o.disabled=!0,await nt(`/bonding/channels/${k}`),$(M?"1-on-1 chat deleted":"Group deleted","success"),b=b.filter(Y=>Y._id!==k),p&&p._id===k&&(p=b[0]||null,je(),p&&await Le(p._id)),Be()}catch(Y){$(Y.message||"Failed to delete conversation","error"),o.disabled=!1}}}),s.querySelector("#btn-create-group")?.addEventListener("click",E),s.querySelector("#btn-new-direct-chat")?.addEventListener("click",x)}function je(){const c=s.querySelector("#bonding-chat-panel");if(!c)return;if(!p){c.innerHTML=`
+        `}).join(""),wt()}function wt(){const d=s.querySelectorAll(".bonding-channel-item");d.forEach(i=>{i.onclick=async t=>{if(t.target.closest(".bonding-channel-del-btn")||t.target.closest(".bonding-channel-leave-btn"))return;const b=i.dataset.channelId,D=f.find(M=>M._id===b);D&&(c=D,d.forEach(M=>M.classList.remove("active")),i.classList.add("active"),Re(),await Me(D._id))}}),s.querySelectorAll(".bonding-channel-leave-btn").forEach(i=>{i.onclick=async t=>{t.stopPropagation();const b=i.dataset.channelId,M=f.find($=>$._id===b)?.name||"this group";if(confirm(`Are you sure you want to leave the group "${M}"?`))try{i.disabled=!0,await xe(`/bonding/channels/${b}/leave`,{}),S(`You left "${M}"`,"info"),f=f.filter($=>$._id!==b),c&&c._id===b&&(c=f.find($=>$.type==="group")||f[0]||null,Re(),c&&await Me(c._id)),qe()}catch($){S($.message||"Failed to leave group","error"),i.disabled=!1}}}),s.querySelectorAll(".bonding-channel-del-btn").forEach(i=>{i.onclick=async t=>{t.stopPropagation();const b=i.dataset.channelId,D=f.find(K=>K._id===b),M=D&&D.type==="direct",$=M?"this 1-on-1 chat":`the group "${D?.name||""}"`;if(confirm(`Are you sure you want to delete ${$}? All messages will be permanently removed.`))try{i.disabled=!0,await at(`/bonding/channels/${b}`),S(M?"1-on-1 chat deleted":"Group deleted","success"),f=f.filter(K=>K._id!==b),c&&c._id===b&&(c=f[0]||null,Re(),c&&await Me(c._id)),qe()}catch(K){S(K.message||"Failed to delete conversation","error"),i.disabled=!1}}}),s.querySelector("#btn-create-group")?.addEventListener("click",h),s.querySelector("#btn-new-direct-chat")?.addEventListener("click",q)}function Re(){const d=s.querySelector("#bonding-chat-panel");if(!d)return;if(!c){d.innerHTML=`
         <div class="bonding-empty-feed">
           <div class="bonding-empty-icon">💬</div>
           <h4>Select a Conversation</h4>
           <p>Choose a group lounge or direct message on the left to start chatting with your colleagues.</p>
         </div>
-      `;return}const o=v(p.displayName||p.name),t=(p.members||[]).length,k=p.type==="group",A=e?._id||e?.id,M=k?null:(p.members||[]).find(O=>O.userId?.toString()!==A?.toString()),D=p.createdBy&&p.createdBy.userId&&String(p.createdBy.userId)===String(A),Y=g==="superadmin"||e?.role==="superadmin",ee=D||Y;c.innerHTML=`
+      `;return}const i=v(c.displayName||c.name),t=(c.members||[]).length,b=c.type==="group",D=a?._id||a?.id,M=b?null:(c.members||[]).find(O=>O.userId?.toString()!==D?.toString()),$=c.createdBy&&c.createdBy.userId&&String(c.createdBy.userId)===String(D),K=g==="superadmin"||a?.role==="superadmin",Z=$||K;d.innerHTML=`
       <div class="bonding-chat-header">
         <div class="bonding-chat-header-info">
-          <div class="bonding-chat-header-avatar">${k?p.avatar||"👥":"👤"}</div>
+          <div class="bonding-chat-header-avatar">${b?c.avatar||"👥":"👤"}</div>
           <div>
-            <div class="bonding-chat-title">${o}</div>
+            <div class="bonding-chat-title">${i}</div>
             <div class="bonding-chat-sub">
-              ${k?`<span>${t} members</span> · <span>${v(p.description||"Public Lounge")}</span>`:'<span>Direct 1-on-1 Personal Chat</span> · <span class="status-online">🟢 Active</span>'}
+              ${b?`<span>${t} members</span> · <span>${v(c.description||"Public Lounge")}</span>`:'<span>Direct 1-on-1 Personal Chat</span> · <span class="status-online">🟢 Active</span>'}
             </div>
           </div>
         </div>
@@ -3529,11 +3759,11 @@ In Brave or Chrome, click the lock or shield icon on the left of the address bar
             <span>🧹</span> <span>Clear Chat</span>
           </button>
 
-          ${k?`
+          ${b?`
             <button class="bonding-header-btn" id="btn-manage-members">
               <span>👥</span> <span>Members (${t})</span>
             </button>
-            ${ee?`
+            ${Z?`
               <button class="bonding-header-btn danger" id="btn-delete-group" title="Delete this group (Creator only)">
                 <span>🗑️</span> <span>Delete Group</span>
               </button>
@@ -3551,7 +3781,7 @@ In Brave or Chrome, click the lock or shield icon on the left of the address bar
       </div>
 
       <div class="bonding-messages-container" id="bonding-messages-feed">
-        ${Re()}
+        ${Ve()}
       </div>
 
       <div class="bonding-chat-input-bar">
@@ -3581,26 +3811,26 @@ In Brave or Chrome, click the lock or shield icon on the left of the address bar
           </svg>
         </button>
       </div>
-    `,ct(M),we(M),ft(),n()}function Re(){if(!R||R.length===0)return`
+    `,st(M),ve(M),mt(),e()}function Ve(){if(!N||N.length===0)return`
         <div class="bonding-empty-feed">
           <div class="bonding-empty-icon">👋</div>
           <h4>No messages yet</h4>
           <p>Be the first to say hello or challenge a colleague to a multiplayer game!</p>
         </div>
-      `;const c=e?._id||e?.id;return R.map(o=>{const t=o.sender&&o.sender.userId&&c&&o.sender.userId.toString()===c.toString();if(o.type==="system")return`
-          <div class="bonding-msg-system" data-msg-id="${o._id}">
-            <span>ℹ️</span> <span>${v(o.content)}</span>
-            <button class="bonding-msg-del-btn mini" data-msg-id="${o._id}" title="Delete Message">&times;</button>
+      `;const d=a?._id||a?.id;return N.map(i=>{const t=i.sender&&i.sender.userId&&d&&i.sender.userId.toString()===d.toString();if(i.type==="system")return`
+          <div class="bonding-msg-system" data-msg-id="${i._id}">
+            <span>ℹ️</span> <span>${v(i.content)}</span>
+            <button class="bonding-msg-del-btn mini" data-msg-id="${i._id}" title="Delete Message">&times;</button>
           </div>
-        `;if(o.type==="challenge"&&o.challengeData){const D=o.challengeData,Y=D.gameTitle||"Game Challenge",ee=D.gameType||"dotsboxes",O=ee==="dotsboxes"?"🎮":ee==="ludo"?"🎲":ee==="chess"?"♟️":"❌",_=D.gameState?.invitationId,Q=D.targetUserId?.toString(),oe=o.sender?.userId?.toString(),ae=c&&Q===c.toString(),pe=c&&oe===c.toString();return`
-          <div class="bonding-msg-row ${t?"self":"other"}" data-msg-id="${o._id}">
-            <div class="bonding-msg-avatar" title="${v(o.sender?.name||"Teammate")}">
-              ${(o.sender?.name||"U").slice(0,1).toUpperCase()}
+        `;if(i.type==="challenge"&&i.challengeData){const $=i.challengeData,K=$.gameTitle||"Game Challenge",Z=$.gameType||"dotsboxes",O=Z==="dotsboxes"?"🎮":Z==="ludo"?"🎲":Z==="chess"?"♟️":"❌",P=$.gameState?.invitationId,J=$.targetUserId?.toString(),ie=i.sender?.userId?.toString(),X=d&&J===d.toString(),ae=d&&ie===d.toString();return`
+          <div class="bonding-msg-row ${t?"self":"other"}" data-msg-id="${i._id}">
+            <div class="bonding-msg-avatar" title="${v(i.sender?.name||"Teammate")}">
+              ${(i.sender?.name||"U").slice(0,1).toUpperCase()}
             </div>
             <div class="bonding-msg-bubble-wrap">
               <div class="bonding-msg-meta">
-                <span class="bonding-msg-time">${L(o.createdAt)}</span>
-                <button class="bonding-msg-del-btn" data-msg-id="${o._id}" title="Delete Challenge Message">
+                <span class="bonding-msg-time">${_(i.createdAt)}</span>
+                <button class="bonding-msg-del-btn" data-msg-id="${i._id}" title="Delete Challenge Message">
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <polyline points="3 6 5 6 21 6"></polyline>
                     <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -3613,50 +3843,50 @@ In Brave or Chrome, click the lock or shield icon on the left of the address bar
                 <div class="game-bubble-top">
                   <div class="game-bubble-icon">${O}</div>
                   <div class="game-bubble-details">
-                    <h4 class="game-bubble-title">${v(Y)}</h4>
-                    <p class="game-bubble-desc">${v(o.content)}</p>
+                    <h4 class="game-bubble-title">${v(K)}</h4>
+                    <p class="game-bubble-desc">${v(i.content)}</p>
                   </div>
                 </div>
 
                 <div class="game-bubble-status">
-                  ${D.status==="pending"?'<span class="badge amber">⏳ Awaiting Response</span>':D.status==="active"||D.status==="accepted"?'<span class="badge green">🟢 Match Active</span>':D.status==="declined"?'<span class="badge red">❌ Challenge Declined</span>':D.status==="cancelled"?'<span class="badge gray">🚫 Challenge Cancelled</span>':`<span class="badge gray">${v(D.status?.toUpperCase()||"COMPLETED")}</span>`}
+                  ${$.status==="pending"?'<span class="badge amber">⏳ Awaiting Response</span>':$.status==="active"||$.status==="accepted"?'<span class="badge green">🟢 Match Active</span>':$.status==="declined"?'<span class="badge red">❌ Challenge Declined</span>':$.status==="cancelled"?'<span class="badge gray">🚫 Challenge Cancelled</span>':`<span class="badge gray">${v($.status?.toUpperCase()||"COMPLETED")}</span>`}
                 </div>
 
                 <div class="game-bubble-actions">
-                  ${D.status==="pending"&&ae?`
-                      <button class="game-btn-accept btn-respond-invite" data-invite-id="${_}" data-action="accept">
+                  ${$.status==="pending"&&X?`
+                      <button class="game-btn-accept btn-respond-invite" data-invite-id="${P}" data-action="accept">
                         ⚔️ Accept Challenge
                       </button>
-                      <button class="game-btn-decline btn-respond-invite" data-invite-id="${_}" data-action="decline">
+                      <button class="game-btn-decline btn-respond-invite" data-invite-id="${P}" data-action="decline">
                         Decline
                       </button>
-                    `:D.status==="pending"&&pe?`
+                    `:$.status==="pending"&&ae?`
                         <div class="game-pending-text">Waiting for opponent to accept...</div>
-                        <button class="game-btn-cancel btn-respond-invite" data-invite-id="${_}" data-action="cancel">
+                        <button class="game-btn-cancel btn-respond-invite" data-invite-id="${P}" data-action="cancel">
                           Cancel
                         </button>
-                      `:D.status==="declined"||D.status==="cancelled"?`
+                      `:$.status==="declined"||$.status==="cancelled"?`
                         <div class="game-pending-text" style="font-size:11.5px;color:var(--text-3);font-style:italic;">
-                          ${D.status==="declined"?"Challenge was declined":"Challenge was cancelled"}
+                          ${$.status==="declined"?"Challenge was declined":"Challenge was cancelled"}
                         </div>
                       `:`
-                        <button class="game-btn-play btn-launch-match-from-card" data-match-id="${D.gameState?.matchId||""}" data-invite-id="${_||""}">
+                        <button class="game-btn-play btn-launch-match-from-card" data-match-id="${$.gameState?.matchId||""}" data-invite-id="${P||""}">
                           🎮 Enter Match Arena
                         </button>
                       `}
                 </div>
               </div>
 
-              ${de(o)}
+              ${de(i)}
             </div>
           </div>
-        `}const k=v(o.sender?.name||"Teammate"),A=L(o.createdAt),M=de(o);return`
-        <div class="bonding-msg-row ${t?"self":"other"}" data-msg-id="${o._id}">
-          <div class="bonding-msg-avatar" title="${k}">${k.slice(0,1).toUpperCase()}</div>
+        `}const b=v(i.sender?.name||"Teammate"),D=_(i.createdAt),M=de(i);return`
+        <div class="bonding-msg-row ${t?"self":"other"}" data-msg-id="${i._id}">
+          <div class="bonding-msg-avatar" title="${b}">${b.slice(0,1).toUpperCase()}</div>
           <div class="bonding-msg-bubble-wrap">
             <div class="bonding-msg-meta">
-              <span class="bonding-msg-time">${A}</span>
-              <button class="bonding-msg-del-btn" data-msg-id="${o._id}" title="Delete Message">
+              <span class="bonding-msg-time">${D}</span>
+              <button class="bonding-msg-del-btn" data-msg-id="${i._id}" title="Delete Message">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <polyline points="3 6 5 6 21 6"></polyline>
                   <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -3664,41 +3894,41 @@ In Brave or Chrome, click the lock or shield icon on the left of the address bar
               </button>
             </div>
             <div class="bonding-msg-bubble">
-              ${v(o.content).replace(/\n/g,"<br/>")}
+              ${v(i.content).replace(/\n/g,"<br/>")}
             </div>
             ${M}
           </div>
         </div>
-      `}).join("")}function de(c){const o=c.reactions||[];return!o||o.length===0?"":`
+      `}).join("")}function de(d){const i=d.reactions||[];return!i||i.length===0?"":`
       <div class="bonding-reactions-row">
-        ${o.map(k=>{const A=e?._id||e?.id;return`
-        <button class="bonding-rxn-tag ${(k.users||[]).some(D=>D.toString()===A?.toString())?"active":""}" data-msg-id="${c._id}" data-emoji="${k.emoji}">
-          <span>${k.emoji}</span> <span>${k.users?k.users.length:1}</span>
+        ${i.map(b=>{const D=a?._id||a?.id;return`
+        <button class="bonding-rxn-tag ${(b.users||[]).some($=>$.toString()===D?.toString())?"active":""}" data-msg-id="${d._id}" data-emoji="${b.emoji}">
+          <span>${b.emoji}</span> <span>${b.users?b.users.length:1}</span>
         </button>
       `}).join("")}
       </div>
-    `}function ct(c){const o=s.querySelector("#btn-chat-challenge");o&&(o.onclick=()=>{c?N(null,c.userId||c._id):N()});const t=s.querySelector("#btn-manage-members");t&&(t.onclick=H);const k=s.querySelector("#btn-delete-group");k&&(k.onclick=j);const A=s.querySelector("#btn-leave-group");A&&(A.onclick=F);const M=s.querySelector("#btn-delete-direct");M&&(M.onclick=async()=>{if(p&&confirm("Are you sure you want to delete this 1-on-1 chat? All messages will be permanently removed."))try{M.disabled=!0,await nt(`/bonding/channels/${p._id}`),$("1-on-1 chat deleted successfully","success");const Y=p._id;b=b.filter(ee=>ee._id!==Y),p=b[0]||null,Be(),je(),p&&await Le(p._id)}catch(Y){$(Y.message||"Could not delete 1-on-1 chat","error"),M.disabled=!1}});const D=s.querySelector("#btn-clear-chat");D&&(D.onclick=async()=>{if(p&&confirm("Are you sure you want to clear all messages in this conversation?"))try{D.disabled=!0,await nt(`/bonding/channels/${p._id}/messages`),$("Chat messages cleared","success"),R=[],f()}catch(Y){$(Y.message||"Could not clear chat messages","error")}finally{D.disabled=!1}})}function we(c){const o=s.querySelector("#bonding-message-input"),t=s.querySelector("#btn-send-message"),k=s.querySelector("#btn-quick-emoji"),A=s.querySelector("#btn-input-challenge");o&&o.addEventListener("keydown",M=>{M.key==="Enter"&&!M.shiftKey&&(M.preventDefault(),pt())}),t&&(t.onclick=pt),A&&(A.onclick=()=>{c?N(null,c.userId||c._id):N()}),k&&(k.onclick=M=>{M.stopPropagation(),o&&X(k,D=>{const Y=o.selectionStart??o.value.length,ee=o.selectionEnd??o.value.length,O=o.value;o.value=O.substring(0,Y)+D+O.substring(ee),o.focus();const _=Y+D.length;try{o.setSelectionRange(_,_)}catch{}})})}function ft(){s.querySelectorAll(".btn-respond-invite").forEach(k=>{k.onclick=async()=>{const A=k.dataset.inviteId,M=k.dataset.action;await S(A,M)}}),s.querySelectorAll(".btn-launch-match-from-card").forEach(k=>{k.onclick=async()=>{const A=k.dataset.matchId,M=k.dataset.inviteId;if(A){P(A);return}try{k.disabled=!0;const D=await ze("/bonding/invitations"),ee=(D.incoming||[]).concat(D.sent||[]).find(Q=>Q._id===M||Q.matchId&&Q.matchId.toString()===M);if(ee&&ee.matchId){P(ee.matchId);return}const _=(await ze("/bonding/matches").catch(()=>[])||[]).find(Q=>Q.invitationId===M||Q._id===M);if(_){P(_._id);return}$("Match has not started yet or has finished","warning")}catch(D){$(D.message||"Could not load match","error")}finally{k.disabled=!1}}}),s.querySelectorAll(".bonding-msg-del-btn").forEach(k=>{k.onclick=async A=>{A.stopPropagation();const M=k.dataset.msgId;if(confirm("Are you sure you want to delete this message?"))try{k.disabled=!0,await nt(`/bonding/messages/${M}`),R=R.filter(D=>D._id!==M),r(),$("Message deleted","success")}catch(D){$(D.message||"Failed to delete message","error"),k.disabled=!1}}}),s.querySelectorAll(".bonding-rxn-tag").forEach(k=>{k.onclick=async()=>{const A=k.dataset.msgId,M=k.dataset.emoji;await l(A,M)}}),s.querySelectorAll(".bonding-add-rxn-btn").forEach(k=>{k.onclick=A=>{const M=k.dataset.msgId;I(A.currentTarget,async D=>{await l(M,D)})}})}async function pt(){const c=s.querySelector("#bonding-message-input");if(!c||!p||q)return;const o=c.value.trim();if(o)try{q=!0,c.value="";const t=await ve(`/bonding/channels/${p._id}/messages`,{content:o,type:"text"});R.push(t),f(),n()}catch(t){$(t.message||"Failed to send message","error")}finally{q=!1,c.focus()}}async function l(c,o){try{const t=await ve(`/bonding/messages/${c}/react`,{emoji:o}),k=R.find(A=>A._id===c);k&&(k.reactions=t,r())}catch(t){$(t.message||"Failed to react","error")}}function n(){const c=s.querySelector("#bonding-messages-feed");c&&(c.scrollTop=c.scrollHeight)}function r(){const c=s.querySelector("#bonding-messages-feed");if(!c)return;const o=c.scrollHeight-c.scrollTop<=c.clientHeight+80;c.innerHTML=Re(),ft(),o&&n()}function f(){const c=s.querySelector("#bonding-messages-feed");c&&(c.innerHTML=Re(),ft())}async function y(c=!1){const o=s.querySelector("#bonding-lounge-main-wrap");if(o){c||(o.innerHTML='<div class="bonding-loading-text" style="padding:40px;text-align:center">Loading Games Arena & Live Matches...</div>');try{const t=await ze("/bonding/games/overview");J=t;const k=t.myStats||{},A=t.availableGames||[],M=t.incomingChallenges||[],D=t.sentChallenges||[],Y=t.activeMatches||[],ee=t.recentMatches||[],O=e?._id||e?.id;o.innerHTML=`
+    `}function st(d){const i=s.querySelector("#btn-chat-challenge");i&&(i.onclick=()=>{d?F(null,d.userId||d._id):F()});const t=s.querySelector("#btn-manage-members");t&&(t.onclick=L);const b=s.querySelector("#btn-delete-group");b&&(b.onclick=p);const D=s.querySelector("#btn-leave-group");D&&(D.onclick=z);const M=s.querySelector("#btn-delete-direct");M&&(M.onclick=async()=>{if(c&&confirm("Are you sure you want to delete this 1-on-1 chat? All messages will be permanently removed."))try{M.disabled=!0,await at(`/bonding/channels/${c._id}`),S("1-on-1 chat deleted successfully","success");const K=c._id;f=f.filter(Z=>Z._id!==K),c=f[0]||null,qe(),Re(),c&&await Me(c._id)}catch(K){S(K.message||"Could not delete 1-on-1 chat","error"),M.disabled=!1}});const $=s.querySelector("#btn-clear-chat");$&&($.onclick=async()=>{if(c&&confirm("Are you sure you want to clear all messages in this conversation?"))try{$.disabled=!0,await at(`/bonding/channels/${c._id}/messages`),S("Chat messages cleared","success"),N=[],m()}catch(K){S(K.message||"Could not clear chat messages","error")}finally{$.disabled=!1}})}function ve(d){const i=s.querySelector("#bonding-message-input"),t=s.querySelector("#btn-send-message"),b=s.querySelector("#btn-quick-emoji"),D=s.querySelector("#btn-input-challenge");i&&i.addEventListener("keydown",M=>{M.key==="Enter"&&!M.shiftKey&&(M.preventDefault(),ct())}),t&&(t.onclick=ct),D&&(D.onclick=()=>{d?F(null,d.userId||d._id):F()}),b&&(b.onclick=M=>{M.stopPropagation(),i&&T(b,$=>{const K=i.selectionStart??i.value.length,Z=i.selectionEnd??i.value.length,O=i.value;i.value=O.substring(0,K)+$+O.substring(Z),i.focus();const P=K+$.length;try{i.setSelectionRange(P,P)}catch{}})})}function mt(){s.querySelectorAll(".btn-respond-invite").forEach(b=>{b.onclick=async()=>{const D=b.dataset.inviteId,M=b.dataset.action;await j(D,M)}}),s.querySelectorAll(".btn-launch-match-from-card").forEach(b=>{b.onclick=async()=>{const D=b.dataset.matchId,M=b.dataset.inviteId;if(D){C(D);return}try{b.disabled=!0;const $=await ze("/bonding/invitations"),Z=($.incoming||[]).concat($.sent||[]).find(J=>J._id===M||J.matchId&&J.matchId.toString()===M);if(Z&&Z.matchId){C(Z.matchId);return}const P=(await ze("/bonding/matches").catch(()=>[])||[]).find(J=>J.invitationId===M||J._id===M);if(P){C(P._id);return}S("Match has not started yet or has finished","warning")}catch($){S($.message||"Could not load match","error")}finally{b.disabled=!1}}}),s.querySelectorAll(".bonding-msg-del-btn").forEach(b=>{b.onclick=async D=>{D.stopPropagation();const M=b.dataset.msgId;if(confirm("Are you sure you want to delete this message?"))try{b.disabled=!0,await at(`/bonding/messages/${M}`),N=N.filter($=>$._id!==M),o(),S("Message deleted","success")}catch($){S($.message||"Failed to delete message","error"),b.disabled=!1}}}),s.querySelectorAll(".bonding-rxn-tag").forEach(b=>{b.onclick=async()=>{const D=b.dataset.msgId,M=b.dataset.emoji;await ft(D,M)}}),s.querySelectorAll(".bonding-add-rxn-btn").forEach(b=>{b.onclick=D=>{const M=b.dataset.msgId;U(D.currentTarget,async $=>{await ft(M,$)})}})}async function ct(){const d=s.querySelector("#bonding-message-input");if(!d||!c||B)return;const i=d.value.trim();if(i)try{B=!0,d.value="";const t=await xe(`/bonding/channels/${c._id}/messages`,{content:i,type:"text"});N.push(t),m(),e()}catch(t){S(t.message||"Failed to send message","error")}finally{B=!1,d.focus()}}async function ft(d,i){try{const t=await xe(`/bonding/messages/${d}/react`,{emoji:i}),b=N.find(D=>D._id===d);b&&(b.reactions=t,o())}catch(t){S(t.message||"Failed to react","error")}}function e(){const d=s.querySelector("#bonding-messages-feed");d&&(d.scrollTop=d.scrollHeight)}function o(){const d=s.querySelector("#bonding-messages-feed");if(!d)return;const i=d.scrollHeight-d.scrollTop<=d.clientHeight+80;d.innerHTML=Ve(),mt(),i&&e()}function m(){const d=s.querySelector("#bonding-messages-feed");d&&(d.innerHTML=Ve(),mt())}async function y(d=!1){const i=s.querySelector("#bonding-lounge-main-wrap");if(i){d||(i.innerHTML='<div class="bonding-loading-text" style="padding:40px;text-align:center">Loading Games Arena & Live Matches...</div>');try{const t=await ze("/bonding/games/overview");Q=t;const b=t.myStats||{},D=t.availableGames||[],M=t.incomingChallenges||[],$=t.sentChallenges||[],K=t.activeMatches||[],Z=t.recentMatches||[],O=a?._id||a?.id;i.innerHTML=`
         <div class="lounge-container">
           <!-- Top Stats Ribbon -->
           <div class="lounge-stats-ribbon">
             <div class="lounge-stat-card">
-              <span class="stat-num">${k.gamesPlayed||0}</span>
+              <span class="stat-num">${b.gamesPlayed||0}</span>
               <span class="stat-lbl">Matches Played</span>
             </div>
             <div class="lounge-stat-card highlight">
-              <span class="stat-num">${k.wins||0}</span>
+              <span class="stat-num">${b.wins||0}</span>
               <span class="stat-lbl">Victories 🏆</span>
             </div>
             <div class="lounge-stat-card">
-              <span class="stat-num">${k.losses||0}</span>
+              <span class="stat-num">${b.losses||0}</span>
               <span class="stat-lbl">Losses</span>
             </div>
             <div class="lounge-stat-card">
-              <span class="stat-num">${k.draws||0}</span>
+              <span class="stat-num">${b.draws||0}</span>
               <span class="stat-lbl">Draws</span>
             </div>
             <div class="lounge-stat-card">
-              <span class="stat-num">${k.gamesPlayed>0?Math.round((k.wins||0)/k.gamesPlayed*100):0}%</span>
+              <span class="stat-num">${b.gamesPlayed>0?Math.round((b.wins||0)/b.gamesPlayed*100):0}%</span>
               <span class="stat-lbl">Win Rate</span>
             </div>
           </div>
@@ -3711,19 +3941,19 @@ In Brave or Chrome, click the lock or shield icon on the left of the address bar
             </div>
 
             <div class="lounge-games-grid">
-              ${A.map(_=>`
-                <div class="lounge-game-card" data-game-id="${_.id}">
-                  <div class="game-card-icon">${_.icon}</div>
+              ${D.map(P=>`
+                <div class="lounge-game-card" data-game-id="${P.id}">
+                  <div class="game-card-icon">${P.icon}</div>
                   <div class="game-card-content">
-                    <h4 class="game-card-title">${v(_.name)}</h4>
-                    <p class="game-card-desc">${v(_.desc)}</p>
+                    <h4 class="game-card-title">${v(P.name)}</h4>
+                    <p class="game-card-desc">${v(P.desc)}</p>
                     <div class="game-card-meta">
-                      <span class="meta-pill">⏱️ ${_.duration}</span>
-                      ${_.id==="ludo"||_.id==="dotsboxes"?`<span class="meta-pill">👥 Up to 4 Players</span><span class="meta-pill">${_.id==="dotsboxes"?"🎮 16 Boxes Grid":"🎯 4 Pawns / Base"}</span>`:'<span class="meta-pill">👥 2 Players</span>'}
+                      <span class="meta-pill">⏱️ ${P.duration}</span>
+                      ${P.id==="ludo"||P.id==="dotsboxes"?`<span class="meta-pill">👥 Up to 4 Players</span><span class="meta-pill">${P.id==="dotsboxes"?"🎮 16 Boxes Grid":"🎯 4 Pawns / Base"}</span>`:'<span class="meta-pill">👥 2 Players</span>'}
                     </div>
                   </div>
-                  <button class="lounge-card-challenge-btn btn-challenge-game" data-game-id="${_.id}" data-game-title="${v(_.name)}">
-                    ${_.id==="dotsboxes"?"⚔️ Play Dots & Boxes (2P–4P)":_.id==="ludo"?"⚔️ Play Ludo (2P–4P)":"⚔️ Challenge Employee"}
+                  <button class="lounge-card-challenge-btn btn-challenge-game" data-game-id="${P.id}" data-game-title="${v(P.name)}">
+                    ${P.id==="dotsboxes"?"⚔️ Play Dots & Boxes (2P–4P)":P.id==="ludo"?"⚔️ Play Ludo (2P–4P)":"⚔️ Challenge Employee"}
                   </button>
                 </div>
               `).join("")}
@@ -3736,27 +3966,27 @@ In Brave or Chrome, click the lock or shield icon on the left of the address bar
             <div class="lounge-card-box">
               <div class="lounge-box-title">
                 <span>📬 Game Invitations</span>
-                <span class="badge blue">${M.length+D.length} Total</span>
+                <span class="badge blue">${M.length+$.length} Total</span>
               </div>
 
               <!-- Incoming -->
               <h5 class="sub-box-title">Incoming Challenges (${M.length})</h5>
               ${M.length===0?'<div class="box-empty-text">No incoming challenges waiting. Start one with a teammate!</div>':`
                   <div class="lounge-invites-list">
-                    ${M.map(_=>`
+                    ${M.map(P=>`
                       <div class="lounge-invite-item incoming">
                         <div class="invite-left">
-                          <div class="invite-avatar">${(_.sender.name||"U").slice(0,1).toUpperCase()}</div>
+                          <div class="invite-avatar">${(P.sender.name||"U").slice(0,1).toUpperCase()}</div>
                           <div class="invite-info">
-                            <span class="invite-title">${v(_.gameTitle)}</span>
-                            <span class="invite-sender">from <strong>${v(_.sender.name)}</strong> (${v(_.sender.role)})</span>
+                            <span class="invite-title">${v(P.gameTitle)}</span>
+                            <span class="invite-sender">from <strong>${v(P.sender.name)}</strong> (${v(P.sender.role)})</span>
                           </div>
                         </div>
                         <div class="invite-actions">
-                          <button class="btn-invite-accept btn-respond-invite" data-invite-id="${_._id}" data-action="accept">
+                          <button class="btn-invite-accept btn-respond-invite" data-invite-id="${P._id}" data-action="accept">
                             Accept ⚔️
                           </button>
-                          <button class="btn-invite-decline btn-respond-invite" data-invite-id="${_._id}" data-action="decline">
+                          <button class="btn-invite-decline btn-respond-invite" data-invite-id="${P._id}" data-action="decline">
                             Decline
                           </button>
                         </div>
@@ -3766,21 +3996,21 @@ In Brave or Chrome, click the lock or shield icon on the left of the address bar
                 `}
 
               <!-- Sent -->
-              <h5 class="sub-box-title" style="margin-top: 18px;">Sent Challenges (${D.length})</h5>
-              ${D.length===0?'<div class="box-empty-text">No pending outgoing invitations.</div>':`
+              <h5 class="sub-box-title" style="margin-top: 18px;">Sent Challenges (${$.length})</h5>
+              ${$.length===0?'<div class="box-empty-text">No pending outgoing invitations.</div>':`
                   <div class="lounge-invites-list">
-                    ${D.map(_=>`
+                    ${$.map(P=>`
                       <div class="lounge-invite-item outgoing">
                         <div class="invite-left">
-                          <div class="invite-avatar">${(_.recipient.name||"U").slice(0,1).toUpperCase()}</div>
+                          <div class="invite-avatar">${(P.recipient.name||"U").slice(0,1).toUpperCase()}</div>
                           <div class="invite-info">
-                            <span class="invite-title">${v(_.gameTitle)}</span>
-                            <span class="invite-sender">sent to <strong>${v(_.recipient.name)}</strong></span>
+                            <span class="invite-title">${v(P.gameTitle)}</span>
+                            <span class="invite-sender">sent to <strong>${v(P.recipient.name)}</strong></span>
                           </div>
                         </div>
                         <div class="invite-actions">
                           <span class="badge amber">Pending</span>
-                          <button class="btn-invite-cancel btn-respond-invite" data-invite-id="${_._id}" data-action="cancel">
+                          <button class="btn-invite-cancel btn-respond-invite" data-invite-id="${P._id}" data-action="cancel">
                             Cancel
                           </button>
                         </div>
@@ -3794,29 +4024,29 @@ In Brave or Chrome, click the lock or shield icon on the left of the address bar
             <div class="lounge-card-box">
               <div class="lounge-box-title">
                 <span>⚡ Active Multiplayer Matches</span>
-                <span class="badge green">${Y.length} Live</span>
+                <span class="badge green">${K.length} Live</span>
               </div>
 
-              ${Y.length===0?'<div class="box-empty-text" style="padding: 24px 0">No active matches in progress right now. Accept an invitation or challenge a teammate to begin!</div>':`
+              ${K.length===0?'<div class="box-empty-text" style="padding: 24px 0">No active matches in progress right now. Accept an invitation or challenge a teammate to begin!</div>':`
                   <div class="lounge-active-matches-list">
-                    ${Y.map(_=>{const oe=(_.players||_.gameState?.players||[_.player1,_.player2].filter(Boolean)).filter(le=>le.userId&&le.userId.toString()!==O?.toString()),ae=_.player1?.userId?.toString()===O?.toString()?_.player2:_.player1,pe=oe.length>0?oe.map(le=>v(le.name)).join(", "):ae?.name?v(ae.name):"Colleagues",ge=O&&_.currentTurnUserId&&_.currentTurnUserId.toString()===O.toString();return`
-                        <div class="lounge-active-match-card ${ge?"turn-active":""}">
+                    ${K.map(P=>{const ie=(P.players||P.gameState?.players||[P.player1,P.player2].filter(Boolean)).filter(se=>se.userId&&se.userId.toString()!==O?.toString()),X=P.player1?.userId?.toString()===O?.toString()?P.player2:P.player1,ae=ie.length>0?ie.map(se=>v(se.name)).join(", "):X?.name?v(X.name):"Colleagues",ce=O&&P.currentTurnUserId&&P.currentTurnUserId.toString()===O.toString();return`
+                        <div class="lounge-active-match-card ${ce?"turn-active":""}">
                           <div class="active-match-left">
-                            <span class="match-game-icon">${_.gameType==="dotsboxes"?"🎮":_.gameType==="ludo"?"🎲":_.gameType==="chess"?"♟️":"❌"}</span>
+                            <span class="match-game-icon">${P.gameType==="dotsboxes"?"🎮":P.gameType==="ludo"?"🎲":P.gameType==="chess"?"♟️":"❌"}</span>
                             <div>
-                              <div class="match-game-title">${v(_.gameTitle)}</div>
-                              <div class="match-opp-text">Opponent(s): <strong>${pe}</strong></div>
+                              <div class="match-game-title">${v(P.gameTitle)}</div>
+                              <div class="match-opp-text">Opponent(s): <strong>${ae}</strong></div>
                             </div>
                           </div>
 
                           <div class="active-match-right">
-                            <span class="match-turn-tag ${ge?"my-turn":"wait"}">
-                              ${ge?"⚡ Your Turn!":"⏳ Opponent Turn"}
+                            <span class="match-turn-tag ${ce?"my-turn":"wait"}">
+                              ${ce?"⚡ Your Turn!":"⏳ Opponent Turn"}
                             </span>
-                            <button class="btn-resume-match" data-match-id="${_._id}">
+                            <button class="btn-resume-match" data-match-id="${P._id}">
                               Resume Match 🎮
                             </button>
-                            <button class="btn-delete-match" data-match-id="${_._id}" title="Delete Match">
+                            <button class="btn-delete-match" data-match-id="${P._id}" title="Delete Match">
                               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <polyline points="3 6 5 6 21 6"></polyline>
                                 <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -3837,7 +4067,7 @@ In Brave or Chrome, click the lock or shield icon on the left of the address bar
                 <h3>📜 Recent Completed Matches</h3>
                 <p>Audit results, rematch recent opponents, or review match outcomes.</p>
               </div>
-              ${ee.length>0?`
+              ${Z.length>0?`
                 <button class="btn-clear-matches" id="btn-clear-matches" title="Clear all completed matches">
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <polyline points="3 6 5 6 21 6"></polyline>
@@ -3848,14 +4078,14 @@ In Brave or Chrome, click the lock or shield icon on the left of the address bar
               `:""}
             </div>
 
-            ${ee.length===0?'<div class="box-empty-text">No recently completed matches found.</div>':`
+            ${Z.length===0?'<div class="box-empty-text">No recently completed matches found.</div>':`
                 <div class="lounge-recent-matches-grid">
-                  ${ee.map(_=>{const oe=O&&_.player1.userId.toString()===O.toString()?_.player2:_.player1,ae=O&&_.winnerId&&_.winnerId.toString()===O.toString(),pe=_.status==="draw";return`
+                  ${Z.map(P=>{const ie=O&&P.player1.userId.toString()===O.toString()?P.player2:P.player1,X=O&&P.winnerId&&P.winnerId.toString()===O.toString(),ae=P.status==="draw";return`
                       <div class="recent-match-card">
                         <div class="recent-card-head">
-                          <span class="recent-game-title">${v(_.gameTitle)}</span>
-                          <span class="recent-date">${L(_.completedAt||_.updatedAt)}</span>
-                          <button class="btn-delete-match mini" data-match-id="${_._id}" title="Delete Match Record">
+                          <span class="recent-game-title">${v(P.gameTitle)}</span>
+                          <span class="recent-date">${_(P.completedAt||P.updatedAt)}</span>
+                          <button class="btn-delete-match mini" data-match-id="${P._id}" title="Delete Match Record">
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                               <polyline points="3 6 5 6 21 6"></polyline>
                               <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -3863,17 +4093,17 @@ In Brave or Chrome, click the lock or shield icon on the left of the address bar
                           </button>
                         </div>
                         <div class="recent-card-body">
-                          <div>Opponent: <strong>${v(oe.name)}</strong></div>
-                          <div class="recent-outcome ${ae?"win":pe?"draw":"loss"}">
-                            ${ae?"🏆 VICTORY":pe?"🤝 DRAW":"DEFEAT"}
-                            <span style="font-size:11px;font-weight:normal;color:var(--text-3)">(${v(_.winningReason||_.status)})</span>
+                          <div>Opponent: <strong>${v(ie.name)}</strong></div>
+                          <div class="recent-outcome ${X?"win":ae?"draw":"loss"}">
+                            ${X?"🏆 VICTORY":ae?"🤝 DRAW":"DEFEAT"}
+                            <span style="font-size:11px;font-weight:normal;color:var(--text-3)">(${v(P.winningReason||P.status)})</span>
                           </div>
                         </div>
                         <div style="display:flex;gap:8px;margin-top:4px;">
-                          <button class="btn-recent-rematch" data-match-id="${_._id}" style="flex:1;">
+                          <button class="btn-recent-rematch" data-match-id="${P._id}" style="flex:1;">
                             🔄 Rematch
                           </button>
-                          <button class="btn-delete-match text-btn" data-match-id="${_._id}" title="Delete Match Record">
+                          <button class="btn-delete-match text-btn" data-match-id="${P._id}" title="Delete Match Record">
                             Delete
                           </button>
                         </div>
@@ -3883,17 +4113,17 @@ In Brave or Chrome, click the lock or shield icon on the left of the address bar
               `}
           </div>
         </div>
-      `,z()}catch(t){o.innerHTML=`
+      `,A()}catch(t){i.innerHTML=`
         <div class="bonding-empty-feed">
           <div class="bonding-empty-icon">⚠️</div>
           <h4>Failed to load Games Arena</h4>
           <p>${v(t.message)}</p>
         </div>
-      `}}}function z(){s.querySelectorAll(".btn-challenge-game").forEach(o=>{o.onclick=()=>{const t=o.dataset.gameId;N(t)}}),s.querySelectorAll(".btn-respond-invite").forEach(o=>{o.onclick=async()=>{const t=o.dataset.inviteId,k=o.dataset.action;await S(t,k),await y()}}),s.querySelectorAll(".btn-resume-match").forEach(o=>{o.onclick=()=>{const t=o.dataset.matchId;P(t)}}),s.querySelectorAll(".btn-recent-rematch").forEach(o=>{o.onclick=async()=>{const t=o.dataset.matchId;try{o.disabled=!0;const k=await ve(`/bonding/matches/${t}/action`,{action:"rematch"});k.match&&($("Rematch created! Opening arena ⚔️","success"),P(k.match._id))}catch(k){$(k.message||"Could not start rematch","error")}finally{o.disabled=!1}}}),s.querySelectorAll(".btn-delete-match").forEach(o=>{o.onclick=async t=>{t.stopPropagation();const k=o.dataset.matchId;if(confirm("Are you sure you want to delete this match record?"))try{o.disabled=!0,await nt(`/bonding/matches/${k}`),$("Match deleted successfully","success"),await y()}catch(A){$(A.message||"Failed to delete match","error")}finally{o.disabled=!1}}});const c=s.querySelector("#btn-clear-matches");c&&(c.onclick=async()=>{if(confirm("Are you sure you want to delete all completed matches in history?"))try{c.disabled=!0,await nt("/bonding/matches?filter=completed"),$("Completed matches history cleared","success"),await y()}catch(o){$(o.message||"Failed to clear matches","error")}finally{c.disabled=!1}})}function N(c=null,o=null){const t=s.querySelector("#bonding-modals-root"),k=e?._id||e?.id,A=new Set(["employee","admin","superadmin"]),M=i.filter(ae=>!ae.isSelf&&ae._id.toString()!==k?.toString()&&A.has(ae.role));let D=c||"dotsboxes",Y=o?o.toString():null,ee=2,O=Y?[Y]:[],_="none";function Q(){const ae=M.find(xe=>xe._id.toString()===Y),pe=D==="dotsboxes"||D==="ludo",ge=ee-1,le=O.length===ge;t.innerHTML=`
+      `}}}function A(){s.querySelectorAll(".btn-challenge-game").forEach(i=>{i.onclick=()=>{const t=i.dataset.gameId;F(t)}}),s.querySelectorAll(".btn-respond-invite").forEach(i=>{i.onclick=async()=>{const t=i.dataset.inviteId,b=i.dataset.action;await j(t,b),await y()}}),s.querySelectorAll(".btn-resume-match").forEach(i=>{i.onclick=()=>{const t=i.dataset.matchId;C(t)}}),s.querySelectorAll(".btn-recent-rematch").forEach(i=>{i.onclick=async()=>{const t=i.dataset.matchId;try{i.disabled=!0;const b=await xe(`/bonding/matches/${t}/action`,{action:"rematch"});b.match&&(S("Rematch created! Opening arena ⚔️","success"),C(b.match._id))}catch(b){S(b.message||"Could not start rematch","error")}finally{i.disabled=!1}}}),s.querySelectorAll(".btn-delete-match").forEach(i=>{i.onclick=async t=>{t.stopPropagation();const b=i.dataset.matchId;if(confirm("Are you sure you want to delete this match record?"))try{i.disabled=!0,await at(`/bonding/matches/${b}`),S("Match deleted successfully","success"),await y()}catch(D){S(D.message||"Failed to delete match","error")}finally{i.disabled=!1}}});const d=s.querySelector("#btn-clear-matches");d&&(d.onclick=async()=>{if(confirm("Are you sure you want to delete all completed matches in history?"))try{d.disabled=!0,await at("/bonding/matches?filter=completed"),S("Completed matches history cleared","success"),await y()}catch(i){S(i.message||"Failed to clear matches","error")}finally{d.disabled=!1}})}function F(d=null,i=null){const t=s.querySelector("#bonding-modals-root"),b=a?._id||a?.id,D=new Set(["employee","admin","superadmin"]),M=r.filter(X=>!X.isSelf&&X._id.toString()!==b?.toString()&&D.has(X.role));let $=d||"dotsboxes",K=i?i.toString():null,Z=2,O=K?[K]:[],P="none";function J(){const X=M.find(he=>he._id.toString()===K),ae=$==="dotsboxes"||$==="ludo",ce=Z-1,se=O.length===ce;t.innerHTML=`
         <div class="bonding-modal-backdrop">
           <div class="bonding-modal-card challenge-flow-modal">
             <div class="bonding-modal-header">
-              <h3>⚔️ ${D==="dotsboxes"?"Play Dots & Boxes (2P, 3P, 4P)":D==="ludo"?"Play Ludo (2P, 3P, 4P)":"Multiplayer Game Challenge"}</h3>
+              <h3>⚔️ ${$==="dotsboxes"?"Play Dots & Boxes (2P, 3P, 4P)":$==="ludo"?"Play Ludo (2P, 3P, 4P)":"Multiplayer Game Challenge"}</h3>
               <button class="bonding-modal-close">&times;</button>
             </div>
 
@@ -3902,30 +4132,30 @@ In Brave or Chrome, click the lock or shield icon on the left of the address bar
               <div class="flow-step-box">
                 <div class="flow-step-lbl">Step 1 — Choose Game</div>
                 <div class="game-select-pills">
-                  <button class="game-pill-btn ${D==="dotsboxes"?"active":""}" data-game="dotsboxes">
+                  <button class="game-pill-btn ${$==="dotsboxes"?"active":""}" data-game="dotsboxes">
                     <span>🎮</span> <span>Dots & Boxes</span>
                   </button>
-                  <button class="game-pill-btn ${D==="ludo"?"active":""}" data-game="ludo">
+                  <button class="game-pill-btn ${$==="ludo"?"active":""}" data-game="ludo">
                     <span>🎲</span> <span>Ludo Royale</span>
                   </button>
-                  <button class="game-pill-btn ${D==="tictactoe"?"active":""}" data-game="tictactoe">
+                  <button class="game-pill-btn ${$==="tictactoe"?"active":""}" data-game="tictactoe">
                     <span>❌</span> <span>Tic-Tac-Toe</span>
                   </button>
                 </div>
               </div>
 
               <!-- MULTIPLAYER: Step 2 Player Count Selector (2P, 3P, 4P) -->
-              ${pe?`
+              ${ae?`
                 <div class="flow-step-box">
                   <div class="flow-step-lbl">Step 2 — Select Player Mode</div>
                   <div class="ludo-mode-pills">
-                    <button class="ludo-mode-btn ${ee===2?"active":""}" data-count="2">
+                    <button class="ludo-mode-btn ${Z===2?"active":""}" data-count="2">
                       👥 2P Duel (1v1)
                     </button>
-                    <button class="ludo-mode-btn ${ee===3?"active":""}" data-count="3">
+                    <button class="ludo-mode-btn ${Z===3?"active":""}" data-count="3">
                       ⚔️ 3P Battle (3 Players)
                     </button>
-                    <button class="ludo-mode-btn ${ee===4?"active":""}" data-count="4">
+                    <button class="ludo-mode-btn ${Z===4?"active":""}" data-count="4">
                       👑 4P Royale (4 Players)
                     </button>
                   </div>
@@ -3935,22 +4165,22 @@ In Brave or Chrome, click the lock or shield icon on the left of the address bar
               <!-- Step: Opponent Selection -->
               <div class="flow-step-box">
                 <div class="flow-step-lbl">
-                  ${pe?`Step ${pe?3:2} — Select Colleagues to Play With (${O.length}/${ge} Selected) *`:"Step 2 — Select Employee to Challenge *"}
+                  ${ae?`Step ${ae?3:2} — Select Colleagues to Play With (${O.length}/${ce} Selected) *`:"Step 2 — Select Employee to Challenge *"}
                 </div>
                 <div class="emp-search-wrap">
                   <input type="text" id="flow-emp-search" placeholder="🔍 Search employee by name or role..." class="bonding-input" />
                 </div>
 
                 <div class="eligible-emp-list" id="eligible-emp-list-wrap">
-                  ${M.map(xe=>{const We=pe?O.includes(xe._id.toString()):Y===xe._id.toString();return`
-                      <div class="eligible-emp-item ${We?"selected":""}" data-user-id="${xe._id}">
-                        <div class="emp-item-avatar">${xe.name.slice(0,1).toUpperCase()}</div>
+                  ${M.map(he=>{const Be=ae?O.includes(he._id.toString()):K===he._id.toString();return`
+                      <div class="eligible-emp-item ${Be?"selected":""}" data-user-id="${he._id}">
+                        <div class="emp-item-avatar">${he.name.slice(0,1).toUpperCase()}</div>
                         <div class="emp-item-info">
-                          <span class="emp-item-name">${v(xe.name)}</span>
-                          <span class="emp-item-role">${v(xe.role==="superadmin"?"Superadmin":xe.role==="admin"?"Admin":"Employee")} · ${v(xe.email||"")}</span>
+                          <span class="emp-item-name">${v(he.name)}</span>
+                          <span class="emp-item-role">${v(he.role==="superadmin"?"Superadmin":he.role==="admin"?"Admin":"Employee")} · ${v(he.email||"")}</span>
                         </div>
-                        <button class="btn-select-opponent ${We?"active":""}">
-                          ${We?"Selected ✓":"Select"}
+                        <button class="btn-select-opponent ${Be?"active":""}">
+                          ${Be?"Selected ✓":"Select"}
                         </button>
                       </div>
                     `}).join("")}
@@ -3961,11 +4191,11 @@ In Brave or Chrome, click the lock or shield icon on the left of the address bar
               <div class="flow-confirmation-card">
                 <div class="confirm-head">Match Summary:</div>
                 <div class="confirm-body">
-                  <div><strong>Game:</strong> ${D==="dotsboxes"?`🎮 Dots & Boxes (${ee} Players)`:D==="ludo"?`🎲 Ludo (${ee} Players · 4 Pawns)`:"❌ Tic-Tac-Toe Challenge"}</div>
-                  ${pe?`
-                    <div><strong>Opponents:</strong> ${O.length>0?O.map(xe=>{const We=M.find(Z=>Z._id.toString()===xe);return We?`<strong>${v(We.name)}</strong>`:"Colleague"}).join(", "):'<span style="color:#ef4444">⚠️ Please select '+ge+" colleague(s)</span>"}</div>
+                  <div><strong>Game:</strong> ${$==="dotsboxes"?`🎮 Dots & Boxes (${Z} Players)`:$==="ludo"?`🎲 Ludo (${Z} Players · 4 Pawns)`:"❌ Tic-Tac-Toe Challenge"}</div>
+                  ${ae?`
+                    <div><strong>Opponents:</strong> ${O.length>0?O.map(he=>{const Be=M.find(ee=>ee._id.toString()===he);return Be?`<strong>${v(Be.name)}</strong>`:"Colleague"}).join(", "):'<span style="color:#ef4444">⚠️ Please select '+ce+" colleague(s)</span>"}</div>
                   `:`
-                    <div><strong>Opponent:</strong> ${ae?`<strong>${v(ae.name)}</strong> (${v(ae.role)})`:'<span style="color:#ef4444">⚠️ No employee selected yet</span>'}</div>
+                    <div><strong>Opponent:</strong> ${X?`<strong>${v(X.name)}</strong> (${v(X.role)})`:'<span style="color:#ef4444">⚠️ No employee selected yet</span>'}</div>
                   `}
                 </div>
               </div>
@@ -3973,13 +4203,13 @@ In Brave or Chrome, click the lock or shield icon on the left of the address bar
 
             <div class="bonding-modal-footer">
               <button class="bonding-btn-secondary" id="btn-cancel-challenge-flow">Cancel</button>
-              <button class="bonding-btn-primary" id="btn-submit-challenge-flow" ${(pe?!le:!Y)?"disabled":""}>
-                ${D==="dotsboxes"?`Start ${ee}P Dots & Boxes 🎮`:D==="ludo"?`Start ${ee}P Ludo Match 🎲`:"Send Challenge 🚀"}
+              <button class="bonding-btn-primary" id="btn-submit-challenge-flow" ${(ae?!se:!K)?"disabled":""}>
+                ${$==="dotsboxes"?`Start ${Z}P Dots & Boxes 🎮`:$==="ludo"?`Start ${Z}P Ludo Match 🎲`:"Send Challenge 🚀"}
               </button>
             </div>
           </div>
         </div>
-      `,oe()}function oe(){t.querySelector(".bonding-modal-close").onclick=()=>{t.innerHTML=""},t.querySelector("#btn-cancel-challenge-flow").onclick=()=>{t.innerHTML=""},t.querySelectorAll(".game-pill-btn").forEach(ge=>{ge.onclick=()=>{D=ge.dataset.game,Q()}}),t.querySelectorAll(".ludo-mode-btn").forEach(ge=>{ge.onclick=()=>{ee=Number(ge.dataset.count),O=O.slice(0,ee-1),Q()}});const ae=t.querySelector("#flow-emp-search");ae&&(ae.oninput=ge=>{const le=ge.target.value.toLowerCase().trim();t.querySelectorAll(".eligible-emp-item").forEach(xe=>{const We=xe.textContent.toLowerCase();xe.style.display=We.includes(le)?"flex":"none"})}),t.querySelectorAll(".eligible-emp-item").forEach(ge=>{ge.onclick=()=>{const le=ge.dataset.userId;if(D==="dotsboxes"||D==="ludo"){const We=ee-1;O.includes(le)?O=O.filter(Z=>Z!==le):O.length<We?O.push(le):O[We-1]=le}else Y=le;Q()}});const pe=t.querySelector("#btn-submit-challenge-flow");pe&&(pe.onclick=async()=>{if(D==="dotsboxes"){const ge=ee-1;if(O.length<ge){$(`Please select ${ge} colleague(s) to play with`,"warning");return}try{pe.disabled=!0,pe.textContent="Launching Dots & Boxes...";const le=await ve("/bonding/matches/instant-dotsboxes",{playerCount:ee,targetUserIds:O});t.innerHTML="",$(`Dots & Boxes match started (${ee} Players)! 🎮`,"success"),le&&le._id&&P(le._id)}catch(le){$(le.message||"Failed to start Dots & Boxes match","error"),pe.disabled=!1,pe.textContent=`Start ${ee}P Dots & Boxes 🎮`}return}if(D==="ludo"){const ge=ee-1;if(O.length<ge){$(`Please select ${ge} colleague(s) to play with`,"warning");return}try{pe.disabled=!0,pe.textContent="Launching Match...";const le=await ve("/bonding/matches/instant-ludo",{playerCount:ee,targetUserIds:O});t.innerHTML="",$(`Ludo match started (${ee} Players)! 🎲`,"success"),le&&le._id&&P(le._id)}catch(le){$(le.message||"Failed to start Ludo match","error"),pe.disabled=!1,pe.textContent=`Start ${ee}P Ludo Match 🎲`}return}if(!Y){$("Please select an employee to challenge","warning");return}try{pe.disabled=!0,pe.textContent="Sending Challenge...",await ve("/bonding/invitations",{gameType:D,targetUserId:Y,matchSettings:{timerMode:_},channelId:null}),$("Game challenge delivered to personal chat! Awaiting acceptance ⚔️","success"),t.innerHTML="",await loadChannels();const ge=b.find(le=>le.type==="direct"&&le.members?.some(xe=>(xe.userId||xe._id)?.toString()===Y));ge?selectChannel(ge):p&&await Le(p._id),h==="lounge_games"&&await y()}catch(ge){$(ge.message||"Could not send challenge","error"),pe.disabled=!1,pe.textContent="Send Challenge 🚀"}})}Q()}async function S(c,o){if(!(!c||!o))try{const t=await Jt(`/bonding/invitations/${c}/respond`,{action:o});o==="accept"?($("Challenge accepted! Entering match arena ⚔️","success"),t.match&&P(t.match._id)):o==="decline"?($("Challenge declined","info"),s.querySelectorAll(`[data-invite-id="${c}"]`).forEach(k=>{const A=k.closest(".lounge-invite-item")||k.closest(".bonding-msg-row");A&&A.remove()})):o==="cancel"&&($("Challenge cancelled","info"),s.querySelectorAll(`[data-invite-id="${c}"]`).forEach(k=>{const A=k.closest(".lounge-invite-item")||k.closest(".bonding-msg-row");A&&A.remove()})),p&&await Le(p._id),h==="lounge_games"&&await y()}catch(t){$(t.message||"Action failed","error")}}async function P(c){if(!c)return;W=c,U&&clearInterval(U);const o=s.querySelector("#bonding-modals-root");let t=null,k=null,A=[],M="",D=null,Y=!1,ee=!1,O=0;function _(Z){return Z?JSON.stringify({status:Z.status,turn:Z.currentTurnUserId?.toString(),turnColor:Z.turn,movesCount:Z.moves?.length,dice:Z.gameState?.dice,rolled:Z.gameState?.rolled,lastRoll:Z.gameState?.lastRoll,lastRollColor:Z.gameState?.lastRollColor,lastRollBy:Z.gameState?.lastRollBy,lastActionText:Z.gameState?.lastActionText,tokens:Z.gameState?.tokens,board:Z.gameState?.board,grid:Z.gameState?.grid,fen:Z.gameState?.fen,hLines:Z.gameState?.hLines,vLines:Z.gameState?.vLines,boxes:Z.gameState?.boxes,scores:Z.gameState?.scores,draw:Z.drawOfferedBy?.toString(),rematchOfferedBy:Z.rematchOfferedBy?.toString(),rematchDeclined:!!Z.rematchDeclined}):""}async function Q(){try{return t=await ze(`/bonding/matches/${c}`),t}catch(Z){return $(Z.message||"Could not load match","error"),oe(),null}}if(t=await Q(),!t)return;M=_(t);function oe(){U&&clearInterval(U),D&&clearTimeout(D),Y=!1,W=null,o.innerHTML="",h==="lounge_games"&&y(!0),p&&Le(p._id,!0)}U=setInterval(async()=>{if(!W||W!==c){clearInterval(U);return}if(!(ee&&Date.now()-O<2500))try{const Z=await ze(`/bonding/matches/${c}`);if(!Z)return;const De=_(Z);if(De!==M){if(M=De,t=Z,Z.rematchDeclined){$("Rematch was declined","info"),oe();return}ae()}}catch{}},800);function ae(){if(!t)return;const Z=e?._id||e?.id,De=Z&&t.player1?.userId?.toString()===Z.toString(),Ne=De?t.player1:t.player2||t.player1,ue=De&&t.player2||t.player1,Se=Z&&t.currentTurnUserId&&t.currentTurnUserId.toString()===Z.toString(),ye=t.status!=="active";let Oe=[];t.gameState?.players&&Array.isArray(t.gameState.players)&&t.gameState.players.length>0?Oe=t.gameState.players:Oe=[t.player1,t.player2].filter(Boolean);const Ue=[{emoji:"🐻",name:"Gentle Bear"},{emoji:"🦌",name:"Clever Deer"},{emoji:"🦊",name:"Swift Fox"},{emoji:"🦁",name:"Mighty Lion"}];o.innerHTML=`
+      `,ie()}function ie(){t.querySelector(".bonding-modal-close").onclick=()=>{t.innerHTML=""},t.querySelector("#btn-cancel-challenge-flow").onclick=()=>{t.innerHTML=""},t.querySelectorAll(".game-pill-btn").forEach(ce=>{ce.onclick=()=>{$=ce.dataset.game,J()}}),t.querySelectorAll(".ludo-mode-btn").forEach(ce=>{ce.onclick=()=>{Z=Number(ce.dataset.count),O=O.slice(0,Z-1),J()}});const X=t.querySelector("#flow-emp-search");X&&(X.oninput=ce=>{const se=ce.target.value.toLowerCase().trim();t.querySelectorAll(".eligible-emp-item").forEach(he=>{const Be=he.textContent.toLowerCase();he.style.display=Be.includes(se)?"flex":"none"})}),t.querySelectorAll(".eligible-emp-item").forEach(ce=>{ce.onclick=()=>{const se=ce.dataset.userId;if($==="dotsboxes"||$==="ludo"){const Be=Z-1;O.includes(se)?O=O.filter(ee=>ee!==se):O.length<Be?O.push(se):O[Be-1]=se}else K=se;J()}});const ae=t.querySelector("#btn-submit-challenge-flow");ae&&(ae.onclick=async()=>{if($==="dotsboxes"){const ce=Z-1;if(O.length<ce){S(`Please select ${ce} colleague(s) to play with`,"warning");return}try{ae.disabled=!0,ae.textContent="Launching Dots & Boxes...";const se=await xe("/bonding/matches/instant-dotsboxes",{playerCount:Z,targetUserIds:O});t.innerHTML="",S(`Dots & Boxes match started (${Z} Players)! 🎮`,"success"),se&&se._id&&C(se._id)}catch(se){S(se.message||"Failed to start Dots & Boxes match","error"),ae.disabled=!1,ae.textContent=`Start ${Z}P Dots & Boxes 🎮`}return}if($==="ludo"){const ce=Z-1;if(O.length<ce){S(`Please select ${ce} colleague(s) to play with`,"warning");return}try{ae.disabled=!0,ae.textContent="Launching Match...";const se=await xe("/bonding/matches/instant-ludo",{playerCount:Z,targetUserIds:O});t.innerHTML="",S(`Ludo match started (${Z} Players)! 🎲`,"success"),se&&se._id&&C(se._id)}catch(se){S(se.message||"Failed to start Ludo match","error"),ae.disabled=!1,ae.textContent=`Start ${Z}P Ludo Match 🎲`}return}if(!K){S("Please select an employee to challenge","warning");return}try{ae.disabled=!0,ae.textContent="Sending Challenge...",await xe("/bonding/invitations",{gameType:$,targetUserId:K,matchSettings:{timerMode:P},channelId:null}),S("Game challenge delivered to personal chat! Awaiting acceptance ⚔️","success"),t.innerHTML="",await loadChannels();const ce=f.find(se=>se.type==="direct"&&se.members?.some(he=>(he.userId||he._id)?.toString()===K));ce?selectChannel(ce):c&&await Me(c._id),k==="lounge_games"&&await y()}catch(ce){S(ce.message||"Could not send challenge","error"),ae.disabled=!1,ae.textContent="Send Challenge 🚀"}})}J()}async function j(d,i){if(!(!d||!i))try{const t=await Jt(`/bonding/invitations/${d}/respond`,{action:i});i==="accept"?(S("Challenge accepted! Entering match arena ⚔️","success"),t.match&&C(t.match._id)):i==="decline"?(S("Challenge declined","info"),s.querySelectorAll(`[data-invite-id="${d}"]`).forEach(b=>{const D=b.closest(".lounge-invite-item")||b.closest(".bonding-msg-row");D&&D.remove()})):i==="cancel"&&(S("Challenge cancelled","info"),s.querySelectorAll(`[data-invite-id="${d}"]`).forEach(b=>{const D=b.closest(".lounge-invite-item")||b.closest(".bonding-msg-row");D&&D.remove()})),c&&await Me(c._id),k==="lounge_games"&&await y()}catch(t){S(t.message||"Action failed","error")}}async function C(d){if(!d)return;W=d,H&&clearInterval(H);const i=s.querySelector("#bonding-modals-root");let t=null,b=null,D=[],M="",$=null,K=!1,Z=!1,O=0;function P(ee){return ee?JSON.stringify({status:ee.status,turn:ee.currentTurnUserId?.toString(),turnColor:ee.turn,movesCount:ee.moves?.length,dice:ee.gameState?.dice,rolled:ee.gameState?.rolled,lastRoll:ee.gameState?.lastRoll,lastRollColor:ee.gameState?.lastRollColor,lastRollBy:ee.gameState?.lastRollBy,lastActionText:ee.gameState?.lastActionText,tokens:ee.gameState?.tokens,board:ee.gameState?.board,grid:ee.gameState?.grid,fen:ee.gameState?.fen,hLines:ee.gameState?.hLines,vLines:ee.gameState?.vLines,boxes:ee.gameState?.boxes,scores:ee.gameState?.scores,draw:ee.drawOfferedBy?.toString(),rematchOfferedBy:ee.rematchOfferedBy?.toString(),rematchDeclined:!!ee.rematchDeclined}):""}async function J(){try{return t=await ze(`/bonding/matches/${d}`),t}catch(ee){return S(ee.message||"Could not load match","error"),ie(),null}}if(t=await J(),!t)return;M=P(t);function ie(){H&&clearInterval(H),$&&clearTimeout($),K=!1,W=null,i.innerHTML="",k==="lounge_games"&&y(!0),c&&Me(c._id,!0)}H=setInterval(async()=>{if(!W||W!==d){clearInterval(H);return}if(!(Z&&Date.now()-O<2500))try{const ee=await ze(`/bonding/matches/${d}`);if(!ee)return;const Fe=P(ee);if(Fe!==M){if(M=Fe,t=ee,ee.rematchDeclined){S("Rematch was declined","info"),ie();return}X()}}catch{}},800);function X(){if(!t)return;const ee=a?._id||a?.id,Fe=ee&&t.player1?.userId?.toString()===ee.toString(),De=Fe?t.player1:t.player2||t.player1,ge=Fe&&t.player2||t.player1,ye=ee&&t.currentTurnUserId&&t.currentTurnUserId.toString()===ee.toString(),ke=t.status!=="active";let Oe=[];t.gameState?.players&&Array.isArray(t.gameState.players)&&t.gameState.players.length>0?Oe=t.gameState.players:Oe=[t.player1,t.player2].filter(Boolean);const Ue=[{emoji:"🐻",name:"Gentle Bear"},{emoji:"🦌",name:"Clever Deer"},{emoji:"🦊",name:"Swift Fox"},{emoji:"🦁",name:"Mighty Lion"}];i.innerHTML=`
         <div class="bonding-modal-backdrop">
           <div class="bonding-modal-card game-arena-modal arena-split-layout">
             <!-- Dedicated Top-Right Close Button -->
@@ -3988,22 +4218,22 @@ In Brave or Chrome, click the lock or shield icon on the left of the address bar
             <!-- Left Sidebar Panel with Players & Controls -->
             <aside class="arena-sidebar-panel">
               <div class="arena-sidebar-players">
-                ${Oe.map((ce,Me)=>{const qe=Ue[Me]||{emoji:"🎮",name:"Challenger"},Ee=ce.userId&&Z&&ce.userId.toString()===Z.toString();let Ie=!1,Pe="✕";if(t.gameType==="tictactoe"){const ie=ce.assignedRole||(Me===0?"X":"O");Ie=(t.turn===ie||t.currentTurnUserId&&ce.userId&&t.currentTurnUserId.toString()===ce.userId.toString())&&!ye,Pe=ie==="O"?"◯":"✕"}else if(t.gameType==="dotsboxes"){const ie=t.turn||t.gameState?.turnColor;Ie=(ce.color&&ce.color===ie||t.gameState?.turnIndex!==void 0&&t.gameState.turnIndex===Me||t.currentTurnUserId&&ce.userId&&t.currentTurnUserId.toString()===ce.userId.toString())&&!ye,Pe="⏹"}else if(t.gameType==="ludo"){const ie=t.turn||t.gameState?.turnColor;Ie=(ce.color&&ce.color===ie||t.currentTurnUserId&&ce.userId&&t.currentTurnUserId.toString()===ce.userId.toString())&&!ye,Pe="🎲"}else{const ie=ce.assignedRole||(Me===0?"white":"black");Ie=(t.turn===ie||t.currentTurnUserId&&ce.userId&&t.currentTurnUserId.toString()===ce.userId.toString())&&!ye,Pe="♟"}let C="";t.gameType==="dotsboxes"&&t.gameState?.scores?C=` · ${t.gameState.scores[ce.color]||0} pts`:t.gameType==="ludo"&&t.gameState?.tokens&&(C=` · ${(t.gameState.tokens[ce.color]||[]).filter(Te=>Te.step>=57).length}/4 Home`);const B=ce.name?ce.name:qe.name,u=Ee?"You":"Opponent";return`
-                    <div class="game-sidebar-player-row ${Ie?"active-turn":""}">
+                ${Oe.map((pe,je)=>{const Ne=Ue[je]||{emoji:"🎮",name:"Challenger"},_e=pe.userId&&ee&&pe.userId.toString()===ee.toString();let Ce=!1,Pe="✕";if(t.gameType==="tictactoe"){const oe=pe.assignedRole||(je===0?"X":"O");Ce=(t.turn===oe||t.currentTurnUserId&&pe.userId&&t.currentTurnUserId.toString()===pe.userId.toString())&&!ke,Pe=oe==="O"?"◯":"✕"}else if(t.gameType==="dotsboxes"){const oe=t.turn||t.gameState?.turnColor;Ce=(pe.color&&pe.color===oe||t.gameState?.turnIndex!==void 0&&t.gameState.turnIndex===je||t.currentTurnUserId&&pe.userId&&t.currentTurnUserId.toString()===pe.userId.toString())&&!ke,Pe="⏹"}else if(t.gameType==="ludo"){const oe=t.turn||t.gameState?.turnColor;Ce=(pe.color&&pe.color===oe||t.currentTurnUserId&&pe.userId&&t.currentTurnUserId.toString()===pe.userId.toString())&&!ke,Pe="🎲"}else{const oe=pe.assignedRole||(je===0?"white":"black");Ce=(t.turn===oe||t.currentTurnUserId&&pe.userId&&t.currentTurnUserId.toString()===pe.userId.toString())&&!ke,Pe="♟"}let I="";t.gameType==="dotsboxes"&&t.gameState?.scores?I=` · ${t.gameState.scores[pe.color]||0} pts`:t.gameType==="ludo"&&t.gameState?.tokens&&(I=` · ${(t.gameState.tokens[pe.color]||[]).filter(Ee=>Ee.step>=57).length}/4 Home`);const R=pe.name?pe.name:Ne.name,u=_e?"You":"Opponent";return`
+                    <div class="game-sidebar-player-row ${Ce?"active-turn":""}">
                       <div class="turn-indicator-slot">
-                        ${Ie?`
+                        ${Ce?`
                           <div class="turn-pointer-pill">
                             <span class="pill-sym">${Pe}</span>
                             <span class="pill-txt">Turn</span>
                           </div>
                         `:""}
                       </div>
-                      <div class="game-player-avatar-circle p-color-${Me}">
-                        <span class="avatar-emoji">${qe.emoji}</span>
+                      <div class="game-player-avatar-circle p-color-${je}">
+                        <span class="avatar-emoji">${Ne.emoji}</span>
                       </div>
                       <div class="game-player-meta">
-                        <div class="game-player-name" title="${v(B)}">${v(B)}</div>
-                        <div class="game-player-role">${u}${C}</div>
+                        <div class="game-player-name" title="${v(R)}">${v(R)}</div>
+                        <div class="game-player-role">${u}${I}</div>
                       </div>
                     </div>
                   `}).join("")}
@@ -4014,7 +4244,7 @@ In Brave or Chrome, click the lock or shield icon on the left of the address bar
                 <div class="game-code-display">Game code: <strong>${(t._id||"7370").slice(-4).toUpperCase()}</strong></div>
                 <div class="arena-sidebar-divider"></div>
                 <div class="arena-sidebar-actions">
-                  ${ye?`
+                  ${ke?`
                     <button class="sidebar-action-item danger" id="btn-arena-delete-match" type="button" title="Delete Match">
                       <span class="action-icon">🗑️</span>
                       <span>Delete Match</span>
@@ -4040,9 +4270,9 @@ In Brave or Chrome, click the lock or shield icon on the left of the address bar
             <!-- Right Main Arena Canvas -->
             <main class="arena-main-content">
               <!-- Draw Offer Notification -->
-              ${t.drawOfferedBy&&t.drawOfferedBy.toString()!==Z?.toString()&&!ye?`
+              ${t.drawOfferedBy&&t.drawOfferedBy.toString()!==ee?.toString()&&!ke?`
                 <div class="arena-draw-offer-banner">
-                  <span>🤝 ${v(ue?.name||"Opponent")} has offered a draw. Accept?</span>
+                  <span>🤝 ${v(ge?.name||"Opponent")} has offered a draw. Accept?</span>
                   <div style="display:flex;gap:8px;">
                     <button class="btn-accept-draw" id="btn-confirm-accept-draw">Accept Draw</button>
                     <button class="btn-decline-draw" id="btn-confirm-decline-draw">Decline</button>
@@ -4052,22 +4282,22 @@ In Brave or Chrome, click the lock or shield icon on the left of the address bar
 
               <!-- Main Playing Board -->
               <div class="arena-board-wrap">
-                ${t.gameType==="dotsboxes"?pe(De):""}
-                ${t.gameType==="chess"?ge(De):""}
-                ${t.gameType==="tictactoe"?le():""}
-                ${t.gameType==="ludo"?xe(De):""}
+                ${t.gameType==="dotsboxes"?ae(Fe):""}
+                ${t.gameType==="chess"?ce(Fe):""}
+                ${t.gameType==="tictactoe"?se():""}
+                ${t.gameType==="ludo"?he(Fe):""}
               </div>
 
               <!-- Match Result Banner (When finished) -->
-              ${ye?`
+              ${ke?`
                 <div class="arena-game-over-banner">
-                  <div class="game-over-icon">${t.winnerId&&t.winnerId.toString()===Z?.toString()?"🏆":t.status==="draw"?"🤝":"🎖️"}</div>
+                  <div class="game-over-icon">${t.winnerId&&t.winnerId.toString()===ee?.toString()?"🏆":t.status==="draw"?"🤝":"🎖️"}</div>
                   <div class="game-over-text">
-                    <h4>${t.winnerId&&t.winnerId.toString()===Z?.toString()?"VICTORY!":t.status==="draw"?"STALEMATE / DRAW":`${v(t.winnerName)} Wins!`}</h4>
+                    <h4>${t.winnerId&&t.winnerId.toString()===ee?.toString()?"VICTORY!":t.status==="draw"?"STALEMATE / DRAW":`${v(t.winnerName)} Wins!`}</h4>
                     <p>Reason: ${v(t.winningReason||"Match concluded")}</p>
                   </div>
                   <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-                    ${t.rematchOfferedBy&&t.rematchOfferedBy.toString()===Z?.toString()?`
+                    ${t.rematchOfferedBy&&t.rematchOfferedBy.toString()===ee?.toString()?`
                       <div class="game-pending-text" style="font-size:12px;color:var(--text-2);padding:6px 12px;background:rgba(255,255,255,0.06);border-radius:var(--r-md);border:1px solid rgba(255,255,255,0.1);">
                         ⏳ Rematch requested. Waiting for opponent...
                       </div>
@@ -4092,37 +4322,37 @@ In Brave or Chrome, click the lock or shield icon on the left of the address bar
             </main>
           </div>
         </div>
-      `,We(Se,De,Ne)}function pe(Z,De,Ne){const ue=t.gameState||{},Se=ue.rows||4,ye=ue.cols||4,Oe=ue.players||[{...t.player1,color:"red",assignedRole:"red"},{...t.player2,color:"blue",assignedRole:"blue"}],Ue=ue.activeColors||["red","blue"],ce=t.turn||ue.turnColor||"red",Me=e?._id||e?.id,Ee=(Oe.find(he=>he.userId&&he.userId.toString()===Me?.toString())||Oe[0])?.color||(Z?"red":"blue"),Ie=Ee===ce&&t.status==="active",Pe=ue.scores||{red:0,blue:0,green:0,amber:0},C=ue.hLines||Array(Se+1).fill(null).map(()=>Array(ye).fill(null)),B=ue.vLines||Array(Se).fill(null).map(()=>Array(ye+1).fill(null)),u=ue.boxes||Array(Se).fill(null).map(()=>Array(ye).fill(null)),ie={red:{name:"Red",hex:"#ef4444",light:"rgba(239,68,68,0.18)",border:"#f87171"},blue:{name:"Blue",hex:"#3b82f6",light:"rgba(59,130,246,0.18)",border:"#60a5fa"},green:{name:"Green",hex:"#10b981",light:"rgba(16,185,129,0.18)",border:"#34d399"},amber:{name:"Amber",hex:"#f59e0b",light:"rgba(245,158,11,0.18)",border:"#fbbf24"}},ne=Oe.find(he=>he.color===ce),Te=ne?v(ne.name):ce.toUpperCase();let G=[];for(let he=0;he<=Se*2;he++)for(let be=0;be<=ye*2;be++){const Fe=he%2===0,gt=be%2===0;if(Fe&&gt)G.push(`
-              <div class="dots-cell dot-intersection" data-r="${he/2}" data-c="${be/2}">
+      `,Be(ye,Fe,De)}function ae(ee,Fe,De){const ge=t.gameState||{},ye=ge.rows||4,ke=ge.cols||4,Oe=ge.players||[{...t.player1,color:"red",assignedRole:"red"},{...t.player2,color:"blue",assignedRole:"blue"}],Ue=ge.activeColors||["red","blue"],pe=t.turn||ge.turnColor||"red",je=a?._id||a?.id,_e=(Oe.find(fe=>fe.userId&&fe.userId.toString()===je?.toString())||Oe[0])?.color||(ee?"red":"blue"),Ce=_e===pe&&t.status==="active",Pe=ge.scores||{red:0,blue:0,green:0,amber:0},I=ge.hLines||Array(ye+1).fill(null).map(()=>Array(ke).fill(null)),R=ge.vLines||Array(ye).fill(null).map(()=>Array(ke+1).fill(null)),u=ge.boxes||Array(ye).fill(null).map(()=>Array(ke).fill(null)),oe={red:{name:"Red",hex:"#ef4444",light:"rgba(239,68,68,0.18)",border:"#f87171"},blue:{name:"Blue",hex:"#3b82f6",light:"rgba(59,130,246,0.18)",border:"#60a5fa"},green:{name:"Green",hex:"#10b981",light:"rgba(16,185,129,0.18)",border:"#34d399"},amber:{name:"Amber",hex:"#f59e0b",light:"rgba(245,158,11,0.18)",border:"#fbbf24"}},ne=Oe.find(fe=>fe.color===pe),Ee=ne?v(ne.name):pe.toUpperCase();let G=[];for(let fe=0;fe<=ye*2;fe++)for(let ue=0;ue<=ke*2;ue++){const Te=fe%2===0,pt=ue%2===0;if(Te&&pt)G.push(`
+              <div class="dots-cell dot-intersection" data-r="${fe/2}" data-c="${ue/2}">
                 <span class="dots-dot"></span>
               </div>
-            `);else if(Fe&&!gt){const Ce=he/2,_e=Math.floor(be/2),ke=C[Ce]&&C[Ce][_e],V=!!ke,He=ke?.color||"",Ae=Ie&&!V&&t.status==="active";G.push(`
+            `);else if(Te&&!pt){const Se=fe/2,Ie=Math.floor(ue/2),we=I[Se]&&I[Se][Ie],Y=!!we,He=we?.color||"",Ae=Ce&&!Y&&t.status==="active";G.push(`
               <div 
-                class="dots-cell dots-line h-line ${V?"drawn color-"+He:""} ${Ae?"clickable my-color-"+Ee:""}"
+                class="dots-cell dots-line h-line ${Y?"drawn color-"+He:""} ${Ae?"clickable my-color-"+_e:""}"
                 data-type="h" 
-                data-r="${Ce}" 
-                data-c="${_e}"
+                data-r="${Se}" 
+                data-c="${Ie}"
                 role="button"
                 tabindex="${Ae?"0":"-1"}"
-                title="${V?`Drawn by ${v(ke.player||He)}`:Ae?"Click to draw line":""}"
+                title="${Y?`Drawn by ${v(we.player||He)}`:Ae?"Click to draw line":""}"
               >
                 <div class="dots-line-bar"></div>
               </div>
-            `)}else if(!Fe&&gt){const Ce=Math.floor(he/2),_e=be/2,ke=B[Ce]&&B[Ce][_e],V=!!ke,He=ke?.color||"",Ae=Ie&&!V&&t.status==="active";G.push(`
+            `)}else if(!Te&&pt){const Se=Math.floor(fe/2),Ie=ue/2,we=R[Se]&&R[Se][Ie],Y=!!we,He=we?.color||"",Ae=Ce&&!Y&&t.status==="active";G.push(`
               <div 
-                class="dots-cell dots-line v-line ${V?"drawn color-"+He:""} ${Ae?"clickable my-color-"+Ee:""}"
+                class="dots-cell dots-line v-line ${Y?"drawn color-"+He:""} ${Ae?"clickable my-color-"+_e:""}"
                 data-type="v" 
-                data-r="${Ce}" 
-                data-c="${_e}"
+                data-r="${Se}" 
+                data-c="${Ie}"
                 role="button"
                 tabindex="${Ae?"0":"-1"}"
-                title="${V?`Drawn by ${v(ke.player||He)}`:Ae?"Click to draw line":""}"
+                title="${Y?`Drawn by ${v(we.player||He)}`:Ae?"Click to draw line":""}"
               >
                 <div class="dots-line-bar"></div>
               </div>
-            `)}else{const Ce=Math.floor(he/2),_e=Math.floor(be/2),ke=u[Ce]&&u[Ce][_e],V=!!ke,He=ke?.owner||"",Ae=ke?.ownerName?ke.ownerName.charAt(0).toUpperCase():He.charAt(0).toUpperCase();G.push(`
-              <div class="dots-cell dots-box ${V?"claimed color-"+He:""}" data-br="${Ce}" data-bc="${_e}">
-                ${V?`
+            `)}else{const Se=Math.floor(fe/2),Ie=Math.floor(ue/2),we=u[Se]&&u[Se][Ie],Y=!!we,He=we?.owner||"",Ae=we?.ownerName?we.ownerName.charAt(0).toUpperCase():He.charAt(0).toUpperCase();G.push(`
+              <div class="dots-cell dots-box ${Y?"claimed color-"+He:""}" data-br="${Se}" data-bc="${Ie}">
+                ${Y?`
                   <div class="dots-box-claim-badge">
                     <span class="box-owner-initial">${Ae}</span>
                     <span class="box-score-tag">+1</span>
@@ -4133,15 +4363,15 @@ In Brave or Chrome, click the lock or shield icon on the left of the address bar
         <div class="dotsboxes-arena-layout">
           <!-- Scoreboard Header for up to 4 Players -->
           <div class="dotsboxes-scoreboard">
-            ${Ue.map(he=>{const be=Oe.find(_e=>_e.color===he)||{name:ie[he].name},Fe=ce===he&&t.status==="active",gt=be.userId&&be.userId.toString()===Me?.toString(),Ce=Pe[he]||0;return`
-                <div class="dots-player-card ${he} ${Fe?"is-turn-active":""}">
+            ${Ue.map(fe=>{const ue=Oe.find(Ie=>Ie.color===fe)||{name:oe[fe].name},Te=pe===fe&&t.status==="active",pt=ue.userId&&ue.userId.toString()===je?.toString(),Se=Pe[fe]||0;return`
+                <div class="dots-player-card ${fe} ${Te?"is-turn-active":""}">
                   <div class="dots-player-header">
-                    <span class="dots-player-dot" style="background:${ie[he].hex}"></span>
-                    <span class="dots-player-name">${v(be.name)} ${gt?"(You)":""}</span>
-                    ${Fe?'<span class="dots-turn-pill">TURN</span>':""}
+                    <span class="dots-player-dot" style="background:${oe[fe].hex}"></span>
+                    <span class="dots-player-name">${v(ue.name)} ${pt?"(You)":""}</span>
+                    ${Te?'<span class="dots-turn-pill">TURN</span>':""}
                   </div>
                   <div class="dots-player-score">
-                    <span class="score-val" style="color:${ie[he].hex}">${Ce}</span>
+                    <span class="score-val" style="color:${oe[fe].hex}">${Se}</span>
                     <span class="score-lbl">boxes</span>
                   </div>
                 </div>
@@ -4157,88 +4387,88 @@ In Brave or Chrome, click the lock or shield icon on the left of the address bar
 
           <!-- Console & Status Bar -->
           <div class="dotsboxes-console-bar">
-            <div class="dots-guidance ${Ie?"highlight":""}">
-              ${Ie?`👉 It is your turn (<strong>${ie[Ee].name}</strong>)! Click any open line between two dots to draw.`:`⏳ Waiting for <strong>${Te}</strong> (<strong>${ie[ce]?.name||ce}</strong>) to draw a line...`}
+            <div class="dots-guidance ${Ce?"highlight":""}">
+              ${Ce?`👉 It is your turn (<strong>${oe[_e].name}</strong>)! Click any open line between two dots to draw.`:`⏳ Waiting for <strong>${Ee}</strong> (<strong>${oe[pe]?.name||pe}</strong>) to draw a line...`}
             </div>
             <div class="dots-caption">
-              ${v(ue.lastActionText||"Connect 4 sides to claim a box and earn a bonus turn!")}
+              ${v(ge.lastActionText||"Connect 4 sides to claim a box and earn a bonus turn!")}
             </div>
           </div>
         </div>
-      `}function ge(Z){const De=t.gameState?.fen||"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",Ne=new wa(De),ue=Z?t.player1.assignedRole==="white":t.player2.assignedRole==="white",Se={p:"♟",r:"♜",n:"♞",b:"♝",q:"♛",k:"♚",P:"♙",R:"♖",N:"♘",B:"♗",Q:"♕",K:"♔"},ye=ue?["a","b","c","d","e","f","g","h"]:["h","g","f","e","d","c","b","a"],Oe=ue?[8,7,6,5,4,3,2,1]:[1,2,3,4,5,6,7,8];let Ue='<div class="chess-board-grid">';for(const qe of Oe)for(const Ee of ye){const Ie=`${Ee}${qe}`,Pe=Ne.get(Ie),C=(Ee.charCodeAt(0)-97+qe)%2!==0,B=k===Ie,u=A.includes(Ie),ie=Pe?Pe.color==="w"?Se[Pe.type.toUpperCase()]:Se[Pe.type]:"";Ue+=`
-            <div class="chess-sq ${C?"light":"dark"} ${B?"selected":""} ${u?"legal-dot":""}" data-square="${Ie}">
-              ${ie?`<span class="chess-piece ${Pe.color==="w"?"white-piece":"black-piece"}">${ie}</span>`:""}
+      `}function ce(ee){const Fe=t.gameState?.fen||"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",De=new $a(Fe),ge=ee?t.player1.assignedRole==="white":t.player2.assignedRole==="white",ye={p:"♟",r:"♜",n:"♞",b:"♝",q:"♛",k:"♚",P:"♙",R:"♖",N:"♘",B:"♗",Q:"♕",K:"♔"},ke=ge?["a","b","c","d","e","f","g","h"]:["h","g","f","e","d","c","b","a"],Oe=ge?[8,7,6,5,4,3,2,1]:[1,2,3,4,5,6,7,8];let Ue='<div class="chess-board-grid">';for(const Ne of Oe)for(const _e of ke){const Ce=`${_e}${Ne}`,Pe=De.get(Ce),I=(_e.charCodeAt(0)-97+Ne)%2!==0,R=b===Ce,u=D.includes(Ce),oe=Pe?Pe.color==="w"?ye[Pe.type.toUpperCase()]:ye[Pe.type]:"";Ue+=`
+            <div class="chess-sq ${I?"light":"dark"} ${R?"selected":""} ${u?"legal-dot":""}" data-square="${Ce}">
+              ${oe?`<span class="chess-piece ${Pe.color==="w"?"white-piece":"black-piece"}">${oe}</span>`:""}
             </div>
-          `}Ue+="</div>";const Me=(t.moves||[]).map(qe=>`
-        <span class="chess-move-token">${qe.moveNum}. ${qe.moveData?.san||""}</span>
+          `}Ue+="</div>";const je=(t.moves||[]).map(Ne=>`
+        <span class="chess-move-token">${Ne.moveNum}. ${Ne.moveData?.san||""}</span>
       `).join(" ");return`
         <div class="chess-arena-layout">
           ${Ue}
           <div class="chess-sidebar-notation">
             <div class="notation-head">Move Notation</div>
-            <div class="notation-feed">${Me||'<span class="muted">No moves yet</span>'}</div>
+            <div class="notation-feed">${je||'<span class="muted">No moves yet</span>'}</div>
           </div>
         </div>
-      `}function le(){const Z=t.gameState?.board||Array(9).fill(null),De=t.winningCells||[];return`
+      `}function se(){const ee=t.gameState?.board||Array(9).fill(null),Fe=t.winningCells||[];return`
         <div class="ttt-modern-court">
           <div class="ttt-modern-grid">
-            ${Z.map((Ne,ue)=>{const Se=De.includes(ue);let ye="";return Ne==="X"?ye=`
+            ${ee.map((De,ge)=>{const ye=Fe.includes(ge);let ke="";return De==="X"?ke=`
                   <svg class="ttt-svg-symbol x" width="58" height="58" viewBox="0 0 58 58" fill="none">
                     <line x1="15" y1="15" x2="43" y2="43" stroke="#2563EB" stroke-width="8" stroke-linecap="round"/>
                     <line x1="43" y1="15" x2="15" y2="43" stroke="#2563EB" stroke-width="8" stroke-linecap="round"/>
                   </svg>
-                `:Ne==="O"&&(ye=`
+                `:De==="O"&&(ke=`
                   <svg class="ttt-svg-symbol o" width="58" height="58" viewBox="0 0 58 58" fill="none">
                     <circle cx="29" cy="29" r="16" stroke="#FF2A5F" stroke-width="8" fill="none"/>
                   </svg>
                 `),`
-                <div class="ttt-cell ttt-modern-tile ${Ne?"filled":"empty"} ${Se?"win-cell":""}" data-cell-idx="${ue}">
-                  ${ye}
+                <div class="ttt-cell ttt-modern-tile ${De?"filled":"empty"} ${ye?"win-cell":""}" data-cell-idx="${ge}">
+                  ${ke}
                 </div>
               `}).join("")}
           </div>
         </div>
-      `}function xe(Z,De,Ne){const ue=t.gameState||{},Se=ue.activeColors||["red","green"],ye=ue.players||[{...t.player1,color:"red",assignedRole:"red",isBot:!1},{...t.player2,color:"green",assignedRole:"green",isBot:!1}],Oe=ue.tokens||{},Ue=d=>{const m=Oe[d]||(d==="red"?ue.p1Tokens:d==="green"?ue.p2Tokens:[])||[];return Array.from({length:4},(K,te)=>m[te]||{id:te,step:-1})},ce=Ue("red"),Me=Ue("green"),qe=Ue("yellow"),Ee=Ue("blue"),Ie=e?._id||e?.id,C=(ye.find(d=>d.userId&&d.userId.toString()===Ie?.toString())||ye[0])?.color||(Z?"red":"green"),B=ue.turnColor||t.turn||"red",u=C===B&&t.status==="active",ie=!!ue.rolled,ne=ue.dice,Te=[[6,1],[6,2],[6,3],[6,4],[6,5],[5,6],[4,6],[3,6],[2,6],[1,6],[0,6],[0,7],[0,8],[1,8],[2,8],[3,8],[4,8],[5,8],[6,9],[6,10],[6,11],[6,12],[6,13],[6,14],[7,14],[8,14],[8,13],[8,12],[8,11],[8,10],[8,9],[9,8],[10,8],[11,8],[12,8],[13,8],[14,8],[14,7],[14,6],[13,6],[12,6],[11,6],[10,6],[9,6],[8,5],[8,4],[8,3],[8,2],[8,1],[8,0],[7,0],[6,0]],G=[[7,1],[7,2],[7,3],[7,4],[7,5]],he=[[1,7],[2,7],[3,7],[4,7],[5,7]],be=[[7,13],[7,12],[7,11],[7,10],[7,9]],Fe=[[13,7],[12,7],[11,7],[10,7],[9,7]],gt=[0,8,13,21,26,34,39,47];function Ce(d,m){return m<0?null:m>=56?d==="red"?[7,6]:d==="green"?[6,7]:d==="yellow"?[7,8]:[8,7]:d==="red"?m<=50?Te[m]:G[m-51]:d==="green"?m<=50?Te[(13+m)%52]:he[m-51]:d==="yellow"?m<=50?Te[(26+m)%52]:be[m-51]:m<=50?Te[(39+m)%52]:Fe[m-51]}function _e(d,m){return d!==C||!u||!ie||!ne||t.status!=="active"?!1:m.step===-1?ne===6:m.step>=0&&m.step+ne<=56}const ke={},V=(d,m)=>{m.forEach(K=>{if(K.step>=0&&K.step<56){const te=Ce(d,K.step);if(te){const fe=te[0]+","+te[1];(ke[fe]=ke[fe]||[]).push({color:d,id:K.id,step:K.step,movable:_e(d,K)})}}})};Se.includes("red")&&V("red",ce),Se.includes("green")&&V("green",Me),Se.includes("yellow")&&V("yellow",qe),Se.includes("blue")&&V("blue",Ee);const He={};Te.forEach(([d,m],K)=>{He[d+","+m]=K});const Ae={};G.forEach(([d,m],K)=>{Ae[d+","+m]=K+1});const Xe={};he.forEach(([d,m],K)=>{Xe[d+","+m]=K+1});const ht={};be.forEach(([d,m],K)=>{ht[d+","+m]=K+1});const Ut={};Fe.forEach(([d,m],K)=>{Ut[d+","+m]=K+1});const Ht=[];for(let d=0;d<15;d++)for(let m=0;m<15;m++){if(d<6&&m<6||d<6&&m>8||d>8&&m<6||d>8&&m>8||d>=6&&d<=8&&m>=6&&m<=8)continue;const K=d+","+m,te=He[K],fe=te!==void 0&&gt.includes(te),rt=d===6&&m===1,bt=d===1&&m===8,it=d===8&&m===13,Wt=d===13&&m===6,Ca=Ae[K],Ia=Xe[K],_a=ht[K],Da=Ut[K];let xt="ludo-cell";rt?xt+=" cell-red-start":bt?xt+=" cell-green-start":it?xt+=" cell-yellow-start":Wt?xt+=" cell-blue-start":Ca?xt+=" cell-red-stretch":Ia?xt+=" cell-green-stretch":_a?xt+=" cell-yellow-stretch":Da?xt+=" cell-blue-stretch":fe&&(xt+=" cell-safe-star");const Aa=ke[K]||[];Ht.push(`
-            <div class="${xt}" style="grid-row:${d+1};grid-column:${m+1}" data-pos="${K}">
-              ${fe?'<span class="cell-star-glyph">⭐</span>':""}
-              ${rt||bt||it||Wt?'<span class="cell-arrow-glyph">➔</span>':""}
-              ${Aa.map(_t=>`
-                <div class="ludo-token token-${_t.color} ${_t.movable?"movable":""}" data-token-id="${_t.id}" data-color="${_t.color}" title="${_t.color.toUpperCase()} Pawn ${_t.id+1}">
-                  <span>${_t.id+1}</span>
+      `}function he(ee,Fe,De){const ge=t.gameState||{},ye=ge.activeColors||["red","green"],ke=ge.players||[{...t.player1,color:"red",assignedRole:"red",isBot:!1},{...t.player2,color:"green",assignedRole:"green",isBot:!1}],Oe=ge.tokens||{},Ue=l=>{const x=Oe[l]||(l==="red"?ge.p1Tokens:l==="green"?ge.p2Tokens:[])||[];return Array.from({length:4},(V,te)=>x[te]||{id:te,step:-1})},pe=Ue("red"),je=Ue("green"),Ne=Ue("yellow"),_e=Ue("blue"),Ce=a?._id||a?.id,I=(ke.find(l=>l.userId&&l.userId.toString()===Ce?.toString())||ke[0])?.color||(ee?"red":"green"),R=ge.turnColor||t.turn||"red",u=I===R&&t.status==="active",oe=!!ge.rolled,ne=ge.dice,Ee=[[6,1],[6,2],[6,3],[6,4],[6,5],[5,6],[4,6],[3,6],[2,6],[1,6],[0,6],[0,7],[0,8],[1,8],[2,8],[3,8],[4,8],[5,8],[6,9],[6,10],[6,11],[6,12],[6,13],[6,14],[7,14],[8,14],[8,13],[8,12],[8,11],[8,10],[8,9],[9,8],[10,8],[11,8],[12,8],[13,8],[14,8],[14,7],[14,6],[13,6],[12,6],[11,6],[10,6],[9,6],[8,5],[8,4],[8,3],[8,2],[8,1],[8,0],[7,0],[6,0]],G=[[7,1],[7,2],[7,3],[7,4],[7,5]],fe=[[1,7],[2,7],[3,7],[4,7],[5,7]],ue=[[7,13],[7,12],[7,11],[7,10],[7,9]],Te=[[13,7],[12,7],[11,7],[10,7],[9,7]],pt=[0,8,13,21,26,34,39,47];function Se(l,x){return x<0?null:x>=56?l==="red"?[7,6]:l==="green"?[6,7]:l==="yellow"?[7,8]:[8,7]:l==="red"?x<=50?Ee[x]:G[x-51]:l==="green"?x<=50?Ee[(13+x)%52]:fe[x-51]:l==="yellow"?x<=50?Ee[(26+x)%52]:ue[x-51]:x<=50?Ee[(39+x)%52]:Te[x-51]}function Ie(l,x){return l!==I||!u||!oe||!ne||t.status!=="active"?!1:x.step===-1?ne===6:x.step>=0&&x.step+ne<=56}const we={},Y=(l,x)=>{x.forEach(V=>{if(V.step>=0&&V.step<56){const te=Se(l,V.step);if(te){const me=te[0]+","+te[1];(we[me]=we[me]||[]).push({color:l,id:V.id,step:V.step,movable:Ie(l,V)})}}})};ye.includes("red")&&Y("red",pe),ye.includes("green")&&Y("green",je),ye.includes("yellow")&&Y("yellow",Ne),ye.includes("blue")&&Y("blue",_e);const He={};Ee.forEach(([l,x],V)=>{He[l+","+x]=V});const Ae={};G.forEach(([l,x],V)=>{Ae[l+","+x]=V+1});const Qe={};fe.forEach(([l,x],V)=>{Qe[l+","+x]=V+1});const ht={};ue.forEach(([l,x],V)=>{ht[l+","+x]=V+1});const Ut={};Te.forEach(([l,x],V)=>{Ut[l+","+x]=V+1});const Ht=[];for(let l=0;l<15;l++)for(let x=0;x<15;x++){if(l<6&&x<6||l<6&&x>8||l>8&&x<6||l>8&&x>8||l>=6&&l<=8&&x>=6&&x<=8)continue;const V=l+","+x,te=He[V],me=te!==void 0&&pt.includes(te),ot=l===6&&x===1,ut=l===1&&x===8,it=l===8&&x===13,Wt=l===13&&x===6,Ia=Ae[V],Aa=Qe[V],Da=ht[V],_a=Ut[V];let xt="ludo-cell";ot?xt+=" cell-red-start":ut?xt+=" cell-green-start":it?xt+=" cell-yellow-start":Wt?xt+=" cell-blue-start":Ia?xt+=" cell-red-stretch":Aa?xt+=" cell-green-stretch":Da?xt+=" cell-yellow-stretch":_a?xt+=" cell-blue-stretch":me&&(xt+=" cell-safe-star");const Ea=we[V]||[];Ht.push(`
+            <div class="${xt}" style="grid-row:${l+1};grid-column:${x+1}" data-pos="${V}">
+              ${me?'<span class="cell-star-glyph">⭐</span>':""}
+              ${ot||ut||it||Wt?'<span class="cell-arrow-glyph">➔</span>':""}
+              ${Ea.map(At=>`
+                <div class="ludo-token token-${At.color} ${At.movable?"movable":""}" data-token-id="${At.id}" data-color="${At.color}" title="${At.color.toUpperCase()} Pawn ${At.id+1}">
+                  <span>${At.id+1}</span>
                 </div>
               `).join("")}
             </div>
-          `)}function ea(d,m=!1){if(m||!d)return`
+          `)}function ea(l,x=!1){if(x||!l)return`
             <div class="ludo-direct-number-box num-prompt" role="img" aria-label="Dice ready">
               <span class="ludo-direct-num prompt-icon" style="font-size:30px;line-height:1;">🎲</span>
             </div>
-          `;const K=Math.max(1,Math.min(6,Number(d)||1));return`
-          <div class="ludo-direct-number-box num-${K}" role="img" aria-label="Number ${K}">
-            <span class="ludo-direct-num">${K}</span>
+          `;const V=Math.max(1,Math.min(6,Number(l)||1));return`
+          <div class="ludo-direct-number-box num-${V}" role="img" aria-label="Number ${V}">
+            <span class="ludo-direct-num">${V}</span>
           </div>
-        `}function It(d,m,K,te,fe){const rt=`${d}-yard`;if(!K)return`
-            <div class="ludo-yard ${rt}">
+        `}function It(l,x,V,te,me){const ot=`${l}-yard`;if(!V)return`
+            <div class="ludo-yard ${ot}">
               <div class="yard-box decorative">
-                <div class="yard-title">${m} (Inactive)</div>
+                <div class="yard-title">${x} (Inactive)</div>
               </div>
             </div>
-          `;const bt=fe.filter(it=>it.step===56).length;return`
-          <div class="ludo-yard ${rt} ${B===d?"yard-active-turn":""}">
+          `;const ut=me.filter(it=>it.step===56).length;return`
+          <div class="ludo-yard ${ot} ${R===l?"yard-active-turn":""}">
             <div class="yard-box">
               <div class="yard-title">
-                <span>${m}</span>
-                ${bt>0?`<span class="yard-home-badge" title="${bt} of 4 pawns reached Home!">👑 ${bt}/4 Home</span>`:""}
+                <span>${x}</span>
+                ${ut>0?`<span class="yard-home-badge" title="${ut} of 4 pawns reached Home!">👑 ${ut}/4 Home</span>`:""}
                 ${te?`<small class="yard-player-lbl">${v(te.name)}${te.isBot?" 🤖":""}</small>`:""}
               </div>
               <div class="yard-slots">
-                ${fe.map((it,Wt)=>`
+                ${me.map((it,Wt)=>`
                   <div class="yard-token-slot ${it.step===56?"slot-home":""}">
                     ${it.step===-1?`
-                      <div class="ludo-token token-${d} ${_e(d,it)?"movable":""}" data-token-id="${it.id}" data-color="${d}" title="${d.toUpperCase()} Pawn ${it.id+1}">
+                      <div class="ludo-token token-${l} ${Ie(l,it)?"movable":""}" data-token-id="${it.id}" data-color="${l}" title="${l.toUpperCase()} Pawn ${it.id+1}">
                         <span>${it.id+1}</span>
                       </div>
                     `:it.step===56?`
-                      <div class="ludo-token token-reached-home token-${d}" title="${d.toUpperCase()} Pawn ${it.id+1} Reached Home! 👑">
+                      <div class="ludo-token token-reached-home token-${l}" title="${l.toUpperCase()} Pawn ${it.id+1} Reached Home! 👑">
                         <span class="home-crown-mini">👑</span>
                         <span>${it.id+1}</span>
                       </div>
@@ -4248,42 +4478,42 @@ In Brave or Chrome, click the lock or shield icon on the left of the address bar
               </div>
             </div>
           </div>
-        `}const Mt=ye.find(d=>d.color==="red"),Gt=ye.find(d=>d.color==="green"),ta=ye.find(d=>d.color==="yellow"),aa=ye.find(d=>d.color==="blue"),zt=ye.find(d=>d.color===B)||(B==="red"?Mt:Gt),yt=zt?v(zt.name):B.toUpperCase(),na={red:"🔴",green:"🟢",yellow:"🟡",blue:"🔵"}[B]||"🔴",ut=!!(ie&&(ne||ue.lastRoll&&ue.lastRollColor===B)),kt=ne||(ut?ue.lastRoll:null),Pt=u&&!ut&&t.status==="active",w=Ue(C).filter(d=>_e(C,d));return`
+        `}const Mt=ke.find(l=>l.color==="red"),Gt=ke.find(l=>l.color==="green"),ta=ke.find(l=>l.color==="yellow"),aa=ke.find(l=>l.color==="blue"),qt=ke.find(l=>l.color===R)||(R==="red"?Mt:Gt),vt=qt?v(qt.name):R.toUpperCase(),na={red:"🔴",green:"🟢",yellow:"🟡",blue:"🔵"}[R]||"🔴",gt=!!(oe&&(ne||ge.lastRoll&&ge.lastRollColor===R)),yt=ne||(gt?ge.lastRoll:null),Pt=u&&!gt&&t.status==="active",w=Ue(I).filter(l=>Ie(I,l));return`
         <div class="ludo-arena-layout">
           <div class="ludo-board-grid">
             <!-- 1. Red Base Yard (Top-Left 6x6) -->
-            ${It("red","🔴 Red Base",Se.includes("red"),Mt,ce)}
+            ${It("red","🔴 Red Base",ye.includes("red"),Mt,pe)}
 
             <!-- 2. Green Base Yard (Top-Right 6x6) -->
-            ${It("green","🟢 Green Base",Se.includes("green"),Gt,Me)}
+            ${It("green","🟢 Green Base",ye.includes("green"),Gt,je)}
 
             <!-- 3. Blue Base Yard (Bottom-Left 6x6) -->
-            ${It("blue","🔵 Blue Base",Se.includes("blue"),aa,Ee)}
+            ${It("blue","🔵 Blue Base",ye.includes("blue"),aa,_e)}
 
             <!-- 4. Yellow Base Yard (Bottom-Right 6x6) -->
-            ${It("yellow","🟡 Yellow Base",Se.includes("yellow"),ta,qe)}
+            ${It("yellow","🟡 Yellow Base",ye.includes("yellow"),ta,Ne)}
 
             <!-- 5. Center Home Victory Zone (3x3) with celebratory crowned pawns -->
             <div class="ludo-center-home">
               <div class="home-triangle red-tri">
-                ${ce.filter(d=>d.step===56).map(d=>`<div class="home-tri-pawn red" title="Red Pawn ${d.id+1} Home! 👑">👑${d.id+1}</div>`).join("")}
+                ${pe.filter(l=>l.step===56).map(l=>`<div class="home-tri-pawn red" title="Red Pawn ${l.id+1} Home! 👑">👑${l.id+1}</div>`).join("")}
               </div>
               <div class="home-triangle green-tri">
-                ${Me.filter(d=>d.step===56).map(d=>`<div class="home-tri-pawn green" title="Green Pawn ${d.id+1} Home! 👑">👑${d.id+1}</div>`).join("")}
+                ${je.filter(l=>l.step===56).map(l=>`<div class="home-tri-pawn green" title="Green Pawn ${l.id+1} Home! 👑">👑${l.id+1}</div>`).join("")}
               </div>
               <div class="home-triangle yellow-tri">
-                ${qe.filter(d=>d.step===56).map(d=>`<div class="home-tri-pawn yellow" title="Yellow Pawn ${d.id+1} Home! 👑">👑${d.id+1}</div>`).join("")}
+                ${Ne.filter(l=>l.step===56).map(l=>`<div class="home-tri-pawn yellow" title="Yellow Pawn ${l.id+1} Home! 👑">👑${l.id+1}</div>`).join("")}
               </div>
               <div class="home-triangle blue-tri">
-                ${Ee.filter(d=>d.step===56).map(d=>`<div class="home-tri-pawn blue" title="Blue Pawn ${d.id+1} Home! 👑">👑${d.id+1}</div>`).join("")}
+                ${_e.filter(l=>l.step===56).map(l=>`<div class="home-tri-pawn blue" title="Blue Pawn ${l.id+1} Home! 👑">👑${l.id+1}</div>`).join("")}
               </div>
               <div class="home-center-core">
                 <span class="home-crown">🏆</span>
                 <div class="home-finished-tokens">
-                  ${[...ce.filter(d=>d.step===56).map(d=>({col:"red",id:d.id})),...Me.filter(d=>d.step===56).map(d=>({col:"green",id:d.id})),...qe.filter(d=>d.step===56).map(d=>({col:"yellow",id:d.id})),...Ee.filter(d=>d.step===56).map(d=>({col:"blue",id:d.id}))].map(d=>`
-                    <div class="tok-home-champion ${d.col}" title="${d.col.toUpperCase()} Pawn ${d.id+1} Reached Home! 👑">
+                  ${[...pe.filter(l=>l.step===56).map(l=>({col:"red",id:l.id})),...je.filter(l=>l.step===56).map(l=>({col:"green",id:l.id})),...Ne.filter(l=>l.step===56).map(l=>({col:"yellow",id:l.id})),..._e.filter(l=>l.step===56).map(l=>({col:"blue",id:l.id}))].map(l=>`
+                    <div class="tok-home-champion ${l.col}" title="${l.col.toUpperCase()} Pawn ${l.id+1} Reached Home! 👑">
                       <span class="champ-crown">👑</span>
-                      <span class="champ-num">${d.id+1}</span>
+                      <span class="champ-num">${l.id+1}</span>
                     </div>
                   `).join("")}
                 </div>
@@ -4298,41 +4528,41 @@ In Brave or Chrome, click the lock or shield icon on the left of the address bar
           <div class="ludo-interactive-console">
             <div class="ludo-dice-interactive-box">
               <div 
-                class="ludo-3d-dice ${Pt?"clickable":""} ${ut?"just-rolled":""} border-${B}"
+                class="ludo-3d-dice ${Pt?"clickable":""} ${gt?"just-rolled":""} border-${R}"
                 id="btn-interactive-ludo-dice"
                 role="button"
                 tabindex="${Pt?"0":"-1"}"
-                title="${Pt?"Tap dice to roll!":u?"Choose a pawn to move":ut?`${yt} rolled ${kt}`:`Waiting for ${yt} to roll`}"
+                title="${Pt?"Tap dice to roll!":u?"Choose a pawn to move":gt?`${vt} rolled ${yt}`:`Waiting for ${vt} to roll`}"
                 style="${Pt?"cursor:pointer;touch-action:manipulation;":""}"
               >
-                ${ea(kt,!ut)}
+                ${ea(yt,!gt)}
               </div>
             </div>
 
             <div class="ludo-console-status-pane">
               <div class="ludo-turn-indicator-bar">
-                <span class="ludo-turn-dot ${B}"></span>
+                <span class="ludo-turn-dot ${R}"></span>
                 <span class="ludo-turn-player-tag">
-                  <strong>${yt}</strong> (${B.toUpperCase()})
+                  <strong>${vt}</strong> (${R.toUpperCase()})
                 </span>
                 ${u?'<span class="badge green" style="font-size:10px;padding:2px 6px;">YOUR TURN</span>':`<span class="badge blue" style="font-size:10px;padding:2px 6px;">OPPONENT'S TURN</span>`}
               </div>
 
-              <div class="ludo-guidance-message ${u&&ut?"highlight":""}">
-                ${u&&!ut&&t.status==="active"?"👉 It is your turn! <strong>Click the dice</strong> to roll!":u&&ut&&t.status==="active"?w.length>0?w.length===1?`🎲 Rolled <strong>${kt}</strong>! Auto-advancing single pawn...`:`🎲 Rolled <strong>${kt}</strong>! Tap your <strong>glowing pawn</strong> to move!`:`🎲 Rolled <strong>${kt}</strong>. No legal moves possible — turn passing...`:t.status==="active"?ut?`🎲 ${na} <strong>${yt}</strong> rolled <strong>${kt}</strong>!`:`⏳ Waiting for <strong>${yt}</strong> to roll the dice...`:"🏁 Match Concluded"}
+              <div class="ludo-guidance-message ${u&&gt?"highlight":""}">
+                ${u&&!gt&&t.status==="active"?"👉 It is your turn! <strong>Click the dice</strong> to roll!":u&&gt&&t.status==="active"?w.length>0?w.length===1?`🎲 Rolled <strong>${yt}</strong>! Auto-advancing single pawn...`:`🎲 Rolled <strong>${yt}</strong>! Tap your <strong>glowing pawn</strong> to move!`:`🎲 Rolled <strong>${yt}</strong>. No legal moves possible — turn passing...`:t.status==="active"?gt?`🎲 ${na} <strong>${vt}</strong> rolled <strong>${yt}</strong>!`:`⏳ Waiting for <strong>${vt}</strong> to roll the dice...`:"🏁 Match Concluded"}
               </div>
 
               <div class="ludo-last-action-caption">
-                ${v(ue.lastActionText||"Match live!")}
+                ${v(ge.lastActionText||"Match live!")}
               </div>
             </div>
           </div>
         </div>
-      `}function We(Z,De,Ne){const ue=o.querySelector("#btn-close-arena");ue&&(ue.onclick=oe);const Se=o.querySelector("#btn-sidebar-leave");Se&&(Se.onclick=oe);const ye=o.querySelector("#btn-arena-settings");ye&&(ye.onclick=()=>{$(`🎮 ${t.gameTitle} • Code ${(t._id||"7370").slice(-4).toUpperCase()} • Audio & Visual cues enabled`,"info")});const Oe=o.querySelector("#btn-arena-resign");Oe&&(Oe.onclick=async()=>{if(confirm("Are you sure you want to resign this match?"))try{Oe.disabled=!0,await ve(`/bonding/matches/${c}/action`,{action:"resign"}),await Q(),ae()}catch(C){$(C.message||"Resign failed","error"),Oe.disabled=!1}});const Ue=o.querySelector("#btn-arena-draw");Ue&&(Ue.onclick=async()=>{try{await ve(`/bonding/matches/${c}/action`,{action:"offer_draw"}),$("Draw offer sent to opponent","info"),await Q(),ae()}catch(C){$(C.message||"Draw offer failed","error")}});const ce=o.querySelector("#btn-confirm-accept-draw");ce&&(ce.onclick=async()=>{try{await ve(`/bonding/matches/${c}/action`,{action:"accept_draw"}),$("Draw agreed!","info"),await Q(),ae()}catch(C){$(C.message,"error")}});const Me=o.querySelector("#btn-confirm-decline-draw");Me&&(Me.onclick=async()=>{try{await ve(`/bonding/matches/${c}/action`,{action:"decline_draw"}),await Q(),ae()}catch(C){$(C.message,"error")}}),[o.querySelector("#btn-arena-delete-match"),o.querySelector("#btn-arena-delete-match-ended")].filter(Boolean).forEach(C=>{C.onclick=async()=>{if(confirm("Are you sure you want to permanently delete this match?"))try{C.disabled=!0,await nt(`/bonding/matches/${c}`),$("Match deleted","success"),oe(),h==="lounge_games"&&await y()}catch(B){$(B.message||"Failed to delete match","error"),C.disabled=!1}}});const Ee=o.querySelector("#btn-arena-rematch-action");Ee&&(Ee.onclick=async()=>{try{Ee.disabled=!0,Ee.textContent="Requesting...";const C=await ve(`/bonding/matches/${c}/action`,{action:"rematch_request"});C.match&&(t=C.match,M=_(C.match),ae(),$("Rematch request sent! Waiting for opponent ⚔️","info"))}catch(C){$(C.message||"Rematch request failed","error"),Ee.disabled=!1,Ee.textContent="🔄 Request Rematch"}});const Ie=o.querySelector("#btn-arena-accept-rematch");Ie&&(Ie.onclick=async()=>{try{Ie.disabled=!0,Ie.textContent="Starting...";const C=await ve(`/bonding/matches/${c}/action`,{action:"rematch_accept"});C.match&&(t=C.match,M=_(C.match),$("Rematch started! Same game is live ⚔️","success"),ae())}catch(C){$(C.message||"Could not accept rematch","error"),Ie.disabled=!1}});const Pe=o.querySelector("#btn-arena-decline-rematch");if(Pe&&(Pe.onclick=async()=>{try{await ve(`/bonding/matches/${c}/action`,{action:"rematch_decline"}),$("Rematch declined","info"),oe()}catch{oe()}}),t.gameType==="dotsboxes"&&Z&&t.status==="active"&&o.querySelectorAll(".dots-line.clickable").forEach(C=>{C.onclick=async()=>{const B=C.dataset.type,u=C.dataset.r,ie=C.dataset.c;try{C.style.opacity="0.5";const ne=await ve(`/bonding/matches/${c}/move`,{type:B,r:u,c:ie});t=ne,M=_(ne),ae()}catch(ne){C.style.opacity="1",$(ne.message||"Failed to draw line","error")}}}),t.gameType==="chess"&&Z&&t.status==="active"){const C=t.gameState?.fen||"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",B=new wa(C),u=Ne.assignedRole==="white"?"w":"b";o.querySelectorAll(".chess-sq").forEach(ie=>{ie.onclick=async()=>{const ne=ie.dataset.square;if(k){if(k===ne){k=null,A=[],ae();return}if(A.includes(ne)){const G=B.get(k);let he;G&&G.type==="p"&&(ne.endsWith("8")||ne.endsWith("1"))&&(he=prompt("Pawn Promotion! Choose: q (Queen), r (Rook), b (Bishop), n (Knight)","q")||"q");try{const be={from:k,to:ne,promotion:he?he.toLowerCase():void 0};k=null,A=[],t=await ve(`/bonding/matches/${c}/move`,{move:be}),ae()}catch(be){$(be.message||"Illegal chess move","error"),k=null,A=[],ae()}return}}const Te=B.get(ne);Te&&Te.color===u?(k=ne,A=B.moves({square:ne,verbose:!0}).map(he=>he.to),ae()):(k=null,A=[],ae())}})}if(t.gameType==="tictactoe"&&Z&&t.status==="active"&&o.querySelectorAll(".ttt-cell.empty").forEach(C=>{C.onclick=async()=>{const B=C.dataset.cellIdx;try{C.style.opacity="0.5",t=await ve(`/bonding/matches/${c}/move`,{cellIndex:Number(B)}),ae()}catch(u){$(u.message||"Invalid move","error")}}}),t.gameType==="ludo"&&t.status==="active"){const C=t.gameState||{},B=!!C.rolled,u=C.turnColor||t.turn||"red",ie=!!(B&&(C.dice||C.lastRoll&&C.lastRollColor===u)),ne=e?._id||e?.id,Te=C.players||[{...t.player1,color:"red",assignedRole:"red",isBot:!1},{...t.player2,color:"green",assignedRole:"green",isBot:!1}],G=ne&&t.player1.userId.toString()===ne.toString(),be=(Te.find(ke=>ke.userId&&ke.userId.toString()===ne?.toString())||(G?Te[0]:Te[1]))?.color||(G?"red":"green"),Fe=be===u&&t.status==="active",gt=Te.find(ke=>ke.color===u)||(u==="red"?t.player1:t.player2),Ce=v(gt?.name||(u==="red"?"Player 1":"Player 2")),_e=o.querySelector("#btn-interactive-ludo-dice");if(_e){const ke=async V=>{if(V&&(V.preventDefault(),V.stopPropagation()),!Fe){$(`${Ce}'s turn right now`,"info");return}if(ie){$("Dice already rolled! Tap your glowing pawn to move.","info");return}if(t.status!=="active"){$("Match has ended","info");return}if(ee||_e.dataset.rolling==="true")return;ee=!0,O=Date.now(),_e.dataset.rolling="true",_e.classList.add("rolling");let He=0;const Ae=setInterval(()=>{He++;const Xe=Math.floor(Math.random()*6)+1;_e.innerHTML=renderNumberDisplay(Xe),He>=4&&clearInterval(Ae)},50);try{const Xe=await ve(`/bonding/matches/${c}/move`,{action:"roll"});clearInterval(Ae),t=Xe,M=_(Xe),ae()}catch(Xe){clearInterval(Ae),$(Xe.message||"Failed to roll dice","error"),_e&&(delete _e.dataset.rolling,_e.classList.remove("rolling"))}finally{ee=!1}};_e.onclick=ke,_e.onkeydown=V=>{(V.key==="Enter"||V.key===" ")&&(V.preventDefault(),ke(V))}}if(Fe&&ie){const V=(C.tokens||{})[be]||[],He=C.dice||C.lastRoll||0,Ae=V.filter(Xe=>Xe.step===-1&&He===6||Xe.step>=0&&Xe.step+He<=56);if(Ae.length===1&&!Y){Y=!0;const Xe=Ae[0];D&&clearTimeout(D),D=setTimeout(async()=>{try{const ht=await ve(`/bonding/matches/${c}/move`,{action:"move",tokenId:Number(Xe.id)});t=ht,M=_(ht),Y=!1,ae()}catch(ht){Y=!1,$(ht.message||"Auto-move failed","error")}},400)}}Fe&&B&&o.querySelectorAll(".ludo-token.movable").forEach(ke=>{ke.onclick=async V=>{V.stopPropagation();const He=ke.dataset.tokenId;try{ke.style.opacity="0.5";const Ae=await ve(`/bonding/matches/${c}/move`,{action:"move",tokenId:Number(He)});t=Ae,M=_(Ae),ae()}catch(Ae){$(Ae.message||"Invalid token move","error"),ke.style.opacity="1"}}})}}ae()}function H(){if(!p||p.type==="direct")return;const c=s.querySelector("#bonding-modals-root"),o=O=>O==="employee"||O==="admin"||O==="superadmin",t=p.members||[],k=new Set(t.map(O=>O.userId?.toString())),A=i.filter(O=>o(O.role)&&!k.has(O._id.toString()));c.innerHTML=`
+      `}function Be(ee,Fe,De){const ge=i.querySelector("#btn-close-arena");ge&&(ge.onclick=ie);const ye=i.querySelector("#btn-sidebar-leave");ye&&(ye.onclick=ie);const ke=i.querySelector("#btn-arena-settings");ke&&(ke.onclick=()=>{S(`🎮 ${t.gameTitle} • Code ${(t._id||"7370").slice(-4).toUpperCase()} • Audio & Visual cues enabled`,"info")});const Oe=i.querySelector("#btn-arena-resign");Oe&&(Oe.onclick=async()=>{if(confirm("Are you sure you want to resign this match?"))try{Oe.disabled=!0,await xe(`/bonding/matches/${d}/action`,{action:"resign"}),await J(),X()}catch(I){S(I.message||"Resign failed","error"),Oe.disabled=!1}});const Ue=i.querySelector("#btn-arena-draw");Ue&&(Ue.onclick=async()=>{try{await xe(`/bonding/matches/${d}/action`,{action:"offer_draw"}),S("Draw offer sent to opponent","info"),await J(),X()}catch(I){S(I.message||"Draw offer failed","error")}});const pe=i.querySelector("#btn-confirm-accept-draw");pe&&(pe.onclick=async()=>{try{await xe(`/bonding/matches/${d}/action`,{action:"accept_draw"}),S("Draw agreed!","info"),await J(),X()}catch(I){S(I.message,"error")}});const je=i.querySelector("#btn-confirm-decline-draw");je&&(je.onclick=async()=>{try{await xe(`/bonding/matches/${d}/action`,{action:"decline_draw"}),await J(),X()}catch(I){S(I.message,"error")}}),[i.querySelector("#btn-arena-delete-match"),i.querySelector("#btn-arena-delete-match-ended")].filter(Boolean).forEach(I=>{I.onclick=async()=>{if(confirm("Are you sure you want to permanently delete this match?"))try{I.disabled=!0,await at(`/bonding/matches/${d}`),S("Match deleted","success"),ie(),k==="lounge_games"&&await y()}catch(R){S(R.message||"Failed to delete match","error"),I.disabled=!1}}});const _e=i.querySelector("#btn-arena-rematch-action");_e&&(_e.onclick=async()=>{try{_e.disabled=!0,_e.textContent="Requesting...";const I=await xe(`/bonding/matches/${d}/action`,{action:"rematch_request"});I.match&&(t=I.match,M=P(I.match),X(),S("Rematch request sent! Waiting for opponent ⚔️","info"))}catch(I){S(I.message||"Rematch request failed","error"),_e.disabled=!1,_e.textContent="🔄 Request Rematch"}});const Ce=i.querySelector("#btn-arena-accept-rematch");Ce&&(Ce.onclick=async()=>{try{Ce.disabled=!0,Ce.textContent="Starting...";const I=await xe(`/bonding/matches/${d}/action`,{action:"rematch_accept"});I.match&&(t=I.match,M=P(I.match),S("Rematch started! Same game is live ⚔️","success"),X())}catch(I){S(I.message||"Could not accept rematch","error"),Ce.disabled=!1}});const Pe=i.querySelector("#btn-arena-decline-rematch");if(Pe&&(Pe.onclick=async()=>{try{await xe(`/bonding/matches/${d}/action`,{action:"rematch_decline"}),S("Rematch declined","info"),ie()}catch{ie()}}),t.gameType==="dotsboxes"&&ee&&t.status==="active"&&i.querySelectorAll(".dots-line.clickable").forEach(I=>{I.onclick=async()=>{const R=I.dataset.type,u=I.dataset.r,oe=I.dataset.c;try{I.style.opacity="0.5";const ne=await xe(`/bonding/matches/${d}/move`,{type:R,r:u,c:oe});t=ne,M=P(ne),X()}catch(ne){I.style.opacity="1",S(ne.message||"Failed to draw line","error")}}}),t.gameType==="chess"&&ee&&t.status==="active"){const I=t.gameState?.fen||"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",R=new $a(I),u=De.assignedRole==="white"?"w":"b";i.querySelectorAll(".chess-sq").forEach(oe=>{oe.onclick=async()=>{const ne=oe.dataset.square;if(b){if(b===ne){b=null,D=[],X();return}if(D.includes(ne)){const G=R.get(b);let fe;G&&G.type==="p"&&(ne.endsWith("8")||ne.endsWith("1"))&&(fe=prompt("Pawn Promotion! Choose: q (Queen), r (Rook), b (Bishop), n (Knight)","q")||"q");try{const ue={from:b,to:ne,promotion:fe?fe.toLowerCase():void 0};b=null,D=[],t=await xe(`/bonding/matches/${d}/move`,{move:ue}),X()}catch(ue){S(ue.message||"Illegal chess move","error"),b=null,D=[],X()}return}}const Ee=R.get(ne);Ee&&Ee.color===u?(b=ne,D=R.moves({square:ne,verbose:!0}).map(fe=>fe.to),X()):(b=null,D=[],X())}})}if(t.gameType==="tictactoe"&&ee&&t.status==="active"&&i.querySelectorAll(".ttt-cell.empty").forEach(I=>{I.onclick=async()=>{const R=I.dataset.cellIdx;try{I.style.opacity="0.5",t=await xe(`/bonding/matches/${d}/move`,{cellIndex:Number(R)}),X()}catch(u){S(u.message||"Invalid move","error")}}}),t.gameType==="ludo"&&t.status==="active"){const I=t.gameState||{},R=!!I.rolled,u=I.turnColor||t.turn||"red",oe=!!(R&&(I.dice||I.lastRoll&&I.lastRollColor===u)),ne=a?._id||a?.id,Ee=I.players||[{...t.player1,color:"red",assignedRole:"red",isBot:!1},{...t.player2,color:"green",assignedRole:"green",isBot:!1}],G=ne&&t.player1.userId.toString()===ne.toString(),ue=(Ee.find(we=>we.userId&&we.userId.toString()===ne?.toString())||(G?Ee[0]:Ee[1]))?.color||(G?"red":"green"),Te=ue===u&&t.status==="active",pt=Ee.find(we=>we.color===u)||(u==="red"?t.player1:t.player2),Se=v(pt?.name||(u==="red"?"Player 1":"Player 2")),Ie=i.querySelector("#btn-interactive-ludo-dice");if(Ie){const we=async Y=>{if(Y&&(Y.preventDefault(),Y.stopPropagation()),!Te){S(`${Se}'s turn right now`,"info");return}if(oe){S("Dice already rolled! Tap your glowing pawn to move.","info");return}if(t.status!=="active"){S("Match has ended","info");return}if(Z||Ie.dataset.rolling==="true")return;Z=!0,O=Date.now(),Ie.dataset.rolling="true",Ie.classList.add("rolling");let He=0;const Ae=setInterval(()=>{He++;const Qe=Math.floor(Math.random()*6)+1;Ie.innerHTML=renderNumberDisplay(Qe),He>=4&&clearInterval(Ae)},50);try{const Qe=await xe(`/bonding/matches/${d}/move`,{action:"roll"});clearInterval(Ae),t=Qe,M=P(Qe),X()}catch(Qe){clearInterval(Ae),S(Qe.message||"Failed to roll dice","error"),Ie&&(delete Ie.dataset.rolling,Ie.classList.remove("rolling"))}finally{Z=!1}};Ie.onclick=we,Ie.onkeydown=Y=>{(Y.key==="Enter"||Y.key===" ")&&(Y.preventDefault(),we(Y))}}if(Te&&oe){const Y=(I.tokens||{})[ue]||[],He=I.dice||I.lastRoll||0,Ae=Y.filter(Qe=>Qe.step===-1&&He===6||Qe.step>=0&&Qe.step+He<=56);if(Ae.length===1&&!K){K=!0;const Qe=Ae[0];$&&clearTimeout($),$=setTimeout(async()=>{try{const ht=await xe(`/bonding/matches/${d}/move`,{action:"move",tokenId:Number(Qe.id)});t=ht,M=P(ht),K=!1,X()}catch(ht){K=!1,S(ht.message||"Auto-move failed","error")}},400)}}Te&&R&&i.querySelectorAll(".ludo-token.movable").forEach(we=>{we.onclick=async Y=>{Y.stopPropagation();const He=we.dataset.tokenId;try{we.style.opacity="0.5";const Ae=await xe(`/bonding/matches/${d}/move`,{action:"move",tokenId:Number(He)});t=Ae,M=P(Ae),X()}catch(Ae){S(Ae.message||"Invalid token move","error"),we.style.opacity="1"}}})}}X()}function L(){if(!c||c.type==="direct")return;const d=s.querySelector("#bonding-modals-root"),i=O=>O==="employee"||O==="admin"||O==="superadmin",t=c.members||[],b=new Set(t.map(O=>O.userId?.toString())),D=r.filter(O=>i(O.role)&&!b.has(O._id.toString()));d.innerHTML=`
       <div class="bonding-modal-backdrop">
         <div class="bonding-modal-card">
           <div class="bonding-modal-header">
-            <h3>👥 Group Members · ${v(p.name)}</h3>
+            <h3>👥 Group Members · ${v(c.name)}</h3>
             <button class="bonding-modal-close">&times;</button>
           </div>
 
@@ -4343,36 +4573,36 @@ In Brave or Chrome, click the lock or shield icon on the left of the address bar
               <div class="bonding-add-member-row">
                 <select id="sel-add-colleague" class="bonding-select">
                   <option value="">Select an employee or admin to add...</option>
-                  ${A.map(O=>`
+                  ${D.map(O=>`
                     <option value="${O._id}">${v(O.name)} (${v(O.role==="superadmin"?"Superadmin":O.role==="admin"?"Admin":"Employee")})</option>
                   `).join("")}
                 </select>
-                <button class="bonding-btn-primary" id="btn-submit-add-member" ${A.length===0?"disabled":""}>
+                <button class="bonding-btn-primary" id="btn-submit-add-member" ${D.length===0?"disabled":""}>
                   Add to Group
                 </button>
               </div>
-              ${A.length===0?'<div class="bonding-hint-text">All active employees and administrators are already members of this group!</div>':""}
+              ${D.length===0?'<div class="bonding-hint-text">All active employees and administrators are already members of this group!</div>':""}
             </div>
 
             <!-- Current Members List -->
             <div class="bonding-form-section" style="margin-top: 20px;">
               <label class="bonding-form-label">Current Members (${t.length}):</label>
               <div class="bonding-members-list">
-                ${t.map(O=>{const _=e?._id||e?.id,Q=_&&O.userId&&O.userId.toString()===_.toString(),oe=p.createdBy&&p.createdBy.userId&&String(p.createdBy.userId)===String(_),ae=g==="superadmin"||e?.role==="superadmin",pe=oe||ae;return`
+                ${t.map(O=>{const P=a?._id||a?.id,J=P&&O.userId&&O.userId.toString()===P.toString(),ie=c.createdBy&&c.createdBy.userId&&String(c.createdBy.userId)===String(P),X=g==="superadmin"||a?.role==="superadmin",ae=ie||X;return`
                     <div class="bonding-member-item">
                       <div class="bonding-member-left">
                         <div class="bonding-member-avatar">${(O.name||"U").slice(0,1).toUpperCase()}</div>
                         <div class="bonding-member-info">
-                          <span class="bonding-member-name">${v(O.name)} ${Q?'<span class="you-badge">(You)</span>':""}</span>
+                          <span class="bonding-member-name">${v(O.name)} ${J?'<span class="you-badge">(You)</span>':""}</span>
                           <span class="bonding-member-role">${v(O.role||"Member")}</span>
                         </div>
                       </div>
                       <div class="bonding-member-actions">
-                        ${Q?`
+                        ${J?`
                           <button class="bonding-btn-danger btn-leave-group-action" data-user-id="${O.userId}">
                             🚪 Leave Group
                           </button>
-                        `:pe?`
+                        `:ae?`
                           <button class="bonding-btn-danger btn-remove-member" data-user-id="${O.userId}" data-name="${v(O.name)}">
                             Remove
                           </button>
@@ -4383,7 +4613,7 @@ In Brave or Chrome, click the lock or shield icon on the left of the address bar
               </div>
             </div>
 
-            ${(()=>{const O=e?._id||e?.id,_=p.createdBy&&p.createdBy.userId&&String(p.createdBy.userId)===String(O),Q=g==="superadmin"||e?.role==="superadmin";return _||Q?`
+            ${(()=>{const O=a?._id||a?.id,P=c.createdBy&&c.createdBy.userId&&String(c.createdBy.userId)===String(O),J=g==="superadmin"||a?.role==="superadmin";return P||J?`
                 <!-- Delete Group Option in Modal (Creator only) -->
                 <div class="bonding-danger-zone">
                   <div class="danger-zone-text">
@@ -4409,9 +4639,9 @@ In Brave or Chrome, click the lock or shield icon on the left of the address bar
           </div>
         </div>
       </div>
-    `,c.querySelector(".bonding-modal-close").onclick=()=>{c.innerHTML=""};const M=c.querySelector("#btn-modal-delete-group");M&&(M.onclick=()=>{c.innerHTML="",j()});const D=c.querySelector("#btn-modal-leave-group");D&&(D.onclick=()=>{c.innerHTML="",F()}),c.querySelectorAll(".btn-leave-group-action").forEach(O=>{O.onclick=()=>{c.innerHTML="",F()}});const Y=c.querySelector("#btn-submit-add-member");Y&&(Y.onclick=async()=>{const _=c.querySelector("#sel-add-colleague").value;if(!_){$("Please select a colleague to add","warning");return}try{Y.disabled=!0,Y.textContent="Adding...";const Q=await Jt(`/bonding/channels/${p._id}/members`,{action:"add",userIds:[_]});$("Colleague added to group! 🎉","success"),p=Q.channel,c.innerHTML="",await Le(p._id),je()}catch(Q){$(Q.message||"Failed to add member","error"),Y.disabled=!1,Y.textContent="Add to Group"}}),c.querySelectorAll(".btn-remove-member").forEach(O=>{O.onclick=async()=>{const _=O.dataset.userId,Q=O.dataset.name;if(confirm(`Are you sure you want to remove ${Q} from this group?`))try{O.disabled=!0;const oe=await Jt(`/bonding/channels/${p._id}/members`,{action:"remove",userId:_});$(`${Q} removed from group`,"info"),p=oe.channel,c.innerHTML="",await Le(p._id),je()}catch(oe){$(oe.message||"Failed to remove member","error"),O.disabled=!1}}})}async function F(){if(!p||p.type==="direct")return;const c=p.name;if(confirm(`Are you sure you want to leave the group "${c}"?`))try{await ve(`/bonding/channels/${p._id}/leave`,{}),$(`You left "${c}"`,"info"),b=await ze("/bonding/channels").catch(()=>[]),p=b.find(t=>t.type==="group")||b[0]||null,Be(),je(),p&&await Le(p._id)}catch(t){$(t.message||"Failed to leave group","error")}}async function j(){if(!p||p.type==="direct")return;const c=p.name;if(confirm(`Are you sure you want to delete the group "${c}"?
+    `,d.querySelector(".bonding-modal-close").onclick=()=>{d.innerHTML=""};const M=d.querySelector("#btn-modal-delete-group");M&&(M.onclick=()=>{d.innerHTML="",p()});const $=d.querySelector("#btn-modal-leave-group");$&&($.onclick=()=>{d.innerHTML="",z()}),d.querySelectorAll(".btn-leave-group-action").forEach(O=>{O.onclick=()=>{d.innerHTML="",z()}});const K=d.querySelector("#btn-submit-add-member");K&&(K.onclick=async()=>{const P=d.querySelector("#sel-add-colleague").value;if(!P){S("Please select a colleague to add","warning");return}try{K.disabled=!0,K.textContent="Adding...";const J=await Jt(`/bonding/channels/${c._id}/members`,{action:"add",userIds:[P]});S("Colleague added to group! 🎉","success"),c=J.channel,d.innerHTML="",await Me(c._id),Re()}catch(J){S(J.message||"Failed to add member","error"),K.disabled=!1,K.textContent="Add to Group"}}),d.querySelectorAll(".btn-remove-member").forEach(O=>{O.onclick=async()=>{const P=O.dataset.userId,J=O.dataset.name;if(confirm(`Are you sure you want to remove ${J} from this group?`))try{O.disabled=!0;const ie=await Jt(`/bonding/channels/${c._id}/members`,{action:"remove",userId:P});S(`${J} removed from group`,"info"),c=ie.channel,d.innerHTML="",await Me(c._id),Re()}catch(ie){S(ie.message||"Failed to remove member","error"),O.disabled=!1}}})}async function z(){if(!c||c.type==="direct")return;const d=c.name;if(confirm(`Are you sure you want to leave the group "${d}"?`))try{await xe(`/bonding/channels/${c._id}/leave`,{}),S(`You left "${d}"`,"info"),f=await ze("/bonding/channels").catch(()=>[]),c=f.find(t=>t.type==="group")||f[0]||null,qe(),Re(),c&&await Me(c._id)}catch(t){S(t.message||"Failed to leave group","error")}}async function p(){if(!c||c.type==="direct")return;const d=c.name;if(confirm(`Are you sure you want to delete the group "${d}"?
 
-All messages in this lounge will be deleted.`))try{await nt(`/bonding/channels/${p._id}`),$(`Group "${c}" deleted successfully`,"success"),b=await ze("/bonding/channels").catch(()=>[]),p=b.find(t=>t.type==="group")||b[0]||null,Be(),je(),p&&await Le(p._id)}catch(t){$(t.message||"Failed to delete group","error")}}function x(){const c=s.querySelector("#bonding-modals-root"),o=A=>A==="employee"||A==="admin"||A==="superadmin",t=i.filter(A=>!A.isSelf&&o(A.role));c.innerHTML=`
+All messages in this lounge will be deleted.`))try{await at(`/bonding/channels/${c._id}`),S(`Group "${d}" deleted successfully`,"success"),f=await ze("/bonding/channels").catch(()=>[]),c=f.find(t=>t.type==="group")||f[0]||null,qe(),Re(),c&&await Me(c._id)}catch(t){S(t.message||"Failed to delete group","error")}}function q(){const d=s.querySelector("#bonding-modals-root"),i=D=>D==="employee"||D==="admin"||D==="superadmin",t=r.filter(D=>!D.isSelf&&i(D.role));d.innerHTML=`
       <div class="bonding-modal-backdrop">
         <div class="bonding-modal-card">
           <div class="bonding-modal-header">
@@ -4421,12 +4651,12 @@ All messages in this lounge will be deleted.`))try{await nt(`/bonding/channels/$
           <div class="bonding-modal-body">
             <p class="bonding-hint-text">Choose any employee or administrator to start a 1-on-1 private conversation.</p>
             <div class="bonding-user-pick-list">
-              ${t.map(A=>`
-                <div class="bonding-user-pick-item" data-user-id="${A._id}" data-name="${v(A.name)}">
-                  <div class="bonding-member-avatar">${A.name.slice(0,1).toUpperCase()}</div>
+              ${t.map(D=>`
+                <div class="bonding-user-pick-item" data-user-id="${D._id}" data-name="${v(D.name)}">
+                  <div class="bonding-member-avatar">${D.name.slice(0,1).toUpperCase()}</div>
                   <div class="bonding-user-pick-info">
-                    <span class="user-pick-name">${v(A.name)}</span>
-                    <span class="user-pick-role">${v(A.role==="superadmin"?"Superadmin":A.role==="admin"?"Admin":"Employee")} · ${v(A.email||"")}</span>
+                    <span class="user-pick-name">${v(D.name)}</span>
+                    <span class="user-pick-role">${v(D.role==="superadmin"?"Superadmin":D.role==="admin"?"Admin":"Employee")} · ${v(D.email||"")}</span>
                   </div>
                   <button class="bonding-btn-primary">Chat Now</button>
                 </div>
@@ -4435,7 +4665,7 @@ All messages in this lounge will be deleted.`))try{await nt(`/bonding/channels/$
           </div>
         </div>
       </div>
-    `,c.querySelector(".bonding-modal-close").onclick=()=>{c.innerHTML=""},c.querySelectorAll(".bonding-user-pick-item").forEach(A=>{A.onclick=async()=>{const M=A.dataset.userId;try{const D=await ve("/bonding/channels",{type:"direct",targetUserId:M});c.innerHTML="",b=await ze("/bonding/channels"),p=b.find(Y=>Y._id===D._id)||D,Be(),je(),await Le(p._id)}catch(D){$(D.message||"Failed to open personal chat","error")}}})}function E(){const c=s.querySelector("#bonding-modals-root"),o=D=>D==="employee"||D==="admin"||D==="superadmin",t=i.filter(D=>!D.isSelf&&o(D.role));c.innerHTML=`
+    `,d.querySelector(".bonding-modal-close").onclick=()=>{d.innerHTML=""},d.querySelectorAll(".bonding-user-pick-item").forEach(D=>{D.onclick=async()=>{const M=D.dataset.userId;try{const $=await xe("/bonding/channels",{type:"direct",targetUserId:M});d.innerHTML="",f=await ze("/bonding/channels"),c=f.find(K=>K._id===$._id)||$,qe(),Re(),await Me(c._id)}catch($){S($.message||"Failed to open personal chat","error")}}})}function h(){const d=s.querySelector("#bonding-modals-root"),i=$=>$==="employee"||$==="admin"||$==="superadmin",t=r.filter($=>!$.isSelf&&i($.role));d.innerHTML=`
       <div class="bonding-modal-backdrop">
         <div class="bonding-modal-card">
           <div class="bonding-modal-header">
@@ -4470,10 +4700,10 @@ All messages in this lounge will be deleted.`))try{await nt(`/bonding/channels/$
             <div class="bonding-form-section">
               <label class="bonding-form-label">Add Initial Members (Employees & Admins only)</label>
               <div class="bonding-member-checkboxes">
-                ${t.map(D=>`
+                ${t.map($=>`
                   <label class="bonding-check-label">
-                    <input type="checkbox" class="new-group-member-chk" value="${D._id}" />
-                    <span>${v(D.name)} (${v(D.role==="superadmin"?"Superadmin":D.role==="admin"?"Admin":"Employee")})</span>
+                    <input type="checkbox" class="new-group-member-chk" value="${$._id}" />
+                    <span>${v($.name)} (${v($.role==="superadmin"?"Superadmin":$.role==="admin"?"Admin":"Employee")})</span>
                   </label>
                 `).join("")}
               </div>
@@ -4486,11 +4716,11 @@ All messages in this lounge will be deleted.`))try{await nt(`/bonding/channels/$
           </div>
         </div>
       </div>
-    `,c.querySelector(".bonding-modal-close").onclick=()=>{c.innerHTML=""},c.querySelector("#btn-cancel-create-grp").onclick=()=>{c.innerHTML=""};let k="👥";const A=c.querySelectorAll(".avatar-opt");A.forEach(D=>{D.onclick=()=>{A.forEach(Y=>Y.classList.remove("active")),D.classList.add("active"),k=D.textContent.trim()}});const M=c.querySelector("#btn-confirm-create-grp");M.onclick=async()=>{const D=c.querySelector("#new-group-name"),Y=c.querySelector("#new-group-desc"),ee=D.value.trim();if(!ee){$("Please enter a group name","warning"),D.focus();return}const O=c.querySelectorAll(".new-group-member-chk:checked"),_=Array.from(O).map(Q=>Q.value);try{M.disabled=!0,M.textContent="Creating...";const Q=await ve("/bonding/channels",{type:"group",name:ee,description:Y.value.trim(),avatar:k,memberIds:_});$(`Group "${ee}" created! 🎉`,"success"),c.innerHTML="",b=await ze("/bonding/channels"),p=b.find(oe=>oe._id===Q._id)||Q,Be(),je(),await Le(p._id)}catch(Q){$(Q.message||"Failed to create group","error"),M.disabled=!1,M.textContent="Create Group 🎉"}}}function X(c,o){const t=document.querySelector(".bonding-chat-emoji-palette");if(t){t.remove();return}const k=[{name:"Smileys & Faces",icon:"😀",emojis:["😀","😃","😄","😁","😆","😅","😂","🤣","😊","😇","🙂","😉","😍","🥰","😘","😋","😎","🤔","🤨","😐","😴","🤯","🥳","🥺"]},{name:"Hands & People",icon:"👍",emojis:["👍","👎","👏","🙌","👐","🤝","✌️","🤞","🤟","🤘","🤙","👈","👉","👆","👇","💪","🫡","🙏","🙋","🙆"]},{name:"Celebration & Work",icon:"🎉",emojis:["🎉","🎊","🔥","✨","💯","🚀","🎯","🏆","🥇","⭐","🌟","💡","📌","💼","📊","📈","⏱️","⏳","✅","❌","⚡"]},{name:"Break & Fun",icon:"☕",emojis:["☕","🍵","🍕","🍔","🍟","🎂","🍰","🍩","🍿","🍺","🍻","🎮","🎲","🎯","🧩","🎵","🏖️","⚽","❤️","💖","💙"]}];let A=0;const M=document.createElement("div");M.className="bonding-chat-emoji-palette";function D(){const O=k[A];M.innerHTML=`
+    `,d.querySelector(".bonding-modal-close").onclick=()=>{d.innerHTML=""},d.querySelector("#btn-cancel-create-grp").onclick=()=>{d.innerHTML=""};let b="👥";const D=d.querySelectorAll(".avatar-opt");D.forEach($=>{$.onclick=()=>{D.forEach(K=>K.classList.remove("active")),$.classList.add("active"),b=$.textContent.trim()}});const M=d.querySelector("#btn-confirm-create-grp");M.onclick=async()=>{const $=d.querySelector("#new-group-name"),K=d.querySelector("#new-group-desc"),Z=$.value.trim();if(!Z){S("Please enter a group name","warning"),$.focus();return}const O=d.querySelectorAll(".new-group-member-chk:checked"),P=Array.from(O).map(J=>J.value);try{M.disabled=!0,M.textContent="Creating...";const J=await xe("/bonding/channels",{type:"group",name:Z,description:K.value.trim(),avatar:b,memberIds:P});S(`Group "${Z}" created! 🎉`,"success"),d.innerHTML="",f=await ze("/bonding/channels"),c=f.find(ie=>ie._id===J._id)||J,qe(),Re(),await Me(c._id)}catch(J){S(J.message||"Failed to create group","error"),M.disabled=!1,M.textContent="Create Group 🎉"}}}function T(d,i){const t=document.querySelector(".bonding-chat-emoji-palette");if(t){t.remove();return}const b=[{name:"Smileys & Faces",icon:"😀",emojis:["😀","😃","😄","😁","😆","😅","😂","🤣","😊","😇","🙂","😉","😍","🥰","😘","😋","😎","🤔","🤨","😐","😴","🤯","🥳","🥺"]},{name:"Hands & People",icon:"👍",emojis:["👍","👎","👏","🙌","👐","🤝","✌️","🤞","🤟","🤘","🤙","👈","👉","👆","👇","💪","🫡","🙏","🙋","🙆"]},{name:"Celebration & Work",icon:"🎉",emojis:["🎉","🎊","🔥","✨","💯","🚀","🎯","🏆","🥇","⭐","🌟","💡","📌","💼","📊","📈","⏱️","⏳","✅","❌","⚡"]},{name:"Break & Fun",icon:"☕",emojis:["☕","🍵","🍕","🍔","🍟","🎂","🍰","🍩","🍿","🍺","🍻","🎮","🎲","🎯","🧩","🎵","🏖️","⚽","❤️","💖","💙"]}];let D=0;const M=document.createElement("div");M.className="bonding-chat-emoji-palette";function $(){const O=b[D];M.innerHTML=`
         <div class="emoji-palette-tabs">
-          ${k.map((_,Q)=>`
-            <button class="emoji-tab-btn ${Q===A?"active":""}" data-cat-idx="${Q}" title="${_.name}">
-              ${_.icon}
+          ${b.map((P,J)=>`
+            <button class="emoji-tab-btn ${J===D?"active":""}" data-cat-idx="${J}" title="${P.name}">
+              ${P.icon}
             </button>
           `).join("")}
         </div>
@@ -4499,11 +4729,11 @@ All messages in this lounge will be deleted.`))try{await nt(`/bonding/channels/$
           <button class="emoji-palette-close" type="button">&times;</button>
         </div>
         <div class="emoji-palette-grid">
-          ${O.emojis.map(_=>`
-            <button class="chat-emoji-cell" data-e="${_}" type="button">${_}</button>
+          ${O.emojis.map(P=>`
+            <button class="chat-emoji-cell" data-e="${P}" type="button">${P}</button>
           `).join("")}
         </div>
-      `,M.querySelectorAll(".emoji-tab-btn").forEach(_=>{_.onclick=Q=>{Q.stopPropagation(),A=Number(_.dataset.catIdx),D()}}),M.querySelector(".emoji-palette-close").onclick=_=>{_.stopPropagation(),M.remove()},M.querySelectorAll(".chat-emoji-cell").forEach(_=>{_.onclick=Q=>{Q.stopPropagation(),o(_.dataset.e),M.remove()}})}D();const Y=c.getBoundingClientRect();M.style.position="fixed",M.style.bottom=`${window.innerHeight-Y.top+8}px`,M.style.left=`${Math.max(12,Math.min(window.innerWidth-300,Y.left-40))}px`,document.body.appendChild(M);const ee=O=>{!M.contains(O.target)&&O.target!==c&&!c.contains(O.target)&&(M.remove(),document.removeEventListener("click",ee))};setTimeout(()=>document.addEventListener("click",ee),10)}function I(c,o){const t=document.querySelector(".bonding-emoji-popup");t&&t.remove();const k=["👍","❤️","🔥","😂","🎉","👏","🎯","✨","🙌","💯","🚀","💡"],A=document.createElement("div");A.className="bonding-emoji-popup",A.innerHTML=k.map(Y=>`<button class="emoji-opt-btn" data-e="${Y}">${Y}</button>`).join("");const M=c.getBoundingClientRect();A.style.top=`${M.bottom+window.scrollY+6}px`,A.style.left=`${M.left+window.scrollX}px`,document.body.appendChild(A),A.querySelectorAll(".emoji-opt-btn").forEach(Y=>{Y.onclick=ee=>{ee.stopPropagation(),o(Y.dataset.e),A.remove()}});const D=Y=>{A.contains(Y.target)||(A.remove(),document.removeEventListener("click",D))};setTimeout(()=>document.addEventListener("click",D),10)}function L(c){if(!c)return"";try{return new Date(c).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})}catch{return""}}}function on(){const s=document.getElementById("ci360-bonding-styles");s&&s.remove();const a=document.createElement("style");a.id="ci360-bonding-styles",a.textContent=`
+      `,M.querySelectorAll(".emoji-tab-btn").forEach(P=>{P.onclick=J=>{J.stopPropagation(),D=Number(P.dataset.catIdx),$()}}),M.querySelector(".emoji-palette-close").onclick=P=>{P.stopPropagation(),M.remove()},M.querySelectorAll(".chat-emoji-cell").forEach(P=>{P.onclick=J=>{J.stopPropagation(),i(P.dataset.e),M.remove()}})}$();const K=d.getBoundingClientRect();M.style.position="fixed",M.style.bottom=`${window.innerHeight-K.top+8}px`,M.style.left=`${Math.max(12,Math.min(window.innerWidth-300,K.left-40))}px`,document.body.appendChild(M);const Z=O=>{!M.contains(O.target)&&O.target!==d&&!d.contains(O.target)&&(M.remove(),document.removeEventListener("click",Z))};setTimeout(()=>document.addEventListener("click",Z),10)}function U(d,i){const t=document.querySelector(".bonding-emoji-popup");t&&t.remove();const b=["👍","❤️","🔥","😂","🎉","👏","🎯","✨","🙌","💯","🚀","💡"],D=document.createElement("div");D.className="bonding-emoji-popup",D.innerHTML=b.map(K=>`<button class="emoji-opt-btn" data-e="${K}">${K}</button>`).join("");const M=d.getBoundingClientRect();D.style.top=`${M.bottom+window.scrollY+6}px`,D.style.left=`${M.left+window.scrollX}px`,document.body.appendChild(D),D.querySelectorAll(".emoji-opt-btn").forEach(K=>{K.onclick=Z=>{Z.stopPropagation(),i(K.dataset.e),D.remove()}});const $=K=>{D.contains(K.target)||(D.remove(),document.removeEventListener("click",$))};setTimeout(()=>document.addEventListener("click",$),10)}function _(d){if(!d)return"";try{return new Date(d).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})}catch{return""}}}function pn(){const s=document.getElementById("ci360-bonding-styles");s&&s.remove();const n=document.createElement("style");n.id="ci360-bonding-styles",n.textContent=`
     /* Root Wrap */
     .bonding-wrap {
       display: flex;
@@ -8809,21 +9039,21 @@ All messages in this lounge will be deleted.`))try{await nt(`/bonding/channels/$
       transform: scale(1.2);
     }
 
-    `,document.head.appendChild(a)}function $a(s){if(!s)return"";const a=v(s),e=/(https?:\/\/[^\s<]+[^<.,:;"')\]\s])/g;return a.replace(e,g=>`<a href="${g}" target="_blank" rel="noopener noreferrer" class="ci-360-inline-link">${g} ↗</a>`)}const ga=[{key:"To Do",label:"To Do",badgeClass:"todo"},{key:"Content",label:"Content",badgeClass:"content"},{key:"Design",label:"Design",badgeClass:"design"},{key:"Under Review",label:"Under Review",badgeClass:"review"},{key:"Ready to Leave",label:"Ready to Leave",badgeClass:"ready"}],Et=[{key:"Task",label:"Task",icon:"📝",slug:"task"},{key:"Bug",label:"Bug",icon:"🐛",slug:"bug"},{key:"Feature",label:"Feature",icon:"✨",slug:"feature"},{key:"Internal",label:"Internal",icon:"🏢",slug:"internal"},{key:"Infrastructure",label:"Infrastructure",icon:"⚙️",slug:"infrastructure"},{key:"Client Request",label:"Client Request",icon:"💼",slug:"client-request"},{key:"General",label:"General",icon:"📌",slug:"general"}],Rt=[{key:"Critical",label:"Critical",icon:"🔴 ⬆⬆",color:"#ef4444"},{key:"High",label:"High",icon:"🟠 ⬆",color:"#f97316"},{key:"Medium",label:"Medium",icon:"🟡 〓",color:"#eab308"},{key:"Low",label:"Low",icon:"🟢 ⬇",color:"#22c55e"}];async function dn(s,a={}){const{userRole:e="employee",currentUser:g=null,initialTicketId:h=null}=a,b=e==="superadmin"||e==="admin";if(e==="client"||g&&g.role==="client"){s.innerHTML=`
+    `,document.head.appendChild(n)}function Sa(s){if(!s)return"";const n=v(s),a=/(https?:\/\/[^\s<]+[^<.,:;"')\]\s])/g;return n.replace(a,g=>`<a href="${g}" target="_blank" rel="noopener noreferrer" class="ci-360-inline-link">${g} ↗</a>`)}const ga=[{key:"To Do",label:"To Do",badgeClass:"todo"},{key:"Content",label:"Content",badgeClass:"content"},{key:"Design",label:"Design",badgeClass:"design"},{key:"Under Review",label:"Under Review",badgeClass:"review"},{key:"Ready to Leave",label:"Ready to Leave",badgeClass:"ready"}],Et=[{key:"Task",label:"Task",icon:"📝",slug:"task"},{key:"Bug",label:"Bug",icon:"🐛",slug:"bug"},{key:"Feature",label:"Feature",icon:"✨",slug:"feature"},{key:"Internal",label:"Internal",icon:"🏢",slug:"internal"},{key:"Infrastructure",label:"Infrastructure",icon:"⚙️",slug:"infrastructure"},{key:"Client Request",label:"Client Request",icon:"💼",slug:"client-request"},{key:"General",label:"General",icon:"📌",slug:"general"}],Rt=[{key:"Critical",label:"Critical",icon:"🔴 ⬆⬆",color:"#ef4444"},{key:"High",label:"High",icon:"🟠 ⬆",color:"#f97316"},{key:"Medium",label:"Medium",icon:"🟡 〓",color:"#eab308"},{key:"Low",label:"Low",icon:"🟢 ⬇",color:"#22c55e"}];async function mn(s,n={}){const{userRole:a="employee",currentUser:g=null,initialTicketId:k=null}=n,f=a==="superadmin"||a==="admin";if(a==="client"||g&&g.role==="client"){s.innerHTML=`
       <div style="padding:40px;text-align:center;color:#ef4444;font-size:16px;font-weight:700;">
         ⛔ Access Denied: Support Tickets are internal to company staff only.
       </div>
-    `;return}let p=[],i={},R=[],J=[],T={search:"",status:"all",priority:"all",category:"all",assigneeId:"all",reporterId:"all",scope:"all",jobId:a.initialJobId||"all",myIssuesOnly:!1},q=null,W="comments",U=!1;s.innerHTML=`
+    `;return}let c=[],r={},N=[],Q=[],E={search:"",status:"all",priority:"all",category:"all",assigneeId:"all",reporterId:"all",scope:"all",jobId:n.initialJobId||"all",myIssuesOnly:!1},B=null,W="comments",H=!1;s.innerHTML=`
     <div class="ci-360-module-wrap">
       <!-- Top Header Toolbar -->
       <div class="ci-360-header-bar">
         <div class="ci-360-header-left">
           <div class="ci-360-breadcrumb">
             <span class="ci-360-project-icon">CI</span>
-            <span>CI360 / SUPPORT / ${b?"ALL TICKETS (ADMIN)":"MY ASSIGNED TICKETS"}</span>
+            <span>CI360 / SUPPORT / ${f?"ALL TICKETS (ADMIN)":"MY ASSIGNED TICKETS"}</span>
           </div>
           <div class="ci-360-title-row">
-            <h2 class="ci-360-main-title">🎫 ${b?"Support Tickets Board":"Support Tickets"}</h2>
+            <h2 class="ci-360-main-title">🎫 ${f?"Support Tickets Board":"Support Tickets"}</h2>
           </div>
         </div>
         <div class="ci-360-header-actions">
@@ -8864,7 +9094,7 @@ All messages in this lounge will be deleted.`))try{await nt(`/bonding/channels/$
 
           <select id="ci-360-filter-category" class="ci-360-filter-select">
             <option value="all">Category: All</option>
-            ${Et.map(n=>`<option value="${n.key}">${n.icon} ${n.label}</option>`).join("")}
+            ${Et.map(e=>`<option value="${e.key}">${e.icon} ${e.label}</option>`).join("")}
           </select>
 
           <select id="ci-360-filter-job" class="ci-360-filter-select">
@@ -8894,157 +9124,157 @@ All messages in this lounge will be deleted.`))try{await nt(`/bonding/channels/$
       <!-- Modal Injection Root -->
       <div id="ci-360-modals-root"></div>
     </div>
-  `,await Promise.all([ot(),Qe(),mt(),Ft()]),lt(),dt(),Le(),je(),h&&ct(h);const me=setInterval(()=>{if(!document.contains(s)){clearInterval(me);return}!(s.querySelector(".dragging")||s.querySelector("input:focus")||s.querySelector("textarea:focus"))&&!q&&de()},12e3),$e=()=>{document.contains(s)&&!q&&de()};window.addEventListener("focus",$e);async function Qe(){try{const n=new URLSearchParams;T.search&&n.set("search",T.search),T.priority!=="all"&&n.set("priority",T.priority),T.category!=="all"&&n.set("category",T.category),T.assigneeId!=="all"&&n.set("assigneeId",T.assigneeId),T.jobId&&T.jobId!=="all"&&n.set("jobId",T.jobId),T.reporterId&&T.reporterId!=="all"&&n.set("reporterId",T.reporterId),T.scope==="created"&&n.set("reporterId",g?._id||g?.id),T.scope==="assigned"&&n.set("assigneeId",g?._id||g?.id),T.myIssuesOnly&&n.set("myIssuesOnly","true");const r=await ze("/tickets?"+n.toString());p=Array.isArray(r)?r:[]}catch(n){$(n.message||"Failed to load tickets",!0),p=[]}}async function ot(){try{i=await ze("/tickets/stats")}catch(n){console.warn("Could not fetch ticket stats:",n)}}async function mt(){try{let n;try{n=await ze("/tickets/staff")}catch{n=await ze("/users")}R=(n||[]).filter(r=>r.active!==!1&&r.role!=="client")}catch(n){console.warn("Could not fetch employees:",n),R=[]}}async function Ft(){try{const n=await ze("/jobs?limit=250");J=Array.isArray(n)?n:n?.jobs||[]}catch(n){console.warn("Could not fetch jobs:",n)}}function lt(){const n=s.querySelector("#ci-360-stats-root");n&&(n.innerHTML=`
-      <div class="ci-360-stat-card ${T.status==="all"&&!T.myIssuesOnly?"active":""}" data-stat-filter="all">
-        <span class="ci-360-stat-val">${i.total||0}</span>
+  `,await Promise.all([nt(),Je(),bt(),Ft()]),lt(),dt(),Me(),Re(),k&&st(k);const be=setInterval(()=>{if(!document.contains(s)){clearInterval(be);return}!(s.querySelector(".dragging")||s.querySelector("input:focus")||s.querySelector("textarea:focus"))&&!B&&de()},12e3),$e=()=>{document.contains(s)&&!B&&de()};window.addEventListener("focus",$e);async function Je(){try{const e=new URLSearchParams;E.search&&e.set("search",E.search),E.priority!=="all"&&e.set("priority",E.priority),E.category!=="all"&&e.set("category",E.category),E.assigneeId!=="all"&&e.set("assigneeId",E.assigneeId),E.jobId&&E.jobId!=="all"&&e.set("jobId",E.jobId),E.reporterId&&E.reporterId!=="all"&&e.set("reporterId",E.reporterId),E.scope==="created"&&e.set("reporterId",g?._id||g?.id),E.scope==="assigned"&&e.set("assigneeId",g?._id||g?.id),E.myIssuesOnly&&e.set("myIssuesOnly","true");const o=await ze("/tickets?"+e.toString());c=Array.isArray(o)?o:[]}catch(e){S(e.message||"Failed to load tickets",!0),c=[]}}async function nt(){try{r=await ze("/tickets/stats")}catch(e){console.warn("Could not fetch ticket stats:",e)}}async function bt(){try{let e;try{e=await ze("/tickets/staff")}catch{e=await ze("/users")}N=(e||[]).filter(o=>o.active!==!1&&o.role!=="client")}catch(e){console.warn("Could not fetch employees:",e),N=[]}}async function Ft(){try{const e=await ze("/jobs?limit=250");Q=Array.isArray(e)?e:e?.jobs||[]}catch(e){console.warn("Could not fetch jobs:",e)}}function lt(){const e=s.querySelector("#ci-360-stats-root");e&&(e.innerHTML=`
+      <div class="ci-360-stat-card ${E.status==="all"&&!E.myIssuesOnly?"active":""}" data-stat-filter="all">
+        <span class="ci-360-stat-val">${r.total||0}</span>
         <span class="ci-360-stat-lbl">Total Tickets</span>
       </div>
-      <div class="ci-360-stat-card ${T.status==="To Do"?"active":""}" data-stat-filter="To Do">
-        <span class="ci-360-stat-val">${i.toDo||0}</span>
+      <div class="ci-360-stat-card ${E.status==="To Do"?"active":""}" data-stat-filter="To Do">
+        <span class="ci-360-stat-val">${r.toDo||0}</span>
         <span class="ci-360-stat-lbl">To Do</span>
       </div>
-      <div class="ci-360-stat-card content ${T.status==="Content"?"active":""}" data-stat-filter="Content">
-        <span class="ci-360-stat-val">${i.content??(i.inProgress||0)}</span>
+      <div class="ci-360-stat-card content ${E.status==="Content"?"active":""}" data-stat-filter="Content">
+        <span class="ci-360-stat-val">${r.content??(r.inProgress||0)}</span>
         <span class="ci-360-stat-lbl">Content</span>
       </div>
-      <div class="ci-360-stat-card design ${T.status==="Design"?"active":""}" data-stat-filter="Design">
-        <span class="ci-360-stat-val">${i.design||0}</span>
+      <div class="ci-360-stat-card design ${E.status==="Design"?"active":""}" data-stat-filter="Design">
+        <span class="ci-360-stat-val">${r.design||0}</span>
         <span class="ci-360-stat-lbl">Design</span>
       </div>
-      <div class="ci-360-stat-card review ${T.status==="Under Review"?"active":""}" data-stat-filter="Under Review">
-        <span class="ci-360-stat-val">${i.underReview||0}</span>
+      <div class="ci-360-stat-card review ${E.status==="Under Review"?"active":""}" data-stat-filter="Under Review">
+        <span class="ci-360-stat-val">${r.underReview||0}</span>
         <span class="ci-360-stat-lbl">Under Review</span>
       </div>
-      <div class="ci-360-stat-card ready ${T.status==="Ready to Leave"?"active":""}" data-stat-filter="Ready to Leave">
-        <span class="ci-360-stat-val">${i.readyToLeave??(i.resolved||i.closed||0)}</span>
+      <div class="ci-360-stat-card ready ${E.status==="Ready to Leave"?"active":""}" data-stat-filter="Ready to Leave">
+        <span class="ci-360-stat-val">${r.readyToLeave??(r.resolved||r.closed||0)}</span>
         <span class="ci-360-stat-lbl">Ready to Leave</span>
       </div>
       <div class="ci-360-stat-card critical" data-stat-filter="critical">
-        <span class="ci-360-stat-val">${i.critical||0}</span>
+        <span class="ci-360-stat-val">${r.critical||0}</span>
         <span class="ci-360-stat-lbl">Critical 🔴</span>
       </div>
       <div class="ci-360-stat-card overdue" data-stat-filter="overdue">
-        <span class="ci-360-stat-val">${i.overdue||0}</span>
+        <span class="ci-360-stat-val">${r.overdue||0}</span>
         <span class="ci-360-stat-lbl">Overdue ⚠️</span>
       </div>
-    `,n.querySelectorAll(".ci-360-stat-card").forEach(r=>{r.onclick=async()=>{const f=r.dataset.statFilter;f==="all"?(T.status="all",T.priority="all"):f==="critical"?(T.priority="Critical",T.status="all"):(T.status=f,T.priority="all"),await de()}}))}function Le(){const n=s.querySelector("#ci-360-filter-assignee");n&&(n.innerHTML=`
+    `,e.querySelectorAll(".ci-360-stat-card").forEach(o=>{o.onclick=async()=>{const m=o.dataset.statFilter;m==="all"?(E.status="all",E.priority="all"):m==="critical"?(E.priority="Critical",E.status="all"):(E.status=m,E.priority="all"),await de()}}))}function Me(){const e=s.querySelector("#ci-360-filter-assignee");e&&(e.innerHTML=`
         <option value="all">Assignee: All</option>
         <option value="unassigned">Unassigned</option>
-        ${R.map(f=>`
-          <option value="${f._id}" ${T.assigneeId===f._id.toString()?"selected":""}>
-            ${v(f.name)} (${v(f.role)})
+        ${N.map(m=>`
+          <option value="${m._id}" ${E.assigneeId===m._id.toString()?"selected":""}>
+            ${v(m.name)} (${v(m.role)})
           </option>
         `).join("")}
-      `);const r=s.querySelector("#ci-360-filter-job");r&&(r.innerHTML=`
+      `);const o=s.querySelector("#ci-360-filter-job");o&&(o.innerHTML=`
         <option value="all">Linked Job: All</option>
-        ${J.map(f=>`
-          <option value="${f._id}" ${T.jobId===f._id.toString()?"selected":""}>
-            📁 ${v(f.title||"Untitled Job")}
+        ${Q.map(m=>`
+          <option value="${m._id}" ${E.jobId===m._id.toString()?"selected":""}>
+            📁 ${v(m.title||"Untitled Job")}
           </option>
         `).join("")}
-      `)}function dt(){const n=s.querySelector("#ci-360-board-columns-root");if(!n)return;const r={};ga.forEach(f=>{r[f.key]=[]}),p.forEach(f=>{let y=f.status||"To Do";y==="In Progress"?y="Content":y==="Resolved"?y="Under Review":y==="Closed"&&(y="Ready to Leave"),r[y]||(r[y]=[]),r[y].push(f)}),n.innerHTML=ga.map(f=>{const y=r[f.key]||[];return`
-        <div class="ci-360-board-column" data-status="${f.key}">
+      `)}function dt(){const e=s.querySelector("#ci-360-board-columns-root");if(!e)return;const o={};ga.forEach(m=>{o[m.key]=[]}),c.forEach(m=>{let y=m.status||"To Do";y==="In Progress"?y="Content":y==="Resolved"?y="Under Review":y==="Closed"&&(y="Ready to Leave"),o[y]||(o[y]=[]),o[y].push(m)}),e.innerHTML=ga.map(m=>{const y=o[m.key]||[];return`
+        <div class="ci-360-board-column" data-status="${m.key}">
           <div class="ci-360-column-header">
             <div class="ci-360-col-title-wrap">
-              <span class="ci-360-col-title">${v(f.label)}</span>
+              <span class="ci-360-col-title">${v(m.label)}</span>
               <span class="ci-360-col-badge">${y.length}</span>
             </div>
           </div>
-          <div class="ci-360-cards-list" data-column-status="${f.key}">
+          <div class="ci-360-cards-list" data-column-status="${m.key}">
             ${y.length===0?`
               <div style="padding:18px 6px;text-align:center;color:#475569;font-size:11px;font-style:italic;">
                 No tickets
               </div>
-            `:y.map(z=>wt(z)).join("")}
+            `:y.map(A=>kt(A)).join("")}
           </div>
         </div>
-      `}).join(""),Be(),vt()}function wt(n){const r=Et.find(E=>E.key===n.category)||Et[0],f=Rt.find(E=>E.key===n.priority)||Rt[2],y=n.dueDate&&new Date(n.dueDate)<new Date&&n.status!=="Ready to Leave"&&n.status!=="Closed",z=(n.subtasks||[]).filter(E=>E.completed).length,N=(n.subtasks||[]).length,S=Array.isArray(n.assignees)&&n.assignees.length>0?n.assignees:n.assignee&&n.assignee.userId?[n.assignee]:[],P=g?._id||g?.id,H=n.reporter&&n.reporter.userId&&String(n.reporter.userId)===String(P)||n.userId&&String(n.userId)===String(P),F=e==="superadmin"||g?.role==="superadmin",j=H||F;let x="";if(S.length===0)x='<div class="ci-360-avatar unassigned" title="Unassigned">?</div>';else{const E=S.slice(0,3),X=S.length-3;x=`
+      `}).join(""),qe(),wt()}function kt(e){const o=Et.find(h=>h.key===e.category)||Et[0],m=Rt.find(h=>h.key===e.priority)||Rt[2],y=e.dueDate&&new Date(e.dueDate)<new Date&&e.status!=="Ready to Leave"&&e.status!=="Closed",A=(e.subtasks||[]).filter(h=>h.completed).length,F=(e.subtasks||[]).length,j=Array.isArray(e.assignees)&&e.assignees.length>0?e.assignees:e.assignee&&e.assignee.userId?[e.assignee]:[],C=g?._id||g?.id,L=e.reporter&&e.reporter.userId&&String(e.reporter.userId)===String(C)||e.userId&&String(e.userId)===String(C),z=a==="superadmin"||g?.role==="superadmin",p=L||z;let q="";if(j.length===0)q='<div class="ci-360-avatar unassigned" title="Unassigned">?</div>';else{const h=j.slice(0,3),T=j.length-3;q=`
         <div class="ci-360-avatar-group">
-          ${E.map(I=>`
-            <div class="ci-360-avatar" title="Assignee: ${v(I.name||"Member")} (${v(I.role||"")})">
-              ${(I.avatar||I.name?.slice(0,1)||"U").toUpperCase()}
+          ${h.map(U=>`
+            <div class="ci-360-avatar" title="Assignee: ${v(U.name||"Member")} (${v(U.role||"")})">
+              ${(U.avatar||U.name?.slice(0,1)||"U").toUpperCase()}
             </div>
           `).join("")}
-          ${X>0?`
-            <div class="ci-360-avatar extra-count" title="${X} more assignees: ${v(S.slice(3).map(I=>I.name).join(", "))}">
-              +${X}
+          ${T>0?`
+            <div class="ci-360-avatar extra-count" title="${T} more assignees: ${v(j.slice(3).map(U=>U.name).join(", "))}">
+              +${T}
             </div>
           `:""}
         </div>
       `}return`
-      <div class="ci-360-card" draggable="true" data-ticket-id="${n._id}">
+      <div class="ci-360-card" draggable="true" data-ticket-id="${e._id}">
         <div class="ci-360-card-top">
           <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
-            <span class="ci-360-category-pill ${r.slug}">
-              ${r.icon} ${r.label}
+            <span class="ci-360-category-pill ${o.slug}">
+              ${o.icon} ${o.label}
             </span>
-            ${H?`
+            ${L?`
               <span class="ci-360-reporter-tag" title="You created this ticket">
                 ✍️ By You
               </span>
             `:""}
-            ${n.dueDate?`
+            ${e.dueDate?`
               <span class="ci-360-due-pill ${y?"overdue":""}" title="Due Date">
                 ${y?"⚠️ ":"📅 "}
-                ${new Date(n.dueDate).toISOString().slice(0,10)}
+                ${new Date(e.dueDate).toISOString().slice(0,10)}
               </span>
             `:""}
           </div>
-          ${j?`
-            <button type="button" class="ci-360-card-quick-del btn-delete-card-ticket" data-ticket-id="${n._id}" data-ticket-num="${v(n.ticketId)}" title="Delete Ticket (${F?"Superadmin":"Creator"})">
+          ${p?`
+            <button type="button" class="ci-360-card-quick-del btn-delete-card-ticket" data-ticket-id="${e._id}" data-ticket-num="${v(e.ticketId)}" title="Delete Ticket (${z?"Superadmin":"Creator"})">
               🗑️
             </button>
           `:""}
         </div>
 
-        <div class="ci-360-card-title" title="${v(n.title)}">
-          ${v(n.title)}
+        <div class="ci-360-card-title" title="${v(e.title)}">
+          ${v(e.title)}
         </div>
 
-        ${n.jobTitle||n.jobId&&n.jobId.title?`
-          <div class="ci-360-card-job-link" title="Linked Internal Job: ${v(n.jobTitle||n.jobId.title)}">
-            📁 ${v(n.jobTitle||n.jobId.title)}
+        ${e.jobTitle||e.jobId&&e.jobId.title?`
+          <div class="ci-360-card-job-link" title="Linked Internal Job: ${v(e.jobTitle||e.jobId.title)}">
+            📁 ${v(e.jobTitle||e.jobId.title)}
           </div>
         `:""}
 
-        ${n.linkUrl||n.links&&n.links.length>0?`
+        ${e.linkUrl||e.links&&e.links.length>0?`
           <div style="margin: 4px 0 2px 0;">
-            <a href="${v(n.linkUrl||n.links[0]?.url)}" target="_blank" rel="noopener noreferrer" class="ci-360-card-link-badge" onclick="event.stopPropagation();" title="Open URL: ${v(n.linkUrl||n.links[0]?.url)}">
-              🔗 ${n.links&&n.links[0]?.title?v(n.links[0].title):"External Link"} ↗
+            <a href="${v(e.linkUrl||e.links[0]?.url)}" target="_blank" rel="noopener noreferrer" class="ci-360-card-link-badge" onclick="event.stopPropagation();" title="Open URL: ${v(e.linkUrl||e.links[0]?.url)}">
+              🔗 ${e.links&&e.links[0]?.title?v(e.links[0].title):"External Link"} ↗
             </a>
           </div>
         `:""}
 
         <div class="ci-360-card-bottom">
           <div class="ci-360-card-id-row">
-            <span class="ci-360-pri-icon" title="Priority: ${f.label}">${f.icon}</span>
-            <span class="ci-360-ticket-id">${v(n.ticketId)}</span>
+            <span class="ci-360-pri-icon" title="Priority: ${m.label}">${m.icon}</span>
+            <span class="ci-360-ticket-id">${v(e.ticketId)}</span>
           </div>
 
           <div class="ci-360-card-assignee-row">
-            ${N>0?`
-              <span class="ci-360-subtask-badge" title="${z} of ${N} subtasks completed">
-                ☑ ${z}/${N}
+            ${F>0?`
+              <span class="ci-360-subtask-badge" title="${A} of ${F} subtasks completed">
+                ☑ ${A}/${F}
               </span>
             `:""}
-            ${x}
+            ${q}
           </div>
         </div>
       </div>
-    `}function Be(){const n=s.querySelectorAll(".ci-360-card"),r=s.querySelectorAll(".ci-360-board-column");n.forEach(f=>{f.ondragstart=y=>{y.dataTransfer.setData("text/plain",f.dataset.ticketId),f.classList.add("dragging")},f.ondragend=()=>{f.classList.remove("dragging")}}),r.forEach(f=>{f.ondragover=y=>{y.preventDefault(),f.classList.add("drag-over")},f.ondragleave=()=>{f.classList.remove("drag-over")},f.ondrop=async y=>{y.preventDefault(),f.classList.remove("drag-over");const z=y.dataTransfer.getData("text/plain"),N=f.dataset.status;if(!z||!N)return;const S=p.find(j=>j._id.toString()===z);if(!S||S.status===N)return;const P=S.status,H=S.assignees?[...S.assignees]:[],F=S.assignee?{...S.assignee}:null;if(S.status=N,N==="Under Review"){const j={name:"John",role:"Staff",email:"john@ci360.local",avatar:"J"};S.assignee=j,S.assignees=[j]}dt();try{const j=await at(`/tickets/${z}/status`,{status:N}),x=N==="Under Review"?`Moved ${j.ticketId} to Under Review (Default assigned to John)`:`Moved ${j.ticketId} to ${N}`;$(x,!1),await de()}catch(j){$(j.message||"Status update failed",!0),S.status=P,S.assignees=H,S.assignee=F,await de()}}})}function vt(){s.querySelectorAll(".btn-delete-card-ticket").forEach(n=>{n.onclick=async r=>{r.stopPropagation(),r.preventDefault();const f=n.dataset.ticketId,y=n.dataset.ticketNum||"ticket";if(confirm(`Are you sure you want to permanently delete ticket ${y}?`)){n.disabled=!0;try{await nt(`/tickets/${f}`),$(`Ticket ${y} deleted`,!1),await de()}catch(z){$(z.message||"Failed to delete ticket",!0),n.disabled=!1}}}}),s.querySelectorAll(".ci-360-card").forEach(n=>{n.onclick=r=>{if(r.target.tagName==="A"||r.target.closest(".btn-delete-card-ticket"))return;const f=n.dataset.ticketId;ct(f)}})}function je(){const n=s.querySelector("#btn-ci-360-refresh");n&&(n.onclick=async()=>{await de(),$("Board updated",!1)});const r=s.querySelector("#btn-ci-360-create-ticket");r&&(r.onclick=()=>{l()});const f=s.querySelector("#ci-360-search-input");let y=null;f&&(f.oninput=I=>{clearTimeout(y),y=setTimeout(async()=>{T.search=I.target.value.trim(),Re(),await de()},300)});const z=s.querySelector("#ci-360-filter-priority");z&&(z.onchange=async I=>{T.priority=I.target.value,Re(),await de()});const N=s.querySelector("#ci-360-filter-category");N&&(N.onchange=async I=>{T.category=I.target.value,Re(),await de()});const S=s.querySelector("#ci-360-filter-job");S&&(S.onchange=async I=>{T.jobId=I.target.value,Re(),await de()});const P=s.querySelector("#ci-360-filter-assignee");P&&(P.onchange=async I=>{T.assigneeId=I.target.value,Re(),await de()});const H=s.querySelector("#ci-360-pill-my-issues");H&&(H.onclick=async()=>{T.myIssuesOnly=!T.myIssuesOnly,H.classList.toggle("active",T.myIssuesOnly),Re(),await de()});const F=s.querySelector("#ci-360-pill-scope-all"),j=s.querySelector("#ci-360-pill-scope-assigned"),x=s.querySelector("#ci-360-pill-scope-created"),E=async I=>{T.scope=I,F&&F.classList.toggle("active",I==="all"),j&&j.classList.toggle("active",I==="assigned"),x&&x.classList.toggle("active",I==="created"),Re(),await de()};F&&(F.onclick=()=>E("all")),j&&(j.onclick=()=>E("assigned")),x&&(x.onclick=()=>E("created"));const X=s.querySelector("#ci-360-clear-filters");X&&(X.onclick=async()=>{T={search:"",status:"all",priority:"all",category:"all",assigneeId:"all",reporterId:"all",scope:"all",jobId:"all",myIssuesOnly:!1},f&&(f.value=""),z&&(z.value="all"),N&&(N.value="all");const I=s.querySelector("#ci-360-filter-job");I&&(I.value="all"),P&&(P.value="all"),H&&H.classList.remove("active"),F&&F.classList.add("active"),j&&j.classList.remove("active"),x&&x.classList.remove("active"),Re(),await de()})}function Re(){const n=s.querySelector("#ci-360-clear-filters");if(!n)return;const r=T.search||T.priority!=="all"||T.category!=="all"||T.jobId&&T.jobId!=="all"||T.assigneeId!=="all"||T.myIssuesOnly||T.scope&&T.scope!=="all";n.style.display=r?"inline":"none"}async function de(){await Qe(),dt()}async function ct(n){const r=s.querySelector("#ci-360-modals-root");if(r){r.innerHTML=`
+    `}function qe(){const e=s.querySelectorAll(".ci-360-card"),o=s.querySelectorAll(".ci-360-board-column");e.forEach(m=>{m.ondragstart=y=>{y.dataTransfer.setData("text/plain",m.dataset.ticketId),m.classList.add("dragging")},m.ondragend=()=>{m.classList.remove("dragging")}}),o.forEach(m=>{m.ondragover=y=>{y.preventDefault(),m.classList.add("drag-over")},m.ondragleave=()=>{m.classList.remove("drag-over")},m.ondrop=async y=>{y.preventDefault(),m.classList.remove("drag-over");const A=y.dataTransfer.getData("text/plain"),F=m.dataset.status;if(!A||!F)return;const j=c.find(p=>p._id.toString()===A);if(!j||j.status===F)return;const C=j.status,L=j.assignees?[...j.assignees]:[],z=j.assignee?{...j.assignee}:null;if(j.status=F,F==="Under Review"){const p={name:"John",role:"Staff",email:"john@ci360.local",avatar:"J"};j.assignee=p,j.assignees=[p]}dt();try{const p=await tt(`/tickets/${A}/status`,{status:F}),q=F==="Under Review"?`Moved ${p.ticketId} to Under Review (Default assigned to John)`:`Moved ${p.ticketId} to ${F}`;S(q,!1),await de()}catch(p){S(p.message||"Status update failed",!0),j.status=C,j.assignees=L,j.assignee=z,await de()}}})}function wt(){s.querySelectorAll(".btn-delete-card-ticket").forEach(e=>{e.onclick=async o=>{o.stopPropagation(),o.preventDefault();const m=e.dataset.ticketId,y=e.dataset.ticketNum||"ticket";if(confirm(`Are you sure you want to permanently delete ticket ${y}?`)){e.disabled=!0;try{await at(`/tickets/${m}`),S(`Ticket ${y} deleted`,!1),await de()}catch(A){S(A.message||"Failed to delete ticket",!0),e.disabled=!1}}}}),s.querySelectorAll(".ci-360-card").forEach(e=>{e.onclick=o=>{if(o.target.tagName==="A"||o.target.closest(".btn-delete-card-ticket"))return;const m=e.dataset.ticketId;st(m)}})}function Re(){const e=s.querySelector("#btn-ci-360-refresh");e&&(e.onclick=async()=>{await de(),S("Board updated",!1)});const o=s.querySelector("#btn-ci-360-create-ticket");o&&(o.onclick=()=>{ft()});const m=s.querySelector("#ci-360-search-input");let y=null;m&&(m.oninput=U=>{clearTimeout(y),y=setTimeout(async()=>{E.search=U.target.value.trim(),Ve(),await de()},300)});const A=s.querySelector("#ci-360-filter-priority");A&&(A.onchange=async U=>{E.priority=U.target.value,Ve(),await de()});const F=s.querySelector("#ci-360-filter-category");F&&(F.onchange=async U=>{E.category=U.target.value,Ve(),await de()});const j=s.querySelector("#ci-360-filter-job");j&&(j.onchange=async U=>{E.jobId=U.target.value,Ve(),await de()});const C=s.querySelector("#ci-360-filter-assignee");C&&(C.onchange=async U=>{E.assigneeId=U.target.value,Ve(),await de()});const L=s.querySelector("#ci-360-pill-my-issues");L&&(L.onclick=async()=>{E.myIssuesOnly=!E.myIssuesOnly,L.classList.toggle("active",E.myIssuesOnly),Ve(),await de()});const z=s.querySelector("#ci-360-pill-scope-all"),p=s.querySelector("#ci-360-pill-scope-assigned"),q=s.querySelector("#ci-360-pill-scope-created"),h=async U=>{E.scope=U,z&&z.classList.toggle("active",U==="all"),p&&p.classList.toggle("active",U==="assigned"),q&&q.classList.toggle("active",U==="created"),Ve(),await de()};z&&(z.onclick=()=>h("all")),p&&(p.onclick=()=>h("assigned")),q&&(q.onclick=()=>h("created"));const T=s.querySelector("#ci-360-clear-filters");T&&(T.onclick=async()=>{E={search:"",status:"all",priority:"all",category:"all",assigneeId:"all",reporterId:"all",scope:"all",jobId:"all",myIssuesOnly:!1},m&&(m.value=""),A&&(A.value="all"),F&&(F.value="all");const U=s.querySelector("#ci-360-filter-job");U&&(U.value="all"),C&&(C.value="all"),L&&L.classList.remove("active"),z&&z.classList.add("active"),p&&p.classList.remove("active"),q&&q.classList.remove("active"),Ve(),await de()})}function Ve(){const e=s.querySelector("#ci-360-clear-filters");if(!e)return;const o=E.search||E.priority!=="all"||E.category!=="all"||E.jobId&&E.jobId!=="all"||E.assigneeId!=="all"||E.myIssuesOnly||E.scope&&E.scope!=="all";e.style.display=o?"inline":"none"}async function de(){await Je(),dt()}async function st(e){const o=s.querySelector("#ci-360-modals-root");if(o){o.innerHTML=`
       <div class="ci-360-modal-backdrop">
         <div class="ci-360-modal-card" style="align-items:center;justify-content:center;">
           <div style="color:#94a3b8;font-size:15px;font-weight:600;">Loading Issue Details...</div>
         </div>
       </div>
-    `;try{q=await ze(`/tickets/${n}`)}catch(f){$(f.message||"Could not load ticket",!0),r.innerHTML="";return}we()}}function we(){const n=s.querySelector("#ci-360-modals-root");if(!n||!q)return;const r=q,f=Et.find(t=>t.key===r.category)||Et[0];Rt.find(t=>t.key===r.priority)||Rt[2];const y=r.subtasks||[],z=y.filter(t=>t.completed).length,N=y.length>0?Math.round(z/y.length*100):0,S=r.attachments||[],P=r.comments||[],H=(r.history||[]).slice().reverse(),F=r.workLogs||[],j=r.linkedTickets||[],x=g?._id||g?.id,E=r.reporter&&r.reporter.userId&&String(r.reporter.userId)===String(x)||r.userId&&String(r.userId)===String(x),X=e==="superadmin"||g?.role==="superadmin",I=E||X,L=Array.isArray(r.assignees)&&r.assignees.length>0?r.assignees:r.assignee&&r.assignee.userId?[r.assignee]:[];L.some(t=>t&&t.userId&&String(t.userId)===String(x));const c=r.jobId?._id?r.jobId._id.toString():r.jobId?r.jobId.toString():"",o=r.jobTitle||r.jobId&&r.jobId.title||"";n.innerHTML=`
+    `;try{B=await ze(`/tickets/${e}`)}catch(m){S(m.message||"Could not load ticket",!0),o.innerHTML="";return}ve()}}function ve(){const e=s.querySelector("#ci-360-modals-root");if(!e||!B)return;const o=B,m=Et.find(t=>t.key===o.category)||Et[0];Rt.find(t=>t.key===o.priority)||Rt[2];const y=o.subtasks||[],A=y.filter(t=>t.completed).length,F=y.length>0?Math.round(A/y.length*100):0,j=o.attachments||[],C=o.comments||[],L=(o.history||[]).slice().reverse(),z=o.workLogs||[],p=o.linkedTickets||[],q=g?._id||g?.id,h=o.reporter&&o.reporter.userId&&String(o.reporter.userId)===String(q)||o.userId&&String(o.userId)===String(q),T=a==="superadmin"||g?.role==="superadmin",U=h||T,_=Array.isArray(o.assignees)&&o.assignees.length>0?o.assignees:o.assignee&&o.assignee.userId?[o.assignee]:[];_.some(t=>t&&t.userId&&String(t.userId)===String(q));const d=o.jobId?._id?o.jobId._id.toString():o.jobId?o.jobId.toString():"",i=o.jobTitle||o.jobId&&o.jobId.title||"";e.innerHTML=`
       <div class="ci-360-modal-backdrop" id="ci-360-detail-backdrop">
         <div class="ci-360-modal-card">
           <!-- Top Bar -->
           <div class="ci-360-modal-header">
             <div class="ci-360-modal-title-row">
-              <span class="ci-360-category-pill ${f.slug}">${f.icon} ${f.label}</span>
-              <span class="ci-360-ticket-id" style="font-size:13px;color:#38bdf8;">${v(r.ticketId)}</span>
+              <span class="ci-360-category-pill ${m.slug}">${m.icon} ${m.label}</span>
+              <span class="ci-360-ticket-id" style="font-size:13px;color:#38bdf8;">${v(o.ticketId)}</span>
             </div>
             <button class="ci-360-modal-close" id="btn-close-ci-360-modal" title="Close (Esc)">&times;</button>
           </div>
@@ -9055,7 +9285,7 @@ All messages in this lounge will be deleted.`))try{await nt(`/bonding/channels/$
             <div class="ci-360-detail-main">
               <!-- Issue Title Header -->
               <div class="ci-360-issue-header-wrap">
-                <input type="text" class="ci-360-editable-title" id="inp-detail-title" value="${v(r.title)}" title="Click to edit title" />
+                <input type="text" class="ci-360-editable-title" id="inp-detail-title" value="${v(o.title)}" title="Click to edit title" />
               </div>
 
               <!-- Description Section -->
@@ -9063,25 +9293,25 @@ All messages in this lounge will be deleted.`))try{await nt(`/bonding/channels/$
                 <div class="ci-360-sec-title">
                   <span>Description</span>
                   <button type="button" class="ci-360-tool-btn" id="btn-toggle-desc-edit">
-                    ${U?"Cancel":"✏️ Edit"}
+                    ${H?"Cancel":"✏️ Edit"}
                   </button>
                 </div>
 
-                ${U?`
+                ${H?`
                   <div class="ci-360-editor-toolbar">
                     <button type="button" class="ci-360-tool-btn" data-fmt="bold"><strong>B</strong></button>
                     <button type="button" class="ci-360-tool-btn" data-fmt="italic"><em>I</em></button>
                     <button type="button" class="ci-360-tool-btn" data-fmt="bullet">• List</button>
                     <button type="button" class="ci-360-tool-btn" data-fmt="code">&lt;/&gt;</button>
                   </div>
-                  <textarea id="inp-detail-desc" class="ci-360-desc-editor" rows="6">${v(r.description||"")}</textarea>
+                  <textarea id="inp-detail-desc" class="ci-360-desc-editor" rows="6">${v(o.description||"")}</textarea>
                   <div style="display:flex;gap:8px;margin-top:6px;">
                     <button class="btn-ci-360-primary" id="btn-save-desc">Save Description</button>
                     <button class="btn-ci-360-secondary" id="btn-cancel-desc">Cancel</button>
                   </div>
                 `:`
                   <div class="ci-360-desc-wrap" id="view-detail-desc">
-                    ${r.description?$a(r.description):'<span style="color:#64748b;font-style:italic;">No description provided. Click "Edit" to add details.</span>'}
+                    ${o.description?Sa(o.description):'<span style="color:#64748b;font-style:italic;">No description provided. Click "Edit" to add details.</span>'}
                   </div>
                 `}
               </div>
@@ -9089,7 +9319,7 @@ All messages in this lounge will be deleted.`))try{await nt(`/bonding/channels/$
               <!-- Reference & External URLs (Figma, Loom, Live App, Docs) -->
               <div class="ci-360-section-block">
                 <div class="ci-360-sec-title">
-                  <span>🔗 Reference &amp; External Links (${(r.links||[]).length+(r.linkUrl&&!(r.links||[]).some(t=>t.url===r.linkUrl)?1:0)})</span>
+                  <span>🔗 Reference &amp; External Links (${(o.links||[]).length+(o.linkUrl&&!(o.links||[]).some(t=>t.url===o.linkUrl)?1:0)})</span>
                   <button type="button" class="btn-ci-360-secondary" id="btn-toggle-add-link" style="font-size:11px;padding:4px 9px;">
                     + Add Link
                   </button>
@@ -9106,26 +9336,26 @@ All messages in this lounge will be deleted.`))try{await nt(`/bonding/channels/$
                   </div>
                 </div>
 
-                ${r.links&&r.links.length>0||r.linkUrl?`
+                ${o.links&&o.links.length>0||o.linkUrl?`
                   <div class="ci-360-links-list" style="display:flex;flex-direction:column;gap:8px;">
-                    ${r.linkUrl&&!(r.links||[]).some(t=>t.url===r.linkUrl)?`
+                    ${o.linkUrl&&!(o.links||[]).some(t=>t.url===o.linkUrl)?`
                       <div class="ci-360-link-card" style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 12px;border-radius:8px;">
                         <div style="display:flex;align-items:center;gap:8px;min-width:0;flex:1;">
                           <span style="font-size:16px;">🔗</span>
                           <div style="min-width:0;flex:1;">
-                            <a href="${v(r.linkUrl)}" target="_blank" rel="noopener noreferrer" class="ci-360-link-anchor" style="font-size:12.5px;font-weight:700;color:#38bdf8;text-decoration:none;display:inline-flex;align-items:center;gap:4px;word-break:break-all;">
-                              ${v(r.linkUrl)} <span>↗</span>
+                            <a href="${v(o.linkUrl)}" target="_blank" rel="noopener noreferrer" class="ci-360-link-anchor" style="font-size:12.5px;font-weight:700;color:#38bdf8;text-decoration:none;display:inline-flex;align-items:center;gap:4px;word-break:break-all;">
+                              ${v(o.linkUrl)} <span>↗</span>
                             </a>
                             <div style="font-size:11px;color:#94a3b8;">Primary Reference Link</div>
                           </div>
                         </div>
                         <div style="display:flex;align-items:center;gap:6px;">
-                          <button type="button" class="btn-ci-360-secondary btn-copy-link" data-url="${v(r.linkUrl)}" style="font-size:11px;padding:3px 8px;">Copy</button>
-                          <a href="${v(r.linkUrl)}" target="_blank" rel="noopener noreferrer" class="btn-ci-360-primary" style="font-size:11px;padding:3px 9px;text-decoration:none;">Open ↗</a>
+                          <button type="button" class="btn-ci-360-secondary btn-copy-link" data-url="${v(o.linkUrl)}" style="font-size:11px;padding:3px 8px;">Copy</button>
+                          <a href="${v(o.linkUrl)}" target="_blank" rel="noopener noreferrer" class="btn-ci-360-primary" style="font-size:11px;padding:3px 9px;text-decoration:none;">Open ↗</a>
                         </div>
                       </div>
                     `:""}
-                    ${(r.links||[]).map(t=>`
+                    ${(o.links||[]).map(t=>`
                       <div class="ci-360-link-card" style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 12px;border-radius:8px;">
                         <div style="display:flex;align-items:center;gap:8px;min-width:0;flex:1;">
                           <span style="font-size:16px;">🔗</span>
@@ -9154,7 +9384,7 @@ All messages in this lounge will be deleted.`))try{await nt(`/bonding/channels/$
               <!-- Attachments Section (Fast streaming - any file format up to 1GB) -->
               <div class="ci-360-section-block">
                 <div class="ci-360-sec-title">
-                  <span>Attachments (${S.length})</span>
+                  <span>Attachments (${j.length})</span>
                   <button type="button" class="btn-ci-360-secondary" id="btn-trigger-detail-upload" style="font-size:11px;padding:4px 9px;cursor:pointer;display:inline-flex;align-items:center;gap:4px;">
                     <span>📎 Upload Any File / Video (Up to 1GB)</span>
                   </button>
@@ -9163,24 +9393,24 @@ All messages in this lounge will be deleted.`))try{await nt(`/bonding/channels/$
 
                 <div id="detail-att-upload-progress" style="display:none;margin-top:8px;"></div>
 
-                ${S.length===0?`
+                ${j.length===0?`
                   <div style="color:#64748b;font-size:12px;font-style:italic;">No attachments yet. Upload MP4 videos (up to 1GB), screen recordings, screenshots, or logs.</div>
                 `:`
                   <div class="ci-360-attachments-grid">
-                    ${S.map(t=>{const k=t.type&&t.type.includes("video")||t.name&&t.name.match(/\.(mp4|mov|webm|avi|mkv)$/i)||t.url&&t.url.match(/\.(mp4|mov|webm|avi|mkv)$/i);return`
-                        <div class="ci-360-att-card ${k?"is-video":""}" style="${k?"grid-column: 1 / -1; display:flex; flex-direction:column; gap:6px;":""}">
+                    ${j.map(t=>{const b=t.type&&t.type.includes("video")||t.name&&t.name.match(/\.(mp4|mov|webm|avi|mkv)$/i)||t.url&&t.url.match(/\.(mp4|mov|webm|avi|mkv)$/i);return`
+                        <div class="ci-360-att-card ${b?"is-video":""}" style="${b?"grid-column: 1 / -1; display:flex; flex-direction:column; gap:6px;":""}">
                           <div style="display:flex;align-items:center;justify-content:space-between;width:100%;gap:8px;">
                             <div class="ci-360-att-left">
-                              <span style="font-size:${k?"16px":"13px"};">${k?"🎬":"📎"}</span>
+                              <span style="font-size:${b?"16px":"13px"};">${b?"🎬":"📎"}</span>
                               <div style="display:flex;flex-direction:column;min-width:0;">
                                 <a href="${t.url}" target="_blank" rel="noopener noreferrer" class="ci-360-att-name" title="${v(t.name)}">
                                   ${v(t.name)}
                                 </a>
-                                <span style="font-size:10.5px;color:#94a3b8;">${ma(t.size)} ${k?"• MP4 Video":""}</span>
+                                <span style="font-size:10.5px;color:#94a3b8;">${fa(t.size)} ${b?"• MP4 Video":""}</span>
                               </div>
                             </div>
                             <div style="display:flex;align-items:center;gap:6px;">
-                              ${k?`
+                              ${b?`
                                 <button type="button" class="btn-play-att-video" data-slot="video-slot-${t.id}" style="background:#0284c7;color:#fff;border:none;border-radius:4px;padding:3px 9px;font-size:11px;font-weight:600;cursor:pointer;">
                                   ▶ Play Video
                                 </button>
@@ -9189,7 +9419,7 @@ All messages in this lounge will be deleted.`))try{await nt(`/bonding/channels/$
                               <button type="button" class="ci-360-att-del btn-del-att" data-att-id="${t.id}" title="Delete file">&times;</button>
                             </div>
                           </div>
-                          ${k?`
+                          ${b?`
                             <div class="ci-360-video-slot" id="video-slot-${t.id}" style="display:none;margin-top:6px;width:100%;">
                               <video controls preload="metadata" style="width:100%;max-height:360px;border-radius:6px;background:#000;">
                                 <source src="${t.url}" type="${t.type||"video/mp4"}">
@@ -9206,12 +9436,12 @@ All messages in this lounge will be deleted.`))try{await nt(`/bonding/channels/$
               <!-- Subtasks Section -->
               <div class="ci-360-section-block">
                 <div class="ci-360-sec-title">
-                  <span>Subtasks (${z}/${y.length})</span>
-                  <span style="font-size:11px;color:#10b981;font-weight:700;">${N}% Done</span>
+                  <span>Subtasks (${A}/${y.length})</span>
+                  <span style="font-size:11px;color:#10b981;font-weight:700;">${F}% Done</span>
                 </div>
 
                 <div class="ci-360-subtask-progress">
-                  <div class="ci-360-subtask-bar" style="width:${N}%"></div>
+                  <div class="ci-360-subtask-bar" style="width:${F}%"></div>
                 </div>
 
                 <div class="ci-360-subtask-list">
@@ -9235,17 +9465,17 @@ All messages in this lounge will be deleted.`))try{await nt(`/bonding/channels/$
               <!-- Linked Work Items Section -->
               <div class="ci-360-section-block">
                 <div class="ci-360-sec-title">
-                  <span>Linked Work Items (${j.length})</span>
+                  <span>Linked Work Items (${p.length})</span>
                   <button type="button" class="btn-ci-360-secondary" id="btn-open-link-dialog" style="font-size:11px;padding:4px 8px;">
                     🔗 Link Issue
                   </button>
                 </div>
 
-                ${j.length===0?`
+                ${p.length===0?`
                   <div style="color:#64748b;font-size:12px;font-style:italic;">No linked issues.</div>
                 `:`
                   <div style="display:flex;flex-direction:column;gap:6px;">
-                    ${j.map(t=>`
+                    ${p.map(t=>`
                       <div class="ci-360-subtask-item">
                         <div style="display:flex;align-items:center;gap:8px;">
                           <span style="font-size:11px;color:#94a3b8;font-weight:700;text-transform:uppercase;">${v(t.relationship)}</span>
@@ -9281,16 +9511,16 @@ All messages in this lounge will be deleted.`))try{await nt(`/bonding/channels/$
                 <div class="ci-360-sec-title">
                   <span style="display:flex;align-items:center;gap:6px;">📁 Linked Internal Job</span>
                   <button type="button" class="ci-360-tool-btn" id="btn-toggle-job-link">
-                    ${o?"✏️ Change Job":"+ Link a Job"}
+                    ${i?"✏️ Change Job":"+ Link a Job"}
                   </button>
                 </div>
-                ${o?`
+                ${i?`
                   <div class="ci-360-linked-job-card">
                     <div style="display:flex;align-items:center;gap:10px;">
                       <span style="font-size:22px;">📁</span>
                       <div>
-                        <div class="ci-360-job-card-title" style="font-weight:700;font-size:13px;">${v(o)}</div>
-                        <div style="font-size:11px;color:#38bdf8;">CI360 Job ID: ${v(c)}</div>
+                        <div class="ci-360-job-card-title" style="font-weight:700;font-size:13px;">${v(i)}</div>
+                        <div style="font-size:11px;color:#38bdf8;">CI360 Job ID: ${v(d)}</div>
                       </div>
                     </div>
                     <button type="button" class="ci-360-tool-btn" id="btn-unlink-job" style="color:#ef4444;border-color:rgba(239,68,68,0.3);" title="Remove job link">
@@ -9308,8 +9538,8 @@ All messages in this lounge will be deleted.`))try{await nt(`/bonding/channels/$
                   <div style="display:flex;gap:8px;flex-wrap:wrap;">
                     <select id="inp-modal-job-select" class="ci-360-select-field" style="flex:1;min-width:220px;">
                       <option value="">-- Select a Job --</option>
-                      ${J.map(t=>`
-                        <option value="${t._id}" ${c===t._id.toString()?"selected":""}>
+                      ${Q.map(t=>`
+                        <option value="${t._id}" ${d===t._id.toString()?"selected":""}>
                           📁 ${v(t.title||"Untitled Job")}
                         </option>
                       `).join("")}
@@ -9325,20 +9555,20 @@ All messages in this lounge will be deleted.`))try{await nt(`/bonding/channels/$
                 <div class="ci-360-sec-title">Activity</div>
                 <div class="ci-360-activity-tabs">
                   <button type="button" class="ci-360-act-tab ${W==="comments"?"active":""}" data-act-tab="comments">
-                    Comments (${P.length})
+                    Comments (${C.length})
                   </button>
                   <button type="button" class="ci-360-act-tab ${W==="history"?"active":""}" data-act-tab="history">
-                    History (${H.length})
+                    History (${L.length})
                   </button>
                   <button type="button" class="ci-360-act-tab ${W==="worklog"?"active":""}" data-act-tab="worklog">
-                    Work Log (${F.length})
+                    Work Log (${z.length})
                   </button>
                 </div>
 
                 <!-- A. Comments Tab -->
                 ${W==="comments"?`
                   <div class="ci-360-comments-feed">
-                    ${P.map(t=>`
+                    ${C.map(t=>`
                       <div class="ci-360-comment-item">
                         <div class="ci-360-avatar" style="background:#2563eb;">
                           ${(t.userName||"U").slice(0,1).toUpperCase()}
@@ -9346,9 +9576,9 @@ All messages in this lounge will be deleted.`))try{await nt(`/bonding/channels/$
                         <div class="ci-360-comment-main">
                           <div class="ci-360-comment-head">
                             <span class="ci-360-comment-author">${v(t.userName)} <span style="font-size:10px;color:#94a3b8;font-weight:400;">(${v(t.userRole)})</span></span>
-                            <span class="ci-360-comment-time">${oa(t.createdAt)}</span>
+                            <span class="ci-360-comment-time">${ia(t.createdAt)}</span>
                           </div>
-                          <div class="ci-360-comment-body">${$a(t.content)}</div>
+                          <div class="ci-360-comment-body">${Sa(t.content)}</div>
                         </div>
                       </div>
                     `).join("")}
@@ -9371,9 +9601,9 @@ All messages in this lounge will be deleted.`))try{await nt(`/bonding/channels/$
                 <!-- B. History Tab -->
                 ${W==="history"?`
                   <div class="ci-360-history-feed">
-                    ${H.length===0?`
+                    ${L.length===0?`
                       <div style="color:#64748b;font-size:12px;font-style:italic;">No recorded history.</div>
-                    `:H.map(t=>`
+                    `:L.map(t=>`
                       <div class="ci-360-history-item">
                         <div class="ci-360-avatar unassigned" style="width:20px;height:20px;font-size:9px;">
                           ${(t.userName||"S").slice(0,1).toUpperCase()}
@@ -9381,7 +9611,7 @@ All messages in this lounge will be deleted.`))try{await nt(`/bonding/channels/$
                         <div class="ci-360-history-main">
                           <div class="ci-360-history-head">
                             <span class="ci-360-comment-author" style="font-size:12px;">${v(t.userName)}</span>
-                            <span class="ci-360-comment-time">${oa(t.timestamp)}</span>
+                            <span class="ci-360-comment-time">${ia(t.timestamp)}</span>
                           </div>
                           <div style="font-size:12px;color:#94a3b8;">
                             Changed <strong class="ci-360-history-field">${v(t.field)}</strong>:
@@ -9398,7 +9628,7 @@ All messages in this lounge will be deleted.`))try{await nt(`/bonding/channels/$
                 ${W==="worklog"?`
                   <div class="ci-360-worklog-feed">
                     <div style="display:flex;justify-content:space-between;align-items:center;">
-                      <span style="font-size:12px;color:#94a3b8;">Total Logged: <strong>${r.loggedHours||0} hrs</strong></span>
+                      <span style="font-size:12px;color:#94a3b8;">Total Logged: <strong>${o.loggedHours||0} hrs</strong></span>
                       <button class="btn-ci-360-secondary" id="btn-open-worklog-dialog" style="font-size:11px;padding:4px 8px;">
                         ⏱️ Log Work
                       </button>
@@ -9415,9 +9645,9 @@ All messages in this lounge will be deleted.`))try{await nt(`/bonding/channels/$
                       </div>
                     </div>
 
-                    ${F.length===0?`
+                    ${z.length===0?`
                       <div style="color:#64748b;font-size:12px;font-style:italic;">No work logged yet.</div>
-                    `:F.map(t=>`
+                    `:z.map(t=>`
                       <div class="ci-360-worklog-item">
                         <div class="ci-360-avatar" style="background:#10b981;width:20px;height:20px;font-size:9px;">
                           ${(t.userName||"U").slice(0,1).toUpperCase()}
@@ -9425,7 +9655,7 @@ All messages in this lounge will be deleted.`))try{await nt(`/bonding/channels/$
                         <div class="ci-360-worklog-main">
                           <div class="ci-360-worklog-head">
                             <span class="ci-360-comment-author" style="font-size:12px;">${v(t.userName)} logged <strong style="color:#38bdf8;">${v(t.timeSpent)}</strong></span>
-                            <span class="ci-360-comment-time">${oa(t.loggedAt)}</span>
+                            <span class="ci-360-comment-time">${ia(t.loggedAt)}</span>
                           </div>
                           ${t.description?`<div class="ci-360-comment-body" style="font-size:12px;">${v(t.description)}</div>`:""}
                         </div>
@@ -9442,8 +9672,8 @@ All messages in this lounge will be deleted.`))try{await nt(`/bonding/channels/$
               <div class="ci-360-side-field">
                 <span class="ci-360-side-lbl">Status</span>
                 <select id="sel-detail-status" class="ci-360-select-field">
-                  ${ga.map(t=>{let k=r.status||"To Do";return k==="In Progress"?k="Content":k==="Resolved"?k="Under Review":k==="Closed"&&(k="Ready to Leave"),`
-                      <option value="${t.key}" ${k===t.key?"selected":""}>
+                  ${ga.map(t=>{let b=o.status||"To Do";return b==="In Progress"?b="Content":b==="Resolved"?b="Under Review":b==="Closed"&&(b="Ready to Leave"),`
+                      <option value="${t.key}" ${b===t.key?"selected":""}>
                         ${t.label}
                       </option>
                     `}).join("")}
@@ -9455,7 +9685,7 @@ All messages in this lounge will be deleted.`))try{await nt(`/bonding/channels/$
                 <span class="ci-360-side-lbl">Priority</span>
                 <select id="sel-detail-priority" class="ci-360-select-field">
                   ${Rt.map(t=>`
-                    <option value="${t.key}" ${r.priority===t.key?"selected":""}>
+                    <option value="${t.key}" ${o.priority===t.key?"selected":""}>
                       ${t.icon} ${t.label}
                     </option>
                   `).join("")}
@@ -9465,7 +9695,7 @@ All messages in this lounge will be deleted.`))try{await nt(`/bonding/channels/$
               <!-- Assignees (Multi-Employee Team Assignment) -->
               <div class="ci-360-side-field">
                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
-                  <span class="ci-360-side-lbl" style="margin-bottom:0;">Assigned Personnel (${L.length})</span>
+                  <span class="ci-360-side-lbl" style="margin-bottom:0;">Assigned Personnel (${_.length})</span>
                   
                     <button type="button" class="ci-360-tool-btn" id="btn-toggle-assignee-picker" style="font-size:11px;padding:2px 7px;">
                       ✏️ Assign / Change
@@ -9474,9 +9704,9 @@ All messages in this lounge will be deleted.`))try{await nt(`/bonding/channels/$
                 </div>
 
                 <div class="ci-360-assigned-chips-wrap">
-                  ${L.length===0?`
+                  ${_.length===0?`
                     <span style="font-size:12px;color:#64748b;font-style:italic;">Unassigned</span>
-                  `:L.map(t=>`
+                  `:_.map(t=>`
                     <div class="ci-360-assignee-chip">
                       <div class="ci-360-avatar" style="width:20px;height:20px;font-size:10px;">
                         ${(t.avatar||t.name?.slice(0,1)||"U").toUpperCase()}
@@ -9496,9 +9726,9 @@ All messages in this lounge will be deleted.`))try{await nt(`/bonding/channels/$
                     <button type="button" id="btn-close-detail-assignee-box" style="background:none;border:none;color:#94a3b8;cursor:pointer;font-size:13px;">✕</button>
                   </div>
                   <div class="ci-360-emp-checklist" style="max-height:160px;overflow-y:auto;display:flex;flex-direction:column;gap:4px;">
-                    ${R.map(t=>{const k=L.some(A=>A&&A.userId&&String(A.userId)===String(t._id));return`
-                        <label class="ci-360-emp-check-item ${k?"selected":""}">
-                          <input type="checkbox" class="chk-detail-emp" value="${t._id}" ${k?"checked":""} />
+                    ${N.map(t=>{const b=_.some(D=>D&&D.userId&&String(D.userId)===String(t._id));return`
+                        <label class="ci-360-emp-check-item ${b?"selected":""}">
+                          <input type="checkbox" class="chk-detail-emp" value="${t._id}" ${b?"checked":""} />
                           <div class="ci-360-avatar" style="width:18px;height:18px;font-size:9px;">${(t.name||"U").slice(0,1).toUpperCase()}</div>
                           <span class="ci-360-emp-name" style="font-size:12px;flex:1;">
                             ${v(t.name)} <span class="ci-360-emp-role" style="font-size:10.5px;color:#94a3b8;">(${v(t.role)})</span>
@@ -9519,11 +9749,11 @@ All messages in this lounge will be deleted.`))try{await nt(`/bonding/channels/$
                 <span class="ci-360-side-lbl">Reporter</span>
                 <div style="display:flex;align-items:center;gap:8px;margin-top:2px;">
                   <div class="ci-360-avatar" style="background:#2563eb;">
-                    ${(r.reporter?.name||"U").slice(0,1).toUpperCase()}
+                    ${(o.reporter?.name||"U").slice(0,1).toUpperCase()}
                   </div>
                   <div>
-                    <div style="font-size:12.5px;font-weight:600;color:#f8fafc;">${v(r.reporter?.name||"Staff")}</div>
-                    <div style="font-size:11px;color:#94a3b8;">${v(r.reporter?.role||"employee")}</div>
+                    <div style="font-size:12.5px;font-weight:600;color:#f8fafc;">${v(o.reporter?.name||"Staff")}</div>
+                    <div style="font-size:11px;color:#94a3b8;">${v(o.reporter?.role||"employee")}</div>
                   </div>
                 </div>
               </div>
@@ -9533,7 +9763,7 @@ All messages in this lounge will be deleted.`))try{await nt(`/bonding/channels/$
                 <span class="ci-360-side-lbl">Category</span>
                 <select id="sel-detail-category" class="ci-360-select-field">
                   ${Et.map(t=>`
-                    <option value="${t.key}" ${r.category===t.key?"selected":""}>
+                    <option value="${t.key}" ${o.category===t.key?"selected":""}>
                       ${t.icon} ${t.label}
                     </option>
                   `).join("")}
@@ -9543,7 +9773,7 @@ All messages in this lounge will be deleted.`))try{await nt(`/bonding/channels/$
               <!-- Due Date -->
               <div class="ci-360-side-field">
                 <span class="ci-360-side-lbl">Due Date</span>
-                <input type="date" id="inp-detail-duedate" class="ci-360-date-field" value="${r.dueDate?new Date(r.dueDate).toISOString().slice(0,10):""}" />
+                <input type="date" id="inp-detail-duedate" class="ci-360-date-field" value="${o.dueDate?new Date(o.dueDate).toISOString().slice(0,10):""}" />
               </div>
 
               <!-- Linked Job / Project -->
@@ -9551,8 +9781,8 @@ All messages in this lounge will be deleted.`))try{await nt(`/bonding/channels/$
                 <span class="ci-360-side-lbl">Linked Internal Project / Job</span>
                 <select id="sel-detail-job" class="ci-360-select-field">
                   <option value="">None (Workspace General)</option>
-                  ${J.map(t=>`
-                    <option value="${t._id}" ${c===t._id.toString()?"selected":""}>
+                  ${Q.map(t=>`
+                    <option value="${t._id}" ${d===t._id.toString()?"selected":""}>
                       📁 ${v(t.title||"Untitled Job")}
                     </option>
                   `).join("")}
@@ -9563,20 +9793,20 @@ All messages in this lounge will be deleted.`))try{await nt(`/bonding/channels/$
               <div class="ci-360-side-field">
                 <span class="ci-360-side-lbl">Time Tracking</span>
                 <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:#cbd5e1;">
-                  <span>Logged: <strong>${r.loggedHours||0}h</strong></span>
-                  <span>/ Est: <input type="number" id="inp-detail-esthours" class="ci-360-est-input" value="${r.estimatedHours||0}" />h</span>
+                  <span>Logged: <strong>${o.loggedHours||0}h</strong></span>
+                  <span>/ Est: <input type="number" id="inp-detail-esthours" class="ci-360-est-input" value="${o.estimatedHours||0}" />h</span>
                 </div>
               </div>
 
               <!-- Timestamps -->
               <div style="padding-top:14px;border-top:1px solid #243248;display:flex;flex-direction:column;gap:4px;font-size:11px;color:#64748b;">
-                <div>Created: ${new Date(r.createdAt).toLocaleString()}</div>
-                <div>Updated: ${new Date(r.updatedAt).toLocaleString()}</div>
-                ${r.resolvedAt?`<div style="color:#10b981;">Resolved: ${new Date(r.resolvedAt).toLocaleString()}</div>`:""}
+                <div>Created: ${new Date(o.createdAt).toLocaleString()}</div>
+                <div>Updated: ${new Date(o.updatedAt).toLocaleString()}</div>
+                ${o.resolvedAt?`<div style="color:#10b981;">Resolved: ${new Date(o.resolvedAt).toLocaleString()}</div>`:""}
               </div>
 
               <!-- Actions (Delete - Creator or Superadmin) -->
-              ${I?`
+              ${U?`
                 <div style="padding-top:10px;">
                   <button type="button" class="ci-360-tool-btn" id="btn-delete-ticket" style="color:#ef4444;border-color:rgba(239,68,68,0.4);width:100%;padding:6px;">
                     🗑️ Delete Ticket
@@ -9587,15 +9817,15 @@ All messages in this lounge will be deleted.`))try{await nt(`/bonding/channels/$
           </div>
         </div>
       </div>
-    `,ft()}function ft(){const n=s.querySelector("#ci-360-modals-root");if(!n||!q)return;const r=n.querySelector("#btn-close-ci-360-modal");r&&(r.onclick=pt);const f=n.querySelector("#ci-360-detail-backdrop");f&&(f.onclick=C=>{C.target===f&&pt()});const y=n.querySelector("#inp-detail-title");y&&(y.onchange=async()=>{const C=y.value.trim();if(C)try{q=await at(`/tickets/${q._id}`,{title:C}),await de()}catch(B){$(B.message||"Failed to update title",!0)}});const z=n.querySelector("#btn-toggle-desc-edit");z&&(z.onclick=()=>{U=!U,we()});const N=n.querySelector("#btn-cancel-desc");N&&(N.onclick=()=>{U=!1,we()});const S=n.querySelector("#btn-save-desc");S&&(S.onclick=async()=>{const C=n.querySelector("#inp-detail-desc")?.value;try{q=await at(`/tickets/${q._id}`,{description:C}),U=!1,we(),await de(),$("Description saved",!1)}catch(B){$(B.message||"Failed to save description",!0)}});const P=n.querySelector("#sel-detail-status");P&&(P.onchange=async C=>{try{const B=await at(`/tickets/${q._id}/status`,{status:C.target.value});q=B,we(),await ot(),lt(),await de();const u=B.status==="Under Review"?"Status changed to Under Review (Default assigned to John)":`Status changed to ${B.status}`;$(u,!1)}catch(B){$(B.message||"Status change failed",!0)}});const H=n.querySelector("#sel-detail-priority");H&&(H.onchange=async C=>{try{q=await at(`/tickets/${q._id}`,{priority:C.target.value}),we(),await de()}catch(B){$(B.message,!0)}});const F=n.querySelector("#btn-toggle-assignee-picker"),j=n.querySelector("#ci-360-detail-assignee-box"),x=n.querySelector("#btn-close-detail-assignee-box"),E=n.querySelector("#btn-save-detail-assignees");F&&j&&(F.onclick=()=>{const C=j.style.display==="none";j.style.display=C?"block":"none"}),x&&j&&(x.onclick=()=>{j.style.display="none"}),n.querySelectorAll(".chk-detail-emp").forEach(C=>{C.onchange=()=>{C.closest(".ci-360-emp-check-item")?.classList.toggle("selected",C.checked)}}),E&&(E.onclick=async()=>{const C=Array.from(n.querySelectorAll(".chk-detail-emp:checked")).map(B=>B.value);try{E.disabled=!0,q=await at(`/tickets/${q._id}`,{assigneeIds:C}),we(),await de(),$("Assignees updated!",!1)}catch(B){$(B.message,!0),E.disabled=!1}}),n.querySelectorAll(".btn-remove-assignee").forEach(C=>{C.onclick=async()=>{const B=C.dataset.userId,ie=(Array.isArray(q.assignees)&&q.assignees.length>0?q.assignees:q.assignee?.userId?[q.assignee]:[]).filter(ne=>ne&&ne.userId&&String(ne.userId)!==String(B)).map(ne=>String(ne.userId));try{q=await at(`/tickets/${q._id}`,{assigneeIds:ie}),we(),await de(),$("Assignee removed",!1)}catch(ne){$(ne.message,!0)}}});const X=n.querySelector("#sel-detail-category");X&&(X.onchange=async C=>{try{q=await at(`/tickets/${q._id}`,{category:C.target.value}),we(),await de()}catch(B){$(B.message,!0)}});const I=n.querySelector("#inp-detail-duedate");I&&(I.onchange=async C=>{try{q=await at(`/tickets/${q._id}`,{dueDate:C.target.value||null}),we(),await de()}catch(B){$(B.message,!0)}});const L=n.querySelector("#sel-detail-job");L&&(L.onchange=async C=>{try{q=await at(`/tickets/${q._id}`,{jobId:C.target.value||null}),we(),await de(),$(C.target.value?"Job linked to ticket! 📁":"Job unlinked",!1)}catch(B){$(B.message,!0)}});const c=n.querySelector("#btn-toggle-job-link"),o=n.querySelector("#ci-360-job-link-box");c&&o&&(c.onclick=()=>{o.style.display=o.style.display==="none"?"block":"none"});const t=n.querySelector("#btn-cancel-job-link");t&&o&&(t.onclick=()=>{o.style.display="none"});const k=n.querySelector("#btn-save-job-link");k&&(k.onclick=async()=>{const C=n.querySelector("#inp-modal-job-select")?.value||null;try{q=await at(`/tickets/${q._id}`,{jobId:C}),we(),await de(),$(C?"Job linked to ticket! 📁":"Job unlinked",!1)}catch(B){$(B.message,!0)}});const A=n.querySelector("#btn-unlink-job");A&&(A.onclick=async()=>{if(confirm("Unlink this job from the support ticket?"))try{q=await at(`/tickets/${q._id}`,{jobId:null}),we(),await de(),$("Job unlinked",!1)}catch(C){$(C.message,!0)}});const M=n.querySelector("#inp-detail-esthours");M&&(M.onchange=async C=>{try{q=await at(`/tickets/${q._id}`,{estimatedHours:Number(C.target.value)||0})}catch(B){$(B.message,!0)}}),n.querySelectorAll(".cb-subtask-toggle").forEach(C=>{C.onchange=async()=>{const B=C.dataset.subtaskId;try{q=await at(`/tickets/${q._id}/subtasks/${B}`,{completed:C.checked}),we(),await de()}catch(u){$(u.message,!0)}}}),n.querySelectorAll(".btn-del-subtask").forEach(C=>{C.onclick=async()=>{const B=C.dataset.subtaskId;try{q=await nt(`/tickets/${q._id}/subtasks/${B}`),we(),await de()}catch(u){$(u.message,!0)}}});const D=n.querySelector("#inp-new-subtask"),Y=n.querySelector("#btn-add-subtask"),ee=async()=>{const C=D?.value.trim();if(C)try{q=await ve(`/tickets/${q._id}/subtasks`,{title:C}),we(),await de()}catch(B){$(B.message,!0)}};Y&&(Y.onclick=ee),D&&(D.onkeydown=C=>{C.key==="Enter"&&(C.preventDefault(),ee())});const O=n.querySelector("#btn-toggle-add-link"),_=n.querySelector("#add-link-form"),Q=n.querySelector("#btn-cancel-new-link"),oe=n.querySelector("#btn-save-new-link"),ae=n.querySelector("#inp-new-link-url"),pe=n.querySelector("#inp-new-link-title");O&&_&&(O.onclick=()=>{const C=_.style.display==="none";_.style.display=C?"block":"none",C&&ae&&ae.focus()}),Q&&_&&(Q.onclick=()=>{_.style.display="none",ae&&(ae.value=""),pe&&(pe.value="")}),oe&&ae&&(oe.onclick=async()=>{const C=ae.value.trim(),B=pe?.value.trim()||"";if(!C){$("Please enter a valid URL link",!0);return}try{oe.disabled=!0,oe.textContent="Saving...",q=await ve(`/tickets/${q._id}/links`,{url:C,title:B}),we(),await de(),$("Reference link added! 🔗",!1)}catch(u){$(u.message||"Failed to save link",!0),oe.disabled=!1,oe.textContent="Save Link 🔗"}}),n.querySelectorAll(".btn-copy-link").forEach(C=>{C.onclick=()=>{const B=C.dataset.url;B&&(navigator.clipboard&&navigator.clipboard.writeText?navigator.clipboard.writeText(B).then(()=>{$("Link copied to clipboard! 📋")}).catch(()=>{$("Link: "+B)}):$("Link: "+B))}}),n.querySelectorAll(".btn-del-link").forEach(C=>{C.onclick=async()=>{const B=C.dataset.linkId;try{q=await nt(`/tickets/${q._id}/links/${B}`),we(),await de(),$("Link removed")}catch(u){$(u.message||"Failed to remove link",!0)}}});const ge=n.querySelector("#btn-trigger-detail-upload"),le=n.querySelector("#inp-detail-att-upload"),xe=n.querySelector("#detail-att-upload-progress");ge&&le&&(ge.onclick=C=>{C.preventDefault(),le.click()}),le&&(le.onchange=async()=>{const C=Array.from(le.files||[]);if(le.value="",!!C.length){xe&&(xe.style.display="block",xe.innerHTML=`
+    `,mt()}function mt(){const e=s.querySelector("#ci-360-modals-root");if(!e||!B)return;const o=e.querySelector("#btn-close-ci-360-modal");o&&(o.onclick=ct);const m=e.querySelector("#ci-360-detail-backdrop");m&&(m.onclick=I=>{I.target===m&&ct()});const y=e.querySelector("#inp-detail-title");y&&(y.onchange=async()=>{const I=y.value.trim();if(I)try{B=await tt(`/tickets/${B._id}`,{title:I}),await de()}catch(R){S(R.message||"Failed to update title",!0)}});const A=e.querySelector("#btn-toggle-desc-edit");A&&(A.onclick=()=>{H=!H,ve()});const F=e.querySelector("#btn-cancel-desc");F&&(F.onclick=()=>{H=!1,ve()});const j=e.querySelector("#btn-save-desc");j&&(j.onclick=async()=>{const I=e.querySelector("#inp-detail-desc")?.value;try{B=await tt(`/tickets/${B._id}`,{description:I}),H=!1,ve(),await de(),S("Description saved",!1)}catch(R){S(R.message||"Failed to save description",!0)}});const C=e.querySelector("#sel-detail-status");C&&(C.onchange=async I=>{try{const R=await tt(`/tickets/${B._id}/status`,{status:I.target.value});B=R,ve(),await nt(),lt(),await de();const u=R.status==="Under Review"?"Status changed to Under Review (Default assigned to John)":`Status changed to ${R.status}`;S(u,!1)}catch(R){S(R.message||"Status change failed",!0)}});const L=e.querySelector("#sel-detail-priority");L&&(L.onchange=async I=>{try{B=await tt(`/tickets/${B._id}`,{priority:I.target.value}),ve(),await de()}catch(R){S(R.message,!0)}});const z=e.querySelector("#btn-toggle-assignee-picker"),p=e.querySelector("#ci-360-detail-assignee-box"),q=e.querySelector("#btn-close-detail-assignee-box"),h=e.querySelector("#btn-save-detail-assignees");z&&p&&(z.onclick=()=>{const I=p.style.display==="none";p.style.display=I?"block":"none"}),q&&p&&(q.onclick=()=>{p.style.display="none"}),e.querySelectorAll(".chk-detail-emp").forEach(I=>{I.onchange=()=>{I.closest(".ci-360-emp-check-item")?.classList.toggle("selected",I.checked)}}),h&&(h.onclick=async()=>{const I=Array.from(e.querySelectorAll(".chk-detail-emp:checked")).map(R=>R.value);try{h.disabled=!0,B=await tt(`/tickets/${B._id}`,{assigneeIds:I}),ve(),await de(),S("Assignees updated!",!1)}catch(R){S(R.message,!0),h.disabled=!1}}),e.querySelectorAll(".btn-remove-assignee").forEach(I=>{I.onclick=async()=>{const R=I.dataset.userId,oe=(Array.isArray(B.assignees)&&B.assignees.length>0?B.assignees:B.assignee?.userId?[B.assignee]:[]).filter(ne=>ne&&ne.userId&&String(ne.userId)!==String(R)).map(ne=>String(ne.userId));try{B=await tt(`/tickets/${B._id}`,{assigneeIds:oe}),ve(),await de(),S("Assignee removed",!1)}catch(ne){S(ne.message,!0)}}});const T=e.querySelector("#sel-detail-category");T&&(T.onchange=async I=>{try{B=await tt(`/tickets/${B._id}`,{category:I.target.value}),ve(),await de()}catch(R){S(R.message,!0)}});const U=e.querySelector("#inp-detail-duedate");U&&(U.onchange=async I=>{try{B=await tt(`/tickets/${B._id}`,{dueDate:I.target.value||null}),ve(),await de()}catch(R){S(R.message,!0)}});const _=e.querySelector("#sel-detail-job");_&&(_.onchange=async I=>{try{B=await tt(`/tickets/${B._id}`,{jobId:I.target.value||null}),ve(),await de(),S(I.target.value?"Job linked to ticket! 📁":"Job unlinked",!1)}catch(R){S(R.message,!0)}});const d=e.querySelector("#btn-toggle-job-link"),i=e.querySelector("#ci-360-job-link-box");d&&i&&(d.onclick=()=>{i.style.display=i.style.display==="none"?"block":"none"});const t=e.querySelector("#btn-cancel-job-link");t&&i&&(t.onclick=()=>{i.style.display="none"});const b=e.querySelector("#btn-save-job-link");b&&(b.onclick=async()=>{const I=e.querySelector("#inp-modal-job-select")?.value||null;try{B=await tt(`/tickets/${B._id}`,{jobId:I}),ve(),await de(),S(I?"Job linked to ticket! 📁":"Job unlinked",!1)}catch(R){S(R.message,!0)}});const D=e.querySelector("#btn-unlink-job");D&&(D.onclick=async()=>{if(confirm("Unlink this job from the support ticket?"))try{B=await tt(`/tickets/${B._id}`,{jobId:null}),ve(),await de(),S("Job unlinked",!1)}catch(I){S(I.message,!0)}});const M=e.querySelector("#inp-detail-esthours");M&&(M.onchange=async I=>{try{B=await tt(`/tickets/${B._id}`,{estimatedHours:Number(I.target.value)||0})}catch(R){S(R.message,!0)}}),e.querySelectorAll(".cb-subtask-toggle").forEach(I=>{I.onchange=async()=>{const R=I.dataset.subtaskId;try{B=await tt(`/tickets/${B._id}/subtasks/${R}`,{completed:I.checked}),ve(),await de()}catch(u){S(u.message,!0)}}}),e.querySelectorAll(".btn-del-subtask").forEach(I=>{I.onclick=async()=>{const R=I.dataset.subtaskId;try{B=await at(`/tickets/${B._id}/subtasks/${R}`),ve(),await de()}catch(u){S(u.message,!0)}}});const $=e.querySelector("#inp-new-subtask"),K=e.querySelector("#btn-add-subtask"),Z=async()=>{const I=$?.value.trim();if(I)try{B=await xe(`/tickets/${B._id}/subtasks`,{title:I}),ve(),await de()}catch(R){S(R.message,!0)}};K&&(K.onclick=Z),$&&($.onkeydown=I=>{I.key==="Enter"&&(I.preventDefault(),Z())});const O=e.querySelector("#btn-toggle-add-link"),P=e.querySelector("#add-link-form"),J=e.querySelector("#btn-cancel-new-link"),ie=e.querySelector("#btn-save-new-link"),X=e.querySelector("#inp-new-link-url"),ae=e.querySelector("#inp-new-link-title");O&&P&&(O.onclick=()=>{const I=P.style.display==="none";P.style.display=I?"block":"none",I&&X&&X.focus()}),J&&P&&(J.onclick=()=>{P.style.display="none",X&&(X.value=""),ae&&(ae.value="")}),ie&&X&&(ie.onclick=async()=>{const I=X.value.trim(),R=ae?.value.trim()||"";if(!I){S("Please enter a valid URL link",!0);return}try{ie.disabled=!0,ie.textContent="Saving...",B=await xe(`/tickets/${B._id}/links`,{url:I,title:R}),ve(),await de(),S("Reference link added! 🔗",!1)}catch(u){S(u.message||"Failed to save link",!0),ie.disabled=!1,ie.textContent="Save Link 🔗"}}),e.querySelectorAll(".btn-copy-link").forEach(I=>{I.onclick=()=>{const R=I.dataset.url;R&&(navigator.clipboard&&navigator.clipboard.writeText?navigator.clipboard.writeText(R).then(()=>{S("Link copied to clipboard! 📋")}).catch(()=>{S("Link: "+R)}):S("Link: "+R))}}),e.querySelectorAll(".btn-del-link").forEach(I=>{I.onclick=async()=>{const R=I.dataset.linkId;try{B=await at(`/tickets/${B._id}/links/${R}`),ve(),await de(),S("Link removed")}catch(u){S(u.message||"Failed to remove link",!0)}}});const ce=e.querySelector("#btn-trigger-detail-upload"),se=e.querySelector("#inp-detail-att-upload"),he=e.querySelector("#detail-att-upload-progress");ce&&se&&(ce.onclick=I=>{I.preventDefault(),se.click()}),se&&(se.onchange=async()=>{const I=Array.from(se.files||[]);if(se.value="",!!I.length){he&&(he.style.display="block",he.innerHTML=`
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;font-size:11.5px;color:#cbd5e1;">
-              <span>Fast uploading <strong>${C.length} file(s)</strong> in parallel...</span>
+              <span>Fast uploading <strong>${I.length} file(s)</strong> in parallel...</span>
               <span id="att-prog-pct" style="font-weight:700;color:#38bdf8;">0%</span>
             </div>
             <div style="width:100%;height:4px;background:#334155;border-radius:2px;overflow:hidden;">
               <div id="att-prog-bar" style="width:0%;height:100%;background:linear-gradient(90deg, #38bdf8, #0ea5e9);transition:width 0.15s ease;"></div>
             </div>
-          `);try{const u=(await fa(C,ie=>{const ne=n.querySelector("#att-prog-pct"),Te=n.querySelector("#att-prog-bar");ne&&(ne.textContent=`${ie}%`),Te&&(Te.style.width=`${ie}%`)})).map(ie=>({name:ie.name,url:ie.url,size:ie.size||0,type:ie.type||"application/octet-stream"}));u.length&&(q=await ve(`/tickets/${q._id}/attachments`,{attachments:u}),we(),$(`Successfully attached ${u.length} file(s)! 📎`,!1))}catch(B){console.error("Upload error:",B),$(`Upload failed: ${B.message}`,!0)}finally{xe&&(xe.style.display="none")}}}),n.querySelectorAll(".btn-play-att-video").forEach(C=>{C.onclick=()=>{const B=C.dataset.slot,u=n.querySelector("#"+B);if(u){const ie=u.style.display==="none";u.style.display=ie?"block":"none",C.textContent=ie?"⏸ Close Video":"▶ Play Video";const ne=u.querySelector("video");ne&&ie?ne.play().catch(()=>{}):ne&&ne.pause()}}}),n.querySelectorAll(".btn-del-att").forEach(C=>{C.onclick=async()=>{const B=C.dataset.attId;try{q=await nt(`/tickets/${q._id}/attachments/${B}`),we()}catch(u){$(u.message,!0)}}}),n.querySelectorAll(".ci-360-act-tab").forEach(C=>{C.onclick=()=>{W=C.dataset.actTab,we()}});const We=n.querySelector("#inp-new-comment"),Z=n.querySelector("#btn-submit-comment");Z&&We&&(Z.onclick=async()=>{const C=We.value.trim();if(C)try{Z.disabled=!0,Z.textContent="Saving...",q=await ve(`/tickets/${q._id}/comments`,{content:C}),we(),$("Comment added",!1)}catch(B){$(B.message||"Failed to add comment",!0)}finally{Z.disabled=!1}});const De=n.querySelector("#btn-open-link-dialog"),Ne=n.querySelector("#ci-360-link-box"),ue=n.querySelector("#btn-cancel-link"),Se=n.querySelector("#btn-submit-link"),ye=n.querySelector("#inp-link-target"),Oe=n.querySelector("#sel-link-rel");De&&Ne&&(De.onclick=()=>{Ne.style.display="block"}),ue&&Ne&&(ue.onclick=()=>{Ne.style.display="none"}),Se&&Ne&&(Se.onclick=async()=>{const C=ye?.value.trim(),B=Oe?.value||"relates to";if(C)try{Se.disabled=!0,q=await ve(`/tickets/${q._id}/links`,{targetTicketId:C,relationship:B}),we(),$(`Linked with ${C}`,!1)}catch(u){$(u.message||"Failed to link ticket",!0)}finally{Se.disabled=!1}}),n.querySelectorAll(".btn-del-link").forEach(C=>{C.onclick=async()=>{const B=C.dataset.linkId;try{q=await nt(`/tickets/${q._id}/links/${B}`),we()}catch(u){$(u.message,!0)}}});const Ue=n.querySelector("#btn-open-worklog-dialog"),ce=n.querySelector("#ci-360-worklog-box"),Me=n.querySelector("#btn-cancel-worklog"),qe=n.querySelector("#btn-submit-worklog"),Ee=n.querySelector("#inp-worklog-time"),Ie=n.querySelector("#inp-worklog-desc");Ue&&ce&&(Ue.onclick=()=>{ce.style.display="block"}),Me&&ce&&(Me.onclick=()=>{ce.style.display="none"}),qe&&ce&&(qe.onclick=async()=>{const C=Ee?.value.trim(),B=Ie?.value.trim();if(!C){$("Enter time spent (e.g. 2h 30m)",!0);return}try{qe.disabled=!0,q=await ve(`/tickets/${q._id}/worklogs`,{timeSpent:C,description:B}),we(),$("Work logged",!1)}catch(u){$(u.message||"Failed to log work",!0)}finally{qe.disabled=!1}});const Pe=n.querySelector("#btn-delete-ticket");Pe&&(Pe.onclick=async()=>{if(confirm(`Are you sure you want to permanently delete ticket ${q.ticketId}?`))try{Pe.disabled=!0,await nt(`/tickets/${q._id}`),$(`Ticket ${q.ticketId} deleted`,!1),pt(),await ot(),lt(),await de()}catch(C){$(C.message||"Failed to delete ticket",!0),Pe.disabled=!1}})}function pt(){q=null,U=!1;const n=s.querySelector("#ci-360-modals-root");n&&(n.innerHTML="")}function l(n=null){const r=s.querySelector("#ci-360-modals-root");if(!r)return;const f=n||(T.jobId&&T.jobId!=="all"?T.jobId:null);r.innerHTML=`
+          `);try{const u=(await ha(I,oe=>{const ne=e.querySelector("#att-prog-pct"),Ee=e.querySelector("#att-prog-bar");ne&&(ne.textContent=`${oe}%`),Ee&&(Ee.style.width=`${oe}%`)})).map(oe=>({name:oe.name,url:oe.url,size:oe.size||0,type:oe.type||"application/octet-stream"}));u.length&&(B=await xe(`/tickets/${B._id}/attachments`,{attachments:u}),ve(),S(`Successfully attached ${u.length} file(s)! 📎`,!1))}catch(R){console.error("Upload error:",R),S(`Upload failed: ${R.message}`,!0)}finally{he&&(he.style.display="none")}}}),e.querySelectorAll(".btn-play-att-video").forEach(I=>{I.onclick=()=>{const R=I.dataset.slot,u=e.querySelector("#"+R);if(u){const oe=u.style.display==="none";u.style.display=oe?"block":"none",I.textContent=oe?"⏸ Close Video":"▶ Play Video";const ne=u.querySelector("video");ne&&oe?ne.play().catch(()=>{}):ne&&ne.pause()}}}),e.querySelectorAll(".btn-del-att").forEach(I=>{I.onclick=async()=>{const R=I.dataset.attId;try{B=await at(`/tickets/${B._id}/attachments/${R}`),ve()}catch(u){S(u.message,!0)}}}),e.querySelectorAll(".ci-360-act-tab").forEach(I=>{I.onclick=()=>{W=I.dataset.actTab,ve()}});const Be=e.querySelector("#inp-new-comment"),ee=e.querySelector("#btn-submit-comment");ee&&Be&&(ee.onclick=async()=>{const I=Be.value.trim();if(I)try{ee.disabled=!0,ee.textContent="Saving...",B=await xe(`/tickets/${B._id}/comments`,{content:I}),ve(),S("Comment added",!1)}catch(R){S(R.message||"Failed to add comment",!0)}finally{ee.disabled=!1}});const Fe=e.querySelector("#btn-open-link-dialog"),De=e.querySelector("#ci-360-link-box"),ge=e.querySelector("#btn-cancel-link"),ye=e.querySelector("#btn-submit-link"),ke=e.querySelector("#inp-link-target"),Oe=e.querySelector("#sel-link-rel");Fe&&De&&(Fe.onclick=()=>{De.style.display="block"}),ge&&De&&(ge.onclick=()=>{De.style.display="none"}),ye&&De&&(ye.onclick=async()=>{const I=ke?.value.trim(),R=Oe?.value||"relates to";if(I)try{ye.disabled=!0,B=await xe(`/tickets/${B._id}/links`,{targetTicketId:I,relationship:R}),ve(),S(`Linked with ${I}`,!1)}catch(u){S(u.message||"Failed to link ticket",!0)}finally{ye.disabled=!1}}),e.querySelectorAll(".btn-del-link").forEach(I=>{I.onclick=async()=>{const R=I.dataset.linkId;try{B=await at(`/tickets/${B._id}/links/${R}`),ve()}catch(u){S(u.message,!0)}}});const Ue=e.querySelector("#btn-open-worklog-dialog"),pe=e.querySelector("#ci-360-worklog-box"),je=e.querySelector("#btn-cancel-worklog"),Ne=e.querySelector("#btn-submit-worklog"),_e=e.querySelector("#inp-worklog-time"),Ce=e.querySelector("#inp-worklog-desc");Ue&&pe&&(Ue.onclick=()=>{pe.style.display="block"}),je&&pe&&(je.onclick=()=>{pe.style.display="none"}),Ne&&pe&&(Ne.onclick=async()=>{const I=_e?.value.trim(),R=Ce?.value.trim();if(!I){S("Enter time spent (e.g. 2h 30m)",!0);return}try{Ne.disabled=!0,B=await xe(`/tickets/${B._id}/worklogs`,{timeSpent:I,description:R}),ve(),S("Work logged",!1)}catch(u){S(u.message||"Failed to log work",!0)}finally{Ne.disabled=!1}});const Pe=e.querySelector("#btn-delete-ticket");Pe&&(Pe.onclick=async()=>{if(confirm(`Are you sure you want to permanently delete ticket ${B.ticketId}?`))try{Pe.disabled=!0,await at(`/tickets/${B._id}`),S(`Ticket ${B.ticketId} deleted`,!1),ct(),await nt(),lt(),await de()}catch(I){S(I.message||"Failed to delete ticket",!0),Pe.disabled=!1}})}function ct(){B=null,H=!1;const e=s.querySelector("#ci-360-modals-root");e&&(e.innerHTML="")}function ft(e=null){const o=s.querySelector("#ci-360-modals-root");if(!o)return;const m=e||(E.jobId&&E.jobId!=="all"?E.jobId:null);o.innerHTML=`
       <div class="ci-360-modal-backdrop" id="ci-360-create-backdrop">
         <div class="ci-360-modal-card" style="max-width:680px;height:auto;max-height:92vh;">
           <div class="ci-360-modal-header">
@@ -9610,7 +9840,7 @@ All messages in this lounge will be deleted.`))try{await nt(`/bonding/channels/$
               <div class="ci-360-form-group">
                 <label class="ci-360-form-label">Issue Type / Category *</label>
                 <select id="create-ticket-cat" class="ci-360-select-field">
-                  ${Et.map(o=>`<option value="${o.key}">${o.icon} ${o.label}</option>`).join("")}
+                  ${Et.map(i=>`<option value="${i.key}">${i.icon} ${i.label}</option>`).join("")}
                 </select>
               </div>
 
@@ -9650,14 +9880,14 @@ All messages in this lounge will be deleted.`))try{await nt(`/bonding/channels/$
 
               <div class="ci-360-emp-checklist-box">
                 <div class="ci-360-emp-checklist" id="create-emp-checklist">
-                  ${R.map(o=>{const t=g&&String(g._id||g.id)===String(o._id);return`
+                  ${N.map(i=>{const t=g&&String(g._id||g.id)===String(i._id);return`
                       <label class="ci-360-emp-check-item ${t?"selected":""}">
-                        <input type="checkbox" class="chk-create-emp" value="${o._id}" ${t?"checked":""} />
+                        <input type="checkbox" class="chk-create-emp" value="${i._id}" ${t?"checked":""} />
                         <div class="ci-360-avatar" style="width:20px;height:20px;font-size:10px;">
-                          ${(o.name||"U").slice(0,1).toUpperCase()}
+                          ${(i.name||"U").slice(0,1).toUpperCase()}
                         </div>
                         <span class="ci-360-emp-name" style="font-size:12px;flex:1;">
-                          ${v(o.name)} <span class="ci-360-emp-role" style="font-size:10.5px;color:#94a3b8;">(${v(o.role)})${t?" — (You)":""}</span>
+                          ${v(i.name)} <span class="ci-360-emp-role" style="font-size:10.5px;color:#94a3b8;">(${v(i.role)})${t?" — (You)":""}</span>
                         </span>
                       </label>
                     `}).join("")}
@@ -9678,9 +9908,9 @@ All messages in this lounge will be deleted.`))try{await nt(`/bonding/channels/$
                 <label class="ci-360-form-label">Related Job / Internal Project (Optional)</label>
                 <select id="create-ticket-job" class="ci-360-select-field">
                   <option value="">None (General Workspace Issue)</option>
-                  ${J.map(o=>`
-                    <option value="${o._id}" ${f&&String(f)===String(o._id)?"selected":""}>
-                      📁 ${v(o.title||"Untitled Job")}
+                  ${Q.map(i=>`
+                    <option value="${i._id}" ${m&&String(m)===String(i._id)?"selected":""}>
+                      📁 ${v(i.title||"Untitled Job")}
                     </option>
                   `).join("")}
                 </select>
@@ -9716,23 +9946,23 @@ All messages in this lounge will be deleted.`))try{await nt(`/bonding/channels/$
           </div>
         </div>
       </div>
-    `;const y=()=>{r.querySelectorAll(".ci-360-emp-check-item").forEach(o=>{const t=o.querySelector(".chk-create-emp");o.classList.toggle("selected",!!t?.checked)})};r.querySelectorAll(".chk-create-emp").forEach(o=>{o.onchange=y});const z=r.querySelector("#btn-create-assign-self");z&&g&&(z.onclick=()=>{const o=String(g._id||g.id);r.querySelectorAll(".chk-create-emp").forEach(t=>{t.value===o&&(t.checked=!0)}),y()});const N=r.querySelector("#btn-create-clear-assign");N&&(N.onclick=()=>{r.querySelectorAll(".chk-create-emp").forEach(o=>{o.checked=!1}),y()});const S=[],P=r.querySelector("#inp-create-ticket-att"),H=r.querySelector("#create-att-list"),F=r.querySelector("#create-att-count"),j=r.querySelector("#create-att-progress"),x=()=>{F&&(F.textContent=`${S.length} file(s) attached`),H&&(H.innerHTML=S.map((o,t)=>{const k=o.type&&o.type.includes("video")||o.name&&o.name.match(/\.(mp4|mov|webm|avi|mkv)$/i);return`
+    `;const y=()=>{o.querySelectorAll(".ci-360-emp-check-item").forEach(i=>{const t=i.querySelector(".chk-create-emp");i.classList.toggle("selected",!!t?.checked)})};o.querySelectorAll(".chk-create-emp").forEach(i=>{i.onchange=y});const A=o.querySelector("#btn-create-assign-self");A&&g&&(A.onclick=()=>{const i=String(g._id||g.id);o.querySelectorAll(".chk-create-emp").forEach(t=>{t.value===i&&(t.checked=!0)}),y()});const F=o.querySelector("#btn-create-clear-assign");F&&(F.onclick=()=>{o.querySelectorAll(".chk-create-emp").forEach(i=>{i.checked=!1}),y()});const j=[],C=o.querySelector("#inp-create-ticket-att"),L=o.querySelector("#create-att-list"),z=o.querySelector("#create-att-count"),p=o.querySelector("#create-att-progress"),q=()=>{z&&(z.textContent=`${j.length} file(s) attached`),L&&(L.innerHTML=j.map((i,t)=>{const b=i.type&&i.type.includes("video")||i.name&&i.name.match(/\.(mp4|mov|webm|avi|mkv)$/i);return`
           <div class="ci-360-att-card">
             <div class="ci-360-att-left">
-              <span>${k?"🎬":"📎"}</span>
+              <span>${b?"🎬":"📎"}</span>
               <div style="display:flex;flex-direction:column;min-width:0;">
-                <span class="ci-360-att-name" title="${v(o.name)}">${v(o.name)}</span>
-                <span style="font-size:10px;color:#94a3b8;">${ma(o.size)} ${k?"• MP4":""}</span>
+                <span class="ci-360-att-name" title="${v(i.name)}">${v(i.name)}</span>
+                <span style="font-size:10px;color:#94a3b8;">${fa(i.size)} ${b?"• MP4":""}</span>
               </div>
             </div>
             <button type="button" class="ci-360-att-del btn-del-pending-att" data-idx="${t}" title="Remove">&times;</button>
           </div>
-        `}).join(""),H.querySelectorAll(".btn-del-pending-att").forEach(o=>{o.onclick=()=>{S.splice(Number(o.dataset.idx),1),x()}}))};P&&(P.onchange=async()=>{const o=Array.from(P.files||[]);if(P.value="",!!o.length){j&&(j.style.display="block",j.innerHTML=`
+        `}).join(""),L.querySelectorAll(".btn-del-pending-att").forEach(i=>{i.onclick=()=>{j.splice(Number(i.dataset.idx),1),q()}}))};C&&(C.onchange=async()=>{const i=Array.from(C.files||[]);if(C.value="",!!i.length){p&&(p.style.display="block",p.innerHTML=`
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;font-size:11.5px;color:#cbd5e1;">
-              <span>Fast uploading <strong>${o.length} file(s)</strong> in parallel...</span>
+              <span>Fast uploading <strong>${i.length} file(s)</strong> in parallel...</span>
               <span id="create-prog-pct" style="font-weight:700;color:#38bdf8;">0%</span>
             </div>
             <div style="width:100%;height:4px;background:#334155;border-radius:2px;overflow:hidden;">
               <div id="create-prog-bar" style="width:0%;height:100%;background:linear-gradient(90deg, #38bdf8, #0ea5e9);transition:width 0.15s ease;"></div>
             </div>
-          `);try{(await fa(o,k=>{const A=r.querySelector("#create-prog-pct"),M=r.querySelector("#create-prog-bar");A&&(A.textContent=`${k}%`),M&&(M.style.width=`${k}%`)})).forEach(k=>{S.push({name:k.name,url:k.url,size:k.size||0,type:k.type||"application/octet-stream"})}),x()}catch(t){$(`Failed to upload files: ${t.message}`,!0)}finally{j&&(j.style.display="none"),P.value=""}}});const E=()=>{r.innerHTML=""},X=r.querySelector("#btn-close-create-modal");X&&(X.onclick=E);const I=r.querySelector("#btn-cancel-create-ticket");I&&(I.onclick=E);const L=r.querySelector("#ci-360-create-backdrop");L&&(L.onclick=o=>{o.target===L&&E()});const c=r.querySelector("#btn-submit-create-ticket");c&&(c.onclick=async()=>{const o=r.querySelector("#create-ticket-title")?.value.trim(),t=r.querySelector("#create-ticket-desc")?.value.trim(),k=r.querySelector("#create-ticket-cat")?.value||"Task",A=r.querySelector("#create-ticket-pri")?.value||"Medium",D=Array.from(r.querySelectorAll(".chk-create-emp:checked")).map(_=>_.value),Y=r.querySelector("#create-ticket-duedate")?.value||null,ee=r.querySelector("#create-ticket-job")?.value||null,O=r.querySelector("#create-ticket-url")?.value.trim()||"";if(!o){$("Ticket summary / title is required",!0);return}try{c.disabled=!0,c.textContent="Creating...";const _=await ve("/tickets",{title:o,description:t,category:k,priority:A,assigneeIds:D,assigneeId:D[0]||null,dueDate:Y,jobId:ee,linkUrl:O,attachments:S});$(`Ticket ${_.ticketId} created! 🎫`,!1),E(),await ot(),lt(),await de(),ct(_._id)}catch(_){$(_.message||"Could not create ticket",!0),c.disabled=!1,c.textContent="Create Ticket 🚀"}})}s._openCreateTicketModal=l,s._openTicketDetailModal=ct,s._setJobFilter=async n=>{T.jobId=n||"all";const r=s.querySelector("#ci-360-filter-job");r&&(r.value=T.jobId),Re(),await de()}}export{dn as a,ln as b,sn as i};
+          `);try{(await ha(i,b=>{const D=o.querySelector("#create-prog-pct"),M=o.querySelector("#create-prog-bar");D&&(D.textContent=`${b}%`),M&&(M.style.width=`${b}%`)})).forEach(b=>{j.push({name:b.name,url:b.url,size:b.size||0,type:b.type||"application/octet-stream"})}),q()}catch(t){S(`Failed to upload files: ${t.message}`,!0)}finally{p&&(p.style.display="none"),C.value=""}}});const h=()=>{o.innerHTML=""},T=o.querySelector("#btn-close-create-modal");T&&(T.onclick=h);const U=o.querySelector("#btn-cancel-create-ticket");U&&(U.onclick=h);const _=o.querySelector("#ci-360-create-backdrop");_&&(_.onclick=i=>{i.target===_&&h()});const d=o.querySelector("#btn-submit-create-ticket");d&&(d.onclick=async()=>{const i=o.querySelector("#create-ticket-title")?.value.trim(),t=o.querySelector("#create-ticket-desc")?.value.trim(),b=o.querySelector("#create-ticket-cat")?.value||"Task",D=o.querySelector("#create-ticket-pri")?.value||"Medium",$=Array.from(o.querySelectorAll(".chk-create-emp:checked")).map(P=>P.value),K=o.querySelector("#create-ticket-duedate")?.value||null,Z=o.querySelector("#create-ticket-job")?.value||null,O=o.querySelector("#create-ticket-url")?.value.trim()||"";if(!i){S("Ticket summary / title is required",!0);return}try{d.disabled=!0,d.textContent="Creating...";const P=await xe("/tickets",{title:i,description:t,category:b,priority:D,assigneeIds:$,assigneeId:$[0]||null,dueDate:K,jobId:Z,linkUrl:O,attachments:j});S(`Ticket ${P.ticketId} created! 🎫`,!1),h(),await nt(),lt(),await de(),st(P._id)}catch(P){S(P.message||"Could not create ticket",!0),d.disabled=!1,d.textContent="Create Ticket 🚀"}})}s._openCreateTicketModal=ft,s._openTicketDetailModal=st,s._setJobFilter=async e=>{E.jobId=e||"all";const o=s.querySelector("#ci-360-filter-job");o&&(o.value=E.jobId),Ve(),await de()}}export{mn as a,bn as b,un as i};

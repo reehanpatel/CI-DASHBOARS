@@ -178,6 +178,47 @@ router.get('/', async (req, res) => {
   }
 });
 
+// GET /api/tasks/recent - Get latest added, completed, or changed tasks
+router.get('/recent', async (req, res) => {
+  try {
+    let filter = { isDeleted: { $ne: true } };
+    if (!isAdminRole(req.user)) {
+      const userConditions = [
+        { userId: req.user._id },
+        { 'coOwners.userId': req.user._id },
+        { createdBy: req.user._id }
+      ];
+      let pId = req.user.personnelId;
+      if (!pId && req.user.name) {
+        const p = await Personnel.findOne({ name: new RegExp('^' + req.user.name + '$', 'i') });
+        if (p) pId = p._id;
+      }
+      if (pId) {
+        userConditions.push({ personnelId: pId });
+        userConditions.push({ 'coOwners.personnelId': pId });
+      }
+      filter.$or = userConditions;
+    }
+
+    const tasks = await Task.find(filter)
+      .populate('userId', 'name email role')
+      .populate('personnelId', 'name role department status')
+      .populate('coOwners.personnelId', 'name role department')
+      .populate('coOwners.userId', 'name email role')
+      .populate('createdBy', 'name email role')
+      .populate('jobId', 'title clientApproval status date preferredPersonName assignments clientId')
+      .populate('clientId', 'name company')
+      .sort({ updatedAt: -1 })
+      .limit(60)
+      .lean();
+
+    res.json(tasks);
+  } catch (err) {
+    console.error('Error fetching recent tasks:', err);
+    res.status(500).json({ error: 'Failed to fetch recent tasks: ' + err.message });
+  }
+});
+
 // POST /api/tasks
 router.post('/', async (req, res) => {
   try {
@@ -199,6 +240,7 @@ router.post('/', async (req, res) => {
       jobId,
       clientId,
       checklists,
+      attachments,
       tags,
       personnelId: reqPersonnelId,
       coOwners: reqCoOwners,
@@ -257,11 +299,12 @@ router.post('/', async (req, res) => {
           originalDateStr: dStr,
           startTime: startTime ? startTime.trim() : '',
           dueTime: dueTime ? dueTime.trim() : '',
-          category: clientName ? clientName.trim() : (category ? category.trim() : 'General'),
+          category: clientName ? clientName.trim() : (category ? category.trim() : ''),
           clientName: clientName ? clientName.trim() : '',
           jobId: jobId || null,
           clientId: clientId || null,
           checklists: Array.isArray(checklists) ? checklists : [],
+          attachments: Array.isArray(attachments) ? attachments : [],
           tags: Array.isArray(tags) ? tags : [],
           completedAt: isCompleted ? new Date() : null,
           createdBy: req.user._id,
@@ -315,11 +358,12 @@ router.post('/', async (req, res) => {
       originalDateStr: dStr,
       startTime: startTime ? startTime.trim() : '',
       dueTime: dueTime ? dueTime.trim() : '',
-      category: clientName ? clientName.trim() : (category ? category.trim() : 'General'),
+      category: clientName ? clientName.trim() : (category ? category.trim() : ''),
       clientName: clientName ? clientName.trim() : '',
       jobId: jobId || null,
       clientId: clientId || null,
       checklists: Array.isArray(checklists) ? checklists : [],
+      attachments: Array.isArray(attachments) ? attachments : [],
       tags: Array.isArray(tags) ? tags : [],
       completedAt: isCompleted ? new Date() : null,
       createdBy: req.user._id,
@@ -391,6 +435,7 @@ router.put('/:id', async (req, res) => {
       jobId,
       clientId,
       checklists,
+      attachments,
       timeSpent,
       tags,
       personnelId,
@@ -492,12 +537,13 @@ router.put('/:id', async (req, res) => {
     if (dueTime !== undefined) task.dueTime = dueTime.trim();
     if (clientName !== undefined) {
       task.clientName = clientName.trim();
-      if (!category) task.category = clientName.trim() || 'General';
+      if (!category) task.category = clientName.trim();
     }
     if (category !== undefined) task.category = category.trim();
     if (jobId !== undefined) task.jobId = jobId || null;
     if (clientId !== undefined) task.clientId = clientId || null;
     if (checklists !== undefined) task.checklists = checklists;
+    if (attachments !== undefined && Array.isArray(attachments)) task.attachments = attachments;
     if (timeSpent !== undefined) task.timeSpent = Number(timeSpent) || 0;
     if (tags !== undefined) task.tags = tags;
     if (reqCoOwners !== undefined) {
@@ -557,6 +603,67 @@ router.put('/:id', async (req, res) => {
   } catch (err) {
     console.error('Error updating task:', err);
     res.status(500).json({ error: 'Failed to update task: ' + err.message });
+  }
+});
+
+// POST /api/tasks/:id/attachments - Add file attachments / screenshots to task
+router.post('/:id/attachments', async (req, res) => {
+  try {
+    const task = await Task.findOne({ _id: req.params.id, isDeleted: { $ne: true } });
+    if (!task) return res.status(404).json({ error: 'Task not found' });
+
+    const newAttachments = Array.isArray(req.body.attachments) ? req.body.attachments : (req.body.attachment ? [req.body.attachment] : []);
+    if (!newAttachments.length) {
+      return res.status(400).json({ error: 'No attachment data provided' });
+    }
+
+    if (!Array.isArray(task.attachments)) task.attachments = [];
+    for (const att of newAttachments) {
+      if (att && att.url) {
+        task.attachments.push({
+          name: att.name || 'File',
+          url: att.url,
+          size: Number(att.size) || 0,
+          type: att.type || 'application/octet-stream',
+          uploadedAt: new Date()
+        });
+      }
+    }
+
+    await task.save();
+
+    const populated = await Task.findById(task._id)
+      .populate('userId', 'name email role')
+      .populate('personnelId', 'name role department status')
+      .populate('coOwners.personnelId', 'name role department')
+      .populate('coOwners.userId', 'name email role')
+      .populate('createdBy', 'name email role');
+
+    res.json(populated);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to add attachment: ' + err.message });
+  }
+});
+
+// DELETE /api/tasks/:id/attachments/:attId - Delete an attachment from task
+router.delete('/:id/attachments/:attId', async (req, res) => {
+  try {
+    const task = await Task.findOne({ _id: req.params.id, isDeleted: { $ne: true } });
+    if (!task) return res.status(404).json({ error: 'Task not found' });
+
+    task.attachments = (task.attachments || []).filter(a => a._id?.toString() !== req.params.attId && a.id !== req.params.attId);
+    await task.save();
+
+    const populated = await Task.findById(task._id)
+      .populate('userId', 'name email role')
+      .populate('personnelId', 'name role department status')
+      .populate('coOwners.personnelId', 'name role department')
+      .populate('coOwners.userId', 'name email role')
+      .populate('createdBy', 'name email role');
+
+    res.json(populated);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to delete attachment: ' + err.message });
   }
 });
 
