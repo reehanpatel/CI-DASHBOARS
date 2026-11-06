@@ -1644,6 +1644,7 @@ export async function initTeamBonding(container, options = {}) {
     let autoMoveTimeout = null;
     let autoMoveInProgress = false;
     let isDiceRolling = false;
+    let diceRollStartTime = 0;
 
     function getMatchFingerprint(m) {
       if (!m) return '';
@@ -1693,13 +1694,13 @@ export async function initTeamBonding(container, options = {}) {
       if (activeChannel) loadMessages(activeChannel._id, true);
     }
 
-    // Start 1.0s active match polling for live updates
+    // Start 0.8s active match polling for live opponent moves and dice rolls
     matchPollInterval = setInterval(async () => {
       if (!activeMatchModalId || activeMatchModalId !== matchId) {
         clearInterval(matchPollInterval);
         return;
       }
-      if (isDiceRolling) return;
+      if (isDiceRolling && Date.now() - diceRollStartTime < 2500) return;
       try {
         const updated = await apiGet(`/bonding/matches/${matchId}`);
         if (!updated) return;
@@ -1712,7 +1713,7 @@ export async function initTeamBonding(container, options = {}) {
       } catch (e) {
         // quiet polling error
       }
-    }, 1000);
+    }, 800);
 
     function renderArena() {
       if (!match) return;
@@ -2205,7 +2206,7 @@ export async function initTeamBonding(container, options = {}) {
           <div class="ludo-interactive-console">
             <div class="ludo-dice-interactive-box">
               <div 
-                class="ludo-3d-dice ${canClickRoll ? 'clickable' : ''} border-${currentTurnColor}"
+                class="ludo-3d-dice ${canClickRoll ? 'clickable' : ''} ${rolled ? 'just-rolled' : ''} border-${currentTurnColor}"
                 id="btn-interactive-ludo-dice"
                 role="button"
                 tabindex="${canClickRoll ? '0' : '-1'}"
@@ -2213,16 +2214,6 @@ export async function initTeamBonding(container, options = {}) {
                 style="${canClickRoll ? 'cursor:pointer;touch-action:manipulation;' : ''}"
               >
                 ${renderNumberDisplay(displayDice)}
-              </div>
-              <div class="ludo-dice-action-badge">
-                ${rolled
-          ? `<span class="badge-rolled-val">${turnColorEmoji} Rolled ${displayDice}</span>`
-          : (canClickRoll
-            ? `<span style="font-size:11px;font-weight:700;color:var(--brand-500);text-transform:uppercase;letter-spacing:0.5px;">Tap dice to roll</span>`
-            : (state.lastRoll
-              ? `<span class="badge-last-roll">${turnColorEmoji} Rolled ${state.lastRoll}</span>`
-              : `<span class="badge-waiting">Ready</span>`))
-        }
               </div>
             </div>
 
@@ -2461,8 +2452,19 @@ export async function initTeamBonding(container, options = {}) {
         const state = match.gameState || {};
         const rolled = !!state.rolled;
         const currentTurnColor = state.turnColor || match.turn || 'red';
+        const myId = currentUser?._id || currentUser?.id;
+        const players = state.players || [
+          { ...match.player1, color: 'red', assignedRole: 'red', isBot: false },
+          { ...match.player2, color: 'green', assignedRole: 'green', isBot: false }
+        ];
+        const isP1 = myId && match.player1.userId.toString() === myId.toString();
+        const myPlayer = players.find(p => p.userId && p.userId.toString() === myId?.toString()) || (isP1 ? players[0] : players[1]);
+        const myColor = myPlayer?.color || (isP1 ? 'red' : 'green');
+        const isMyCurrentTurn = (myColor === currentTurnColor) && match.status === 'active';
+        const turnPlayer = players.find(p => p.color === currentTurnColor) || (currentTurnColor === 'red' ? match.player1 : match.player2);
+        const turnPlName = escapeHtml(turnPlayer?.name || (currentTurnColor === 'red' ? 'Player 1' : 'Player 2'));
 
-        // Direct tap on the dice to roll (simple, instant, zero lag/load)
+        // Direct tap on the dice to roll (simple, instant, animated, zero lag/load)
         const diceBtn = modalRoot.querySelector('#btn-interactive-ludo-dice');
         if (diceBtn) {
           const handleDiceTap = async (e) => {
@@ -2485,35 +2487,34 @@ export async function initTeamBonding(container, options = {}) {
             if (isDiceRolling || diceBtn.dataset.rolling === 'true') return;
 
             isDiceRolling = true;
+            diceRollStartTime = Date.now();
             diceBtn.dataset.rolling = 'true';
-            diceBtn.style.opacity = '0.6';
-            diceBtn.style.transform = 'scale(0.96)';
+            diceBtn.classList.add('rolling');
 
-            const safetyTimeout = setTimeout(() => {
-              isDiceRolling = false;
-              if (diceBtn) {
-                delete diceBtn.dataset.rolling;
-                diceBtn.style.opacity = '';
-                diceBtn.style.transform = '';
-              }
-            }, 3000);
+            // Quick visual number cycle for rolling effect (200ms)
+            let spinCount = 0;
+            const spinTimer = setInterval(() => {
+              spinCount++;
+              const randVal = Math.floor(Math.random() * 6) + 1;
+              diceBtn.innerHTML = renderNumberDisplay(randVal);
+              if (spinCount >= 4) clearInterval(spinTimer);
+            }, 50);
 
             try {
               const updated = await apiPost(`/bonding/matches/${matchId}/move`, { action: 'roll' });
-              clearTimeout(safetyTimeout);
-              isDiceRolling = false;
+              clearInterval(spinTimer);
               match = updated;
               prevFingerprint = getMatchFingerprint(updated);
               renderArena();
             } catch (err) {
-              clearTimeout(safetyTimeout);
-              isDiceRolling = false;
+              clearInterval(spinTimer);
               flashToast(err.message || 'Failed to roll dice', 'error');
               if (diceBtn) {
                 delete diceBtn.dataset.rolling;
-                diceBtn.style.opacity = '';
-                diceBtn.style.transform = '';
+                diceBtn.classList.remove('rolling');
               }
+            } finally {
+              isDiceRolling = false;
             }
           };
 
@@ -5893,13 +5894,23 @@ function injectBondingStyles() {
     }
 
     .ludo-3d-dice.rolling {
-      opacity: 0.6 !important;
-      transform: scale(0.96) !important;
+      animation: ludoDiceWobble 0.22s ease-in-out infinite alternate !important;
       pointer-events: none !important;
     }
 
+    @keyframes ludoDiceWobble {
+      0% { transform: rotate(-7deg) scale(0.96); }
+      100% { transform: rotate(7deg) scale(1.04); }
+    }
+
     .ludo-3d-dice.just-rolled {
-      transform: scale(1) !important;
+      animation: ludoDicePop 0.32s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+    }
+
+    @keyframes ludoDicePop {
+      0% { transform: scale(0.85); }
+      50% { transform: scale(1.15); }
+      100% { transform: scale(1); }
     }
 
     .ludo-dice-svg {
