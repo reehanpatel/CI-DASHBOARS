@@ -75,7 +75,7 @@ export async function initTeamBonding(container, options = {}) {
       </div>
 
       <!-- Main Chat Layout (Shown when currentView === 'chat') -->
-      <div class="bonding-chat-layout" id="bonding-chat-main-wrap">
+      <div class="bonding-chat-layout mobile-view-chat" id="bonding-chat-main-wrap">
         <!-- Sidebar: Direct Chats & Group Lounges -->
         <aside class="bonding-sidebar">
           <div class="bonding-search-box">
@@ -355,6 +355,11 @@ export async function initTeamBonding(container, options = {}) {
           activeChannel = target;
           items.forEach(i => i.classList.remove('active'));
           item.classList.add('active');
+          const chatWrap = container.querySelector('#bonding-chat-main-wrap');
+          if (chatWrap) {
+            chatWrap.classList.remove('mobile-view-sidebar');
+            chatWrap.classList.add('mobile-view-chat');
+          }
           renderChatPanel();
           await loadMessages(target._id);
         }
@@ -455,13 +460,19 @@ export async function initTeamBonding(container, options = {}) {
     chatPanel.innerHTML = `
       <div class="bonding-chat-header">
         <div class="bonding-chat-header-info">
+          <button type="button" class="bonding-header-btn mobile-back-channels-btn" id="btn-mobile-back-channels" title="Back to All Chats">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+            <span>Chats</span>
+          </button>
           <div class="bonding-chat-header-avatar">${isGroup ? (activeChannel.avatar || '👥') : '👤'}</div>
-          <div>
+          <div class="bonding-chat-header-titles">
             <div class="bonding-chat-title">${title}</div>
             <div class="bonding-chat-sub">
               ${isGroup
         ? `<span>${memberCount} members</span> · <span>${escapeHtml(activeChannel.description || 'Public Lounge')}</span>`
-        : `<span>Direct 1-on-1 Personal Chat</span> · <span class="status-online">🟢 Active</span>`
+        : `<span>Direct Chat</span> · <span class="status-online">🟢 Active</span>`
       }
             </div>
           </div>
@@ -700,6 +711,19 @@ export async function initTeamBonding(container, options = {}) {
   }
 
   function bindChatHeaderEvents(otherMember) {
+    // Mobile Back to Channels
+    const btnMobileBack = container.querySelector('#btn-mobile-back-channels');
+    if (btnMobileBack) {
+      btnMobileBack.onclick = (e) => {
+        e.stopPropagation();
+        const chatWrap = container.querySelector('#bonding-chat-main-wrap');
+        if (chatWrap) {
+          chatWrap.classList.remove('mobile-view-chat');
+          chatWrap.classList.add('mobile-view-sidebar');
+        }
+      };
+    }
+
     // Challenge in header
     const btnChallenge = container.querySelector('#btn-chat-challenge');
     if (btnChallenge) {
@@ -3666,17 +3690,245 @@ function injectBondingStyles() {
       border-color: var(--border-subtle, #1f2937);
     }
 
-    @media (max-width: 900px) {
+    .mobile-back-channels-btn {
+      display: none;
+    }
+
+    @media (max-width: 1024px) {
       .bonding-chat-layout {
-        grid-template-columns: 1fr;
-        height: auto;
+        grid-template-columns: 280px 1fr;
       }
-      .bonding-sidebar {
+    }
+
+    @media (max-width: 768px) {
+      .bonding-wrap {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        box-sizing: border-box !important;
+      }
+
+      .bonding-nav-bar {
+        padding: 12px 14px !important;
+        border-radius: 14px !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 12px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+      }
+
+      .bonding-nav-left {
+        width: 100% !important;
+        gap: 10px !important;
+      }
+
+      .bonding-title {
+        font-size: 16px !important;
+      }
+
+      .bonding-subtitle {
+        font-size: 11.5px !important;
+      }
+
+      .bonding-view-tabs {
+        width: 100% !important;
+        display: flex !important;
+        padding: 3px !important;
+        gap: 4px !important;
+        box-sizing: border-box !important;
+      }
+
+      .bonding-view-tab {
+        flex: 1 !important;
+        justify-content: center !important;
+        padding: 8px 10px !important;
+        font-size: 12.5px !important;
+      }
+
+      .bonding-nav-right {
+        width: 100% !important;
+        display: flex !important;
+        gap: 6px !important;
+        justify-content: space-between !important;
+        box-sizing: border-box !important;
+      }
+
+      .bonding-top-action-btn {
+        flex: 1 !important;
+        justify-content: center !important;
+        padding: 7px 6px !important;
+        font-size: 11px !important;
+      }
+
+      .bonding-chat-layout {
+        display: flex !important;
+        flex-direction: column !important;
+        height: calc(100dvh - 210px) !important;
+        min-height: 480px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        border-radius: 14px !important;
+        overflow: hidden !important;
+        box-sizing: border-box !important;
+      }
+
+      .bonding-chat-layout.mobile-view-sidebar .bonding-sidebar {
+        display: flex !important;
+        width: 100% !important;
+        height: 100% !important;
         border-right: none !important;
-        border-bottom: 1px solid var(--border-sm, #e2e8f0) !important;
+        border-bottom: none !important;
+        padding: 12px !important;
       }
-      [data-theme="dark"] .bonding-sidebar {
-        border-bottom: 1px solid var(--border-subtle, #1f2937) !important;
+
+      .bonding-chat-layout.mobile-view-sidebar .bonding-chat-main {
+        display: none !important;
+      }
+
+      .bonding-chat-layout.mobile-view-chat .bonding-sidebar {
+        display: none !important;
+      }
+
+      .bonding-chat-layout.mobile-view-chat .bonding-chat-main {
+        display: flex !important;
+        width: 100% !important;
+        height: 100% !important;
+        min-width: 0 !important;
+      }
+
+      .mobile-back-channels-btn {
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 4px !important;
+        padding: 5px 9px !important;
+        background: rgba(0, 112, 243, 0.1) !important;
+        color: #0070F3 !important;
+        border: 1px solid rgba(0, 112, 243, 0.25) !important;
+        border-radius: 8px !important;
+        font-size: 12px !important;
+        font-weight: 700 !important;
+        cursor: pointer !important;
+        flex-shrink: 0 !important;
+      }
+
+      [data-theme="dark"] .mobile-back-channels-btn {
+        background: rgba(56, 189, 248, 0.15) !important;
+        color: #38BDF8 !important;
+        border-color: rgba(56, 189, 248, 0.3) !important;
+      }
+
+      .bonding-chat-header {
+        padding: 10px 12px !important;
+        gap: 8px !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+      }
+
+      .bonding-chat-header-info {
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+        width: 100% !important;
+        min-width: 0 !important;
+      }
+
+      .bonding-chat-header-titles {
+        flex: 1 !important;
+        min-width: 0 !important;
+      }
+
+      .bonding-chat-title {
+        font-size: 14px !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+      }
+
+      .bonding-chat-sub {
+        font-size: 11px !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+      }
+
+      .bonding-chat-header-actions {
+        display: flex !important;
+        gap: 6px !important;
+        width: 100% !important;
+        overflow-x: auto !important;
+        white-space: nowrap !important;
+        scrollbar-width: none !important;
+        padding-bottom: 2px !important;
+      }
+
+      .bonding-header-btn {
+        padding: 5px 9px !important;
+        font-size: 11px !important;
+        flex-shrink: 0 !important;
+      }
+
+      .bonding-chat-input-bar {
+        padding: 8px 10px !important;
+        gap: 6px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+      }
+
+      .bonding-input-field {
+        height: 38px !important;
+        min-height: 38px !important;
+        padding: 0 10px !important;
+        font-size: 13px !important;
+      }
+
+      .bonding-send-btn {
+        height: 38px !important;
+        padding: 0 12px !important;
+        font-size: 12px !important;
+      }
+
+      .bonding-messages-container {
+        padding: 12px 10px !important;
+        gap: 8px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+      }
+
+      .bonding-msg-row {
+        max-width: 92% !important;
+      }
+
+      .bonding-game-card-bubble {
+        max-width: 100% !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+      }
+
+      .lounge-container {
+        width: 100% !important;
+        max-width: 100% !important;
+        gap: 14px !important;
+      }
+
+      .lounge-stats-ribbon {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 10px !important;
+      }
+
+      .lounge-two-col {
+        grid-template-columns: 1fr !important;
+        gap: 14px !important;
+      }
+
+      .lounge-card-box {
+        padding: 14px !important;
       }
     }
 
@@ -6981,8 +7233,10 @@ function injectBondingStyles() {
       position: fixed;
       top: 0;
       left: 0;
-      width: 100vw;
-      height: 100vh;
+      right: 0;
+      bottom: 0;
+      width: 100%;
+      height: 100%;
       background: rgba(15, 23, 42, 0.65);
       backdrop-filter: blur(4px);
       display: flex;
@@ -6990,6 +7244,7 @@ function injectBondingStyles() {
       justify-content: center;
       z-index: 9999;
       padding: 16px;
+      box-sizing: border-box;
     }
 
     .bonding-modal-card {

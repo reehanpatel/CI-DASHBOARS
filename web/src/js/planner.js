@@ -5616,6 +5616,83 @@ function ensurePlannerStyles() {
       color: #FFFFFF;
       border-color: #2563EB;
     }
+
+    /* Mobile Responsive Optimizations for Planner */
+    @media (max-width: 768px) {
+      .ci360-planner-wrap {
+        padding: 0 0 60px 0 !important;
+        margin: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+      }
+      .ci360-planner-header {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        padding: 14px !important;
+        gap: 12px !important;
+        border-radius: 14px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+      }
+      .ci360-planner-header-left {
+        width: 100% !important;
+        gap: 10px !important;
+      }
+      .ci360-planner-hero-icon {
+        width: 42px !important;
+        height: 42px !important;
+        font-size: 20px !important;
+      }
+      .ci360-planner-header-actions {
+        width: 100% !important;
+        flex-wrap: wrap !important;
+        gap: 8px !important;
+      }
+      .ci360-view-switcher {
+        width: 100% !important;
+        display: flex !important;
+      }
+      .ci360-switch-btn {
+        flex: 1 !important;
+        justify-content: center !important;
+        padding: 7px 8px !important;
+        font-size: 12px !important;
+      }
+      .ci360-today-focus-section {
+        padding: 0 !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+      }
+      .ci360-task-item {
+        padding: 12px !important;
+        gap: 10px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+      }
+      .ci360-task-badges-row {
+        gap: 4px !important;
+      }
+      .ci360-badge {
+        font-size: 10.5px !important;
+        padding: 2px 7px !important;
+      }
+      .recent-tasks-modal {
+        width: 96vw !important;
+        max-width: 96vw !important;
+      }
+      .recent-modal-header-tabs {
+        width: 100% !important;
+        overflow-x: auto !important;
+        white-space: nowrap !important;
+        scrollbar-width: none !important;
+      }
+      .recent-task-row {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 8px !important;
+      }
+    }
   `;
   document.head.appendChild(style);
 }
