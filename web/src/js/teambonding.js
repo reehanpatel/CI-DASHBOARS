@@ -1777,7 +1777,7 @@ export async function initTeamBonding(container, options = {}) {
           ? (isMyTurn
             ? (match.gameState?.rolled
               ? '👉 Click one of your glowing tokens to advance!'
-              : '🎲 Your turn! Click ROLL DICE to start your move.')
+              : '🎲 Your turn! Tap the dice to roll.')
             : '⏳ Opponent is rolling/moving their tokens...')
           : (match.gameType === 'tictactoe'
             ? (isMyTurn ? '👉 Tap any open cell to place your symbol!' : '⏳ Opponent is deciding their move...')
@@ -2201,23 +2201,24 @@ export async function initTeamBonding(container, options = {}) {
             ${pathCellsHtml.join('')}
           </div>
 
-          <!-- Ludo Action & 3D Interactive Dice Console (Clickable dice replaces text button, opponent dice visible!) -->
+          <!-- Ludo Action & Interactive Dice Console -->
           <div class="ludo-interactive-console">
             <div class="ludo-dice-interactive-box">
               <div 
-                class="ludo-3d-dice ${canClickRoll ? 'clickable pulse-roll' : ''} ${rolled ? 'just-rolled' : ''} border-${currentTurnColor}"
+                class="ludo-3d-dice ${canClickRoll ? 'clickable' : ''} border-${currentTurnColor}"
                 id="btn-interactive-ludo-dice"
                 role="button"
                 tabindex="${canClickRoll ? '0' : '-1'}"
-                title="${canClickRoll ? 'Click to Roll Number!' : (isMyCurrentTurn ? 'Choose a pawn to move' : `${turnPlName}'s turn`)}"
+                title="${canClickRoll ? 'Tap dice to roll!' : (isMyCurrentTurn ? 'Choose a pawn to move' : `${turnPlName}'s turn`)}"
+                style="${canClickRoll ? 'cursor:pointer;touch-action:manipulation;' : ''}"
               >
                 ${renderNumberDisplay(displayDice)}
               </div>
               <div class="ludo-dice-action-badge">
-                ${canClickRoll
-          ? `<button class="badge-click-roll btn-dice-roll-badge" id="btn-interactive-ludo-dice-badge" type="button" title="Tap to Roll">🎲 TAP TO ROLL</button>`
-          : (rolled
-            ? `<span class="badge-rolled-val">${turnColorEmoji} Rolled ${displayDice}</span>`
+                ${rolled
+          ? `<span class="badge-rolled-val">${turnColorEmoji} Rolled ${displayDice}</span>`
+          : (canClickRoll
+            ? `<span style="font-size:11px;font-weight:700;color:var(--brand-500);text-transform:uppercase;letter-spacing:0.5px;">Tap dice to roll</span>`
             : (state.lastRoll
               ? `<span class="badge-last-roll">${turnColorEmoji} Rolled ${state.lastRoll}</span>`
               : `<span class="badge-waiting">Ready</span>`))
@@ -2461,85 +2462,68 @@ export async function initTeamBonding(container, options = {}) {
         const rolled = !!state.rolled;
         const currentTurnColor = state.turnColor || match.turn || 'red';
 
-        // Click on the 3D dice or roll badge to roll
+        // Direct tap on the dice to roll (simple, instant, zero lag/load)
         const diceBtn = modalRoot.querySelector('#btn-interactive-ludo-dice');
-        const diceBadge = modalRoot.querySelector('#btn-interactive-ludo-dice-badge');
-        if (canClickRoll) {
-          const triggerDiceRoll = async () => {
-            if (isDiceRolling || (diceBtn && diceBtn.dataset.rolling === 'true')) return;
+        if (diceBtn) {
+          const handleDiceTap = async (e) => {
+            if (e) {
+              e.preventDefault();
+              e.stopPropagation();
+            }
+            if (!isMyCurrentTurn) {
+              flashToast(`${turnPlName}'s turn right now`, 'info');
+              return;
+            }
+            if (rolled) {
+              flashToast('Dice already rolled! Tap your glowing pawn to move.', 'info');
+              return;
+            }
+            if (match.status !== 'active') {
+              flashToast('Match has ended', 'info');
+              return;
+            }
+            if (isDiceRolling || diceBtn.dataset.rolling === 'true') return;
+
             isDiceRolling = true;
-            if (diceBtn) {
-              diceBtn.dataset.rolling = 'true';
-              diceBtn.classList.remove('pulse-roll');
-              diceBtn.classList.add('rolling');
-            }
-            if (diceBadge) {
-              diceBadge.disabled = true;
-              diceBadge.innerHTML = '🎲 ROLLING...';
-              diceBadge.classList.add('is-rolling');
-            }
+            diceBtn.dataset.rolling = 'true';
+            diceBtn.style.opacity = '0.6';
+            diceBtn.style.transform = 'scale(0.96)';
 
-            // Rapidly cycle direct numbers (1-6) every 45ms with direct number flipping animation
-            const shuffleInterval = setInterval(() => {
-              if (diceBtn) {
-                const randVal = Math.floor(Math.random() * 6) + 1;
-                diceBtn.innerHTML = renderNumberDisplay(randVal);
-              }
-            }, 45);
-
-            // Safe fallback timer so button never gets permanently stuck
             const safetyTimeout = setTimeout(() => {
-              clearInterval(shuffleInterval);
               isDiceRolling = false;
               if (diceBtn) {
-                diceBtn.classList.remove('rolling');
                 delete diceBtn.dataset.rolling;
+                diceBtn.style.opacity = '';
+                diceBtn.style.transform = '';
               }
-              if (diceBadge) {
-                diceBadge.disabled = false;
-                diceBadge.innerHTML = '🎲 TAP TO ROLL';
-                diceBadge.classList.remove('is-rolling');
-              }
-            }, 4000);
+            }, 3000);
 
             try {
-              const rollPromise = apiPost(`/bonding/matches/${matchId}/move`, { action: 'roll' });
-              const minRollDuration = new Promise(resolve => setTimeout(resolve, 550));
-              const [updated] = await Promise.all([rollPromise, minRollDuration]);
-              clearInterval(shuffleInterval);
+              const updated = await apiPost(`/bonding/matches/${matchId}/move`, { action: 'roll' });
               clearTimeout(safetyTimeout);
               isDiceRolling = false;
               match = updated;
               prevFingerprint = getMatchFingerprint(updated);
               renderArena();
             } catch (err) {
-              clearInterval(shuffleInterval);
               clearTimeout(safetyTimeout);
               isDiceRolling = false;
-              flashToast(err.message || 'Failed to roll', 'error');
+              flashToast(err.message || 'Failed to roll dice', 'error');
               if (diceBtn) {
-                diceBtn.classList.remove('rolling');
                 delete diceBtn.dataset.rolling;
-              }
-              if (diceBadge) {
-                diceBadge.disabled = false;
-                diceBadge.innerHTML = '🎲 TAP TO ROLL';
-                diceBadge.classList.remove('is-rolling');
+                diceBtn.style.opacity = '';
+                diceBtn.style.transform = '';
               }
             }
           };
-          if (diceBtn) {
-            diceBtn.onclick = triggerDiceRoll;
-            diceBtn.onkeydown = (e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                triggerDiceRoll();
-              }
-            };
-          }
-          if (diceBadge) {
-            diceBadge.onclick = triggerDiceRoll;
-          }
+
+          diceBtn.onclick = handleDiceTap;
+          diceBtn.onkeydown = (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              handleDiceTap(e);
+            }
+          };
         }
 
         // Automatic pawn movement when only 1 pawn is movable
@@ -5838,14 +5822,15 @@ function injectBondingStyles() {
       box-shadow: 0 6px 0 #cbd5e1, 0 10px 20px rgba(0, 0, 0, 0.25), inset 0 2px 2px rgba(255, 255, 255, 0.95), inset 0 -2px 4px rgba(0, 0, 0, 0.08) !important;
       border: 3px solid #cbd5e1 !important;
       cursor: default;
-      transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.18s ease, border-color 0.2s ease;
+      transition: transform 0.12s ease, opacity 0.12s ease;
       user-select: none;
       box-sizing: border-box !important;
+      touch-action: manipulation;
     }
 
     [data-theme="dark"] .ludo-3d-dice {
       background: linear-gradient(145deg, #ffffff 0%, #f1f5f9 60%, #cbd5e1 100%) !important;
-      box-shadow: 0 6px 0 #94a3b8, 0 12px 24px rgba(0, 0, 0, 0.55), inset 0 2px 2px rgba(255, 255, 255, 0.95), inset 0 -2px 4px rgba(0, 0, 0, 0.1) !important;
+      box-shadow: 0 4px 0 #94a3b8, 0 8px 16px rgba(0, 0, 0, 0.45) !important;
     }
 
     .ludo-3d-dice.clickable {
@@ -5853,45 +5838,28 @@ function injectBondingStyles() {
     }
 
     .ludo-3d-dice.clickable:hover {
-      transform: translateY(-3px) scale(1.05);
-      box-shadow: 0 9px 0 #cbd5e1, 0 14px 26px rgba(0, 0, 0, 0.3), inset 0 2px 2px rgba(255, 255, 255, 0.95) !important;
+      transform: translateY(-2px);
     }
 
     .ludo-3d-dice.clickable:active {
-      transform: translateY(3px) scale(0.97);
-      box-shadow: 0 2px 0 #cbd5e1, 0 4px 10px rgba(0, 0, 0, 0.2), inset 0 1px 1px rgba(255, 255, 255, 0.8) !important;
-    }
-
-    .ludo-3d-dice.pulse-roll {
-      animation: diceGlowPulse 1s infinite alternate ease-in-out;
+      transform: translateY(2px) scale(0.96);
     }
 
     .ludo-3d-dice.border-red {
       border-color: #ef4444 !important;
-      box-shadow: 0 4px 0 #dc2626, 0 8px 18px rgba(239, 68, 68, 0.35) !important;
+      box-shadow: 0 4px 0 #dc2626, 0 6px 14px rgba(239, 68, 68, 0.3) !important;
     }
     .ludo-3d-dice.border-green {
       border-color: #10b981 !important;
-      box-shadow: 0 4px 0 #059669, 0 8px 18px rgba(16, 185, 129, 0.35) !important;
+      box-shadow: 0 4px 0 #059669, 0 6px 14px rgba(16, 185, 129, 0.3) !important;
     }
     .ludo-3d-dice.border-yellow {
       border-color: #f59e0b !important;
-      box-shadow: 0 4px 0 #d97706, 0 8px 18px rgba(245, 158, 11, 0.35) !important;
+      box-shadow: 0 4px 0 #d97706, 0 6px 14px rgba(245, 158, 11, 0.3) !important;
     }
     .ludo-3d-dice.border-blue {
       border-color: #3b82f6 !important;
-      box-shadow: 0 4px 0 #2563eb, 0 8px 18px rgba(59, 130, 246, 0.35) !important;
-    }
-
-    @keyframes diceGlowPulse {
-      0% {
-        transform: scale(1);
-        filter: drop-shadow(0 2px 4px rgba(59, 130, 246, 0.3));
-      }
-      100% {
-        transform: scale(1.06);
-        filter: drop-shadow(0 4px 14px rgba(59, 130, 246, 0.65));
-      }
+      box-shadow: 0 4px 0 #2563eb, 0 6px 14px rgba(59, 130, 246, 0.3) !important;
     }
 
     .ludo-direct-number-box {
@@ -5911,7 +5879,8 @@ function injectBondingStyles() {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, system-ui, sans-serif !important;
       color: #0f172a !important;
       letter-spacing: -1px;
-      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+      pointer-events: none !important;
     }
 
     [data-theme="dark"] .ludo-direct-num {
@@ -5920,42 +5889,17 @@ function injectBondingStyles() {
 
     .ludo-direct-number-box.num-6 .ludo-direct-num {
       color: #ef4444 !important;
-      text-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+      text-shadow: 0 1px 4px rgba(239, 68, 68, 0.35);
     }
 
     .ludo-3d-dice.rolling {
-      animation: numberDirectRoll 0.22s ease-in-out infinite alternate !important;
-      transform-origin: center center !important;
+      opacity: 0.6 !important;
+      transform: scale(0.96) !important;
       pointer-events: none !important;
-    }
-
-    @keyframes numberDirectRoll {
-      0% { transform: scale(0.92); }
-      100% { transform: scale(1.15); }
     }
 
     .ludo-3d-dice.just-rolled {
-      animation: numberPopBounce 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
-      transform-origin: center center !important;
-    }
-
-    @keyframes numberPopBounce {
-      0% { transform: scale(0.8); }
-      50% { transform: scale(1.25); }
-      100% { transform: scale(1); }
-    }
-
-    .btn-dice-roll-badge.is-rolling {
-      opacity: 0.85 !important;
-      cursor: wait !important;
-      pointer-events: none !important;
-      animation: badgeRollSpin 0.7s infinite linear !important;
-    }
-
-    @keyframes badgeRollSpin {
-      0% { opacity: 0.7; transform: scale(0.98); }
-      50% { opacity: 1; transform: scale(1.02); }
-      100% { opacity: 0.7; transform: scale(0.98); }
+      transform: scale(1) !important;
     }
 
     .ludo-dice-svg {
