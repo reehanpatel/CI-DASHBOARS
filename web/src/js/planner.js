@@ -551,12 +551,17 @@ export function initDailyPlanner(container, options = {}) {
         
         <!-- Section Header with Search & Filter Chips -->
         <div class="ci360-focus-header">
-          <div class="ci360-focus-title-wrap">
-            <h2 class="ci360-focus-title">
+          <div class="ci360-focus-title-wrap" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+            <h2 class="ci360-focus-title" style="margin:0;">
               <span class="accent-dot"></span>
               ${isPastDate ? 'Focus Archive' : "Today's Focus"}
             </h2>
             <span class="ci360-task-count-badge">${visibleTasks.length} ${visibleTasks.length === 1 ? 'task' : 'tasks'}</span>
+            ${!isPastDate ? `
+              <button type="button" class="ci360-btn-primary" id="btnFocusAddTask" style="padding:6px 14px;font-size:12.5px;font-weight:700;display:inline-flex;align-items:center;gap:6px;border-radius:var(--r-md);margin-left:4px;cursor:pointer;box-shadow:0 2px 6px rgba(99,102,241,0.25);">
+                <span style="font-size:15px;line-height:1;font-weight:800;">+</span> Add Task
+              </button>
+            ` : ''}
           </div>
 
           <div class="ci360-focus-controls">
@@ -593,7 +598,7 @@ export function initDailyPlanner(container, options = {}) {
           </div>
         </div>
 
-        <!-- Inline Quick-Add Card (Only for Today or Future Dates) / Past Date Banner -->
+        <!-- Past Date Banner (Only for Previous Dates) -->
         ${isPastDate ? `
           <div class="ci360-past-date-banner">
             <div class="past-banner-icon">🔒</div>
@@ -604,50 +609,7 @@ export function initDailyPlanner(container, options = {}) {
               </div>
             </div>
           </div>
-        ` : `
-          <div class="ci360-quick-add-bar">
-            <div class="ci360-quick-add-input-wrap">
-              <input type="text" id="quickAddTitleInp" class="ci360-quick-input" placeholder="Add a focus task for ${formatShortDate(state.selectedDate)}... (Press Enter to save)">
-            </div>
-
-            <div class="ci360-quick-add-meta">
-              <div class="ci360-quick-date-group" title="Completion Date (defaults to that day if left blank)" style="display:inline-flex;align-items:center;gap:4px;">
-                <span style="font-size:11.5px;color:var(--text-3);font-weight:600;">Due:</span>
-                <input type="date" id="quickAddCompletionDate" class="ci360-quick-select" value="${state.selectedDate}" min="${todayStr}" title="Completion Date (defaults to that day if left blank)">
-              </div>
-
-              <select id="quickAddPriority" class="ci360-quick-select" title="Priority">
-                <option value="Low">Priority: Low</option>
-                <option value="Medium" selected>Priority: Medium</option>
-                <option value="High">Priority: High</option>
-                <option value="Urgent">Priority: Urgent</option>
-              </select>
-
-              <select id="quickAddCategory" class="ci360-quick-select" title="Category">
-                <option value="General" selected>General</option>
-                <option value="Client Work">Client Work</option>
-                <option value="Development">Development</option>
-                <option value="Design">Design</option>
-                <option value="Meeting">Meeting</option>
-                <option value="Follow-up">Follow-up</option>
-              </select>
-
-              ${isSuperadmin ? `
-                <select id="quickAddAssignee" class="ci360-quick-select" title="Assign To Employee" style="max-width:140px;">
-                  <option value="" ${state.selectedPersonnelId === 'all' ? 'selected' : ''}>👤 Myself</option>
-                  <option value="all">👥 All Team</option>
-                  ${state.personnelList.map(p => `
-                    <option value="${p._id}" ${state.selectedPersonnelId === String(p._id) ? 'selected' : ''}>👤 ${escapeHtml(p.name)}</option>
-                  `).join('')}
-                </select>
-              ` : ''}
-
-              <button type="button" class="ci360-quick-add-btn" id="btnQuickAddSubmit">
-                <span>+ Add</span>
-              </button>
-            </div>
-          </div>
-        `}
+        ` : ''}
 
         <!-- Task List or Empty State -->
         <div class="ci360-tasks-container">
@@ -715,8 +677,8 @@ export function initDailyPlanner(container, options = {}) {
         <p>${isPastDate ? 'No scheduled tasks were recorded on this past date.' : 'Your schedule is clean and ready. Add your first priority task above or import your daily agenda.'}</p>
         ${!isPastDate ? `
           <div style="display:flex;gap:10px;justify-content:center;margin-top:14px">
-            <button type="button" class="ci360-btn-primary" onclick="document.getElementById('quickAddTitleInp')?.focus()">
-              + Quick Add Task
+            <button type="button" class="ci360-btn-primary" id="btnEmptyStateAddTask">
+              + Add Task
             </button>
             <button type="button" class="ci360-btn-secondary" id="btnEmptyStateImport">
               📥 Import List
@@ -1234,7 +1196,21 @@ export function initDailyPlanner(container, options = {}) {
         };
       }
 
-      // Quick Add
+      // Add Task button beside Today's Focus title & empty state button
+      const btnFocusAddTask = document.getElementById('btnFocusAddTask');
+      if (btnFocusAddTask) {
+        btnFocusAddTask.onclick = () => {
+          openAddEditTaskModal(null, state.selectedDate);
+        };
+      }
+      const btnEmptyStateAddTask = document.getElementById('btnEmptyStateAddTask');
+      if (btnEmptyStateAddTask) {
+        btnEmptyStateAddTask.onclick = () => {
+          openAddEditTaskModal(null, state.selectedDate);
+        };
+      }
+
+      // Quick Add (fallback / safe no-op if quick add input is not rendered)
       const quickInp = document.getElementById('quickAddTitleInp');
       const quickDate = document.getElementById('quickAddCompletionDate');
       const quickPri = document.getElementById('quickAddPriority');

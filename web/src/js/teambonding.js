@@ -1629,6 +1629,7 @@ export async function initTeamBonding(container, options = {}) {
     let prevFingerprint = '';
     let autoMoveTimeout = null;
     let autoMoveInProgress = false;
+    let isDiceRolling = false;
 
     function getMatchFingerprint(m) {
       if (!m) return '';
@@ -1684,6 +1685,7 @@ export async function initTeamBonding(container, options = {}) {
         clearInterval(matchPollInterval);
         return;
       }
+      if (isDiceRolling) return;
       try {
         const updated = await apiGet(`/bonding/matches/${matchId}`);
         if (!updated) return;
@@ -2463,50 +2465,72 @@ export async function initTeamBonding(container, options = {}) {
         const state = match.gameState || {};
         const rolled = !!state.rolled;
         const currentTurnColor = state.turnColor || match.turn || 'red';
-        const myColor = (match.player1.userId.toString() === myId?.toString())
-          ? (match.player1.assignedRole || 'red')
-          : (match.player2.userId.toString() === myId?.toString()
-            ? (match.player2.assignedRole || 'green')
-            : ((state.players || []).find(p => p.userId?.toString() === myId?.toString())?.color || 'red'));
-        const isMyTurnNow = isMyTurn && currentTurnColor === myColor;
 
         // Click on the 3D dice or roll badge to roll
         const diceBtn = modalRoot.querySelector('#btn-interactive-ludo-dice');
         const diceBadge = modalRoot.querySelector('#btn-interactive-ludo-dice-badge');
-        if (isMyTurnNow && !rolled) {
+        if (canClickRoll) {
           const triggerDiceRoll = async () => {
-            if (diceBtn && diceBtn.dataset.rolling === 'true') return;
+            if (isDiceRolling || (diceBtn && diceBtn.dataset.rolling === 'true')) return;
+            isDiceRolling = true;
             if (diceBtn) {
               diceBtn.dataset.rolling = 'true';
+              diceBtn.classList.remove('pulse-roll');
               diceBtn.classList.add('rolling');
             }
-            if (diceBadge) diceBadge.disabled = true;
+            if (diceBadge) {
+              diceBadge.disabled = true;
+              diceBadge.innerHTML = '🎲 ROLLING...';
+              diceBadge.classList.add('is-rolling');
+            }
 
-            // Safe fallback timer so button never gets stuck
+            // Rapidly shuffle random dice faces (1-6) every 60ms so the dice visibly tumbles
+            const shuffleInterval = setInterval(() => {
+              if (diceBtn) {
+                const randVal = Math.floor(Math.random() * 6) + 1;
+                diceBtn.innerHTML = renderDiceSvg(randVal);
+              }
+            }, 60);
+
+            // Safe fallback timer so button never gets permanently stuck
             const safetyTimeout = setTimeout(() => {
+              clearInterval(shuffleInterval);
+              isDiceRolling = false;
               if (diceBtn) {
                 diceBtn.classList.remove('rolling');
                 delete diceBtn.dataset.rolling;
               }
-              if (diceBadge) diceBadge.disabled = false;
-            }, 2000);
+              if (diceBadge) {
+                diceBadge.disabled = false;
+                diceBadge.innerHTML = '🎲 TAP TO ROLL';
+                diceBadge.classList.remove('is-rolling');
+              }
+            }, 4000);
 
             try {
               const rollPromise = apiPost(`/bonding/matches/${matchId}/move`, { action: 'roll' });
-              const animationDelay = new Promise(resolve => setTimeout(resolve, 350));
-              const [updated] = await Promise.all([rollPromise, animationDelay]);
+              const minRollDuration = new Promise(resolve => setTimeout(resolve, 550));
+              const [updated] = await Promise.all([rollPromise, minRollDuration]);
+              clearInterval(shuffleInterval);
               clearTimeout(safetyTimeout);
+              isDiceRolling = false;
               match = updated;
               prevFingerprint = getMatchFingerprint(updated);
               renderArena();
             } catch (err) {
+              clearInterval(shuffleInterval);
               clearTimeout(safetyTimeout);
+              isDiceRolling = false;
               flashToast(err.message || 'Failed to roll', 'error');
               if (diceBtn) {
                 diceBtn.classList.remove('rolling');
                 delete diceBtn.dataset.rolling;
               }
-              if (diceBadge) diceBadge.disabled = false;
+              if (diceBadge) {
+                diceBadge.disabled = false;
+                diceBadge.innerHTML = '🎲 TAP TO ROLL';
+                diceBadge.classList.remove('is-rolling');
+              }
             }
           };
           if (diceBtn) {
@@ -2524,7 +2548,7 @@ export async function initTeamBonding(container, options = {}) {
         }
 
         // Automatic pawn movement when only 1 pawn is movable
-        if (isMyTurnNow && rolled) {
+        if (isMyCurrentTurn && rolled) {
           const allTokens = state.tokens || {};
           const myTokensList = allTokens[myColor] || [];
           const diceVal = state.dice || state.lastRoll || 0;
@@ -2554,7 +2578,7 @@ export async function initTeamBonding(container, options = {}) {
         }
 
         // Manual movable pawn click (when player has multiple choices)
-        if (isMyTurnNow && rolled) {
+        if (isMyCurrentTurn && rolled) {
           modalRoot.querySelectorAll('.ludo-token.movable').forEach(tokenEl => {
             tokenEl.onclick = async (e) => {
               e.stopPropagation();
@@ -5856,14 +5880,41 @@ function injectBondingStyles() {
     }
 
     .ludo-3d-dice.rolling {
-      animation: diceSimpleRoll 0.35s ease-in-out;
+      animation: diceRollTumble 0.45s cubic-bezier(0.4, 0, 0.2, 1) infinite !important;
+      transform-origin: center center !important;
+      pointer-events: none !important;
     }
 
-    @keyframes diceSimpleRoll {
-      0% { transform: scale(0.92) rotate(0deg); }
-      35% { transform: scale(1.15) rotate(140deg); }
-      70% { transform: scale(0.96) rotate(260deg); }
+    @keyframes diceRollTumble {
+      0% { transform: scale(0.9) rotate(0deg); }
+      25% { transform: scale(1.15) rotate(90deg); }
+      50% { transform: scale(0.92) rotate(180deg); }
+      75% { transform: scale(1.12) rotate(270deg); }
       100% { transform: scale(1) rotate(360deg); }
+    }
+
+    .ludo-3d-dice.just-rolled {
+      animation: dicePopBounce 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+      transform-origin: center center !important;
+    }
+
+    @keyframes dicePopBounce {
+      0% { transform: scale(0.85); }
+      50% { transform: scale(1.22); }
+      100% { transform: scale(1); }
+    }
+
+    .btn-dice-roll-badge.is-rolling {
+      opacity: 0.85 !important;
+      cursor: wait !important;
+      pointer-events: none !important;
+      animation: badgeRollSpin 0.7s infinite linear !important;
+    }
+
+    @keyframes badgeRollSpin {
+      0% { opacity: 0.7; transform: scale(0.98); }
+      50% { opacity: 1; transform: scale(1.02); }
+      100% { opacity: 0.7; transform: scale(0.98); }
     }
 
     .ludo-dice-svg {
