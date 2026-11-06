@@ -1750,9 +1750,9 @@ export async function initTeamBonding(container, options = {}) {
     function renderArena() {
       if (!match) return;
       const myId = currentUser?._id || currentUser?.id;
-      const isP1 = myId && match.player1.userId.toString() === myId.toString();
-      const me = isP1 ? match.player1 : match.player2;
-      const opp = isP1 ? match.player2 : match.player1;
+      const isP1 = myId && match.player1?.userId?.toString() === myId.toString();
+      const me = isP1 ? match.player1 : (match.player2 || match.player1);
+      const opp = isP1 ? (match.player2 || match.player1) : match.player1;
       const isMyTurn = myId && match.currentTurnUserId && match.currentTurnUserId.toString() === myId.toString();
       const isEnded = match.status !== 'active';
 
@@ -1776,16 +1776,16 @@ export async function initTeamBonding(container, options = {}) {
         const isTurn = (match.gameState?.turnColor || match.turn) === p.color;
         return `
                           <span class="player-tag ${isMe ? 'self' : 'opp'} ${isTurn ? 'turn-active' : ''}">
-                            ${colorEmoji} <strong>${escapeHtml(p.name)}</strong> ${isMe ? '(You)' : ''}
+                            ${colorEmoji} <strong>${escapeHtml(p?.name || 'Player')}</strong> ${isMe ? '(You)' : ''}
                           </span>
                         `;
       }).join('<span class="vs-pill">vs</span>')}
                     </div>
                   ` : `
                     <div class="arena-players-vs">
-                      <span class="player-tag self">${escapeHtml(me.name)} (You · <strong>${match.gameType === 'ludo' ? (me.assignedRole === 'red' ? '🔴 Red' : '🟢 Green') : (match.gameType === 'tictactoe' ? (me.assignedRole === 'X' ? '✕' : '◯') : me.assignedRole)}</strong>)</span>
+                      <span class="player-tag self">${escapeHtml(me?.name || 'You')} (You · <strong>${match.gameType === 'ludo' ? (me?.assignedRole === 'red' ? '🔴 Red' : '🟢 Green') : (match.gameType === 'tictactoe' ? (me?.assignedRole === 'X' ? '✕' : '◯') : (me?.assignedRole || ''))}</strong>)</span>
                       <span class="vs-pill">VS</span>
-                      <span class="player-tag opp">${escapeHtml(opp.name)} (<strong>${match.gameType === 'ludo' ? (opp.assignedRole === 'red' ? '🔴 Red' : '🟢 Green') : (match.gameType === 'tictactoe' ? (opp.assignedRole === 'X' ? '✕' : '◯') : opp.assignedRole)}</strong>)</span>
+                      <span class="player-tag opp">${escapeHtml(opp?.name || 'Opponent')} (<strong>${match.gameType === 'ludo' ? (opp?.assignedRole === 'red' ? '🔴 Red' : '🟢 Green') : (match.gameType === 'tictactoe' ? (opp?.assignedRole === 'X' ? '✕' : '◯') : (opp?.assignedRole || ''))}</strong>)</span>
                     </div>
                   `}
                 </div>
@@ -1797,7 +1797,7 @@ export async function initTeamBonding(container, options = {}) {
           ? `<span>🏁 Finished (${escapeHtml(match.winningReason || match.status)})</span>`
           : (isMyTurn
             ? `<span>⚡ YOUR TURN</span>`
-            : `<span>⏳ Waiting for ${escapeHtml(opp.name)}...</span>`
+            : `<span>⏳ Waiting for ${escapeHtml(opp?.name || 'Opponent')}...</span>`
           )
         }
               </div>
@@ -1806,16 +1806,17 @@ export async function initTeamBonding(container, options = {}) {
             <!-- Sub-Toolbar with Quick Instructions & Draw/Resign Actions -->
             <div class="arena-toolbar">
               <div class="arena-tip-text">
-                ${match.gameType === 'ludo'
-          ? (isMyTurn
-            ? (match.gameState?.rolled
-              ? '👉 Click one of your glowing tokens to advance!'
-              : '🎲 Your turn! Tap the dice to roll.')
-            : '⏳ Opponent is rolling/moving their tokens...')
-          : (match.gameType === 'tictactoe'
-            ? (isMyTurn ? '👉 Tap any open cell to place your symbol!' : '⏳ Opponent is deciding their move...')
-            : (isMyTurn ? '👉 Click your piece, then click a green target dot to move!' : '⏳ Opponent is thinking...'))
-        }
+                ${match.gameType === 'dotsboxes'
+          ? (isMyTurn ? '👉 Tap any open line between two dots to draw!' : '⏳ Opponent is deciding their move...')
+          : (match.gameType === 'ludo'
+            ? (isMyTurn
+              ? (match.gameState?.rolled
+                ? '👉 Click one of your glowing tokens to advance!'
+                : '🎲 Your turn! Tap the dice to roll.')
+              : '⏳ Opponent is rolling/moving their tokens...')
+            : (match.gameType === 'tictactoe'
+              ? (isMyTurn ? '👉 Tap any open cell to place your symbol!' : '⏳ Opponent is deciding their move...')
+              : (isMyTurn ? '👉 Click your piece, then click a green target dot to move!' : '⏳ Opponent is thinking...')))}
               </div>
               <div class="arena-action-btns">
                 ${!isEnded ? `
@@ -1829,7 +1830,7 @@ export async function initTeamBonding(container, options = {}) {
             <!-- Draw Offer Notification -->
             ${match.drawOfferedBy && match.drawOfferedBy.toString() !== myId?.toString() && !isEnded ? `
               <div class="arena-draw-offer-banner">
-                <span>🤝 ${escapeHtml(opp.name)} has offered a draw. Accept?</span>
+                <span>🤝 ${escapeHtml(opp?.name || 'Opponent')} has offered a draw. Accept?</span>
                 <button class="btn-accept-draw" id="btn-confirm-accept-draw">Accept Draw</button>
                 <button class="btn-decline-draw" id="btn-confirm-decline-draw">Decline</button>
               </div>
@@ -6980,110 +6981,252 @@ function injectBondingStyles() {
     [data-theme="dark"] .emoji-opt-btn:hover {
       background: #2a374f;
     }
-    /* Dots & Boxes 4x4 Arena */
-    .dots-board-wrap {
+    /* Dots & Boxes 4x4 Arena & Multiplayer Board Styles */
+    .dotsboxes-arena-layout {
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 16px;
-      padding: 16px;
-      background: rgba(15, 23, 42, 0.4);
-      border-radius: 16px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      width: 100%;
       max-width: 440px;
       margin: 0 auto;
     }
-    .dots-scoreboard {
+    .dotsboxes-scoreboard {
       display: flex;
       flex-wrap: wrap;
-      gap: 8px;
+      gap: 10px;
       justify-content: center;
       width: 100%;
     }
-    .dots-player-pill {
+    .dots-player-card {
+      display: flex;
+      flex-direction: column;
+      padding: 8px 14px;
+      border-radius: 12px;
+      background: rgba(30, 41, 59, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      min-width: 90px;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+    .dots-player-card.is-turn-active {
+      border-color: #38bdf8;
+      box-shadow: 0 0 14px rgba(56, 189, 248, 0.4);
+      transform: translateY(-2px);
+    }
+    .dots-player-header {
       display: flex;
       align-items: center;
       gap: 6px;
-      padding: 6px 12px;
-      border-radius: 9999px;
       font-size: 12px;
       font-weight: 700;
-      border: 1px solid rgba(255,255,255,0.12);
-      background: rgba(30, 41, 59, 0.7);
+      color: #f8fafc;
+      margin-bottom: 4px;
     }
-    .dots-player-pill.active-turn {
-      outline: 2px solid #38bdf8;
-      box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
+    .dots-player-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      box-shadow: 0 0 6px currentColor;
     }
-    .dots-grid-container {
+    .dots-player-name {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 90px;
+    }
+    .dots-turn-pill {
+      font-size: 9px;
+      font-weight: 800;
+      padding: 2px 5px;
+      border-radius: 4px;
+      background: #38bdf8;
+      color: #0f172a;
+      letter-spacing: 0.5px;
+      margin-left: auto;
+    }
+    .dots-player-score {
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+    }
+    .dots-player-score .score-val {
+      font-size: 20px;
+      font-weight: 900;
+      line-height: 1;
+    }
+    .dots-player-score .score-lbl {
+      font-size: 11px;
+      color: #94a3b8;
+      font-weight: 600;
+    }
+    .dotsboxes-board-wrapper {
       position: relative;
-      padding: 12px;
-      background: rgba(15, 23, 42, 0.85);
-      border-radius: 12px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.4);
+      padding: 18px;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: inset 0 2px 14px rgba(0, 0, 0, 0.5), 0 8px 24px rgba(0, 0, 0, 0.3);
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
-    .dots-board-9x9 {
+    .dotsboxes-grid {
       display: grid;
-      grid-template-columns: repeat(4, 18px 46px) 18px;
-      grid-template-rows: repeat(4, 18px 46px) 18px;
+      grid-template-columns: 14px 52px 14px 52px 14px 52px 14px 52px 14px;
+      grid-template-rows: 14px 52px 14px 52px 14px 52px 14px 52px 14px;
       align-items: center;
       justify-items: center;
       user-select: none;
     }
-    .dot-node {
+    .dots-cell.dot-intersection {
       width: 14px;
       height: 14px;
-      border-radius: 50%;
-      background: #f8fafc;
-      box-shadow: 0 0 6px rgba(255, 255, 255, 0.8);
-      z-index: 5;
-    }
-    .dots-line {
-      transition: all 0.15s ease;
-      border-radius: 4px;
-      z-index: 3;
-    }
-    .dots-line.h-line {
-      width: 44px;
-      height: 10px;
-    }
-    .dots-line.v-line {
-      width: 10px;
-      height: 44px;
-    }
-    .dots-line.empty {
-      background: rgba(255, 255, 255, 0.08);
-    }
-    .dots-line.clickable {
-      cursor: pointer;
-    }
-    .dots-line.clickable:hover {
-      background: rgba(56, 189, 248, 0.7) !important;
-      transform: scale(1.08);
-      box-shadow: 0 0 8px #38bdf8;
-    }
-    .dots-line.drawn.c-red { background: #ef4444; box-shadow: 0 0 8px rgba(239, 68, 68, 0.6); }
-    .dots-line.drawn.c-blue { background: #3b82f6; box-shadow: 0 0 8px rgba(59, 130, 246, 0.6); }
-    .dots-line.drawn.c-green { background: #10b981; box-shadow: 0 0 8px rgba(16, 185, 129, 0.6); }
-    .dots-line.drawn.c-amber { background: #f59e0b; box-shadow: 0 0 8px rgba(245, 158, 11, 0.6); }
-
-    .dots-box-cell {
-      width: 44px;
-      height: 44px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 13px;
-      font-weight: 800;
-      border-radius: 6px;
-      transition: all 0.2s ease;
+      z-index: 5;
+    }
+    .dots-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #f8fafc;
+      box-shadow: 0 0 8px rgba(255, 255, 255, 0.9);
+      pointer-events: none;
+    }
+    .dots-cell.dots-line {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+      z-index: 3;
+    }
+    .dots-cell.dots-line.h-line {
+      width: 52px;
+      height: 14px;
+    }
+    .dots-cell.dots-line.v-line {
+      width: 14px;
+      height: 52px;
+    }
+    .dots-cell.dots-line.h-line .dots-line-bar {
+      width: 50px;
+      height: 6px;
+      border-radius: 3px;
+      background: rgba(255, 255, 255, 0.12);
+      transition: all 0.15s ease;
+    }
+    .dots-cell.dots-line.v-line .dots-line-bar {
+      width: 6px;
+      height: 50px;
+      border-radius: 3px;
+      background: rgba(255, 255, 255, 0.12);
+      transition: all 0.15s ease;
+    }
+    .dots-cell.dots-line.clickable {
+      cursor: pointer;
+    }
+    .dots-cell.dots-line.clickable:hover .dots-line-bar {
+      background: rgba(56, 189, 248, 0.85);
+      box-shadow: 0 0 10px #38bdf8;
+      transform: scale(1.15);
+    }
+    .dots-cell.dots-line.drawn.color-red .dots-line-bar {
+      background: #ef4444;
+      box-shadow: 0 0 8px rgba(239, 68, 68, 0.8);
+    }
+    .dots-cell.dots-line.drawn.color-blue .dots-line-bar {
+      background: #3b82f6;
+      box-shadow: 0 0 8px rgba(59, 130, 246, 0.8);
+    }
+    .dots-cell.dots-line.drawn.color-green .dots-line-bar {
+      background: #10b981;
+      box-shadow: 0 0 8px rgba(16, 185, 129, 0.8);
+    }
+    .dots-cell.dots-line.drawn.color-amber .dots-line-bar {
+      background: #f59e0b;
+      box-shadow: 0 0 8px rgba(245, 158, 11, 0.8);
+    }
+    .dots-cell.dots-box {
+      width: 52px;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
       z-index: 1;
     }
-    .dots-box-cell.closed.c-red { background: rgba(239, 68, 68, 0.25); color: #f87171; border: 1px dashed rgba(239, 68, 68, 0.4); }
-    .dots-box-cell.closed.c-blue { background: rgba(59, 130, 246, 0.25); color: #60a5fa; border: 1px dashed rgba(59, 130, 246, 0.4); }
-    .dots-box-cell.closed.c-green { background: rgba(16, 185, 129, 0.25); color: #34d399; border: 1px dashed rgba(16, 185, 129, 0.4); }
-    .dots-box-cell.closed.c-amber { background: rgba(245, 158, 11, 0.25); color: #fbbf24; border: 1px dashed rgba(245, 158, 11, 0.4); }
+    .dots-cell.dots-box.claimed {
+      animation: boxClaimPop 0.3s ease-out;
+    }
+    @keyframes boxClaimPop {
+      0% { transform: scale(0.6); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .dots-cell.dots-box.claimed.color-red {
+      background: rgba(239, 68, 68, 0.22);
+      border: 1px solid rgba(239, 68, 68, 0.45);
+    }
+    .dots-cell.dots-box.claimed.color-blue {
+      background: rgba(59, 130, 246, 0.22);
+      border: 1px solid rgba(59, 130, 246, 0.45);
+    }
+    .dots-cell.dots-box.claimed.color-green {
+      background: rgba(16, 185, 129, 0.22);
+      border: 1px solid rgba(16, 185, 129, 0.45);
+    }
+    .dots-cell.dots-box.claimed.color-amber {
+      background: rgba(245, 158, 11, 0.22);
+      border: 1px solid rgba(245, 158, 11, 0.45);
+    }
+    .dots-box-claim-badge {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+    }
+    .box-owner-initial {
+      font-size: 16px;
+      font-weight: 900;
+      color: #f8fafc;
+    }
+    .box-score-tag {
+      font-size: 9px;
+      font-weight: 800;
+      color: #38bdf8;
+      margin-top: 2px;
+    }
+    .dotsboxes-console-bar {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      width: 100%;
+      text-align: center;
+      padding: 8px 12px;
+      background: rgba(15, 23, 42, 0.5);
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .dots-guidance {
+      font-size: 13px;
+      font-weight: 600;
+      color: #cbd5e1;
+    }
+    .dots-guidance.highlight {
+      color: #38bdf8;
+    }
+    .dots-guidance strong {
+      color: #ffffff;
+    }
+    .dots-caption {
+      font-size: 11.5px;
+      color: #94a3b8;
+    }
 
     /* Chat Emoji Palette Popover */
     .chat-emoji-picker-popover {
