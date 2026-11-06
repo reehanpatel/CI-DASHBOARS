@@ -2193,17 +2193,26 @@ export function bindAppShellEvents(onTabChange) {
 
   // Desktop sidebar collapse toggle
   const shell = document.querySelector('.app-shell');
+  const sidebarCollapseBtn = document.getElementById('sidebarCollapseBtn');
+
   function toggleSidebarCollapse() {
     if (!shell) return;
     shell.classList.toggle('sidebar-collapsed');
     const isCollapsed = shell.classList.contains('sidebar-collapsed');
+    if (sidebarCollapseBtn) {
+      sidebarCollapseBtn.title = isCollapsed ? 'Expand Sidebar (Ctrl+B)' : 'Collapse Sidebar (Ctrl+B)';
+      sidebarCollapseBtn.setAttribute('aria-label', isCollapsed ? 'Expand sidebar' : 'Collapse sidebar');
+    }
     try {
       localStorage.setItem('ci360_sidebar_collapsed', isCollapsed ? 'true' : 'false');
     } catch (e) { }
   }
 
-  const sidebarCollapseBtn = document.getElementById('sidebarCollapseBtn');
   if (sidebarCollapseBtn) {
+    if (isSidebarCollapsed) {
+      sidebarCollapseBtn.title = 'Expand Sidebar (Ctrl+B)';
+      sidebarCollapseBtn.setAttribute('aria-label', 'Expand sidebar');
+    }
     sidebarCollapseBtn.onclick = (e) => {
       e.stopPropagation();
       toggleSidebarCollapse();

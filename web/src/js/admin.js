@@ -258,11 +258,6 @@ async function tabDashboard(c) {
       </div>
     </section>
 
-    <section class="block">
-      <h2>Roadmap Signals <span class="eyebrow">Auto-generated</span></h2>
-      ${dash.insights.length ? dash.insights.map(i => `<div class="insight ${i.type}">${escapeHtml(i.text)}</div>`).join('') : `<div class="empty">Log a few jobs to start seeing workload signals here.</div>`}
-    </section>
-
     <div class="grid grid-2">
       <section class="block">
         <h2>Work Value by Client</h2>
