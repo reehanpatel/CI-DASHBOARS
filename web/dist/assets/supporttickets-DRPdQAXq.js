@@ -3556,7 +3556,12 @@ In Brave or Chrome, click the lock or shield icon on the left of the address bar
 
       <div class="bonding-chat-input-bar">
         <button class="bonding-input-action-btn" id="btn-quick-emoji" title="Insert Emoji">
-          <span>😀</span>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
+            <line x1="9" y1="9" x2="9.01" y2="9"></line>
+            <line x1="15" y1="9" x2="15.01" y2="9"></line>
+          </svg>
         </button>
         <button class="bonding-input-action-btn" id="btn-input-challenge" title="Send Multiplayer Challenge">
           <span>🎮</span>
@@ -3587,14 +3592,13 @@ In Brave or Chrome, click the lock or shield icon on the left of the address bar
             <span>ℹ️</span> <span>${v(i.content)}</span>
             <button class="bonding-msg-del-btn mini" data-msg-id="${i._id}" title="Delete Message">&times;</button>
           </div>
-        `;if(i.type==="challenge"&&i.challengeData){const D=i.challengeData,Y=D.gameTitle||"Game Challenge",ee=D.gameType||"dotsboxes",O=ee==="dotsboxes"?"⏹️":ee==="ludo"?"🎲":ee==="chess"?"♟️":"❌",_=D.gameState?.invitationId,Q=D.targetUserId?.toString(),ie=i.sender?.userId?.toString(),ae=c&&Q===c.toString(),pe=c&&ie===c.toString();return`
+        `;if(i.type==="challenge"&&i.challengeData){const D=i.challengeData,Y=D.gameTitle||"Game Challenge",ee=D.gameType||"dotsboxes",O=ee==="dotsboxes"?"🎮":ee==="ludo"?"🎲":ee==="chess"?"♟️":"❌",_=D.gameState?.invitationId,Q=D.targetUserId?.toString(),ie=i.sender?.userId?.toString(),ae=c&&Q===c.toString(),pe=c&&ie===c.toString();return`
           <div class="bonding-msg-row ${t?"self":"other"}" data-msg-id="${i._id}">
             <div class="bonding-msg-avatar" title="${v(i.sender?.name||"Teammate")}">
               ${(i.sender?.name||"U").slice(0,1).toUpperCase()}
             </div>
             <div class="bonding-msg-bubble-wrap">
               <div class="bonding-msg-meta">
-                <span class="bonding-msg-sender">${v(i.sender?.name||"Teammate")}</span>
                 <span class="bonding-msg-time">${L(i.createdAt)}</span>
                 <button class="bonding-msg-del-btn" data-msg-id="${i._id}" title="Delete Challenge Message">
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -3651,7 +3655,6 @@ In Brave or Chrome, click the lock or shield icon on the left of the address bar
           <div class="bonding-msg-avatar" title="${k}">${k.slice(0,1).toUpperCase()}</div>
           <div class="bonding-msg-bubble-wrap">
             <div class="bonding-msg-meta">
-              <span class="bonding-msg-sender">${k}</span>
               <span class="bonding-msg-time">${A}</span>
               <button class="bonding-msg-del-btn" data-msg-id="${i._id}" title="Delete Message">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -3666,16 +3669,13 @@ In Brave or Chrome, click the lock or shield icon on the left of the address bar
             ${M}
           </div>
         </div>
-      `}).join("")}function de(c){return`
+      `}).join("")}function de(c){const i=c.reactions||[];return!i||i.length===0?"":`
       <div class="bonding-reactions-row">
-        ${(c.reactions||[]).map(k=>{const A=e?._id||e?.id;return`
+        ${i.map(k=>{const A=e?._id||e?.id;return`
         <button class="bonding-rxn-tag ${(k.users||[]).some(D=>D.toString()===A?.toString())?"active":""}" data-msg-id="${c._id}" data-emoji="${k.emoji}">
           <span>${k.emoji}</span> <span>${k.users?k.users.length:1}</span>
         </button>
       `}).join("")}
-        <button class="bonding-add-rxn-btn" data-msg-id="${c._id}" title="Add reaction">
-          <span>+😀</span>
-        </button>
       </div>
     `}function ct(c){const i=s.querySelector("#btn-chat-challenge");i&&(i.onclick=()=>{c?N(null,c.userId||c._id):N()});const t=s.querySelector("#btn-manage-members");t&&(t.onclick=H);const k=s.querySelector("#btn-delete-group");k&&(k.onclick=R);const A=s.querySelector("#btn-leave-group");A&&(A.onclick=F);const M=s.querySelector("#btn-delete-direct");M&&(M.onclick=async()=>{if(p&&confirm("Are you sure you want to delete this 1-on-1 chat? All messages will be permanently removed."))try{M.disabled=!0,await nt(`/bonding/channels/${p._id}`),$("1-on-1 chat deleted successfully","success");const Y=p._id;b=b.filter(ee=>ee._id!==Y),p=b[0]||null,Be(),Re(),p&&await Le(p._id)}catch(Y){$(Y.message||"Could not delete 1-on-1 chat","error"),M.disabled=!1}});const D=s.querySelector("#btn-clear-chat");D&&(D.onclick=async()=>{if(p&&confirm("Are you sure you want to clear all messages in this conversation?"))try{D.disabled=!0,await nt(`/bonding/channels/${p._id}/messages`),$("Chat messages cleared","success"),j=[],f()}catch(Y){$(Y.message||"Could not clear chat messages","error")}finally{D.disabled=!1}})}function we(c){const i=s.querySelector("#bonding-message-input"),t=s.querySelector("#btn-send-message"),k=s.querySelector("#btn-quick-emoji"),A=s.querySelector("#btn-input-challenge");i&&i.addEventListener("keydown",M=>{M.key==="Enter"&&!M.shiftKey&&(M.preventDefault(),pt())}),t&&(t.onclick=pt),A&&(A.onclick=()=>{c?N(null,c.userId||c._id):N()}),k&&(k.onclick=M=>{M.stopPropagation(),i&&X(k,D=>{const Y=i.selectionStart??i.value.length,ee=i.selectionEnd??i.value.length,O=i.value;i.value=O.substring(0,Y)+D+O.substring(ee),i.focus();const _=Y+D.length;try{i.setSelectionRange(_,_)}catch{}})})}function ft(){s.querySelectorAll(".btn-respond-invite").forEach(k=>{k.onclick=async()=>{const A=k.dataset.inviteId,M=k.dataset.action;await S(A,M)}}),s.querySelectorAll(".btn-launch-match-from-card").forEach(k=>{k.onclick=async()=>{const A=k.dataset.matchId,M=k.dataset.inviteId;if(A){P(A);return}try{k.disabled=!0;const D=await ze("/bonding/invitations"),ee=(D.incoming||[]).concat(D.sent||[]).find(Q=>Q._id===M||Q.matchId&&Q.matchId.toString()===M);if(ee&&ee.matchId){P(ee.matchId);return}const _=(await ze("/bonding/matches").catch(()=>[])||[]).find(Q=>Q.invitationId===M||Q._id===M);if(_){P(_._id);return}$("Match has not started yet or has finished","warning")}catch(D){$(D.message||"Could not load match","error")}finally{k.disabled=!1}}}),s.querySelectorAll(".bonding-msg-del-btn").forEach(k=>{k.onclick=async A=>{A.stopPropagation();const M=k.dataset.msgId;if(confirm("Are you sure you want to delete this message?"))try{k.disabled=!0,await nt(`/bonding/messages/${M}`),j=j.filter(D=>D._id!==M),r(),$("Message deleted","success")}catch(D){$(D.message||"Failed to delete message","error"),k.disabled=!1}}}),s.querySelectorAll(".bonding-rxn-tag").forEach(k=>{k.onclick=async()=>{const A=k.dataset.msgId,M=k.dataset.emoji;await l(A,M)}}),s.querySelectorAll(".bonding-add-rxn-btn").forEach(k=>{k.onclick=A=>{const M=k.dataset.msgId;I(A.currentTarget,async D=>{await l(M,D)})}})}async function pt(){const c=s.querySelector("#bonding-message-input");if(!c||!p||q)return;const i=c.value.trim();if(i)try{q=!0,c.value="";const t=await ve(`/bonding/channels/${p._id}/messages`,{content:i,type:"text"});j.push(t),f(),n()}catch(t){$(t.message||"Failed to send message","error")}finally{q=!1,c.focus()}}async function l(c,i){try{const t=await ve(`/bonding/messages/${c}/react`,{emoji:i}),k=j.find(A=>A._id===c);k&&(k.reactions=t,r())}catch(t){$(t.message||"Failed to react","error")}}function n(){const c=s.querySelector("#bonding-messages-feed");c&&(c.scrollTop=c.scrollHeight)}function r(){const c=s.querySelector("#bonding-messages-feed");if(!c)return;const i=c.scrollHeight-c.scrollTop<=c.clientHeight+80;c.innerHTML=je(),ft(),i&&n()}function f(){const c=s.querySelector("#bonding-messages-feed");c&&(c.innerHTML=je(),ft())}async function y(c=!1){const i=s.querySelector("#bonding-lounge-main-wrap");if(i){c||(i.innerHTML='<div class="bonding-loading-text" style="padding:40px;text-align:center">Loading Games Arena & Live Matches...</div>');try{const t=await ze("/bonding/games/overview");J=t;const k=t.myStats||{},A=t.availableGames||[],M=t.incomingChallenges||[],D=t.sentChallenges||[],Y=t.activeMatches||[],ee=t.recentMatches||[],O=e?._id||e?.id;i.innerHTML=`
         <div class="lounge-container">
@@ -3719,7 +3719,7 @@ In Brave or Chrome, click the lock or shield icon on the left of the address bar
                     <p class="game-card-desc">${v(_.desc)}</p>
                     <div class="game-card-meta">
                       <span class="meta-pill">⏱️ ${_.duration}</span>
-                      ${_.id==="ludo"||_.id==="dotsboxes"?`<span class="meta-pill">👥 Up to 4 Players</span><span class="meta-pill">${_.id==="dotsboxes"?"⏹️ 16 Boxes Grid":"🎯 4 Pawns / Base"}</span>`:'<span class="meta-pill">👥 2 Players</span>'}
+                      ${_.id==="ludo"||_.id==="dotsboxes"?`<span class="meta-pill">👥 Up to 4 Players</span><span class="meta-pill">${_.id==="dotsboxes"?"🎮 16 Boxes Grid":"🎯 4 Pawns / Base"}</span>`:'<span class="meta-pill">👥 2 Players</span>'}
                     </div>
                   </div>
                   <button class="lounge-card-challenge-btn btn-challenge-game" data-game-id="${_.id}" data-game-title="${v(_.name)}">
@@ -3802,7 +3802,7 @@ In Brave or Chrome, click the lock or shield icon on the left of the address bar
                     ${Y.map(_=>{const ie=(_.players||_.gameState?.players||[_.player1,_.player2].filter(Boolean)).filter(le=>le.userId&&le.userId.toString()!==O?.toString()),ae=_.player1?.userId?.toString()===O?.toString()?_.player2:_.player1,pe=ie.length>0?ie.map(le=>v(le.name)).join(", "):ae?.name?v(ae.name):"Colleagues",ge=O&&_.currentTurnUserId&&_.currentTurnUserId.toString()===O.toString();return`
                         <div class="lounge-active-match-card ${ge?"turn-active":""}">
                           <div class="active-match-left">
-                            <span class="match-game-icon">${_.gameType==="dotsboxes"?"⏹️":_.gameType==="ludo"?"🎲":_.gameType==="chess"?"♟️":"❌"}</span>
+                            <span class="match-game-icon">${_.gameType==="dotsboxes"?"🎮":_.gameType==="ludo"?"🎲":_.gameType==="chess"?"♟️":"❌"}</span>
                             <div>
                               <div class="match-game-title">${v(_.gameTitle)}</div>
                               <div class="match-opp-text">Opponent(s): <strong>${pe}</strong></div>
@@ -3903,7 +3903,7 @@ In Brave or Chrome, click the lock or shield icon on the left of the address bar
                 <div class="flow-step-lbl">Step 1 — Choose Game</div>
                 <div class="game-select-pills">
                   <button class="game-pill-btn ${D==="dotsboxes"?"active":""}" data-game="dotsboxes">
-                    <span>⏹️</span> <span>Dots & Boxes</span>
+                    <span>🎮</span> <span>Dots & Boxes</span>
                   </button>
                   <button class="game-pill-btn ${D==="ludo"?"active":""}" data-game="ludo">
                     <span>🎲</span> <span>Ludo Royale</span>
@@ -3961,7 +3961,7 @@ In Brave or Chrome, click the lock or shield icon on the left of the address bar
               <div class="flow-confirmation-card">
                 <div class="confirm-head">Match Summary:</div>
                 <div class="confirm-body">
-                  <div><strong>Game:</strong> ${D==="dotsboxes"?`⏹️ Dots & Boxes (${ee} Players)`:D==="ludo"?`🎲 Ludo (${ee} Players · 4 Pawns)`:"❌ Tic-Tac-Toe Challenge"}</div>
+                  <div><strong>Game:</strong> ${D==="dotsboxes"?`🎮 Dots & Boxes (${ee} Players)`:D==="ludo"?`🎲 Ludo (${ee} Players · 4 Pawns)`:"❌ Tic-Tac-Toe Challenge"}</div>
                   ${pe?`
                     <div><strong>Opponents:</strong> ${O.length>0?O.map(xe=>{const We=M.find(Z=>Z._id.toString()===xe);return We?`<strong>${v(We.name)}</strong>`:"Colleague"}).join(", "):'<span style="color:#ef4444">⚠️ Please select '+ge+" colleague(s)</span>"}</div>
                   `:`
@@ -3974,12 +3974,12 @@ In Brave or Chrome, click the lock or shield icon on the left of the address bar
             <div class="bonding-modal-footer">
               <button class="bonding-btn-secondary" id="btn-cancel-challenge-flow">Cancel</button>
               <button class="bonding-btn-primary" id="btn-submit-challenge-flow" ${(pe?!le:!Y)?"disabled":""}>
-                ${D==="dotsboxes"?`Start ${ee}P Dots & Boxes ⏹️`:D==="ludo"?`Start ${ee}P Ludo Match 🎲`:"Send Challenge 🚀"}
+                ${D==="dotsboxes"?`Start ${ee}P Dots & Boxes 🎮`:D==="ludo"?`Start ${ee}P Ludo Match 🎲`:"Send Challenge 🚀"}
               </button>
             </div>
           </div>
         </div>
-      `,ie()}function ie(){t.querySelector(".bonding-modal-close").onclick=()=>{t.innerHTML=""},t.querySelector("#btn-cancel-challenge-flow").onclick=()=>{t.innerHTML=""},t.querySelectorAll(".game-pill-btn").forEach(ge=>{ge.onclick=()=>{D=ge.dataset.game,Q()}}),t.querySelectorAll(".ludo-mode-btn").forEach(ge=>{ge.onclick=()=>{ee=Number(ge.dataset.count),O=O.slice(0,ee-1),Q()}});const ae=t.querySelector("#flow-emp-search");ae&&(ae.oninput=ge=>{const le=ge.target.value.toLowerCase().trim();t.querySelectorAll(".eligible-emp-item").forEach(xe=>{const We=xe.textContent.toLowerCase();xe.style.display=We.includes(le)?"flex":"none"})}),t.querySelectorAll(".eligible-emp-item").forEach(ge=>{ge.onclick=()=>{const le=ge.dataset.userId;if(D==="dotsboxes"||D==="ludo"){const We=ee-1;O.includes(le)?O=O.filter(Z=>Z!==le):O.length<We?O.push(le):O[We-1]=le}else Y=le;Q()}});const pe=t.querySelector("#btn-submit-challenge-flow");pe&&(pe.onclick=async()=>{if(D==="dotsboxes"){const ge=ee-1;if(O.length<ge){$(`Please select ${ge} colleague(s) to play with`,"warning");return}try{pe.disabled=!0,pe.textContent="Launching Dots & Boxes...";const le=await ve("/bonding/matches/instant-dotsboxes",{playerCount:ee,targetUserIds:O});t.innerHTML="",$(`Dots & Boxes match started (${ee} Players)! ⏹️`,"success"),le&&le._id&&P(le._id)}catch(le){$(le.message||"Failed to start Dots & Boxes match","error"),pe.disabled=!1,pe.textContent=`Start ${ee}P Dots & Boxes ⏹️`}return}if(D==="ludo"){const ge=ee-1;if(O.length<ge){$(`Please select ${ge} colleague(s) to play with`,"warning");return}try{pe.disabled=!0,pe.textContent="Launching Match...";const le=await ve("/bonding/matches/instant-ludo",{playerCount:ee,targetUserIds:O});t.innerHTML="",$(`Ludo match started (${ee} Players)! 🎲`,"success"),le&&le._id&&P(le._id)}catch(le){$(le.message||"Failed to start Ludo match","error"),pe.disabled=!1,pe.textContent=`Start ${ee}P Ludo Match 🎲`}return}if(!Y){$("Please select an employee to challenge","warning");return}try{pe.disabled=!0,pe.textContent="Sending Challenge...",await ve("/bonding/invitations",{gameType:D,targetUserId:Y,matchSettings:{timerMode:_},channelId:null}),$("Game challenge delivered to personal chat! Awaiting acceptance ⚔️","success"),t.innerHTML="",await loadChannels();const ge=b.find(le=>le.type==="direct"&&le.members?.some(xe=>(xe.userId||xe._id)?.toString()===Y));ge?selectChannel(ge):p&&await Le(p._id),h==="lounge_games"&&await y()}catch(ge){$(ge.message||"Could not send challenge","error"),pe.disabled=!1,pe.textContent="Send Challenge 🚀"}})}Q()}async function S(c,i){if(!(!c||!i))try{const t=await Jt(`/bonding/invitations/${c}/respond`,{action:i});i==="accept"?($("Challenge accepted! Entering match arena ⚔️","success"),t.match&&P(t.match._id)):i==="decline"?($("Challenge declined","info"),s.querySelectorAll(`[data-invite-id="${c}"]`).forEach(k=>{const A=k.closest(".lounge-invite-item")||k.closest(".bonding-msg-row");A&&A.remove()})):i==="cancel"&&($("Challenge cancelled","info"),s.querySelectorAll(`[data-invite-id="${c}"]`).forEach(k=>{const A=k.closest(".lounge-invite-item")||k.closest(".bonding-msg-row");A&&A.remove()})),p&&await Le(p._id),h==="lounge_games"&&await y()}catch(t){$(t.message||"Action failed","error")}}async function P(c){if(!c)return;W=c,U&&clearInterval(U);const i=s.querySelector("#bonding-modals-root");let t=null,k=null,A=[],M="",D=null,Y=!1,ee=!1,O=0;function _(Z){return Z?JSON.stringify({status:Z.status,turn:Z.currentTurnUserId?.toString(),turnColor:Z.turn,movesCount:Z.moves?.length,dice:Z.gameState?.dice,rolled:Z.gameState?.rolled,lastRoll:Z.gameState?.lastRoll,lastRollColor:Z.gameState?.lastRollColor,lastRollBy:Z.gameState?.lastRollBy,lastActionText:Z.gameState?.lastActionText,tokens:Z.gameState?.tokens,board:Z.gameState?.board,grid:Z.gameState?.grid,fen:Z.gameState?.fen,hLines:Z.gameState?.hLines,vLines:Z.gameState?.vLines,boxes:Z.gameState?.boxes,scores:Z.gameState?.scores,draw:Z.drawOfferedBy?.toString(),rematchOfferedBy:Z.rematchOfferedBy?.toString(),rematchDeclined:!!Z.rematchDeclined}):""}async function Q(){try{return t=await ze(`/bonding/matches/${c}`),t}catch(Z){return $(Z.message||"Could not load match","error"),ie(),null}}if(t=await Q(),!t)return;M=_(t);function ie(){U&&clearInterval(U),D&&clearTimeout(D),Y=!1,W=null,i.innerHTML="",h==="lounge_games"&&y(!0),p&&Le(p._id,!0)}U=setInterval(async()=>{if(!W||W!==c){clearInterval(U);return}if(!(ee&&Date.now()-O<2500))try{const Z=await ze(`/bonding/matches/${c}`);if(!Z)return;const De=_(Z);if(De!==M){if(M=De,t=Z,Z.rematchDeclined){$("Rematch was declined","info"),ie();return}ae()}}catch{}},800);function ae(){if(!t)return;const Z=e?._id||e?.id,De=Z&&t.player1?.userId?.toString()===Z.toString(),Ne=De?t.player1:t.player2||t.player1,ue=De&&t.player2||t.player1,Se=Z&&t.currentTurnUserId&&t.currentTurnUserId.toString()===Z.toString(),ye=t.status!=="active";let Oe=[];t.gameState?.players&&Array.isArray(t.gameState.players)&&t.gameState.players.length>0?Oe=t.gameState.players:Oe=[t.player1,t.player2].filter(Boolean);const Ue=[{emoji:"🐻",name:"Gentle Bear"},{emoji:"🦌",name:"Clever Deer"},{emoji:"🦊",name:"Swift Fox"},{emoji:"🦁",name:"Mighty Lion"}];i.innerHTML=`
+      `,ie()}function ie(){t.querySelector(".bonding-modal-close").onclick=()=>{t.innerHTML=""},t.querySelector("#btn-cancel-challenge-flow").onclick=()=>{t.innerHTML=""},t.querySelectorAll(".game-pill-btn").forEach(ge=>{ge.onclick=()=>{D=ge.dataset.game,Q()}}),t.querySelectorAll(".ludo-mode-btn").forEach(ge=>{ge.onclick=()=>{ee=Number(ge.dataset.count),O=O.slice(0,ee-1),Q()}});const ae=t.querySelector("#flow-emp-search");ae&&(ae.oninput=ge=>{const le=ge.target.value.toLowerCase().trim();t.querySelectorAll(".eligible-emp-item").forEach(xe=>{const We=xe.textContent.toLowerCase();xe.style.display=We.includes(le)?"flex":"none"})}),t.querySelectorAll(".eligible-emp-item").forEach(ge=>{ge.onclick=()=>{const le=ge.dataset.userId;if(D==="dotsboxes"||D==="ludo"){const We=ee-1;O.includes(le)?O=O.filter(Z=>Z!==le):O.length<We?O.push(le):O[We-1]=le}else Y=le;Q()}});const pe=t.querySelector("#btn-submit-challenge-flow");pe&&(pe.onclick=async()=>{if(D==="dotsboxes"){const ge=ee-1;if(O.length<ge){$(`Please select ${ge} colleague(s) to play with`,"warning");return}try{pe.disabled=!0,pe.textContent="Launching Dots & Boxes...";const le=await ve("/bonding/matches/instant-dotsboxes",{playerCount:ee,targetUserIds:O});t.innerHTML="",$(`Dots & Boxes match started (${ee} Players)! 🎮`,"success"),le&&le._id&&P(le._id)}catch(le){$(le.message||"Failed to start Dots & Boxes match","error"),pe.disabled=!1,pe.textContent=`Start ${ee}P Dots & Boxes 🎮`}return}if(D==="ludo"){const ge=ee-1;if(O.length<ge){$(`Please select ${ge} colleague(s) to play with`,"warning");return}try{pe.disabled=!0,pe.textContent="Launching Match...";const le=await ve("/bonding/matches/instant-ludo",{playerCount:ee,targetUserIds:O});t.innerHTML="",$(`Ludo match started (${ee} Players)! 🎲`,"success"),le&&le._id&&P(le._id)}catch(le){$(le.message||"Failed to start Ludo match","error"),pe.disabled=!1,pe.textContent=`Start ${ee}P Ludo Match 🎲`}return}if(!Y){$("Please select an employee to challenge","warning");return}try{pe.disabled=!0,pe.textContent="Sending Challenge...",await ve("/bonding/invitations",{gameType:D,targetUserId:Y,matchSettings:{timerMode:_},channelId:null}),$("Game challenge delivered to personal chat! Awaiting acceptance ⚔️","success"),t.innerHTML="",await loadChannels();const ge=b.find(le=>le.type==="direct"&&le.members?.some(xe=>(xe.userId||xe._id)?.toString()===Y));ge?selectChannel(ge):p&&await Le(p._id),h==="lounge_games"&&await y()}catch(ge){$(ge.message||"Could not send challenge","error"),pe.disabled=!1,pe.textContent="Send Challenge 🚀"}})}Q()}async function S(c,i){if(!(!c||!i))try{const t=await Jt(`/bonding/invitations/${c}/respond`,{action:i});i==="accept"?($("Challenge accepted! Entering match arena ⚔️","success"),t.match&&P(t.match._id)):i==="decline"?($("Challenge declined","info"),s.querySelectorAll(`[data-invite-id="${c}"]`).forEach(k=>{const A=k.closest(".lounge-invite-item")||k.closest(".bonding-msg-row");A&&A.remove()})):i==="cancel"&&($("Challenge cancelled","info"),s.querySelectorAll(`[data-invite-id="${c}"]`).forEach(k=>{const A=k.closest(".lounge-invite-item")||k.closest(".bonding-msg-row");A&&A.remove()})),p&&await Le(p._id),h==="lounge_games"&&await y()}catch(t){$(t.message||"Action failed","error")}}async function P(c){if(!c)return;W=c,U&&clearInterval(U);const i=s.querySelector("#bonding-modals-root");let t=null,k=null,A=[],M="",D=null,Y=!1,ee=!1,O=0;function _(Z){return Z?JSON.stringify({status:Z.status,turn:Z.currentTurnUserId?.toString(),turnColor:Z.turn,movesCount:Z.moves?.length,dice:Z.gameState?.dice,rolled:Z.gameState?.rolled,lastRoll:Z.gameState?.lastRoll,lastRollColor:Z.gameState?.lastRollColor,lastRollBy:Z.gameState?.lastRollBy,lastActionText:Z.gameState?.lastActionText,tokens:Z.gameState?.tokens,board:Z.gameState?.board,grid:Z.gameState?.grid,fen:Z.gameState?.fen,hLines:Z.gameState?.hLines,vLines:Z.gameState?.vLines,boxes:Z.gameState?.boxes,scores:Z.gameState?.scores,draw:Z.drawOfferedBy?.toString(),rematchOfferedBy:Z.rematchOfferedBy?.toString(),rematchDeclined:!!Z.rematchDeclined}):""}async function Q(){try{return t=await ze(`/bonding/matches/${c}`),t}catch(Z){return $(Z.message||"Could not load match","error"),ie(),null}}if(t=await Q(),!t)return;M=_(t);function ie(){U&&clearInterval(U),D&&clearTimeout(D),Y=!1,W=null,i.innerHTML="",h==="lounge_games"&&y(!0),p&&Le(p._id,!0)}U=setInterval(async()=>{if(!W||W!==c){clearInterval(U);return}if(!(ee&&Date.now()-O<2500))try{const Z=await ze(`/bonding/matches/${c}`);if(!Z)return;const De=_(Z);if(De!==M){if(M=De,t=Z,Z.rematchDeclined){$("Rematch was declined","info"),ie();return}ae()}}catch{}},800);function ae(){if(!t)return;const Z=e?._id||e?.id,De=Z&&t.player1?.userId?.toString()===Z.toString(),Ne=De?t.player1:t.player2||t.player1,ue=De&&t.player2||t.player1,Se=Z&&t.currentTurnUserId&&t.currentTurnUserId.toString()===Z.toString(),ye=t.status!=="active";let Oe=[];t.gameState?.players&&Array.isArray(t.gameState.players)&&t.gameState.players.length>0?Oe=t.gameState.players:Oe=[t.player1,t.player2].filter(Boolean);const Ue=[{emoji:"🐻",name:"Gentle Bear"},{emoji:"🦌",name:"Clever Deer"},{emoji:"🦊",name:"Swift Fox"},{emoji:"🦁",name:"Mighty Lion"}];i.innerHTML=`
         <div class="bonding-modal-backdrop">
           <div class="bonding-modal-card game-arena-modal arena-split-layout">
             <!-- Dedicated Top-Right Close Button -->
@@ -4673,9 +4673,19 @@ All messages in this lounge will be deleted.`))try{await nt(`/bonding/channels/$
     .bonding-chat-layout {
       display: grid;
       grid-template-columns: 310px 1fr;
-      gap: 16px;
+      gap: 0;
       height: calc(100vh - 210px);
       min-height: 580px;
+      background: var(--bg-card, #ffffff);
+      border: 1px solid var(--border-sm, #e2e8f0);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+    }
+
+    [data-theme="dark"] .bonding-chat-layout {
+      background: var(--bg-surface, #111827);
+      border-color: var(--border-subtle, #1f2937);
     }
 
     @media (max-width: 900px) {
@@ -4683,23 +4693,32 @@ All messages in this lounge will be deleted.`))try{await nt(`/bonding/channels/$
         grid-template-columns: 1fr;
         height: auto;
       }
+      .bonding-sidebar {
+        border-right: none !important;
+        border-bottom: 1px solid var(--border-sm, #e2e8f0) !important;
+      }
+      [data-theme="dark"] .bonding-sidebar {
+        border-bottom: 1px solid var(--border-subtle, #1f2937) !important;
+      }
     }
 
     /* Sidebar */
     .bonding-sidebar {
-      background: var(--bg-card, #ffffff);
-      border: 1px solid var(--border-sm, #e2e8f0);
-      border-radius: 16px;
+      background: transparent;
+      border: none;
+      border-right: 1px solid var(--border-sm, #e2e8f0);
+      border-radius: 0;
       padding: 16px;
       display: flex;
       flex-direction: column;
       overflow-y: auto;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+      box-shadow: none;
     }
 
     [data-theme="dark"] .bonding-sidebar {
-      background: var(--bg-surface, #111827);
-      border-color: var(--border-subtle, #1f2937);
+      background: transparent;
+      border-color: transparent;
+      border-right: 1px solid var(--border-subtle, #1f2937);
     }
 
     .bonding-search-box input {
@@ -4860,18 +4879,18 @@ All messages in this lounge will be deleted.`))try{await nt(`/bonding/channels/$
 
     /* Main Chat Panel */
     .bonding-chat-main {
-      background: var(--bg-card, #ffffff);
-      border: 1px solid var(--border-sm, #e2e8f0);
-      border-radius: 16px;
+      background: transparent;
+      border: none;
+      border-radius: 0;
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+      box-shadow: none;
     }
 
     [data-theme="dark"] .bonding-chat-main {
-      background: var(--bg-surface, #111827);
-      border-color: var(--border-subtle, #1f2937);
+      background: transparent;
+      border-color: transparent;
     }
 
     .bonding-chat-header {

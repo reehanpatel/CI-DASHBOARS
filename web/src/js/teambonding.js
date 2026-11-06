@@ -505,7 +505,12 @@ export async function initTeamBonding(container, options = {}) {
 
       <div class="bonding-chat-input-bar">
         <button class="bonding-input-action-btn" id="btn-quick-emoji" title="Insert Emoji">
-          <span>😀</span>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
+            <line x1="9" y1="9" x2="9.01" y2="9"></line>
+            <line x1="15" y1="9" x2="15.01" y2="9"></line>
+          </svg>
         </button>
         <button class="bonding-input-action-btn" id="btn-input-challenge" title="Send Multiplayer Challenge">
           <span>🎮</span>
@@ -563,7 +568,7 @@ export async function initTeamBonding(container, options = {}) {
         const cd = msg.challengeData;
         const gTitle = cd.gameTitle || 'Game Challenge';
         const gType = cd.gameType || 'dotsboxes';
-        const gIcon = gType === 'dotsboxes' ? '⏹️' : (gType === 'ludo' ? '🎲' : (gType === 'chess' ? '♟️' : '❌'));
+        const gIcon = gType === 'dotsboxes' ? '🎮' : (gType === 'ludo' ? '🎲' : (gType === 'chess' ? '♟️' : '❌'));
         const inviteId = cd.gameState?.invitationId;
         const targetId = cd.targetUserId?.toString();
         const senderId = msg.sender?.userId?.toString();
@@ -577,7 +582,6 @@ export async function initTeamBonding(container, options = {}) {
             </div>
             <div class="bonding-msg-bubble-wrap">
               <div class="bonding-msg-meta">
-                <span class="bonding-msg-sender">${escapeHtml(msg.sender?.name || 'Teammate')}</span>
                 <span class="bonding-msg-time">${formatTime(msg.createdAt)}</span>
                 <button class="bonding-msg-del-btn" data-msg-id="${msg._id}" title="Delete Challenge Message">
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -657,7 +661,6 @@ export async function initTeamBonding(container, options = {}) {
           <div class="bonding-msg-avatar" title="${senderName}">${senderName.slice(0, 1).toUpperCase()}</div>
           <div class="bonding-msg-bubble-wrap">
             <div class="bonding-msg-meta">
-              <span class="bonding-msg-sender">${senderName}</span>
               <span class="bonding-msg-time">${timeStr}</span>
               <button class="bonding-msg-del-btn" data-msg-id="${msg._id}" title="Delete Message">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -678,6 +681,7 @@ export async function initTeamBonding(container, options = {}) {
 
   function renderReactionsBar(msg) {
     const rxns = msg.reactions || [];
+    if (!rxns || rxns.length === 0) return '';
     let itemsHtml = rxns.map(r => {
       const myId = currentUser?._id || currentUser?.id;
       const didIReact = (r.users || []).some(u => u.toString() === (myId?.toString()));
@@ -691,9 +695,6 @@ export async function initTeamBonding(container, options = {}) {
     return `
       <div class="bonding-reactions-row">
         ${itemsHtml}
-        <button class="bonding-add-rxn-btn" data-msg-id="${msg._id}" title="Add reaction">
-          <span>+😀</span>
-        </button>
       </div>
     `;
   }
@@ -1028,7 +1029,7 @@ export async function initTeamBonding(container, options = {}) {
                     <div class="game-card-meta">
                       <span class="meta-pill">⏱️ ${g.duration}</span>
                       ${(g.id === 'ludo' || g.id === 'dotsboxes')
-          ? `<span class="meta-pill">👥 Up to 4 Players</span><span class="meta-pill">${g.id === 'dotsboxes' ? '⏹️ 16 Boxes Grid' : '🎯 4 Pawns / Base'}</span>`
+          ? `<span class="meta-pill">👥 Up to 4 Players</span><span class="meta-pill">${g.id === 'dotsboxes' ? '🎮 16 Boxes Grid' : '🎯 4 Pawns / Base'}</span>`
           : '<span class="meta-pill">👥 2 Players</span>'
         }
                     </div>
@@ -1130,7 +1131,7 @@ export async function initTeamBonding(container, options = {}) {
             return `
                         <div class="lounge-active-match-card ${myTurn ? 'turn-active' : ''}">
                           <div class="active-match-left">
-                            <span class="match-game-icon">${m.gameType === 'dotsboxes' ? '⏹️' : (m.gameType === 'ludo' ? '🎲' : (m.gameType === 'chess' ? '♟️' : '❌'))}</span>
+                            <span class="match-game-icon">${m.gameType === 'dotsboxes' ? '🎮' : (m.gameType === 'ludo' ? '🎲' : (m.gameType === 'chess' ? '♟️' : '❌'))}</span>
                             <div>
                               <div class="match-game-title">${escapeHtml(m.gameTitle)}</div>
                               <div class="match-opp-text">Opponent(s): <strong>${oppNames}</strong></div>
@@ -1361,7 +1362,7 @@ export async function initTeamBonding(container, options = {}) {
                 <div class="flow-step-lbl">Step 1 — Choose Game</div>
                 <div class="game-select-pills">
                   <button class="game-pill-btn ${selectedGame === 'dotsboxes' ? 'active' : ''}" data-game="dotsboxes">
-                    <span>⏹️</span> <span>Dots & Boxes</span>
+                    <span>🎮</span> <span>Dots & Boxes</span>
                   </button>
                   <button class="game-pill-btn ${selectedGame === 'ludo' ? 'active' : ''}" data-game="ludo">
                     <span>🎲</span> <span>Ludo Royale</span>
@@ -1428,7 +1429,7 @@ export async function initTeamBonding(container, options = {}) {
               <div class="flow-confirmation-card">
                 <div class="confirm-head">Match Summary:</div>
                 <div class="confirm-body">
-                  <div><strong>Game:</strong> ${selectedGame === 'dotsboxes' ? `⏹️ Dots & Boxes (${selectedPlayerCount} Players)` : (selectedGame === 'ludo' ? `🎲 Ludo (${selectedPlayerCount} Players · 4 Pawns)` : '❌ Tic-Tac-Toe Challenge')}</div>
+                  <div><strong>Game:</strong> ${selectedGame === 'dotsboxes' ? `🎮 Dots & Boxes (${selectedPlayerCount} Players)` : (selectedGame === 'ludo' ? `🎲 Ludo (${selectedPlayerCount} Players · 4 Pawns)` : '❌ Tic-Tac-Toe Challenge')}</div>
                   ${isMulti ? `
                     <div><strong>Opponents:</strong> ${selectedMultiTargetUserIds.length > 0
             ? selectedMultiTargetUserIds.map(id => {
@@ -1447,7 +1448,7 @@ export async function initTeamBonding(container, options = {}) {
             <div class="bonding-modal-footer">
               <button class="bonding-btn-secondary" id="btn-cancel-challenge-flow">Cancel</button>
               <button class="bonding-btn-primary" id="btn-submit-challenge-flow" ${(isMulti ? !hasEnoughOpponents : !selectedTargetUserId) ? 'disabled' : ''}>
-                ${selectedGame === 'dotsboxes' ? `Start ${selectedPlayerCount}P Dots & Boxes ⏹️` : (selectedGame === 'ludo' ? `Start ${selectedPlayerCount}P Ludo Match 🎲` : 'Send Challenge 🚀')}
+                ${selectedGame === 'dotsboxes' ? `Start ${selectedPlayerCount}P Dots & Boxes 🎮` : (selectedGame === 'ludo' ? `Start ${selectedPlayerCount}P Ludo Match 🎲` : 'Send Challenge 🚀')}
               </button>
             </div>
           </div>
@@ -1533,14 +1534,14 @@ export async function initTeamBonding(container, options = {}) {
               });
 
               modalRoot.innerHTML = '';
-              flashToast(`Dots & Boxes match started (${selectedPlayerCount} Players)! ⏹️`, 'success');
+              flashToast(`Dots & Boxes match started (${selectedPlayerCount} Players)! 🎮`, 'success');
               if (res && res._id) {
                 openGameMatchModal(res._id);
               }
             } catch (err) {
               flashToast(err.message || 'Failed to start Dots & Boxes match', 'error');
               submitBtn.disabled = false;
-              submitBtn.textContent = `Start ${selectedPlayerCount}P Dots & Boxes ⏹️`;
+              submitBtn.textContent = `Start ${selectedPlayerCount}P Dots & Boxes 🎮`;
             }
             return;
           }
@@ -3650,9 +3651,19 @@ function injectBondingStyles() {
     .bonding-chat-layout {
       display: grid;
       grid-template-columns: 310px 1fr;
-      gap: 16px;
+      gap: 0;
       height: calc(100vh - 210px);
       min-height: 580px;
+      background: var(--bg-card, #ffffff);
+      border: 1px solid var(--border-sm, #e2e8f0);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+    }
+
+    [data-theme="dark"] .bonding-chat-layout {
+      background: var(--bg-surface, #111827);
+      border-color: var(--border-subtle, #1f2937);
     }
 
     @media (max-width: 900px) {
@@ -3660,23 +3671,32 @@ function injectBondingStyles() {
         grid-template-columns: 1fr;
         height: auto;
       }
+      .bonding-sidebar {
+        border-right: none !important;
+        border-bottom: 1px solid var(--border-sm, #e2e8f0) !important;
+      }
+      [data-theme="dark"] .bonding-sidebar {
+        border-bottom: 1px solid var(--border-subtle, #1f2937) !important;
+      }
     }
 
     /* Sidebar */
     .bonding-sidebar {
-      background: var(--bg-card, #ffffff);
-      border: 1px solid var(--border-sm, #e2e8f0);
-      border-radius: 16px;
+      background: transparent;
+      border: none;
+      border-right: 1px solid var(--border-sm, #e2e8f0);
+      border-radius: 0;
       padding: 16px;
       display: flex;
       flex-direction: column;
       overflow-y: auto;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+      box-shadow: none;
     }
 
     [data-theme="dark"] .bonding-sidebar {
-      background: var(--bg-surface, #111827);
-      border-color: var(--border-subtle, #1f2937);
+      background: transparent;
+      border-color: transparent;
+      border-right: 1px solid var(--border-subtle, #1f2937);
     }
 
     .bonding-search-box input {
@@ -3837,18 +3857,18 @@ function injectBondingStyles() {
 
     /* Main Chat Panel */
     .bonding-chat-main {
-      background: var(--bg-card, #ffffff);
-      border: 1px solid var(--border-sm, #e2e8f0);
-      border-radius: 16px;
+      background: transparent;
+      border: none;
+      border-radius: 0;
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+      box-shadow: none;
     }
 
     [data-theme="dark"] .bonding-chat-main {
-      background: var(--bg-surface, #111827);
-      border-color: var(--border-subtle, #1f2937);
+      background: transparent;
+      border-color: transparent;
     }
 
     .bonding-chat-header {

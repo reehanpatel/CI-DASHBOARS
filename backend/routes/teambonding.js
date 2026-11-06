@@ -1022,7 +1022,7 @@ router.get('/games/overview', async (req, res) => {
       {
         id: 'dotsboxes',
         name: 'Dots & Boxes',
-        icon: '⏹️',
+        icon: '🎮',
         desc: 'Connect dots, complete boxes, and claim territory! Strategic 2 to 4 player duel with your team.',
         duration: '3–6 mins',
         modes: ['2 Players', '3 Players', '4 Players']
@@ -1410,7 +1410,7 @@ router.post('/matches/instant-dotsboxes', async (req, res) => {
               email: req.user.email
             },
             type: 'challenge',
-            content: `⏹️ ${req.user.name} challenged you to a ${numPlayers}P Dots & Boxes match!`,
+            content: `🎮 ${req.user.name} challenged you to a ${numPlayers}P Dots & Boxes match!`,
             challengeData: {
               gameType: 'dotsboxes',
               gameTitle: `Dots & Boxes (${numPlayers}P)`,
