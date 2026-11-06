@@ -1846,13 +1846,13 @@ export async function initTeamBonding(container, options = {}) {
                 <div class="game-code-display">Game code: <strong>${(match._id || '7370').slice(-4).toUpperCase()}</strong></div>
                 <div class="arena-sidebar-divider"></div>
                 <div class="arena-sidebar-actions">
-                  <button class="sidebar-action-item" id="btn-arena-settings" type="button" title="Game Settings">
-                    <span class="action-icon">⚙️</span>
-                    <span>Settings</span>
-                  </button>
                   ${!isEnded ? `
-                    <button class="sidebar-action-item" id="btn-arena-resign" type="button" title="Surrender Match">
+                    <button class="sidebar-action-item" id="btn-arena-draw" type="button" title="Offer Draw to Opponent">
                       <span class="action-icon">🤝</span>
+                      <span>Offer Draw</span>
+                    </button>
+                    <button class="sidebar-action-item" id="btn-arena-resign" type="button" title="Surrender Match">
+                      <span class="action-icon">🏳️</span>
                       <span>Surrender</span>
                     </button>
                   ` : `

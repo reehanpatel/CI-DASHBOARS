@@ -852,6 +852,16 @@ export function initDailyPlanner(container, options = {}) {
     const endStr = formatShortDate(weekDates[6]);
     const todayStr = getTodayStr();
 
+    // Aggregate statistics across the entire week for the 8th card "Week at a Glance"
+    const allWeekTasks = weekDates.flatMap(d => getTasksForDate(d));
+    const uniqueMap = new Map();
+    allWeekTasks.forEach(t => {
+      const k = t._id ? String(t._id) : JSON.stringify(t);
+      uniqueMap.set(k, t);
+    });
+    const uniqueWeekTasks = Array.from(uniqueMap.values());
+    const weekStats = calculateStats(uniqueWeekTasks, todayStr);
+
     return `
       <div class="ci360-weekly-planner-section">
         
@@ -869,66 +879,129 @@ export function initDailyPlanner(container, options = {}) {
           </div>
         </div>
 
-        <!-- 7-Day Grid -->
-        <div class="ci360-week-grid">
+        <!-- 8-Card Modern Weekly Grid (7 Days + Week at a Glance) -->
+        <div class="ci360-week-grid modern-grid">
           ${weekDates.map(dStr => {
             const isDayToday = dStr === todayStr;
             const isDaySelected = dStr === state.selectedDate;
             const tasksForDay = getTasksForDate(dStr);
             const dayStats = calculateStats(tasksForDay, todayStr);
 
+            const dObj = new Date(dStr + 'T00:00:00');
+            const dayShort = dObj.toLocaleDateString('en-US', { weekday: 'short' });
+            const dayFullName = dObj.toLocaleDateString('en-US', { weekday: 'long' });
+            const monthShort = dObj.toLocaleDateString('en-US', { month: 'short' });
+            const dayNum = dObj.getDate();
+
             return `
-              <div class="ci360-day-column ${isDayToday ? 'is-today' : ''} ${isDaySelected ? 'is-selected' : ''}" data-date="${dStr}">
+              <div class="ci360-weekly-day-card ${isDayToday ? 'is-today' : ''} ${isDaySelected ? 'is-selected' : ''}" data-date="${dStr}">
                 
-                <!-- Column Header -->
-                <div class="day-col-header" data-date="${dStr}">
-                  <div class="day-name">${getDayName(dStr)}</div>
-                  <div class="day-number">${new Date(dStr + 'T00:00:00').getDate()}</div>
-                  ${isDayToday ? `<span class="today-pill">Today</span>` : ''}
-                </div>
-
-                <!-- Daily Progress Bar -->
-                <div class="day-col-stats">
-                  <span class="stat-text">${dayStats.completed}/${dayStats.total} done</span>
-                  <div class="mini-bar-wrap">
-                    <div class="mini-bar" style="width: ${dayStats.percent}%"></div>
+                <!-- Day Card Header -->
+                <div class="weekly-day-header ${isDayToday ? 'today-banner' : ''}">
+                  <div class="day-badge-box">
+                    <span class="day-badge-name">${dayShort}</span>
+                    <span class="day-badge-num">${dayNum}</span>
                   </div>
-                </div>
-
-                <!-- Tasks Column Body -->
-                <div class="day-col-tasks">
-                  ${tasksForDay.length === 0 ? `
-                    <div class="day-empty">No tasks</div>
-                  ` : tasksForDay.map(t => `
-                    <div class="ci360-mini-task-card ${t.status === 'Completed' ? 'done' : ''}" data-id="${t._id}">
-                      <button type="button" class="mini-check ${t.status === 'Completed' ? 'checked' : ''}" data-action="toggle" data-id="${t._id}">
-                        ✓
-                      </button>
-                      <div class="mini-info" data-action="edit" data-id="${t._id}">
-                        <div class="mini-title">${escapeHtml(t.title)}</div>
-                        <div class="mini-meta">
-                          <span class="mini-pri pri-${(t.priority || 'medium').toLowerCase()}">${t.priority || 'Med'}</span>
-                          ${t.dueTime ? `<span class="mini-time">${escapeHtml(t.dueTime)}</span>` : ''}
-                        </div>
+                  <div class="day-header-meta">
+                    <div class="day-full-name">${dayFullName}, ${monthShort} ${dayNum}</div>
+                    <div class="day-header-stats-row">
+                      <span class="day-done-label">${dayStats.completed}/${dayStats.total} Done</span>
+                      <div class="day-progress-track">
+                        <div class="day-progress-bar" style="width: ${dayStats.percent}%"></div>
                       </div>
                     </div>
-                  `).join('')}
+                  </div>
+                  <button type="button" class="day-action-clipboard-btn" data-action="add-day" data-date="${dStr}" title="Add/Manage tasks for ${dayFullName}">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                      <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                    </svg>
+                  </button>
                 </div>
 
-                <!-- Quick Add for Day Button (Locked on past dates) -->
-                ${dStr < todayStr ? `
-                  <div class="day-col-locked-note" title="Cannot add tasks on previous dates">
-                    <span>🔒 Past Date</span>
-                  </div>
-                ` : `
-                  <button type="button" class="day-col-add-btn" data-action="add-day" data-date="${dStr}">
-                    + Add Task
-                  </button>
-                `}
+                <!-- Day Card Tasks List -->
+                <div class="weekly-day-tasks">
+                  ${tasksForDay.length === 0 ? `
+                    <div class="weekly-empty-state">
+                      <span>No tasks scheduled</span>
+                    </div>
+                  ` : tasksForDay.map(t => {
+                    const isDone = t.status === 'Completed';
+                    const pri = (t.priority || 'medium').toLowerCase();
+                    const priLabel = t.priority ? (t.priority.charAt(0).toUpperCase() + t.priority.slice(1).toLowerCase()) : 'Medium';
+
+                    return `
+                      <div class="weekly-task-item ${isDone ? 'done' : ''}" data-id="${t._id}">
+                        <button type="button" class="weekly-check-btn ${isDone ? 'checked' : ''}" data-action="toggle" data-id="${t._id}" title="Mark ${isDone ? 'Incomplete' : 'Complete'}">
+                          ${isDone ? `
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+                              <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                          ` : ''}
+                        </button>
+                        <span class="weekly-task-title ${isDone ? 'strike' : ''}" data-action="edit" data-id="${t._id}" title="${escapeHtml(t.title)}">
+                          ${escapeHtml(t.title)}
+                        </span>
+                        <span class="weekly-pri-badge pri-${pri}">
+                          ${priLabel}
+                        </span>
+                      </div>
+                    `;
+                  }).join('')}
+                </div>
 
               </div>
             `;
           }).join('')}
+
+          <!-- 8th Card: Week at a Glance -->
+          <div class="ci360-weekly-day-card week-glance-card">
+            <div class="glance-header">
+              <span class="glance-icon">📊</span>
+              <h3 class="glance-title">Week at a Glance</h3>
+            </div>
+            
+            <div class="glance-metrics-grid">
+              <div class="glance-metric-item">
+                <span class="glance-m-icon total">📋</span>
+                <div class="glance-m-data">
+                  <div class="glance-m-val">${weekStats.total}</div>
+                  <div class="glance-m-lbl">Total Tasks</div>
+                </div>
+              </div>
+              <div class="glance-metric-item">
+                <span class="glance-m-icon completed">✅</span>
+                <div class="glance-m-data">
+                  <div class="glance-m-val">${weekStats.completed}</div>
+                  <div class="glance-m-lbl">Completed</div>
+                </div>
+              </div>
+              <div class="glance-metric-item">
+                <span class="glance-m-icon in-progress">🔄</span>
+                <div class="glance-m-data">
+                  <div class="glance-m-val">${weekStats.inProgress}</div>
+                  <div class="glance-m-lbl">In Progress</div>
+                </div>
+              </div>
+              <div class="glance-metric-item">
+                <span class="glance-m-icon pending">⏳</span>
+                <div class="glance-m-data">
+                  <div class="glance-m-val">${weekStats.pending}</div>
+                  <div class="glance-m-lbl">Pending</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="glance-footer">
+              <div class="glance-progress-track">
+                <div class="glance-progress-bar" style="width: ${weekStats.percent}%"></div>
+              </div>
+              <div class="glance-progress-caption">
+                ${weekStats.completed} / ${weekStats.total} Tasks (${weekStats.percent}% Complete)
+              </div>
+            </div>
+          </div>
+
         </div>
 
       </div>
@@ -3982,146 +4055,401 @@ function ensurePlannerStyles() {
       align-items: center;
       gap: 6px;
     }
-    .ci360-week-grid {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 10px;
+    .ci360-week-grid.modern-grid {
+      display: grid !important;
+      grid-template-columns: repeat(4, 1fr) !important;
+      gap: 16px !important;
+      align-items: stretch !important;
     }
-    @media (max-width: 992px) {
-      .ci360-week-grid {
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    @media (max-width: 1200px) {
+      .ci360-week-grid.modern-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
       }
     }
-    .ci360-day-column {
-      background: var(--bg-card);
-      border: 1px solid var(--border-sm);
-      border-radius: var(--r-lg);
-      padding: 12px 10px;
+    @media (max-width: 640px) {
+      .ci360-week-grid.modern-grid {
+        grid-template-columns: 1fr !important;
+      }
+    }
+
+    .ci360-weekly-day-card {
+      background: var(--bg-card, #ffffff);
+      border: 1px solid var(--border-sm, #e2e8f0);
+      border-radius: 20px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
       display: flex;
       flex-direction: column;
-      min-height: 380px;
-      transition: all var(--t-fast);
-    }
-    .ci360-day-column.is-today {
-      border-color: var(--accent);
-      background: var(--bg-elevated);
-      box-shadow: var(--shadow-sm);
-    }
-    .ci360-day-column.is-selected {
-      outline: 2px solid var(--brand-400);
-    }
-    .day-col-header {
-      cursor: pointer;
-      padding-bottom: 8px;
-      border-bottom: 1px solid var(--border-xs);
-      margin-bottom: 8px;
-      text-align: center;
-    }
-    .day-col-header .day-name {
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      color: var(--text-3);
-    }
-    .day-col-header .day-number {
-      font-size: 18px;
-      font-weight: 800;
-      color: var(--text-1);
-      line-height: 1.2;
-    }
-    .day-col-header .today-pill {
-      display: inline-block;
-      font-size: 9px;
-      font-weight: 700;
-      text-transform: uppercase;
-      padding: 1px 6px;
-      border-radius: var(--r-full);
-      background: var(--accent);
-      color: #FFFFFF;
-      margin-top: 2px;
-    }
-    .day-col-stats {
-      margin-bottom: 10px;
-    }
-    .day-col-stats .stat-text {
-      font-size: 10.5px;
-      color: var(--text-4);
-      display: block;
-      margin-bottom: 4px;
-      text-align: center;
-    }
-    .day-col-stats .mini-bar-wrap {
-      height: 4px;
-      background: var(--border-xs);
-      border-radius: var(--r-full);
       overflow: hidden;
+      min-height: 270px;
+      transition: all 0.2s ease;
     }
-    .day-col-stats .mini-bar {
-      height: 100%;
-      background: var(--accent);
-      border-radius: var(--r-full);
+    [data-theme="dark"] .ci360-weekly-day-card {
+      background: #111827;
+      border-color: #1f2937;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    }
+    .ci360-weekly-day-card:hover {
+      box-shadow: 0 8px 26px rgba(0, 0, 0, 0.06);
+      border-color: var(--border-md, #cbd5e1);
     }
 
-    .day-col-tasks {
-      flex: 1;
+    /* Header */
+    .weekly-day-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 16px 14px 16px;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+      background: transparent;
+    }
+    [data-theme="dark"] .weekly-day-header {
+      border-bottom-color: rgba(255, 255, 255, 0.05);
+    }
+    .weekly-day-header.today-banner {
+      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #9333ea 100%) !important;
+      color: #ffffff !important;
+      border-bottom: none !important;
+    }
+
+    /* Date Badge Box */
+    .day-badge-box {
+      width: 44px;
+      height: 48px;
+      border-radius: 12px;
+      background: #eff2fe;
       display: flex;
       flex-direction: column;
-      gap: 6px;
-      overflow-y: auto;
-      max-height: 440px;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
     }
-    .day-empty {
+    [data-theme="dark"] .day-badge-box {
+      background: #1e293b;
+    }
+    .weekly-day-header.today-banner .day-badge-box {
+      background: rgba(0, 0, 0, 0.28) !important;
+    }
+    .day-badge-name {
       font-size: 11px;
-      color: var(--text-4);
-      text-align: center;
-      padding: 16px 0;
+      font-weight: 700;
+      color: #4f46e5;
+      line-height: 1;
+      margin-bottom: 2px;
+    }
+    .weekly-day-header.today-banner .day-badge-name {
+      color: rgba(255, 255, 255, 0.9) !important;
+    }
+    .day-badge-num {
+      font-size: 17px;
+      font-weight: 800;
+      color: #1e293b;
+      line-height: 1;
+    }
+    [data-theme="dark"] .day-badge-num {
+      color: #f8fafc;
+    }
+    .weekly-day-header.today-banner .day-badge-num {
+      color: #ffffff !important;
     }
 
-    .ci360-mini-task-card {
-      background: var(--bg-app);
-      border: 1px solid var(--border-xs);
-      border-radius: var(--r-sm);
-      padding: 6px 8px;
+    /* Day Title & Progress Row */
+    .day-header-meta {
+      flex: 1;
+      min-width: 0;
+    }
+    .day-full-name {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--text-1, #0f172a);
+      margin-bottom: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    [data-theme="dark"] .day-full-name {
+      color: #f8fafc;
+    }
+    .weekly-day-header.today-banner .day-full-name {
+      color: #ffffff !important;
+    }
+    .day-header-stats-row {
       display: flex;
-      align-items: flex-start;
-      gap: 6px;
-      font-size: 12px;
-      transition: all var(--t-fast);
+      flex-direction: column;
+      gap: 4px;
     }
-    .ci360-mini-task-card:hover {
-      border-color: var(--border-md);
-      background: var(--bg-card);
+    .day-done-label {
+      font-size: 11.5px;
+      color: var(--text-3, #64748b);
+      font-weight: 500;
     }
-    .ci360-mini-task-card.done {
-      opacity: 0.6;
+    .weekly-day-header.today-banner .day-done-label {
+      color: rgba(255, 255, 255, 0.85) !important;
     }
-    .ci360-mini-task-card.done .mini-title {
-      text-decoration: line-through;
+    .day-progress-track {
+      height: 4px;
+      background: #e2e8f0;
+      border-radius: 999px;
+      overflow: hidden;
+      width: 90px;
+      max-width: 100%;
     }
-    .mini-check {
-      background: transparent;
-      border: 1px solid var(--border-md);
-      width: 16px;
-      height: 16px;
-      border-radius: 50%;
-      font-size: 9px;
+    [data-theme="dark"] .day-progress-track {
+      background: #334155;
+    }
+    .weekly-day-header.today-banner .day-progress-track {
+      background: rgba(255, 255, 255, 0.3) !important;
+    }
+    .day-progress-bar {
+      height: 100%;
+      background: #4f46e5;
+      border-radius: 999px;
+      transition: width 0.3s ease;
+    }
+    .weekly-day-header.today-banner .day-progress-bar {
+      background: #ffffff !important;
+      box-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+    }
+
+    /* Action Clipboard Button */
+    .day-action-clipboard-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      color: #4f46e5;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      color: transparent;
       flex-shrink: 0;
-      margin-top: 1px;
+      transition: all 0.15s ease;
     }
-    .mini-check.checked {
-      background: var(--green-500);
-      border-color: var(--green-500);
-      color: #fff;
+    [data-theme="dark"] .day-action-clipboard-btn {
+      background: #1e293b;
+      border-color: #334155;
+      color: #818cf8;
     }
-    .mini-info {
+    .day-action-clipboard-btn:hover {
+      background: #eff2fe;
+      border-color: #c7d2fe;
+      transform: scale(1.05);
+    }
+    .weekly-day-header.today-banner .day-action-clipboard-btn {
+      background: rgba(255, 255, 255, 0.2) !important;
+      border-color: rgba(255, 255, 255, 0.3) !important;
+      color: #ffffff !important;
+    }
+    .weekly-day-header.today-banner .day-action-clipboard-btn:hover {
+      background: rgba(255, 255, 255, 0.3) !important;
+    }
+
+    /* Day Tasks List */
+    .weekly-day-tasks {
+      padding: 12px 14px 14px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex: 1;
+      overflow-y: auto;
+      max-height: 360px;
+    }
+    .weekly-empty-state {
+      padding: 24px 0;
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-4, #94a3b8);
+    }
+    .weekly-task-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 2px 0;
+      font-size: 13px;
+    }
+    .weekly-check-btn {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 2px solid #cbd5e1;
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      padding: 0;
+      transition: all 0.15s ease;
+    }
+    [data-theme="dark"] .weekly-check-btn {
+      border-color: #475569;
+    }
+    .weekly-check-btn.checked {
+      background: #22c55e !important;
+      border-color: #22c55e !important;
+      color: #ffffff !important;
+    }
+    .weekly-check-btn:hover:not(.checked) {
+      border-color: #4f46e5;
+    }
+    .weekly-task-title {
       flex: 1;
       min-width: 0;
+      font-weight: 500;
+      color: var(--text-1, #0f172a);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
       cursor: pointer;
+    }
+    [data-theme="dark"] .weekly-task-title {
+      color: #e2e8f0;
+    }
+    .weekly-task-title.strike {
+      text-decoration: line-through;
+      color: var(--text-4, #94a3b8);
+      opacity: 0.65;
+    }
+    .weekly-pri-badge {
+      font-size: 10.5px;
+      font-weight: 700;
+      border-radius: 5px;
+      padding: 1.5px 7px;
+      flex-shrink: 0;
+    }
+    .weekly-pri-badge.pri-medium {
+      background: #eff6ff;
+      color: #2563eb;
+      border: 1px solid #dbeafe;
+    }
+    .weekly-pri-badge.pri-urgent,
+    .weekly-pri-badge.pri-high {
+      background: #fef2f2;
+      color: #ef4444;
+      border: 1px solid #fee2e2;
+    }
+    .weekly-pri-badge.pri-low {
+      background: #f0fdf4;
+      color: #16a34a;
+      border: 1px solid #dcfce7;
+    }
+    [data-theme="dark"] .weekly-pri-badge.pri-medium {
+      background: rgba(37, 99, 235, 0.15);
+      color: #60a5fa;
+      border-color: rgba(37, 99, 235, 0.3);
+    }
+    [data-theme="dark"] .weekly-pri-badge.pri-urgent,
+    [data-theme="dark"] .weekly-pri-badge.pri-high {
+      background: rgba(239, 68, 68, 0.15);
+      color: #f87171;
+      border-color: rgba(239, 68, 68, 0.3);
+    }
+    [data-theme="dark"] .weekly-pri-badge.pri-low {
+      background: rgba(22, 163, 74, 0.15);
+      color: #4ade80;
+      border-color: rgba(22, 163, 74, 0.3);
+    }
+
+    /* 8th Card: Week at a Glance */
+    .week-glance-card {
+      background: linear-gradient(180deg, rgba(238, 242, 255, 0.6) 0%, rgba(255, 255, 255, 1) 40%) !important;
+      padding: 18px 16px !important;
+    }
+    [data-theme="dark"] .week-glance-card {
+      background: linear-gradient(180deg, rgba(30, 27, 75, 0.3) 0%, #111827 40%) !important;
+    }
+    .glance-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .glance-icon {
+      font-size: 18px;
+    }
+    .glance-title {
+      font-size: 14.5px;
+      font-weight: 700;
+      color: var(--text-1, #0f172a);
+      margin: 0;
+    }
+    [data-theme="dark"] .glance-title {
+      color: #f8fafc;
+    }
+    .glance-metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+    .glance-metric-item {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    [data-theme="dark"] .glance-metric-item {
+      background: #1e293b;
+      border-color: #334155;
+    }
+    .glance-m-icon {
+      font-size: 16px;
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #eff2fe;
+      flex-shrink: 0;
+    }
+    .glance-m-data {
+      display: flex;
+      flex-direction: column;
+    }
+    .glance-m-val {
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--text-1, #0f172a);
+      line-height: 1.1;
+    }
+    [data-theme="dark"] .glance-m-val {
+      color: #f8fafc;
+    }
+    .glance-m-lbl {
+      font-size: 11px;
+      color: var(--text-3, #64748b);
+      font-weight: 500;
+    }
+    .glance-footer {
+      margin-top: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .glance-progress-track {
+      height: 6px;
+      background: #e2e8f0;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    [data-theme="dark"] .glance-progress-track {
+      background: #334155;
+    }
+    .glance-progress-bar {
+      height: 100%;
+      background: #4f46e5;
+      border-radius: 999px;
+      transition: width 0.3s ease;
+    }
+    .glance-progress-caption {
+      font-size: 11.5px;
+      color: var(--text-3, #64748b);
+      font-weight: 600;
+      text-align: center;
     }
     .mini-title {
       font-size: 11.5px;
