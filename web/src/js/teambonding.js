@@ -134,13 +134,14 @@ export async function initTeamBonding(container, options = {}) {
   const chatWrap = container.querySelector('#bonding-chat-main-wrap');
   const loungeWrap = container.querySelector('#bonding-lounge-main-wrap');
 
-  tabChat?.addEventListener('click', () => {
+  tabChat?.addEventListener('click', async () => {
     currentView = 'chat';
     tabChat.classList.add('active');
     tabLounge.classList.remove('active');
     chatWrap.style.display = 'grid';
     loungeWrap.style.display = 'none';
     renderChatPanel();
+    if (activeChannel) await loadMessages(activeChannel._id);
   });
 
   tabLounge?.addEventListener('click', async () => {
@@ -195,8 +196,13 @@ export async function initTeamBonding(container, options = {}) {
       channels = chans;
       colleagues = colls;
 
-      if (!activeChannel && channels.length > 0) {
-        activeChannel = channels.find(c => c.name.includes('Lounge')) || channels[0];
+      if (channels.length > 0) {
+        const savedChanId = localStorage.getItem('ci360_bonding_active_channel');
+        if (savedChanId && channels.some(c => c._id === savedChanId)) {
+          activeChannel = channels.find(c => c._id === savedChanId);
+        } else if (!activeChannel) {
+          activeChannel = channels.find(c => c.name.includes('Lounge')) || channels[0];
+        }
       }
 
       renderSidebarChannels();
@@ -212,6 +218,7 @@ export async function initTeamBonding(container, options = {}) {
   async function loadMessages(channelId, silent = false) {
     if (!channelId) return;
     try {
+      localStorage.setItem('ci360_bonding_active_channel', channelId);
       const msgs = await apiGet(`/bonding/channels/${channelId}/messages`);
       messages = msgs;
       if (!silent) {
@@ -503,12 +510,13 @@ export async function initTeamBonding(container, options = {}) {
         <button class="bonding-input-action-btn" id="btn-input-challenge" title="Send Multiplayer Challenge">
           <span>🎮</span>
         </button>
-        <textarea
+        <input
+          type="text"
           id="bonding-message-input"
           class="bonding-input-field"
           placeholder="Type a message or challenge to a game... (Press Enter to send)"
-          rows="1"
-        ></textarea>
+          autocomplete="off"
+        />
         <button class="bonding-send-btn" id="btn-send-message">
           <span>Send</span>
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
@@ -553,10 +561,6 @@ export async function initTeamBonding(container, options = {}) {
       // MULTIPLAYER GAME INVITATION CARD IN CHAT STREAM
       if (msg.type === 'challenge' && msg.challengeData) {
         const cd = msg.challengeData;
-        if (cd.status === 'declined' || cd.status === 'cancelled') {
-          // After challenge is declined or cancelled, it goes away completely
-          return '';
-        }
         const gTitle = cd.gameTitle || 'Game Challenge';
         const gType = cd.gameType || 'chess';
         const gIcon = gType === 'chess' ? '♟️' : (gType === 'ludo' ? '🎲' : '❌');
@@ -598,7 +602,11 @@ export async function initTeamBonding(container, options = {}) {
             ? `<span class="badge amber">⏳ Awaiting Response</span>`
             : cd.status === 'active' || cd.status === 'accepted'
               ? `<span class="badge green">🟢 Match Active</span>`
-              : `<span class="badge gray">${escapeHtml(cd.status?.toUpperCase() || 'COMPLETED')}</span>`
+              : cd.status === 'declined'
+                ? `<span class="badge red">❌ Challenge Declined</span>`
+                : cd.status === 'cancelled'
+                  ? `<span class="badge gray">🚫 Challenge Cancelled</span>`
+                  : `<span class="badge gray">${escapeHtml(cd.status?.toUpperCase() || 'COMPLETED')}</span>`
           }
                 </div>
 
@@ -619,7 +627,13 @@ export async function initTeamBonding(container, options = {}) {
                           Cancel
                         </button>
                       `
-              : `
+              : cd.status === 'declined' || cd.status === 'cancelled'
+                ? `
+                        <div class="game-pending-text" style="font-size:11.5px;color:var(--text-3);font-style:italic;">
+                          ${cd.status === 'declined' ? 'Challenge was declined' : 'Challenge was cancelled'}
+                        </div>
+                      `
+                : `
                         <button class="game-btn-play btn-launch-match-from-card" data-invite-id="${inviteId}">
                           🎮 Enter Match Arena
                         </button>
@@ -3840,14 +3854,18 @@ function injectBondingStyles() {
       cursor: pointer;
     }
 
-    /* Input bar */
+    /* Input bar - Kept strictly in 1 single clean line */
     .bonding-chat-input-bar {
-      padding: 12px 18px;
+      padding: 10px 18px;
       border-top: 1px solid var(--border-sm, #e2e8f0);
       display: flex;
-      align-items: center;
+      flex-direction: row !important;
+      align-items: center !important;
       gap: 10px;
       background: var(--bg-card, #ffffff);
+      flex-wrap: nowrap !important;
+      white-space: nowrap !important;
+      box-sizing: border-box !important;
     }
 
     [data-theme="dark"] .bonding-chat-input-bar {
@@ -3863,6 +3881,10 @@ function injectBondingStyles() {
       cursor: pointer;
       border-radius: 8px;
       transition: background 0.15s ease;
+      flex-shrink: 0 !important;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .bonding-input-action-btn:hover {
@@ -3874,16 +3896,23 @@ function injectBondingStyles() {
     }
 
     .bonding-input-field {
-      flex: 1;
+      flex: 1 1 auto !important;
+      height: 42px !important;
+      min-height: 42px !important;
+      max-height: 42px !important;
+      line-height: normal !important;
       border: 1px solid var(--border-sm, #cbd5e1);
       background: var(--bg-muted, #f8fafc);
-      padding: 10px 14px;
+      padding: 0 14px !important;
       border-radius: 10px;
       font-size: 13.5px;
       color: inherit;
       outline: none;
-      resize: none;
       font-family: inherit;
+      box-sizing: border-box !important;
+      white-space: nowrap !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis;
     }
 
     [data-theme="dark"] .bonding-input-field {
@@ -3892,7 +3921,9 @@ function injectBondingStyles() {
     }
 
     .bonding-send-btn {
-      padding: 10px 16px;
+      flex-shrink: 0 !important;
+      height: 42px !important;
+      padding: 0 18px !important;
       background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
       color: #ffffff;
       border: none;
@@ -3902,7 +3933,10 @@ function injectBondingStyles() {
       cursor: pointer;
       display: inline-flex;
       align-items: center;
+      justify-content: center;
       gap: 6px;
+      box-sizing: border-box !important;
+      white-space: nowrap !important;
     }
 
     /* =========================================================================

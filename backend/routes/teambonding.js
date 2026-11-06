@@ -1477,13 +1477,21 @@ router.put('/invitations/:id/respond', async (req, res) => {
       invitation.respondedAt = new Date();
       await invitation.save();
 
-      // Remove any challenge card messages from channel chat so it completely goes away
-      await BondingMessage.deleteMany({
-        $or: [
-          { 'challengeData.gameState.invitationId': invitation._id },
-          { 'challengeData.gameState.invitationId': invitation._id.toString() }
-        ]
-      });
+      // Update challenge card messages in channel chat so they remain in history rather than being deleted
+      await BondingMessage.updateMany(
+        {
+          $or: [
+            { 'challengeData.gameState.invitationId': invitation._id },
+            { 'challengeData.gameState.invitationId': invitation._id.toString() }
+          ]
+        },
+        {
+          $set: {
+            'challengeData.status': invitation.status,
+            content: `Game Challenge (${invitation.gameTitle}): ${invitation.status === 'declined' ? 'Declined' : 'Cancelled'}`
+          }
+        }
+      );
 
       // Clean up any lingering notifications for this challenge
       await Notification.deleteMany({
@@ -2265,13 +2273,20 @@ router.delete('/matches/:id', async (req, res) => {
       await GameInvitation.findByIdAndDelete(match.invitationId);
     }
 
-    // Clean up related challenge message if any
-    await BondingMessage.deleteMany({
-      $or: [
-        { 'challengeData.gameState.matchId': match._id.toString() },
-        { 'challengeData.gameState.invitationId': match.invitationId }
-      ]
-    });
+    // Keep chat message history preserved
+    await BondingMessage.updateMany(
+      {
+        $or: [
+          { 'challengeData.gameState.matchId': match._id.toString() },
+          { 'challengeData.gameState.invitationId': match.invitationId }
+        ]
+      },
+      {
+        $set: {
+          'challengeData.status': 'completed'
+        }
+      }
+    );
 
     recordSyncUpdate('bonding');
     recordSyncUpdate('games');

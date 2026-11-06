@@ -145,6 +145,7 @@ export function initDailyPlanner(container, options = {}) {
     collapsedEmployees: {}, // Tracks collapsed employee accordion states
     selectedCategory: 'all',
     selectedPersonnelId: 'all',
+    reportPersonnelId: 'all',
     tasks: [],
     personnelList: [],
     loading: false
@@ -909,11 +910,27 @@ export function initDailyPlanner(container, options = {}) {
     const endStr = formatFullDate(weekDates[6]);
     const todayStr = getTodayStr();
 
-    // Aggregate all tasks for this week
+    const activeRepEmpId = state.reportPersonnelId || 'all';
+    const repEmpObj = state.personnelList.find(p => String(p._id) === String(activeRepEmpId));
+    const repEmpName = repEmpObj ? repEmpObj.name : '';
+
+    // Aggregate tasks for this week (filtered by selected employee if chosen by admin)
     const weeklyTasks = state.tasks.filter(t => {
       if (t.isDeleted === true) return false;
-      const tDate = t.dateStr || (t.dueDate ? new Date(t.dueDate).toISOString().slice(0, 10) : '');
-      return weekDates.includes(tDate);
+      const dueDateStr = t.completionDateStr || t.dateStr || (t.dueDate ? new Date(t.dueDate).toISOString().slice(0, 10) : '');
+      const assignDateStr = t.assignedDateStr || (t.assignedDate ? new Date(t.assignedDate).toISOString().slice(0, 10) : '') || dueDateStr;
+
+      const inWeek = (t.status === 'In Progress' && assignDateStr && dueDateStr)
+        ? weekDates.some(d => d >= assignDateStr && d <= dueDateStr)
+        : (weekDates.includes(dueDateStr) || weekDates.includes(assignDateStr));
+      if (!inWeek) return false;
+
+      if (activeRepEmpId !== 'all') {
+        const pId = String(t.personnelId?._id || t.personnelId || '');
+        const inCo = Array.isArray(t.coOwners) && t.coOwners.some(c => String(c.personnelId?._id || c.personnelId || c.userId?._id || c.userId || '') === String(activeRepEmpId));
+        return pId === String(activeRepEmpId) || inCo;
+      }
+      return true;
     });
 
     const total = weeklyTasks.length;
@@ -932,14 +949,35 @@ export function initDailyPlanner(container, options = {}) {
     return `
       <div class="ci360-report-section">
         
-        <div class="ci360-report-banner">
+        <div class="ci360-report-banner" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;">
           <div>
             <h2 style="font-size:22px;margin:0 0 4px">Weekly Productivity Report</h2>
-            <div style="font-size:13px;color:var(--text-3)">Week Period: ${startStr} – ${endStr}</div>
+            <div style="font-size:13px;color:var(--text-3);display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+              <span>Week Period: ${startStr} – ${endStr}</span>
+              ${activeRepEmpId !== 'all' && repEmpName ? `
+                <span class="badge blue" style="font-size:11.5px;padding:2px 8px;font-weight:700;">👤 Employee: ${escapeHtml(repEmpName)}</span>
+              ` : `
+                <span class="badge gray" style="font-size:11.5px;padding:2px 8px;font-weight:600;">👥 All Team Members</span>
+              `}
+            </div>
           </div>
 
-          <div style="display:flex;gap:10px;flex-wrap:wrap;">
-            <button type="button" class="ci360-btn-primary" id="btnDownloadWeeklyPdf">
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+            ${isSuperadmin ? `
+              <div style="display:inline-flex;align-items:center;gap:6px;">
+                <label for="selectWeeklyReportEmployee" style="font-size:12px;font-weight:700;color:var(--text-2);white-space:nowrap;">Whose Report:</label>
+                <select id="selectWeeklyReportEmployee" class="input" style="padding:6px 12px;font-size:12.5px;font-weight:600;min-width:180px;height:36px;border-radius:var(--r-md);background:var(--bg-surface);color:var(--text-1);border:1px solid var(--border-sm);">
+                  <option value="all" ${activeRepEmpId === 'all' ? 'selected' : ''}>👥 All Team Members</option>
+                  ${state.personnelList.map(p => `
+                    <option value="${p._id}" ${String(p._id) === String(activeRepEmpId) ? 'selected' : ''}>
+                      👤 ${escapeHtml(p.name)} (${escapeHtml(p.department || p.role || 'Member')})
+                    </option>
+                  `).join('')}
+                </select>
+              </div>
+            ` : ''}
+
+            <button type="button" class="ci360-btn-primary" id="btnDownloadWeeklyPdf" title="Download weekly report PDF for the selected employee">
               📄 Download Weekly Report PDF
             </button>
             <button type="button" class="ci360-btn-secondary" id="btnOpenAdminReportModal" style="background:rgba(99,102,241,0.12);color:var(--accent);border:1px solid rgba(99,102,241,0.25);font-weight:700;">
@@ -1363,8 +1401,15 @@ export function initDailyPlanner(container, options = {}) {
 
     // 3. Weekly Report Controls
     if (state.viewMode === 'report') {
+      const selectEmp = document.getElementById('selectWeeklyReportEmployee');
+      if (selectEmp) {
+        selectEmp.onchange = (e) => {
+          state.reportPersonnelId = e.target.value;
+          render();
+        };
+      }
       const btnDl = document.getElementById('btnDownloadWeeklyPdf');
-      if (btnDl) btnDl.onclick = () => exportWeeklyPdf();
+      if (btnDl) btnDl.onclick = () => exportWeeklyPdf({ personnelId: state.reportPersonnelId || 'all' });
       const btnAdminDl = document.getElementById('btnOpenAdminReportModal');
       if (btnAdminDl) btnAdminDl.onclick = () => openAdminReportModal();
     }
@@ -2251,6 +2296,14 @@ export function initDailyPlanner(container, options = {}) {
       ? `Date: ${formatFullDate(todayStr)}`
       : (customOptions.scope === 'all' ? 'All Active & Historical Tasks' : `${startStr} – ${endStr}`);
 
+    let empTag = '';
+    if (customOptions.personnelId && customOptions.personnelId !== 'all') {
+      const empObj = state.personnelList.find(p => String(p._id) === String(customOptions.personnelId));
+      if (empObj) {
+        empTag = `👤 Employee: ${empObj.name} (${empObj.department || empObj.role || 'Member'})`;
+      }
+    }
+
     const reportHtml = `
       <!DOCTYPE html>
       <html>
@@ -2307,6 +2360,7 @@ export function initDailyPlanner(container, options = {}) {
             <h1>${escapeHtml(reportTitle)}</h1>
             <div class="period">
               ${periodText}
+              ${empTag ? `<span class="filter-tag" style="background:#dbeafe;color:#1e40af;font-weight:700;">${escapeHtml(empTag)}</span>` : ''}
               ${customOptions.filterSummary ? `<span class="filter-tag">${escapeHtml(customOptions.filterSummary)}</span>` : ''}
             </div>
           </div>
@@ -2451,9 +2505,9 @@ export function initDailyPlanner(container, options = {}) {
           <div class="form-group">
             <label for="admRepPersonnel">Filter by Employee / Person</label>
             <select id="admRepPersonnel" class="input">
-              <option value="all">👥 All Team Members</option>
+              <option value="all" ${(!state.reportPersonnelId || state.reportPersonnelId === 'all') ? 'selected' : ''}>👥 All Team Members</option>
               ${state.personnelList.map(p => `
-                <option value="${p._id}">👤 ${escapeHtml(p.name)} (${escapeHtml(p.department || p.role || 'Member')})</option>
+                <option value="${p._id}" ${String(p._id) === String(state.reportPersonnelId) ? 'selected' : ''}>👤 ${escapeHtml(p.name)} (${escapeHtml(p.department || p.role || 'Member')})</option>
               `).join('')}
             </select>
           </div>
