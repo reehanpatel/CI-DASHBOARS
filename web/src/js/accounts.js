@@ -148,7 +148,7 @@ async function renderOverviewTab(container) {
     <section class="block">
       <div class="accounts-header-banner">
         <div class="accounts-header-title">
-          <h2>Accounts & Finance Hub ${isEkta ? `<span class="badge" style="background:rgba(99,102,241,0.2);color:#818cf8;font-size:12px;margin-left:8px;vertical-align:middle;padding:4px 8px;border-radius:6px">Ekta · Finance Manager</span>` : ''}</h2>
+          <h2>Accounts & Finance Hub ${isEkta ? `<span class="badge" style="background:rgba(0,112,243,0.18);color:#38BDF8;font-size:12px;margin-left:8px;vertical-align:middle;padding:4px 8px;border-radius:6px">Ekta · Finance Manager</span>` : ''}</h2>
           <div class="accounts-header-subtitle">Real-time revenue tracking, invoice lifecycle, and client pending balances.</div>
         </div>
         <div class="accounts-header-actions">
@@ -2209,7 +2209,7 @@ async function renderTallyTab(container) {
   container.innerHTML = `
     <section class="block">
       <!-- Header Banner -->
-      <div class="accounts-header-banner" style="background:linear-gradient(135deg,rgba(16,185,129,0.15) 0%,rgba(79,70,229,0.12) 100%)">
+      <div class="accounts-header-banner">
         <div class="accounts-header-title">
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
             <h2>TallyPrime Silver ➔ CI360 Ingestion</h2>
@@ -2466,7 +2466,7 @@ async function renderTallyTab(container) {
           </div>
         </div>
 
-        <div style="margin-top:18px;padding:12px 16px;background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.2);border-radius:var(--r-sm);font-size:12px;color:var(--text-2);display:flex;align-items:center;gap:10px">
+        <div style="margin-top:18px;padding:12px 16px;background:rgba(0,112,243,0.06);border:1px solid rgba(0,112,243,0.18);border-radius:var(--r-sm);font-size:12px;color:var(--text-2);display:flex;align-items:center;gap:10px">
           <span style="font-size:16px">💡</span>
           <span>
             <strong>To enable XML Gateway in TallyPrime:</strong> Press <code>F1 (Help) → Settings → Connectivity → Client/Server configuration</code>. Set <em>Enable ODBC</em> and <em>Enable XML Server</em> to <strong>Yes</strong> with Port <strong>9000</strong>.
@@ -2620,7 +2620,7 @@ async function renderTallyTab(container) {
     dropzone.ondragover = (e) => {
       e.preventDefault();
       dropzone.style.borderColor = 'var(--brand-500)';
-      dropzone.style.background = 'rgba(79,70,229,0.05)';
+      dropzone.style.background = 'rgba(0,112,243,0.06)';
     };
     dropzone.ondragleave = () => {
       dropzone.style.borderColor = 'var(--border-sm)';

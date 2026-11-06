@@ -593,7 +593,7 @@ export function initDailyPlanner(container, options = {}) {
             </h2>
             <span class="ci360-task-count-badge">${visibleTasks.length} ${visibleTasks.length === 1 ? 'task' : 'tasks'}</span>
             ${!isPastDate ? `
-              <button type="button" class="ci360-btn-primary" id="btnFocusAddTask" style="padding:6px 14px;font-size:12.5px;font-weight:700;display:inline-flex;align-items:center;gap:6px;border-radius:var(--r-md);margin-left:4px;cursor:pointer;box-shadow:0 2px 6px rgba(99,102,241,0.25);">
+              <button type="button" class="ci360-btn-primary" id="btnFocusAddTask" style="padding:6px 14px;font-size:12.5px;font-weight:700;display:inline-flex;align-items:center;gap:6px;border-radius:var(--r-md);margin-left:4px;cursor:pointer;box-shadow:0 2px 6px rgba(0,112,243,0.25);">
                 <span style="font-size:15px;line-height:1;font-weight:800;">+</span> Add Task
               </button>
             ` : ''}
@@ -815,7 +815,7 @@ export function initDailyPlanner(container, options = {}) {
 
             <!-- Co-Owners Badge (Multiple People) -->
             ${Array.isArray(task.coOwners) && task.coOwners.length > 0 ? `
-              <span class="ci360-badge coowner-badge" style="background:rgba(99,102,241,0.12);color:var(--accent);border:1px solid rgba(99,102,241,0.25);" title="Co-Owners: ${task.coOwners.map(c => c.name).filter(Boolean).join(', ')}">
+              <span class="ci360-badge coowner-badge" style="background:rgba(0,112,243,0.12);color:var(--accent);border:1px solid rgba(0,112,243,0.25);" title="Co-Owners: ${task.coOwners.map(c => c.name).filter(Boolean).join(', ')}">
                 👥 Co-Owners: ${escapeHtml(task.coOwners.map(c => c.name).filter(Boolean).join(', '))}
               </span>
             ` : ''}
@@ -1014,7 +1014,7 @@ export function initDailyPlanner(container, options = {}) {
             <button type="button" class="ci360-btn-primary" id="btnDownloadWeeklyPdf" title="Download weekly report PDF for the selected employee">
               📄 Download Weekly Report PDF
             </button>
-            <button type="button" class="ci360-btn-secondary" id="btnOpenAdminReportModal" style="background:rgba(99,102,241,0.12);color:var(--accent);border:1px solid rgba(99,102,241,0.25);font-weight:700;">
+            <button type="button" class="ci360-btn-secondary" id="btnOpenAdminReportModal" style="background:rgba(0,112,243,0.12);color:var(--accent);border:1px solid rgba(0,112,243,0.25);font-weight:700;">
               📊 Specific Admin Report (with Description & Client)
             </button>
           </div>
@@ -1700,7 +1700,7 @@ export function initDailyPlanner(container, options = {}) {
         return;
       }
       coContainer.innerHTML = currentCoOwners.map((c, i) => `
-        <span class="co-owner-chip" style="display:inline-flex;align-items:center;gap:6px;background:rgba(99,102,241,0.12);color:var(--accent);border:1px solid rgba(99,102,241,0.25);border-radius:16px;padding:3px 10px;font-size:12px;font-weight:600;">
+        <span class="co-owner-chip" style="display:inline-flex;align-items:center;gap:6px;background:rgba(0,112,243,0.12);color:var(--accent);border:1px solid rgba(0,112,243,0.25);border-radius:16px;padding:3px 10px;font-size:12px;font-weight:600;">
           👤 ${escapeHtml(c.name)}
           <button type="button" class="btn-remove-co" data-idx="${i}" style="background:transparent;border:none;color:var(--accent);cursor:pointer;font-size:14px;line-height:1;padding:0;margin-left:2px;font-weight:bold;" title="Remove co-owner">×</button>
         </span>
@@ -4860,3 +4860,4 @@ function ensurePlannerStyles() {
   `;
   document.head.appendChild(style);
 }
+

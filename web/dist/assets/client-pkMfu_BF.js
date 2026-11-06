@@ -1,5 +1,5 @@
-const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/proposals-BR4ZrY8u.js","assets/api-Bv8OB6CU.js","assets/api-DT93cB9i.css"])))=>i.map(i=>d[i]);
-import{f as j,d as ee,n as te,o as ie}from"./api-Bv8OB6CU.js";const ae="modulepreload",se=function(e){return"/"+e},O={},U=function(i,s,r){let t=Promise.resolve();if(s&&s.length>0){let o=function(c){return Promise.all(c.map(d=>Promise.resolve(d).then(p=>({status:"fulfilled",value:p}),p=>({status:"rejected",reason:p}))))};document.getElementsByTagName("link");const l=document.querySelector("meta[property=csp-nonce]"),v=l?.nonce||l?.getAttribute("nonce");t=o(s.map(c=>{if(c=se(c),c in O)return;O[c]=!0;const d=c.endsWith(".css"),p=d?'[rel="stylesheet"]':"";if(document.querySelector(`link[href="${c}"]${p}`))return;const f=document.createElement("link");if(f.rel=d?"stylesheet":ae,d||(f.as="script"),f.crossOrigin="",f.href=c,v&&f.setAttribute("nonce",v),document.head.appendChild(f),d)return new Promise((m,h)=>{f.addEventListener("load",m),f.addEventListener("error",()=>h(new Error(`Unable to preload CSS for ${c}`)))})}))}function n(o){const l=new Event("vite:preloadError",{cancelable:!0});if(l.payload=o,window.dispatchEvent(l),!l.defaultPrevented)throw o}return t.then(o=>{for(const l of o||[])l.status==="rejected"&&n(l.reason);return i().catch(n)})};let $=null,J=[],D=[],g={tab:"dashboard",period:"month"},u={title:"",serviceId:"",date:new Date().toISOString().slice(0,10),completionDate:"",desc:"",priority:"Medium",preferredPersonId:""};const _=[["strategy","Strategy"],["cs","CS"],["website","Website"],["design","Design"],["copy","Copy"],["edit","Edit"],["shoot","Shoot"],["seo","SEO"],["smo","SMO"],["qc","Quality Check"]];async function oe(){if(initTheme(),$=requireAuth("client"),!!$){try{const[e,i]=await Promise.all([apiGet("/services"),apiGet("/personnel"),ee().catch(()=>{})]);J=e,D=i.filter(s=>s.status==="active")}catch{J=[],D=[]}y()}}const ne=[{key:"dashboard",label:"Overview Dashboard",icon:"📊"},{key:"jobs",label:"All Jobs Logged",icon:"📋"},{key:"logjob",label:"Log a Job",icon:"➕"},{key:"delivered",label:"Work Delivered",icon:"📦"},{key:"proposals",label:"Proposals & Scope",icon:"📜"},{key:"billing",label:"Billing & Invoices",icon:"💳"},{key:"team",label:"Our Team",icon:"👥"},{key:"settings",label:"Settings",icon:"⚙️"}];function y(){const e=document.getElementById("app"),i=j("client",ne,!1),s=i.find(r=>r.key===g.tab)||i[0];i.some(r=>r.key===g.tab)||(g.tab=s?s.key:"dashboard"),e.innerHTML=renderAppShell({user:$,currentRole:"client",activeTab:g.tab,tabs:i,title:s?s.label:"Overview Dashboard",subtitle:"Client Portal & Service Requests"}),bindAppShellEvents(r=>{g.tab=r,y()}),C()}window.ci360NavTab=e=>{g.tab=e,y()};async function C(e=!1){const i=document.getElementById("content");if(i){if(g.tab==="logjob"){W(i);return}!e&&!i.dataset.loaded&&(i.innerHTML=renderSkeletonCards(3)),i.dataset.loaded="true";try{const s=await apiGet("/dashboard/client?period="+g.period);g.tab==="dashboard"?await le(i,s):g.tab==="jobs"?de(i,s):g.tab==="delivered"?pe(i,s):g.tab==="proposals"?await me(i,s):g.tab==="billing"?await fe(i):g.tab==="team"?be(i,s):g.tab==="settings"&&re(i)}catch(s){i.innerHTML=renderEmptyState("Something went wrong",s.message,"⚠️")}}}function re(e){e.innerHTML=`
+const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/proposals-BB2JpfyP.js","assets/api-C0kk-1vj.js","assets/api-Bwti405G.css"])))=>i.map(i=>d[i]);
+import{f as j,d as ee,n as te,o as ie}from"./api-C0kk-1vj.js";const ae="modulepreload",se=function(e){return"/"+e},O={},U=function(i,s,r){let t=Promise.resolve();if(s&&s.length>0){let o=function(c){return Promise.all(c.map(d=>Promise.resolve(d).then(p=>({status:"fulfilled",value:p}),p=>({status:"rejected",reason:p}))))};document.getElementsByTagName("link");const l=document.querySelector("meta[property=csp-nonce]"),v=l?.nonce||l?.getAttribute("nonce");t=o(s.map(c=>{if(c=se(c),c in O)return;O[c]=!0;const d=c.endsWith(".css"),p=d?'[rel="stylesheet"]':"";if(document.querySelector(`link[href="${c}"]${p}`))return;const f=document.createElement("link");if(f.rel=d?"stylesheet":ae,d||(f.as="script"),f.crossOrigin="",f.href=c,v&&f.setAttribute("nonce",v),document.head.appendChild(f),d)return new Promise((m,h)=>{f.addEventListener("load",m),f.addEventListener("error",()=>h(new Error(`Unable to preload CSS for ${c}`)))})}))}function n(o){const l=new Event("vite:preloadError",{cancelable:!0});if(l.payload=o,window.dispatchEvent(l),!l.defaultPrevented)throw o}return t.then(o=>{for(const l of o||[])l.status==="rejected"&&n(l.reason);return i().catch(n)})};let $=null,J=[],D=[],g={tab:"dashboard",period:"month"},u={title:"",serviceId:"",date:new Date().toISOString().slice(0,10),completionDate:"",desc:"",priority:"Medium",preferredPersonId:""};const _=[["strategy","Strategy"],["cs","CS"],["website","Website"],["design","Design"],["copy","Copy"],["edit","Edit"],["shoot","Shoot"],["seo","SEO"],["smo","SMO"],["qc","Quality Check"]];async function oe(){if(initTheme(),$=requireAuth("client"),!!$){try{const[e,i]=await Promise.all([apiGet("/services"),apiGet("/personnel"),ee().catch(()=>{})]);J=e,D=i.filter(s=>s.status==="active")}catch{J=[],D=[]}y()}}const ne=[{key:"dashboard",label:"Overview Dashboard",icon:"📊"},{key:"jobs",label:"All Jobs Logged",icon:"📋"},{key:"logjob",label:"Log a Job",icon:"➕"},{key:"delivered",label:"Work Delivered",icon:"📦"},{key:"proposals",label:"Proposals & Scope",icon:"📜"},{key:"billing",label:"Billing & Invoices",icon:"💳"},{key:"team",label:"Our Team",icon:"👥"},{key:"settings",label:"Settings",icon:"⚙️"}];function y(){const e=document.getElementById("app"),i=j("client",ne,!1),s=i.find(r=>r.key===g.tab)||i[0];i.some(r=>r.key===g.tab)||(g.tab=s?s.key:"dashboard"),e.innerHTML=renderAppShell({user:$,currentRole:"client",activeTab:g.tab,tabs:i,title:s?s.label:"Overview Dashboard",subtitle:"Client Portal & Service Requests"}),bindAppShellEvents(r=>{g.tab=r,y()}),C()}window.ci360NavTab=e=>{g.tab=e,y()};async function C(e=!1){const i=document.getElementById("content");if(i){if(g.tab==="logjob"){W(i);return}!e&&!i.dataset.loaded&&(i.innerHTML=renderSkeletonCards(3)),i.dataset.loaded="true";try{const s=await apiGet("/dashboard/client?period="+g.period);g.tab==="dashboard"?await le(i,s):g.tab==="jobs"?de(i,s):g.tab==="delivered"?pe(i,s):g.tab==="proposals"?await me(i,s):g.tab==="billing"?await fe(i):g.tab==="team"?be(i,s):g.tab==="settings"&&re(i)}catch(s){i.innerHTML=renderEmptyState("Something went wrong",s.message,"⚠️")}}}function re(e){e.innerHTML=`
     <div style="padding:8px 0 24px 0;">
       ${te({title:"Client Account Credentials",subtitle:"Manage your authorized client portal username, login email, and security password"})}
     </div>
@@ -27,10 +27,10 @@ import{f as j,d as ee,n as te,o as ie}from"./api-Bv8OB6CU.js";const ae="modulepr
       `:""}
 
       <!-- Welcome Hero Banner -->
-      <div class="card client-hero-card" style="background:linear-gradient(135deg, rgba(79,70,229,0.08) 0%, rgba(14,165,233,0.05) 50%, rgba(245,158,11,0.04) 100%);border:1px solid rgba(99,102,241,0.22);border-radius:var(--r-xl);padding:24px 28px;margin-bottom:24px;box-shadow:var(--shadow-sm)">
-        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px">
+      <div class="card client-hero-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px;width:100%;">
           <div style="display:flex;align-items:center;gap:18px">
-            <div style="width:54px;height:54px;border-radius:var(--r-lg);background:linear-gradient(135deg,var(--brand-500) 0%,#4338CA 100%);color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900;box-shadow:0 8px 16px -4px rgba(79,70,229,0.4);flex-shrink:0">
+            <div style="width:54px;height:54px;border-radius:var(--r-lg);background:linear-gradient(135deg,#0284C7 0%,#0070F3 100%);color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900;box-shadow:0 8px 16px -4px rgba(0,112,243,0.4);flex-shrink:0">
               ${s.slice(0,2).toUpperCase()}
             </div>
             <div>
@@ -69,9 +69,9 @@ import{f as j,d as ee,n as te,o as ie}from"./api-Bv8OB6CU.js";const ae="modulepr
 
       <!-- Action Required: Proposal Released Alert (if any pending) -->
       ${l.some(a=>a.status==="with_client"||a.status==="approved")?`
-        <div class="card" style="background:linear-gradient(135deg, rgba(79,70,229,0.08) 0%, rgba(14,165,233,0.06) 100%);border:1px solid var(--brand-500);border-radius:var(--r-lg);padding:16px 22px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;">
+        <div class="card" style="background:rgba(0,112,243,0.06);border:1px solid #0070F3;border-radius:var(--r-lg);padding:16px 22px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;">
           <div style="display:flex;align-items:center;gap:14px;">
-            <div style="width:40px;height:40px;border-radius:50%;background:rgba(79,70,229,0.18);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">📜</div>
+            <div style="width:40px;height:40px;border-radius:50%;background:rgba(0,112,243,0.18);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">📜</div>
             <div>
               <strong style="color:var(--text-1);font-size:14px;">Action Required: Commercial Proposal & Scope Released</strong>
               <div style="font-size:12.5px;color:var(--text-3);margin-top:2px;">
@@ -204,7 +204,7 @@ import{f as j,d as ee,n as te,o as ie}from"./api-Bv8OB6CU.js";const ae="modulepr
                       <span style="color:var(--text-4)">${b} job(s) (${x}%)</span>
                     </div>
                     <div style="width:100%;height:7px;background:var(--border-sm);border-radius:6px;overflow:hidden">
-                      <div style="width:${x}%;height:100%;background:linear-gradient(90deg, var(--brand-500), #6366F1);border-radius:6px"></div>
+                      <div style="width:${x}%;height:100%;background:linear-gradient(90deg, #0284C7, #0070F3);border-radius:6px"></div>
                     </div>
                   </div>
                 `}).join("")}
@@ -232,7 +232,7 @@ import{f as j,d as ee,n as te,o as ie}from"./api-Bv8OB6CU.js";const ae="modulepr
           <div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(220px, 1fr));gap:14px">
             ${R.slice(0,6).map(a=>`
               <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--bg-surface);border:1px solid var(--border-xs);border-radius:var(--r-md)">
-                <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#4F46E5 0%,#7C3AED 100%);color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;flex-shrink:0">
+                <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#0284C7 0%,#0070F3 100%);color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;flex-shrink:0">
                   ${a.name.slice(0,2).toUpperCase()}
                 </div>
                 <div style="min-width:0;flex:1">
@@ -312,7 +312,7 @@ import{f as j,d as ee,n as te,o as ie}from"./api-Bv8OB6CU.js";const ae="modulepr
       </div>
 
     </div>
-  `;const E=document.getElementById("btnHeroLogJob");E&&(E.onclick=()=>{g.tab="logjob",y()});const N=document.getElementById("btnHeroProposals");N&&(N.onclick=()=>{g.tab="proposals",y()});const F=document.getElementById("btnHeroInvoices");F&&(F.onclick=()=>{g.tab="billing",y()});const q=document.getElementById("btnReviewNow");q&&(q.onclick=()=>{g.tab="delivered",y()});const L=document.getElementById("btnMeetTeam");L&&(L.onclick=()=>{g.tab="team",y()});const M=document.getElementById("btnViewAllJobs");M&&(M.onclick=()=>{g.tab="jobs",y()}),document.querySelectorAll("#overviewPeriodWrapper [data-period]").forEach(a=>{a.onclick=()=>{g.period=a.dataset.period,C()}})}function W(e){e.innerHTML=`
+  `;const N=document.getElementById("btnHeroLogJob");N&&(N.onclick=()=>{g.tab="logjob",y()});const E=document.getElementById("btnHeroProposals");E&&(E.onclick=()=>{g.tab="proposals",y()});const F=document.getElementById("btnHeroInvoices");F&&(F.onclick=()=>{g.tab="billing",y()});const q=document.getElementById("btnReviewNow");q&&(q.onclick=()=>{g.tab="delivered",y()});const L=document.getElementById("btnMeetTeam");L&&(L.onclick=()=>{g.tab="team",y()});const M=document.getElementById("btnViewAllJobs");M&&(M.onclick=()=>{g.tab="jobs",y()}),document.querySelectorAll("#overviewPeriodWrapper [data-period]").forEach(a=>{a.onclick=()=>{g.period=a.dataset.period,C()}})}function W(e){e.innerHTML=`
     <div class="block">
       <h2>Log a New Job <span class="eyebrow">Request or record work for your account</span></h2>
       <div class="card form-card">
@@ -480,7 +480,7 @@ import{f as j,d as ee,n as te,o as ie}from"./api-Bv8OB6CU.js";const ae="modulepr
           </div>
         </div>
       `:n?`
-        <div style="background:linear-gradient(135deg,rgba(59,130,246,0.1) 0%,rgba(99,102,241,0.06) 100%);border:1px solid rgba(59,130,246,0.35);border-radius:var(--r-sm);padding:12px 14px;margin-top:12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+        <div style="background:linear-gradient(135deg,rgba(0,112,243,0.1) 0%,rgba(56,189,248,0.06) 100%);border:1px solid rgba(0,112,243,0.3);border-radius:var(--r-sm);padding:12px 14px;margin-top:12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
           <div>
             <div style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:800;color:var(--brand-500)">
               <span>📦</span> Revised Work Uploaded — Please Re-approve
@@ -500,7 +500,7 @@ import{f as j,d as ee,n as te,o as ie}from"./api-Bv8OB6CU.js";const ae="modulepr
           </div>
         </div>
       `:c?`
-        <div style="background:linear-gradient(135deg,rgba(99,102,241,0.08) 0%,rgba(139,92,246,0.04) 100%);border:1px solid rgba(99,102,241,0.25);border-radius:var(--r-sm);padding:12px 14px;margin-top:12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+        <div style="background:linear-gradient(135deg,rgba(0,112,243,0.08) 0%,rgba(56,189,248,0.05) 100%);border:1px solid rgba(0,112,243,0.25);border-radius:var(--r-sm);padding:12px 14px;margin-top:12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
           <div>
             <div style="font-size:13px;font-weight:700;color:var(--brand-500)">Deliverables Ready for Review</div>
             <div style="font-size:11.5px;color:var(--text-3)">Our team has completed the work / deliverables above. Please inspect and approve or deny this job.</div>
@@ -599,7 +599,7 @@ import{f as j,d as ee,n as te,o as ie}from"./api-Bv8OB6CU.js";const ae="modulepr
       </div>
 
       ${n>0?`
-        <div style="background:linear-gradient(135deg,rgba(99,102,241,0.12),rgba(139,92,246,0.06));border:1px solid rgba(99,102,241,0.3);border-radius:var(--r-sm);padding:14px 18px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+        <div style="background:linear-gradient(135deg,rgba(0,112,243,0.12),rgba(56,189,248,0.06));border:1px solid rgba(0,112,243,0.3);border-radius:var(--r-sm);padding:14px 18px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
           <div>
             <div style="font-size:14px;font-weight:700;color:var(--brand-500)">🔔 ${n} Deliverable${n>1?"s":""} Waiting for Your Approval</div>
             <div style="font-size:12px;color:var(--text-3);margin-top:2px">Please inspect the deliverables below and click Approve or Request Revision.</div>
@@ -796,7 +796,7 @@ import{f as j,d as ee,n as te,o as ie}from"./api-Bv8OB6CU.js";const ae="modulepr
         </div>
       `}
     </div>
-  `,e.querySelectorAll("[data-client-pdf]").forEach(t=>{t.onclick=async()=>{const n=t.dataset.clientPdf,o=r.find(l=>l._id===n);if(o){t.disabled=!0,t.textContent="Generating PDF…";try{const{exportPdfDoc:l}=await U(async()=>{const{exportPdfDoc:c}=await import("./proposals-BR4ZrY8u.js");return{exportPdfDoc:c}},__vite__mapDeps([0,1,2])),v=await apiGet("/proposals/ratecard").catch(()=>({}));await l(o,v.settings||{},t)}catch(l){flashToast("Failed to download PDF: "+l.message,!0),t.disabled=!1,t.textContent="📄 Download PDF"}}}}),e.querySelectorAll("[data-client-word]").forEach(t=>{t.onclick=async()=>{const n=t.dataset.clientWord,o=r.find(l=>l._id===n);if(o){t.disabled=!0,t.textContent="Generating Word…";try{const{exportWordDocx:l}=await U(async()=>{const{exportWordDocx:c}=await import("./proposals-BR4ZrY8u.js");return{exportWordDocx:c}},__vite__mapDeps([0,1,2])),v=await apiGet("/proposals/ratecard").catch(()=>({}));await l(o,v.settings||{},t)}catch(l){flashToast("Failed to download Word document: "+l.message,!0),t.disabled=!1,t.textContent="📝 Download Word (.docx)"}}}})}function be(e,i){const s=i.roster||[],r=D&&D.length?D:[];e.innerHTML=`
+  `,e.querySelectorAll("[data-client-pdf]").forEach(t=>{t.onclick=async()=>{const n=t.dataset.clientPdf,o=r.find(l=>l._id===n);if(o){t.disabled=!0,t.textContent="Generating PDF…";try{const{exportPdfDoc:l}=await U(async()=>{const{exportPdfDoc:c}=await import("./proposals-BB2JpfyP.js");return{exportPdfDoc:c}},__vite__mapDeps([0,1,2])),v=await apiGet("/proposals/ratecard").catch(()=>({}));await l(o,v.settings||{},t)}catch(l){flashToast("Failed to download PDF: "+l.message,!0),t.disabled=!1,t.textContent="📄 Download PDF"}}}}),e.querySelectorAll("[data-client-word]").forEach(t=>{t.onclick=async()=>{const n=t.dataset.clientWord,o=r.find(l=>l._id===n);if(o){t.disabled=!0,t.textContent="Generating Word…";try{const{exportWordDocx:l}=await U(async()=>{const{exportWordDocx:c}=await import("./proposals-BB2JpfyP.js");return{exportWordDocx:c}},__vite__mapDeps([0,1,2])),v=await apiGet("/proposals/ratecard").catch(()=>({}));await l(o,v.settings||{},t)}catch(l){flashToast("Failed to download Word document: "+l.message,!0),t.disabled=!1,t.textContent="📝 Download Word (.docx)"}}}})}function be(e,i){const s=i.roster||[],r=D&&D.length?D:[];e.innerHTML=`
     <div class="block">
       <h2>Our Team <span class="eyebrow">${r.length} members</span></h2>
 

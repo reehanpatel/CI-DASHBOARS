@@ -188,10 +188,10 @@ async function tabDashboardOverview(c, d){
       ` : ''}
 
       <!-- Welcome Hero Banner -->
-      <div class="card client-hero-card" style="background:linear-gradient(135deg, rgba(79,70,229,0.08) 0%, rgba(14,165,233,0.05) 50%, rgba(245,158,11,0.04) 100%);border:1px solid rgba(99,102,241,0.22);border-radius:var(--r-xl);padding:24px 28px;margin-bottom:24px;box-shadow:var(--shadow-sm)">
-        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px">
+      <div class="card client-hero-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px;width:100%;">
           <div style="display:flex;align-items:center;gap:18px">
-            <div style="width:54px;height:54px;border-radius:var(--r-lg);background:linear-gradient(135deg,var(--brand-500) 0%,#4338CA 100%);color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900;box-shadow:0 8px 16px -4px rgba(79,70,229,0.4);flex-shrink:0">
+            <div style="width:54px;height:54px;border-radius:var(--r-lg);background:linear-gradient(135deg,#0284C7 0%,#0070F3 100%);color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900;box-shadow:0 8px 16px -4px rgba(0,112,243,0.4);flex-shrink:0">
               ${clientName.slice(0,2).toUpperCase()}
             </div>
             <div>
@@ -230,9 +230,9 @@ async function tabDashboardOverview(c, d){
 
       <!-- Action Required: Proposal Released Alert (if any pending) -->
       ${clientProposals.some(p => p.status === 'with_client' || p.status === 'approved') ? `
-        <div class="card" style="background:linear-gradient(135deg, rgba(79,70,229,0.08) 0%, rgba(14,165,233,0.06) 100%);border:1px solid var(--brand-500);border-radius:var(--r-lg);padding:16px 22px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;">
+        <div class="card" style="background:rgba(0,112,243,0.06);border:1px solid #0070F3;border-radius:var(--r-lg);padding:16px 22px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;">
           <div style="display:flex;align-items:center;gap:14px;">
-            <div style="width:40px;height:40px;border-radius:50%;background:rgba(79,70,229,0.18);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">📜</div>
+            <div style="width:40px;height:40px;border-radius:50%;background:rgba(0,112,243,0.18);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">📜</div>
             <div>
               <strong style="color:var(--text-1);font-size:14px;">Action Required: Commercial Proposal & Scope Released</strong>
               <div style="font-size:12.5px;color:var(--text-3);margin-top:2px;">
@@ -367,7 +367,7 @@ async function tabDashboardOverview(c, d){
                       <span style="color:var(--text-4)">${count} job(s) (${pct}%)</span>
                     </div>
                     <div style="width:100%;height:7px;background:var(--border-sm);border-radius:6px;overflow:hidden">
-                      <div style="width:${pct}%;height:100%;background:linear-gradient(90deg, var(--brand-500), #6366F1);border-radius:6px"></div>
+                      <div style="width:${pct}%;height:100%;background:linear-gradient(90deg, #0284C7, #0070F3);border-radius:6px"></div>
                     </div>
                   </div>
                 `;
@@ -396,7 +396,7 @@ async function tabDashboardOverview(c, d){
           <div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(220px, 1fr));gap:14px">
             ${assignedTeam.slice(0, 6).map(m => `
               <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--bg-surface);border:1px solid var(--border-xs);border-radius:var(--r-md)">
-                <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#4F46E5 0%,#7C3AED 100%);color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;flex-shrink:0">
+                <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#0284C7 0%,#0070F3 100%);color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;flex-shrink:0">
                   ${m.name.slice(0,2).toUpperCase()}
                 </div>
                 <div style="min-width:0;flex:1">
@@ -767,7 +767,7 @@ function renderClientJobCard(j, priorityBadges) {
           </div>
         </div>
       ` : isRevised ? `
-        <div style="background:linear-gradient(135deg,rgba(59,130,246,0.1) 0%,rgba(99,102,241,0.06) 100%);border:1px solid rgba(59,130,246,0.35);border-radius:var(--r-sm);padding:12px 14px;margin-top:12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+        <div style="background:linear-gradient(135deg,rgba(0,112,243,0.1) 0%,rgba(56,189,248,0.06) 100%);border:1px solid rgba(0,112,243,0.3);border-radius:var(--r-sm);padding:12px 14px;margin-top:12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
           <div>
             <div style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:800;color:var(--brand-500)">
               <span>📦</span> Revised Work Uploaded — Please Re-approve
@@ -787,7 +787,7 @@ function renderClientJobCard(j, priorityBadges) {
           </div>
         </div>
       ` : isWaitingApproval ? `
-        <div style="background:linear-gradient(135deg,rgba(99,102,241,0.08) 0%,rgba(139,92,246,0.04) 100%);border:1px solid rgba(99,102,241,0.25);border-radius:var(--r-sm);padding:12px 14px;margin-top:12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+        <div style="background:linear-gradient(135deg,rgba(0,112,243,0.08) 0%,rgba(56,189,248,0.05) 100%);border:1px solid rgba(0,112,243,0.25);border-radius:var(--r-sm);padding:12px 14px;margin-top:12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
           <div>
             <div style="font-size:13px;font-weight:700;color:var(--brand-500)">Deliverables Ready for Review</div>
             <div style="font-size:11.5px;color:var(--text-3)">Our team has completed the work / deliverables above. Please inspect and approve or deny this job.</div>
@@ -987,7 +987,7 @@ function tabDelivered(c, d){
       </div>
 
       ${readyForReviewCount > 0 ? `
-        <div style="background:linear-gradient(135deg,rgba(99,102,241,0.12),rgba(139,92,246,0.06));border:1px solid rgba(99,102,241,0.3);border-radius:var(--r-sm);padding:14px 18px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+        <div style="background:linear-gradient(135deg,rgba(0,112,243,0.12),rgba(56,189,248,0.06));border:1px solid rgba(0,112,243,0.3);border-radius:var(--r-sm);padding:14px 18px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
           <div>
             <div style="font-size:14px;font-weight:700;color:var(--brand-500)">🔔 ${readyForReviewCount} Deliverable${readyForReviewCount>1?'s':''} Waiting for Your Approval</div>
             <div style="font-size:12px;color:var(--text-3);margin-top:2px">Please inspect the deliverables below and click Approve or Request Revision.</div>

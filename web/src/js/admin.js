@@ -1734,7 +1734,7 @@ function tabManage(c) {
                   <td><span class="badge ${statusBadgeMap[p.status] || 'green'}">${escapeHtml(p.status || 'active')}</span></td>
                   <td class="num">
                     <div style="display:inline-flex;gap:4px;align-items:center;justify-content:flex-end;">
-                      ${user?.role === 'superadmin' ? `<button class="btn ghost small person-modules-btn" data-id="${p._id}" data-name="${escapeHtml(p.name)}" style="color:#6366f1;border-color:rgba(99,102,241,0.3);padding:4px 8px;font-size:11px;" title="Customize Sidebar Modules for this Person">🧭 Modules</button>` : ''}
+                      ${user?.role === 'superadmin' ? `<button class="btn ghost small person-modules-btn" data-id="${p._id}" data-name="${escapeHtml(p.name)}" style="color:#0070F3;border-color:rgba(0,112,243,0.3);padding:4px 8px;font-size:11px;" title="Customize Sidebar Modules for this Person">🧭 Modules</button>` : ''}
                       <button class="btn ghost small edit-person" data-id="${p._id}">Edit</button>
                       <button class="btn danger small del-person" data-id="${p._id}">Remove</button>
                     </div>
@@ -1859,7 +1859,7 @@ function tabManage(c) {
       const el = document.getElementById('sidebarCustomizerCard');
       if (el) {
         el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        el.style.outline = '2px solid #6366f1';
+        el.style.outline = '2px solid #0070F3';
         setTimeout(() => el.style.outline = '', 1500);
       }
     }, 120);
@@ -1962,11 +1962,11 @@ function renderSidebarCustomizerCard() {
           `;
         }).join('')}
       </div>` : `
-      <div style="padding:10px 24px;border-bottom:1px solid var(--border-color);background:rgba(99,102,241,0.06);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+      <div style="padding:10px 24px;border-bottom:1px solid var(--border-color);background:rgba(0,112,243,0.06);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
         <span style="font-size:12.5px;color:var(--text-1);font-weight:600;">
           Workspace: <strong>${escapeHtml(currentDash.toUpperCase())} DASHBOARD</strong> · Target User: <strong>${escapeHtml(targetUser ? targetUser.name : '')}</strong> (${escapeHtml(targetUser ? targetUser.email : '')})
         </span>
-        <span class="pill-counter" id="dashCount_user" style="background:#4f46e5;color:#fff;padding:3px 9px;border-radius:10px;font-weight:700;font-size:11.5px;"></span>
+        <span class="pill-counter" id="dashCount_user" style="background:#0070F3;color:#fff;padding:3px 9px;border-radius:10px;font-weight:700;font-size:11.5px;"></span>
       </div>`}
 
       <!-- Toolbar with Quick All-Module Show / Hide -->
@@ -2320,7 +2320,7 @@ function openUserModuleModal(targetUser) {
               Configure which sidebar navigation modules are visible for this specific user.
             </div>
           </div>
-          <div class="pill-counter" id="modalVisCounter" style="background:#4f46e5;color:#fff;padding:4px 10px;border-radius:12px;font-weight:700;font-size:12px;">
+          <div class="pill-counter" id="modalVisCounter" style="background:#0070F3;color:#fff;padding:4px 10px;border-radius:12px;font-weight:700;font-size:12px;">
             ${getVisibleCount()} / ${defaultItems.length} modules visible
           </div>
         </div>
@@ -2669,7 +2669,7 @@ async function tabUsers(c) {
           <td><span class="badge ${u.active ? 'green' : 'gray'}">${u.active ? '🟢 Active' : '⚪ Disabled'}</span></td>
           <td class="num" style="padding-right:22px;text-align:right;white-space:nowrap">
             <div style="display:inline-flex;gap:6px;align-items:center;justify-content:flex-end">
-              <button class="btn ghost small user-modules-btn" data-id="${u._id}" style="padding:4px 8px;font-size:11.5px;color:#6366f1;border-color:rgba(99,102,241,0.35);font-weight:600;" title="Customize Sidebar Modules for this Person">🧭 Modules</button>
+              <button class="btn ghost small user-modules-btn" data-id="${u._id}" style="padding:4px 8px;font-size:11.5px;color:#0070F3;border-color:rgba(0,112,243,0.35);font-weight:600;" title="Customize Sidebar Modules for this Person">🧭 Modules</button>
               <button class="btn ghost small reset-pw-user" data-id="${u._id}" style="padding:4px 8px;font-size:11.5px" title="Change Password">🔑 Password</button>
               <button class="btn ghost small edit-user" data-id="${u._id}" style="padding:4px 8px;font-size:11.5px">Edit</button>
               <button class="btn danger small del-user" data-id="${u._id}" style="padding:4px 8px;font-size:11.5px">Remove</button>
@@ -3457,3 +3457,4 @@ function openAdminResubmitModal(jobId, jobTitle, previousReason, reasonType = 'd
     }
   };
 }
+

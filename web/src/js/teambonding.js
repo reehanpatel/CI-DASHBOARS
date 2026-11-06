@@ -3425,18 +3425,18 @@ function injectBondingStyles() {
       justify-content: space-between;
       flex-wrap: wrap;
       gap: 16px;
-      background: var(--bg-card, #ffffff);
-      border: 1px solid var(--border-sm, #e2e8f0);
-      border-radius: 16px;
-      padding: 14px 20px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.03);
-      transition: background 0.2s ease, border-color 0.2s ease;
+      border-radius: 20px;
+      background: linear-gradient(135deg, rgba(224, 242, 254, 0.75) 0%, rgba(240, 249, 255, 0.88) 45%, rgba(255, 255, 255, 0.95) 100%);
+      border: 1px solid rgba(186, 230, 253, 0.7);
+      padding: 16px 24px;
+      box-shadow: 0 4px 20px rgba(186, 230, 253, 0.28);
+      transition: all 0.2s ease;
     }
 
     [data-theme="dark"] .bonding-nav-bar {
-      background: var(--bg-surface, #111827);
-      border-color: var(--border-subtle, #1f2937);
-      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+      background: linear-gradient(135deg, rgba(6, 24, 60, 0.85) 0%, rgba(5, 15, 38, 0.95) 100%) !important;
+      border: 1px solid rgba(56, 189, 248, 0.25) !important;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(125, 211, 252, 0.18) !important;
     }
 
     .bonding-nav-left {
@@ -3450,11 +3450,11 @@ function injectBondingStyles() {
       width: 44px;
       height: 44px;
       border-radius: 12px;
-      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      background: linear-gradient(135deg, #0284C7 0%, #0070F3 100%);
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
+      box-shadow: 0 4px 14px rgba(0, 112, 243, 0.35);
       color: #ffffff;
       flex-shrink: 0;
     }
@@ -3514,13 +3514,13 @@ function injectBondingStyles() {
 
     .bonding-view-tab.active {
       background: var(--bg-card, #ffffff);
-      color: #6366f1;
+      color: #0070F3;
       box-shadow: 0 2px 6px rgba(0,0,0,0.06);
     }
 
     [data-theme="dark"] .bonding-view-tab.active {
       background: #0f172a;
-      color: #818cf8;
+      color: #38BDF8;
       box-shadow: 0 2px 8px rgba(0,0,0,0.4);
     }
 
@@ -3562,10 +3562,10 @@ function injectBondingStyles() {
     }
 
     .bonding-top-action-btn.primary {
-      background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+      background: linear-gradient(135deg, #0070F3 0%, #0284C7 100%);
       color: #ffffff;
       border: none;
-      box-shadow: 0 3px 8px rgba(99, 102, 241, 0.3);
+      box-shadow: 0 3px 8px rgba(0, 112, 243, 0.3);
     }
 
     .bonding-top-action-btn.primary:hover {
@@ -3641,7 +3641,7 @@ function injectBondingStyles() {
     .bonding-mini-btn {
       font-size: 11.5px;
       font-weight: 600;
-      color: #6366f1;
+      color: #0070F3;
       background: transparent;
       border: none;
       cursor: pointer;
@@ -3653,7 +3653,7 @@ function injectBondingStyles() {
     }
 
     .bonding-mini-btn:hover {
-      background: rgba(99, 102, 241, 0.1);
+      background: rgba(0, 112, 243, 0.1);
     }
 
     .bonding-channel-list {
@@ -3682,13 +3682,13 @@ function injectBondingStyles() {
     }
 
     .bonding-channel-item.active {
-      background: rgba(99, 102, 241, 0.12);
-      border-left: 3px solid #6366f1;
+      background: rgba(0, 112, 243, 0.12);
+      border-left: 3px solid #0070F3;
     }
 
     [data-theme="dark"] .bonding-channel-item.active {
-      background: rgba(99, 102, 241, 0.22);
-      border-left-color: #818cf8;
+      background: rgba(0, 112, 243, 0.22);
+      border-left-color: #38BDF8;
     }
 
     .bonding-channel-avatar, .bonding-channel-icon {
@@ -3803,7 +3803,7 @@ function injectBondingStyles() {
       width: 38px;
       height: 38px;
       border-radius: 10px;
-      background: rgba(99, 102, 241, 0.1);
+      background: rgba(0, 112, 243, 0.1);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -3867,13 +3867,13 @@ function injectBondingStyles() {
     }
 
     .bonding-header-btn.challenge-highlight {
-      background: rgba(99, 102, 241, 0.12);
-      border-color: #818cf8;
-      color: #6366f1;
+      background: rgba(0, 112, 243, 0.12);
+      border-color: #38BDF8;
+      color: #0070F3;
     }
 
     [data-theme="dark"] .bonding-header-btn.challenge-highlight {
-      background: rgba(99, 102, 241, 0.25);
+      background: rgba(0, 112, 243, 0.25);
       color: #a5b4fc;
     }
 
@@ -4017,14 +4017,14 @@ function injectBondingStyles() {
     }
 
     .bonding-msg-row.self .bonding-msg-bubble {
-      background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+      background: linear-gradient(135deg, #0070F3 0%, #0284C7 100%);
       color: #ffffff;
     }
 
     .bonding-msg-system {
       align-self: center;
-      background: rgba(99, 102, 241, 0.08);
-      color: #4f46e5;
+      background: rgba(0, 112, 243, 0.08);
+      color: #0284C7;
       padding: 6px 14px;
       border-radius: 20px;
       font-size: 12px;
@@ -4035,7 +4035,7 @@ function injectBondingStyles() {
     }
 
     [data-theme="dark"] .bonding-msg-system {
-      background: rgba(99, 102, 241, 0.2);
+      background: rgba(0, 112, 243, 0.2);
       color: #a5b4fc;
     }
 
@@ -4067,7 +4067,7 @@ function injectBondingStyles() {
       width: 44px;
       height: 44px;
       border-radius: 10px;
-      background: rgba(99, 102, 241, 0.12);
+      background: rgba(0, 112, 243, 0.12);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -4136,14 +4136,14 @@ function injectBondingStyles() {
     .game-btn-play {
       flex: 1;
       padding: 8px 12px;
-      background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+      background: linear-gradient(135deg, #0070F3 0%, #0284C7 100%);
       color: #ffffff;
       border: none;
       border-radius: 8px;
       font-size: 13px;
       font-weight: 700;
       cursor: pointer;
-      box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+      box-shadow: 0 2px 8px rgba(0, 112, 243, 0.3);
     }
 
     /* Reactions row */
@@ -4173,8 +4173,8 @@ function injectBondingStyles() {
     }
 
     .bonding-rxn-tag.active {
-      border-color: #6366f1;
-      background: rgba(99, 102, 241, 0.12);
+      border-color: #0070F3;
+      background: rgba(0, 112, 243, 0.12);
     }
 
     .bonding-add-rxn-btn {
@@ -4257,7 +4257,7 @@ function injectBondingStyles() {
       flex-shrink: 0 !important;
       height: 42px !important;
       padding: 0 18px !important;
-      background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+      background: linear-gradient(135deg, #0070F3 0%, #0284C7 100%);
       color: #ffffff;
       border: none;
       border-radius: 10px;
@@ -4377,7 +4377,7 @@ function injectBondingStyles() {
     .lounge-game-card:hover {
       transform: translateY(-2px);
       box-shadow: 0 6px 18px rgba(0,0,0,0.06);
-      border-color: #6366f1;
+      border-color: #0070F3;
     }
 
     .game-card-icon {
@@ -4385,7 +4385,7 @@ function injectBondingStyles() {
       width: 54px;
       height: 54px;
       border-radius: 14px;
-      background: rgba(99, 102, 241, 0.12);
+      background: rgba(0, 112, 243, 0.12);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -4433,7 +4433,7 @@ function injectBondingStyles() {
       width: 100%;
       padding: 10px;
       border-radius: 10px;
-      background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+      background: linear-gradient(135deg, #0070F3 0%, #0284C7 100%);
       color: #ffffff;
       border: none;
       font-size: 13px;
@@ -4654,7 +4654,7 @@ function injectBondingStyles() {
 
     .btn-resume-match {
       padding: 7px 14px;
-      background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+      background: linear-gradient(135deg, #0070F3 0%, #0284C7 100%);
       color: #ffffff;
       border: none;
       border-radius: 8px;
@@ -4702,9 +4702,9 @@ function injectBondingStyles() {
 
     .btn-recent-rematch {
       padding: 6px 10px;
-      border: 1px solid #6366f1;
+      border: 1px solid #0070F3;
       background: transparent;
-      color: #6366f1;
+      color: #0070F3;
       border-radius: 6px;
       font-size: 12px;
       font-weight: 700;
@@ -4876,9 +4876,9 @@ function injectBondingStyles() {
     }
 
     .game-pill-btn.active {
-      border-color: #6366f1;
-      background: rgba(99, 102, 241, 0.12);
-      color: #6366f1;
+      border-color: #0070F3;
+      background: rgba(0, 112, 243, 0.12);
+      color: #0070F3;
     }
 
     .emp-search-wrap {
@@ -4919,8 +4919,8 @@ function injectBondingStyles() {
     }
 
     .eligible-emp-item.selected {
-      background: rgba(99, 102, 241, 0.12);
-      border-left: 3px solid #6366f1;
+      background: rgba(0, 112, 243, 0.12);
+      border-left: 3px solid #0070F3;
     }
 
     .emp-item-avatar {
@@ -4963,9 +4963,9 @@ function injectBondingStyles() {
     }
 
     .btn-select-opponent.active {
-      background: #6366f1;
+      background: #0070F3;
       color: #ffffff;
-      border-color: #6366f1;
+      border-color: #0070F3;
     }
 
     .timer-opts-row {
@@ -4990,8 +4990,8 @@ function injectBondingStyles() {
     }
 
     .flow-confirmation-card {
-      background: rgba(99, 102, 241, 0.08);
-      border: 1px solid rgba(99, 102, 241, 0.2);
+      background: rgba(0, 112, 243, 0.08);
+      border: 1px solid rgba(0, 112, 243, 0.2);
       border-radius: 10px;
       padding: 12px;
       font-size: 12.5px;
@@ -5000,7 +5000,7 @@ function injectBondingStyles() {
     .confirm-head {
       font-weight: 700;
       margin-bottom: 6px;
-      color: #6366f1;
+      color: #0070F3;
     }
 
     .confirm-body {
@@ -5090,7 +5090,7 @@ function injectBondingStyles() {
       width: 48px;
       height: 48px;
       border-radius: 12px;
-      background: rgba(99, 102, 241, 0.1);
+      background: rgba(0, 112, 243, 0.1);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -5136,8 +5136,8 @@ function injectBondingStyles() {
       font-size: 10px;
       padding: 1px 5px;
       border-radius: 4px;
-      background: rgba(99, 102, 241, 0.12);
-      color: #6366f1;
+      background: rgba(0, 112, 243, 0.12);
+      color: #0070F3;
     }
 
     /* Turn Banner */
@@ -5174,9 +5174,9 @@ function injectBondingStyles() {
     }
 
     .arena-turn-banner.ended {
-      background: rgba(99, 102, 241, 0.12);
-      color: #6366f1;
-      border: 1px solid #818cf8;
+      background: rgba(0, 112, 243, 0.12);
+      color: #0070F3;
+      border: 1px solid #38BDF8;
     }
 
     /* Sub Toolbar */
@@ -5363,14 +5363,14 @@ function injectBondingStyles() {
 
     .ttt-cell.empty:hover {
       background: #e0e7ff;
-      border-color: #6366f1;
+      border-color: #0070F3;
       transform: scale(1.04);
-      box-shadow: 0 6px 18px rgba(99, 102, 241, 0.25);
+      box-shadow: 0 6px 18px rgba(0, 112, 243, 0.25);
     }
 
     [data-theme="dark"] .ttt-cell.empty:hover {
       background: #1e2a42;
-      border-color: #818cf8;
+      border-color: #38BDF8;
       box-shadow: 0 0 16px rgba(129, 140, 248, 0.35);
     }
 
@@ -5393,12 +5393,12 @@ function injectBondingStyles() {
     }
 
     .ttt-x {
-      color: #4f46e5;
-      filter: drop-shadow(0 2px 4px rgba(79, 70, 229, 0.3));
+      color: #0284C7;
+      filter: drop-shadow(0 2px 4px rgba(0, 112, 243, 0.3));
     }
 
     [data-theme="dark"] .ttt-x {
-      color: #818cf8;
+      color: #38BDF8;
       text-shadow: 0 0 16px rgba(129, 140, 248, 0.85);
     }
 
@@ -5456,10 +5456,10 @@ function injectBondingStyles() {
     }
 
     .c4-drop-col-btn:hover {
-      background: #4f46e5;
+      background: #0284C7;
       color: #ffffff;
       transform: translateY(3px);
-      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
+      box-shadow: 0 4px 12px rgba(0, 112, 243, 0.4);
     }
 
     [data-theme="dark"] .c4-drop-col-btn {
@@ -6579,8 +6579,8 @@ function injectBondingStyles() {
       margin-top: 14px;
       padding: 14px 18px;
       border-radius: 12px;
-      background: linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(139, 92, 246, 0.15) 100%);
-      border: 1px solid #818cf8;
+      background: linear-gradient(135deg, rgba(0, 112, 243, 0.15) 0%, rgba(56, 189, 248, 0.15) 100%);
+      border: 1px solid #38BDF8;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -6596,7 +6596,7 @@ function injectBondingStyles() {
       margin: 0;
       font-size: 16px;
       font-weight: 800;
-      color: #4f46e5;
+      color: #0284C7;
     }
 
     [data-theme="dark"] .game-over-text h4 {
@@ -6611,14 +6611,14 @@ function injectBondingStyles() {
 
     .btn-arena-rematch {
       padding: 8px 16px;
-      background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+      background: linear-gradient(135deg, #0070F3 0%, #0284C7 100%);
       color: #ffffff;
       border: none;
       border-radius: 8px;
       font-size: 13px;
       font-weight: 700;
       cursor: pointer;
-      box-shadow: 0 3px 10px rgba(99, 102, 241, 0.3);
+      box-shadow: 0 3px 10px rgba(0, 112, 243, 0.3);
     }
 
     /* General modal shared components */
@@ -6737,7 +6737,7 @@ function injectBondingStyles() {
 
     .bonding-btn-primary {
       padding: 9px 16px;
-      background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+      background: linear-gradient(135deg, #0070F3 0%, #0284C7 100%);
       color: #ffffff;
       border: none;
       border-radius: 9px;
@@ -6825,7 +6825,7 @@ function injectBondingStyles() {
 
     .you-badge {
       font-size: 11px;
-      color: #6366f1;
+      color: #0070F3;
       font-weight: 700;
     }
 
@@ -6876,7 +6876,7 @@ function injectBondingStyles() {
     }
 
     .bonding-user-pick-item:hover {
-      background: rgba(99, 102, 241, 0.1);
+      background: rgba(0, 112, 243, 0.1);
     }
 
     .bonding-user-pick-info {
@@ -6911,8 +6911,8 @@ function injectBondingStyles() {
     }
 
     .avatar-opt.active {
-      border-color: #6366f1;
-      background: rgba(99, 102, 241, 0.12);
+      border-color: #0070F3;
+      background: rgba(0, 112, 243, 0.12);
       transform: scale(1.08);
     }
 
@@ -7297,3 +7297,4 @@ function injectBondingStyles() {
 
   document.head.appendChild(style);
 }
+

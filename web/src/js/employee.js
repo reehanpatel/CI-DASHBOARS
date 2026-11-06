@@ -233,11 +233,11 @@ async function tabEmployeeDashboard(c){
     <div class="block employee-overview-container" style="max-width:1280px;margin:0 auto">
       
       <!-- Employee Profile Hero Card -->
-      <div class="card employee-hero-card" style="background:linear-gradient(135deg, rgba(79,70,229,0.08) 0%, rgba(14,165,233,0.05) 50%, rgba(16,185,129,0.05) 100%);border:1px solid rgba(99,102,241,0.22);border-radius:var(--r-xl);padding:24px 28px;margin-bottom:24px;box-shadow:var(--shadow-sm)">
-        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px">
+      <div class="card employee-hero-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px;width:100%;">
           
           <div style="display:flex;align-items:center;gap:18px">
-            <div style="width:56px;height:56px;border-radius:var(--r-lg);background:linear-gradient(135deg,#4F46E5 0%,#7C3AED 100%);color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900;box-shadow:0 8px 16px -4px rgba(79,70,229,0.4);flex-shrink:0">
+            <div style="width:56px;height:56px;border-radius:var(--r-lg);background:linear-gradient(135deg,#0284C7 0%,#0070F3 100%);color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900;box-shadow:0 8px 16px -4px rgba(0,112,243,0.4);flex-shrink:0">
               ${empName.slice(0,2).toUpperCase()}
             </div>
             <div>
