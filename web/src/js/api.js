@@ -2209,7 +2209,8 @@ export function bindAppShellEvents(onTabChange) {
   }
 
   if (sidebarCollapseBtn) {
-    if (isSidebarCollapsed) {
+    const isCollapsed = shell?.classList.contains('sidebar-collapsed');
+    if (isCollapsed) {
       sidebarCollapseBtn.title = 'Expand Sidebar (Ctrl+B)';
       sidebarCollapseBtn.setAttribute('aria-label', 'Expand sidebar');
     }

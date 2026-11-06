@@ -3360,7 +3360,7 @@ export async function initTeamBonding(container, options = {}) {
       {
         name: 'Break & Fun',
         icon: '☕',
-        emojis: ['☕','🍵','🍕','🍔','🍟','🎂','🍰','🍩','🍿','🍺','🍻','🎮','🎲','⏹️','🧩','🎵','🏖️','⚽','❤️','💖','💙']
+        emojis: ['☕','🍵','🍕','🍔','🍟','🎂','🍰','🍩','🍿','🍺','🍻','🎮','🎲','🎯','🧩','🎵','🏖️','⚽','❤️','💖','💙']
       }
     ];
 
@@ -7320,21 +7320,160 @@ function injectBondingStyles() {
     }
 
     .emoji-opt-btn {
-      font-size: 20px;
-      padding: 6px;
+      font-size: 24px;
+      padding: 8px;
       border: none;
       background: transparent;
-      border-radius: 6px;
+      border-radius: 8px;
       cursor: pointer;
-      transition: background 0.15s ease;
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .emoji-opt-btn:hover {
       background: var(--bg-hover, #f1f5f9);
+      transform: scale(1.2);
     }
 
     [data-theme="dark"] .emoji-opt-btn:hover {
       background: #2a374f;
+    }
+
+    /* Organized Chat Emoji Palette (Floating above input bar) */
+    .bonding-chat-emoji-palette {
+      width: 320px;
+      max-width: calc(100vw - 24px);
+      background: var(--bg-card, #ffffff);
+      border: 1px solid var(--border-sm, #cbd5e1);
+      border-radius: 16px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.16);
+      z-index: 10002;
+      overflow: hidden;
+      animation: bondingPalettePop 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes bondingPalettePop {
+      from { opacity: 0; transform: translateY(8px) scale(0.96); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    [data-theme="dark"] .bonding-chat-emoji-palette {
+      background: #111827;
+      border-color: #374151;
+      box-shadow: 0 20px 48px rgba(0, 0, 0, 0.55);
+    }
+
+    .emoji-palette-tabs {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 10px;
+      background: var(--bg-muted, #f8fafc);
+      border-bottom: 1px solid var(--border-sm, #e2e8f0);
+    }
+
+    [data-theme="dark"] .emoji-palette-tabs {
+      background: #1f2937;
+      border-color: #374151;
+    }
+
+    .emoji-tab-btn {
+      flex: 1;
+      height: 36px;
+      padding: 0;
+      border: none;
+      background: transparent;
+      font-size: 20px;
+      border-radius: 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+    }
+
+    .emoji-tab-btn:hover {
+      background: var(--bg-hover, #f1f5f9);
+      transform: scale(1.08);
+    }
+
+    [data-theme="dark"] .emoji-tab-btn:hover {
+      background: #374151;
+    }
+
+    .emoji-tab-btn.active {
+      background: rgba(0, 112, 243, 0.14);
+      border-bottom: 2px solid #0070F3;
+      transform: scale(1.1);
+    }
+
+    [data-theme="dark"] .emoji-tab-btn.active {
+      background: rgba(0, 112, 243, 0.25);
+      border-bottom-color: #38BDF8;
+    }
+
+    .emoji-palette-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px 4px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-3, #94a3b8);
+    }
+
+    .emoji-palette-close {
+      border: none;
+      background: transparent;
+      font-size: 20px;
+      line-height: 1;
+      color: var(--text-3, #94a3b8);
+      cursor: pointer;
+      padding: 2px 6px;
+      border-radius: 6px;
+      transition: all 0.15s ease;
+    }
+
+    .emoji-palette-close:hover {
+      color: #ef4444;
+      background: rgba(239, 68, 68, 0.1);
+    }
+
+    .emoji-palette-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 6px;
+      padding: 8px 12px 14px;
+      max-height: 220px;
+      overflow-y: auto;
+    }
+
+    .chat-emoji-cell {
+      height: 42px;
+      border: none;
+      background: transparent;
+      font-size: 24px;
+      line-height: 1;
+      border-radius: 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.12s ease, background 0.12s ease;
+      user-select: none;
+    }
+
+    .chat-emoji-cell:hover {
+      background: rgba(0, 112, 243, 0.12);
+      transform: scale(1.22);
+    }
+
+    [data-theme="dark"] .chat-emoji-cell:hover {
+      background: rgba(0, 112, 243, 0.22);
     }
     /* Dots & Boxes 4x4 Arena & Multiplayer Board Styles */
     .dotsboxes-arena-layout {
