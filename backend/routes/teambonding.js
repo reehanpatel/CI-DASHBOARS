@@ -1047,15 +1047,9 @@ router.get('/games/overview', async (req, res) => {
 
     const now = new Date();
 
-    // Auto-expire old pending invitations
-    await GameInvitation.updateMany(
-      { status: 'pending', expiresAt: { $lt: now } },
-      { $set: { status: 'expired' } }
-    );
-
     const [incoming, sent, activeMatches, recentMatches, myScore] = await Promise.all([
-      GameInvitation.find({ 'recipient.userId': req.user._id, status: 'pending', expiresAt: { $gt: now } }).sort({ createdAt: -1 }),
-      GameInvitation.find({ 'sender.userId': req.user._id, status: 'pending', expiresAt: { $gt: now } }).sort({ createdAt: -1 }),
+      GameInvitation.find({ 'recipient.userId': req.user._id, status: 'pending' }).sort({ createdAt: -1 }),
+      GameInvitation.find({ 'sender.userId': req.user._id, status: 'pending' }).sort({ createdAt: -1 }),
       GameMatch.find({
         status: 'active',
         $or: [
@@ -1314,8 +1308,7 @@ router.post('/invitations', async (req, res) => {
       gameType,
       'sender.userId': req.user._id,
       'recipient.userId': targetUser._id,
-      status: 'pending',
-      expiresAt: { $gt: new Date() }
+      status: 'pending'
     });
 
     if (existingInvite) {
@@ -1381,7 +1374,7 @@ router.post('/invitations', async (req, res) => {
       matchSettings: matchSettings || { timerMode: 'none' },
       channelId: activeChannelId,
       status: 'pending',
-      expiresAt: new Date(Date.now() + 30 * 60 * 1000)
+      expiresAt: null
     });
 
     await invitation.save();
@@ -1442,15 +1435,9 @@ router.post('/invitations', async (req, res) => {
 // GET /api/bonding/invitations - List user invitations
 router.get('/invitations', async (req, res) => {
   try {
-    const now = new Date();
-    await GameInvitation.updateMany(
-      { status: 'pending', expiresAt: { $lt: now } },
-      { $set: { status: 'expired' } }
-    );
-
     const [incoming, sent] = await Promise.all([
-      GameInvitation.find({ 'recipient.userId': req.user._id }).sort({ createdAt: -1 }).limit(30),
-      GameInvitation.find({ 'sender.userId': req.user._id }).sort({ createdAt: -1 }).limit(30)
+      GameInvitation.find({ 'recipient.userId': req.user._id, status: 'pending' }).sort({ createdAt: -1 }).limit(30),
+      GameInvitation.find({ 'sender.userId': req.user._id, status: 'pending' }).sort({ createdAt: -1 }).limit(30)
     ]);
 
     res.json({ incoming, sent });
@@ -1510,11 +1497,6 @@ router.put('/invitations/:id/respond', async (req, res) => {
       if (!isRecipient) return res.status(403).json({ error: 'Only the invited employee can accept' });
       if (invitation.status !== 'pending') {
         return res.status(400).json({ error: `This invitation is already ${invitation.status}.` });
-      }
-      if (invitation.expiresAt < new Date()) {
-        invitation.status = 'expired';
-        await invitation.save();
-        return res.status(400).json({ error: 'This invitation has expired.' });
       }
 
       // Initialize Game Engine state based on gameType
@@ -1631,6 +1613,23 @@ router.put('/invitations/:id/respond', async (req, res) => {
       invitation.matchId = match._id;
       invitation.respondedAt = new Date();
       await invitation.save();
+
+      // Update challenge card messages in channel chat so both players can enter the arena immediately
+      await BondingMessage.updateMany(
+        {
+          $or: [
+            { 'challengeData.gameState.invitationId': invitation._id },
+            { 'challengeData.gameState.invitationId': invitation._id.toString() }
+          ]
+        },
+        {
+          $set: {
+            'challengeData.status': 'active',
+            'challengeData.gameState.matchId': match._id,
+            content: `⚔️ Challenge accepted! Match is active.`
+          }
+        }
+      );
 
       // Post in channel that the match is live
       if (invitation.channelId) {
@@ -2159,32 +2158,46 @@ router.post('/matches/:id/action', async (req, res) => {
       return res.json({ success: true, match });
     }
 
-    if (action === 'rematch') {
+    if (action === 'rematch' || action === 'rematch_request') {
       if (match.status === 'active') {
         return res.status(400).json({ error: 'Cannot rematch while the current match is still active' });
       }
 
-      // Swap roles for fair play
-      const newP1 = {
-        userId: match.player2.userId,
-        name: match.player2.name,
-        role: match.player2.role,
-        assignedRole: match.player1.assignedRole
-      };
-      const newP2 = {
-        userId: match.player1.userId,
-        name: match.player1.name,
-        role: match.player1.role,
-        assignedRole: match.player2.assignedRole
-      };
+      // If the opponent already requested a rematch, accepting puts both players into the SAME game!
+      if (match.rematchOfferedBy && match.rematchOfferedBy.toString() !== req.user._id.toString()) {
+        action = 'rematch_accept';
+      } else {
+        match.rematchOfferedBy = req.user._id;
+        match.rematchOfferedByName = req.user.name;
+        match.rematchDeclined = false;
+        match.markModified('rematchOfferedBy');
+        match.markModified('rematchOfferedByName');
+        match.markModified('rematchDeclined');
+        await match.save();
+        recordSyncUpdate('bonding');
+        recordSyncUpdate('games');
+        return res.json({ success: true, match, requested: true });
+      }
+    }
 
-      let initialTurn = newP1.assignedRole;
+    if (action === 'rematch_accept') {
+      const now = new Date();
+      match.status = 'active';
+      match.winnerId = null;
+      match.winnerName = '';
+      match.winnerRole = '';
+      match.winningReason = '';
+      match.winningCells = [];
+      match.drawOfferedBy = null;
+      match.rematchOfferedBy = null;
+      match.rematchOfferedByName = '';
+      match.rematchDeclined = false;
+      match.moves = [];
+      match.completedAt = null;
+
+      let p1Role = match.player1.assignedRole;
+      let initialTurn = p1Role;
       let initialGameState = {};
-      let p1Time = 0;
-      let p2Time = 0;
-      const timerMode = match.matchSettings?.timerMode || 'none';
-      if (timerMode === '3m') { p1Time = 180; p2Time = 180; }
-      else if (timerMode === '5m') { p1Time = 300; p2Time = 300; }
 
       if (match.gameType === 'chess') {
         const chess = new Chess();
@@ -2211,38 +2224,58 @@ router.post('/matches/:id/action', async (req, res) => {
         };
       } else if (match.gameType === 'ludo') {
         initialTurn = 'red';
+        const numP = match.playerCount || 2;
+        const activeColors = numP === 3 ? ['red', 'green', 'yellow'] : (numP === 4 ? ['red', 'green', 'yellow', 'blue'] : ['red', 'green']);
         initialGameState = {
-          p1Tokens: [{ id: 0, step: -1 }, { id: 1, step: -1 }],
-          p2Tokens: [{ id: 0, step: -1 }, { id: 1, step: -1 }],
+          playerCount: numP,
+          activeColors,
+          players: match.players && match.players.length ? match.players : [
+            { userId: match.player1.userId, name: match.player1.name, role: match.player1.role, color: 'red', assignedRole: 'red', isBot: false },
+            { userId: match.player2.userId, name: match.player2.name, role: match.player2.role, color: 'green', assignedRole: 'green', isBot: false }
+          ],
+          tokens: {
+            red: [{ id: 0, step: -1 }, { id: 1, step: -1 }, { id: 2, step: -1 }, { id: 3, step: -1 }],
+            green: [{ id: 0, step: -1 }, { id: 1, step: -1 }, { id: 2, step: -1 }, { id: 3, step: -1 }],
+            yellow: [{ id: 0, step: -1 }, { id: 1, step: -1 }, { id: 2, step: -1 }, { id: 3, step: -1 }],
+            blue: [{ id: 0, step: -1 }, { id: 1, step: -1 }, { id: 2, step: -1 }, { id: 3, step: -1 }]
+          },
+          turnColor: 'red',
           dice: null,
           rolled: false,
           lastRoll: null,
-          extraRoll: false,
           lastActionText: 'Rematch started! Red rolls first.'
         };
       }
 
-      const newMatch = new GameMatch({
-        channelId: match.channelId,
-        gameType: match.gameType,
-        gameTitle: match.gameTitle,
-        player1: newP1,
-        player2: newP2,
-        status: 'active',
-        turn: initialTurn,
-        currentTurnUserId: newP1.userId,
-        gameState: initialGameState,
-        matchSettings: {
-          timerMode,
-          p1TimeRemaining: p1Time,
-          p2TimeRemaining: p2Time,
-          lastMoveTime: now
-        },
-        moves: []
-      });
+      match.turn = initialTurn;
+      match.currentTurnUserId = match.player1.userId;
+      match.gameState = initialGameState;
+      match.matchSettings = {
+        timerMode: match.matchSettings?.timerMode || 'none',
+        lastMoveTime: now
+      };
 
-      await newMatch.save();
-      return res.json({ success: true, match: newMatch });
+      match.markModified('gameState');
+      match.markModified('matchSettings');
+      match.markModified('moves');
+      match.markModified('status');
+      await match.save();
+
+      recordSyncUpdate('bonding');
+      recordSyncUpdate('games');
+      return res.json({ success: true, match, reset: true });
+    }
+
+    if (action === 'rematch_decline') {
+      match.rematchOfferedBy = null;
+      match.rematchOfferedByName = '';
+      match.rematchDeclined = true;
+      match.markModified('rematchDeclined');
+      match.markModified('rematchOfferedBy');
+      await match.save();
+      recordSyncUpdate('bonding');
+      recordSyncUpdate('games');
+      return res.json({ success: true, match, declined: true });
     }
 
     res.status(400).json({ error: 'Unknown match action' });

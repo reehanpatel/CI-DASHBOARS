@@ -634,7 +634,7 @@ export async function initTeamBonding(container, options = {}) {
                         </div>
                       `
                 : `
-                        <button class="game-btn-play btn-launch-match-from-card" data-invite-id="${inviteId}">
+                        <button class="game-btn-play btn-launch-match-from-card" data-match-id="${cd.gameState?.matchId || ''}" data-invite-id="${inviteId || ''}">
                           🎮 Enter Match Arena
                         </button>
                       `
@@ -819,16 +819,32 @@ export async function initTeamBonding(container, options = {}) {
     // Enter / Launch Match Arena from card
     container.querySelectorAll('.btn-launch-match-from-card').forEach(btn => {
       btn.onclick = async () => {
+        const directMatchId = btn.dataset.matchId;
         const inviteId = btn.dataset.inviteId;
+
+        if (directMatchId) {
+          openGameMatchModal(directMatchId);
+          return;
+        }
+
         try {
           btn.disabled = true;
           const inv = await apiGet(`/bonding/invitations`);
-          const found = (inv.incoming || []).concat(inv.sent || []).find(i => i._id === inviteId);
+          const allInv = (inv.incoming || []).concat(inv.sent || []);
+          const found = allInv.find(i => i._id === inviteId || (i.matchId && i.matchId.toString() === inviteId));
           if (found && found.matchId) {
             openGameMatchModal(found.matchId);
-          } else {
-            flashToast('Match has not started yet or has expired', 'warning');
+            return;
           }
+
+          const matchesRes = await apiGet('/bonding/matches').catch(() => []);
+          const foundMatch = (matchesRes || []).find(m => m.invitationId === inviteId || m._id === inviteId);
+          if (foundMatch) {
+            openGameMatchModal(foundMatch._id);
+            return;
+          }
+
+          flashToast('Match has not started yet or has finished', 'warning');
         } catch (e) {
           flashToast(e.message || 'Could not load match', 'error');
         } finally {
@@ -1663,7 +1679,9 @@ export async function initTeamBonding(container, options = {}) {
         board: m.gameState?.board,
         grid: m.gameState?.grid,
         fen: m.gameState?.fen,
-        draw: m.drawOfferedBy?.toString()
+        draw: m.drawOfferedBy?.toString(),
+        rematchOfferedBy: m.rematchOfferedBy?.toString(),
+        rematchDeclined: !!m.rematchDeclined
       });
     }
 
@@ -1708,6 +1726,11 @@ export async function initTeamBonding(container, options = {}) {
         if (newFp !== prevFingerprint) {
           prevFingerprint = newFp;
           match = updated;
+          if (updated.rematchDeclined) {
+            flashToast('Rematch was declined', 'info');
+            closeMatchModal();
+            return;
+          }
           renderArena();
         }
       } catch (e) {
@@ -1819,9 +1842,22 @@ export async function initTeamBonding(container, options = {}) {
                   <p>Reason: ${escapeHtml(match.winningReason || 'Match concluded')}</p>
                 </div>
                 <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-                  <button class="btn-arena-rematch" id="btn-arena-rematch-action">
-                    🔄 Request Rematch
-                  </button>
+                  ${match.rematchOfferedBy && match.rematchOfferedBy.toString() === myId?.toString() ? `
+                    <div class="game-pending-text" style="font-size:12px;color:var(--text-2);padding:6px 12px;background:var(--bg-surface);border-radius:var(--r-md);border:1px solid var(--border-sm);">
+                      ⏳ Rematch requested. Waiting for opponent...
+                    </div>
+                  ` : (match.rematchOfferedBy ? `
+                    <button class="btn-arena-rematch" id="btn-arena-accept-rematch" style="background:#10b981;border-color:#10b981;">
+                      ✅ Accept Rematch
+                    </button>
+                    <button class="btn-arena-action" id="btn-arena-decline-rematch" style="border:1px solid var(--border-sm);">
+                      ❌ Decline
+                    </button>
+                  ` : `
+                    <button class="btn-arena-rematch" id="btn-arena-rematch-action">
+                      🔄 Request Rematch
+                    </button>
+                  `)}
                   <button class="btn-arena-action danger" id="btn-arena-delete-match-ended">
                     🗑️ Delete Match
                   </button>
@@ -2341,23 +2377,57 @@ export async function initTeamBonding(container, options = {}) {
         };
       });
 
-      // Rematch button on game over
-      const btnRematch = modalRoot.querySelector('#btn-arena-rematch-action');
-      if (btnRematch) {
-        btnRematch.onclick = async () => {
+      // Rematch actions on game over
+      const btnRematchReq = modalRoot.querySelector('#btn-arena-rematch-action');
+      if (btnRematchReq) {
+        btnRematchReq.onclick = async () => {
           try {
-            btnRematch.disabled = true;
-            btnRematch.textContent = 'Creating Rematch...';
-            const res = await apiPost(`/bonding/matches/${matchId}/action`, { action: 'rematch' });
+            btnRematchReq.disabled = true;
+            btnRematchReq.textContent = 'Requesting...';
+            const res = await apiPost(`/bonding/matches/${matchId}/action`, { action: 'rematch_request' });
             if (res.match) {
-              flashToast('Rematch created! New match live ⚔️', 'success');
-              if (matchPollInterval) clearInterval(matchPollInterval);
-              openGameMatchModal(res.match._id);
+              match = res.match;
+              prevFingerprint = getMatchFingerprint(res.match);
+              renderArena();
+              flashToast('Rematch request sent! Waiting for opponent ⚔️', 'info');
             }
           } catch (e) {
-            flashToast(e.message || 'Rematch failed', 'error');
-            btnRematch.disabled = false;
-            btnRematch.textContent = '🔄 Request Rematch';
+            flashToast(e.message || 'Rematch request failed', 'error');
+            btnRematchReq.disabled = false;
+            btnRematchReq.textContent = '🔄 Request Rematch';
+          }
+        };
+      }
+
+      const btnRematchAccept = modalRoot.querySelector('#btn-arena-accept-rematch');
+      if (btnRematchAccept) {
+        btnRematchAccept.onclick = async () => {
+          try {
+            btnRematchAccept.disabled = true;
+            btnRematchAccept.textContent = 'Starting...';
+            const res = await apiPost(`/bonding/matches/${matchId}/action`, { action: 'rematch_accept' });
+            if (res.match) {
+              match = res.match;
+              prevFingerprint = getMatchFingerprint(res.match);
+              flashToast('Rematch started! Same game is live ⚔️', 'success');
+              renderArena();
+            }
+          } catch (e) {
+            flashToast(e.message || 'Could not accept rematch', 'error');
+            btnRematchAccept.disabled = false;
+          }
+        };
+      }
+
+      const btnRematchDecline = modalRoot.querySelector('#btn-arena-decline-rematch');
+      if (btnRematchDecline) {
+        btnRematchDecline.onclick = async () => {
+          try {
+            await apiPost(`/bonding/matches/${matchId}/action`, { action: 'rematch_decline' });
+            flashToast('Rematch declined', 'info');
+            closeMatchModal();
+          } catch (e) {
+            closeMatchModal();
           }
         };
       }

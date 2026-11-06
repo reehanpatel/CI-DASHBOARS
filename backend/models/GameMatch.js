@@ -55,6 +55,9 @@ const GameMatchSchema = new mongoose.Schema({
     timestamp: { type: Date, default: Date.now }
   }],
   drawOfferedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+  rematchOfferedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+  rematchOfferedByName: { type: String, default: '' },
+  rematchDeclined: { type: Boolean, default: false },
   winnerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
   winnerName: { type: String, default: '' },
   winnerRole: { type: String, default: '' },
