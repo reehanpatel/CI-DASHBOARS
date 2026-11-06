@@ -1,18 +1,18 @@
 /* Design System Tokens for CI360 Productivity Suite */
 
 :root {
-  /* Brand Primitives */
-  --brand-50: #EEF2FF;
-  --brand-100: #E0E7FF;
-  --brand-200: #C7D2FE;
-  --brand-300: #A5B4FC;
-  --brand-400: #818CF8;
-  --brand-500: #6366F1;
-  --brand-600: #4F46E5;
-  --brand-700: #4338CA;
-  --brand-800: #3730A3;
-  --brand-900: #312E81;
-  --brand-950: #1E1B4B;
+  /* Brand Primitives (Electric Cyber Azure Blue) */
+  --brand-50: #F0F7FF;
+  --brand-100: #E0F2FE;
+  --brand-200: #BAE6FD;
+  --brand-300: #7DD3FC;
+  --brand-400: #38BDF8;
+  --brand-500: #0284C7;
+  --brand-600: #0070F3;
+  --brand-700: #0369A1;
+  --brand-800: #075985;
+  --brand-900: #0C4A6E;
+  --brand-950: #082F49;
 
   --accent-gold-400: #F59E0B;
   --accent-gold-500: #D97706;
@@ -32,9 +32,9 @@
   --danger-bg: rgba(239, 68, 68, 0.12);
   --danger-text: #DC2626;
 
-  --info-500: #3B82F6;
-  --info-bg: rgba(59, 130, 246, 0.12);
-  --info-text: #2563EB;
+  --info-500: #0070F3;
+  --info-bg: rgba(0, 112, 243, 0.12);
+  --info-text: #0070F3;
 
   /* Fonts */
   --font-heading: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -55,86 +55,86 @@
   --transition-bounce: 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
 
   /* Elevation Shadows */
-  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-sm: 0 2px 4px 0 rgba(0, 0, 0, 0.06), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
-  --shadow-md: 0 6px 12px -2px rgba(0, 0, 0, 0.08), 0 3px 6px -3px rgba(0, 0, 0, 0.04);
-  --shadow-lg: 0 16px 24px -4px rgba(0, 0, 0, 0.1), 0 8px 12px -6px rgba(0, 0, 0, 0.04);
-  --shadow-xl: 0 24px 48px -12px rgba(0, 0, 0, 0.18);
-  --shadow-glow: 0 0 20px rgba(79, 70, 229, 0.35);
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
+  --shadow-sm: 0 2px 6px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.03);
+  --shadow-md: 0 6px 14px -2px rgba(0, 0, 0, 0.06), 0 3px 6px -3px rgba(0, 0, 0, 0.03);
+  --shadow-lg: 0 16px 28px -4px rgba(0, 0, 0, 0.08), 0 8px 12px -6px rgba(0, 0, 0, 0.03);
+  --shadow-xl: 0 24px 48px -12px rgba(0, 0, 0, 0.14);
+  --shadow-glow: 0 0 20px rgba(0, 112, 243, 0.45);
 }
 
-/* Light Theme Defintions */
+/* Light Theme Definitions */
 [data-theme="light"],
 html:not([data-theme="dark"]) {
-  --bg-app: #F8FAFC;
+  --bg-app: #F0F6FF;
   --bg-surface: #FFFFFF;
-  --bg-surface-elevated: #F1F5F9;
+  --bg-surface-elevated: #F8FAFC;
   --bg-card: #FFFFFF;
   --bg-hover: #F1F5F9;
   --bg-active: #E2E8F0;
-  --bg-page: #F8FAFC;
+  --bg-page: #F0F6FF;
 
   --border-subtle: #E2E8F0;
   --border-strong: #CBD5E1;
-  --border-focus: var(--brand-500);
+  --border-focus: #0070F3;
 
   --text-primary: #0F172A;
-  --text-secondary: #475569;
-  --text-muted: #94A3B8;
+  --text-secondary: #334155;
+  --text-muted: #64748B;
   --text-on-brand: #FFFFFF;
 
   --sidebar-bg: #FFFFFF;
   --sidebar-hover: #F1F5F9;
-  --sidebar-text: #64748B;
+  --sidebar-text: #475569;
   --sidebar-text-active: #0F172A;
   --sidebar-border: #E2E8F0;
 
-  --glass-bg: rgba(255, 255, 255, 0.85);
+  --glass-bg: rgba(255, 255, 255, 0.88);
   --glass-border: rgba(226, 232, 240, 0.8);
 
-  --accent-primary: var(--brand-600);
-  --accent-secondary: var(--brand-500);
-  --accent-light: var(--brand-50);
+  --accent-primary: #0070F3;
+  --accent-secondary: #0284C7;
+  --accent-light: #E0F2FE;
 }
 
 /* Dark Theme Definitions */
 [data-theme="dark"] {
-  --bg-app: #0B0F17;
-  --bg-surface: #111827;
-  --bg-surface-elevated: #1F2937;
-  --bg-card: #151D2A;
-  --bg-hover: #1F2937;
-  --bg-active: #374151;
-  --bg-page: #0B0F17;
+  --bg-app: #020713;
+  --bg-surface: #070d1e;
+  --bg-surface-elevated: #0b152d;
+  --bg-card: #081226;
+  --bg-hover: #0f1d3d;
+  --bg-active: #152750;
+  --bg-page: #020713;
 
-  --border-subtle: #1F2937;
-  --border-strong: #374151;
-  --border-focus: var(--brand-400);
+  --border-subtle: rgba(56, 189, 248, 0.14);
+  --border-strong: rgba(56, 189, 248, 0.28);
+  --border-focus: #38BDF8;
 
-  --text-primary: #F9FAFB;
-  --text-secondary: #9CA3AF;
-  --text-muted: #6B7280;
+  --text-primary: #F8FAFC;
+  --text-secondary: #CBD5E1;
+  --text-muted: #8EA4C8;
   --text-on-brand: #FFFFFF;
 
-  --sidebar-bg: #0B0F17;
-  --sidebar-hover: rgba(255, 255, 255, 0.08);
-  --sidebar-text: #9CA3AF;
+  --sidebar-bg: #030816;
+  --sidebar-hover: rgba(255, 255, 255, 0.06);
+  --sidebar-text: #8EA4C8;
   --sidebar-text-active: #FFFFFF;
-  --sidebar-border: #1F2937;
+  --sidebar-border: rgba(56, 189, 248, 0.12);
 
-  --glass-bg: rgba(17, 24, 39, 0.85);
-  --glass-border: rgba(31, 41, 55, 0.8);
+  --glass-bg: rgba(7, 13, 30, 0.88);
+  --glass-border: rgba(56, 189, 248, 0.18);
 
-  --accent-primary: var(--brand-500);
-  --accent-secondary: var(--brand-400);
-  --accent-light: rgba(99, 102, 241, 0.15);
+  --accent-primary: #0070F3;
+  --accent-secondary: #38BDF8;
+  --accent-light: rgba(0, 112, 243, 0.2);
 
-  --shadow-sm: 0 2px 4px 0 rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 8px 16px -2px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 16px 32px -4px rgba(0, 0, 0, 0.5);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.65);
+  --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.75);
 
   --success-text: #34D399;
   --warning-text: #FBBF24;
   --danger-text: #F87171;
-  --info-text: #60A5FA;
+  --info-text: #38BDF8;
 }

@@ -267,14 +267,19 @@ export function initDailyPlanner(container, options = {}) {
     container.innerHTML = `
       <div class="ci360-planner-wrap ${settings.density === 'compact' ? 'is-compact' : ''}">
         
-        <!-- Planner Main Header -->
+        <!-- Planner Main Header (Hero Card) -->
         <header class="ci360-planner-header">
           <div class="ci360-planner-header-left">
+            <div class="ci360-planner-hero-icon">
+              <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="3" ry="3"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+                <path d="m9 16 2 2 4-4"></path>
+              </svg>
+            </div>
             <div class="ci360-planner-title-group">
-              <div class="ci360-planner-eyebrow">
-                <span class="ci360-planner-tag-badge">Dayfolio System</span>
-                <span class="ci360-planner-date-indicator">${formatShortDate(state.selectedDate)}</span>
-              </div>
               <h1 class="ci360-planner-heading">${escapeHtml(settings.displayName || 'Daily Planner')}</h1>
               <p class="ci360-planner-subheading">Plan your day. Track your progress.</p>
             </div>
@@ -415,25 +420,50 @@ export function initDailyPlanner(container, options = {}) {
 
             <div class="ci360-summary-kpis">
               <div class="kpi-box total">
-                <span class="kpi-num">${stats.total}</span>
-                <span class="kpi-label">Total Tasks</span>
+                <div class="kpi-icon-wrap total">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                </div>
+                <div class="kpi-text-wrap">
+                  <span class="kpi-num">${stats.total}</span>
+                  <span class="kpi-label">Total Tasks</span>
+                </div>
               </div>
               <div class="kpi-box completed">
-                <span class="kpi-num">${stats.completed}</span>
-                <span class="kpi-label">Completed</span>
+                <div class="kpi-icon-wrap completed">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+                </div>
+                <div class="kpi-text-wrap">
+                  <span class="kpi-num">${stats.completed}</span>
+                  <span class="kpi-label">Completed</span>
+                </div>
               </div>
               <div class="kpi-box in-progress">
-                <span class="kpi-num">${stats.inProgress}</span>
-                <span class="kpi-label">In Progress</span>
+                <div class="kpi-icon-wrap in-prog">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                </div>
+                <div class="kpi-text-wrap">
+                  <span class="kpi-num">${stats.inProgress}</span>
+                  <span class="kpi-label">In Progress</span>
+                </div>
               </div>
               <div class="kpi-box pending">
-                <span class="kpi-num">${stats.pending}</span>
-                <span class="kpi-label">Pending</span>
+                <div class="kpi-icon-wrap pending">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 22h14M5 2h14m-2 20v-5a5 5 0 0 0-2.83-4.5A5 5 0 0 0 17 7V2M7 22v-5a5 5 0 0 1 2.83-4.5A5 5 0 0 1 7 7V2"/></svg>
+                </div>
+                <div class="kpi-text-wrap">
+                  <span class="kpi-num">${stats.pending}</span>
+                  <span class="kpi-label">Pending</span>
+                </div>
               </div>
               ${stats.overdue > 0 ? `
                 <div class="kpi-box overdue">
-                  <span class="kpi-num">${stats.overdue}</span>
-                  <span class="kpi-label">Overdue</span>
+                  <div class="kpi-icon-wrap overdue">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                  </div>
+                  <div class="kpi-text-wrap">
+                    <span class="kpi-num">${stats.overdue}</span>
+                    <span class="kpi-label">Overdue</span>
+                  </div>
                 </div>
               ` : ''}
             </div>
@@ -2051,12 +2081,12 @@ export function initDailyPlanner(container, options = {}) {
     const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
 
     // Theme Colors
-    const bgApp = isDark ? '#0F172A' : '#F8FAFC';
-    const bgCard = isDark ? '#1E293B' : '#FFFFFF';
-    const border = isDark ? '#334155' : '#E2E8F0';
+    const bgApp = isDark ? '#020713' : '#F0F6FF';
+    const bgCard = isDark ? '#081226' : '#FFFFFF';
+    const border = isDark ? 'rgba(56, 189, 248, 0.16)' : '#E2E8F0';
     const text1 = isDark ? '#F8FAFC' : '#0F172A';
-    const text2 = isDark ? '#94A3B8' : '#475569';
-    const brand = '#4F46E5';
+    const text2 = isDark ? '#8EA4C8' : '#475569';
+    const brand = '#0070F3';
     const green = '#10B981';
     const amber = '#F59E0B';
     const red = '#EF4444';
@@ -2325,11 +2355,11 @@ export function initDailyPlanner(container, options = {}) {
           @page { size: A4 landscape; margin: 10mm; }
           * { box-sizing: border-box; }
           body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color: #0f172a; line-height: 1.4; padding: 12px; margin: 0; }
-          .header { border-bottom: 2.5px solid #4f46e5; padding-bottom: 12px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: flex-end; }
-          .brand { font-size: 11px; font-weight: 800; color: #4f46e5; letter-spacing: 0.6px; text-transform: uppercase; }
+          .header { border-bottom: 2.5px solid #0070F3; padding-bottom: 12px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: flex-end; }
+          .brand { font-size: 11px; font-weight: 800; color: #0070F3; letter-spacing: 0.6px; text-transform: uppercase; }
           h1 { margin: 4px 0 2px; font-size: 22px; color: #0f172a; }
           .period { font-size: 13px; color: #475569; font-weight: 500; }
-          .filter-tag { display: inline-block; font-size: 11px; color: #4338ca; background: #e0e7ff; padding: 2px 8px; border-radius: 4px; font-weight: 600; margin-left: 8px; }
+          .filter-tag { display: inline-block; font-size: 11px; color: #0369A1; background: #E0F2FE; padding: 2px 8px; border-radius: 4px; font-weight: 600; margin-left: 8px; }
           
           .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 18px; }
           .kpi { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 14px; }
@@ -2343,13 +2373,13 @@ export function initDailyPlanner(container, options = {}) {
           
           .client-tag { display: inline-block; background: #ecfdf5; color: #047857; font-weight: 700; padding: 2px 6px; border-radius: 4px; font-size: 10.5px; border: 1px solid #a7f3d0; }
           .owner-tag { font-weight: 700; color: #1e293b; }
-          .co-owner-sub { font-size: 10px; color: #6366f1; font-weight: 600; display: block; margin-top: 2px; }
+          .co-owner-sub { font-size: 10px; color: #0284C7; font-weight: 600; display: block; margin-top: 2px; }
           .desc-text { font-size: 10.5px; color: #475569; white-space: pre-wrap; line-height: 1.35; max-width: 280px; word-break: break-word; }
           
           .badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 700; }
           .badge-urgent { background: #fee2e2; color: #b91c1c; }
           .badge-high { background: #fef3c7; color: #b45309; }
-          .badge-med { background: #e0e7ff; color: #4338ca; }
+          .badge-med { background: #e0e7ff; color: #0369a1; }
           .badge-low { background: #ecfdf5; color: #047857; }
           
           .status-tag { display: inline-block; padding: 2px 7px; border-radius: 4px; font-size: 10.5px; font-weight: 700; }
@@ -2376,7 +2406,7 @@ export function initDailyPlanner(container, options = {}) {
             </div>
           </div>
           <div style="text-align:right" class="no-print">
-            <button onclick="window.print()" style="padding:8px 16px;background:#4f46e5;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:700;font-size:13px;box-shadow:0 2px 4px rgba(79,70,229,0.3);">🖨️ Print / Save as PDF</button>
+            <button onclick="window.print()" style="padding:8px 16px;background:#0070F3;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:700;font-size:13px;box-shadow:0 2px 4px rgba(0,112,243,0.3);">🖨️ Print / Save as PDF</button>
           </div>
         </div>
 
@@ -2395,7 +2425,7 @@ export function initDailyPlanner(container, options = {}) {
           </div>
           <div class="kpi">
             <div class="kpi-label">Completion Rate</div>
-            <div class="kpi-num" style="color:#4f46e5">${compRate}%</div>
+            <div class="kpi-num" style="color:#0070F3">${compRate}%</div>
           </div>
         </div>
 
@@ -3009,47 +3039,56 @@ function ensurePlannerStyles() {
       box-sizing: border-box !important;
     }
 
-    /* Header */
+    /* Header (Hero Card) */
     .ci360-planner-header {
       display: flex;
-      align-items: flex-start;
+      align-items: center;
       justify-content: space-between;
       gap: 16px;
       margin-bottom: 20px;
+      padding: 18px 24px;
+      border-radius: 20px;
+      background: linear-gradient(135deg, rgba(224, 242, 254, 0.75) 0%, rgba(240, 249, 255, 0.88) 45%, rgba(255, 255, 255, 0.95) 100%);
+      border: 1px solid rgba(186, 230, 253, 0.7);
+      box-shadow: 0 4px 20px rgba(186, 230, 253, 0.28);
       flex-wrap: wrap;
+    }
+    [data-theme="dark"] .ci360-planner-header {
+      background: linear-gradient(135deg, rgba(6, 24, 60, 0.85) 0%, rgba(5, 15, 38, 0.95) 100%);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(125, 211, 252, 0.18);
+    }
+    .ci360-planner-header-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .ci360-planner-hero-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      background: rgba(0, 112, 243, 0.12);
+      border: 1px solid rgba(0, 112, 243, 0.2);
+      color: #0070F3;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 4px 14px rgba(0, 112, 243, 0.15);
+    }
+    [data-theme="dark"] .ci360-planner-hero-icon {
+      background: rgba(0, 112, 243, 0.2);
+      border-color: rgba(56, 189, 248, 0.35);
+      color: #38BDF8;
+      box-shadow: 0 0 18px rgba(0, 112, 243, 0.35);
     }
     .ci360-planner-title-group {
       display: flex;
       flex-direction: column;
       gap: 2px;
     }
-    .ci360-planner-eyebrow {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 4px;
-    }
-    .ci360-planner-tag-badge {
-      font-size: 10.5px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.6px;
-      padding: 2px 8px;
-      border-radius: var(--r-full);
-      background: var(--brand-50);
-      color: var(--brand-600);
-    }
-    [data-theme="dark"] .ci360-planner-tag-badge {
-      background: rgba(99, 102, 241, 0.2);
-      color: var(--brand-400);
-    }
-    .ci360-planner-date-indicator {
-      font-size: 12px;
-      font-weight: 500;
-      color: var(--text-3);
-    }
     .ci360-planner-heading {
-      font-size: 26px;
+      font-size: 24px;
       font-weight: 800;
       letter-spacing: -0.5px;
       color: var(--text-1);
@@ -3081,8 +3120,8 @@ function ensurePlannerStyles() {
     .ci360-switch-btn {
       background: transparent;
       border: none;
-      padding: 6px 12px;
-      border-radius: 6px;
+      padding: 7px 14px;
+      border-radius: 8px;
       font-size: 12.5px;
       font-weight: 600;
       color: var(--text-3);
@@ -3097,29 +3136,38 @@ function ensurePlannerStyles() {
       background: var(--bg-hover);
     }
     .ci360-switch-btn.active {
-      background: var(--accent);
-      color: #FFFFFF;
-      box-shadow: 0 1px 3px rgba(79, 70, 229, 0.3);
+      background: #0070F3 !important;
+      color: #FFFFFF !important;
+      box-shadow: 0 2px 8px rgba(0, 112, 243, 0.35);
+    }
+    [data-theme="dark"] .ci360-switch-btn.active {
+      background: #0070F3 !important;
+      color: #FFFFFF !important;
+      box-shadow: 0 0 16px rgba(0, 112, 243, 0.45);
     }
 
     .ci360-btn-primary {
-      background: var(--accent);
+      background: #0070F3;
       color: #FFFFFF;
       border: none;
-      padding: 8px 16px;
+      padding: 8px 18px;
       border-radius: var(--r-md);
       font-size: 13px;
-      font-weight: 600;
+      font-weight: 700;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      box-shadow: 0 2px 6px rgba(79, 70, 229, 0.25);
+      box-shadow: 0 2px 8px rgba(0, 112, 243, 0.35);
       transition: all var(--t-fast);
     }
     .ci360-btn-primary:hover {
       filter: brightness(1.08);
       transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(0, 112, 243, 0.45);
+    }
+    [data-theme="dark"] .ci360-btn-primary {
+      box-shadow: 0 0 16px rgba(0, 112, 243, 0.45);
     }
     .ci360-btn-secondary {
       background: var(--bg-card);
@@ -3268,8 +3316,8 @@ function ensurePlannerStyles() {
     .ci360-today-btn {
       background: transparent;
       border: 1px solid var(--border-sm);
-      padding: 6px 12px;
-      border-radius: var(--r-md);
+      padding: 5px 14px;
+      border-radius: var(--r-full);
       font-size: 12.5px;
       font-weight: 600;
       color: var(--text-3);
@@ -3281,14 +3329,14 @@ function ensurePlannerStyles() {
       color: var(--text-1);
     }
     .ci360-today-btn.is-current {
-      background: var(--brand-50);
-      color: var(--brand-600);
-      border-color: var(--brand-200);
+      background: #E0F2FE;
+      color: #0070F3;
+      border-color: #BAE6FD;
     }
     [data-theme="dark"] .ci360-today-btn.is-current {
-      background: rgba(99, 102, 241, 0.15);
-      color: var(--brand-400);
-      border-color: rgba(99, 102, 241, 0.3);
+      background: rgba(0, 112, 243, 0.2);
+      color: #38BDF8;
+      border-color: rgba(56, 189, 248, 0.35);
     }
     .ci360-team-filter-wrap {
       display: flex;
@@ -3314,27 +3362,39 @@ function ensurePlannerStyles() {
     .ci360-progress-summary-card {
       background: var(--bg-card);
       border: 1px solid var(--border-sm);
-      border-radius: var(--r-lg);
-      padding: 18px 24px;
+      border-radius: var(--r-xl);
+      padding: 16px 20px;
       margin-bottom: 24px;
-      box-shadow: var(--shadow-sm);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+    }
+    [data-theme="dark"] .ci360-progress-summary-card {
+      background: rgba(8, 18, 38, 0.7);
+      border-color: rgba(56, 189, 248, 0.16);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
     }
     .ci360-summary-main {
       display: flex;
       align-items: center;
-      gap: 28px;
-      margin-bottom: 14px;
+      gap: 18px;
       flex-wrap: wrap;
     }
     .ci360-ring-stat {
       display: flex;
       align-items: center;
       justify-content: center;
+      padding: 6px 14px;
+      background: var(--bg-app);
+      border: 1px solid var(--border-xs);
+      border-radius: var(--r-lg);
+    }
+    [data-theme="dark"] .ci360-ring-stat {
+      background: rgba(10, 22, 48, 0.6);
+      border-color: rgba(56, 189, 248, 0.14);
     }
     .ci360-circular-progress {
       position: relative;
-      width: 72px;
-      height: 72px;
+      width: 64px;
+      height: 64px;
     }
     .ci360-circular-svg {
       width: 100%;
@@ -3343,15 +3403,18 @@ function ensurePlannerStyles() {
     }
     .ci360-circular-svg .circle-bg {
       fill: none;
-      stroke: var(--border-xs);
+      stroke: var(--border-sm);
       stroke-width: 3.5;
     }
     .ci360-circular-svg .circle-fill {
       fill: none;
-      stroke: var(--accent);
+      stroke: #0070F3;
       stroke-width: 3.5;
       stroke-linecap: round;
       transition: stroke-dasharray 0.4s ease;
+    }
+    [data-theme="dark"] .ci360-circular-svg .circle-fill {
+      stroke: #38BDF8;
     }
     .ring-text {
       position: absolute;
@@ -3368,40 +3431,85 @@ function ensurePlannerStyles() {
       line-height: 1;
     }
     .ring-label {
-      font-size: 9px;
+      font-size: 9.5px;
       font-weight: 600;
       text-transform: uppercase;
-      color: var(--text-4);
+      color: var(--text-3);
       margin-top: 2px;
     }
 
     .ci360-summary-kpis {
       display: flex;
       align-items: center;
-      gap: 16px;
+      gap: 14px;
       flex: 1;
       flex-wrap: wrap;
     }
     .kpi-box {
       display: flex;
+      align-items: center;
+      gap: 14px;
+      background: #FFFFFF;
+      padding: 12px 18px;
+      border-radius: var(--r-lg);
+      flex: 1;
+      min-width: 140px;
+      border: 1px solid var(--border-sm);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+      transition: all var(--t-fast);
+    }
+    [data-theme="dark"] .kpi-box {
+      background: rgba(8, 18, 38, 0.85);
+      border-color: rgba(56, 189, 248, 0.16);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    }
+    .kpi-box:hover {
+      transform: translateY(-1px);
+    }
+    .kpi-icon-wrap {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .kpi-icon-wrap.total {
+      background: rgba(0, 112, 243, 0.1);
+      color: #0070F3;
+    }
+    .kpi-icon-wrap.completed {
+      background: rgba(16, 185, 129, 0.1);
+      color: #10B981;
+    }
+    .kpi-icon-wrap.in-prog {
+      background: rgba(245, 158, 11, 0.1);
+      color: #F59E0B;
+    }
+    .kpi-icon-wrap.pending {
+      background: rgba(139, 92, 246, 0.1);
+      color: #8B5CF6;
+    }
+    .kpi-icon-wrap.overdue {
+      background: rgba(239, 68, 68, 0.1);
+      color: #EF4444;
+    }
+    .kpi-text-wrap {
+      display: flex;
       flex-direction: column;
-      background: var(--bg-app);
-      padding: 10px 16px;
-      border-radius: var(--r-md);
-      min-width: 100px;
-      border: 1px solid var(--border-xs);
     }
     .kpi-box .kpi-num {
-      font-size: 20px;
+      font-size: 22px;
       font-weight: 800;
       color: var(--text-1);
       line-height: 1.1;
     }
     .kpi-box .kpi-label {
-      font-size: 11px;
+      font-size: 12px;
       font-weight: 600;
       color: var(--text-3);
-      margin-top: 2px;
+      margin-top: 1px;
     }
     .kpi-box.completed .kpi-num { color: var(--green-500); }
     .kpi-box.in-progress .kpi-num { color: var(--amber-500); }
@@ -3413,14 +3521,15 @@ function ensurePlannerStyles() {
 
     .ci360-linear-progress-wrap {
       width: 100%;
-      height: 6px;
+      height: 4px;
       background: var(--border-xs);
       border-radius: var(--r-full);
       overflow: hidden;
+      margin-top: 10px;
     }
     .ci360-linear-bar {
       height: 100%;
-      background: linear-gradient(90deg, var(--brand-500), var(--green-500));
+      background: linear-gradient(90deg, #0070F3, #10B981);
       border-radius: var(--r-full);
       transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     }
@@ -3445,27 +3554,32 @@ function ensurePlannerStyles() {
     }
     .ci360-focus-title {
       font-size: 19px;
-      font-weight: 700;
+      font-weight: 800;
       color: var(--text-1);
       margin: 0;
       display: flex;
       align-items: center;
       gap: 8px;
     }
-    .ci360-focus-title .accent-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--accent);
+    .ci360-focus-title::before {
+      content: '';
+      width: 3.5px;
+      height: 18px;
+      border-radius: 2px;
+      background: #0070F3;
       display: inline-block;
     }
     .ci360-task-count-badge {
       font-size: 11px;
       font-weight: 700;
-      padding: 2px 8px;
+      padding: 3px 10px;
       border-radius: var(--r-full);
-      background: var(--bg-hover);
-      color: var(--text-3);
+      background: rgba(0, 112, 243, 0.1);
+      color: #0070F3;
+    }
+    [data-theme="dark"] .ci360-task-count-badge {
+      background: rgba(0, 112, 243, 0.2);
+      color: #38BDF8;
     }
 
     .ci360-focus-controls {
@@ -3478,28 +3592,41 @@ function ensurePlannerStyles() {
       display: flex;
       align-items: center;
       gap: 4px;
-      background: var(--bg-card);
-      border: 1px solid var(--border-sm);
-      border-radius: var(--r-md);
-      padding: 3px;
-    }
-    .filter-pill {
       background: transparent;
       border: none;
-      padding: 4px 10px;
-      border-radius: 6px;
+      padding: 0;
+    }
+    .filter-pill {
+      background: rgba(0, 0, 0, 0.04);
+      border: 1px solid var(--border-sm);
+      padding: 5px 12px;
+      border-radius: var(--r-full);
       font-size: 12px;
       font-weight: 600;
       color: var(--text-3);
       cursor: pointer;
       transition: all var(--t-fast);
     }
+    [data-theme="dark"] .filter-pill {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: rgba(56, 189, 248, 0.14);
+      color: #8EA4C8;
+    }
     .filter-pill:hover {
       color: var(--text-1);
     }
     .filter-pill.active {
-      background: var(--bg-hover);
-      color: var(--accent);
+      background: #0070F3 !important;
+      color: #FFFFFF !important;
+      border-color: #0070F3 !important;
+      font-weight: 700;
+      box-shadow: 0 2px 8px rgba(0, 112, 243, 0.35);
+    }
+    [data-theme="dark"] .filter-pill.active {
+      background: #0070F3 !important;
+      color: #FFFFFF !important;
+      border-color: #0070F3 !important;
+      box-shadow: 0 0 16px rgba(0, 112, 243, 0.45);
     }
     .filter-pill.overdue.active {
       background: rgba(239, 68, 68, 0.1);
@@ -3584,25 +3711,27 @@ function ensurePlannerStyles() {
       cursor: pointer;
     }
     .ci360-quick-add-btn {
-      background: var(--accent);
+      background: #0070F3;
       color: #FFFFFF;
       border: none;
-      border-radius: var(--r-sm);
-      padding: 6px 14px;
-      font-size: 12.5px;
-      font-weight: 600;
+      border-radius: var(--r-md);
+      padding: 7px 16px;
+      font-size: 13px;
+      font-weight: 700;
       cursor: pointer;
       transition: all var(--t-fast);
+      box-shadow: 0 2px 6px rgba(0, 112, 243, 0.3);
     }
     .ci360-quick-add-btn:hover {
-      filter: brightness(1.1);
+      filter: brightness(1.08);
+      transform: translateY(-1px);
     }
 
     /* Task List & Cards */
     .ci360-task-list {
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 12px;
     }
     .ci360-task-card {
       display: flex;
@@ -3610,10 +3739,17 @@ function ensurePlannerStyles() {
       gap: 14px;
       background: var(--bg-card);
       border: 1px solid var(--border-sm);
-      border-radius: var(--r-lg);
+      border-left: 3.5px solid #0070F3;
+      border-radius: 14px;
       padding: 14px 16px;
       box-shadow: var(--shadow-xs);
       transition: all var(--t-fast);
+    }
+    [data-theme="dark"] .ci360-task-card {
+      background: rgba(8, 18, 38, 0.85);
+      border-color: rgba(56, 189, 248, 0.16);
+      border-left: 3.5px solid #0070F3;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.04);
     }
     .ci360-task-card:hover {
       box-shadow: var(--shadow-sm);
@@ -3623,9 +3759,10 @@ function ensurePlannerStyles() {
     .ci360-task-card.is-completed {
       background: var(--bg-elevated);
       opacity: 0.75;
+      border-left-color: var(--green-500);
     }
     .ci360-task-card.is-overdue {
-      border-left: 3px solid var(--red-500);
+      border-left: 3.5px solid var(--red-500) !important;
     }
 
     /* Checkbox */
@@ -3733,19 +3870,19 @@ function ensurePlannerStyles() {
       border-color: rgba(59, 130, 246, 0.35);
     }
     .ci360-badge.creator-badge {
-      background: rgba(99, 102, 241, 0.12);
-      color: var(--brand-600);
+      background: rgba(0, 112, 243, 0.1);
+      color: #0070F3;
       font-weight: 600;
-      border: 1px solid rgba(99, 102, 241, 0.25);
+      border: 1px solid rgba(0, 112, 243, 0.2);
     }
     [data-theme="dark"] .ci360-badge.creator-badge {
-      background: rgba(99, 102, 241, 0.2);
-      color: var(--brand-400);
-      border-color: rgba(99, 102, 241, 0.35);
+      background: rgba(0, 112, 243, 0.2);
+      color: #38BDF8;
+      border-color: rgba(56, 189, 248, 0.35);
     }
     .ci360-badge.overdue-badge { background: rgba(239, 68, 68, 0.12); color: var(--red-600); }
-    .ci360-badge.personnel-badge { background: var(--brand-50); color: var(--brand-600); }
-    [data-theme="dark"] .ci360-badge.personnel-badge { background: rgba(99, 102, 241, 0.2); color: var(--brand-400); }
+    .ci360-badge.personnel-badge { background: #E0F2FE; color: #0070F3; }
+    [data-theme="dark"] .ci360-badge.personnel-badge { background: rgba(0, 112, 243, 0.2); color: #38BDF8; }
 
     .ci360-badge.date-changed-badge {
       background: rgba(245, 158, 11, 0.14);
@@ -4132,7 +4269,7 @@ function ensurePlannerStyles() {
       background: var(--brand-50);
     }
     [data-theme="dark"] .ci360-dropzone:hover, [data-theme="dark"] .ci360-dropzone.dragover {
-      background: rgba(99, 102, 241, 0.1);
+      background: rgba(0, 112, 243, 0.15);
     }
     .ci360-dropzone .drop-icon {
       font-size: 28px;
@@ -4300,8 +4437,8 @@ function ensurePlannerStyles() {
       width: 32px;
       height: 32px;
       border-radius: 50%;
-      background: rgba(99, 102, 241, 0.15);
-      color: var(--brand-500);
+      background: rgba(0, 112, 243, 0.15);
+      color: #0070F3;
       font-weight: 800;
       font-size: 13px;
       display: flex;
@@ -4400,7 +4537,7 @@ function ensurePlannerStyles() {
     }
     [data-theme="light"] .ci360-switch-btn.active,
     html:not([data-theme="dark"]) .ci360-switch-btn.active {
-      background: #4F46E5;
+      background: #0070F3;
       color: #FFFFFF;
     }
     [data-theme="light"] .ci360-btn-secondary,
@@ -4463,9 +4600,9 @@ function ensurePlannerStyles() {
     }
     [data-theme="light"] .ci360-today-btn.is-current,
     html:not([data-theme="dark"]) .ci360-today-btn.is-current {
-      background: #EEF2FF;
-      color: #4F46E5;
-      border-color: #C7D2FE;
+      background: #E0F2FE;
+      color: #0070F3;
+      border-color: #BAE6FD;
     }
     [data-theme="light"] .ci360-select-inline,
     html:not([data-theme="dark"]) .ci360-select-inline {
@@ -4520,8 +4657,9 @@ function ensurePlannerStyles() {
     }
     [data-theme="light"] .filter-pill.active,
     html:not([data-theme="dark"]) .filter-pill.active {
-      background: #EEF2FF;
-      color: #4F46E5;
+      background: #0070F3 !important;
+      color: #FFFFFF !important;
+      border-color: #0070F3 !important;
     }
     [data-theme="light"] .ci360-search-box,
     html:not([data-theme="dark"]) .ci360-search-box {
@@ -4560,6 +4698,7 @@ function ensurePlannerStyles() {
     html:not([data-theme="dark"]) .ci360-task-card {
       background: #FFFFFF;
       border-color: #E2E8F0;
+      border-left: 3.5px solid #0070F3;
       box-shadow: 0 1px 3px rgba(0,0,0,0.04);
     }
     [data-theme="light"] .ci360-task-card:hover,
@@ -4623,9 +4762,9 @@ function ensurePlannerStyles() {
     }
     [data-theme="light"] .emp-avatar,
     html:not([data-theme="dark"]) .emp-avatar {
-      background: #EEF2FF;
-      color: #4F46E5;
-      border: 1px solid #C7D2FE;
+      background: #E0F2FE;
+      color: #0070F3;
+      border: 1px solid #BAE6FD;
     }
     [data-theme="light"] .emp-name,
     html:not([data-theme="dark"]) .emp-name {
@@ -4675,9 +4814,9 @@ function ensurePlannerStyles() {
     }
     [data-theme="light"] .day-col-add-btn:hover,
     html:not([data-theme="dark"]) .day-col-add-btn:hover {
-      border-color: #4F46E5;
-      color: #4F46E5;
-      background: #EEF2FF;
+      border-color: #0070F3;
+      color: #0070F3;
+      background: #E0F2FE;
     }
     [data-theme="light"] .ci360-planner-modal,
     html:not([data-theme="dark"]) .ci360-planner-modal {
