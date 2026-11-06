@@ -6,7 +6,6 @@ const BondingScore = mongoose.models.BondingScore || require('../models/BondingS
 const GameInvitation = mongoose.models.GameInvitation || require('../models/GameInvitation');
 const GameMatch = mongoose.models.GameMatch || require('../models/GameMatch');
 const User = mongoose.models.User || require('../models/User');
-const ArcadeScore = mongoose.models.ArcadeScore || require('../models/ArcadeScore');
 const Notification = mongoose.models.Notification || require('../models/Notification');
 const { Chess } = require('chess.js');
 const { verifyToken } = require('../middleware/auth');
@@ -2766,122 +2765,6 @@ router.get('/leaderboard', async (req, res) => {
     res.json(leaders);
   } catch (err) {
     res.status(500).json({ error: err.message });
-  }
-});
-
-// POST /api/bonding/arcade/score - Record single player game score
-router.post('/arcade/score', async (req, res) => {
-  try {
-    const { gameId, gameTitle, score, metrics } = req.body;
-    if (!gameId || typeof score !== 'number') {
-      return res.status(400).json({ error: 'gameId and numeric score required' });
-    }
-
-    const titleMap = {
-      snake: 'Retro Snake',
-      2048: '2048 Puzzle',
-      memory: 'Memory Match'
-    };
-    const title = gameTitle || titleMap[gameId] || 'Arcade Game';
-
-    const newScore = new ArcadeScore({
-      userId: req.user._id,
-      userName: req.user.name,
-      userRole: req.user.role,
-      gameId,
-      gameTitle: title,
-      score: Math.round(score),
-      metrics: metrics || {}
-    });
-    await newScore.save();
-
-    // Check if new personal best
-    const myScores = await ArcadeScore.find({ userId: req.user._id, gameId }).sort({ score: -1 }).limit(2);
-    const isNewPersonalBest = myScores.length === 1 || (myScores.length > 1 && myScores[0]._id.toString() === newScore._id.toString() && myScores[0].score > myScores[1].score);
-
-    // Calculate current rank
-    const higherScoresCount = await ArcadeScore.aggregate([
-      { $match: { gameId } },
-      { $group: { _id: '$userId', maxScore: { $max: '$score' } } },
-      { $match: { maxScore: { $gt: Math.round(score) } } },
-      { $count: 'count' }
-    ]);
-    const rank = (higherScoresCount[0]?.count || 0) + 1;
-
-    // Award bonus points for arcade play
-    await awardPoints(req.user._id, req.user.name, req.user.role, 15, isNewPersonalBest, 'arcade');
-
-    res.status(201).json({
-      success: true,
-      score: newScore,
-      isNewPersonalBest,
-      rank
-    });
-  } catch (err) {
-    console.error('Error recording arcade score:', err);
-    res.status(500).json({ error: 'Failed to record arcade score: ' + err.message });
-  }
-});
-
-// GET /api/bonding/arcade/leaderboard - Retrieve arcade leaderboard
-router.get('/arcade/leaderboard', async (req, res) => {
-  try {
-    const { gameId } = req.query;
-    const matchFilter = (gameId && gameId !== 'all') ? { gameId } : {};
-
-    // Get highest score per user for the game
-    const topPerUser = await ArcadeScore.aggregate([
-      { $match: matchFilter },
-      { $sort: { score: -1 } },
-      {
-        $group: {
-          _id: { userId: '$userId', gameId: '$gameId' },
-          docId: { $first: '$_id' },
-          userId: { $first: '$userId' },
-          userName: { $first: '$userName' },
-          userRole: { $first: '$userRole' },
-          gameId: { $first: '$gameId' },
-          gameTitle: { $first: '$gameTitle' },
-          highScore: { $max: '$score' },
-          createdAt: { $first: '$createdAt' }
-        }
-      },
-      { $sort: { highScore: -1 } },
-      { $limit: 30 }
-    ]);
-
-    const leaderboard = topPerUser.map((entry, index) => ({
-      rank: index + 1,
-      id: entry.docId,
-      userId: entry.userId,
-      userName: entry.userName,
-      userRole: entry.userRole,
-      gameId: entry.gameId,
-      gameTitle: entry.gameTitle,
-      score: entry.highScore,
-      date: entry.createdAt
-    }));
-
-    const myBests = await ArcadeScore.aggregate([
-      { $match: { userId: req.user._id } },
-      {
-        $group: {
-          _id: '$gameId',
-          gameId: { $first: '$gameId' },
-          gameTitle: { $first: '$gameTitle' },
-          highScore: { $max: '$score' },
-          lastPlayed: { $max: '$createdAt' }
-        }
-      }
-    ]);
-
-    res.json({
-      leaderboard,
-      myBests
-    });
-  } catch (err) {
-    console.error('Error fetching arcade leaderboard:', err);
-    res.status(500).json({ error: 'Failed to fetch leaderboard: ' + err.message });
   }
 });
 
