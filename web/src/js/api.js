@@ -1856,11 +1856,12 @@ export function renderAppShell({ user, currentRole, activeTab, tabs, title, subt
           <img src="/logo.png" alt="CI360 Logo" class="brand-logo-img">
           <div class="brand-info">
             <h1>CI360</h1>
-            <div class="tag">Intelligence Suite</div>
+            <div class="tag">Cognitio Innovo Private Limited</div>
           </div>
-          <button type="button" class="sidebar-collapse-btn" id="sidebarCollapseBtn" title="Toggle Sidebar (Ctrl+B)" aria-label="Minimize sidebar">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="15 18 9 12 15 6"></polyline>
+          <button type="button" class="sidebar-collapse-btn" id="sidebarCollapseBtn" title="Toggle Sidebar (Ctrl+B)" aria-label="Toggle sidebar">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="9" y1="3" x2="9" y2="21"></line>
             </svg>
           </button>
         </div>
@@ -1890,13 +1891,6 @@ export function renderAppShell({ user, currentRole, activeTab, tabs, title, subt
           <div class="topbar-left">
             <button type="button" class="mobile-nav-toggle" id="mobileNavToggle" aria-label="Open navigation">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-            </button>
-
-            <button type="button" class="desktop-sidebar-toggle" id="desktopSidebarToggle" title="Toggle Sidebar (Ctrl+B)" aria-label="Toggle sidebar">
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                <line x1="9" y1="3" x2="9" y2="21"></line>
-              </svg>
             </button>
 
             <!-- Mobile Brand Title (Same Logo as Desktop) -->
@@ -2209,7 +2203,21 @@ export function bindAppShellEvents(onTabChange) {
   }
 
   const sidebarCollapseBtn = document.getElementById('sidebarCollapseBtn');
-  if (sidebarCollapseBtn) sidebarCollapseBtn.onclick = toggleSidebarCollapse;
+  if (sidebarCollapseBtn) {
+    sidebarCollapseBtn.onclick = (e) => {
+      e.stopPropagation();
+      toggleSidebarCollapse();
+    };
+  }
+
+  const sidebarBrand = document.querySelector('.sidebar-brand');
+  if (sidebarBrand) {
+    sidebarBrand.onclick = (e) => {
+      if (document.querySelector('.app-shell.sidebar-collapsed')) {
+        toggleSidebarCollapse();
+      }
+    };
+  }
 
   const desktopSidebarToggle = document.getElementById('desktopSidebarToggle');
   if (desktopSidebarToggle) desktopSidebarToggle.onclick = toggleSidebarCollapse;
