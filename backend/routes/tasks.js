@@ -318,13 +318,20 @@ router.post('/', async (req, res) => {
     }
 
     // Determine target personnel and target user
-    let personnelId = reqPersonnelId || req.user.personnelId || null;
+    let personnelId = req.user.personnelId || null;
     let targetUserId = req.user._id;
 
     if (isAdminRole(req.user) && reqPersonnelId) {
       if (reqPersonnelId === 'all') {
         personnelId = null;
-      } else {
+      } else if (reqPersonnelId === 'me' || reqPersonnelId === 'myself') {
+        targetUserId = req.user._id;
+        personnelId = req.user.personnelId || null;
+        if (!personnelId && req.user.name) {
+          const p = await Personnel.findOne({ name: new RegExp('^' + req.user.name.trim() + '$', 'i') });
+          if (p) personnelId = p._id;
+        }
+      } else if (mongoose.Types.ObjectId.isValid(reqPersonnelId)) {
         personnelId = reqPersonnelId;
         const User = mongoose.models.User || require('../models/User');
         let linkedUser = await User.findOne({ personnelId: reqPersonnelId });
@@ -335,6 +342,8 @@ router.post('/', async (req, res) => {
           }
         }
         if (linkedUser) targetUserId = linkedUser._id;
+      } else {
+        personnelId = req.user.personnelId || null;
       }
     } else if (!personnelId && req.user.name) {
       const p = await Personnel.findOne({ name: new RegExp('^' + req.user.name + '$', 'i') });
@@ -453,7 +462,7 @@ router.put('/:id', async (req, res) => {
     if (personnelId !== undefined && (isAdminRole(req.user) || personnelId)) {
       if (personnelId === 'all') {
         // kept as is
-      } else if (personnelId && personnelId !== 'me') {
+      } else if (personnelId && personnelId !== 'me' && personnelId !== 'myself' && mongoose.Types.ObjectId.isValid(personnelId)) {
         const newPersId = String(personnelId);
         if (newPersId !== oldPersonnelId) {
           assigneeChanged = true;
@@ -472,7 +481,12 @@ router.put('/:id', async (req, res) => {
         }
       } else {
         if (oldPersonnelId !== null) assigneeChanged = true;
-        task.personnelId = null;
+        let myPersId = req.user.personnelId || null;
+        if (!myPersId && req.user.name) {
+          const p = await Personnel.findOne({ name: new RegExp('^' + req.user.name.trim() + '$', 'i') });
+          if (p) myPersId = p._id;
+        }
+        task.personnelId = myPersId;
         task.userId = req.user._id;
       }
     }
@@ -716,10 +730,19 @@ router.post('/bulk-import', async (req, res) => {
     let targetUserId = req.user._id;
 
     if (isAdminRole(req.user) && reqPersonnelId && reqPersonnelId !== 'all') {
-      targetPersonnelId = reqPersonnelId;
-      const User = mongoose.models.User || require('../models/User');
-      const linkedUser = await User.findOne({ personnelId: reqPersonnelId });
-      if (linkedUser) targetUserId = linkedUser._id;
+      if (reqPersonnelId === 'me' || reqPersonnelId === 'myself') {
+        targetUserId = req.user._id;
+        targetPersonnelId = req.user.personnelId || null;
+        if (!targetPersonnelId && req.user.name) {
+          const p = await Personnel.findOne({ name: new RegExp('^' + req.user.name.trim() + '$', 'i') });
+          if (p) targetPersonnelId = p._id;
+        }
+      } else if (mongoose.Types.ObjectId.isValid(reqPersonnelId)) {
+        targetPersonnelId = reqPersonnelId;
+        const User = mongoose.models.User || require('../models/User');
+        const linkedUser = await User.findOne({ personnelId: reqPersonnelId });
+        if (linkedUser) targetUserId = linkedUser._id;
+      }
     } else if (!targetPersonnelId && req.user.name) {
       const p = await Personnel.findOne({ name: new RegExp('^' + req.user.name + '$', 'i') });
       if (p) targetPersonnelId = p._id;

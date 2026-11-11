@@ -1983,7 +1983,7 @@ export function initDailyPlanner(container, options = {}) {
           payload.assignAll = true;
           payload.personnelId = 'all';
         } else if (assignee === 'me') {
-          payload.personnelId = 'me';
+          payload.personnelId = null;
         } else if (assignee) {
           payload.personnelId = assignee;
         }
