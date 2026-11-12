@@ -469,8 +469,9 @@ export async function triggerSystemNotification({ title, message, type, id, url,
     return;
   }
 
-  // Only display desktop notification if permission is granted
+  // If permission is not yet granted, trigger UI prompt banner
   if (Notification.permission !== 'granted') {
+    checkAndShowGlobalNotifBanner();
     return;
   }
 
@@ -498,11 +499,29 @@ export async function triggerSystemNotification({ title, message, type, id, url,
 
   let shownOnDesktop = false;
 
-  // 1. Service Worker showNotification (W3C standard for desktop & mobile, works even when tab is backgrounded)
+  // 1. Direct window Notification (instant native desktop balloon on Windows, macOS, Linux)
+  try {
+    const n = new Notification(cleanTitleStr, options);
+    n.onclick = (e) => {
+      try {
+        e.preventDefault();
+        window.focus();
+        if (options.data && options.data.url) {
+          window.location.href = options.data.url;
+        }
+        n.close();
+      } catch (_) {}
+    };
+    shownOnDesktop = true;
+  } catch (desktopErr) {
+    console.warn('Direct window Notification notice:', desktopErr);
+  }
+
+  // 2. Service Worker showNotification (ensures delivery when tab is minimized or backgrounded)
   if ('serviceWorker' in navigator) {
     try {
       const reg = swRegistration || await navigator.serviceWorker.getRegistration();
-      if (reg && reg.showNotification) {
+      if (reg && reg.showNotification && (!shownOnDesktop || document.visibilityState === 'hidden')) {
         await reg.showNotification(cleanTitleStr, options);
         shownOnDesktop = true;
       }
@@ -511,27 +530,7 @@ export async function triggerSystemNotification({ title, message, type, id, url,
     }
   }
 
-  // 2. Direct window Notification fallback (for desktop browsers like Brave, Edge, Chrome without active SW)
-  if (!shownOnDesktop) {
-    try {
-      const n = new Notification(cleanTitleStr, options);
-      n.onclick = (e) => {
-        try {
-          e.preventDefault();
-          window.focus();
-          if (options.data && options.data.url) {
-            window.location.href = options.data.url;
-          }
-          n.close();
-        } catch (_) {}
-      };
-      shownOnDesktop = true;
-    } catch (desktopErr) {
-      console.warn('Direct window Notification notice:', desktopErr);
-    }
-  }
-
-  // 3. Post to Service Worker controller if active (for badge updates and PWA caching)
+  // 3. Post to Service Worker controller if active
   try {
     if (navigator.serviceWorker && navigator.serviceWorker.controller) {
       navigator.serviceWorker.controller.postMessage({
@@ -546,43 +545,68 @@ export async function triggerSystemNotification({ title, message, type, id, url,
 export function checkAndShowGlobalNotifBanner() {
   if (typeof window === 'undefined' || typeof document === 'undefined') return;
   if (!('Notification' in window)) return;
-  if (Notification.permission !== 'default') {
-    const existing = document.getElementById('ci360GlobalNotifBanner');
+
+  const existing = document.getElementById('ci360GlobalNotifBanner');
+
+  // If already granted, ensure no banner is showing
+  if (Notification.permission === 'granted') {
     if (existing) existing.remove();
     return;
   }
-  // Check if dismissed recently (within 24 hours)
-  const dismissedTime = localStorage.getItem('ci360_global_notif_banner_dismissed');
-  if (dismissedTime && (Date.now() - Number(dismissedTime) < 24 * 60 * 60 * 1000)) {
-    return;
-  }
-  if (document.getElementById('ci360GlobalNotifBanner')) return;
+
+  // If already rendered, don't duplicate
+  if (existing) return;
 
   const banner = document.createElement('div');
   banner.id = 'ci360GlobalNotifBanner';
   banner.className = 'ci360-notif-prompt-banner';
-  banner.innerHTML = `
-    <div class="ci360-npb-left">
-      <span class="ci360-npb-icon">🔔</span>
-      <div class="ci360-npb-text">
-        <strong class="ci360-npb-title">Enable Desktop Notifications</strong>
-        <span class="ci360-npb-sub">Get real-time desktop alerts on your computer for tasks, jobs, tickets & team chat across all dashboards.</span>
+
+  if (Notification.permission === 'denied') {
+    // Permission is blocked in browser settings
+    banner.style.cssText = 'background:linear-gradient(90deg, rgba(239,68,68,0.18), rgba(220,38,38,0.12));border:1px solid rgba(239,68,68,0.4);border-radius:12px;padding:12px 18px;margin:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,0.15);';
+    banner.innerHTML = `
+      <div style="display:flex;align-items:center;gap:12px;flex:1;">
+        <span style="font-size:24px;line-height:1;">⚠️</span>
+        <div style="font-size:12.5px;color:var(--text-1);line-height:1.4;">
+          <strong style="color:#ef4444;font-size:13.5px;display:block;margin-bottom:2px;">Desktop Notifications are Blocked in Your Browser</strong>
+          <span>To get desktop alerts for tasks, tickets, chat & jobs, click the lock/tune icon <strong style="color:var(--text-1);">🔒</strong> next to the URL in your browser address bar, set <strong>Notifications</strong> to <strong>Allow</strong>, and click Check Again.</span>
+        </div>
       </div>
-    </div>
-    <div class="ci360-npb-actions">
-      <button type="button" id="ci360GlobalNotifEnableBtn" class="btn primary small ci360-npb-btn">🔔 Enable Alerts</button>
-      <button type="button" id="ci360GlobalNotifDismissBtn" class="btn ghost small ci360-npb-close" title="Dismiss">✕</button>
-    </div>
-  `;
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button type="button" id="ci360GlobalNotifCheckBtn" class="btn primary small" style="background:#ef4444;border-color:#ef4444;font-weight:700;white-space:nowrap;padding:7px 14px;border-radius:8px;">🔄 Check Again</button>
+        <button type="button" id="ci360GlobalNotifDismissBtn" class="btn ghost small" style="color:var(--text-3);padding:4px 8px;font-size:14px;" title="Dismiss">✕</button>
+      </div>
+    `;
+  } else {
+    // Permission is default (not yet requested or granted)
+    banner.style.cssText = 'background:linear-gradient(90deg, rgba(234,179,8,0.16), rgba(245,158,11,0.1));border:1px solid rgba(234,179,8,0.4);border-radius:12px;padding:12px 18px;margin:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,0.12);';
+    banner.innerHTML = `
+      <div style="display:flex;align-items:center;gap:12px;flex:1;">
+        <span style="font-size:24px;line-height:1;">🔔</span>
+        <div style="font-size:12.5px;color:var(--text-1);line-height:1.4;">
+          <strong style="color:#d97706;font-size:13.5px;display:block;margin-bottom:2px;">Enable Desktop Notifications</strong>
+          <span>Get real-time desktop popups on your computer for tasks, tickets, team chat & jobs across all dashboards.</span>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button type="button" id="ci360GlobalNotifEnableBtn" class="btn primary small" style="background:#d97706;border-color:#d97706;font-weight:700;white-space:nowrap;padding:7px 16px;border-radius:8px;">🔔 Turn On Notifications</button>
+        <button type="button" id="ci360GlobalNotifDismissBtn" class="btn ghost small" style="color:var(--text-3);padding:4px 8px;font-size:14px;" title="Dismiss">✕</button>
+      </div>
+    `;
+  }
 
   const appMain = document.querySelector('.app-main') || document.body;
-  if (appMain.firstChild) {
+  const topbar = appMain.querySelector('.app-topbar');
+  if (topbar && topbar.nextSibling) {
+    appMain.insertBefore(banner, topbar.nextSibling);
+  } else if (appMain.firstChild) {
     appMain.insertBefore(banner, appMain.firstChild);
   } else {
     appMain.appendChild(banner);
   }
 
   const enableBtn = banner.querySelector('#ci360GlobalNotifEnableBtn');
+  const checkBtn = banner.querySelector('#ci360GlobalNotifCheckBtn');
   const dismissBtn = banner.querySelector('#ci360GlobalNotifDismissBtn');
 
   if (enableBtn) {
@@ -593,6 +617,26 @@ export function checkAndShowGlobalNotifBanner() {
       const granted = await requestNotificationPermission();
       if (granted) {
         flashToast('Desktop notifications enabled successfully! 🔔');
+      }
+    };
+  }
+
+  if (checkBtn) {
+    checkBtn.onclick = (e) => {
+      e.stopPropagation();
+      banner.remove();
+      if (Notification.permission === 'granted') {
+        localStorage.setItem('ci360_notif_enabled', 'true');
+        flashToast('Notifications are now allowed! 🔔');
+        triggerSystemNotification({
+          title: 'CI360 Desktop Alerts Active 🔔',
+          message: 'Notifications are working on your computer!',
+          id: 'test-check-' + Date.now(),
+          bypassDedup: true
+        });
+      } else {
+        checkAndShowGlobalNotifBanner();
+        flashToast('Still blocked. Please change permission to Allow in your browser URL bar.', true);
       }
     };
   }
@@ -1419,9 +1463,6 @@ export function initNotificationBell() {
         const dailyJobAlertKey = 'ci360_daily_alert_job_' + todayStr;
         let jobDueAlertedInLoop = !!localStorage.getItem(dailyJobAlertKey);
 
-        const latestNew = newlyArrived[0];
-        const latestSid = String(latestNew._id);
-
         // Mark all newly arrived items as alerted immediately so they don't loop
         newlyArrived.forEach(n => {
           const sid = String(n._id);
@@ -1430,33 +1471,43 @@ export function initNotificationBell() {
         });
         saveAlertedNotifIds();
 
-        let shouldShow = true;
-        if (latestNew.type === 'job_due' || (latestNew.title && latestNew.title.includes('Job Due'))) {
-          if (jobDueAlertedInLoop) {
-            shouldShow = false;
-          } else {
-            localStorage.setItem(dailyJobAlertKey, 'true');
-          }
-        }
+        // Stagger alert delivery for newly arrived notifications (up to 4 at once) so every event pops up on desktop
+        const toAlert = newlyArrived.slice(0, 4);
+        toAlert.forEach((item, index) => {
+          setTimeout(async () => {
+            const sid = String(item._id);
+            let shouldShow = true;
+            if (item.type === 'job_due' || (item.title && item.title.includes('Job Due'))) {
+              if (jobDueAlertedInLoop) {
+                shouldShow = false;
+              } else {
+                localStorage.setItem(dailyJobAlertKey, 'true');
+                jobDueAlertedInLoop = true;
+              }
+            }
 
-        if (shouldShow) {
-          // Pop up interactive in-app toast card (stays 4.5s and goes)
-          showInAppPopupAlert({
-            id: latestSid,
-            title: latestNew.title || 'CI360 Alert',
-            message: latestNew.message || '',
-            type: latestNew.type
-          });
+            if (shouldShow) {
+              // Pop up interactive in-app toast card (for primary new notification)
+              if (index === 0) {
+                showInAppPopupAlert({
+                  id: sid,
+                  title: item.title || 'CI360 Alert',
+                  message: item.message || '',
+                  type: item.type
+                });
+              }
 
-          // Trigger system / OS desktop notification with bypassDedup: true so it is guaranteed to show
-          await triggerSystemNotification({
-            title: latestNew.title || 'CI360 Alert',
-            message: latestNew.message || '',
-            type: latestNew.type,
-            id: latestSid,
-            bypassDedup: true
-          });
-        }
+              // Trigger system / OS desktop notification with bypassDedup: true so it is guaranteed to show
+              await triggerSystemNotification({
+                title: item.title || 'CI360 Alert',
+                message: item.message || '',
+                type: item.type,
+                id: sid,
+                bypassDedup: true
+              });
+            }
+          }, index * 250);
+        });
         saveAlertedNotifIds();
 
         // Also trigger view auto update so new items immediately appear without refresh
@@ -2576,6 +2627,7 @@ export function bindAppShellEvents(onTabChange) {
 
   // Init notifications
   initNotificationBell();
+  checkAndShowGlobalNotifBanner();
 
   // Tab navigation
   document.querySelectorAll('.sidebar-item').forEach(btn => {

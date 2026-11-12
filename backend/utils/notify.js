@@ -183,7 +183,7 @@ async function createNotificationForTicket({ type, title, message, ticket, actor
       targetUserIds.add(String(reporterUserId));
     }
 
-    // 3. Ticket assignee user
+    // 3. Ticket assignee users (support single assignee or multiple assignees array)
     const assigneeUserId = ticket.assignee && ticket.assignee.userId;
     if (assigneeUserId) {
       targetUserIds.add(String(assigneeUserId));
@@ -192,6 +192,18 @@ async function createNotificationForTicket({ type, title, message, ticket, actor
     if (assigneePersonnelId && mongoose.Types.ObjectId.isValid(assigneePersonnelId)) {
       const u = await User.findOne({ personnelId: assigneePersonnelId, active: true });
       if (u) targetUserIds.add(String(u._id));
+    }
+    if (Array.isArray(ticket.assignees) && ticket.assignees.length) {
+      ticket.assignees.forEach(a => {
+        if (a && a.userId) targetUserIds.add(String(a.userId));
+      });
+      const aPersIds = ticket.assignees
+        .map(a => a && (a.personnelId || a._id))
+        .filter(id => id && mongoose.Types.ObjectId.isValid(id));
+      if (aPersIds.length) {
+        const uList = await User.find({ personnelId: { $in: aPersIds }, active: true });
+        uList.forEach(u => targetUserIds.add(String(u._id)));
+      }
     }
 
     // 4. Always include actor who performed the action
@@ -453,6 +465,58 @@ async function createNotificationForGameChallenge({ title, message, targetUserId
   }
 }
 
+async function createNotificationForProposal({ type, title, message, proposal, actorId, actorName }) {
+  try {
+    if (!proposal) return;
+    const targetUserIds = new Set();
+
+    // 1. All Super Admins & Admins
+    const admins = await User.find({ role: { $in: ['superadmin', 'admin'] }, active: true });
+    admins.forEach(u => targetUserIds.add(String(u._id)));
+
+    // 2. Creator
+    if (proposal.createdBy) {
+      targetUserIds.add(String(proposal.createdBy));
+    }
+
+    // 3. Client if associated
+    if (proposal.clientId) {
+      const clientUsers = await User.find({ clientId: proposal.clientId, active: true });
+      clientUsers.forEach(u => targetUserIds.add(String(u._id)));
+    }
+
+    if (actorId) {
+      targetUserIds.add(String(actorId));
+    }
+
+    const nTitle = title || `📄 Proposal: ${proposal.client || 'Proposal'}`;
+    const nMessage = message || `Proposal "${proposal.ref || proposal.client || ''}" was updated.`;
+
+    const docs = Array.from(targetUserIds).map(uId => ({
+      userId: uId,
+      type: type || 'proposal_updated',
+      title: nTitle,
+      message: nMessage,
+      proposalId: proposal._id,
+      read: false
+    }));
+
+    const deduplicatedDocs = await filterDuplicateNotifications(docs, 'proposalId', proposal._id);
+    if (deduplicatedDocs.length) {
+      await Notification.insertMany(deduplicatedDocs);
+      sendPushToUsers(Array.from(targetUserIds), {
+        title: nTitle,
+        message: nMessage,
+        type: type || 'proposal_updated',
+        url: '/proposals'
+      }).catch(e => console.warn('Push error:', e.message));
+    }
+    recordSyncUpdate('proposals');
+  } catch (err) {
+    console.error('Error creating proposal notification:', err.message);
+  }
+}
+
 module.exports = { 
   createNotificationsForJob, 
   createNotificationForTarget, 
@@ -461,5 +525,6 @@ module.exports = {
   createNotificationForInvoice,
   createNotificationForChatMessage,
   createNotificationForGameChallenge,
+  createNotificationForProposal,
   recordSyncUpdate
 };

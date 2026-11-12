@@ -817,6 +817,17 @@ router.post('/bulk-import', async (req, res) => {
       createdList.push(t);
     }
 
+    if (createdList.length > 0) {
+      await createNotificationForTask({
+        type: 'task_created',
+        title: '📋 Tasks Imported',
+        message: `${createdList.length} task${createdList.length > 1 ? 's' : ''} added to planner for ${dStr}.`,
+        task: createdList[0],
+        actorId: req.user._id,
+        actorName: req.user.name
+      });
+    }
+
     res.status(201).json({
       success: true,
       importedCount: createdList.length,

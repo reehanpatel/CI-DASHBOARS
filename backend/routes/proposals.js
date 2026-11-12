@@ -8,6 +8,7 @@ const SystemSetting = mongoose.models.SystemSetting || require('../models/System
 const Client = mongoose.models.Client || require('../models/Client');
 const { verifyToken, requireRole } = require('../middleware/auth');
 const { DEFAULT_RATE_CARD } = require('../utils/proposalDefaults');
+const { createNotificationForProposal } = require('../utils/notify');
 
 const router = express.Router();
 
@@ -146,6 +147,13 @@ router.post('/shared/:shareId/respond', async (req, res) => {
 
     proposal.status = decision === 'changes' ? 'changes' : 'won';
     await proposal.save();
+
+    createNotificationForProposal({
+      type: decision === 'changes' ? 'proposal_changes_requested' : 'proposal_approved',
+      title: decision === 'changes' ? `✍️ Changes Requested on Proposal` : `🎉 Proposal Approved & Won!`,
+      message: `${name.trim()} (${proposal.client}) responded to proposal "${proposal.title || proposal.ref}".`,
+      proposal
+    }).catch(e => console.warn('Proposal notif err:', e.message));
 
     res.json({
       success: true,
@@ -462,6 +470,16 @@ router.post('/', async (req, res) => {
     data.contentHash = computeContentHash(data);
 
     const proposal = await Proposal.create(data);
+
+    createNotificationForProposal({
+      type: 'proposal_created',
+      title: `📄 New Proposal: ${proposal.client || 'Client'}`,
+      message: `${req.user.name || 'User'} created proposal "${proposal.title || proposal.ref}".`,
+      proposal,
+      actorId: req.user._id,
+      actorName: req.user.name
+    }).catch(e => console.warn('Proposal create notif err:', e.message));
+
     res.status(201).json(proposal);
   } catch (err) {
     res.status(500).json({ error: err.message });
