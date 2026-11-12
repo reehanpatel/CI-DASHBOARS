@@ -39,7 +39,7 @@ async function parseCoOwners(rawList) {
       department = item.department || '';
     }
 
-    if (persId) {
+    if (persId && mongoose.Types.ObjectId.isValid(persId)) {
       try {
         const p = await Personnel.findById(persId).lean();
         if (p) {
@@ -97,10 +97,18 @@ router.get('/', async (req, res) => {
       filter.$or = userConditions;
     } else {
       if (req.query.personnelId && req.query.personnelId !== 'all') {
-        filter.personnelId = req.query.personnelId;
+        if (req.query.personnelId === 'me' || req.query.personnelId === 'myself' || req.query.personnelId === 'self') {
+          filter.userId = req.user._id;
+        } else if (mongoose.Types.ObjectId.isValid(req.query.personnelId)) {
+          filter.personnelId = req.query.personnelId;
+        }
       }
       if (req.query.userId && req.query.userId !== 'all') {
-        filter.userId = req.query.userId;
+        if (req.query.userId === 'me' || req.query.userId === 'myself' || req.query.userId === 'self') {
+          filter.userId = req.user._id;
+        } else if (mongoose.Types.ObjectId.isValid(req.query.userId)) {
+          filter.userId = req.query.userId;
+        }
       }
     }
 
@@ -1018,7 +1026,11 @@ router.post('/clear-completed', async (req, res) => {
       if (req.user.personnelId) userConditions.push({ personnelId: req.user.personnelId });
       filter.$or = userConditions;
     } else if (req.body.personnelId && req.body.personnelId !== 'all') {
-      filter.personnelId = req.body.personnelId;
+      if (req.body.personnelId === 'me' || req.body.personnelId === 'myself' || req.body.personnelId === 'self') {
+        filter.userId = req.user._id;
+      } else if (mongoose.Types.ObjectId.isValid(req.body.personnelId)) {
+        filter.personnelId = req.body.personnelId;
+      }
     }
 
     if (req.body.date && req.body.date !== 'all') {

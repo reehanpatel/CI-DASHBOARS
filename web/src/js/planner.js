@@ -1984,11 +1984,13 @@ export function initDailyPlanner(container, options = {}) {
         if (assignee === 'all') {
           payload.assignAll = true;
           payload.personnelId = 'all';
-        } else if (assignee === 'me') {
+        } else if (!assignee || assignee === 'me' || assignee === 'myself' || assignee === 'self') {
           payload.personnelId = null;
         } else if (assignee) {
           payload.personnelId = assignee;
         }
+      } else {
+        payload.personnelId = null;
       }
 
       const saveBtn = modalBg.querySelector('#btnSaveTask');
