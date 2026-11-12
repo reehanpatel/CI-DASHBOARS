@@ -374,6 +374,9 @@ export async function requestNotificationPermission() {
       perm = await new Promise(resolve => Notification.requestPermission(resolve));
     }
     const banner = document.getElementById('notifPermissionBanner');
+    const globalBanner = document.getElementById('ci360GlobalNotifBanner');
+    if (globalBanner) globalBanner.remove();
+
     if (perm === 'granted') {
       localStorage.setItem('ci360_notif_enabled', 'true');
       // Fire push subscription asynchronously without blocking UI or notifications
@@ -383,13 +386,14 @@ export async function requestNotificationPermission() {
         banner.style.setProperty('display', 'none', 'important');
         banner.remove();
       }
-      flashToast('Notifications successfully enabled for Brave, Chrome & all browsers! 🔔');
+      flashToast('Desktop notifications successfully enabled! 🔔');
       playNotificationChime();
       triggerPhoneVibration();
       await triggerSystemNotification({
-        title: 'CI360 Laptop Alerts Active 🔔',
-        message: 'Instant notifications are now live on your laptop and browser!',
-        id: 'ci360-perm-welcome'
+        title: 'CI360 Desktop Alerts Active 🔔',
+        message: 'Instant notifications are now live on your computer and browser!',
+        id: 'ci360-perm-welcome-' + Date.now(),
+        bypassDedup: true
       });
       return true;
     } else if (perm === 'denied') {
@@ -397,7 +401,7 @@ export async function requestNotificationPermission() {
         banner.classList.add('hidden');
         banner.style.setProperty('display', 'none', 'important');
       }
-      flashToast('Notifications are blocked. In Brave / Chrome, click the lock or shield icon in the address bar to Allow notifications.', true);
+      flashToast('Notifications are blocked. In your browser (Chrome/Brave/Edge), click the lock or shield icon in the address bar to Allow notifications.', true);
       return false;
     } else {
       if (banner) {
@@ -421,9 +425,11 @@ export function setNotificationEnabled(enabled) {
   }
 }
 
-export async function triggerSystemNotification({ title, message, type, id, url }) {
+export async function triggerSystemNotification({ title, message, type, id, url, bypassDedup = false }) {
+  if (typeof window === 'undefined') return;
+
   // Check if disabled by user setting
-  if (typeof window !== 'undefined' && localStorage.getItem('ci360_notif_enabled') === 'false') {
+  if (localStorage.getItem('ci360_notif_enabled') === 'false') {
     return;
   }
 
@@ -431,7 +437,7 @@ export async function triggerSystemNotification({ title, message, type, id, url 
   loadAlertedNotifIds();
 
   // Deduplication check
-  if (strId && alertedNotifIds.has(strId)) {
+  if (!bypassDedup && strId && alertedNotifIds.has(strId)) {
     return;
   }
   if (strId) {
@@ -447,17 +453,7 @@ export async function triggerSystemNotification({ title, message, type, id, url 
     return;
   }
 
-  // If permission is default, try requesting on desktop or fallback
-  if (Notification.permission === 'default') {
-    try {
-      const p = await Notification.requestPermission();
-      if (p !== 'granted') return;
-      localStorage.setItem('ci360_notif_enabled', 'true');
-    } catch (e) {
-      return;
-    }
-  }
-
+  // Only display desktop notification if permission is granted
   if (Notification.permission !== 'granted') {
     return;
   }
@@ -466,52 +462,56 @@ export async function triggerSystemNotification({ title, message, type, id, url 
     ? new URL('/logo.png', window.location.origin).href
     : '/logo.png';
 
+  const cleanTitleStr = cleanNotificationTitle(title) || 'CI360 Alert';
+  const cleanBodyStr = (message || 'You have a new update in CI360.').slice(0, 220);
+
   const options = {
-    body: message || 'You have a new update in CI360.',
+    body: cleanBodyStr,
     icon: iconUrl,
     badge: iconUrl,
     tag: strId ? `ci360-notif-${strId}` : ('ci360-alert-' + Date.now()),
     renotify: true,
+    requireInteraction: true, // Keep notification visible on screen on desktop until user dismisses or clicks
+    silent: false,
     vibrate: [200, 100, 200, 100, 200],
     data: {
-      url: url || (typeof window !== 'undefined' ? window.location.href : ''),
+      url: url || (typeof window !== 'undefined' ? window.location.href : '/'),
       type: type || 'general'
     }
   };
 
-  // 1. Direct window Notification for ALL desktop browsers (Brave, Chrome, Edge, Firefox, Safari, Opera)
-  // On laptops & desktop PCs, new Notification() immediately triggers the native Windows Action Center or macOS toast.
-  // This bypasses Google push services (which Brave blocks by default) and works 100% reliably.
   let shownOnDesktop = false;
-  try {
-    const n = new Notification(title, options);
-    n.onclick = (e) => {
-      try {
-        e.preventDefault();
-        window.focus();
-        if (options.data && options.data.url) {
-          window.location.href = options.data.url;
-        }
-        n.close();
-      } catch (_) {}
-    };
-    shownOnDesktop = true;
-  } catch (desktopErr) {
-    // Only thrown on Android mobile Chrome where new Notification() in window scope is forbidden
-    shownOnDesktop = false;
-  }
 
-  // 2. Service Worker showNotification fallback (primarily for mobile Android or PWA background tasks)
-  if (!shownOnDesktop) {
+  // 1. Service Worker showNotification (W3C standard for desktop & mobile, works even when tab is backgrounded)
+  if ('serviceWorker' in navigator) {
     try {
-      if ('serviceWorker' in navigator) {
-        const reg = swRegistration || await navigator.serviceWorker.getRegistration();
-        if (reg && reg.showNotification) {
-          await reg.showNotification(title, options);
-        }
+      const reg = swRegistration || await navigator.serviceWorker.getRegistration();
+      if (reg && reg.showNotification) {
+        await reg.showNotification(cleanTitleStr, options);
+        shownOnDesktop = true;
       }
     } catch (swErr) {
-      console.warn('Service worker notification fallback notice:', swErr);
+      console.warn('Service worker showNotification notice:', swErr);
+    }
+  }
+
+  // 2. Direct window Notification fallback (for desktop browsers like Brave, Edge, Chrome without active SW)
+  if (!shownOnDesktop) {
+    try {
+      const n = new Notification(cleanTitleStr, options);
+      n.onclick = (e) => {
+        try {
+          e.preventDefault();
+          window.focus();
+          if (options.data && options.data.url) {
+            window.location.href = options.data.url;
+          }
+          n.close();
+        } catch (_) {}
+      };
+      shownOnDesktop = true;
+    } catch (desktopErr) {
+      console.warn('Direct window Notification notice:', desktopErr);
     }
   }
 
@@ -520,11 +520,74 @@ export async function triggerSystemNotification({ title, message, type, id, url 
     if (navigator.serviceWorker && navigator.serviceWorker.controller) {
       navigator.serviceWorker.controller.postMessage({
         type: 'SHOW_NOTIFICATION',
-        title,
+        title: cleanTitleStr,
         options
       });
     }
   } catch (e) { }
+}
+
+export function checkAndShowGlobalNotifBanner() {
+  if (typeof window === 'undefined' || typeof document === 'undefined') return;
+  if (!('Notification' in window)) return;
+  if (Notification.permission !== 'default') {
+    const existing = document.getElementById('ci360GlobalNotifBanner');
+    if (existing) existing.remove();
+    return;
+  }
+  // Check if dismissed recently (within 24 hours)
+  const dismissedTime = localStorage.getItem('ci360_global_notif_banner_dismissed');
+  if (dismissedTime && (Date.now() - Number(dismissedTime) < 24 * 60 * 60 * 1000)) {
+    return;
+  }
+  if (document.getElementById('ci360GlobalNotifBanner')) return;
+
+  const banner = document.createElement('div');
+  banner.id = 'ci360GlobalNotifBanner';
+  banner.className = 'ci360-notif-prompt-banner';
+  banner.innerHTML = `
+    <div class="ci360-npb-left">
+      <span class="ci360-npb-icon">🔔</span>
+      <div class="ci360-npb-text">
+        <strong class="ci360-npb-title">Enable Desktop Notifications</strong>
+        <span class="ci360-npb-sub">Get real-time desktop alerts on your computer for tasks, jobs, tickets & team chat across all dashboards.</span>
+      </div>
+    </div>
+    <div class="ci360-npb-actions">
+      <button type="button" id="ci360GlobalNotifEnableBtn" class="btn primary small ci360-npb-btn">🔔 Enable Alerts</button>
+      <button type="button" id="ci360GlobalNotifDismissBtn" class="btn ghost small ci360-npb-close" title="Dismiss">✕</button>
+    </div>
+  `;
+
+  const appMain = document.querySelector('.app-main') || document.body;
+  if (appMain.firstChild) {
+    appMain.insertBefore(banner, appMain.firstChild);
+  } else {
+    appMain.appendChild(banner);
+  }
+
+  const enableBtn = banner.querySelector('#ci360GlobalNotifEnableBtn');
+  const dismissBtn = banner.querySelector('#ci360GlobalNotifDismissBtn');
+
+  if (enableBtn) {
+    enableBtn.onclick = async (e) => {
+      e.stopPropagation();
+      banner.remove();
+      localStorage.setItem('ci360_notif_enabled', 'true');
+      const granted = await requestNotificationPermission();
+      if (granted) {
+        flashToast('Desktop notifications enabled successfully! 🔔');
+      }
+    };
+  }
+
+  if (dismissBtn) {
+    dismissBtn.onclick = (e) => {
+      e.stopPropagation();
+      banner.remove();
+      localStorage.setItem('ci360_global_notif_banner_dismissed', String(Date.now()));
+    };
+  }
 }
 
 function urlBase64ToUint8Array(base64String) {
@@ -894,6 +957,7 @@ export function renderNotificationBell() {
             <span id="notifUnreadBadge" class="notif-header-count" style="display:none"></span>
           </div>
           <div class="notif-header-actions">
+            <button id="notifTestAlertBtn" type="button" class="btn ghost small notif-action-btn" title="Send a test notification to your desktop">🔔 Test Alert</button>
             <button id="markAllReadBtn" type="button" class="btn ghost small notif-action-btn">Mark Read</button>
             <button id="clearNotifBtn" type="button" class="btn ghost small notif-action-btn">Clear</button>
             <button id="notifCloseBtn" type="button" class="notif-mobile-close" aria-label="Close notifications">✕</button>
@@ -1090,6 +1154,7 @@ export function initNotificationBell() {
   const list = document.getElementById('notifList');
   const clearBtn = document.getElementById('clearNotifBtn');
   const markReadBtn = document.getElementById('markAllReadBtn');
+  const testAlertBtn = document.getElementById('notifTestAlertBtn');
   const notifEnableBtn = document.getElementById('notifEnableBtn');
   const notifDismissBannerBtn = document.getElementById('notifDismissBannerBtn');
   const permBanner = document.getElementById('notifPermissionBanner');
@@ -1117,12 +1182,40 @@ export function initNotificationBell() {
     if ('Notification' in window) {
       if (Notification.permission === 'granted' || Notification.permission === 'denied') {
         hidePermBanner();
-      } else if (Notification.permission === 'default' && permBanner) {
-        permBanner.style.setProperty('display', 'flex', 'important');
+      } else if (Notification.permission === 'default') {
+        if (permBanner) permBanner.style.setProperty('display', 'flex', 'important');
+        checkAndShowGlobalNotifBanner();
       }
     }
   }
   checkPermissionUI();
+  checkAndShowGlobalNotifBanner();
+
+  if (testAlertBtn) {
+    testAlertBtn.onclick = async (e) => {
+      e.stopPropagation();
+      if (!('Notification' in window)) {
+        flashToast('Your browser does not support desktop notifications.', true);
+        return;
+      }
+      if (Notification.permission === 'default') {
+        const granted = await requestNotificationPermission();
+        if (!granted) return;
+      } else if (Notification.permission === 'denied') {
+        flashToast('Notifications are blocked in your browser. Click the lock/shield icon in the address bar to Allow notifications.', true);
+        return;
+      }
+      playNotificationChime();
+      triggerPhoneVibration();
+      await triggerSystemNotification({
+        title: '🔔 CI360 Desktop Alert Test',
+        message: 'Desktop notifications are working perfectly on your computer!',
+        id: 'test-manual-' + Date.now(),
+        bypassDedup: true
+      });
+      flashToast('Desktop notification sent! 🔔 Check your screen.');
+    };
+  }
 
   if (notifDismissBannerBtn) {
     notifDismissBannerBtn.onclick = (e) => {
@@ -1279,73 +1372,76 @@ export function initNotificationBell() {
         }
       }
 
-      // Session baseline: On initial page load / refresh, mark existing notifications as alerted
-      // so older notifications do not pop up on screen repeatedly ("it should just come once and than go")
+      // Session baseline: On initial page load / refresh, mark notifications older than 10 minutes as alerted
+      // so older history does not bombard the user, BUT recent unread notifications that arrived while away will trigger!
       if (!isSessionBaselineEstablished) {
+        const tenMinsAgo = Date.now() - (10 * 60 * 1000);
         allNotifs.forEach(n => {
+          const sid = String(n._id);
+          const notifTime = n.createdAt ? new Date(n.createdAt).getTime() : 0;
+          if (n.read || notifTime < tenMinsAgo) {
+            seenNotifIds.add(sid);
+            alertedNotifIds.add(sid);
+          }
+        });
+        saveAlertedNotifIds();
+        isSessionBaselineEstablished = true;
+      }
+
+      // Genuine new incoming unread notifications that arrived during active session or recently while away
+      const newlyArrived = allNotifs.filter(n => !n.read && !alertedNotifIds.has(String(n._id)));
+
+      if (newlyArrived.length > 0) {
+        const todayStr = new Date().toISOString().slice(0, 10);
+        const dailyJobAlertKey = 'ci360_daily_alert_job_' + todayStr;
+        let jobDueAlertedInLoop = !!localStorage.getItem(dailyJobAlertKey);
+
+        const latestNew = newlyArrived[0];
+        const latestSid = String(latestNew._id);
+
+        // Mark all newly arrived items as alerted immediately so they don't loop
+        newlyArrived.forEach(n => {
           const sid = String(n._id);
           seenNotifIds.add(sid);
           alertedNotifIds.add(sid);
         });
         saveAlertedNotifIds();
-        isSessionBaselineEstablished = true;
-      } else {
-        // Genuine new incoming unread notifications that arrived during the active session
-        const newlyArrived = allNotifs.filter(n => !n.read && !alertedNotifIds.has(String(n._id)));
 
-        if (newlyArrived.length > 0) {
-          const todayStr = new Date().toISOString().slice(0, 10);
-          const dailyJobAlertKey = 'ci360_daily_alert_job_' + todayStr;
-          let jobDueAlertedInLoop = !!localStorage.getItem(dailyJobAlertKey);
+        let shouldShow = true;
+        if (latestNew.type === 'job_due' || (latestNew.title && latestNew.title.includes('Job Due'))) {
+          if (jobDueAlertedInLoop) {
+            shouldShow = false;
+          } else {
+            localStorage.setItem(dailyJobAlertKey, 'true');
+          }
+        }
 
-          // Mark all newly arrived items as alerted immediately
-          newlyArrived.forEach(n => {
-            const sid = String(n._id);
-            seenNotifIds.add(sid);
-            alertedNotifIds.add(sid);
+        if (shouldShow) {
+          // Pop up interactive in-app toast card (stays 4.5s and goes)
+          showInAppPopupAlert({
+            id: latestSid,
+            title: latestNew.title || 'CI360 Alert',
+            message: latestNew.message || '',
+            type: latestNew.type
           });
-          saveAlertedNotifIds();
 
-          // Only pop up the single newest notification so screen is never cluttered
-          const latestNew = newlyArrived[0];
-          if (latestNew) {
-            const sid = String(latestNew._id);
-            let shouldShow = true;
-            if (latestNew.type === 'job_due' || (latestNew.title && latestNew.title.includes('Job Due'))) {
-              if (jobDueAlertedInLoop) {
-                shouldShow = false;
-              } else {
-                localStorage.setItem(dailyJobAlertKey, 'true');
-              }
-            }
+          // Trigger system / OS desktop notification with bypassDedup: true so it is guaranteed to show
+          await triggerSystemNotification({
+            title: latestNew.title || 'CI360 Alert',
+            message: latestNew.message || '',
+            type: latestNew.type,
+            id: latestSid,
+            bypassDedup: true
+          });
+        }
+        saveAlertedNotifIds();
 
-            if (shouldShow) {
-              // Pop up interactive in-app toast card (stays 4.5s and goes)
-              showInAppPopupAlert({
-                id: sid,
-                title: latestNew.title || 'CI360 Alert',
-                message: latestNew.message || '',
-                type: latestNew.type
-              });
-
-              // Trigger system / OS desktop notification
-              await triggerSystemNotification({
-                title: latestNew.title || 'CI360 Alert',
-                message: latestNew.message || '',
-                type: latestNew.type,
-                id: sid
-              });
-            }
-          }
-          saveAlertedNotifIds();
-
-          // Also trigger view auto update so new items immediately appear without refresh
-          window.dispatchEvent(new CustomEvent('ci360:dataUpdated', {
-            detail: { newNotifications: newlyArrived }
-          }));
-          if (typeof window.ci360TriggerAutoUpdate === 'function') {
-            window.ci360TriggerAutoUpdate({ newNotifications: newlyArrived });
-          }
+        // Also trigger view auto update so new items immediately appear without refresh
+        window.dispatchEvent(new CustomEvent('ci360:dataUpdated', {
+          detail: { newNotifications: newlyArrived }
+        }));
+        if (typeof window.ci360TriggerAutoUpdate === 'function') {
+          window.ci360TriggerAutoUpdate({ newNotifications: newlyArrived });
         }
       }
 
@@ -4036,7 +4132,7 @@ Object.assign(window, {
   fmtINR, fmtHours, escapeHtml, fmtDate, flashToast, openModal, logout,
   getTheme, setTheme,
   initServiceWorker, playNotificationChime, triggerPhoneVibration,
-  requestNotificationPermission, triggerSystemNotification,
+  requestNotificationPermission, triggerSystemNotification, checkAndShowGlobalNotifBanner,
   isNotificationEnabled, setNotificationEnabled,
   fmtFileSize, formatFileSize, uploadSingleFileDirectly, uploadMultipleFilesFast, getFileCategory, isImageAttachment, openFilePreviewModal,
   renderAttachmentChips, uploadFilesToServer, renderAttachmentUploader,

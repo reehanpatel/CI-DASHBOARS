@@ -51,7 +51,8 @@ self.addEventListener('push', (event) => {
     badge: '/logo.png',
     tag: data.tag || ('ci360-push-' + Date.now()),
     renotify: true,
-    requireInteraction: false,
+    requireInteraction: true,
+    silent: false,
     vibrate: [200, 100, 200, 100, 200],
     data: {
       url: data.url || '/'

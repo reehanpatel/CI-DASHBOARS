@@ -263,7 +263,9 @@ router.get('/', async (req, res) => {
       const userConditions = [{ userId }];
       if (req.user.personnelId) {
         userConditions.push({ personnelId: req.user.personnelId });
+        userConditions.push({ coOwners: req.user.personnelId });
       }
+      userConditions.push({ coOwners: userId });
       const activeTasks = await Task.find({
         $or: userConditions,
         status: { $ne: 'Completed' },

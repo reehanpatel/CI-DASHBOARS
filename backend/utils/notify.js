@@ -188,6 +188,11 @@ async function createNotificationForTicket({ type, title, message, ticket, actor
     if (assigneeUserId) {
       targetUserIds.add(String(assigneeUserId));
     }
+    const assigneePersonnelId = (ticket.assignee && ticket.assignee.personnelId) || ticket.assignedPersonnelId;
+    if (assigneePersonnelId) {
+      const u = await User.findOne({ personnelId: assigneePersonnelId, active: true });
+      if (u) targetUserIds.add(String(u._id));
+    }
 
     // 4. Always include actor who performed the action
     if (actorId) {
@@ -260,6 +265,21 @@ async function createNotificationForTask({ type, title, message, task, actorId, 
         }
       }
       if (linkedUser) targetUserIds.add(String(linkedUser._id));
+    }
+
+    // 2.5 Co-owners / additional collaborators on the task
+    if (Array.isArray(task.coOwners) && task.coOwners.length) {
+      const coOwnerIds = task.coOwners.filter(Boolean);
+      if (coOwnerIds.length) {
+        const coOwnerUsers = await User.find({
+          $or: [
+            { personnelId: { $in: coOwnerIds } },
+            { _id: { $in: coOwnerIds.filter(id => mongoose.Types.ObjectId.isValid(id)) } }
+          ],
+          active: true
+        });
+        coOwnerUsers.forEach(u => targetUserIds.add(String(u._id)));
+      }
     }
 
     // 3. All Superadmins & Admins
