@@ -33,22 +33,29 @@ self.addEventListener('message', (event) => {
   }
 });
 
-// Handle push events (for Web Push integration)
+// Handle push events (for Web Push integration - triggers even when site or app is closed)
 self.addEventListener('push', (event) => {
   let data = {};
   if (event.data) {
     try {
       data = event.data.json();
     } catch (e) {
-      data = { title: 'CI360 Notification', body: event.data.text() };
+      try {
+        data = { title: 'CI360 Notification', body: event.data.text() };
+      } catch (_) {
+        data = { title: 'CI360 Notification', body: 'You have a new update in CI360.' };
+      }
     }
   }
 
+  const origin = self.location ? self.location.origin : '';
+  const iconUrl = origin ? (origin + '/logo.png') : '/logo.png';
   const title = data.title || 'CI360 Notification';
+
   const options = {
     body: data.message || data.body || 'You have a new update in CI360.',
-    icon: '/logo.png',
-    badge: '/logo.png',
+    icon: data.icon || iconUrl,
+    badge: data.badge || iconUrl,
     tag: data.tag || ('ci360-push-' + Date.now()),
     renotify: true,
     requireInteraction: true,
@@ -56,13 +63,17 @@ self.addEventListener('push', (event) => {
     vibrate: [200, 100, 200, 100, 200],
     data: {
       url: data.url || '/'
-    }
+    },
+    actions: [
+      { action: 'open', title: 'Open CI360' },
+      { action: 'dismiss', title: 'Dismiss' }
+    ]
   };
 
   event.waitUntil(self.registration.showNotification(title, options));
 });
 
-// Handle notification click on desktop and phone
+// Handle notification click on desktop and phone (works when site or app is closed)
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
 
@@ -70,24 +81,22 @@ self.addEventListener('notificationclick', (event) => {
     return;
   }
 
-  const targetUrl = (event.notification.data && event.notification.data.url) ? event.notification.data.url : '/';
+  const rawUrl = (event.notification.data && event.notification.data.url) ? event.notification.data.url : '/';
+  const targetUrl = new URL(rawUrl, self.location.origin).href;
 
   event.waitUntil(
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
-      // If a window is already open, focus it and navigate
+      // If a window/tab is already open, focus it and navigate
       for (const client of clientList) {
         if ('focus' in client) {
-          if (targetUrl && client.url.includes(new URL(targetUrl, self.location.origin).pathname)) {
-            return client.focus();
-          }
           return client.focus().then(() => {
-            if (targetUrl && 'navigate' in client) {
+            if ('navigate' in client && client.url !== targetUrl) {
               return client.navigate(targetUrl);
             }
           });
         }
       }
-      // Otherwise open a new window
+      // If no window/tab is open (site was closed), open a new window to target URL
       if (self.clients.openWindow) {
         return self.clients.openWindow(targetUrl);
       }

@@ -617,7 +617,7 @@ export async function registerPushSubscription(registration = null) {
       return null;
     }
     const readyPromise = ('serviceWorker' in navigator) ? navigator.serviceWorker.ready : Promise.resolve(null);
-    const timeoutPromise = new Promise(resolve => setTimeout(() => resolve(null), 2500));
+    const timeoutPromise = new Promise(resolve => setTimeout(() => resolve(null), 10000));
     const reg = registration || swRegistration || await Promise.race([readyPromise, timeoutPromise]);
     if (!reg || !reg.pushManager) return null;
 
@@ -642,7 +642,10 @@ export async function registerPushSubscription(registration = null) {
           subscription: sub.toJSON ? sub.toJSON() : sub,
           deviceType: isMobile ? 'mobile' : 'desktop'
         })
-      }).catch(() => { });
+      }).catch((e) => {
+        console.warn('Push subscription sync notice:', e.message);
+      });
+      console.log('CI360 Web Push active for background & closed-site alerts.');
       return sub;
     }
   } catch (err) {
@@ -1161,8 +1164,12 @@ export function initNotificationBell() {
   const unreadTxt = document.getElementById('notifUnreadBadge');
   if (!bellBtn || !dropdown) return;
 
-  // Initialize service worker
-  initServiceWorker();
+  // Initialize service worker & ensure background push subscription is linked
+  initServiceWorker().then(() => {
+    if (isNotificationEnabled()) {
+      registerPushSubscription().catch(() => {});
+    }
+  }).catch(() => {});
 
   function hidePermBanner() {
     const b = document.getElementById('notifPermissionBanner');

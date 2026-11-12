@@ -2419,6 +2419,19 @@ app.get("/client", (req, res) => res.sendFile(getHtmlFile("client.html")));
 app.get("/proposals", (req, res) => res.sendFile(getHtmlFile("proposals.html")));
 app.get("/proposal", (req, res) => res.sendFile(getHtmlFile("proposal.html")));
 
+app.get("/sw.js", (req, res) => {
+  const swDist = path.join(webDistPath, "sw.js");
+  const swPublic = path.join(__dirname, "../web/public/sw.js");
+  const target = fs.existsSync(swDist) ? swDist : (fs.existsSync(swPublic) ? swPublic : null);
+  if (target) {
+    res.setHeader("Content-Type", "application/javascript");
+    res.setHeader("Service-Worker-Allowed", "/");
+    res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+    return res.sendFile(target);
+  }
+  res.status(404).end();
+});
+
 if (fs.existsSync(webDistPath)) {
   app.use(express.static(webDistPath));
 }

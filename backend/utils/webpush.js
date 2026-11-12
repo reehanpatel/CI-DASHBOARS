@@ -12,22 +12,39 @@ try {
   console.warn('WebPush VAPID configuration notice:', err.message);
 }
 
+const mongoose = require('mongoose');
+
 /**
  * Send push notification to specific users' subscribed devices (phone & desktop)
+ * Delivers immediately even when the browser, site, or app is completely closed.
  * @param {Array<string|ObjectId>} userIds - Target user IDs
  * @param {Object} payload - Notification payload { title, message, url, type, tag }
  */
 async function sendPushToUsers(userIds, payload = {}) {
   try {
     if (!userIds || !userIds.length) return;
-    const ids = userIds.map(id => String(id));
+    const strIds = [];
+    const objIds = [];
+    userIds.forEach(id => {
+      if (!id) return;
+      const s = String(id);
+      strIds.push(s);
+      if (mongoose.Types.ObjectId.isValid(s)) {
+        objIds.push(new mongoose.Types.ObjectId(s));
+      }
+    });
 
-    const subscriptions = await PushSubscription.find({ userId: { $in: ids } });
+    const subscriptions = await PushSubscription.find({
+      $or: [
+        { userId: { $in: objIds } },
+        { userId: { $in: strIds } }
+      ]
+    });
     if (!subscriptions || !subscriptions.length) return;
 
     let userRoleMap = new Map();
     try {
-      const users = await User.find({ _id: { $in: ids } }).select('_id role');
+      const users = await User.find({ _id: { $in: objIds } }).select('_id role');
       users.forEach(u => userRoleMap.set(String(u._id), u.role));
     } catch(e){}
 
@@ -58,7 +75,15 @@ async function sendPushToUsers(userIds, payload = {}) {
             auth: sub.keys.auth
           }
         };
-        await webpush.sendNotification(pushConfig, dataPayload);
+
+        // RFC 8030: TTL (24h) and urgency 'high' instruct push servers (FCM, WNS, Mozilla)
+        // to deliver immediately even when the browser or app is closed.
+        const pushOptions = {
+          TTL: 86400,
+          urgency: 'high'
+        };
+
+        await webpush.sendNotification(pushConfig, dataPayload, pushOptions);
       } catch (err) {
         // If subscription is expired or unregistered, remove from DB
         if (err.statusCode === 404 || err.statusCode === 410) {
@@ -66,7 +91,7 @@ async function sendPushToUsers(userIds, payload = {}) {
             await PushSubscription.deleteOne({ _id: sub._id });
           } catch(e){}
         } else {
-          console.warn('Web push send error for endpoint:', err.statusCode || err.message);
+          console.warn('Web push send notice for endpoint:', err.statusCode || err.message);
         }
       }
     });
