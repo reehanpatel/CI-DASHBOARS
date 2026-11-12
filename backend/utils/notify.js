@@ -115,7 +115,7 @@ async function createNotificationForTarget({ type, title, message, target, actor
     superadmins.forEach(u => targetUserIds.add(String(u._id)));
 
     // 2. Assigned Personnel User
-    if (target.personId) {
+    if (target.personId && mongoose.Types.ObjectId.isValid(target.personId)) {
       const personUser = await User.findOne({ personnelId: target.personId, active: true });
       if (personUser) targetUserIds.add(String(personUser._id));
       else {
@@ -189,7 +189,7 @@ async function createNotificationForTicket({ type, title, message, ticket, actor
       targetUserIds.add(String(assigneeUserId));
     }
     const assigneePersonnelId = (ticket.assignee && ticket.assignee.personnelId) || ticket.assignedPersonnelId;
-    if (assigneePersonnelId) {
+    if (assigneePersonnelId && mongoose.Types.ObjectId.isValid(assigneePersonnelId)) {
       const u = await User.findOne({ personnelId: assigneePersonnelId, active: true });
       if (u) targetUserIds.add(String(u._id));
     }
@@ -250,7 +250,7 @@ async function createNotificationForTask({ type, title, message, task, actorId, 
     }
 
     // 2. Linked Personnel user
-    if (task.personnelId) {
+    if (task.personnelId && mongoose.Types.ObjectId.isValid(task.personnelId)) {
       let linkedUser = await User.findOne({ personnelId: task.personnelId, active: true });
       if (!linkedUser) {
         const p = await Personnel.findById(task.personnelId);
@@ -269,13 +269,20 @@ async function createNotificationForTask({ type, title, message, task, actorId, 
 
     // 2.5 Co-owners / additional collaborators on the task
     if (Array.isArray(task.coOwners) && task.coOwners.length) {
-      const coOwnerIds = task.coOwners.filter(Boolean);
-      if (coOwnerIds.length) {
+      const coOwnerPersIds = task.coOwners
+        .map(c => (c && typeof c === 'object' ? (c.personnelId || c._id) : c))
+        .filter(id => id && mongoose.Types.ObjectId.isValid(id));
+      const coOwnerUserIds = task.coOwners
+        .map(c => (c && typeof c === 'object' ? (c.userId || c._id) : c))
+        .filter(id => id && mongoose.Types.ObjectId.isValid(id));
+
+      if (coOwnerPersIds.length || coOwnerUserIds.length) {
+        const orConditions = [];
+        if (coOwnerPersIds.length) orConditions.push({ personnelId: { $in: coOwnerPersIds } });
+        if (coOwnerUserIds.length) orConditions.push({ _id: { $in: coOwnerUserIds } });
+
         const coOwnerUsers = await User.find({
-          $or: [
-            { personnelId: { $in: coOwnerIds } },
-            { _id: { $in: coOwnerIds.filter(id => mongoose.Types.ObjectId.isValid(id)) } }
-          ],
+          $or: orConditions,
           active: true
         });
         coOwnerUsers.forEach(u => targetUserIds.add(String(u._id)));

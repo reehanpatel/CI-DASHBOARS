@@ -38,15 +38,16 @@ export function requireAuth(expectedRole) {
       return user;
     }
     const target = isSuper ? '/admin' : ((user.role === 'accounts' || isEkta) ? '/accounts' : (user.role === 'employee' ? '/employee' : (user.role === 'client' ? '/client' : null)));
-    if (!target || (typeof window !== 'undefined' && window.location.pathname.startsWith(target))) {
-      clearSession();
+    if (!target) {
       if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
         window.location.href = '/login';
       }
       return null;
     }
-    window.location.href = target;
-    return null;
+    if (typeof window !== 'undefined' && !window.location.pathname.startsWith(target)) {
+      window.location.href = target;
+      return null;
+    }
   }
   return user;
 }
@@ -64,6 +65,12 @@ export async function api(path, options = {}) {
     // If login attempt failed, return the specific backend error message directly
     if (path === '/auth/login' || path.includes('/auth/login')) {
       throw new Error((data && data.error) || 'Invalid username/email or password.');
+    }
+
+    // Do NOT clear session or kick the user out on background non-critical requests!
+    // Background requests like /notifications, /subscribe, /vapid should never log the user out!
+    if (path.includes('/notifications') || path.includes('/subscribe') || path.includes('/vapid')) {
+      throw new Error((data && data.error) || 'Unauthorized');
     }
 
     clearSession();
@@ -191,7 +198,16 @@ export function openModal(html) {
   return bg;
 }
 
-export function logout() { clearSession(); window.location.href = '/login'; }
+export function logout() { clearSession(); window.location.href = '/login?loggedOut=1'; }
+
+// Silent rolling session refresh in background
+if (typeof window !== 'undefined' && getToken() && !window.location.pathname.startsWith('/login')) {
+  setTimeout(() => {
+    apiGet('/auth/refresh').then(res => {
+      if (res && res.token && res.user) setSession(res.token, res.user);
+    }).catch(() => {});
+  }, 1000);
+}
 
 /* ── NOTIFICATION ENGINE & SOUND/VIBRATION ───────────────────── */
 let swRegistration = null;

@@ -815,9 +815,9 @@ export function initDailyPlanner(container, options = {}) {
             ` : ''}
 
             <!-- Category (Hide if empty or General) -->
-            ${task.category && task.category.trim() && task.category.trim().toLowerCase() !== 'general' ? `
+            ${task.category && task.category.trim() && !['general', '#general'].includes(task.category.trim().toLowerCase()) ? `
               <span class="ci360-badge category-badge">
-                #${escapeHtml(task.category)}
+                #${escapeHtml(task.category.replace(/^#/, ''))}
               </span>
             ` : ''}
 
@@ -1453,7 +1453,7 @@ export function initDailyPlanner(container, options = {}) {
             completionDateStr: compDate,
             dueDate: compDate,
             priority: quickPri?.value || settings.defaultPriority,
-            category: quickCat?.value || 'General',
+            category: (quickCat?.value && !['general', '#general'].includes(quickCat.value.toLowerCase())) ? quickCat.value : '',
             status: 'Pending'
           };
           if (isSuperadmin) {
@@ -1461,6 +1461,8 @@ export function initDailyPlanner(container, options = {}) {
             if (quickAssignee === 'all') {
               payload.assignAll = true;
               payload.personnelId = 'all';
+            } else if (quickAssignee === 'me' || !quickAssignee) {
+              payload.personnelId = null;
             } else if (quickAssignee) {
               payload.personnelId = quickAssignee;
             } else if (state.selectedPersonnelId !== 'all') {

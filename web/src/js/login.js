@@ -5,6 +5,8 @@ document.documentElement.setAttribute('data-theme', 'dark');
 
 // Check URL parameters for session messages (e.g. ?expired=1)
 const urlParams = new URLSearchParams(window.location.search);
+const isExplicitLogout = urlParams.get('expired') || urlParams.get('loggedOut');
+
 if (urlParams.get('expired') || urlParams.get('loggedOut')) {
   const sessionNotice = document.getElementById('sessionNotice');
   const sessionNoticeText = document.getElementById('sessionNoticeText');
@@ -29,10 +31,19 @@ try {
   }
 } catch (e) {}
 
-// Active session detection without aggressive/looping auto-redirect
+// Automatic persistent login: If user is already logged in, immediately redirect to their dashboard!
 (function initSessionUI() {
   const u = getUser();
   const token = getToken();
+
+  if (u && token && !isExplicitLogout) {
+    const isSuper = u.role === 'superadmin' || u.role === 'admin';
+    const isEkta = (u.name && u.name.toLowerCase().includes('ekta')) || (u.email && u.email.toLowerCase().includes('ekta'));
+    const target = isSuper ? '/admin' : (u.role === 'accounts' || isEkta ? '/accounts' : (u.role === 'employee' ? '/employee' : '/client'));
+    window.location.replace(target);
+    return;
+  }
+
   const banner = document.getElementById('activeSessionBanner');
   const nameEl = document.getElementById('activeSessionName');
   const roleEl = document.getElementById('activeSessionRole');

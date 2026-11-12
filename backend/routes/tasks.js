@@ -8,7 +8,11 @@ const { createNotificationForTask } = require('../utils/notify');
 const router = express.Router();
 router.use(verifyToken);
 
-const isAdminRole = (user) => user && (user.role === 'superadmin' || user.role === 'admin');
+const isAdminRole = (user) => {
+  if (!user || !user.role) return false;
+  const r = String(user.role).toLowerCase();
+  return r === 'superadmin' || r === 'admin';
+};
 
 // Helper to parse and populate co-owners
 async function parseCoOwners(rawList) {
@@ -272,6 +276,8 @@ router.post('/', async (req, res) => {
     const isCompleted = status === 'Completed';
     const parsedCoOwners = await parseCoOwners(reqCoOwners);
 
+    const cleanCategory = clientName ? clientName.trim() : (category && !['general', '#general'].includes(String(category).trim().toLowerCase()) ? String(category).trim() : '');
+
     // Handle Admin bulk assignment to all team members
     if (isAdminRole(req.user) && (assignAll === true || reqPersonnelId === 'all')) {
       const allPersonnel = await Personnel.find({ status: { $ne: 'inactive' } });
@@ -299,7 +305,7 @@ router.post('/', async (req, res) => {
           originalDateStr: dStr,
           startTime: startTime ? startTime.trim() : '',
           dueTime: dueTime ? dueTime.trim() : '',
-          category: clientName ? clientName.trim() : (category ? category.trim() : ''),
+          category: cleanCategory,
           clientName: clientName ? clientName.trim() : '',
           jobId: jobId || null,
           clientId: clientId || null,
@@ -317,37 +323,44 @@ router.post('/', async (req, res) => {
       return res.status(201).json({ success: true, count: createdTasks.length, tasks: createdTasks });
     }
 
-    // Determine target personnel and target user
+    // Determine target personnel and target user safely
     let personnelId = req.user.personnelId || null;
     let targetUserId = req.user._id;
 
-    if (isAdminRole(req.user) && reqPersonnelId) {
-      if (reqPersonnelId === 'all') {
-        personnelId = null;
-      } else if (reqPersonnelId === 'me' || reqPersonnelId === 'myself') {
-        targetUserId = req.user._id;
-        personnelId = req.user.personnelId || null;
-        if (!personnelId && req.user.name) {
-          const p = await Personnel.findOne({ name: new RegExp('^' + req.user.name.trim() + '$', 'i') });
-          if (p) personnelId = p._id;
-        }
-      } else if (mongoose.Types.ObjectId.isValid(reqPersonnelId)) {
-        personnelId = reqPersonnelId;
-        const User = mongoose.models.User || require('../models/User');
-        let linkedUser = await User.findOne({ personnelId: reqPersonnelId });
-        if (!linkedUser) {
-          const p = await Personnel.findById(reqPersonnelId);
-          if (p) {
-            linkedUser = await User.findOne({ name: new RegExp('^' + p.name.trim() + '$', 'i') });
-          }
-        }
-        if (linkedUser) targetUserId = linkedUser._id;
-      } else {
-        personnelId = req.user.personnelId || null;
+    const isReqMe = reqPersonnelId === 'me' || reqPersonnelId === 'myself' || reqPersonnelId === 'self';
+    const isReqAll = reqPersonnelId === 'all';
+
+    if (isReqMe || !reqPersonnelId) {
+      targetUserId = req.user._id;
+      personnelId = req.user.personnelId || null;
+      if (!personnelId && req.user.name) {
+        const p = await Personnel.findOne({ name: new RegExp('^' + req.user.name.trim() + '$', 'i') });
+        if (p) personnelId = p._id;
       }
-    } else if (!personnelId && req.user.name) {
-      const p = await Personnel.findOne({ name: new RegExp('^' + req.user.name + '$', 'i') });
-      if (p) personnelId = p._id;
+    } else if (isReqAll) {
+      personnelId = null;
+    } else if (mongoose.Types.ObjectId.isValid(reqPersonnelId)) {
+      personnelId = reqPersonnelId;
+      const User = mongoose.models.User || require('../models/User');
+      let linkedUser = await User.findOne({ personnelId: reqPersonnelId });
+      if (!linkedUser) {
+        const p = await Personnel.findById(reqPersonnelId);
+        if (p) {
+          linkedUser = await User.findOne({ name: new RegExp('^' + p.name.trim() + '$', 'i') });
+        }
+      }
+      if (linkedUser) targetUserId = linkedUser._id;
+    } else {
+      targetUserId = req.user._id;
+      personnelId = req.user.personnelId || null;
+      if (!personnelId && req.user.name) {
+        const p = await Personnel.findOne({ name: new RegExp('^' + req.user.name.trim() + '$', 'i') });
+        if (p) personnelId = p._id;
+      }
+    }
+
+    if (personnelId && !mongoose.Types.ObjectId.isValid(personnelId)) {
+      personnelId = null;
     }
 
     const task = new Task({
@@ -367,7 +380,7 @@ router.post('/', async (req, res) => {
       originalDateStr: dStr,
       startTime: startTime ? startTime.trim() : '',
       dueTime: dueTime ? dueTime.trim() : '',
-      category: clientName ? clientName.trim() : (category ? category.trim() : ''),
+      category: cleanCategory,
       clientName: clientName ? clientName.trim() : '',
       jobId: jobId || null,
       clientId: clientId || null,
@@ -459,10 +472,12 @@ router.put('/:id', async (req, res) => {
     if (title !== undefined) task.title = title.trim();
     if (description !== undefined) task.description = description.trim();
     
-    if (personnelId !== undefined && (isAdminRole(req.user) || personnelId)) {
-      if (personnelId === 'all') {
+    if (personnelId !== undefined) {
+      const isReqMe = personnelId === 'me' || personnelId === 'myself' || personnelId === 'self';
+      const isReqAll = personnelId === 'all';
+      if (isReqAll) {
         // kept as is
-      } else if (personnelId && personnelId !== 'me' && personnelId !== 'myself' && mongoose.Types.ObjectId.isValid(personnelId)) {
+      } else if (personnelId && !isReqMe && mongoose.Types.ObjectId.isValid(personnelId)) {
         const newPersId = String(personnelId);
         if (newPersId !== oldPersonnelId) {
           assigneeChanged = true;
@@ -486,7 +501,7 @@ router.put('/:id', async (req, res) => {
           const p = await Personnel.findOne({ name: new RegExp('^' + req.user.name.trim() + '$', 'i') });
           if (p) myPersId = p._id;
         }
-        task.personnelId = myPersId;
+        task.personnelId = myPersId && mongoose.Types.ObjectId.isValid(myPersId) ? myPersId : null;
         task.userId = req.user._id;
       }
     }
@@ -729,8 +744,8 @@ router.post('/bulk-import', async (req, res) => {
     let targetPersonnelId = reqPersonnelId || req.user.personnelId || null;
     let targetUserId = req.user._id;
 
-    if (isAdminRole(req.user) && reqPersonnelId && reqPersonnelId !== 'all') {
-      if (reqPersonnelId === 'me' || reqPersonnelId === 'myself') {
+    if (reqPersonnelId && reqPersonnelId !== 'all') {
+      if (reqPersonnelId === 'me' || reqPersonnelId === 'myself' || reqPersonnelId === 'self') {
         targetUserId = req.user._id;
         targetPersonnelId = req.user.personnelId || null;
         if (!targetPersonnelId && req.user.name) {
@@ -746,6 +761,10 @@ router.post('/bulk-import', async (req, res) => {
     } else if (!targetPersonnelId && req.user.name) {
       const p = await Personnel.findOne({ name: new RegExp('^' + req.user.name + '$', 'i') });
       if (p) targetPersonnelId = p._id;
+    }
+
+    if (targetPersonnelId && !mongoose.Types.ObjectId.isValid(targetPersonnelId)) {
+      targetPersonnelId = null;
     }
 
     const dStr = date ? date.trim() : new Date().toISOString().slice(0, 10);

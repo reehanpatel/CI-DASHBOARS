@@ -10,7 +10,8 @@ const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'ci360-super-secret-jwt-key-2026';
 
 function signToken(user) {
-  return jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, { expiresIn: '12h' });
+  // Long-lived persistent session: 365 days so users stay logged in indefinitely until explicit sign-out
+  return jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, { expiresIn: '365d' });
 }
 
 function publicUser(user) {
@@ -138,6 +139,15 @@ router.post('/reset-password', async (req, res) => {
 
 router.get('/me', verifyToken, async (req, res) => {
   res.json({ user: publicUser(req.user) });
+});
+
+router.get('/refresh', verifyToken, async (req, res) => {
+  try {
+    const newToken = signToken(req.user);
+    res.json({ token: newToken, user: publicUser(req.user) });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to refresh token', detail: err.message });
+  }
 });
 
 router.put('/profile', verifyToken, async (req, res) => {
