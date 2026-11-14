@@ -10,8 +10,8 @@ const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'ci360-super-secret-jwt-key-2026';
 
 function signToken(user) {
-  // Long-lived persistent session: 365 days so users stay logged in indefinitely until explicit sign-out
-  return jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, { expiresIn: '365d' });
+  // Permanent persistent session (10 years / 3650 days) so users stay logged in indefinitely until explicit logout
+  return jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, { expiresIn: '3650d' });
 }
 
 function publicUser(user) {

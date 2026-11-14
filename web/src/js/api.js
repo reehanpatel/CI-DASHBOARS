@@ -12,10 +12,45 @@
 // Thin fetch wrapper shared by all dashboards.
 const API_BASE = import.meta.env.VITE_API_URL || '/api';
 
-export function getToken() { return localStorage.getItem('ci360_token'); }
-export function getUser() { try { return JSON.parse(localStorage.getItem('ci360_user')); } catch (e) { return null; } }
-export function setSession(token, user) { localStorage.setItem('ci360_token', token); localStorage.setItem('ci360_user', JSON.stringify(user)); }
-export function clearSession() { localStorage.removeItem('ci360_token'); localStorage.removeItem('ci360_user'); }
+export function getToken() {
+  try {
+    return localStorage.getItem('ci360_token') || sessionStorage.getItem('ci360_token') || null;
+  } catch (e) {
+    return null;
+  }
+}
+
+export function getUser() {
+  try {
+    const raw = localStorage.getItem('ci360_user') || sessionStorage.getItem('ci360_user');
+    return raw ? JSON.parse(raw) : null;
+  } catch (e) {
+    return null;
+  }
+}
+
+export function setSession(token, user) {
+  try {
+    if (token) {
+      localStorage.setItem('ci360_token', token);
+      sessionStorage.setItem('ci360_token', token);
+    }
+    if (user) {
+      const uStr = JSON.stringify(user);
+      localStorage.setItem('ci360_user', uStr);
+      sessionStorage.setItem('ci360_user', uStr);
+    }
+  } catch (e) {}
+}
+
+export function clearSession() {
+  try {
+    localStorage.removeItem('ci360_token');
+    localStorage.removeItem('ci360_user');
+    sessionStorage.removeItem('ci360_token');
+    sessionStorage.removeItem('ci360_user');
+  } catch (e) {}
+}
 
 export function requireAuth(expectedRole) {
   const token = getToken();
@@ -73,8 +108,28 @@ export async function api(path, options = {}) {
       throw new Error((data && data.error) || 'Unauthorized');
     }
 
+    // Attempt automatic rolling token refresh if not already retried
+    if (token && !options._isRetry && path !== '/auth/refresh') {
+      try {
+        const refreshRes = await fetch(API_BASE + '/auth/refresh', {
+          headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' }
+        });
+        if (refreshRes.ok) {
+          const refreshData = await refreshRes.json();
+          if (refreshData && refreshData.token && refreshData.user) {
+            setSession(refreshData.token, refreshData.user);
+            const retryHeaders = Object.assign({}, options.headers || {}, {
+              'Authorization': 'Bearer ' + refreshData.token
+            });
+            const retryOptions = Object.assign({}, options, { headers: retryHeaders, _isRetry: true });
+            return await api(path, retryOptions);
+          }
+        }
+      } catch (refreshErr) { }
+    }
+
     clearSession();
-    if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
+    if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/login')) {
       window.location.href = '/login?expired=1';
     }
     throw new Error((data && data.error) || 'Session expired. Please sign in again.');
@@ -200,13 +255,26 @@ export function openModal(html) {
 
 export function logout() { clearSession(); window.location.href = '/login?loggedOut=1'; }
 
-// Silent rolling session refresh in background
-if (typeof window !== 'undefined' && getToken() && !window.location.pathname.startsWith('/login')) {
-  setTimeout(() => {
-    apiGet('/auth/refresh').then(res => {
-      if (res && res.token && res.user) setSession(res.token, res.user);
-    }).catch(() => {});
-  }, 1000);
+// Persistent rolling session refresh in background: keeps session active indefinitely
+if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/login')) {
+  const triggerRefresh = () => {
+    if (getToken()) {
+      apiGet('/auth/refresh').then(res => {
+        if (res && res.token && res.user) setSession(res.token, res.user);
+      }).catch(() => {});
+    }
+  };
+
+  // 1. Initial refresh on load
+  setTimeout(triggerRefresh, 1200);
+
+  // 2. Refresh when window/tab is focused
+  window.addEventListener('focus', () => {
+    triggerRefresh();
+  });
+
+  // 3. Periodic refresh every 3 hours while dashboard is open
+  setInterval(triggerRefresh, 3 * 60 * 60 * 1000);
 }
 
 /* ── NOTIFICATION ENGINE & SOUND/VIBRATION ───────────────────── */

@@ -126,7 +126,7 @@ var require_auth2 = __commonJS({
     var router = express2.Router();
     const JWT_SECRET = process.env.JWT_SECRET || "ci360-super-secret-jwt-key-2026";
     function signToken(user) {
-      return jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, { expiresIn: "12h" });
+      return jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, { expiresIn: "3650d" });
     }
     function publicUser(user) {
       return {
@@ -2368,16 +2368,16 @@ if (!fs.existsSync(uploadsPath)) {
 app.use("/uploads", express.static(uploadsPath, { acceptRanges: true, maxAge: "7d" }));
 app.use("/api/uploads", express.static(uploadsPath, { acceptRanges: true, maxAge: "7d" }));
 
-app.use("/api/auth", require_auth2());
+app.use("/api/auth", require("./routes/auth"));
 app.use("/api/users", require("./routes/users"));
 app.use("/api/personnel", require("./routes/personnel"));
-app.use("/api/clients", require_clients());
-app.use("/api/services", require_services());
-app.use("/api/jobs", require_jobs());
-app.use("/api/roster", require_roster());
-app.use("/api/targets", require_targets());
-app.use("/api/salary", require_salary());
-app.use("/api/dashboard", require_dashboard());
+app.use("/api/clients", require("./routes/clients"));
+app.use("/api/services", require("./routes/services"));
+app.use("/api/jobs", require("./routes/jobs"));
+app.use("/api/roster", require("./routes/roster"));
+app.use("/api/targets", require("./routes/targets"));
+app.use("/api/salary", require("./routes/salary"));
+app.use("/api/dashboard", require("./routes/dashboard"));
 app.use("/api/notifications", require("./routes/notifications"));
 app.use("/api/tickets", require("./routes/tickets"));
 app.use("/api/upload", uploadRouter);
